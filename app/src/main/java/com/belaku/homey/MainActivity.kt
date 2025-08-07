@@ -49,6 +49,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.RemoteViews
 import android.widget.TextView
 import android.widget.TextView.OnEditorActionListener
 import android.widget.Toast
@@ -58,6 +59,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.work.Constraints
@@ -113,6 +115,10 @@ import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var editTextTwitterHandle: EditText
+    private lateinit var twitterHandleDialog: View
+    private lateinit var responseTweets: okhttp3.Response
+    private lateinit var responseTweetID: okhttp3.Response
     private val tweets: ArrayList<String> = ArrayList()
     private lateinit var twitterID: String
     private lateinit var twitterProfileName: String
@@ -281,18 +287,13 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("MissingInflatedId")
     private fun showTwitterHandleDialog() {
         val factory = LayoutInflater.from(this)
-        val twitterHandleDialog: View = factory.inflate(R.layout.twitter_handle_layout, null)
+        twitterHandleDialog = factory.inflate(R.layout.twitter_handle_layout, null)
         val twitterDialog = AlertDialog.Builder(this).create()
         twitterDialog.setView(twitterHandleDialog)
+        editTextTwitterHandle = twitterHandleDialog.findViewById<EditText>(R.id.edtx_th)
         twitterHandleDialog.findViewById<View>(R.id.btn_ok)
             .setOnClickListener { //your business logic
-                Thread {
-                    //Do some Network Request
-                    getTweetID(twitterHandleDialog.findViewById<EditText>(R.id.edtx_th).text.toString())
-                    runOnUiThread({
-                        //Update UI
-                    })
-                }.start()
+                getTweetID(editTextTwitterHandle.text.toString())
                 twitterDialog.dismiss()
 
             }
@@ -313,23 +314,51 @@ class MainActivity : AppCompatActivity() {
             .addHeader("x-rapidapi-host", "twitter241.p.rapidapi.com")
             .build()
 
-        val response = client.newCall(request).execute()
 
-        val responseBodyString = response.peekBody(Long.MAX_VALUE).string()
-        Log.d(TAG + " TwResp - ", responseBodyString)
+        pD.setTitle("fetching user ID...")
+        pD.show()
+        lifecycleScope.launch(Dispatchers.IO) {
+            responseTweetID = client.newCall(request).execute()
 
-        val jsonObject = JSONObject(responseBodyString)
-        twitterID = jsonObject.getJSONObject("result").getJSONObject("data").getJSONObject("user")
-            .getJSONObject("result").getString("rest_id")
-        twitterProfileName =
-            jsonObject.getJSONObject("result").getJSONObject("data").getJSONObject("user")
-                .getJSONObject("result").getJSONObject("core").getString("screen_name")
-        Log.d(TAG + "Tw ID - ", twitterID + " - " + twitterProfileName)
-        remoteViews?.setTextViewText(R.id.tx_tweets, twitterProfileName)
-        val appWidM: AppWidgetManager = AppWidgetManager.getInstance(appContx)
-        appWidM.updateAppWidget(newAppWidget, remoteViews)
-        listTweets.clear()
-        getTweets(twitterID)
+            withContext(Dispatchers.Main) {
+                // Handle the result and hide the loading indicator
+               pD.dismiss()
+                val responseBodyString = responseTweetID.peekBody(Long.MAX_VALUE).string()
+                Log.d("$TAG responseTweetID - ", responseBodyString)
+
+                val jsonObject = JSONObject(responseBodyString)
+
+                if (jsonObject.getJSONObject("result").getJSONObject("data").optString("user")
+                        .isNotEmpty()
+                ) {
+                    twitterID = jsonObject.getJSONObject("result").getJSONObject("data")
+                        .getJSONObject("user")
+                        .getJSONObject("result").getString("rest_id")
+                    twitterProfileName =
+                        jsonObject.getJSONObject("result").getJSONObject("data")
+                            .getJSONObject("user")
+                            .getJSONObject("result").getJSONObject("core").getString("screen_name")
+                    Log.d(TAG + "Tw ID - ", twitterID + " - " + twitterProfileName)
+                    remoteViews?.setTextViewText(R.id.tx_tweets, twitterProfileName)
+                    val appWidM: AppWidgetManager = AppWidgetManager.getInstance(appContx)
+                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+
+                    makeSnack("Add Home Widget and Check Tweets in Widget!")
+                    pD.dismiss()
+
+
+                    listTweets.clear()
+                    getTweets(twitterID)
+                } else {
+                    pD.dismiss()
+                    makeSnack("Twitter User doesn't Exist!")
+
+                }
+                // Update UI with result
+            }
+        }
+
+
     }
 
     private fun getTweets(twitterID: String) {
@@ -343,30 +372,41 @@ class MainActivity : AppCompatActivity() {
             .addHeader("x-rapidapi-host", "twitter241.p.rapidapi.com")
             .build()
 
-        val response = client.newCall(request).execute()
+        pD.setTitle("fetching Tweets...")
+        pD.show()
+        lifecycleScope.launch(Dispatchers.IO) {
+         responseTweets = client.newCall(request).execute()
+
+            var js: JSONArray = (JSONObject(responseTweets.body?.string()).getJSONObject("result").getJSONObject("timeline")
+                .getJSONArray("instructions")[2] as JSONObject).getJSONArray("entries")
+
+            withContext(Dispatchers.Main) {
+            pD.dismiss()
+                for (i in 0 until js.length()) {
+                val tw =
+                    JSONObject(js[i].toString()).getJSONObject("content")//.getJSONObject("itemContent").getJSONObject("tweet_results").getJSONObject("result")
+                //   .getJSONObject("legacy").get("full_text")
+
+                if (tw.optString("itemContent").isNotEmpty()) {
+                    val actTw = tw.getJSONObject("itemContent").getJSONObject("tweet_results")
+                        .getJSONObject("result")
+                        .getJSONObject("legacy").get("full_text")
+
+                    Log.d("Twwtt $i", actTw.toString())
+                    listTweets.add(actTw.toString())
+                }
 
 
-
-        var js: JSONArray = (JSONObject(response.body?.string()).getJSONObject("result").getJSONObject("timeline")
-            .getJSONArray("instructions")[2] as JSONObject).getJSONArray("entries")
-
-
-        for (i in 0 until js.length()) {
-            val tw = JSONObject(js[i].toString()).getJSONObject("content")//.getJSONObject("itemContent").getJSONObject("tweet_results").getJSONObject("result")
-             //   .getJSONObject("legacy").get("full_text")
-
-            if (tw.optString("itemContent").isNotEmpty()) {
-                val actTw = tw.getJSONObject("itemContent").getJSONObject("tweet_results").getJSONObject("result")
-                           .getJSONObject("legacy").get("full_text")
-
-                Log.d("Twwtt $i", actTw.toString())
-                listTweets.add(actTw.toString())
             }
 
+                remoteViews?.setTextViewText(R.id.tx_tweets, listTweets[5])
+                remoteViews = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
+                newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
+                val appWidM: AppWidgetManager = AppWidgetManager.getInstance(appContx)
+                appWidM.updateAppWidget(R.id.tx_tweets, remoteViews)
 
-
+            }
         }
-
 
         Log.d("result", "res - ${listTweets.size}")
     }
@@ -422,7 +462,7 @@ class MainActivity : AppCompatActivity() {
                 cityname =
                     Adress?.toString()?.split(",")?.get(2) ?: Adress?.get(0)?.locality.toString()
 
-                makeToast(cityname)
+
 
             }
         }
@@ -1019,7 +1059,7 @@ class MainActivity : AppCompatActivity() {
                         tempKind = weatherData.weather.get(0).description
 
                         Log.d("weatherInfo", tempC + " - " + tempKind)
-                        makeToast("weatherInfo - " + tempC + " - " + tempKind)
+                       // makeToast("weatherInfo - " + tempC + " - " + tempKind)
 
                         sharedPreferencesEditor.putString(
                             "weatherTemp",
@@ -1031,7 +1071,7 @@ class MainActivity : AppCompatActivity() {
                 Log.d("WD Excep7 - ", ex.toString())
             }
 
-            makeToast(tempC)
+         //   makeToast(tempC)
 
         }
 
@@ -1063,7 +1103,7 @@ class MainActivity : AppCompatActivity() {
                                 newsLinks.add(response.body()?.articles!!.get(i).url)
                             }
                         }
-                        makeToast("News - " + newsList.size)
+                   //     makeToast("News - " + newsList.size)
                     }
                 })
 
