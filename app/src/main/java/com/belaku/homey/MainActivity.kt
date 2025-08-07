@@ -115,6 +115,7 @@ import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var appWidM: AppWidgetManager
     private lateinit var editTextTwitterHandle: EditText
     private lateinit var twitterHandleDialog: View
     private lateinit var responseTweets: okhttp3.Response
@@ -339,9 +340,6 @@ class MainActivity : AppCompatActivity() {
                             .getJSONObject("user")
                             .getJSONObject("result").getJSONObject("core").getString("screen_name")
                     Log.d(TAG + "Tw ID - ", twitterID + " - " + twitterProfileName)
-                    remoteViews?.setTextViewText(R.id.tx_tweets, twitterProfileName)
-                    val appWidM: AppWidgetManager = AppWidgetManager.getInstance(appContx)
-                    appWidM.updateAppWidget(newAppWidget, remoteViews)
 
                     makeSnack("Add Home Widget and Check Tweets in Widget!")
                     pD.dismiss()
@@ -399,11 +397,13 @@ class MainActivity : AppCompatActivity() {
 
             }
 
-                remoteViews?.setTextViewText(R.id.tx_tweets, listTweets[5])
+
                 remoteViews = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
                 newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
-                val appWidM: AppWidgetManager = AppWidgetManager.getInstance(appContx)
-                appWidM.updateAppWidget(R.id.tx_tweets, remoteViews)
+
+                remoteViews?.setTextViewText(R.id.tx_tweets, listTweets[0])
+                appWidM = AppWidgetManager.getInstance(appContx)
+                appWidM.updateAppWidget(newAppWidget, remoteViews)
 
             }
         }
