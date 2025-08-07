@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <!-- This item acts as the background for the top border -->
+        <shape android:shape="rectangle">
+            <solid android:color="#FF000000" /> <!-- Border color (e.g., black) -->
+        </shape>
+    </item>
+    <item android:bottom="2dp"> <!-- Adjust this value for border thickness -->
+        <!-- This item is the actual content area, pushed down by the border thickness -->
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF" /> <!-- Background color of the RelativeLayout content -->
+        </shape>
+    </item>
+</layer-list>
