@@ -51,18 +51,5 @@ class DialogWidgetStepsActivity : Activity() {
             cv2.visibility = View.VISIBLE
             cv3.visibility = View.VISIBLE
         }
-
-
-
-        btnNewLap.setOnClickListener {
-            val alertDialog: AlertDialog = AlertDialog.Builder(this).create() //Read Update
-            alertDialog.setTitle("New Lap")
-            alertDialog.setMessage("Lap ${lapCount == 0} ? 1 : $lapCount")
-
-            alertDialog.setButton("Continue..", { dialog, which ->
-                    lapCount++
-                })
-            alertDialog.show()
-        }
     }
 }

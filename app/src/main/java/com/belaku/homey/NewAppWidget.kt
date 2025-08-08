@@ -152,7 +152,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
             remoteViews?.setOnClickPendingIntent(
-                R.id.tx_tweets,
+                R.id.twUser,
                 PendingIntent.getActivity(context, 21, intentSTH, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             )
 
@@ -323,7 +323,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.tx_tweets,
+            R.id.twUser,
             PendingIntent.getActivity(context, 21, intentSTH, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         )
 
@@ -458,14 +458,14 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (listTweets.size > 0) {
             randomTweetIndex = (0..listTweets.size - 1).random()
-            remoteViews?.setTextViewText(R.id.twUser, " @${twitterProfileName} ✎")
+            remoteViews?.setTextViewText(R.id.twUser, " @${twitterProfileName}")
             remoteViews?.setTextViewText(
                 R.id.tx_tweets,
                 listTweets.get(randomTweetIndex)
             )
         }    else {
             remoteViews?.setTextViewText(
-                R.id.tx_tweets,
+                R.id.twUser,
                 "Set Twitter Handle"
             )
         }

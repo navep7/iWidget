@@ -27,18 +27,15 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/edtx_prompt"/>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fab_main"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginTop="@dimen/fab_margin"
-        android:layout_alignTop="@+id/rv_images"
+        android:layout_margin="16dp"
+        android:text="Set"
         android:layout_alignParentEnd="true"
-        android:contentDescription="fab"
-        android:src="@android:drawable/ic_media_play"
-        app:fabSize="normal"
-        tools:ignore="HardcodedText" />
+        android:layout_alignTop="@+id/rv_images"/>
+
 
     <LinearLayout
         android:id="@+id/fab_menu"
@@ -97,33 +94,36 @@
                 android:textAppearance="?android:attr/textAppearanceMedium" />
         </FrameLayout>
 
-    </LinearLayout>
-
-    <FrameLayout
-        android:id="@+id/frame_fab3"
-        android:visibility="gone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_toLeftOf="@+id/fab_main"
-        android:layout_alignTop="@+id/fab_main">
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_option_3"
+        <FrameLayout
+            android:id="@+id/frame_fab3"
             android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@android:color/transparent" />
+            android:layout_marginStart="@dimen/fab_margin"
+            android:layout_marginTop="@dimen/fab_margin"
+            android:layout_gravity="right">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="1 Hour"
-            android:textSize="15dp"
-            android:elevation="16dp"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-    </FrameLayout>
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_option_3"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@android:color/transparent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="1 Hour"
+                android:textSize="15dp"
+                android:elevation="16dp"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+        </FrameLayout>
+
+
+
+    </LinearLayout>
+
 
 
 

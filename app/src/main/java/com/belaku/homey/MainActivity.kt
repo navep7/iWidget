@@ -84,6 +84,7 @@ import com.bumptech.glide.Glide
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Task
 import com.google.android.material.color.DynamicColors
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
@@ -128,11 +129,10 @@ class MainActivity : AppCompatActivity() {
     private val ACT_R: Int = 3
     private val LOC_P: Int = 4
     private val TAG: String = "MainActivity"
-    private lateinit var pD: ProgressDialog
     private lateinit var frameMin: FrameLayout
     private lateinit var frameHour: FrameLayout
     private lateinit var frameDay: FrameLayout
-    private lateinit var fabMain: FloatingActionButton
+    private lateinit var fabMain: ExtendedFloatingActionButton
     private lateinit var fabMin: FloatingActionButton
     private lateinit var fabHour: FloatingActionButton
     private lateinit var fabDay: FloatingActionButton
@@ -306,12 +306,13 @@ class MainActivity : AppCompatActivity() {
         val request = Request.Builder()
             .url("https://twitter241.p.rapidapi.com/user?username=$uname")
             .get()
-            .addHeader("x-rapidapi-key", "9e92cc4f67msh8bb4ede93f53bf7p1ecb22jsn26ea5014a6df")
+            .addHeader("x-rapidapi-key", "8521aa6a65mshab927b74fff566dp175607jsn24cd6edd63a7")
             .addHeader("x-rapidapi-host", "twitter241.p.rapidapi.com")
             .build()
 
 
-        pD.setTitle("fetching user ID...")
+        pD.setTitle("Twitter")
+        pD.setMessage("fetching user ID...")
         if (showPD)
         pD.show()
         lifecycleScope.launch(Dispatchers.IO) {
@@ -366,11 +367,12 @@ class MainActivity : AppCompatActivity() {
         val request = Request.Builder()
             .url("https://twitter241.p.rapidapi.com/user-tweets?user=$twitterID&count=5")
             .get()
-            .addHeader("x-rapidapi-key", "9e92cc4f67msh8bb4ede93f53bf7p1ecb22jsn26ea5014a6df")
+            .addHeader("x-rapidapi-key", "8521aa6a65mshab927b74fff566dp175607jsn24cd6edd63a7")
             .addHeader("x-rapidapi-host", "twitter241.p.rapidapi.com")
             .build()
 
-        pD.setTitle("fetching Tweets...")
+        pD.setTitle("Twitter")
+        pD.setMessage("fetching Tweets...")
         if (showPD)
         pD.show()
         lifecycleScope.launch(Dispatchers.IO) {
@@ -711,7 +713,11 @@ class MainActivity : AppCompatActivity() {
         sharedPreferencesEditor.putString("dU", delayUnit).apply()
         sharedPreferencesEditor.putString("walltype", queryType).apply()
 
+        pD.setTitle("Wallpaper...")
+        pD.setMessage("Setting Wallpaper...")
+        pD.show()
         startWallWork(delay)
+
 
     }
 
@@ -933,6 +939,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
 
+        lateinit var pD: ProgressDialog
         var wallDelay: Int = 0
         lateinit var twitterProfileName: String
         var listTweets: ArrayList<String> = ArrayList()

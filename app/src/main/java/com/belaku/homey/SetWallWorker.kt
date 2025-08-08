@@ -27,6 +27,7 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.makeSnack
+import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.queryType
 import com.belaku.homey.MainActivity.Companion.randomNumber
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
@@ -152,6 +153,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     sharedPreferencesEditor.putString("wD", wallDesc.split("+")[1]).apply()
                     sharedPreferencesEditor.putString("uT", updateTime).apply()
                     Log.d(TAG, "Set successfully")
+                    pD.dismiss()
                     remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.INVISIBLE)
                     remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
 
