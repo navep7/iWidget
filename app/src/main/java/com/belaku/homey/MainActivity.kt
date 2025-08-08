@@ -81,15 +81,12 @@ import com.belaku.homey.NewAppWidget.Companion.screenHeight
 import com.belaku.homey.NewAppWidget.Companion.screenWidth
 import com.belaku.homey.databinding.ActivityMainBinding
 import com.bumptech.glide.Glide
-import com.example.example.Result
-import com.example.example.Timeline
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Task
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -104,9 +101,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.InputStreamReader
 import java.net.URL
-import java.nio.charset.Charset
 import java.util.Collections
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -114,6 +109,7 @@ import kotlin.properties.Delegates
 
 
 class MainActivity : AppCompatActivity() {
+
 
     private lateinit var appWidM: AppWidgetManager
     private lateinit var editTextTwitterHandle: EditText
@@ -293,7 +289,7 @@ class MainActivity : AppCompatActivity() {
         editTextTwitterHandle = twitterHandleDialog.findViewById<EditText>(R.id.edtx_th)
         twitterHandleDialog.findViewById<View>(R.id.btn_ok)
             .setOnClickListener { //your business logic
-                getTweetID(editTextTwitterHandle.text.toString())
+                getTweetID(editTextTwitterHandle.text.toString(), true)
                 twitterDialog.dismiss()
 
             }
@@ -303,7 +299,7 @@ class MainActivity : AppCompatActivity() {
         twitterDialog.show()
     }
 
-    private fun getTweetID(uname: String) {
+    private fun getTweetID(uname: String, showPD: Boolean) {
 
         val client = OkHttpClient()
 
@@ -316,13 +312,15 @@ class MainActivity : AppCompatActivity() {
 
 
         pD.setTitle("fetching user ID...")
+        if (showPD)
         pD.show()
         lifecycleScope.launch(Dispatchers.IO) {
             responseTweetID = client.newCall(request).execute()
 
             withContext(Dispatchers.Main) {
                 // Handle the result and hide the loading indicator
-               pD.dismiss()
+                if (showPD)
+                pD.dismiss()
                 val responseBodyString = responseTweetID.peekBody(Long.MAX_VALUE).string()
                 Log.d("$TAG responseTweetID - ", responseBodyString)
 
@@ -340,13 +338,16 @@ class MainActivity : AppCompatActivity() {
                             .getJSONObject("result").getJSONObject("core").getString("screen_name")
                     Log.d(TAG + "Tw ID - ", twitterID + " - " + twitterProfileName)
 
+                    if (showPD)
                     makeSnack("Add Home Widget and Check Tweets in Widget!")
+                    if (showPD)
                     pD.dismiss()
 
 
                     listTweets.clear()
-                    getTweets(twitterID)
+                    getTweets(twitterID, showPD)
                 } else {
+                    if (showPD)
                     pD.dismiss()
                     makeSnack("Twitter User doesn't Exist!")
 
@@ -358,7 +359,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun getTweets(twitterID: String) {
+    private fun getTweets(twitterID: String, showPD: Boolean) {
 
         val client = OkHttpClient()
 
@@ -370,6 +371,7 @@ class MainActivity : AppCompatActivity() {
             .build()
 
         pD.setTitle("fetching Tweets...")
+        if (showPD)
         pD.show()
         lifecycleScope.launch(Dispatchers.IO) {
          responseTweets = client.newCall(request).execute()
@@ -383,7 +385,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             withContext(Dispatchers.Main) {
-            pD.dismiss()
+                if (showPD)
+                pD.dismiss()
                 for (i in 0 until js.length()) {
                 val tw =
                     JSONObject(js[i].toString()).getJSONObject("content")//.getJSONObject("itemContent").getJSONObject("tweet_results").getJSONObject("result")
@@ -743,14 +746,15 @@ class MainActivity : AppCompatActivity() {
                 sharedPreferencesEditor.putString("qT", queryType).apply()
                 pD.show()
                 sN.dismiss()
-                fetchWallpaper(applicationContext)
+           //     fetchWallpaper(applicationContext)
             }
             false
         })
 
         fabMin.setOnClickListener {
             updateInterval = "min"
-            makeToast("Wallpaper updates every 15 Mins!")
+     //       makeToast("Wallpaper updates every 15 Mins!")
+            wallDelay = 15
             setWalls(15)
             sharedPreferencesEditor.putStringSet("walls", HashSet(imgUrls)).apply()
             sharedPreferencesEditor.putStringSet("wallDescs", HashSet(imgDescs)).apply()
@@ -758,7 +762,7 @@ class MainActivity : AppCompatActivity() {
 
         fabHour.setOnClickListener {
             updateInterval = "hour"
-            makeToast("Wallpaper updates every 30 Mins!")
+     //       makeToast("Wallpaper updates every 30 Mins!")
             setWalls(30)
             sharedPreferencesEditor.putStringSet("walls", HashSet(imgUrls)).apply()
             sharedPreferencesEditor.putStringSet("wallDescs", HashSet(imgDescs)).apply()
@@ -766,7 +770,7 @@ class MainActivity : AppCompatActivity() {
 
         fabDay.setOnClickListener {
             updateInterval = "day"
-            makeToast("Wallpaper updates every 60 Mins!")
+    //        makeToast("Wallpaper updates every 60 Mins!")
             setWalls(60)
             sharedPreferencesEditor.putStringSet("walls", HashSet(imgUrls)).apply()
             sharedPreferencesEditor.putStringSet("wallDescs", HashSet(imgDescs)).apply()
@@ -822,6 +826,7 @@ class MainActivity : AppCompatActivity() {
                     getCity()
                     startStepsService()
                     usageStatsPermissionDialog()
+                    getTweetID("Fact", false)
                 }
         }
     }
@@ -849,7 +854,7 @@ class MainActivity : AppCompatActivity() {
         if (imgUrls.size == 0) {
 
             if (queryType.length != 0) {
-                makeSnack("Showing $queryType wallpapers \n Search using above Bar if you seek something else..")
+                makeSnack("Showing $queryType wallpapers... Search using above Bar if you seek something else.. Or Set!")
                 pexelUrl = "https://api.pexels.com/v1/search?query=$queryType&per_page=35"
                 val request: StringRequest = @SuppressLint("NotifyDataSetChanged")
                 object : StringRequest(
@@ -928,6 +933,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
 
+        var wallDelay: Int = 0
         lateinit var twitterProfileName: String
         var listTweets: ArrayList<String> = ArrayList()
         private var cDate by Delegates.notNull<Int>()
