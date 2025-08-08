@@ -54,6 +54,7 @@ import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.newsIndex
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
+import com.belaku.homey.MainActivity.Companion.twitterProfileName
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.initialSteps
 import com.belaku.homey.SetWallWorker.Companion.steps
@@ -457,6 +458,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (listTweets.size > 0) {
             randomTweetIndex = (0..listTweets.size - 1).random()
+            remoteViews?.setTextViewText(R.id.twUser, " @${twitterProfileName} ✎")
             remoteViews?.setTextViewText(
                 R.id.tx_tweets,
                 listTweets.get(randomTweetIndex)

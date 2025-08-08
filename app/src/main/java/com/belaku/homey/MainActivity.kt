@@ -122,7 +122,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var responseTweetID: okhttp3.Response
     private val tweets: ArrayList<String> = ArrayList()
     private lateinit var twitterID: String
-    private lateinit var twitterProfileName: String
     private lateinit var connectivityManager: ConnectivityManager
     private lateinit var btnContactsAccess: Button
     private lateinit var btnDialPhone: Button
@@ -376,7 +375,12 @@ class MainActivity : AppCompatActivity() {
          responseTweets = client.newCall(request).execute()
 
             var js: JSONArray = (JSONObject(responseTweets.body?.string()).getJSONObject("result").getJSONObject("timeline")
-                .getJSONArray("instructions")[2] as JSONObject).getJSONArray("entries")
+                .getJSONArray("instructions"))//[2] as JSONObject).getJSONArray("entries")
+
+            for (i in 0 until js.length()) {
+                if (js[i].toString().contains("entries"))
+                    js = (js[i] as JSONObject).getJSONArray("entries")
+            }
 
             withContext(Dispatchers.Main) {
             pD.dismiss()
@@ -402,6 +406,7 @@ class MainActivity : AppCompatActivity() {
                 newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
 
                 remoteViews?.setTextViewText(R.id.tx_tweets, listTweets[0])
+                remoteViews?.setTextViewText(R.id.twUser, " @$twitterProfileName")
                 appWidM = AppWidgetManager.getInstance(appContx)
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
 
@@ -697,8 +702,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setWalls(delay: Long) {
-        //    val oneTimeWorkRequest = OneTimeWorkRequest.Builder(SetWallWorker::class.java).build()
-
 
         appUsageStats(applicationContext)
         delayUnit = delay.toString()
@@ -925,6 +928,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
 
+        lateinit var twitterProfileName: String
         var listTweets: ArrayList<String> = ArrayList()
         private var cDate by Delegates.notNull<Int>()
         private var cMonth by Delegates.notNull<Int>()
@@ -1108,6 +1112,7 @@ class MainActivity : AppCompatActivity() {
                 })
 
         }
+
 
 
     }
