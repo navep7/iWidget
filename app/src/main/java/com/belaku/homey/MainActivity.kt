@@ -159,6 +159,10 @@ class MainActivity : AppCompatActivity() {
         mAct = this@MainActivity
         appContx = applicationContext
 
+        cDate = Calendar.getInstance().get(Calendar.DATE) - 2
+        cMonth = Calendar.getInstance().get(Calendar.MONTH) + 1
+        cYear = Calendar.getInstance().get(Calendar.YEAR)
+
         if (intent != null)
             if (intent.getStringExtra("STH") != null) {
                 makeToast(intent.getStringExtra("STH").toString())
@@ -166,6 +170,8 @@ class MainActivity : AppCompatActivity() {
                 showTwitterHandleDialog()
                 else makeToast("yet2Impl")
             }
+
+
 
         setSupportActionBar(binding.toolbar)
 
@@ -201,22 +207,16 @@ class MainActivity : AppCompatActivity() {
         fetchWallpaper(applicationContext)
         GetDisplayDimens()
 
-  /*      Thread {
-            //Do some Network Request
-            getTweetID("iNaveenPrakash")
-            runOnUiThread({
-                //Update UI
-            })
-        }.start()*/
-
-
-        cDate = Calendar.getInstance().get(Calendar.DATE) - 2
-        cMonth = Calendar.getInstance().get(Calendar.MONTH) + 1
-        cYear = Calendar.getInstance().get(Calendar.YEAR)
 
         getNews()
         apiTweets()
         pyTweets()
+
+        if ((ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) == PERMISSION_GRANTED)) {
+            getFavoriteContacts(applicationContext)
+            getCity()
+            rawTweets()
+        }
 
         intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
         var compName = ComponentName(this, DeviceAdmin::class.java)
@@ -330,7 +330,14 @@ class MainActivity : AppCompatActivity() {
 
                 if (jsonObject.getJSONObject("result").getJSONObject("data").optString("user")
                         .isNotEmpty()
-                ) {
+                )
+                    if (jsonObject.getJSONObject("result").getJSONObject("data").getJSONObject("user").optString("result")
+                            .isNotEmpty()
+                    )
+                        if (jsonObject.getJSONObject("result").getJSONObject("data").getJSONObject("user").getJSONObject("result").optString("rest_id")
+                                .isNotEmpty()
+                        )
+                {
                     twitterID = jsonObject.getJSONObject("result").getJSONObject("data")
                         .getJSONObject("user")
                         .getJSONObject("result").getString("rest_id")
@@ -351,6 +358,18 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     if (showPD)
                     pD.dismiss()
+                    makeSnack("Twitter User doesn't Exist!")
+
+                }
+                    else {
+                        if (showPD)
+                            pD.dismiss()
+                        makeSnack("Twitter User doesn't Exist!")
+
+                    }
+                else {
+                    if (showPD)
+                        pD.dismiss()
                     makeSnack("Twitter User doesn't Exist!")
 
                 }
@@ -432,7 +451,7 @@ class MainActivity : AppCompatActivity() {
         val dataArray: JSONArray = TweetsJsonParser.parseJsonArrayFromRaw(this, R.raw.np_tweets)!!
 
         if (dataArray != null) {
-            makeToast("TsSize ${dataArray.length()}")
+
             for (i in 0 until dataArray.length()) {
                 try {
                     val item = dataArray.getJSONObject(i)
@@ -444,7 +463,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            makeToast("0 T  -- ${listTweets.get(0)}")
         } else {
             Log.e(TAG, "Failed to parse JSON array from raw folder.")
         }
@@ -835,7 +853,8 @@ class MainActivity : AppCompatActivity() {
                     getCity()
                     startStepsService()
                     usageStatsPermissionDialog()
-                    getTweetID("Fact", false)
+                 //   getTweetID("Fact", false)
+                    rawTweets()
                 }
         }
     }
@@ -944,7 +963,7 @@ class MainActivity : AppCompatActivity() {
 
         lateinit var pD: ProgressDialog
         var wallDelay: Int = 0
-        lateinit var twitterProfileName: String
+        var twitterProfileName: String = "Fact"
         var listTweets: ArrayList<String> = ArrayList()
         private var cDate by Delegates.notNull<Int>()
         private var cMonth by Delegates.notNull<Int>()

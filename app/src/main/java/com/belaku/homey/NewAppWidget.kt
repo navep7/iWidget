@@ -81,6 +81,7 @@ class NewAppWidget : AppWidgetProvider() {
     private lateinit var qT: String
     private lateinit var uT: String
     private lateinit var dU: String
+    private var tW: String = ""
 
     private lateinit var mp: MediaPlayer
 
@@ -302,8 +303,16 @@ class NewAppWidget : AppWidgetProvider() {
         dU = sharedPreferences.getString("dU", "").toString()
         uT = sharedPreferences.getString("uT", "").toString()
 
-//        makeToast("chKING - " + wD + " : " + qT + " : " + dU + " : " + uT)
 
+        if (listTweets.size > 0) {
+            if (intent.action.equals("newsNext") || intent.action.equals("newsPrev"))
+                tW = sharedPreferences.getString("tW", "").toString()
+            else {
+                randomTweetIndex = (0..listTweets.size - 1).random()
+                tW = listTweets[randomTweetIndex].toString()
+                sharedPreferencesEditor.putString("tW", tW).apply()
+            }
+        }
 
         appContx = context
         readContacts()
@@ -455,19 +464,27 @@ class NewAppWidget : AppWidgetProvider() {
                 .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT"
         )
 
+        remoteViews?.setTextViewText(
+            R.id.tx_tweets,
+            tW
+        )
 
         if (listTweets.size > 0) {
-            randomTweetIndex = (0..listTweets.size - 1).random()
+
             remoteViews?.setTextViewText(
                 R.id.tx_tweets,
-                listTweets.get(randomTweetIndex)
+                tW
             )
+            remoteViews?.setTextViewText(R.id.twUser, Html.fromHtml(" @${twitterProfileName}  \uD83D\uDD8D ",  Html.FROM_HTML_MODE_LEGACY))
         }    else {
             remoteViews?.setTextViewText(
                 R.id.twUser,
                 "Set Twitter Handle"
             )
         }
+
+
+
 
 
 
@@ -501,10 +518,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             makeToast(newsIndex.toString() + " n-I " + newsList.size)
             if (newsList.size > 1)
-                remoteViews?.setTextViewText(
-                    R.id.tx_news,
-                    Html.fromHtml("<u>" + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY)
-                );
+             //   remoteViews?.setTextViewText(R.id.tx_news, Html.fromHtml("<u>" + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY))
             else MainActivity.getNews()
         }
 
