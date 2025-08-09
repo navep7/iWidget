@@ -458,7 +458,6 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (listTweets.size > 0) {
             randomTweetIndex = (0..listTweets.size - 1).random()
-            remoteViews?.setTextViewText(R.id.twUser, " @${twitterProfileName}")
             remoteViews?.setTextViewText(
                 R.id.tx_tweets,
                 listTweets.get(randomTweetIndex)

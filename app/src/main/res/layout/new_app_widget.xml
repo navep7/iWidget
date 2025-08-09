@@ -454,6 +454,7 @@
 
     <TextView
         android:id="@+id/twUser"
+        android:padding="3dp"
         android:textStyle="bold|italic"
         android:layout_above="@+id/tx_tweets"
         android:layout_alignParentStart="true"

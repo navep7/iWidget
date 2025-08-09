@@ -37,6 +37,7 @@ import android.os.Looper
 import android.os.Process
 import android.provider.ContactsContract
 import android.provider.Settings
+import android.text.Html
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.KeyEvent
@@ -411,7 +412,7 @@ class MainActivity : AppCompatActivity() {
                 newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
 
                 remoteViews?.setTextViewText(R.id.tx_tweets, listTweets[0])
-                remoteViews?.setTextViewText(R.id.twUser, " @$twitterProfileName")
+                remoteViews?.setTextViewText(R.id.twUser, Html.fromHtml(" @${twitterProfileName}  \uD83D\uDD8D ",  Html.FROM_HTML_MODE_LEGACY))
                 appWidM = AppWidgetManager.getInstance(appContx)
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
 
@@ -750,9 +751,11 @@ class MainActivity : AppCompatActivity() {
 
                 queryType = editTextPrompt.text.toString()
                 sharedPreferencesEditor.putString("qT", queryType).apply()
+                pD.setTitle("Wallpaper")
+                pD.setMessage("fetching wallpapers,please wait...")
                 pD.show()
                 sN.dismiss()
-           //     fetchWallpaper(applicationContext)
+                fetchWallpaper(applicationContext)
             }
             false
         })
