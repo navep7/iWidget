@@ -81,7 +81,7 @@ class NewAppWidget : AppWidgetProvider() {
     private lateinit var qT: String
     private lateinit var uT: String
     private lateinit var dU: String
-    private var tW: String = ""
+    private var tW: String = "..."
 
     private lateinit var mp: MediaPlayer
 
@@ -307,7 +307,8 @@ class NewAppWidget : AppWidgetProvider() {
         if (listTweets.size > 0) {
             if (intent.action.equals("newsNext") || intent.action.equals("newsPrev"))
                 tW = sharedPreferences.getString("tW", "").toString()
-            else {
+            else if (!intent.action.equals("wallChange")){
+                Log.d(TAG + "TwAct", intent.action.toString())
                 randomTweetIndex = (0..listTweets.size - 1).random()
                 tW = listTweets[randomTweetIndex].toString()
                 sharedPreferencesEditor.putString("tW", tW).apply()
@@ -468,8 +469,10 @@ class NewAppWidget : AppWidgetProvider() {
             R.id.tx_tweets,
             tW
         )
+        remoteViews?.setTextViewText(R.id.twUser, Html.fromHtml(" @${twitterProfileName}  \uD83D\uDD8D ",  Html.FROM_HTML_MODE_LEGACY))
 
-        if (listTweets.size > 0) {
+
+      /*  if (listTweets.size > 0) {
 
             remoteViews?.setTextViewText(
                 R.id.tx_tweets,
@@ -481,7 +484,7 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.twUser,
                 "Set Twitter Handle"
             )
-        }
+        }*/
 
 
 
