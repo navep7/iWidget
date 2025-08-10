@@ -469,7 +469,8 @@ class NewAppWidget : AppWidgetProvider() {
             R.id.tx_tweets,
             tW
         )
-        remoteViews?.setTextViewText(R.id.twUser, Html.fromHtml(" @${twitterProfileName}  \uD83D\uDD8D ",  Html.FROM_HTML_MODE_LEGACY))
+        //🖍 
+        remoteViews?.setTextViewText(R.id.twUser, Html.fromHtml(" ⚙ @${twitterProfileName}",  Html.FROM_HTML_MODE_LEGACY))
 
 
       /*  if (listTweets.size > 0) {

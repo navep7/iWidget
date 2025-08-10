@@ -294,9 +294,10 @@ class MainActivity : AppCompatActivity() {
         editTextTwitterHandle.setText("")
         twitterHandleDialog.findViewById<View>(R.id.btn_ok)
             .setOnClickListener { //your business logic
-                listTweets.clear()
+
                 if (editTextTwitterHandle.text.toString().equals("Fact")) {
                     twitterProfileName = "Fact"
+                    listTweets.clear()
                     rawTweets(true)
                 } else {
                     getTweetID(editTextTwitterHandle.text.toString(), true)
@@ -361,8 +362,6 @@ class MainActivity : AppCompatActivity() {
                             Log.d(TAG + "Tw ID - ", twitterID + " - " + twitterProfileName)
 
                             if (showPD)
-                                makeSnack("Tweets - ${listTweets.size}")
-                            if (showPD)
                                 pD.dismiss()
 
                             getTweets(twitterID, showPD)
@@ -421,6 +420,8 @@ class MainActivity : AppCompatActivity() {
             withContext(Dispatchers.Main) {
                 if (showPD)
                     pD.dismiss()
+                if (js.length() > 0)
+                    listTweets.clear()
                 for (i in 0 until js.length()) {
                     val tw =
                         JSONObject(js[i].toString()).getJSONObject("content")//.getJSONObject("itemContent").getJSONObject("tweet_results").getJSONObject("result")
@@ -436,13 +437,15 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
+                makeSnack("Tweets - ${listTweets.size}")
+
                 remoteViews = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
                 newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
                 remoteViews?.setTextViewText(R.id.tx_tweets, listTweets[0])
                 remoteViews?.setTextViewText(
                     R.id.twUser,
                     Html.fromHtml(
-                        " @${twitterProfileName}  \uD83D\uDD8D ",
+                        " ⚙ @${twitterProfileName}",
                         Html.FROM_HTML_MODE_LEGACY
                     )
                 )
@@ -485,13 +488,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        makeSnack("Tweets - ${listTweets.size}")
+
         remoteViews = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
         newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
         remoteViews?.setTextViewText(R.id.tx_tweets, listTweets[0])
         remoteViews?.setTextViewText(
             R.id.twUser,
             Html.fromHtml(
-                " @${twitterProfileName}  \uD83D\uDD8D ",
+                " ⚙ @${twitterProfileName}",
                 Html.FROM_HTML_MODE_LEGACY
             )
         )
