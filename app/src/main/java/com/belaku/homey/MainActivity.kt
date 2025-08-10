@@ -445,7 +445,7 @@ class MainActivity : AppCompatActivity() {
                 remoteViews?.setTextViewText(
                     R.id.twUser,
                     Html.fromHtml(
-                        " ⚙ @${twitterProfileName}",
+                        " @${twitterProfileName}",
                         Html.FROM_HTML_MODE_LEGACY
                     )
                 )
@@ -496,7 +496,7 @@ class MainActivity : AppCompatActivity() {
         remoteViews?.setTextViewText(
             R.id.twUser,
             Html.fromHtml(
-                " ⚙ @${twitterProfileName}",
+                " @${twitterProfileName}",
                 Html.FROM_HTML_MODE_LEGACY
             )
         )

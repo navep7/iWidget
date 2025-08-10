@@ -153,9 +153,15 @@ class NewAppWidget : AppWidgetProvider() {
 
 
             remoteViews?.setOnClickPendingIntent(
-                R.id.twUser,
+                R.id.twSettings,
                 PendingIntent.getActivity(context, 21, intentSTH, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.twShare,
+                getPendingSelfIntent(context, TW_SHARE)
+            )
+
 
 
             remoteViews?.setOnClickPendingIntent(
@@ -305,12 +311,12 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         if (listTweets.size > 0) {
-            if (intent.action.equals("newsNext") || intent.action.equals("newsPrev"))
+            if (intent.action.equals("newsNext") || intent.action.equals("newsPrev") || intent.action.equals("twShare"))
                 tW = sharedPreferences.getString("tW", "").toString()
             else if (!intent.action.equals("wallChange")){
                 Log.d(TAG + "TwAct", intent.action.toString())
                 randomTweetIndex = (0..listTweets.size - 1).random()
-                tW = listTweets[randomTweetIndex].toString()
+                tW = listTweets[randomTweetIndex]
                 sharedPreferencesEditor.putString("tW", tW).apply()
             }
         }
@@ -333,10 +339,15 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.twUser,
+            R.id.twSettings,
             PendingIntent.getActivity(context, 21, intentSTH, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         )
 
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.twShare,
+            getPendingSelfIntent(context, TW_SHARE)
+        )
 
         remoteViews?.setOnClickPendingIntent(
             R.id.imgbtn_news_next,
@@ -469,8 +480,8 @@ class NewAppWidget : AppWidgetProvider() {
             R.id.tx_tweets,
             tW
         )
-        //🖍 
-        remoteViews?.setTextViewText(R.id.twUser, Html.fromHtml(" ⚙ @${twitterProfileName}",  Html.FROM_HTML_MODE_LEGACY))
+        //🖍
+        remoteViews?.setTextViewText(R.id.twUser, Html.fromHtml(" @${twitterProfileName}",  Html.FROM_HTML_MODE_LEGACY))
 
 
       /*  if (listTweets.size > 0) {
@@ -495,11 +506,16 @@ class NewAppWidget : AppWidgetProvider() {
         todaysDate(context)
 
 
-        if (SET_TWITTER_HANDLE == intent.action) {
-            val launchIntent: Intent =
-                context.packageManager.getLaunchIntentForPackage("com.belaku.homey")!!
-            intent.putExtra("STH", "YES")
-            context.startActivity(launchIntent)
+        if (TW_SHARE == intent.action) {
+            val sendIntent: Intent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_TEXT, tW)
+                type = "text/plain"
+            }
+
+            val shareIntent = Intent.createChooser(sendIntent, null) // "null" for default title
+            shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            appContx.startActivity(shareIntent)
         }
 
         if (GET_WEATHER == intent.action) {
@@ -1101,7 +1117,8 @@ class NewAppWidget : AppWidgetProvider() {
         lateinit var newAppWidget: ComponentName
 
 
-        private const val SET_TWITTER_HANDLE = "setThandle"
+
+        private const val TW_SHARE = "twShare"
         private const val NEWS_CLICK = "newsClick"
         private const val NEWS_NEXT = "newsNext"
         private const val NEWS_PREV = "newsPrev"
