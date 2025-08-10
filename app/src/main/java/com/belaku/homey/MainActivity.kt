@@ -167,7 +167,7 @@ class MainActivity : AppCompatActivity() {
             if (intent.getStringExtra("STH") != null) {
                 makeToast(intent.getStringExtra("STH").toString())
                 if (intent.getStringExtra("STH").equals("Set Twitter Handle"))
-                showTwitterHandleDialog()
+                    showTwitterHandleDialog()
                 else makeToast("yet2Impl")
             }
 
@@ -212,10 +212,13 @@ class MainActivity : AppCompatActivity() {
         apiTweets()
         pyTweets()
 
-        if ((ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) == PERMISSION_GRANTED)) {
+        if ((ActivityCompat.checkSelfPermission(
+                applicationContext,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PERMISSION_GRANTED)
+        ) {
             getFavoriteContacts(applicationContext)
             getCity()
-            rawTweets()
         }
 
         intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
@@ -288,10 +291,18 @@ class MainActivity : AppCompatActivity() {
         val twitterDialog = AlertDialog.Builder(this).create()
         twitterDialog.setView(twitterHandleDialog)
         editTextTwitterHandle = twitterHandleDialog.findViewById<EditText>(R.id.edtx_th)
+        editTextTwitterHandle.setText("")
         twitterHandleDialog.findViewById<View>(R.id.btn_ok)
             .setOnClickListener { //your business logic
-                getTweetID(editTextTwitterHandle.text.toString(), true)
+                listTweets.clear()
+                if (editTextTwitterHandle.text.toString().equals("Fact")) {
+                    twitterProfileName = "Fact"
+                    rawTweets(true)
+                } else {
+                    getTweetID(editTextTwitterHandle.text.toString(), true)
+                }
                 twitterDialog.dismiss()
+
 
             }
         twitterHandleDialog.findViewById<View>(R.id.btn_cancel)
@@ -315,14 +326,14 @@ class MainActivity : AppCompatActivity() {
         pD.setTitle("Twitter")
         pD.setMessage("fetching user ID...")
         if (showPD)
-        pD.show()
+            pD.show()
         lifecycleScope.launch(Dispatchers.IO) {
             responseTweetID = client.newCall(request).execute()
 
             withContext(Dispatchers.Main) {
                 // Handle the result and hide the loading indicator
                 if (showPD)
-                pD.dismiss()
+                    pD.dismiss()
                 val responseBodyString = responseTweetID.peekBody(Long.MAX_VALUE).string()
                 Log.d("$TAG responseTweetID - ", responseBodyString)
 
@@ -331,36 +342,36 @@ class MainActivity : AppCompatActivity() {
                 if (jsonObject.getJSONObject("result").getJSONObject("data").optString("user")
                         .isNotEmpty()
                 )
-                    if (jsonObject.getJSONObject("result").getJSONObject("data").getJSONObject("user").optString("result")
+                    if (jsonObject.getJSONObject("result").getJSONObject("data")
+                            .getJSONObject("user").optString("result")
                             .isNotEmpty()
                     )
-                        if (jsonObject.getJSONObject("result").getJSONObject("data").getJSONObject("user").getJSONObject("result").optString("rest_id")
+                        if (jsonObject.getJSONObject("result").getJSONObject("data")
+                                .getJSONObject("user").getJSONObject("result").optString("rest_id")
                                 .isNotEmpty()
-                        )
-                {
-                    twitterID = jsonObject.getJSONObject("result").getJSONObject("data")
-                        .getJSONObject("user")
-                        .getJSONObject("result").getString("rest_id")
-                    twitterProfileName =
-                        jsonObject.getJSONObject("result").getJSONObject("data")
-                            .getJSONObject("user")
-                            .getJSONObject("result").getJSONObject("core").getString("screen_name")
-                    Log.d(TAG + "Tw ID - ", twitterID + " - " + twitterProfileName)
+                        ) {
+                            twitterID = jsonObject.getJSONObject("result").getJSONObject("data")
+                                .getJSONObject("user")
+                                .getJSONObject("result").getString("rest_id")
+                            twitterProfileName =
+                                jsonObject.getJSONObject("result").getJSONObject("data")
+                                    .getJSONObject("user")
+                                    .getJSONObject("result").getJSONObject("core")
+                                    .getString("screen_name")
+                            Log.d(TAG + "Tw ID - ", twitterID + " - " + twitterProfileName)
 
-                    if (showPD)
-                    makeSnack("Add Home Widget and Check Tweets in Widget!")
-                    if (showPD)
-                    pD.dismiss()
+                            if (showPD)
+                                makeSnack("Tweets - ${listTweets.size}")
+                            if (showPD)
+                                pD.dismiss()
 
+                            getTweets(twitterID, showPD)
+                        } else {
+                            if (showPD)
+                                pD.dismiss()
+                            makeSnack("Twitter User doesn't Exist!")
 
-                    listTweets.clear()
-                    getTweets(twitterID, showPD)
-                } else {
-                    if (showPD)
-                    pD.dismiss()
-                    makeSnack("Twitter User doesn't Exist!")
-
-                }
+                        }
                     else {
                         if (showPD)
                             pD.dismiss()
@@ -394,11 +405,12 @@ class MainActivity : AppCompatActivity() {
         pD.setTitle("Twitter")
         pD.setMessage("fetching Tweets...")
         if (showPD)
-        pD.show()
+            pD.show()
         lifecycleScope.launch(Dispatchers.IO) {
-         responseTweets = client.newCall(request).execute()
+            responseTweets = client.newCall(request).execute()
 
-            var js: JSONArray = (JSONObject(responseTweets.body?.string()).getJSONObject("result").getJSONObject("timeline")
+            var js: JSONArray = (JSONObject(responseTweets.body?.string()).getJSONObject("result")
+                .getJSONObject("timeline")
                 .getJSONArray("instructions"))//[2] as JSONObject).getJSONArray("entries")
 
             for (i in 0 until js.length()) {
@@ -408,30 +420,32 @@ class MainActivity : AppCompatActivity() {
 
             withContext(Dispatchers.Main) {
                 if (showPD)
-                pD.dismiss()
+                    pD.dismiss()
                 for (i in 0 until js.length()) {
-                val tw =
-                    JSONObject(js[i].toString()).getJSONObject("content")//.getJSONObject("itemContent").getJSONObject("tweet_results").getJSONObject("result")
-                //   .getJSONObject("legacy").get("full_text")
+                    val tw =
+                        JSONObject(js[i].toString()).getJSONObject("content")//.getJSONObject("itemContent").getJSONObject("tweet_results").getJSONObject("result")
+                    //   .getJSONObject("legacy").get("full_text")
 
-                if (tw.optString("itemContent").isNotEmpty()) {
-                    val actTw = tw.getJSONObject("itemContent").getJSONObject("tweet_results")
-                        .getJSONObject("result")
-                        .getJSONObject("legacy").get("full_text")
+                    if (tw.optString("itemContent").isNotEmpty()) {
+                        val actTw = tw.getJSONObject("itemContent").getJSONObject("tweet_results")
+                            .getJSONObject("result")
+                            .getJSONObject("legacy").get("full_text")
 
-                    Log.d("Twwtt $i", actTw.toString())
-                    listTweets.add(actTw.toString())
+                        Log.d("Twwtt $i", actTw.toString())
+                        listTweets.add(actTw.toString())
+                    }
                 }
-
-
-            }
-
 
                 remoteViews = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
                 newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
-
                 remoteViews?.setTextViewText(R.id.tx_tweets, listTweets[0])
-                remoteViews?.setTextViewText(R.id.twUser, Html.fromHtml(" @${twitterProfileName}  \uD83D\uDD8D ",  Html.FROM_HTML_MODE_LEGACY))
+                remoteViews?.setTextViewText(
+                    R.id.twUser,
+                    Html.fromHtml(
+                        " @${twitterProfileName}  \uD83D\uDD8D ",
+                        Html.FROM_HTML_MODE_LEGACY
+                    )
+                )
                 appWidM = AppWidgetManager.getInstance(appContx)
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
 
@@ -446,26 +460,44 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun rawTweets() {
+    private fun rawTweets(boolpD : Boolean) {
+
+
+        if (boolpD) {
+            pD.setTitle("Twitter")
+            pD.setMessage("fetching Tweets...")
+            pD.show()
+            Handler().postDelayed(Runnable {
+                pD.dismiss()
+            }, 1000)
+        }
 
         val dataArray: JSONArray = TweetsJsonParser.parseJsonArrayFromRaw(this, R.raw.np_tweets)!!
 
-        if (dataArray != null) {
+        for (i in 0 until dataArray.length()) {
+            try {
+                val item = dataArray.getJSONObject(i)
+                val tweet = item.getString("text")
+                listTweets.add(tweet)
 
-            for (i in 0 until dataArray.length()) {
-                try {
-                    val item = dataArray.getJSONObject(i)
-                    val tweet = item.getString("text")
-                    listTweets.add(tweet)
-
-                } catch (e: JSONException) {
-                    e.printStackTrace()
-                }
+            } catch (e: JSONException) {
+                e.printStackTrace()
             }
-
-        } else {
-            Log.e(TAG, "Failed to parse JSON array from raw folder.")
         }
+
+        remoteViews = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
+        newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
+        remoteViews?.setTextViewText(R.id.tx_tweets, listTweets[0])
+        remoteViews?.setTextViewText(
+            R.id.twUser,
+            Html.fromHtml(
+                " @${twitterProfileName}  \uD83D\uDD8D ",
+                Html.FROM_HTML_MODE_LEGACY
+            )
+        )
+        appWidM = AppWidgetManager.getInstance(appContx)
+        appWidM.updateAppWidget(newAppWidget, remoteViews)
+
     }
 
     private fun pyTweets() {
@@ -490,7 +522,6 @@ class MainActivity : AppCompatActivity() {
                 val Adress = geocoder.getFromLocation(location.latitude, location.longitude, 1)
                 cityname =
                     Adress?.toString()?.split(",")?.get(2) ?: Adress?.get(0)?.locality.toString()
-
 
 
             }
@@ -780,7 +811,7 @@ class MainActivity : AppCompatActivity() {
 
         fabMin.setOnClickListener {
             updateInterval = "min"
-     //       makeToast("Wallpaper updates every 15 Mins!")
+            //       makeToast("Wallpaper updates every 15 Mins!")
             wallDelay = 15
             setWalls(15)
             sharedPreferencesEditor.putStringSet("walls", HashSet(imgUrls)).apply()
@@ -789,7 +820,7 @@ class MainActivity : AppCompatActivity() {
 
         fabHour.setOnClickListener {
             updateInterval = "hour"
-     //       makeToast("Wallpaper updates every 30 Mins!")
+            //       makeToast("Wallpaper updates every 30 Mins!")
             setWalls(30)
             sharedPreferencesEditor.putStringSet("walls", HashSet(imgUrls)).apply()
             sharedPreferencesEditor.putStringSet("wallDescs", HashSet(imgDescs)).apply()
@@ -797,7 +828,7 @@ class MainActivity : AppCompatActivity() {
 
         fabDay.setOnClickListener {
             updateInterval = "day"
-    //        makeToast("Wallpaper updates every 60 Mins!")
+            //        makeToast("Wallpaper updates every 60 Mins!")
             setWalls(60)
             sharedPreferencesEditor.putStringSet("walls", HashSet(imgUrls)).apply()
             sharedPreferencesEditor.putStringSet("wallDescs", HashSet(imgDescs)).apply()
@@ -853,8 +884,7 @@ class MainActivity : AppCompatActivity() {
                     getCity()
                     startStepsService()
                     usageStatsPermissionDialog()
-                 //   getTweetID("Fact", false)
-                    rawTweets()
+                    rawTweets(false)
                 }
         }
     }
@@ -980,10 +1010,13 @@ class MainActivity : AppCompatActivity() {
         var tempKind: String = ""
         lateinit var weatherData: WeatherData
         lateinit var sN: Snackbar
+
         @SuppressLint("StaticFieldLeak")
         lateinit var mAct: Activity
+
         @SuppressLint("StaticFieldLeak")
         lateinit var parentLayout: View
+
         @SuppressLint("StaticFieldLeak")
         lateinit var appContx: Context
         var delayUnit: String = ""
@@ -995,7 +1028,6 @@ class MainActivity : AppCompatActivity() {
         var randomNumber: Int = 0
         val imgUrls: ArrayList<String> = ArrayList()
         var imgDescs: ArrayList<String> = ArrayList()
-
 
 
         fun usageStatsPermissionDialog() {
@@ -1098,7 +1130,7 @@ class MainActivity : AppCompatActivity() {
                         tempKind = weatherData.weather.get(0).description
 
                         Log.d("weatherInfo", tempC + " - " + tempKind)
-                       // makeToast("weatherInfo - " + tempC + " - " + tempKind)
+                        // makeToast("weatherInfo - " + tempC + " - " + tempKind)
 
                         sharedPreferencesEditor.putString(
                             "weatherTemp",
@@ -1110,7 +1142,7 @@ class MainActivity : AppCompatActivity() {
                 Log.d("WD Excep7 - ", ex.toString())
             }
 
-         //   makeToast(tempC)
+            //   makeToast(tempC)
 
         }
 
@@ -1142,12 +1174,11 @@ class MainActivity : AppCompatActivity() {
                                 newsLinks.add(response.body()?.articles!!.get(i).url)
                             }
                         }
-                   //     makeToast("News - " + newsList.size)
+                        //     makeToast("News - " + newsList.size)
                     }
                 })
 
         }
-
 
 
     }
