@@ -227,7 +227,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgv_add3,
-                getPendingSelfIntent(context, APP3_CLICKED)
+                getPendingSelfIntent(context, APP_DRAWER_CLICKED)
             )
 
             remoteViews?.setOnClickPendingIntent(
@@ -411,7 +411,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         remoteViews?.setOnClickPendingIntent(
             R.id.imgv_add3,
-            getPendingSelfIntent(context, APP3_CLICKED)
+            getPendingSelfIntent(context, APP_DRAWER_CLICKED)
         )
 
         remoteViews?.setOnClickPendingIntent(
@@ -506,7 +506,7 @@ class NewAppWidget : AppWidgetProvider() {
         todaysDate(context)
 
 
-        if (TW_SHARE == intent.action) {
+        if (TW_SHARE == intent.action)  {
             val sendIntent: Intent = Intent().apply {
                 action = Intent.ACTION_SEND
                 putExtra(Intent.EXTRA_TEXT, tW)
@@ -690,10 +690,12 @@ class NewAppWidget : AppWidgetProvider() {
             launchApp(context, app.pName)
         }
 
-        if (APP3_CLICKED == intent.action) {
-            var app = choosenApps[2]
-            Log.d("APP3_CLICKED", app.name)
-            launchApp(context, app.pName)
+        if (APP_DRAWER_CLICKED == intent.action) {
+            var appsIntent: Intent = Intent(Intent.ACTION_ALL_APPS)
+            appsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            appsIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+            appContx.startActivity(appsIntent)
+
         }
 
         if (APP4_CLICKED == intent.action) {
@@ -1036,6 +1038,7 @@ class NewAppWidget : AppWidgetProvider() {
             }
         }
 
+        @SuppressLint("UseCompatLoadingForDrawables")
         fun addAppInWidget(context: Context, fApps: ArrayList<App>) {
 
             for (i in 0 until fApps.size) {
@@ -1056,7 +1059,7 @@ class NewAppWidget : AppWidgetProvider() {
                 } else if (i == 2) {
                     remoteViews!!.setImageViewBitmap(
                         R.id.imgv_add3,
-                        drawableToBitmap(context, d).getCircledBitmap()
+                        drawableToBitmap(context, appContx.resources.getDrawable(R.drawable.launch_e))
                     )
                     //     remoteViews!!.setTextViewText(R.id.tx_c3, fApps[2].name)
                 } else if (i == 3) {
@@ -1131,7 +1134,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val SET_CLICKED = "setButtonClick"
         private const val APP1_CLICKED = "App1Clicked"
         private const val APP2_CLICKED = "App2Clicked"
-        private const val APP3_CLICKED = "App3Clicked"
+        private const val APP_DRAWER_CLICKED = "APPDRAWERCLICKED"
         private const val APP4_CLICKED = "App4Clicked"
         private const val APP5_CLICKED = "App5Clicked"
 
