@@ -299,7 +299,7 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setColorInt(R.id.imgbtn_lock, "setColorFilter", primaryColor, secondaryColor)
         remoteViews?.setColorInt(R.id.imgbtn_conf, "setColorFilter", tertianaryColor, primaryColor)
         remoteViews?.setColorInt(R.id.imgbtn_set, "setColorFilter", primaryColor, secondaryColor)
-        remoteViews?.setColorInt(R.id.twSettings, "setColorFilter", secondaryColor, tertianaryColor)
+   //     remoteViews?.setColorInt(R.id.twSettings, "setColorFilter", secondaryColor, tertianaryColor)
         remoteViews?.setColorInt(R.id.twShare, "setColorFilter", secondaryColor, tertianaryColor)
 
 
@@ -1064,7 +1064,7 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
 
-        private fun drawableToBitmap(context: Context, drawable: Drawable): Bitmap {
+        fun drawableToBitmap(context: Context, drawable: Drawable): Bitmap {
 
             if (drawable is BitmapDrawable) {
                 if (drawable.bitmap != null) {

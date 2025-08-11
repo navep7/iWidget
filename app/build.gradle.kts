@@ -62,6 +62,7 @@ android {
 
 dependencies {
 
+    implementation(libs.picasso)
     implementation(libs.gson.v288)
   //  implementation(libs.androidx.multidex)
     implementation(libs.gms.play.services.location)

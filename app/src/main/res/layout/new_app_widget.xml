@@ -454,13 +454,14 @@
 
     <ImageButton
         android:id="@+id/twSettings"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:scaleType="fitXY"
         android:layout_alignParentStart="true"
         android:layout_above="@+id/tx_tweets"
         android:background="@drawable/rounded_corner"
         android:padding="5dp"
-        android:src="@drawable/tw_settings" />
+        android:src="@drawable/tw" />
 
 
 

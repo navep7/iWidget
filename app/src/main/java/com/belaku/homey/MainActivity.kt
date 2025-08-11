@@ -24,6 +24,8 @@ import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.database.Cursor
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.icu.util.Calendar
 import android.location.Geocoder
@@ -37,7 +39,6 @@ import android.os.Looper
 import android.os.Process
 import android.provider.ContactsContract
 import android.provider.Settings
-import android.text.Html
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.KeyEvent
@@ -73,6 +74,7 @@ import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.belaku.homey.AppChooserDialog.Companion.choosenApps
+import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.newsLinks
@@ -103,6 +105,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.IOException
 import java.net.URL
 import java.util.Collections
 import java.util.Locale
@@ -120,6 +123,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var responseTweetID: okhttp3.Response
     private val tweets: ArrayList<String> = ArrayList()
     private lateinit var twitterID: String
+    private lateinit var twitterPicUrl: String
     private lateinit var connectivityManager: ConnectivityManager
     private lateinit var btnContactsAccess: Button
     private lateinit var btnDialPhone: Button
@@ -336,7 +340,7 @@ class MainActivity : AppCompatActivity() {
                 if (showPD)
                     pD.dismiss()
                 val responseBodyString = responseTweetID.peekBody(Long.MAX_VALUE).string()
-                Log.d("$TAG responseTweetID - ", responseBodyString)
+
 
                 val jsonObject = JSONObject(responseBodyString)
 
@@ -354,11 +358,28 @@ class MainActivity : AppCompatActivity() {
                             twitterID = jsonObject.getJSONObject("result").getJSONObject("data")
                                 .getJSONObject("user")
                                 .getJSONObject("result").getString("rest_id")
+                            twitterPicUrl = jsonObject.getJSONObject("result").getJSONObject("data")
+                                .getJSONObject("user")
+                                .getJSONObject("result").getJSONObject("avatar")
+                                .getString("image_url")
+
                             twitterProfileName =
                                 jsonObject.getJSONObject("result").getJSONObject("data")
                                     .getJSONObject("user")
                                     .getJSONObject("result").getJSONObject("core")
                                     .getString("screen_name")
+                            Log.d("TwitterPicUrl - ", twitterPicUrl)
+
+                            remoteViews =
+                                RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
+                            newAppWidget =
+                                ComponentName(applicationContext, NewAppWidget::class.java)
+                            remoteViews?.setImageViewUri(R.id.twSettings, Uri.parse(twitterPicUrl))
+
+                            appWidM = AppWidgetManager.getInstance(appContx)
+                            appWidM.updateAppWidget(newAppWidget, remoteViews)
+
+                            Log.d(TAG + "responseTweetID - ", responseBodyString)
                             Log.d(TAG + "Tw ID - ", twitterID + " - " + twitterProfileName)
 
                             if (showPD)
@@ -441,7 +462,10 @@ class MainActivity : AppCompatActivity() {
 
                 remoteViews = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
                 newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
-                remoteViews?.setTextViewText(R.id.tx_tweets, "@" + twitterProfileName + "\t ~ \t" + listTweets[0])
+                remoteViews?.setTextViewText(
+                    R.id.tx_tweets,
+                    "@" + twitterProfileName + "\t ~ \t" + listTweets[0]
+                )
 
                 appWidM = AppWidgetManager.getInstance(appContx)
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
@@ -457,7 +481,23 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun rawTweets(boolpD : Boolean) {
+    suspend fun getBitmapFromUrl(imageUrl: String): Bitmap? {
+        return withContext(Dispatchers.IO) { // Switch to the IO dispatcher for network operations
+            try {
+                val url = URL(imageUrl)
+                val connection = url.openConnection()
+                connection.doInput = true
+                connection.connect()
+                val inputStream = connection.getInputStream()
+                BitmapFactory.decodeStream(inputStream) // Decode the input stream into a Bitmap
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null // Return null on error
+            }
+        }
+    }
+
+    private fun rawTweets(boolpD: Boolean) {
 
 
         if (boolpD) {
@@ -484,9 +524,35 @@ class MainActivity : AppCompatActivity() {
 
         makeSnack("Tweets - ${listTweets.size}")
 
+        var bitmapTwPic: Bitmap =
+            drawableToBitmap(applicationContext, resources.getDrawable(R.drawable.walp_icon))
+
         remoteViews = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
+
+        lifecycleScope.launch { // Launch a coroutine in the lifecycle scope
+            val imageUrl =
+                "https://pbs.twimg.com/profile_images/1244657050275151872/BRycNabV_normal.jpg" // Replace with your image URL
+            val bitmap = getBitmapFromUrl(imageUrl)
+            // Now you have the bitmap, you can display it in an ImageView or process it further
+            if (bitmap != null) {
+                makeToast("B L success")
+                try {
+                    remoteViews?.setTextViewText(
+                        R.id.tx_tweets,
+                        "@" + twitterProfileName + "\t ~ \t" + listTweets[0]
+                    )
+                    remoteViews?.setImageViewBitmap(R.id.twSettings, bitmap)
+                } catch (ex: Exception) {
+                    makeToast("TwiEx - ${ex.message}")
+                }
+            } else {
+                makeToast("B L failed")
+            }
+        }
+
         newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
-        remoteViews?.setTextViewText(R.id.tx_tweets, "@" + twitterProfileName + "\t ~ \t" + listTweets[0])
+
+
         appWidM = AppWidgetManager.getInstance(appContx)
         appWidM.updateAppWidget(newAppWidget, remoteViews)
 
