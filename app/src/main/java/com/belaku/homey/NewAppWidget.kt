@@ -296,9 +296,11 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
-        remoteViews?.setColorInt(R.id.imgbtn_lock, "setColorFilter", primaryColor, tertianaryColor)
+        remoteViews?.setColorInt(R.id.imgbtn_lock, "setColorFilter", primaryColor, secondaryColor)
         remoteViews?.setColorInt(R.id.imgbtn_conf, "setColorFilter", tertianaryColor, primaryColor)
-        remoteViews?.setColorInt(R.id.imgbtn_set, "setColorFilter", primaryColor, tertianaryColor)
+        remoteViews?.setColorInt(R.id.imgbtn_set, "setColorFilter", primaryColor, secondaryColor)
+        remoteViews?.setColorInt(R.id.twSettings, "setColorFilter", secondaryColor, tertianaryColor)
+        remoteViews?.setColorInt(R.id.twShare, "setColorFilter", secondaryColor, tertianaryColor)
 
 
         sharedPreferences = context.getSharedPreferences("UserPreferences", MODE_PRIVATE)
@@ -478,29 +480,9 @@ class NewAppWidget : AppWidgetProvider() {
 
         remoteViews?.setTextViewText(
             R.id.tx_tweets,
-            tW
+            "@"+twitterProfileName + "\t ~ \t" + tW
         )
         //🖍
-        remoteViews?.setTextViewText(R.id.twUser, Html.fromHtml(" @${twitterProfileName}",  Html.FROM_HTML_MODE_LEGACY))
-
-
-      /*  if (listTweets.size > 0) {
-
-            remoteViews?.setTextViewText(
-                R.id.tx_tweets,
-                tW
-            )
-            remoteViews?.setTextViewText(R.id.twUser, Html.fromHtml(" @${twitterProfileName}  \uD83D\uDD8D ",  Html.FROM_HTML_MODE_LEGACY))
-        }    else {
-            remoteViews?.setTextViewText(
-                R.id.twUser,
-                "Set Twitter Handle"
-            )
-        }*/
-
-
-
-
 
 
         todaysDate(context)

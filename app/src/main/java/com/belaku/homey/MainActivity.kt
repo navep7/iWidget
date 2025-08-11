@@ -441,14 +441,8 @@ class MainActivity : AppCompatActivity() {
 
                 remoteViews = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
                 newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
-                remoteViews?.setTextViewText(R.id.tx_tweets, listTweets[0])
-                remoteViews?.setTextViewText(
-                    R.id.twUser,
-                    Html.fromHtml(
-                        " @${twitterProfileName}",
-                        Html.FROM_HTML_MODE_LEGACY
-                    )
-                )
+                remoteViews?.setTextViewText(R.id.tx_tweets, "@" + twitterProfileName + "\t ~ \t" + listTweets[0])
+
                 appWidM = AppWidgetManager.getInstance(appContx)
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
 
@@ -492,14 +486,7 @@ class MainActivity : AppCompatActivity() {
 
         remoteViews = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
         newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
-        remoteViews?.setTextViewText(R.id.tx_tweets, listTweets[0])
-        remoteViews?.setTextViewText(
-            R.id.twUser,
-            Html.fromHtml(
-                " @${twitterProfileName}",
-                Html.FROM_HTML_MODE_LEGACY
-            )
-        )
+        remoteViews?.setTextViewText(R.id.tx_tweets, "@" + twitterProfileName + "\t ~ \t" + listTweets[0])
         appWidM = AppWidgetManager.getInstance(appContx)
         appWidM.updateAppWidget(newAppWidget, remoteViews)
 

@@ -463,19 +463,6 @@
         android:src="@drawable/tw_settings" />
 
 
-    <TextView
-        android:id="@+id/twUser"
-        android:ellipsize="end"
-        android:padding="3dp"
-        android:textStyle="bold|italic"
-        android:layout_above="@+id/tx_tweets"
-        android:layout_toEndOf="@+id/twSettings"
-        android:maxLines="1"
-        android:layout_toStartOf="@+id/imgbtn_lock"
-        android:background="#80FFFFFF"
-        android:layout_marginTop="3dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
 
 
     <ImageButton
