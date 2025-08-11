@@ -363,6 +363,18 @@
         android:minHeight="25dp"
         android:visibility="invisible" />
 
+    <ImageButton
+        android:id="@+id/imgbtn_location"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:scaleType="fitXY"
+        android:layout_below="@+id/ll_apps"
+        android:layout_toStartOf="@+id/imgbtn_lock"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/rounded_corner"
+        android:padding="5dp"
+        android:src="@drawable/location" />
 
     <ImageButton
         android:id="@+id/imgbtn_lock"
@@ -398,6 +410,19 @@
         android:layout_marginTop="5dp"
         android:background="@drawable/rounded_corner"
         android:src="@android:drawable/ic_popup_sync" />
+
+    <ImageButton
+        android:id="@+id/imgbtn_music"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:scaleType="fitXY"
+        android:layout_below="@+id/ll_apps"
+        android:layout_toEndOf="@+id/imgbtn_set"
+        android:padding="5dp"
+        android:layout_marginStart="@dimen/fab_margin"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/rounded_corner"
+        android:src="@drawable/media" />
 
     <RelativeLayout
         android:id="@+id/rl_steps"

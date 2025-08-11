@@ -299,8 +299,10 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setColorInt(R.id.imgbtn_lock, "setColorFilter", primaryColor, secondaryColor)
         remoteViews?.setColorInt(R.id.imgbtn_conf, "setColorFilter", tertianaryColor, primaryColor)
         remoteViews?.setColorInt(R.id.imgbtn_set, "setColorFilter", primaryColor, secondaryColor)
+        remoteViews?.setColorInt(R.id.imgbtn_location, "setColorFilter", secondaryColor, primaryColor)
+        remoteViews?.setColorInt(R.id.imgbtn_music, "setColorFilter", secondaryColor, primaryColor)
    //     remoteViews?.setColorInt(R.id.twSettings, "setColorFilter", secondaryColor, tertianaryColor)
-        remoteViews?.setColorInt(R.id.twShare, "setColorFilter", secondaryColor, tertianaryColor)
+   //     remoteViews?.setColorInt(R.id.twShare, "setColorFilter", appContx.resources.getColor(android.R.color.holo_blue_bright), appContx.resources.getColor(android.R.color.holo_blue_light))
 
 
         sharedPreferences = context.getSharedPreferences("UserPreferences", MODE_PRIVATE)
