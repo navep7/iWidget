@@ -472,8 +472,8 @@ class NewAppWidget : AppWidgetProvider() {
 
         remoteViews?.setTextViewText(
             R.id.tx_desc_walltype,
-            wD + "\n" + qT.split(" ")[0].substring(0, 1)
-                .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT"
+            Html.fromHtml(wD + "\n" + qT.split(" ")[0].substring(0, 1)
+                .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",  Html.FROM_HTML_MODE_LEGACY)
         )
 
         remoteViews?.setTextViewText(

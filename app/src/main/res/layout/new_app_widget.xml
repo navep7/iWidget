@@ -357,7 +357,7 @@
         android:layout_marginStart="@dimen/fab_margin"
         android:layout_toRightOf="@+id/imgbtn_conf"
         android:indeterminate="true"
-        android:indeterminateTint="?attr/colorPrimaryInverse"
+        android:indeterminateTint="?attr/colorSecondary"
         android:indeterminateTintMode="src_atop"
         android:minWidth="25dp"
         android:minHeight="25dp"
@@ -506,6 +506,8 @@
 
     <TextView
         android:id="@+id/tx_desc_walltype"
+        android:autoLink="web"
+        android:linksClickable="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
