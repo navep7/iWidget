@@ -62,6 +62,7 @@ android {
 
 dependencies {
 
+    implementation(libs.material.v120alpha01) // Replace X.Y.Z with the latest stable version
     implementation(libs.picasso)
     implementation(libs.gson.v288)
   //  implementation(libs.androidx.multidex)

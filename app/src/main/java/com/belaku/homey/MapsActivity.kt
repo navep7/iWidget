@@ -1,10 +1,12 @@
 package com.belaku.homey
 
 import android.annotation.SuppressLint
+import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.ui.AppBarConfiguration
 import com.belaku.homey.MainActivity.Companion.makeToast
@@ -13,18 +15,28 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback
 import com.google.android.gms.maps.StreetViewPanorama
 import com.google.android.gms.maps.StreetViewPanoramaView
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.StreetViewPanoramaCamera
 import com.google.android.material.snackbar.Snackbar
 import java.io.IOException
 import java.util.Locale
 
 
-class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback {
+class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnMapReadyCallback {
 
+    private lateinit var cAddrs: MutableList<Address>
+    private var boolMapReady: Boolean = false
+    private lateinit var mGoogleMap: GoogleMap
+
+    private lateinit var mSupportMapFragment: SupportMapFragment
     private lateinit var mStreetViewPanorama: StreetViewPanorama
     private var boolstreetViewPanorama: Boolean = false
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -39,16 +51,27 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback {
 
         setSupportActionBar(binding.toolbar)
 
-        mStreetViewPanoramaView = findViewById(R.id.streetviewpanorama);
+        mStreetViewPanoramaView = findViewById(R.id.streetviewpanorama)
+        mSupportMapFragment =
+            (supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?)!!
+        mSupportMapFragment.getMapAsync(this@MapsActivity)
+
+
         mStreetViewPanoramaView.onCreate(savedInstanceState);
         mStreetViewPanoramaView.getStreetViewPanoramaAsync(this);
 
         locationUpdates()
 
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .setAnchorView(R.id.fab).show()
+        binding.fabMapOStreet.setOnClickListener { view ->
+
+            if (mSupportMapFragment.isVisible) {
+                mStreetViewPanoramaView.visibility = View.VISIBLE
+                mSupportMapFragment.view?.visibility = View.INVISIBLE
+            } else {
+                mStreetViewPanoramaView.visibility = View.INVISIBLE
+                mSupportMapFragment.view?.visibility = View.VISIBLE
+            }
+
         }
     }
 
@@ -61,7 +84,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback {
         locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
 
         //instantiating the LocationCallBack
-        var locationCallback = object : LocationCallback() {
+        val locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 val location = locationResult.lastLocation
                 if (location != null) {
@@ -91,13 +114,16 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback {
                         }
                         handler.post(runnable);
 
-
-
-
-
                         if (mStreetViewPanorama.location != null)
                             makeToast(getAddress(mStreetViewPanorama.location.position.latitude, mStreetViewPanorama.location.position.longitude).toString())
-
+                    }
+                    if (boolMapReady) {
+                        var hereAmi = LatLng(location.latitude, location.longitude)
+                        mGoogleMap.addMarker(
+                            MarkerOptions().position(hereAmi).title("" + cAddrs[0])
+                        )
+                        val zoomLevel = 15.0f // Desired zoom level
+                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hereAmi, zoomLevel))
 
                     }
                 }
@@ -117,7 +143,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback {
         val gcd = Geocoder(applicationContext)
         Locale.getDefault()
         try {
-            val cAddrs = gcd.getFromLocation(lat, lng, 1)
+            cAddrs = gcd.getFromLocation(lat, lng, 1)!!
          //   makeToast(cAddrs?.get(0)!!.subLocality)
             Snackbar.make(window.decorView.rootView, cAddrs?.get(0)!!.subLocality, Snackbar.LENGTH_INDEFINITE).show()
         } catch (e: IOException) {
@@ -131,6 +157,12 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback {
     override fun onStreetViewPanoramaReady(streetViewPanorama: StreetViewPanorama) {
         mStreetViewPanorama = streetViewPanorama
         boolstreetViewPanorama = true
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        mGoogleMap = googleMap
+        boolMapReady = true
+
     }
 
 
