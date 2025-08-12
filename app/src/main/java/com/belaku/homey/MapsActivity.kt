@@ -22,6 +22,8 @@ import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback
 import com.google.android.gms.maps.StreetViewPanorama
 import com.google.android.gms.maps.StreetViewPanoramaView
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.StreetViewPanoramaCamera
@@ -39,7 +41,6 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
     private lateinit var mSupportMapFragment: SupportMapFragment
     private lateinit var mStreetViewPanorama: StreetViewPanorama
     private var boolstreetViewPanorama: Boolean = false
-    private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMapsBinding
     private lateinit var mStreetViewPanoramaView: StreetViewPanoramaView
 
@@ -115,14 +116,25 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
                         handler.post(runnable);
 
                         if (mStreetViewPanorama.location != null)
-                            makeToast(getAddress(mStreetViewPanorama.location.position.latitude, mStreetViewPanorama.location.position.longitude).toString())
+                            makeToast(
+                                getAddress(
+                                    mStreetViewPanorama.location.position.latitude,
+                                    mStreetViewPanorama.location.position.longitude
+                                ).toString()
+                            )
                     }
                     if (boolMapReady) {
                         var hereAmi = LatLng(location.latitude, location.longitude)
+                        var addrs: String = ""
+                        if (cAddrs[0].maxAddressLineIndex > 0)
+                        for (i in 0 until cAddrs[0].maxAddressLineIndex) {
+                            addrs = addrs + cAddrs[0].getAddressLine(i)
+                        }
+                        else addrs = cAddrs[0].subLocality
                         mGoogleMap.addMarker(
-                            MarkerOptions().position(hereAmi).title("" + cAddrs[0])
-                        )
-                        val zoomLevel = 15.0f // Desired zoom level
+                            MarkerOptions().position(hereAmi).title(addrs).icon(BitmapDescriptorFactory.fromResource(android.R.drawable.ic_menu_mylocation))
+                        )?.showInfoWindow()
+                        val zoomLevel = 17.0f // Desired zoom level
                         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hereAmi, zoomLevel))
 
                     }
@@ -144,8 +156,12 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
         Locale.getDefault()
         try {
             cAddrs = gcd.getFromLocation(lat, lng, 1)!!
-         //   makeToast(cAddrs?.get(0)!!.subLocality)
-            Snackbar.make(window.decorView.rootView, cAddrs?.get(0)!!.subLocality, Snackbar.LENGTH_INDEFINITE).show()
+            //   makeToast(cAddrs?.get(0)!!.subLocality)
+            Snackbar.make(
+                window.decorView.rootView,
+                cAddrs?.get(0)!!.subLocality,
+                Snackbar.LENGTH_INDEFINITE
+            ).show()
         } catch (e: IOException) {
             // TODO Auto-generated catch block
             e.printStackTrace()
@@ -162,8 +178,6 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
     override fun onMapReady(googleMap: GoogleMap) {
         mGoogleMap = googleMap
         boolMapReady = true
-
     }
-
 
 }
