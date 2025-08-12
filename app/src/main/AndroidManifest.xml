@@ -47,6 +47,12 @@
         android:theme="@style/Theme.Homey"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDypKvRVtn8t_F0yKtSfK5PuI54FBNDvCk" />
+
+
         <activity
             android:name=".AppsActivity"
             android:exported="false"

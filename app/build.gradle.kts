@@ -81,6 +81,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.volley)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.play.services.maps)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
