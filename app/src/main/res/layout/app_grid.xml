@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_margin="@dimen/fab_margin"
+    android:layout_margin="5dp"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
@@ -15,11 +15,12 @@
     <TextView
         android:id="@+id/tx_app_name"
         android:maxLines="1"
-        android:textColor="?attr/colorTertiary"
-        android:maxLength="7"
+        android:gravity="center"
+        android:ellipsize="end"
+        android:textColor="?attr/colorPrimaryVariant"
         android:layout_below="@+id/imgv_app_icon"
         android:layout_centerHorizontal="true"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
 </RelativeLayout>

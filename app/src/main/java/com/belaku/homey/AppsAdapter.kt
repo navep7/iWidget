@@ -8,13 +8,11 @@ import com.belaku.homey.InstalledApp
 import com.belaku.homey.R
 import org.w3c.dom.Text
 
-class AppsAdapter(private val dataList: List<InstalledApp>) :
+class AppsAdapter(private val dataList: List<InstalledApp>,
+                    private val listener: RvEvent) :
     RecyclerView.Adapter<AppsAdapter.ViewHolder>() {
 
     // ... ViewHolder class and implementation ...
-
-    private lateinit var txAppname: TextView
-    private lateinit var txAppIcon: ImageView
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -29,11 +27,25 @@ class AppsAdapter(private val dataList: List<InstalledApp>) :
 
     override fun getItemCount(): Int = dataList.size
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    interface RvEvent {
+        fun onItemClick(pos: Int)
+    }
+
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
         fun bind(item: InstalledApp) {
             // Bind data to views in item_grid.xml
             itemView.findViewById<TextView>(R.id.tx_app_name).setText(item.name)
             itemView.findViewById<ImageView>(R.id.imgv_app_icon).setImageDrawable(item.icon)
+        }
+
+        init {
+            itemView.setOnClickListener(this)
+        }
+        override fun onClick(p0: View?) {
+            val position = adapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                listener.onItemClick(position)
+            }
         }
     }
 }
