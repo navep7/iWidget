@@ -51,6 +51,7 @@
             android:name=".AppsActivity"
             android:exported="false"
             android:label="Apps"
+            android:excludeFromRecents="true"
             android:theme="@style/Theme.Homey" />
         <activity
             android:name=".MusicActivity"
