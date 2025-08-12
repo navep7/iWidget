@@ -29,7 +29,7 @@ import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.makeSnack
 import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.queryType
-import com.belaku.homey.MainActivity.Companion.randomNumber
+import com.belaku.homey.MainActivity.Companion.randomWallIndex
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.updateTime
@@ -130,22 +130,16 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 wallDescs.sort()
 
 
-                randomNumber = Random.Default.nextInt(urls.size)
-                wallDesc = wallDescs.get(randomNumber)
+                randomWallIndex = Random.Default.nextInt(urls.size)
+                wallDesc = wallDescs.get(randomWallIndex)
 
 
                 try {
                     val inputStream =
-                        URL(urls[randomNumber].substring(4, urls[randomNumber].length)).openStream()
+                        URL(urls[randomWallIndex].substring(4, urls[randomWallIndex].length)).openStream()
                     wm.setStream(inputStream)
                     // Uri.parse(urls[randomNumber].substring(4, urls[randomNumber].length))
-                    val newurl = URL(urls[randomNumber].substring(4, urls[randomNumber].length))
-                   /* val bitmapOptions = BitmapFactory.Options()
-                    bitmapOptions.inSampleSize = 4
-                    bitmapOptions.inPreferredConfig = Bitmap.Config.RGB_565;
-                    var mIcon_val = BitmapFactory.decodeStream(newurl.openConnection().getInputStream(), null, bitmapOptions)
-                   remoteViews?.setImageViewBitmap(R.id.rl_widget_bg, mIcon_val)*/
-                    var c = Calendar.getInstance()
+                    val c = Calendar.getInstance()
                     updateTime =
                         "" + c.get(Calendar.HOUR_OF_DAY) + ":" + c.get(Calendar.MINUTE) + ":" + c.get(
                             Calendar.SECOND

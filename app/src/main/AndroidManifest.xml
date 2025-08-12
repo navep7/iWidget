@@ -15,7 +15,7 @@
         </intent>
     </queries>
 
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
@@ -48,6 +48,21 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".AppsActivity"
+            android:exported="false"
+            android:label="Apps"
+            android:theme="@style/Theme.Homey" />
+        <activity
+            android:name=".MusicActivity"
+            android:exported="false"
+            android:label="Music"
+            android:theme="@style/Theme.Homey" />
+        <activity
+            android:name=".MapsActivity"
+            android:exported="false"
+            android:label="Maps"
+            android:theme="@style/Theme.Homey" />
+        <activity
             android:name=".DialogWidgetStepsActivity"
             android:exported="false"
             android:theme="@android:style/Theme.Dialog" />
@@ -62,7 +77,8 @@
             </intent-filter>
         </service>
 
-        <receiver android:name=".DayChangeReceiver"
+        <receiver
+            android:name=".DayChangeReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.DATE_CHANGED" />

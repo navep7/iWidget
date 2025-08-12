@@ -1083,7 +1083,7 @@ class MainActivity : AppCompatActivity() {
         var updateInterval: String? = null
         lateinit var sharedPreferences: SharedPreferences
         lateinit var sharedPreferencesEditor: SharedPreferences.Editor
-        var randomNumber: Int = 0
+        var randomWallIndex: Int = 0
         val imgUrls: ArrayList<String> = ArrayList()
         var imgDescs: ArrayList<String> = ArrayList()
 

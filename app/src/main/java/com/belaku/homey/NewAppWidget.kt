@@ -4,7 +4,6 @@ package com.belaku.homey
 // Weather Key - 9fa8e101240ab18615e3133b051e767e
 
 import android.Manifest
-import android.R.attr.colorPrimary
 import android.accounts.AccountManager
 import android.annotation.SuppressLint
 import android.app.PendingIntent
@@ -71,7 +70,7 @@ import kotlin.properties.Delegates
 class NewAppWidget : AppWidgetProvider() {
 
 
-    private var randomTweetIndex : Int = 0
+    private var randomTweetIndex: Int = 0
     private var newsStr: String = ""
     private lateinit var wifiManager: WifiManager
     private lateinit var formattedDate: String
@@ -122,11 +121,11 @@ class NewAppWidget : AppWidgetProvider() {
         if (wallpaperColors != null) {
             primaryColor = wallpaperColors.primaryColor.toArgb()
             if (wallpaperColors.secondaryColor != null)
-            secondaryColor = wallpaperColors.secondaryColor!!.toArgb()
+                secondaryColor = wallpaperColors.secondaryColor!!.toArgb()
             else secondaryColor = Color.LTGRAY
 
             if (wallpaperColors.tertiaryColor != null)
-            tertianaryColor = wallpaperColors.tertiaryColor!!.toArgb()
+                tertianaryColor = wallpaperColors.tertiaryColor!!.toArgb()
             else tertianaryColor = Color.DKGRAY
 
         }
@@ -154,7 +153,12 @@ class NewAppWidget : AppWidgetProvider() {
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.twSettings,
-                PendingIntent.getActivity(context, 21, intentSTH, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                PendingIntent.getActivity(
+                    context,
+                    21,
+                    intentSTH,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
             )
 
             remoteViews?.setOnClickPendingIntent(
@@ -215,6 +219,46 @@ class NewAppWidget : AppWidgetProvider() {
                 getPendingSelfIntent(context, SET_CLICKED)
             )
 
+
+            val mapsIntent = Intent(context, MapsActivity::class.java)
+            val mapsPendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                mapsIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgbtn_location,
+                mapsPendingIntent
+            )
+
+            val musicIntent = Intent(context, MusicActivity::class.java)
+            val musicPendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                musicIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgbtn_music,
+                musicPendingIntent
+            )
+
+            val launcherIntent = Intent(context, AppsActivity::class.java)
+            val launcherPendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                musicIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgv_add3,
+                launcherPendingIntent
+            )
+
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgv_add1,
                 getPendingSelfIntent(context, APP1_CLICKED)
@@ -223,11 +267,6 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgv_add2,
                 getPendingSelfIntent(context, APP2_CLICKED)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_add3,
-                getPendingSelfIntent(context, APP_DRAWER_CLICKED)
             )
 
             remoteViews?.setOnClickPendingIntent(
@@ -299,10 +338,13 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setColorInt(R.id.imgbtn_lock, "setColorFilter", primaryColor, secondaryColor)
         remoteViews?.setColorInt(R.id.imgbtn_conf, "setColorFilter", tertianaryColor, primaryColor)
         remoteViews?.setColorInt(R.id.imgbtn_set, "setColorFilter", primaryColor, secondaryColor)
-        remoteViews?.setColorInt(R.id.imgbtn_location, "setColorFilter", secondaryColor, primaryColor)
+        remoteViews?.setColorInt(
+            R.id.imgbtn_location,
+            "setColorFilter",
+            secondaryColor,
+            primaryColor
+        )
         remoteViews?.setColorInt(R.id.imgbtn_music, "setColorFilter", secondaryColor, primaryColor)
-   //     remoteViews?.setColorInt(R.id.twSettings, "setColorFilter", secondaryColor, tertianaryColor)
-   //     remoteViews?.setColorInt(R.id.twShare, "setColorFilter", appContx.resources.getColor(android.R.color.holo_blue_bright), appContx.resources.getColor(android.R.color.holo_blue_light))
 
 
         sharedPreferences = context.getSharedPreferences("UserPreferences", MODE_PRIVATE)
@@ -315,9 +357,12 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         if (listTweets.size > 0) {
-            if (intent.action.equals("newsNext") || intent.action.equals("newsPrev") || intent.action.equals("twShare"))
+            if (intent.action.equals("newsNext") || intent.action.equals("newsPrev") || intent.action.equals(
+                    "twShare"
+                )
+            )
                 tW = sharedPreferences.getString("tW", "").toString()
-            else if (!intent.action.equals("wallChange")){
+            else if (!intent.action.equals("wallChange")) {
                 Log.d(TAG + "TwAct", intent.action.toString())
                 randomTweetIndex = (0..listTweets.size - 1).random()
                 tW = listTweets[randomTweetIndex]
@@ -344,7 +389,12 @@ class NewAppWidget : AppWidgetProvider() {
 
         remoteViews?.setOnClickPendingIntent(
             R.id.twSettings,
-            PendingIntent.getActivity(context, 21, intentSTH, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            PendingIntent.getActivity(
+                context,
+                21,
+                intentSTH,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
         )
 
 
@@ -413,9 +463,46 @@ class NewAppWidget : AppWidgetProvider() {
             getPendingSelfIntent(context, APP2_CLICKED)
         )
 
+        val mapsIntent = Intent(context, MapsActivity::class.java)
+        val mapsPendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            mapsIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_location,
+            mapsPendingIntent
+        )
+
+        val musicIntent = Intent(context, MusicActivity::class.java)
+        val musicPendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            musicIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_music,
+            musicPendingIntent
+        )
+
+        val launcherIntent = Intent(context, AppsActivity::class.java)
+        launcherIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+        launcherIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        val launcherPendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            launcherIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+        )
+
         remoteViews?.setOnClickPendingIntent(
             R.id.imgv_add3,
-            getPendingSelfIntent(context, APP_DRAWER_CLICKED)
+            launcherPendingIntent
         )
 
         remoteViews?.setOnClickPendingIntent(
@@ -476,13 +563,16 @@ class NewAppWidget : AppWidgetProvider() {
 
         remoteViews?.setTextViewText(
             R.id.tx_desc_walltype,
-            Html.fromHtml(wD + "<br>" + qT.split(" ")[0].substring(0, 1)
-                .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",  Html.FROM_HTML_MODE_LEGACY)
+            Html.fromHtml(
+                wD + "<br>" + qT.split(" ")[0].substring(0, 1)
+                    .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
+                Html.FROM_HTML_MODE_LEGACY
+            )
         )
 
         remoteViews?.setTextViewText(
             R.id.tx_tweets,
-            "@"+twitterProfileName + "\t ~ \t" + tW
+            "@" + twitterProfileName + "\t ~ \t" + tW
         )
         //🖍
 
@@ -490,7 +580,7 @@ class NewAppWidget : AppWidgetProvider() {
         todaysDate(context)
 
 
-        if (TW_SHARE == intent.action)  {
+        if (TW_SHARE == intent.action) {
             val sendIntent: Intent = Intent().apply {
                 action = Intent.ACTION_SEND
                 putExtra(Intent.EXTRA_TEXT, tW)
@@ -522,7 +612,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             makeToast(newsIndex.toString() + " n-I " + newsList.size)
             if (newsList.size > 1)
-             //   remoteViews?.setTextViewText(R.id.tx_news, Html.fromHtml("<u>" + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY))
+            //   remoteViews?.setTextViewText(R.id.tx_news, Html.fromHtml("<u>" + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY))
             else MainActivity.getNews()
         }
 
@@ -650,6 +740,7 @@ class NewAppWidget : AppWidgetProvider() {
             context.startActivity(launchIntent)
         }
 
+
         if (WALL_CHANGE == intent.action) {
 
             remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.VISIBLE)
@@ -674,13 +765,12 @@ class NewAppWidget : AppWidgetProvider() {
             launchApp(context, app.pName)
         }
 
-        if (APP_DRAWER_CLICKED == intent.action) {
+      /*  if (APP_DRAWER_CLICKED == intent.action) {
             var appsIntent: Intent = Intent(Intent.ACTION_ALL_APPS)
             appsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             appsIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
             appContx.startActivity(appsIntent)
-
-        }
+        }*/
 
         if (APP4_CLICKED == intent.action) {
             var app = choosenApps[3]
@@ -1043,7 +1133,10 @@ class NewAppWidget : AppWidgetProvider() {
                 } else if (i == 2) {
                     remoteViews!!.setImageViewBitmap(
                         R.id.imgv_add3,
-                        drawableToBitmap(context, appContx.resources.getDrawable(R.drawable.launch_e))
+                        drawableToBitmap(
+                            context,
+                            appContx.resources.getDrawable(R.drawable.launch_e)
+                        )
                     )
                     //     remoteViews!!.setTextViewText(R.id.tx_c3, fApps[2].name)
                 } else if (i == 3) {
@@ -1104,7 +1197,6 @@ class NewAppWidget : AppWidgetProvider() {
         lateinit var newAppWidget: ComponentName
 
 
-
         private const val TW_SHARE = "twShare"
         private const val NEWS_CLICK = "newsClick"
         private const val NEWS_NEXT = "newsNext"
@@ -1118,7 +1210,6 @@ class NewAppWidget : AppWidgetProvider() {
         private const val SET_CLICKED = "setButtonClick"
         private const val APP1_CLICKED = "App1Clicked"
         private const val APP2_CLICKED = "App2Clicked"
-        private const val APP_DRAWER_CLICKED = "APPDRAWERCLICKED"
         private const val APP4_CLICKED = "App4Clicked"
         private const val APP5_CLICKED = "App5Clicked"
 
