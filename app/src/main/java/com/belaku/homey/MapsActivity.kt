@@ -122,12 +122,12 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
                         handler.post(runnable);
 
                         if (mStreetViewPanorama.location != null)
-                            makeToast(
+
                                 getAddress(
                                     mStreetViewPanorama.location.position.latitude,
                                     mStreetViewPanorama.location.position.longitude
-                                ).toString()
-                            )
+                                )
+
                     }
                     if (boolMapReady) {
 
