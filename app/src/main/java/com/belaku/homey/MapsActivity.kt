@@ -30,6 +30,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.StreetViewPanoramaCamera
 import com.google.android.material.snackbar.Snackbar
@@ -37,7 +38,7 @@ import java.io.IOException
 import java.util.Locale
 
 
-class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnMapReadyCallback {
+class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
     private lateinit var cAddrs: MutableList<Address>
     private var boolMapReady: Boolean = false
@@ -90,7 +91,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
         locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
 
         //instantiating the LocationCallBack
-        val locationCallback = object : LocationCallback() {
+        val locationCallback = object : LocationCallback(), GoogleMap.OnMarkerClickListener {
             override fun onLocationResult(locationResult: LocationResult) {
                 val location = locationResult.lastLocation
                 if (location != null) {
@@ -136,9 +137,18 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
                             addrs = addrs + cAddrs[0].getAddressLine(i)
                         }
                         else addrs = cAddrs[0].subLocality
-                        addPresentMarker(location, addrs)
+                        addPresentMarker(LatLng(location.latitude, location.longitude), addrs)
+
+                        mGoogleMap.setOnMapClickListener(this@MapsActivity)
+                        mGoogleMap.setOnMarkerClickListener(this)
                     }
                 }
+            }
+
+            override fun onMarkerClick(p0: Marker): Boolean {
+                makeToast(p0.title.toString())
+                mStreetViewPanorama.setPosition(p0.position)
+                return true
             }
         }
 
@@ -151,7 +161,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
         )
     }
 
-    private fun addPresentMarker(location: Location, addrs: String) {
+    private fun addPresentMarker(ltlng: LatLng, addrs: String) {
         var icon: BitmapDescriptor? = null
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val icnGenerator: IconGenerator = IconGenerator(this)
@@ -161,13 +171,13 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
             )
             icon = BitmapDescriptorFactory.fromBitmap(bmp)
         }
-        var mLatLng: LatLng = LatLng(location.latitude, location.longitude)
-        var markerOptions = MarkerOptions().position(mLatLng).icon(icon)
+        var mLatLng: LatLng = LatLng(ltlng.latitude, ltlng.longitude)
+        var markerOptions = MarkerOptions().position(mLatLng).icon(icon).title(addrs)
 
         //    marker = googleMap.addMarker(markerOptions);
         var markerAddress = mGoogleMap.addMarker(markerOptions)
         val cameraPosition =
-            CameraPosition.Builder().target(mLatLng).tilt(55f).zoom(15f).bearing(0f)
+            CameraPosition.Builder().target(mLatLng).tilt(55f).zoom(20f).bearing(0f)
                 .build()
 
         mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
@@ -203,6 +213,10 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
         googleMap.isBuildingsEnabled = true
         mGoogleMap = googleMap
         boolMapReady = true
+    }
+
+    override fun onMapClick(p0: LatLng) {
+        addPresentMarker(p0, "here")
     }
 
 }
