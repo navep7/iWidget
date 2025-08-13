@@ -112,9 +112,7 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
 
-
 class MainActivity : AppCompatActivity() {
-
 
     private lateinit var appWidM: AppWidgetManager
     private lateinit var editTextTwitterHandle: EditText
@@ -146,11 +144,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var editTextPrompt: EditText
     private var pexelUrl: String =
         "https://api.pexels.com/v1/search?query=$queryType&per_page=10"
-
-    private val RESULT_ENABLE: Int = 1
-    private val MY_PERMISSIONS_REQUEST_READ_CONTACTS: Int = 1
     private lateinit var binding: ActivityMainBinding
-
 
     @SuppressLint("MissingPermission")
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -162,6 +156,9 @@ class MainActivity : AppCompatActivity() {
 
         mAct = this@MainActivity
         appContx = applicationContext
+
+        if (apps.size == 0)
+        getApps()
 
         cDate = Calendar.getInstance().get(Calendar.DATE) - 2
         cMonth = Calendar.getInstance().get(Calendar.MONTH) + 1
@@ -175,14 +172,10 @@ class MainActivity : AppCompatActivity() {
                 else makeToast("yet2Impl")
             }
 
-
-
         setSupportActionBar(binding.toolbar)
-
 
         sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
-
 
         parentLayout = findViewById(android.R.id.content);
 
@@ -286,6 +279,22 @@ class MainActivity : AppCompatActivity() {
         }
 
 
+    }
+
+
+    private fun getApps() {
+        val mainIntent = Intent(Intent.ACTION_MAIN, null)
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+        val resolveInfoList = packageManager.queryIntentActivities(mainIntent, 0)
+        for (i in resolveInfoList) {
+            if (i.activityInfo != null) {
+                val appInfo = packageManager.getApplicationInfo(i.activityInfo.packageName, 0)
+                apps.add(InstalledApp(i.activityInfo.loadLabel(packageManager).toString(), i.activityInfo.packageName, packageManager.getApplicationIcon(appInfo)))
+            }
+        }
+        apps.sortWith { s1: InstalledApp, s2: InstalledApp ->
+            s1.name.compareTo(s2.name, true)
+        }
     }
 
     @SuppressLint("MissingInflatedId")
@@ -739,30 +748,20 @@ class MainActivity : AppCompatActivity() {
 
         cursor.close()
 
-
-
-
         for (i in 0 until favContacts.size) {
-
             Log.d(
                 "cLog",
                 "cName: ${favContacts.get(i).name}, cPic: ${favContacts.get(i).image}, cNum: ${
                     favContacts.get(i).number
                 } "
             )
-
-
         }
-
     }
 
     private fun saveContacts() {
-
         val key = "CTS"
-
         val gson = Gson()
         val json = gson.toJson(favContacts)
-
         sharedPreferencesEditor.remove(key).commit()
         sharedPreferencesEditor.putString(key, json).commit()
     }
@@ -790,16 +789,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun getAppIconFromPkg(context: Context, packageName: String?): Drawable? {
-        try {
-            val icon: Drawable =
-                context.getPackageManager().getApplicationIcon(packageName.toString())
-            return icon
-        } catch (e: NameNotFoundException) {
-            e.printStackTrace()
-            return context.getDrawable(R.drawable.calls)
-        }
-    }
 
     private fun getAppNameFromPkg(context: Context, packageName: String?): String {
         val pm: PackageManager = context.getPackageManager()
@@ -1049,6 +1038,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
 
+        var apps: ArrayList<InstalledApp> = ArrayList()
         lateinit var pD: ProgressDialog
         var wallDelay: Int = 0
         var twitterProfileName: String = "Fact"

@@ -14,6 +14,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.randomWallIndex
 import com.belaku.homey.databinding.ActivityAppsBinding
 import com.bumptech.glide.Glide
@@ -25,7 +26,7 @@ import java.util.Collections
 
 class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
-    var apps: ArrayList<InstalledApp> = ArrayList()
+
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityAppsBinding
 
@@ -39,57 +40,15 @@ class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         setContentView(binding.root)
 
 
-        /*getApps()
         val recyclerView: RecyclerView = findViewById(R.id.rv_apps)
         val adapter = AppsAdapter(apps, this)
         val layoutManager = GridLayoutManager(this, 5)
         recyclerView.layoutManager = layoutManager
-        recyclerView.adapter = adapter*/
+        recyclerView.adapter = adapter
 
 
         val rootLayout = findViewById<ConstraintLayout>(R.id.apps_layout)
         rootLayout.setBackgroundDrawable(BitmapDrawable(getResources(), SetWallWorker.wallBitmap))
-
-        /*     var url = SetWallWorker.urls[randomWallIndex].split(" ")[2]
-      Glide.with(this)
-           .load(url) // Replace with your image URL
-           .into(object : CustomTarget<Drawable?>() {
-
-               override fun onResourceReady(
-                   resource: Drawable,
-                   transition: Transition<in Drawable?>?
-               ) {
-                   // Set the drawable as the background of your root layout
-                   resource.alpha = 128
-                   rootLayout.background = resource
-               }
-
-               override fun onLoadCleared(@Nullable placeholder: Drawable?) {
-                   // Handle placeholder or cleared state if needed
-               }
-           })*/
-
-
-
-
-    }
-
-    private fun getApps() {
-
-        val mainIntent = Intent(Intent.ACTION_MAIN, null)
-        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-        val resolveInfoList = packageManager.queryIntentActivities(mainIntent, 0)
-
-        for (i in resolveInfoList) {
-            if (i.activityInfo != null) {
-                val appInfo = packageManager.getApplicationInfo(i.activityInfo.packageName, 0)
-                apps.add(InstalledApp(i.activityInfo.loadLabel(packageManager).toString(), i.activityInfo.packageName, packageManager.getApplicationIcon(appInfo)))
-            }
-        }
-
-        apps.sortWith { s1: InstalledApp, s2: InstalledApp ->
-            s1.name.compareTo(s2.name, true)
-        }
 
     }
 
