@@ -62,6 +62,8 @@ android {
 
 dependencies {
 
+    implementation(libs.android.maps.utils)
+    implementation(libs.android.gif.drawable)
     implementation(libs.material.v120alpha01) // Replace X.Y.Z with the latest stable version
     implementation(libs.picasso)
     implementation(libs.gson.v288)

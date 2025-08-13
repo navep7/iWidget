@@ -1,14 +1,18 @@
 package com.belaku.homey
 
+import com.google.maps.android.ui.IconGenerator
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
 import android.location.Address
 import android.location.Geocoder
+import android.location.Location
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.Html
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.ui.AppBarConfiguration
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.databinding.ActivityMapsBinding
 import com.google.android.gms.location.LocationCallback
@@ -24,6 +28,7 @@ import com.google.android.gms.maps.StreetViewPanoramaView
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.StreetViewPanoramaCamera
@@ -124,19 +129,14 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
                             )
                     }
                     if (boolMapReady) {
-                        var hereAmi = LatLng(location.latitude, location.longitude)
-                        var addrs: String = ""
+
+                        var addrs = ""
                         if (cAddrs[0].maxAddressLineIndex > 0)
                         for (i in 0 until cAddrs[0].maxAddressLineIndex) {
                             addrs = addrs + cAddrs[0].getAddressLine(i)
                         }
                         else addrs = cAddrs[0].subLocality
-                        mGoogleMap.addMarker(
-                            MarkerOptions().position(hereAmi).title(addrs).icon(BitmapDescriptorFactory.fromResource(android.R.drawable.ic_menu_mylocation))
-                        )?.showInfoWindow()
-                        val zoomLevel = 17.0f // Desired zoom level
-                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hereAmi, zoomLevel))
-
+                        addPresentMarker(location, addrs)
                     }
                 }
             }
@@ -149,6 +149,28 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
             locationCallback,
             Looper.getMainLooper()
         )
+    }
+
+    private fun addPresentMarker(location: Location, addrs: String) {
+        var icon: BitmapDescriptor? = null
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val icnGenerator: IconGenerator = IconGenerator(this)
+            // Bitmap bmp = icnGenerator.makeIcon(Html.fromHtml("<b><font color=\"#000000\">" + mAddresses[0] + mAddresses[1] + mAddresses[2] + "\n" + mAddresses[3] + mAddresses[4] + "</font></b>"));
+            val bmp: Bitmap = icnGenerator.makeIcon(
+              addrs
+            )
+            icon = BitmapDescriptorFactory.fromBitmap(bmp)
+        }
+        var mLatLng: LatLng = LatLng(location.latitude, location.longitude)
+        var markerOptions = MarkerOptions().position(mLatLng).icon(icon)
+
+        //    marker = googleMap.addMarker(markerOptions);
+        var markerAddress = mGoogleMap.addMarker(markerOptions)
+        val cameraPosition =
+            CameraPosition.Builder().target(mLatLng).tilt(55f).zoom(15f).bearing(0f)
+                .build()
+
+        mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
     }
 
     fun getAddress(lat: Double, lng: Double) {
@@ -175,7 +197,10 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
         boolstreetViewPanorama = true
     }
 
+    @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
+        googleMap.isMyLocationEnabled = true
+        googleMap.isBuildingsEnabled = true
         mGoogleMap = googleMap
         boolMapReady = true
     }

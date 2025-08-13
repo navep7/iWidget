@@ -107,6 +107,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
     companion object {
 
+        lateinit var wallBitmap: Bitmap
         var boolNewLap: Boolean = false
         @kotlin.jvm.JvmField
         var steps = 0
@@ -135,10 +136,16 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
 
                 try {
-                    val inputStream =
-                        URL(urls[randomWallIndex].substring(4, urls[randomWallIndex].length)).openStream()
-                    wm.setStream(inputStream)
+                 //   val inputStream =
+                   //     URL(urls[randomWallIndex].substring(4, urls[randomWallIndex].length)).openStream()
+                 //   wm.setStream(inputStream)
                     // Uri.parse(urls[randomNumber].substring(4, urls[randomNumber].length))
+
+
+                    wallBitmap = BitmapFactory.decodeStream(URL(urls[randomWallIndex].substring(4, urls[randomWallIndex].length)).openConnection().getInputStream())
+
+                    wm.setBitmap(wallBitmap)
+
                     val c = Calendar.getInstance()
                     updateTime =
                         "" + c.get(Calendar.HOUR_OF_DAY) + ":" + c.get(Calendar.MINUTE) + ":" + c.get(

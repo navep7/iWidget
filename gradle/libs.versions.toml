@@ -1,5 +1,7 @@
 [versions]
 agp = "8.6.0"
+androidGifDrawable = "1.2.29"
+androidMapsUtils = "3.8.2"
 blur_tutorial = "1.0.1"
 glide = "4.16.0"
 googleMaterial = "1.2.0-alpha01"
@@ -28,6 +30,8 @@ workRuntimeKtx = "2.10.2"
 playServicesMaps = "19.2.0"
 
 [libraries]
+android-gif-drawable = { module = "pl.droidsonroids.gif:android-gif-drawable", version.ref = "androidGifDrawable" }
+android-maps-utils = { module = "com.google.maps.android:android-maps-utils", version.ref = "androidMapsUtils" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-multidex = { module = "androidx.multidex:multidex" }
 blur_tutorial = { module = "com.cleveroad.blur_tutorial:blur_tutorial", version.ref = "blur_tutorial" }
