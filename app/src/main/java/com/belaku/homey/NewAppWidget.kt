@@ -12,12 +12,14 @@ import android.app.admin.DevicePolicyManager
 import android.app.usage.UsageStats
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.bluetooth.BluetoothAdapter
 import android.content.ComponentName
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Context.BLUETOOTH_SERVICE
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.database.Cursor
@@ -47,6 +49,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.MainActivity.Companion.boolBluetooth
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.getWeatherData
 import com.belaku.homey.MainActivity.Companion.listTweets
@@ -99,7 +102,6 @@ class NewAppWidget : AppWidgetProvider() {
         onEn = true
         Log.d("onEnabled! - ", favContacts.size.toString())
         getWeatherData()
-
     }
 
     override fun onDisabled(context: Context?) {
@@ -826,6 +828,9 @@ class NewAppWidget : AppWidgetProvider() {
             dialPhoneNumber(context, favContacts.get(3).number)
         }
 
+        if (boolBluetooth)
+            remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_on)
+        else remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_off)
 
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
         AppWidgetManager.getInstance(context).updateAppWidget(newAppWidget, remoteViews)

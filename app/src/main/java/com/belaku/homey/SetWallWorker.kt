@@ -65,44 +65,13 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         setWall()
 
         WifiState()
-        BluetoothState()
 
         return Result.success()
     }
 
-    private fun BluetoothState() {
-        var wTAG = "BluetoothState ~ "
 
 
-        val mBluetoothReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent) {
 
-                val action = intent.action
-                makeSnack("onReceive BLT - " + action)
-
-
-                if (BluetoothAdapter.ACTION_STATE_CHANGED == action) {
-                    val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
-                    when (state) {
-                        BluetoothAdapter.STATE_OFF -> {
-                            remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_off)
-                            appWidM.updateAppWidget(newAppWidget, remoteViews)
-                        }
-                        BluetoothAdapter.STATE_TURNING_OFF -> {}
-                        BluetoothAdapter.STATE_ON -> {
-                            remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_on)
-                            appWidM.updateAppWidget(newAppWidget, remoteViews)
-                        }
-                        BluetoothAdapter.STATE_TURNING_ON -> {}
-                    }
-                }
-            }
-        }
-
-        val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-        appContx.registerReceiver(mBluetoothReceiver, filter)
-
-    }
 
     private fun WifiState() {
         var wTAG = "WifiState ~"

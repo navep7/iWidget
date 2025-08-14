@@ -1,7 +1,10 @@
 package com.belaku.homey
 
 import AppsAdapter
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.content.Context
+import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.os.Build
@@ -37,7 +40,6 @@ class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         window.requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
         window.enterTransition = Fade()
         setContentView(binding.root)
-
 
         val recyclerView: RecyclerView = findViewById(R.id.rv_apps)
         val adapter = AppsAdapter(apps, this)

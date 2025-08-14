@@ -20,6 +20,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
@@ -113,7 +114,6 @@ import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var appWidM: AppWidgetManager
     private lateinit var editTextTwitterHandle: EditText
     private lateinit var twitterHandleDialog: View
     private lateinit var responseTweets: okhttp3.Response
@@ -155,6 +155,11 @@ class MainActivity : AppCompatActivity() {
 
         mAct = this@MainActivity
         appContx = applicationContext
+
+        registerReceiver(
+            BluetoothReceiver(),
+            IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+        )
 
         if (apps.size == 0)
             getApps()
@@ -957,9 +962,44 @@ class MainActivity : AppCompatActivity() {
                     startStepsService()
                     usageStatsPermissionDialog()
                     rawTweets(false)
+                    //     BluetoothState()
                 }
         }
     }
+
+    /*  private fun BluetoothState() {
+          var wTAG = "BluetoothState ~ "
+
+
+          val mBluetoothReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+              override fun onReceive(context: Context?, intent: Intent) {
+
+                  val action = intent.action
+                  makeSnack("onReceive BLT - " + action)
+
+
+                  if (BluetoothAdapter.ACTION_STATE_CHANGED == action) {
+                      val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
+                      when (state) {
+                          BluetoothAdapter.STATE_OFF -> {
+                              remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_off)
+                              appWidM.updateAppWidget(newAppWidget, remoteViews)
+                          }
+                          BluetoothAdapter.STATE_TURNING_OFF -> {}
+                          BluetoothAdapter.STATE_ON -> {
+                              remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_on)
+                              appWidM.updateAppWidget(newAppWidget, remoteViews)
+                          }
+                          BluetoothAdapter.STATE_TURNING_ON -> {}
+                      }
+                  }
+              }
+          }
+
+          val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+          appContx.registerReceiver(mBluetoothReceiver, filter)
+
+      }*/
 
 
     private fun startStepsService() {
@@ -1063,6 +1103,8 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
 
+        var boolBluetooth: Boolean = false
+        lateinit var appWidM: AppWidgetManager
         val mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         var apps: ArrayList<InstalledApp> = ArrayList()
         lateinit var pD: ProgressDialog
@@ -1230,7 +1272,6 @@ class MainActivity : AppCompatActivity() {
                 ?.enqueue(object : Callback<MainNews> {
 
                     override fun onFailure(call: Call<MainNews>, t: Throwable) {
-
                         makeToast("onFailure - " + t.message)
                     }
 
@@ -1252,6 +1293,24 @@ class MainActivity : AppCompatActivity() {
                     }
                 })
 
+        }
+
+        fun notifyBluetoothState(b: Boolean) {
+
+            makeToast("BL state - $b")
+            remoteViews = RemoteViews(appContx.packageName, R.layout.new_app_widget)
+            newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
+
+            if (b) {
+                boolBluetooth = true
+                makeToast("settingBLeON")
+                remoteViews!!.setImageViewResource(R.id.fab_blue, R.drawable.blue_on)
+            } else {
+                boolBluetooth = false
+                makeToast("settingBLeOFF")
+                remoteViews!!.setImageViewResource(R.id.fab_blue, R.drawable.blue_off)
+            }
+            appWidM.updateAppWidget(newAppWidget, remoteViews)
         }
 
 
