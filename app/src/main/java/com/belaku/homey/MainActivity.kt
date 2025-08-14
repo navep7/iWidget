@@ -15,6 +15,7 @@ import android.app.admin.DevicePolicyManager
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.appwidget.AppWidgetManager
+import android.bluetooth.BluetoothAdapter
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -26,7 +27,6 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.Drawable
 import android.icu.util.Calendar
 import android.location.Geocoder
 import android.location.Location
@@ -105,7 +105,6 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.IOException
 import java.net.URL
 import java.util.Collections
 import java.util.Locale
@@ -158,11 +157,20 @@ class MainActivity : AppCompatActivity() {
         appContx = applicationContext
 
         if (apps.size == 0)
-        getApps()
+            getApps()
 
         cDate = Calendar.getInstance().get(Calendar.DATE) - 2
         cMonth = Calendar.getInstance().get(Calendar.MONTH) + 1
         cYear = Calendar.getInstance().get(Calendar.YEAR)
+
+        var bluetoothLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == AppCompatActivity.RESULT_OK) {
+                    // Bluetooth enabled by user
+                } else {
+                    // Bluetooth not enabled by user
+                }
+            }
 
         if (intent != null)
             if (intent.getStringExtra("STH") != null) {
@@ -170,6 +178,17 @@ class MainActivity : AppCompatActivity() {
                 if (intent.getStringExtra("STH").equals("Set Twitter Handle"))
                     showTwitterHandleDialog()
                 else makeToast("yet2Impl")
+            } else if (intent.getStringExtra("BLUE") != null) {
+                makeToast("Bluetooth request - " + intent.getStringExtra("BLUE"))
+
+                if (intent.getStringExtra("BLUE") == "enable") {
+                    val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                    bluetoothLauncher.launch(enableBtIntent)
+                } else {
+                    val disableintent = Intent("android.bluetooth.adapter.action.REQUEST_DISABLE")
+                    bluetoothLauncher.launch(disableintent)
+                }
+
             }
 
         setSupportActionBar(binding.toolbar)
@@ -246,7 +265,8 @@ class MainActivity : AppCompatActivity() {
                             Manifest.permission.READ_CONTACTS,
                             Manifest.permission.CALL_PHONE,
                             Manifest.permission.ACTIVITY_RECOGNITION,
-                            Manifest.permission.ACCESS_FINE_LOCATION
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.BLUETOOTH_CONNECT
                         ),
                         CONTACTS_P
                     )
@@ -289,7 +309,13 @@ class MainActivity : AppCompatActivity() {
         for (i in resolveInfoList) {
             if (i.activityInfo != null) {
                 val appInfo = packageManager.getApplicationInfo(i.activityInfo.packageName, 0)
-                apps.add(InstalledApp(i.activityInfo.loadLabel(packageManager).toString(), i.activityInfo.packageName, packageManager.getApplicationIcon(appInfo)))
+                apps.add(
+                    InstalledApp(
+                        i.activityInfo.loadLabel(packageManager).toString(),
+                        i.activityInfo.packageName,
+                        packageManager.getApplicationIcon(appInfo)
+                    )
+                )
             }
         }
         apps.sortWith { s1: InstalledApp, s2: InstalledApp ->
@@ -789,7 +815,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
     private fun getAppNameFromPkg(context: Context, packageName: String?): String {
         val pm: PackageManager = context.getPackageManager()
         var ai = try {
@@ -1038,6 +1063,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
 
+        val mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         var apps: ArrayList<InstalledApp> = ArrayList()
         lateinit var pD: ProgressDialog
         var wallDelay: Int = 0

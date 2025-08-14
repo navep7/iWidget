@@ -15,6 +15,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.ContentResolver
 import android.content.Context
+import android.content.Context.BLUETOOTH_SERVICE
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -49,6 +50,7 @@ import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.getWeatherData
 import com.belaku.homey.MainActivity.Companion.listTweets
+import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.newsIndex
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
@@ -187,6 +189,18 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.fab_wifi,
                 getPendingSelfIntent(context, WIFI_AUTO)
             )
+
+            val intent = Intent(context, MainActivity::class.java)
+            val pendingIntentBluetooth = PendingIntent.getActivity(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            remoteViews?.setOnClickPendingIntent(R.id.fab_blue, pendingIntentBluetooth)
+
+
+
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.rl_clocks,
@@ -423,6 +437,19 @@ class NewAppWidget : AppWidgetProvider() {
             getPendingSelfIntent(context, WIFI_AUTO)
         )
 
+        val intentBluetooth = Intent(context, MainActivity::class.java)
+        if (mBluetoothAdapter.isEnabled)
+        intentBluetooth.putExtra("BLUE", "disable")
+        else intentBluetooth.putExtra("BLUE", "enable")
+        val pendingIntentBluetooth = PendingIntent.getActivity(
+            context,
+            0,
+            intentBluetooth,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        remoteViews?.setOnClickPendingIntent(R.id.fab_blue, pendingIntentBluetooth)
+
         remoteViews?.setOnClickPendingIntent(
             R.id.rl_clocks,
             getPendingSelfIntent(context, RL_INVERT)
@@ -638,6 +665,8 @@ class NewAppWidget : AppWidgetProvider() {
             appContx.startActivity(wifiIntent)
 
         }
+
+
 
 
 

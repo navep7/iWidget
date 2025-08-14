@@ -40,6 +40,7 @@ import java.util.Locale
 
 class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
+    private var boolStreetMarkerClicked: Boolean = false
     private lateinit var cAddrs: MutableList<Address>
     private var boolMapReady: Boolean = false
     private lateinit var mGoogleMap: GoogleMap
@@ -75,6 +76,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
                 mStreetViewPanoramaView.visibility = View.VISIBLE
                 mSupportMapFragment.view?.visibility = View.INVISIBLE
             } else {
+                boolStreetMarkerClicked = false
                 mStreetViewPanoramaView.visibility = View.INVISIBLE
                 mSupportMapFragment.view?.visibility = View.VISIBLE
             }
@@ -97,6 +99,8 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
                 if (location != null) {
                     getAddress(location.latitude, location.longitude)
                     if (boolstreetViewPanorama) {
+
+                        if (!boolStreetMarkerClicked)
                         mStreetViewPanorama.setPosition(
                             LatLng(
                                 location.latitude,
@@ -147,6 +151,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
 
             override fun onMarkerClick(p0: Marker): Boolean {
                 makeToast(p0.title.toString())
+                boolStreetMarkerClicked = true
                 mStreetViewPanorama.setPosition(p0.position)
                 return true
             }

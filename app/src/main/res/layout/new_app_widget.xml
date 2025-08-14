@@ -32,8 +32,8 @@
 
         <ImageButton
             android:id="@+id/fab_wifi"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:layout_below="@+id/tx_wish"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="@dimen/fab_margin"
@@ -41,6 +41,18 @@
             android:background="@drawable/transparent_bg"
             android:scaleType="fitXY"
             android:src="@drawable/wifi_off" />
+
+        <ImageButton
+            android:id="@+id/fab_blue"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_below="@+id/fab_wifi"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="@dimen/fab_margin"
+            android:layout_marginEnd="@dimen/fab_margin"
+            android:background="@drawable/transparent_bg"
+            android:scaleType="fitXY"
+            android:src="@drawable/blue_off" />
 
 
         <AnalogClock

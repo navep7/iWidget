@@ -2,15 +2,16 @@ package com.belaku.homey
 
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
+import android.bluetooth.BluetoothAdapter
+import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.hardware.Sensor
-import android.hardware.SensorManager
 import android.icu.util.Calendar
 import android.net.ConnectivityManager
 import android.net.Network
@@ -36,6 +37,8 @@ import com.belaku.homey.MainActivity.Companion.updateTime
 import com.belaku.homey.MainActivity.Companion.wallDelay
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
+import com.belaku.homey.NewAppWidget.Companion.screenHeight
+import com.belaku.homey.NewAppWidget.Companion.screenWidth
 import java.io.IOException
 import java.net.URL
 import kotlin.random.Random
@@ -62,8 +65,43 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         setWall()
 
         WifiState()
+        BluetoothState()
 
         return Result.success()
+    }
+
+    private fun BluetoothState() {
+        var wTAG = "BluetoothState ~ "
+
+
+        val mBluetoothReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent) {
+
+                val action = intent.action
+                makeSnack("onReceive BLT - " + action)
+
+
+                if (BluetoothAdapter.ACTION_STATE_CHANGED == action) {
+                    val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
+                    when (state) {
+                        BluetoothAdapter.STATE_OFF -> {
+                            remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_off)
+                            appWidM.updateAppWidget(newAppWidget, remoteViews)
+                        }
+                        BluetoothAdapter.STATE_TURNING_OFF -> {}
+                        BluetoothAdapter.STATE_ON -> {
+                            remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_on)
+                            appWidM.updateAppWidget(newAppWidget, remoteViews)
+                        }
+                        BluetoothAdapter.STATE_TURNING_ON -> {}
+                    }
+                }
+            }
+        }
+
+        val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+        appContx.registerReceiver(mBluetoothReceiver, filter)
+
     }
 
     private fun WifiState() {
@@ -74,22 +112,22 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             override fun onLost(network: Network) {
                 remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_off)
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
-                Log.d(TAG, "NetworkCallback called from onLost")
+                Log.d(TAG, "WifiState called from onLost")
             }
             @RequiresApi(Build.VERSION_CODES.S)
             override fun onUnavailable() {
                 remoteViews?.setColorInt(R.id.fab_wifi, "setColorFilter", Color.YELLOW, Color.YELLOW)
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
-                Log.d(wTAG,"NetworkCallback OFF")
+                Log.d(wTAG,"WifiState OFF")
             }
             @RequiresApi(Build.VERSION_CODES.S)
             override fun onLosing(network: Network, maxMsToLive: Int) {
                 remoteViews?.setColorInt(R.id.fab_wifi, "setColorFilter", Color.RED, Color.RED)
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
-                Log.d(wTAG,"NetworkCallback called from onLosing")
+                Log.d(wTAG,"WifiState called from onLosing")
             }
             override fun onAvailable(network: Network) {
-                Log.d(wTAG,"NetworkCallback ON")
+                Log.d(wTAG,"WifiState ON")
                 remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_on)
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
                 //record wi-fi connect event
@@ -122,6 +160,8 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
         fun setWall() {
             wm = WallpaperManager.getInstance(appContx)
+            wm.setWallpaperOffsetSteps(1F, 1F);
+            wm.suggestDesiredDimensions(screenWidth, screenHeight)
 
             try {
 
@@ -136,15 +176,12 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
 
                 try {
-                 //   val inputStream =
-                   //     URL(urls[randomWallIndex].substring(4, urls[randomWallIndex].length)).openStream()
-                 //   wm.setStream(inputStream)
-                    // Uri.parse(urls[randomNumber].substring(4, urls[randomNumber].length))
 
 
                     wallBitmap = BitmapFactory.decodeStream(URL(urls[randomWallIndex].substring(4, urls[randomWallIndex].length)).openConnection().getInputStream())
 
-                    wm.setBitmap(wallBitmap)
+                    val scaledBitmap = Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
+                    wm.setBitmap(scaledBitmap)
 
                     val c = Calendar.getInstance()
                     updateTime =
