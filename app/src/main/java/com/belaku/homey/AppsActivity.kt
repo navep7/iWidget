@@ -1,27 +1,25 @@
 package com.belaku.homey
 
 import AppsAdapter
-import android.content.Intent
+import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
+import android.renderscript.Allocation
+import android.renderscript.Element
+import android.renderscript.RenderScript
+import android.renderscript.ScriptIntrinsicBlur
 import android.transition.Fade
-import android.view.View
 import android.view.Window
-import androidx.annotation.Nullable
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.belaku.homey.MainActivity.Companion.apps
-import com.belaku.homey.MainActivity.Companion.randomWallIndex
 import com.belaku.homey.databinding.ActivityAppsBinding
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
-import pl.droidsonroids.gif.GifImageView
-import java.util.Collections
 
 
 class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
@@ -30,6 +28,7 @@ class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityAppsBinding
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -48,8 +47,42 @@ class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
 
         val rootLayout = findViewById<ConstraintLayout>(R.id.apps_layout)
-        rootLayout.setBackgroundDrawable(BitmapDrawable(getResources(), SetWallWorker.wallBitmap))
+        rootLayout.setBackgroundDrawable(BitmapDrawable(getResources(), blur(applicationContext, SetWallWorker.wallBitmap)))
 
+
+       /* val blurRadius = 20.0f
+        val blurEffect = RenderEffect.createBlurEffect(
+            blurRadius,
+            blurRadius,
+            Shader.TileMode.CLAMP
+        )
+        rootLayout.setRenderEffect(blurEffect);*/
+
+
+    }
+
+    fun blur(context: Context?, image: Bitmap): Bitmap {
+
+        var BITMAP_SCALE = 0.4f; // Scale down bitmap for performance
+        var BLUR_RADIUS = 25f; // Adjust blur intensity
+
+        val width = Math.round(image.width * BITMAP_SCALE).toInt()
+        val height = Math.round(image.height * BITMAP_SCALE).toInt()
+
+        val inputBitmap = Bitmap.createScaledBitmap(image, width, height, false)
+        val outputBitmap = Bitmap.createBitmap(inputBitmap)
+
+        val rs = RenderScript.create(context)
+        val theIntrinsic = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
+        val tmpIn = Allocation.createFromBitmap(rs, inputBitmap)
+        val tmpOut = Allocation.createFromBitmap(rs, outputBitmap)
+
+        theIntrinsic.setRadius(BLUR_RADIUS)
+        theIntrinsic.setInput(tmpIn)
+        theIntrinsic.forEach(tmpOut)
+        tmpOut.copyTo(outputBitmap)
+
+        return outputBitmap
     }
 
     override fun onItemClick(pos: Int) {

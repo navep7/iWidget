@@ -37,7 +37,7 @@ class AppsAdapter(private val dataList: List<InstalledApp>,
         fun bind(item: InstalledApp) {
             // Bind data to views in item_grid.xml
             itemView.findViewById<TextView>(R.id.tx_app_name).setText(item.name)
-            itemView.findViewById<TextView>(R.id.tx_app_name).setTextColor(tertianaryColor)
+        //    itemView.findViewById<TextView>(R.id.tx_app_name).setTextColor(tertianaryColor)
             itemView.findViewById<ImageView>(R.id.imgv_app_icon).setImageDrawable(item.icon)
         }
 

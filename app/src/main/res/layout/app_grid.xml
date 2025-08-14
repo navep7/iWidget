@@ -18,7 +18,6 @@
         android:gravity="center"
         android:textStyle="bold"
         android:ellipsize="end"
-        android:background="@drawable/gradient_glass"
         android:layout_below="@+id/imgv_app_icon"
         android:layout_centerHorizontal="true"
         android:layout_width="match_parent"
