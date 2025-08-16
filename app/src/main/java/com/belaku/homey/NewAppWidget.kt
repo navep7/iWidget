@@ -263,10 +263,12 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
             val launcherIntent = Intent(context, AppsActivity::class.java)
+            launcherIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+            launcherIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             val launcherPendingIntent = PendingIntent.getActivity(
                 context,
                 0,
-                musicIntent,
+                launcherIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 

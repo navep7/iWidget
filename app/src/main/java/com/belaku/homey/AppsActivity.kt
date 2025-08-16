@@ -38,8 +38,6 @@ class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
         binding = ActivityAppsBinding.inflate(layoutInflater)
 
-        window.requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
-        window.enterTransition = Slide()
         setContentView(binding.root)
 
         val recyclerView: RecyclerView = findViewById(R.id.rv_apps)
