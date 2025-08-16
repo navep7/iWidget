@@ -699,7 +699,7 @@ class MainActivity : AppCompatActivity() {
             )
 
             if (queryUsageStats.get(i).totalTimeInForeground > 0)
-                if (!appName.contains("Launcher"))
+                if (!appName.contains("Launcher") || !appName.equals("Home"))
                     if (applicationContext.packageManager.getLaunchIntentForPackage(queryUsageStats[i].packageName) != null)
                         if (appNames.add(appName))
                             if (choosenApps.size < 5) {

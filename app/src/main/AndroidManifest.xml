@@ -45,7 +45,7 @@
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@drawable/walp_icon"
+        android:icon="@drawable/launch"
         android:label="@string/app_name"
         android:roundIcon="@drawable/walp_icon"
         android:supportsRtl="true"
