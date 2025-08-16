@@ -156,10 +156,17 @@ class MainActivity : AppCompatActivity() {
         mAct = this@MainActivity
         appContx = applicationContext
 
-        registerReceiver(
-            BluetoothReceiver(),
-            IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-        )
+        sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        sharedPreferencesEditor = sharedPreferences.edit()
+
+        if (!sharedPreferences.getBoolean("BRd", false)) {
+            makeToast("BlBrRd")
+            sharedPreferencesEditor.putBoolean("BRd", true).apply()
+            registerReceiver(
+                BluetoothReceiver(),
+                IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+            )
+        }
 
         if (apps.size == 0)
             getApps()
@@ -198,8 +205,6 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
 
-        sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
-        sharedPreferencesEditor = sharedPreferences.edit()
 
         parentLayout = findViewById(android.R.id.content);
 
@@ -575,7 +580,7 @@ class MainActivity : AppCompatActivity() {
             val bitmap = getBitmapFromUrl(imageUrl)
             // Now you have the bitmap, you can display it in an ImageView or process it further
             if (bitmap != null) {
-                makeToast("B L success")
+           //     makeToast("TwiPic")
                 try {
                     remoteViews?.setTextViewText(
                         R.id.tx_tweets,
@@ -585,8 +590,6 @@ class MainActivity : AppCompatActivity() {
                 } catch (ex: Exception) {
                     makeToast("TwiEx - ${ex.message}")
                 }
-            } else {
-                makeToast("B L failed")
             }
         }
 
@@ -1295,23 +1298,7 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        fun notifyBluetoothState(b: Boolean) {
 
-            makeToast("BL state - $b")
-            remoteViews = RemoteViews(appContx.packageName, R.layout.new_app_widget)
-            newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
-
-            if (b) {
-                boolBluetooth = true
-                makeToast("settingBLeON")
-                remoteViews!!.setImageViewResource(R.id.fab_blue, R.drawable.blue_on)
-            } else {
-                boolBluetooth = false
-                makeToast("settingBLeOFF")
-                remoteViews!!.setImageViewResource(R.id.fab_blue, R.drawable.blue_off)
-            }
-            appWidM.updateAppWidget(newAppWidget, remoteViews)
-        }
 
 
     }

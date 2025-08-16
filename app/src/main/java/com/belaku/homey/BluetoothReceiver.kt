@@ -15,7 +15,6 @@ class BluetoothReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
 
         val state = intent?.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
-        makeSnack("onReceive BLT - ${state.toString()}")
 
         val appWidgetManager = AppWidgetManager.getInstance(context)
         val thisWidget = ComponentName(context!!, NewAppWidget::class.java)
@@ -35,21 +34,11 @@ class BluetoothReceiver : BroadcastReceiver() {
 
             BluetoothAdapter.STATE_OFF -> {
                 makeToast("STATE_OFF")
-                try {
-                    MainActivity.notifyBluetoothState(false)
-                } catch (ex: Exception) {
-                    makeToast("EXXP - ${ex.message}")
-                }
             }
 
             BluetoothAdapter.STATE_ON ->
             {
                 makeToast("STATE_ON")
-                try {
-                    MainActivity.notifyBluetoothState(true)
-                } catch (ex: Exception) {
-                    makeToast("EXXP - ${ex.message}")
-                }
             }
 
         }
