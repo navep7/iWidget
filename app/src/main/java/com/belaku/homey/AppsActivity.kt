@@ -14,6 +14,7 @@ import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicBlur
 import android.transition.Fade
+import android.transition.Slide
 import android.view.Window
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -38,7 +39,7 @@ class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         binding = ActivityAppsBinding.inflate(layoutInflater)
 
         window.requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
-        window.enterTransition = Fade()
+        window.enterTransition = Slide()
         setContentView(binding.root)
 
         val recyclerView: RecyclerView = findViewById(R.id.rv_apps)

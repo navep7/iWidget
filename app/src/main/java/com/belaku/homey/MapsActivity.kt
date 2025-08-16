@@ -1,17 +1,17 @@
 package com.belaku.homey
 
-import com.google.maps.android.ui.IconGenerator
+import android.R.attr.button
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.location.Address
 import android.location.Geocoder
-import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.Html
 import android.view.View
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import androidx.appcompat.app.AppCompatActivity
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.databinding.ActivityMapsBinding
@@ -34,6 +34,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.StreetViewPanoramaCamera
 import com.google.android.material.snackbar.Snackbar
+import com.google.maps.android.ui.IconGenerator
 import java.io.IOException
 import java.util.Locale
 
@@ -151,6 +152,12 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
 
             override fun onMarkerClick(p0: Marker): Boolean {
                 makeToast(p0.title.toString())
+                val anim: Animation = AlphaAnimation(0.0f, 1.0f)
+                anim.duration = 50 //You can manage the blinking time with this parameter
+                anim.startOffset = 20
+                anim.repeatMode = Animation.REVERSE
+                anim.repeatCount = 1
+                binding.fabMapOStreet.startAnimation(anim)
                 boolStreetMarkerClicked = true
                 mStreetViewPanorama.setPosition(p0.position)
                 return true
@@ -221,7 +228,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
     }
 
     override fun onMapClick(p0: LatLng) {
-        addPresentMarker(p0, "here")
+        addPresentMarker(p0, "Street")
     }
 
 }
