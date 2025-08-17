@@ -31,10 +31,25 @@
             tools:ignore="HardcodedText" />
 
         <ImageButton
+            android:id="@+id/fab_torch"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:padding="10dp"
+            android:layout_below="@+id/tx_wish"
+            android:layout_marginTop="7dp"
+            android:layout_toStartOf="@+id/fab_wifi"
+            android:layout_marginEnd="@dimen/fab_margin"
+            android:background="@drawable/rounded_corner"
+            android:scaleType="fitXY"
+            android:src="@android:drawable/alert_light_frame" />
+
+
+        <ImageButton
             android:id="@+id/fab_wifi"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:padding="10dp"
+            android:layout_marginTop="7dp"
             android:layout_below="@+id/tx_wish"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="@dimen/fab_margin"
