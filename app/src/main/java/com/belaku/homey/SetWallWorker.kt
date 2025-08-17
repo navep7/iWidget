@@ -1,5 +1,6 @@
 package com.belaku.homey
 
+import android.annotation.SuppressLint
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
@@ -62,15 +63,61 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
         appContx = applicationContext
         wm = WallpaperManager.getInstance(appContx)
-        setWall()
+        setWall(true)
 
         WifiState()
+        BluetoothState()
 
         return Result.success()
     }
 
+    private fun BluetoothState() {
+
+        if (!sharedPreferences.getBoolean("BRd", false)) {
+            Log.d(TAG, "BlBrRd")
+            sharedPreferencesEditor.putBoolean("BRd", true).apply()
+
+            val mBluetoothReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+                @SuppressLint("UnsafeIntentLaunch")
+                override fun onReceive(context: Context, intent: Intent) {
+
+                    val state = intent?.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
+
+                    when (state) {
+
+                        BluetoothAdapter.STATE_CONNECTED ->
+                            Log.d(TAG,"STATE_CONNECTED")
+
+                        BluetoothAdapter.STATE_DISCONNECTED ->
+                            Log.d(TAG,"STATE_DISCONNECTED")
 
 
+                        BluetoothAdapter.STATE_OFF -> {
+                            Log.d(TAG,"STATE_OFF")
+                            sharedPreferencesEditor.putBoolean("Blue", false).apply()
+                        }
+
+                        BluetoothAdapter.STATE_ON ->
+                        {
+                            Log.d(TAG,"STATE_ON")
+                            sharedPreferencesEditor.putBoolean("Blue", true).apply()
+                        }
+
+                    }
+
+                    Thread {
+                        setWall(false)
+                    }.start()
+
+                }
+            }
+
+            appContx.registerReceiver(
+                mBluetoothReceiver,
+                IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+            )
+        }
+    }
 
 
     private fun WifiState() {
@@ -119,7 +166,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         @kotlin.jvm.JvmField
         var steps = 0
         var initialSteps = 0
-        val TAG: String = "SetWallWorker LOG7"
+        val TAG: String = "SetWallWorkerLOG7"
         var wallDesc: String = ""
         var wallDescs: ArrayList<String> = ArrayList()
         var urls: ArrayList<String> = ArrayList()
@@ -127,7 +174,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
 
 
-        fun setWall() {
+        fun setWall(b: Boolean) {
             wm = WallpaperManager.getInstance(appContx)
             wm.setWallpaperOffsetSteps(1F, 1F);
             wm.suggestDesiredDimensions(screenWidth, screenHeight)
@@ -150,6 +197,8 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     wallBitmap = BitmapFactory.decodeStream(URL(urls[randomWallIndex].substring(4, urls[randomWallIndex].length)).openConnection().getInputStream())
 
                     val scaledBitmap = Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
+
+                    if (b)
                     wm.setBitmap(scaledBitmap)
 
                     val c = Calendar.getInstance()

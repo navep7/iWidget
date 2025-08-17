@@ -57,12 +57,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDypKvRVtn8t_F0yKtSfK5PuI54FBNDvCk" />
 
-        <receiver android:name=".BluetoothReceiver" android:exported="true"
-            tools:ignore="ExportedReceiver">
-            <intent-filter>
-                <action android:name="BluetoothAdapter.ACTION_STATE_CHANGED" />
-            </intent-filter>
-        </receiver>
 
         <activity
             android:name=".AppsActivity"

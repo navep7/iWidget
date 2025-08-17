@@ -159,14 +159,7 @@ class MainActivity : AppCompatActivity() {
         sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
-        if (!sharedPreferences.getBoolean("BRd", false)) {
-            makeToast("BlBrRd")
-            sharedPreferencesEditor.putBoolean("BRd", true).apply()
-            registerReceiver(
-                BluetoothReceiver(),
-                IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-            )
-        }
+
 
         if (apps.size == 0)
             getApps()
@@ -1106,7 +1099,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
 
-        var boolBluetooth: Boolean = false
         lateinit var appWidM: AppWidgetManager
         val mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         var apps: ArrayList<InstalledApp> = ArrayList()
