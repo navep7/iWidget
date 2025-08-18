@@ -86,20 +86,19 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     when (state) {
 
                         BluetoothAdapter.STATE_CONNECTED ->
-                            Log.d(TAG,"STATE_CONNECTED")
+                            Log.d(TAG, "STATE_CONNECTED")
 
                         BluetoothAdapter.STATE_DISCONNECTED ->
-                            Log.d(TAG,"STATE_DISCONNECTED")
+                            Log.d(TAG, "STATE_DISCONNECTED")
 
 
                         BluetoothAdapter.STATE_OFF -> {
-                            Log.d(TAG,"STATE_OFF")
+                            Log.d(TAG, "STATE_OFF")
                             sharedPreferencesEditor.putBoolean("Blue", false).apply()
                         }
 
-                        BluetoothAdapter.STATE_ON ->
-                        {
-                            Log.d(TAG,"STATE_ON")
+                        BluetoothAdapter.STATE_ON -> {
+                            Log.d(TAG, "STATE_ON")
                             sharedPreferencesEditor.putBoolean("Blue", true).apply()
                         }
 
@@ -123,27 +122,35 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
     private fun WifiState() {
         var wTAG = "WifiState ~"
 
-         var networkCallback = object : ConnectivityManager.NetworkCallback() {
+        var networkCallback = object : ConnectivityManager.NetworkCallback() {
             @RequiresApi(Build.VERSION_CODES.S)
             override fun onLost(network: Network) {
                 remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_off)
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
                 Log.d(TAG, "WifiState called from onLost")
             }
+
             @RequiresApi(Build.VERSION_CODES.S)
             override fun onUnavailable() {
-                remoteViews?.setColorInt(R.id.fab_wifi, "setColorFilter", Color.YELLOW, Color.YELLOW)
+                remoteViews?.setColorInt(
+                    R.id.fab_wifi,
+                    "setColorFilter",
+                    Color.YELLOW,
+                    Color.YELLOW
+                )
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
-                Log.d(wTAG,"WifiState OFF")
+                Log.d(wTAG, "WifiState OFF")
             }
+
             @RequiresApi(Build.VERSION_CODES.S)
             override fun onLosing(network: Network, maxMsToLive: Int) {
                 remoteViews?.setColorInt(R.id.fab_wifi, "setColorFilter", Color.RED, Color.RED)
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
-                Log.d(wTAG,"WifiState called from onLosing")
+                Log.d(wTAG, "WifiState called from onLosing")
             }
+
             override fun onAvailable(network: Network) {
-                Log.d(wTAG,"WifiState ON")
+                Log.d(wTAG, "WifiState ON")
                 remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_on)
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
                 //record wi-fi connect event
@@ -163,6 +170,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
         lateinit var wallBitmap: Bitmap
         var boolNewLap: Boolean = false
+
         @kotlin.jvm.JvmField
         var steps = 0
         var initialSteps = 0
@@ -171,7 +179,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         var wallDescs: ArrayList<String> = ArrayList()
         var urls: ArrayList<String> = ArrayList()
         lateinit var wm: WallpaperManager
-
 
 
         fun setWall(b: Boolean) {
@@ -194,20 +201,31 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 try {
 
 
-                    wallBitmap = BitmapFactory.decodeStream(URL(urls[randomWallIndex].substring(4, urls[randomWallIndex].length)).openConnection().getInputStream())
+                    wallBitmap = BitmapFactory.decodeStream(
+                        URL(
+                            urls[randomWallIndex].substring(
+                                4,
+                                urls[randomWallIndex].length
+                            )
+                        ).openConnection().getInputStream()
+                    )
 
-                    val scaledBitmap = Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
+                    val scaledBitmap =
+                        Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
 
                     if (b)
-                    wm.setBitmap(scaledBitmap)
+                        wm.setBitmap(scaledBitmap)
 
                     val c = Calendar.getInstance()
                     updateTime =
                         "" + c.get(Calendar.HOUR_OF_DAY) + ":" + c.get(Calendar.MINUTE) + ":" + c.get(
                             Calendar.SECOND
                         )
-                    sharedPreferencesEditor.putString("wD", wallDesc.split("+")[1]).apply()
-                    sharedPreferencesEditor.putString("uT", updateTime).apply()
+
+                    if (b) {
+                        sharedPreferencesEditor.putString("wD", wallDesc.split("+")[1]).apply()
+                        sharedPreferencesEditor.putString("uT", updateTime).apply()
+                    }
                     Log.d(TAG, "Set successfully")
                     pD.dismiss()
                     remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.INVISIBLE)

@@ -37,7 +37,7 @@
             android:padding="5dp"
             android:layout_below="@+id/tx_wish"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="@dimen/fab_margin"
+            android:layout_marginTop="5dp"
             android:layout_marginEnd="@dimen/fab_margin"
             android:background="@drawable/rounded_corner"
             android:scaleType="fitXY"
@@ -51,7 +51,7 @@
             android:layout_below="@+id/fab_wifi"
             android:layout_alignParentEnd="true"
             android:src="@drawable/blue_off"
-            android:layout_marginTop="@dimen/fab_margin"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="@dimen/fab_margin"
             android:background="@drawable/rounded_corner"
             android:scaleType="fitXY" />
