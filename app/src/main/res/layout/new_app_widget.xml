@@ -23,36 +23,78 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
+            android:layout_marginStart="@dimen/fab_margin"
             android:layout_gravity="center"
             android:text="a Wish..."
             android:textSize="33sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
 
+        <TextView
+            android:id="@+id/tx_weather_icon_temp"
+            android:text="25°C"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/weather_icon"
+            android:layout_toEndOf="@+id/weather_icon"
+            android:layout_marginStart="-45dp"
+            android:layout_marginBottom="-20dp"
+            android:background="@drawable/gradient_glass"
+            android:scaleType="fitXY" />
+
+        <TextView
+            android:id="@+id/tx_weather_icon_state"
+            android:text="State,"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/weather_icon"
+            android:layout_toEndOf="@+id/weather_icon"
+            android:layout_marginStart="-115dp"
+            android:layout_marginTop="-15dp"
+            android:background="@drawable/gradient_glass"
+            android:scaleType="fitXY" />
+
+
+
+        <ImageButton
+            android:id="@+id/weather_icon"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_marginBottom="-5dp"
+            android:layout_above="@+id/tx_day_date"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="25dp"
+            android:src="@drawable/wi_804"
+            android:background="@drawable/weather_rounded_corner"
+            android:scaleType="fitXY" />
+
+
         <ImageButton
             android:id="@+id/fab_wifi"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:padding="5dp"
-            android:layout_below="@+id/tx_wish"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="@dimen/fab_margin"
+            android:layout_marginEnd="5dp"
+            android:layout_alignBaseline="@+id/tx_day_date"
+            android:src="@drawable/wifi_off"
+            android:layout_marginStart="5dp"
+            android:layout_marginBottom="5dp"
             android:background="@drawable/rounded_corner"
-            android:scaleType="fitXY"
-            android:src="@drawable/wifi_off" />
+            android:scaleType="fitXY" />
 
         <ImageButton
             android:id="@+id/fab_blue"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:padding="5dp"
-            android:layout_below="@+id/fab_wifi"
-            android:layout_alignParentEnd="true"
+            android:layout_toStartOf="@+id/fab_wifi"
+            android:layout_alignBaseline="@+id/tx_day_date"
             android:src="@drawable/blue_off"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="@dimen/fab_margin"
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="5dp"
             android:background="@drawable/rounded_corner"
             android:scaleType="fitXY" />
 
@@ -87,19 +129,24 @@
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
 
+
         <TextView
             android:id="@+id/tx_placeandweather"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tx_day_date"
-            android:layout_centerHorizontal="true"
-            android:gravity="center"
-            android:maxLines="1"
-            android:ellipsize="end"
+            android:singleLine="true"
             android:text="Place ↺ Weather"
-            android:textSize="21sp"
+            android:textSize="15sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            android:ellipsize="marquee"
+            android:layout_marginStart="@dimen/fab_margin"
+            android:layout_below="@+id/tx_day_date"
+            android:marqueeRepeatLimit ="marquee_forever"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:scrollHorizontally="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+        <requestFocus />
+        </TextView>
 
     </RelativeLayout>
 

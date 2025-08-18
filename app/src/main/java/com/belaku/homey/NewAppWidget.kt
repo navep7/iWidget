@@ -55,6 +55,7 @@ import com.belaku.homey.MainActivity.Companion.newsIndex
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
+import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.initialSteps
 import com.belaku.homey.SetWallWorker.Companion.steps
@@ -212,7 +213,7 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
             remoteViews?.setOnClickPendingIntent(
-                R.id.tx_placeandweather,
+                R.id.weather_icon,
                 getPendingSelfIntent(context, GET_WEATHER)
             )
 
@@ -459,7 +460,7 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.tx_placeandweather,
+            R.id.weather_icon,
             getPendingSelfIntent(context, GET_WEATHER)
         )
 
@@ -846,7 +847,7 @@ class NewAppWidget : AppWidgetProvider() {
     private fun todaysDate(context: Context) {
 
         val c: Date = Calendar.getInstance().time
-        val df = SimpleDateFormat("dd MMM", Locale.getDefault())
+        val df = SimpleDateFormat("ddMMM", Locale.getDefault())
 
         if (sharedPreferences.getBoolean("DateSet", false)) {
             var newfD = df.format(c)
@@ -857,26 +858,40 @@ class NewAppWidget : AppWidgetProvider() {
 
         formattedDate = df.format(c)
 
-        //   remoteViews?.setTextViewText(R.id.tx_cityname, MainActivity.cityname)
 
-        if (MainActivity.tempC.length > 3)
+        if (MainActivity.tempC.length > 3) {
+            remoteViews?.setTextViewText(R.id.tx_weather_icon_temp,
+                MainActivity.tempC.substring(
+                    0,
+                    2
+                ) + "°C")
+            remoteViews?.setTextViewText(R.id.tx_weather_icon_state,
+                MainActivity.weatherIconState + "..,")
             remoteViews?.setTextViewText(
                 R.id.tx_placeandweather,
-                cityname + " | " + MainActivity.tempC.substring(
-                    0,
-                    4
-                ) + "° C" + " | " + MainActivity.tempKind
+                cityname
             )
-        else {
-            MainActivity.getWeatherData()
-            if (MainActivity.tempC.length > 3)
+            if (weatherIconID.equals("804") || weatherIconID.equals("803"))
+                remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.wi_804)
+            else remoteViews?.setTextViewText(R.id.tx_weather_icon_temp, weatherIconID)
+        }  else {
+            getWeatherData()
+            if (MainActivity.tempC.length > 3) {
+                remoteViews?.setTextViewText(R.id.tx_weather_icon_temp,
+                    MainActivity.tempC.substring(
+                        0,
+                        2
+                    ) + "°C")
+                remoteViews?.setTextViewText(R.id.tx_weather_icon_state,
+                    MainActivity.weatherIconState + "..,")
                 remoteViews?.setTextViewText(
                     R.id.tx_placeandweather,
-                    cityname + " | " + MainActivity.tempC.substring(
-                        0,
-                        4
-                    ) + "° C" + " | " + MainActivity.tempKind
+                    cityname
                 )
+                if (weatherIconID.equals("804") || weatherIconID.equals("803"))
+                    remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.wi_804)
+                else remoteViews?.setTextViewText(R.id.tx_weather_icon_temp, weatherIconID)
+            }
         }
         // remoteViews?.setTextViewText(R.id.tx_date, formattedDate)
         sharedPreferencesEditor.putBoolean("DateSet", true).apply()
@@ -885,7 +900,7 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setTextViewText(
             R.id.tx_day_date,
             SimpleDateFormat("EEE", Locale.getDefault()).format(c) +
-                    " | " + formattedDate
+                    "," + formattedDate
         )
 
         remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
@@ -961,13 +976,13 @@ class NewAppWidget : AppWidgetProvider() {
         c?.close()
 
         if (timeOfDay.equals("Morning"))
-            timelyWish = "$timeOfDay, ${gpName.split(" ").get(0)}  \uD83C\uDF3B "
+            timelyWish = "\uD83C\uDF3B $timeOfDay, ${gpName.split(" ").get(0)}!"
         else if (timeOfDay.equals("Afternoon"))
-            timelyWish = "$timeOfDay, ${gpName.split(" ").get(0)}  ☀\uFE0F "
+            timelyWish = "\uFE0F $timeOfDay, ${gpName.split(" ").get(0)}!"
         else if (timeOfDay.equals("Evening"))
-            timelyWish = "$timeOfDay, ${gpName.split(" ").get(0)}  \uD83C\uDF41 "
+            timelyWish = "\uD83C\uDF41 $timeOfDay, ${gpName.split(" ").get(0)}!"
         else if (timeOfDay.equals("Night"))
-            timelyWish = "$timeOfDay, ${gpName.split(" ").get(0)}  \uD83D\uDCA4 "
+            timelyWish = "\uD83D\uDCA4 $timeOfDay, ${gpName.split(" ").get(0)}!"
 
 
     }

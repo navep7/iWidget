@@ -674,8 +674,8 @@ class MainActivity : AppCompatActivity() {
                 val geocoder = Geocoder(this, Locale.getDefault())
 
                 val Adress = geocoder.getFromLocation(location.latitude, location.longitude, 1)
-                cityname =
-                    Adress?.toString()?.split(",")?.get(2) ?: Adress?.get(0)?.locality.toString()
+                cityname = Adress?.get(0)!!.subLocality
+                  //  Adress?.toString()?.split(",")?.get(2) ?: Adress?.get(0)?.subAdminArea.toString()
 
 
             }
@@ -1177,8 +1177,11 @@ class MainActivity : AppCompatActivity() {
         var cityLat: Double = 0.0
         var cityLng: Double = 0.0
 
+        var weatherIconState: String = ""
         var tempC: String = ""
         var tempKind: String = ""
+        var weatherIconID: String = ""
+        var weatherIconUrl: String = ""
         lateinit var weatherData: WeatherData
         lateinit var sN: Snackbar
 
@@ -1298,7 +1301,10 @@ class MainActivity : AppCompatActivity() {
                     withContext(Dispatchers.Main) {
                         //  updateUI(weatherData)
                         tempC = "${weatherData.main.temp - 273}°C"
+                        weatherIconState = weatherData.weather.get(0).main
                         tempKind = weatherData.weather.get(0).description
+                        weatherIconID = weatherData.weather.get(0).id
+                        weatherIconUrl =  "http://openweathermap.org/img/wn/" + weatherIconID + "@2x.png"
 
                         Log.d("weatherInfo", tempC + " - " + tempKind)
                         // makeToast("weatherInfo - " + tempC + " - " + tempKind)
