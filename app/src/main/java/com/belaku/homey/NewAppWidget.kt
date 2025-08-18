@@ -137,19 +137,20 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
             newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
-            /* val intentSD = Intent(
-                 context,
-                 DialogWidgetStepsActivity::class.java
-             )
-             val pendingIntent = PendingIntent.getActivity(context, 0, intentSD,
-                 PendingIntent.FLAG_IMMUTABLE)
-             remoteViews?.setOnClickPendingIntent(R.id.imgv_steps, pendingIntent)*/
 
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgbtn_music,
+                PendingIntent.getActivity(
+                    context,
+                    25,
+                    Intent(context, MainActivity::class.java).putExtra("STT", "SpeechToText"),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+            )
 
             val intentSTH = Intent(context, MainActivity::class.java)
             val strSTH = "Set Twitter Handle"
             intentSTH.putExtra("STH", strSTH)
-
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.twSettings,
@@ -245,18 +246,6 @@ class NewAppWidget : AppWidgetProvider() {
                 mapsPendingIntent
             )
 
-            val musicIntent = Intent(context, MusicActivity::class.java)
-            val musicPendingIntent = PendingIntent.getActivity(
-                context,
-                0,
-                musicIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_music,
-                musicPendingIntent
-            )
 
             val launcherIntent = Intent(context, AppsActivity::class.java)
             launcherIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
@@ -396,10 +385,19 @@ class NewAppWidget : AppWidgetProvider() {
         currentMin = now[Calendar.MINUTE]
 
 
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_music,
+            PendingIntent.getActivity(
+                context,
+                25,
+                Intent(context, MainActivity::class.java).putExtra("STT", "SpeechToText"),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
         val intentSTH = Intent(context, MainActivity::class.java)
         val strSTH = "Set Twitter Handle"
         intentSTH.putExtra("STH", strSTH)
-
 
         remoteViews?.setOnClickPendingIntent(
             R.id.twSettings,
@@ -503,18 +501,6 @@ class NewAppWidget : AppWidgetProvider() {
             mapsPendingIntent
         )
 
-        val musicIntent = Intent(context, MusicActivity::class.java)
-        val musicPendingIntent = PendingIntent.getActivity(
-            context,
-            0,
-            musicIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgbtn_music,
-            musicPendingIntent
-        )
 
         val launcherIntent = Intent(context, AppsActivity::class.java)
         launcherIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)

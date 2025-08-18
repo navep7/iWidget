@@ -20,7 +20,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
@@ -40,6 +39,7 @@ import android.os.Looper
 import android.os.Process
 import android.provider.ContactsContract
 import android.provider.Settings
+import android.speech.RecognizerIntent
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.KeyEvent
@@ -51,6 +51,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.RemoteViews
 import android.widget.TextView
@@ -112,8 +113,11 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
 
+
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var dialogMessage: EditText
+    private val REQUEST_CODE_SPEECH_INPUT: Int = 100
     private lateinit var editTextTwitterHandle: EditText
     private lateinit var twitterHandleDialog: View
     private lateinit var responseTweets: okhttp3.Response
@@ -194,6 +198,9 @@ class MainActivity : AppCompatActivity() {
                     bluetoothLauncher.launch(disableintent)
                 }
 
+            } else if (intent.getStringExtra("STT") != null) {
+                makeToast("STT here")
+                showSTTDialog()
             }
 
         setSupportActionBar(binding.toolbar)
@@ -304,6 +311,59 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private fun showSTTDialog() {
+        val customDialog = Dialog(this)
+        customDialog.setContentView(R.layout.speech_to_text_layout)
+
+        val dialogTitle = customDialog.findViewById<TextView>(R.id.dialogTitle)
+        dialogMessage = customDialog.findViewById<EditText>(R.id.dialogMessage)
+        val dialogButton = customDialog.findViewById<Button>(R.id.dialogButton)
+        val imgBtnShare = customDialog.findViewById<ImageButton>(R.id.imgbtn_stt_share)
+
+        dialogTitle.text = "Speech To Text"
+        dialogMessage.setText("...")
+
+        dialogButton.setOnClickListener {
+            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+            intent.putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+            )
+            intent.putExtra(
+                RecognizerIntent.EXTRA_PROMPT,
+                "Speak now..."
+            ) // Optional: prompt for the user
+            startActivityForResult(intent, REQUEST_CODE_SPEECH_INPUT)
+        }
+
+        imgBtnShare.setOnClickListener {
+            var textToShare = dialogMessage.text
+            if (textToShare.length > 5) {
+                val shareIntent = Intent()
+                shareIntent.setAction(Intent.ACTION_SEND)
+                shareIntent.putExtra(Intent.EXTRA_TEXT, textToShare)
+                shareIntent.setType("text/plain")
+                startActivity(Intent.createChooser(shareIntent, "Share text using:"))
+            }
+        }
+
+        customDialog.show()
+    }
+
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQUEST_CODE_SPEECH_INPUT) {
+            if (resultCode == RESULT_OK && data != null) {
+                val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                if (result != null && !result.isEmpty()) {
+                    val recognizedText = result[0] // Get the most likely recognized phrase
+                    dialogMessage.setText(recognizedText)
+                }
+            }
+        }
+    }
 
     private fun getApps() {
         val mainIntent = Intent(Intent.ACTION_MAIN, null)

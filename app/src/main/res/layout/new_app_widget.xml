@@ -436,7 +436,7 @@
         android:layout_marginStart="@dimen/fab_margin"
         android:layout_marginTop="5dp"
         android:background="@drawable/rounded_corner"
-        android:src="@drawable/media" />
+        android:src="@android:drawable/ic_btn_speak_now" />
 
     <RelativeLayout
         android:id="@+id/rl_steps"
