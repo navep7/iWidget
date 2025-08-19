@@ -892,7 +892,7 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.tx_placeandweather,
                 "⚲ " + cityname
             )
-            if (weatherIconID.equals("804") || weatherIconID.equals("803"))
+            if (weatherIconID.equals("802") || weatherIconID.equals("803") || weatherIconID.equals("804"))
                 remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.wi_804)
             else remoteViews?.setTextViewText(R.id.tx_weather_icon_temp, weatherIconID)
         }  else {
@@ -909,7 +909,7 @@ class NewAppWidget : AppWidgetProvider() {
                     R.id.tx_placeandweather,
                     cityname
                 )
-                if (weatherIconID.equals("804") || weatherIconID.equals("803"))
+                if (weatherIconID.equals("802") || weatherIconID.equals("803") || weatherIconID.equals("804"))
                     remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.wi_804)
                 else remoteViews?.setTextViewText(R.id.tx_weather_icon_temp, weatherIconID)
             }
