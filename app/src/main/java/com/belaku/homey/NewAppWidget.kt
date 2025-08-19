@@ -675,10 +675,6 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
 
-
-
-
-
         if (RL_INVERT == intent.action) {
             if (sharedPreferences.getBoolean("dark", false)) {
                 sharedPreferencesEditor.putBoolean("dark", false).apply()
@@ -710,6 +706,7 @@ class NewAppWidget : AppWidgetProvider() {
                     R.id.tx_desc_walltype,
                     appContx.resources.getColor(android.R.color.white)
                 )
+
             } else {
                 sharedPreferencesEditor.putBoolean("dark", true).apply()
 
@@ -741,6 +738,7 @@ class NewAppWidget : AppWidgetProvider() {
                     R.id.tx_desc_walltype,
                     appContx.resources.getColor(android.R.color.black)
                 )
+
             }
         }
 
@@ -892,9 +890,12 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.tx_placeandweather,
                 "⚲ " + cityname
             )
-            if (weatherIconID.equals("802") || weatherIconID.equals("803") || weatherIconID.equals("804"))
-                remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.wi_804)
-            else remoteViews?.setTextViewText(R.id.tx_weather_icon_temp, weatherIconID)
+            if (weatherIconID.startsWith("5"))
+                remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.rain)
+            if (weatherIconID.equals("800"))
+                remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clear_sky)
+            if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals("803") || weatherIconID.equals("804"))
+                remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clouds)
         }  else {
             getWeatherData()
             if (MainActivity.tempC.length > 3) {
@@ -909,9 +910,8 @@ class NewAppWidget : AppWidgetProvider() {
                     R.id.tx_placeandweather,
                     cityname
                 )
-                if (weatherIconID.equals("802") || weatherIconID.equals("803") || weatherIconID.equals("804"))
-                    remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.wi_804)
-                else remoteViews?.setTextViewText(R.id.tx_weather_icon_temp, weatherIconID)
+                if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals("803") || weatherIconID.equals("804"))
+                    remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clouds)
             }
         }
         // remoteViews?.setTextViewText(R.id.tx_date, formattedDate)

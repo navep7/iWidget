@@ -33,6 +33,7 @@
         <TextView
             android:id="@+id/tx_weather_icon_temp"
             android:text="25°C"
+            android:textColor="?attr/colorPrimaryDark"
             android:textSize="25dp"
             android:textStyle="bold"
             android:layout_width="wrap_content"
@@ -47,6 +48,7 @@
         <TextView
             android:id="@+id/tx_weather_icon_state"
             android:text="State..,"
+            android:textColor="?attr/colorPrimaryDark"
             android:textStyle="bold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -67,7 +69,7 @@
             android:layout_below="@+id/tx_wish"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="5dp"
-            android:src="@drawable/wi_804"
+            android:src="@drawable/clouds"
             android:background="@drawable/weather_rounded_corner"
             android:scaleType="fitXY" />
 

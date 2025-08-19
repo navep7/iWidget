@@ -1307,8 +1307,12 @@ class MainActivity : AppCompatActivity() {
                         weatherIconID = weatherData.weather.get(0).id
                         weatherIconUrl =  "http://openweathermap.org/img/wn/" + weatherIconID + "@2x.png"
 
+
                         Log.d("weatherInfo", tempC + " - " + tempKind)
-                        // makeToast("weatherInfo - " + tempC + " - " + tempKind)
+                        makeToast("weatherInfo - " + tempC.substring(
+                            0,
+                            4
+                        ) + "°C" + " - " + tempKind)
 
                         sharedPreferencesEditor.putString(
                             "weatherTemp",
