@@ -33,26 +33,27 @@
         <TextView
             android:id="@+id/tx_weather_icon_temp"
             android:text="25°C"
+            android:textSize="25dp"
             android:textStyle="bold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/weather_icon"
-            android:layout_toEndOf="@+id/weather_icon"
-            android:layout_marginStart="-45dp"
-            android:layout_marginBottom="-20dp"
+            android:layout_toStartOf="@+id/weather_icon"
+            android:layout_marginEnd="-15dp"
+            android:layout_marginBottom="-50dp"
             android:background="@drawable/gradient_glass"
             android:scaleType="fitXY" />
 
         <TextView
             android:id="@+id/tx_weather_icon_state"
-            android:text="State,"
+            android:text="State..,"
             android:textStyle="bold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/weather_icon"
-            android:layout_toEndOf="@+id/weather_icon"
-            android:layout_marginStart="-115dp"
-            android:layout_marginTop="-15dp"
+            android:layout_above="@+id/weather_icon"
+            android:layout_toStartOf="@+id/weather_icon"
+            android:layout_marginEnd="-25dp"
+            android:layout_marginBottom="-25dp"
             android:background="@drawable/gradient_glass"
             android:scaleType="fitXY" />
 
@@ -63,9 +64,9 @@
             android:layout_width="75dp"
             android:layout_height="75dp"
             android:layout_marginBottom="-5dp"
-            android:layout_above="@+id/tx_day_date"
+            android:layout_below="@+id/tx_wish"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="25dp"
+            android:layout_marginEnd="@dimen/fab_margin"
             android:src="@drawable/wi_804"
             android:background="@drawable/weather_rounded_corner"
             android:scaleType="fitXY" />

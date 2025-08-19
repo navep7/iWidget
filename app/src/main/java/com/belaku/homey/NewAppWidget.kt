@@ -869,7 +869,7 @@ class NewAppWidget : AppWidgetProvider() {
                 MainActivity.weatherIconState + "..,")
             remoteViews?.setTextViewText(
                 R.id.tx_placeandweather,
-                cityname
+                "⚲ " + cityname
             )
             if (weatherIconID.equals("804") || weatherIconID.equals("803"))
                 remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.wi_804)
