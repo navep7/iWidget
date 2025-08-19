@@ -164,6 +164,10 @@ class MainActivity : AppCompatActivity() {
         sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
+        val metrics = DisplayMetrics()
+        getWindowManager().getDefaultDisplay().getMetrics(metrics)
+        screenHeight = metrics.heightPixels
+        screenWidth = metrics.widthPixels
 
 
         if (apps.size == 0)
@@ -211,11 +215,6 @@ class MainActivity : AppCompatActivity() {
 
         pD = ProgressDialog(this@MainActivity)
         pD.setMessage("fetching Walls...")
-
-        val metrics = DisplayMetrics()
-        getWindowManager().getDefaultDisplay().getMetrics(metrics)
-        screenHeight = metrics.heightPixels
-        screenWidth = metrics.widthPixels
 
         DynamicColors.applyToActivitiesIfAvailable(application)
 

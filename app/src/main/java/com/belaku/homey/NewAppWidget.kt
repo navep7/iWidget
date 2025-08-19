@@ -199,14 +199,6 @@ class NewAppWidget : AppWidgetProvider() {
             )
             remoteViews?.setOnClickPendingIntent(R.id.fab_blue, pendingIntentBluetooth)
 
-
-
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.rl_clocks,
-                getPendingSelfIntent(context, RL_INVERT)
-            )
-
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgv_steps,
                 getPendingSelfIntent(context, STEPS_NOW)
@@ -361,17 +353,12 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         if (listTweets.size > 0) {
-            if (intent.action.equals("newsNext") || intent.action.equals("newsPrev") || intent.action.equals(
-                    "twShare"
-                )
-            )
-                tW = sharedPreferences.getString("tW", "").toString()
-            else if (!intent.action.equals("wallChange")) {
+            if (intent.action.equals("wallChange")) {
                 Log.d(TAG + "TwAct", intent.action.toString())
                 randomTweetIndex = (0..listTweets.size - 1).random()
                 tW = listTweets[randomTweetIndex]
                 sharedPreferencesEditor.putString("tW", tW).apply()
-            }
+            } else tW = sharedPreferences.getString("tW", "").toString()
         }
 
         appContx = context
@@ -448,11 +435,6 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(R.id.fab_blue, pendingIntentBluetooth)
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.rl_clocks,
-            getPendingSelfIntent(context, RL_INVERT)
-        )
 
         remoteViews?.setOnClickPendingIntent(
             R.id.imgv_steps,
@@ -674,73 +656,6 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
-
-        if (RL_INVERT == intent.action) {
-            if (sharedPreferences.getBoolean("dark", false)) {
-                sharedPreferencesEditor.putBoolean("dark", false).apply()
-                remoteViews?.setTextColor(
-                    R.id.tx_news,
-                    appContx.resources.getColor(android.R.color.white)
-                )
-                remoteViews?.setTextColor(
-                    R.id.tx_tweets,
-                    appContx.resources.getColor(android.R.color.white)
-                )
-                remoteViews?.setTextColor(
-                    R.id.tx_placeandweather,
-                    appContx.resources.getColor(android.R.color.white)
-                )
-                remoteViews?.setTextColor(
-                    R.id.tx_day_date,
-                    appContx.resources.getColor(android.R.color.white)
-                )
-                remoteViews?.setTextColor(
-                    R.id.clock,
-                    appContx.resources.getColor(android.R.color.white)
-                )
-                remoteViews?.setTextColor(
-                    R.id.tx_wish,
-                    appContx.resources.getColor(android.R.color.white)
-                )
-                remoteViews?.setTextColor(
-                    R.id.tx_desc_walltype,
-                    appContx.resources.getColor(android.R.color.white)
-                )
-
-            } else {
-                sharedPreferencesEditor.putBoolean("dark", true).apply()
-
-                remoteViews?.setTextColor(
-                    R.id.tx_news,
-                    appContx.resources.getColor(android.R.color.black)
-                )
-                remoteViews?.setTextColor(
-                    R.id.tx_tweets,
-                    appContx.resources.getColor(android.R.color.black)
-                )
-                remoteViews?.setTextColor(
-                    R.id.tx_placeandweather,
-                    appContx.resources.getColor(android.R.color.black)
-                )
-                remoteViews?.setTextColor(
-                    R.id.tx_day_date,
-                    appContx.resources.getColor(android.R.color.black)
-                )
-                remoteViews?.setTextColor(
-                    R.id.clock,
-                    appContx.resources.getColor(android.R.color.black)
-                )
-                remoteViews?.setTextColor(
-                    R.id.tx_wish,
-                    appContx.resources.getColor(android.R.color.black)
-                )
-                remoteViews?.setTextColor(
-                    R.id.tx_desc_walltype,
-                    appContx.resources.getColor(android.R.color.black)
-                )
-
-            }
-        }
 
         if (STEPS_NOW == intent.action) {
             if (boolNewLap) {
@@ -1254,7 +1169,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val NEWS_NEXT = "newsNext"
         private const val NEWS_PREV = "newsPrev"
         private const val WIFI_AUTO = "wifiAuto"
-        private const val RL_INVERT = "rlInvert"
+    //    private const val RL_INVERT = "rlInvert"
         private const val GET_WEATHER = "getWeather"
         private const val STEPS_NOW = "resetSteps"
         private const val LOCK_PHONE = "lockPhone"
