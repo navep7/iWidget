@@ -79,6 +79,7 @@ import com.belaku.homey.AppChooserDialog.Companion.choosenApps
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
+import com.belaku.homey.NewAppWidget.Companion.newsImgLinks
 import com.belaku.homey.NewAppWidget.Companion.newsLinks
 import com.belaku.homey.NewAppWidget.Companion.newsList
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
@@ -1348,6 +1349,7 @@ class MainActivity : AppCompatActivity() {
                             for (i in 0 until response.body()?.articles!!.size) {
                                 newsList.add(response.body()?.articles!!.get(i).title)
                                 newsLinks.add(response.body()?.articles!!.get(i).url)
+                                newsImgLinks.add(response.body()?.articles!!.get(i).urlToImage)
                             }
                         }
                         //     makeToast("News - " + newsList.size)

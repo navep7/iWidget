@@ -569,11 +569,32 @@ class NewAppWidget : AppWidgetProvider() {
         //          newsStr = newsStr + "\t\t\t\t\t | ${newsList.get(i)}"
 
 
-        if (newsList.size > 1)
+        if (newsList.size > 1) {
             remoteViews?.setTextViewText(
                 R.id.tx_news,
                 Html.fromHtml("<u>" + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY)
             )
+
+
+            var isNews = NetworkUtility().getInputStreamFromUrl(newsImgLinks[newsIndex])
+
+            var dNews: Drawable
+            if (isNews != null) {
+                var bmNews = BitmapFactory.decodeStream(isNews)
+                dNews = BitmapDrawable(bmNews)
+
+                try {
+                    isNews.close()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            } else {
+                dNews = appContx.resources.getDrawable(R.drawable.face_holder)
+            }
+            remoteViews?.setImageViewBitmap(R.id.imgv_news,
+                drawableToBitmap(context, dNews)
+            )
+        }
 
         remoteViews?.setTextViewText(
             R.id.tx_desc_walltype,
@@ -1022,6 +1043,8 @@ class NewAppWidget : AppWidgetProvider() {
             ArrayList(mutableListOf(""))
         var newsLinks: ArrayList<String> =
             ArrayList(mutableListOf(""))
+        var newsImgLinks: ArrayList<String> =
+            ArrayList(mutableListOf(""))
         var primaryColor by Delegates.notNull<Int>()
         var secondaryColor by Delegates.notNull<Int>()
         var tertianaryColor by Delegates.notNull<Int>()
@@ -1049,11 +1072,6 @@ class NewAppWidget : AppWidgetProvider() {
                 )
 
                 if (inputStream != null) {
-                    // Photo exists, proceed to use the inputStream (e.g., load into an ImageView)
-                    // Example: Bitmap photo = BitmapFactory.decodeStream(inputStream);
-                    // imageView.setImageBitmap(photo);
-                    // Don't forget to close the inputStream when done
-
                     bm = BitmapFactory.decodeStream(inputStream)
                     d = BitmapDrawable(bm)
 
@@ -1063,8 +1081,6 @@ class NewAppWidget : AppWidgetProvider() {
                         e.printStackTrace()
                     }
                 } else {
-                    // No photo available for this contact, handle accordingly (e.g., display a placeholder image)
-                    // Example: imageView.setImageResource(R.drawable.placeholder_contact_photo);
                     d = appContx.resources.getDrawable(R.drawable.face_holder)
                 }
 
