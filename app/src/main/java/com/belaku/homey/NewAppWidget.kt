@@ -610,7 +610,13 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
         if (GET_WEATHER == intent.action) {
+            remoteViews?.setTextViewText(R.id.tx_weather_icon_temp, "")
             getWeatherData()
+            remoteViews?.setTextViewText(R.id.tx_weather_icon_temp,
+                MainActivity.tempC.substring(
+                    0,
+                    2
+                ) + "°C")
         }
 
         if (NEWS_CLICK == intent.action) {
@@ -626,26 +632,15 @@ class NewAppWidget : AppWidgetProvider() {
             else newsIndex++
 
             makeToast("showing $newsIndex of ${newsList.size}")
-
-            makeToast(newsIndex.toString() + " n-I " + newsList.size)
-            if (newsList.size > 1)
-            //   remoteViews?.setTextViewText(R.id.tx_news, Html.fromHtml("<u>" + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY))
-            else MainActivity.getNews()
         }
 
         if (NEWS_PREV == intent.action) {
 
-            if (newsIndex == 1)
+            if (newsIndex == 0)
                 newsIndex = newsList.size - 1
             else newsIndex--
 
-            makeToast(newsIndex.toString() + " n-I " + newsList.size)
-            if (newsList.size > 1)
-                remoteViews?.setTextViewText(
-                    R.id.tx_news,
-                    Html.fromHtml("<u>" + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY)
-                );
-            else MainActivity.getNews()
+            makeToast("showing $newsIndex of ${newsList.size}")
         }
 
         if (WIFI_AUTO == intent.action) {
@@ -836,7 +831,7 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setTextViewText(
             R.id.tx_day_date,
             SimpleDateFormat("EEE", Locale.getDefault()).format(c) +
-                    "," + formattedDate
+                    "│" + formattedDate
         )
 
         remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)

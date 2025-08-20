@@ -233,10 +233,7 @@ class MainActivity : AppCompatActivity() {
         fetchWallpaper(applicationContext)
         GetDisplayDimens()
 
-
         getNews()
-        apiTweets()
-        pyTweets()
 
         if ((ActivityCompat.checkSelfPermission(
                 applicationContext,
@@ -574,10 +571,7 @@ class MainActivity : AppCompatActivity() {
         Log.d("result", "res - ${listTweets.size}")
     }
 
-    private fun apiTweets() {
 
-
-    }
 
     suspend fun getBitmapFromUrl(imageUrl: String): Bitmap? {
         return withContext(Dispatchers.IO) { // Switch to the IO dispatcher for network operations
@@ -654,10 +648,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun pyTweets() {
 
-
-    }
 
 
     @SuppressLint("MissingPermission")
@@ -1283,8 +1274,6 @@ class MainActivity : AppCompatActivity() {
         @OptIn(DelicateCoroutinesApi::class)
         fun getWeatherData() {
 
-
-            // Replace "CityName" with the desired city
             try {
                 val weatherService = Retrofit.Builder()
                     .baseUrl("https://api.openweathermap.org/data/2.5/")
