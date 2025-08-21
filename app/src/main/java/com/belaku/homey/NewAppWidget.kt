@@ -73,12 +73,8 @@ import kotlin.properties.Delegates
 class NewAppWidget : AppWidgetProvider() {
 
 
-    private lateinit var bmNews: Bitmap
-    private lateinit var isNewsIS: InputStream
     private var dNews = appContx.resources.getDrawable(R.drawable.face_holder)
     private var randomTweetIndex: Int = 0
-    private var newsStr: String = ""
-    private lateinit var wifiManager: WifiManager
     private lateinit var formattedDate: String
     private var timelyWish: String = ""
     private val TAG: String = "NewAppWidget LOG7"
@@ -556,15 +552,10 @@ class NewAppWidget : AppWidgetProvider() {
                 Html.fromHtml("<u>" + (newsIndex).toString() + ". " + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY)
             )
 
-            isNewsIS = NetworkUtility().getInputStreamFromUrl(newsImgLinks[newsIndex])
-            bmNews = BitmapFactory.decodeStream(isNewsIS)
-            dNews = BitmapDrawable(bmNews)
 
-            try {
-                isNewsIS.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
+            dNews = BitmapDrawable(newsBitmaps[newsIndex])
+
+
             remoteViews?.setImageViewBitmap(R.id.imgv_news,
                 drawableToBitmap(context, dNews)
             )
@@ -630,15 +621,10 @@ class NewAppWidget : AppWidgetProvider() {
                     Html.fromHtml("<u>" + newsIndex + ". " + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY)
                 )
 
-            isNewsIS = NetworkUtility().getInputStreamFromUrl(newsImgLinks[newsIndex])
-            bmNews = BitmapFactory.decodeStream(isNewsIS)
-            dNews = BitmapDrawable(bmNews)
 
-            try {
-                isNewsIS.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
+            dNews = BitmapDrawable(newsBitmaps[newsIndex])
+
+
             remoteViews?.setImageViewBitmap(R.id.imgv_news,
                 drawableToBitmap(context, dNews)
             )
@@ -656,15 +642,10 @@ class NewAppWidget : AppWidgetProvider() {
                 Html.fromHtml("<u>" + newsIndex + ". " + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY)
             )
 
-            isNewsIS = NetworkUtility().getInputStreamFromUrl(newsImgLinks[newsIndex])
-            bmNews = BitmapFactory.decodeStream(isNewsIS)
-            dNews = BitmapDrawable(bmNews)
 
-            try {
-                isNewsIS.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
+            dNews = BitmapDrawable(newsBitmaps[newsIndex])
+
+
             remoteViews?.setImageViewBitmap(R.id.imgv_news,
                 drawableToBitmap(context, dNews)
             )
@@ -738,12 +719,6 @@ class NewAppWidget : AppWidgetProvider() {
             launchApp(context, app.pName)
         }
 
-      /*  if (APP_DRAWER_CLICKED == intent.action) {
-            var appsIntent: Intent = Intent(Intent.ACTION_ALL_APPS)
-            appsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            appsIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-            appContx.startActivity(appsIntent)
-        }*/
 
         if (APP4_CLICKED == intent.action) {
             var app = choosenApps[3]
@@ -996,11 +971,12 @@ class NewAppWidget : AppWidgetProvider() {
     companion object {
         //    var newsList: ArrayList<String> = Arrays.asList("News Headlines 1")
         var newsList: ArrayList<String> =
-            ArrayList(mutableListOf(""))
+            ArrayList()
         var newsLinks: ArrayList<String> =
-            ArrayList(mutableListOf(""))
-        var newsImgLinks: ArrayList<String> =
-            ArrayList(mutableListOf(""))
+            ArrayList()
+
+        var newsBitmaps: ArrayList<Bitmap> =
+            ArrayList()
         var primaryColor by Delegates.notNull<Int>()
         var secondaryColor by Delegates.notNull<Int>()
         var tertianaryColor by Delegates.notNull<Int>()

@@ -82,7 +82,7 @@ import com.belaku.homey.AppChooserDialog.Companion.choosenApps
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
-import com.belaku.homey.NewAppWidget.Companion.newsImgLinks
+import com.belaku.homey.NewAppWidget.Companion.newsBitmaps
 import com.belaku.homey.NewAppWidget.Companion.newsLinks
 import com.belaku.homey.NewAppWidget.Companion.newsList
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
@@ -177,8 +177,20 @@ class MainActivity : AppCompatActivity() {
             getApps()
 
         cDate = Calendar.getInstance().get(Calendar.DATE)
+        if (sharedPreferences.getInt("Date", 0) == 0) {
+            makeToast("fT")
+            newsList.clear()
+            sharedPreferencesEditor.putInt("Date", cDate).apply()
+        } else {
+            if (cDate != sharedPreferences.getInt("Date", 0)) {
+                newsList.clear()
+                makeToast("new Day!")
+                sharedPreferencesEditor.putInt("Date", cDate).apply()
+            }
+        }
         cMonth = Calendar.getInstance().get(Calendar.MONTH) + 1
         cYear = Calendar.getInstance().get(Calendar.YEAR)
+
 
         makeToast("Date - $cDate/$cMonth/$cYear")
 
@@ -238,7 +250,7 @@ class MainActivity : AppCompatActivity() {
         fetchWallpaper(applicationContext)
         GetDisplayDimens()
 
-    //    getNews(cDate - 1)
+        //    getNews(cDate - 1)
 
         if ((ActivityCompat.checkSelfPermission(
                 applicationContext,
@@ -311,8 +323,19 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        scheduleDailyJob(applicationContext)
 
+        if (newsList.size == 0)
+        lifecycleScope.launch {
+            scheduleDailyJob(applicationContext)
+        }
+    }
+
+    fun isJobScheduled(context: Context, jobId: Int): Boolean {
+        val jobScheduler = context.getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
+        // getPendingJob(int) returns the JobInfo for the given job ID if it's scheduled, otherwise null.
+        val jobInfo = jobScheduler.getPendingJob(jobId)
+        return jobInfo != null
+        return false
     }
 
     private fun showSTTDialog() {
@@ -579,7 +602,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
     suspend fun getBitmapFromUrl(imageUrl: String): Bitmap? {
         return withContext(Dispatchers.IO) { // Switch to the IO dispatcher for network operations
             try {
@@ -634,7 +656,7 @@ class MainActivity : AppCompatActivity() {
             val bitmap = getBitmapFromUrl(imageUrl)
             // Now you have the bitmap, you can display it in an ImageView or process it further
             if (bitmap != null) {
-           //     makeToast("TwiPic")
+                //     makeToast("TwiPic")
                 try {
                     remoteViews?.setTextViewText(
                         R.id.tx_tweets,
@@ -656,8 +678,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
-
     @SuppressLint("MissingPermission")
     private fun getCity() {
 
@@ -673,7 +693,7 @@ class MainActivity : AppCompatActivity() {
 
                 val Adress = geocoder.getFromLocation(location.latitude, location.longitude, 1)
                 cityname = Adress?.get(0)!!.subLocality
-                  //  Adress?.toString()?.split(",")?.get(2) ?: Adress?.get(0)?.subAdminArea.toString()
+                //  Adress?.toString()?.split(",")?.get(2) ?: Adress?.get(0)?.subAdminArea.toString()
 
 
             }
@@ -1168,10 +1188,11 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
 
+        lateinit var pD: ProgressDialog
+        private lateinit var newsimgLink: String
         lateinit var appWidM: AppWidgetManager
         val mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         var apps: ArrayList<InstalledApp> = ArrayList()
-        lateinit var pD: ProgressDialog
         var wallDelay: Int = 0
         var twitterProfileName: String = "Fact"
         var listTweets: ArrayList<String> = ArrayList()
@@ -1179,7 +1200,7 @@ class MainActivity : AppCompatActivity() {
         private var cMonth by Delegates.notNull<Int>()
         private var cYear by Delegates.notNull<Int>()
         private val newSAPIKEY: String = "3fa88b5851974caea39bcc59bd2e5746"
-        var newsIndex: Int = 1
+        var newsIndex: Int = 0
         private val TAG: String = "MainActTAG"
         lateinit var launcher: ActivityResultLauncher<Intent>
         var cityname: String = "cN"
@@ -1311,14 +1332,17 @@ class MainActivity : AppCompatActivity() {
                         weatherIconState = weatherData.weather.get(0).main
                         tempKind = weatherData.weather.get(0).description
                         weatherIconID = weatherData.weather.get(0).id
-                        weatherIconUrl =  "http://openweathermap.org/img/wn/" + weatherIconID + "@2x.png"
+                        weatherIconUrl =
+                            "http://openweathermap.org/img/wn/" + weatherIconID + "@2x.png"
 
 
                         Log.d("weatherInfo", tempC + " - " + tempKind)
-                        makeToast("weatherInfo - " + tempC.substring(
-                            0,
-                            4
-                        ) + "°C" + " - " + tempKind)
+                        makeToast(
+                            "weatherInfo - " + tempC.substring(
+                                0,
+                                4
+                            ) + "°C" + " - " + tempKind
+                        )
 
                         sharedPreferencesEditor.putString(
                             "weatherTemp",
@@ -1357,7 +1381,14 @@ class MainActivity : AppCompatActivity() {
                             for (i in 1 until response.body()?.articles!!.size - 1) {
                                 newsList.add(response.body()?.articles!!.get(i).title)
                                 newsLinks.add(response.body()?.articles!!.get(i).url)
-                                newsImgLinks.add(response.body()?.articles!!.get(i).urlToImage)
+                                newsimgLink = response.body()?.articles!!.get(i).urlToImage
+                                newsBitmaps.add(
+                                    BitmapFactory.decodeStream(
+                                        NetworkUtility().getInputStreamFromUrl(
+                                            newsimgLink
+                                        )
+                                    )
+                                )
                             }
                             makeToast("News Added - " + newsList.size)
                         }
@@ -1366,10 +1397,7 @@ class MainActivity : AppCompatActivity() {
                 })
 
 
-
         }
-
-
 
 
     }

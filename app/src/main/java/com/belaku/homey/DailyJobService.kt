@@ -12,7 +12,7 @@ class DailyJobService : JobService() {
         // Your code to run once a day
         var cDate = Calendar.getInstance().get(Calendar.DATE)
         Log.d("DailyJob - $cDate : ${Calendar.getInstance().get(Calendar.HOUR_OF_DAY)}:${Calendar.getInstance().get(Calendar.MINUTE)}", "Daily job executed!")
-        getNews( cDate - 2)
+        getNews( cDate - 1)
         jobFinished(params, false) // Indicate job is finished
         return true // Return true if work is being done on a separate thread
     }
