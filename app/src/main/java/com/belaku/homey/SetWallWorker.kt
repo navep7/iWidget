@@ -182,6 +182,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
 
         fun setWall(b: Boolean) {
+
             wm = WallpaperManager.getInstance(appContx)
             wm.setWallpaperOffsetSteps(1F, 1F);
             wm.suggestDesiredDimensions(screenWidth, screenHeight)

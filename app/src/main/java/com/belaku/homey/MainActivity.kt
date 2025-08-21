@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.ActivityManager
+import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.AppOpsManager
 import android.app.AppOpsManager.MODE_ALLOWED
@@ -12,6 +13,8 @@ import android.app.Dialog
 import android.app.ProgressDialog
 import android.app.WallpaperManager
 import android.app.admin.DevicePolicyManager
+import android.app.job.JobInfo
+import android.app.job.JobScheduler
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.appwidget.AppWidgetManager
@@ -173,9 +176,11 @@ class MainActivity : AppCompatActivity() {
         if (apps.size == 0)
             getApps()
 
-        cDate = Calendar.getInstance().get(Calendar.DATE) - 2
+        cDate = Calendar.getInstance().get(Calendar.DATE)
         cMonth = Calendar.getInstance().get(Calendar.MONTH) + 1
         cYear = Calendar.getInstance().get(Calendar.YEAR)
+
+        makeToast("Date - $cDate/$cMonth/$cYear")
 
         var bluetoothLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -233,7 +238,7 @@ class MainActivity : AppCompatActivity() {
         fetchWallpaper(applicationContext)
         GetDisplayDimens()
 
-        getNews()
+    //    getNews(cDate - 1)
 
         if ((ActivityCompat.checkSelfPermission(
                 applicationContext,
@@ -273,7 +278,8 @@ class MainActivity : AppCompatActivity() {
                             Manifest.permission.CALL_PHONE,
                             Manifest.permission.ACTIVITY_RECOGNITION,
                             Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.BLUETOOTH_CONNECT
+                            Manifest.permission.POST_NOTIFICATIONS
+
                         ),
                         CONTACTS_P
                     )
@@ -305,6 +311,7 @@ class MainActivity : AppCompatActivity() {
 
         }
 
+        scheduleDailyJob(applicationContext)
 
     }
 
@@ -684,6 +691,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return false
+    }
+
+    fun scheduleDailyJob(context: Context) {
+        val serviceComponent: ComponentName = ComponentName(context, DailyJobService::class.java)
+        val builder = JobInfo.Builder(1, serviceComponent)
+            .setPeriodic(AlarmManager.INTERVAL_DAY) // Schedule to run daily
+            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY) // Optional: require network
+            .setPersisted(true) // Optional: persist across reboots
+
+        val jobScheduler = context.getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
+        jobScheduler.schedule(builder.build())
     }
 
 
@@ -1317,12 +1335,12 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        fun getNews() {
+        fun getNews(tDate: Int) {
 
             newsList.toMutableList().clear()
 
             ApiUtilities.getApiInterface()
-                ?.getNews("bangalore", "$cYear-$cMonth-$cDate", "publishedAt", "en", newSAPIKEY)
+                ?.getNews("bangalore", "$cYear-$cMonth-$tDate", "publishedAt", "en", newSAPIKEY)
                 ?.enqueue(object : Callback<MainNews> {
 
                     override fun onFailure(call: Call<MainNews>, t: Throwable) {
@@ -1335,18 +1353,19 @@ class MainActivity : AppCompatActivity() {
                     ) {
                         //  newsList.toMutableList().clear()
                         if (response.isSuccessful) {
-                            // makeToast("SZ - " + response.raw())
-                            // makeToast("SZ - " + response.body()?.totalResults)
-                            // makeToast("SZ - " + response.body()?.articles!!.size)
-                            for (i in 0 until response.body()?.articles!!.size) {
+
+                            for (i in 1 until response.body()?.articles!!.size - 1) {
                                 newsList.add(response.body()?.articles!!.get(i).title)
                                 newsLinks.add(response.body()?.articles!!.get(i).url)
                                 newsImgLinks.add(response.body()?.articles!!.get(i).urlToImage)
                             }
+                            makeToast("News Added - " + newsList.size)
                         }
-                        //     makeToast("News - " + newsList.size)
+
                     }
                 })
+
+
 
         }
 

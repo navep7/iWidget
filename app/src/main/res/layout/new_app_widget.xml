@@ -129,9 +129,9 @@
             android:layout_below="@+id/clock"
             android:layout_marginEnd="@dimen/fab_margin"
             android:layout_toEndOf="@+id/a_clock"
-            android:text="Day.. Date"
+            android:text="Day│Date"
             android:textColor="?attr/colorPrimaryDark"
-            android:textSize="35sp"
+            android:textSize="25sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
 

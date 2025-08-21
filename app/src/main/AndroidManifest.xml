@@ -58,6 +58,8 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDypKvRVtn8t_F0yKtSfK5PuI54FBNDvCk" />
 
+        <service android:name=".DailyJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <activity
             android:name=".AppsActivity"

@@ -62,6 +62,7 @@ import com.belaku.homey.SetWallWorker.Companion.steps
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.IOException
+import java.io.InputStream
 import java.util.Collections
 import java.util.Date
 import java.util.LinkedList
@@ -72,6 +73,9 @@ import kotlin.properties.Delegates
 class NewAppWidget : AppWidgetProvider() {
 
 
+    private lateinit var bmNews: Bitmap
+    private lateinit var isNewsIS: InputStream
+    private var dNews = appContx.resources.getDrawable(R.drawable.face_holder)
     private var randomTweetIndex: Int = 0
     private var newsStr: String = ""
     private lateinit var wifiManager: WifiManager
@@ -104,7 +108,6 @@ class NewAppWidget : AppWidgetProvider() {
     override fun onDisabled(context: Context?) {
         super.onDisabled(context)
         appContx = context!!
-        makeToast("onDisabled!")
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
@@ -547,35 +550,26 @@ class NewAppWidget : AppWidgetProvider() {
             greeting(context, remoteViews!!, timeOfDay)
         }
 
-//        for (i in 0 until newsList.size)
-        //          newsStr = newsStr + "\t\t\t\t\t | ${newsList.get(i)}"
-
-
-        if (newsList.size > 1) {
+        if (newsList.size > 1 && newsIndex == 1) {
             remoteViews?.setTextViewText(
                 R.id.tx_news,
-                Html.fromHtml("<u>" + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY)
+                Html.fromHtml("<u>" + (newsIndex).toString() + ". " + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY)
             )
 
+            isNewsIS = NetworkUtility().getInputStreamFromUrl(newsImgLinks[newsIndex])
+            bmNews = BitmapFactory.decodeStream(isNewsIS)
+            dNews = BitmapDrawable(bmNews)
 
-            var isNews = NetworkUtility().getInputStreamFromUrl(newsImgLinks[newsIndex])
-
-            var dNews: Drawable
-            if (isNews != null) {
-                var bmNews = BitmapFactory.decodeStream(isNews)
-                dNews = BitmapDrawable(bmNews)
-
-                try {
-                    isNews.close()
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
-            } else {
-                dNews = appContx.resources.getDrawable(R.drawable.face_holder)
+            try {
+                isNewsIS.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
             }
             remoteViews?.setImageViewBitmap(R.id.imgv_news,
                 drawableToBitmap(context, dNews)
             )
+
+
         }
 
         remoteViews?.setTextViewText(
@@ -627,20 +621,54 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (NEWS_NEXT == intent.action) {
 
-            if (newsIndex == newsList.size - 1)
-                newsIndex = 0
-            else newsIndex++
+                if (newsIndex < newsList.size - 1)
+                    newsIndex++
+                else newsIndex = 1
 
-            makeToast("showing $newsIndex of ${newsList.size}")
+                remoteViews?.setTextViewText(
+                    R.id.tx_news,
+                    Html.fromHtml("<u>" + newsIndex + ". " + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY)
+                )
+
+            isNewsIS = NetworkUtility().getInputStreamFromUrl(newsImgLinks[newsIndex])
+            bmNews = BitmapFactory.decodeStream(isNewsIS)
+            dNews = BitmapDrawable(bmNews)
+
+            try {
+                isNewsIS.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+            remoteViews?.setImageViewBitmap(R.id.imgv_news,
+                drawableToBitmap(context, dNews)
+            )
+
         }
 
         if (NEWS_PREV == intent.action) {
 
-            if (newsIndex == 0)
-                newsIndex = newsList.size - 1
-            else newsIndex--
+            if (newsIndex > 0)
+                newsIndex--
+            else newsIndex = newsList.size - 1
 
-            makeToast("showing $newsIndex of ${newsList.size}")
+            remoteViews?.setTextViewText(
+                R.id.tx_news,
+                Html.fromHtml("<u>" + newsIndex + ". " + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY)
+            )
+
+            isNewsIS = NetworkUtility().getInputStreamFromUrl(newsImgLinks[newsIndex])
+            bmNews = BitmapFactory.decodeStream(isNewsIS)
+            dNews = BitmapDrawable(bmNews)
+
+            try {
+                isNewsIS.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+            remoteViews?.setImageViewBitmap(R.id.imgv_news,
+                drawableToBitmap(context, dNews)
+            )
+
         }
 
         if (WIFI_AUTO == intent.action) {
@@ -776,16 +804,34 @@ class NewAppWidget : AppWidgetProvider() {
     private fun todaysDate(context: Context) {
 
         val c: Date = Calendar.getInstance().time
-        val df = SimpleDateFormat("ddMMM", Locale.getDefault())
+        val dfDate = SimpleDateFormat("dd", Locale.getDefault())
+        val dfMonth = SimpleDateFormat("MMM", Locale.getDefault())
 
-        if (sharedPreferences.getBoolean("DateSet", false)) {
-            var newfD = df.format(c)
-            if (sharedPreferences.getString("fD", "") != newfD)
-                MainActivity.getWeatherData()
+        var postFixDate = ""
 
+
+
+        if (dfDate.format(c).length == 1) {
+            when (dfDate.format(c).toInt()) {
+                1 -> postFixDate = "ˢᵗ"
+                2 -> postFixDate = "ⁿᵈ"
+                3 -> postFixDate = "ʳᵈ"
+                in 4..9 -> postFixDate = "ᵗʰ"
+
+            }
+        } else {
+            when (dfDate.format(c).toInt()) {
+                in 11..20 -> postFixDate = "ᵗʰ"
+                21,31 -> postFixDate = "ˢᵗ"
+                22 -> postFixDate = "ⁿᵈ"
+                23 -> postFixDate = "ʳᵈ"
+                in 24..30 -> postFixDate = "ᵗʰ"
+
+            }
         }
 
-        formattedDate = df.format(c)
+
+        formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
 
 
         if (MainActivity.tempC.length > 3) {
