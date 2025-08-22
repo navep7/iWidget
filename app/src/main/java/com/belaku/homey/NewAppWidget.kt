@@ -73,7 +73,7 @@ import kotlin.properties.Delegates
 class NewAppWidget : AppWidgetProvider() {
 
 
-    private var dNews = appContx.resources.getDrawable(R.drawable.face_holder)
+    private lateinit var dNews: Drawable
     private var randomTweetIndex: Int = 0
     private lateinit var formattedDate: String
     private var timelyWish: String = ""
@@ -97,6 +97,7 @@ class NewAppWidget : AppWidgetProvider() {
         super.onEnabled(context)
         appContx = context!!
         onEn = true
+        dNews = appContx.resources.getDrawable(R.drawable.face_holder)
         Log.d("onEnabled! - ", favContacts.size.toString())
         getWeatherData()
     }

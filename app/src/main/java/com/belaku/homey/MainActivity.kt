@@ -192,8 +192,6 @@ class MainActivity : AppCompatActivity() {
         cYear = Calendar.getInstance().get(Calendar.YEAR)
 
 
-        makeToast("Date - $cDate/$cMonth/$cYear")
-
         var bluetoothLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == AppCompatActivity.RESULT_OK) {
