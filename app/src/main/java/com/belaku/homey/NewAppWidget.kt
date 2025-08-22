@@ -358,7 +358,11 @@ class NewAppWidget : AppWidgetProvider() {
                 randomTweetIndex = (0..listTweets.size - 1).random()
                 tW = listTweets[randomTweetIndex]
                 sharedPreferencesEditor.putString("tW", tW).apply()
-            } else tW = sharedPreferences.getString("tW", "").toString()
+            } else {
+                tW = sharedPreferences.getString("tW", "").toString()
+                if (tW.length == 0)
+                    tW = listTweets[0]
+            }
         }
 
         appContx = context
@@ -613,7 +617,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (NEWS_NEXT == intent.action) {
 
-                if (newsIndex < newsList.size - 1)
+                if (newsIndex < newsList.size - 2)
                     newsIndex++
                 else newsIndex = 1
 
@@ -937,31 +941,8 @@ class NewAppWidget : AppWidgetProvider() {
         else if (timeOfDay.equals("Night"))
             timelyWish = "\uD83D\uDCA4 $timeOfDay, ${gpName.split(" ").get(0)}!"
 
-
     }
 
-    @SuppressLint("Range", "Recycle")
-    private fun getGoogleProfileInfo(context: Context): String {
-
-        val manager = AccountManager.get(context)
-        val accounts = manager.getAccountsByType("com.google")
-        val possibleEmails: MutableList<String?> = LinkedList()
-
-        for (account in accounts) {
-            // TODO: Check possibleEmail against an email regex or treat
-            // account.name as an email address only for certain account.type
-            // values.
-            possibleEmails.add(account.name)
-        }
-
-        if (!possibleEmails.isEmpty() && possibleEmails[0] != null) {
-            val email = possibleEmails[0]
-            val parts: Array<String?> = email!!.split("@".toRegex()).dropLastWhile { it.isEmpty() }
-                .toTypedArray()
-            return if (parts.size > 0 && parts[0] != null) parts[1].toString()
-            else "null1"
-        } else return "null2"
-    }
 
     protected fun getPendingSelfIntent(context: Context?, action: String?): PendingIntent {
         val intent = Intent(context, javaClass)
@@ -970,7 +951,6 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     companion object {
-        //    var newsList: ArrayList<String> = Arrays.asList("News Headlines 1")
         var newsList: ArrayList<String> =
             ArrayList()
         var newsLinks: ArrayList<String> =

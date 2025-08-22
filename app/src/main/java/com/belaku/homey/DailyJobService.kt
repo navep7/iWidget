@@ -2,17 +2,22 @@ package com.belaku.homey
 
 import android.app.job.JobParameters
 import android.app.job.JobService
+import android.content.Intent
 import android.icu.util.Calendar
 import android.util.Log
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.belaku.homey.MainActivity.Companion.getNews
+import com.belaku.homey.MainActivity.Companion.pD
+import com.belaku.homey.MainActivity.Companion.pDNews
 
 
 class DailyJobService : JobService() {
     override fun onStartJob(params: JobParameters): Boolean {
         // Your code to run once a day
+
         var cDate = Calendar.getInstance().get(Calendar.DATE)
         Log.d("DailyJob - $cDate : ${Calendar.getInstance().get(Calendar.HOUR_OF_DAY)}:${Calendar.getInstance().get(Calendar.MINUTE)}", "Daily job executed!")
-        getNews( cDate - 1)
+        getNews( cDate - 2)
         jobFinished(params, false) // Indicate job is finished
         return true // Return true if work is being done on a separate thread
     }

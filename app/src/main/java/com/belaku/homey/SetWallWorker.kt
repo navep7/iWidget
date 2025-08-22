@@ -1,7 +1,10 @@
 package com.belaku.homey
 
 import android.annotation.SuppressLint
+import android.app.AlarmManager
 import android.app.WallpaperManager
+import android.app.job.JobInfo
+import android.app.job.JobScheduler
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
@@ -25,6 +28,8 @@ import android.util.Log
 import android.view.View
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity.JOB_SCHEDULER_SERVICE
+import androidx.lifecycle.lifecycleScope
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.belaku.homey.MainActivity.Companion.appContx
@@ -37,9 +42,11 @@ import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.updateTime
 import com.belaku.homey.MainActivity.Companion.wallDelay
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
+import com.belaku.homey.NewAppWidget.Companion.newsList
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.screenHeight
 import com.belaku.homey.NewAppWidget.Companion.screenWidth
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.net.URL
 import kotlin.random.Random
@@ -63,6 +70,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
         appContx = applicationContext
         wm = WallpaperManager.getInstance(appContx)
+
         setWall(true)
 
         WifiState()

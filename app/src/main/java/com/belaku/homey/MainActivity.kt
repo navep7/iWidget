@@ -303,14 +303,27 @@ class MainActivity : AppCompatActivity() {
         fabMain.setOnClickListener { view ->
 
             if (fabDay.visibility == View.GONE) {
-                Snackbar.make(view, "Auto Update Wallpaper, every ?", Snackbar.ANIMATION_MODE_FADE)
-                    .setAction("Action", null)
-                    .setAnchorView(R.id.fab_main).show()
+
+
                 fabDay.visibility = View.VISIBLE
                 frameMin.visibility = View.VISIBLE
                 frameHour.visibility = View.VISIBLE
                 frameDay.visibility = View.VISIBLE
                 // Add animation here to expand the menu
+
+                if (newsList.size == 0) {
+                    pDNews = ProgressDialog(this@MainActivity)
+                    pDNews.setTitle("fetchingNews")
+                    pDNews.show()
+                    val serviceComponent = ComponentName(appContx, DailyJobService::class.java)
+                    val builder = JobInfo.Builder(1, serviceComponent)
+                        .setPeriodic(AlarmManager.INTERVAL_DAY) // Schedule to run daily
+                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY) // Optional: require network
+                        .setPersisted(true) // Optional: persist across reboots
+
+                    val jobScheduler = appContx.getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
+                    jobScheduler.schedule(builder.build())
+                }
             } else {
                 fabDay.visibility = View.GONE
                 frameMin.visibility = View.GONE
@@ -322,10 +335,6 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        if (newsList.size == 0)
-        lifecycleScope.launch {
-            scheduleDailyJob(applicationContext)
-        }
     }
 
     fun isJobScheduled(context: Context, jobId: Int): Boolean {
@@ -587,7 +596,7 @@ class MainActivity : AppCompatActivity() {
                 newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
                 remoteViews?.setTextViewText(
                     R.id.tx_tweets,
-                    "@" + twitterProfileName + "\t ~ \t" + listTweets[0]
+                    "@" + twitterProfileName + "\t ~ \t" + listTweets[1]
                 )
 
                 appWidM = AppWidgetManager.getInstance(appContx)
@@ -658,7 +667,7 @@ class MainActivity : AppCompatActivity() {
                 try {
                     remoteViews?.setTextViewText(
                         R.id.tx_tweets,
-                        "@" + twitterProfileName + "\t ~ \t" + listTweets[0]
+                        "@" + twitterProfileName + "\t ~ \t" + listTweets[1]
                     )
                     remoteViews?.setImageViewBitmap(R.id.twSettings, bitmap)
                 } catch (ex: Exception) {
@@ -1186,6 +1195,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
 
+        lateinit var pDNews: ProgressDialog
         lateinit var pD: ProgressDialog
         private lateinit var newsimgLink: String
         lateinit var appWidM: AppWidgetManager
@@ -1379,16 +1389,29 @@ class MainActivity : AppCompatActivity() {
                             for (i in 1 until response.body()?.articles!!.size - 1) {
                                 newsList.add(response.body()?.articles!!.get(i).title)
                                 newsLinks.add(response.body()?.articles!!.get(i).url)
-                                newsimgLink = response.body()?.articles!!.get(i).urlToImage
-                                newsBitmaps.add(
-                                    BitmapFactory.decodeStream(
-                                        NetworkUtility().getInputStreamFromUrl(
-                                            newsimgLink
+                                try {
+                                    newsimgLink = response.body()?.articles!!.get(i).urlToImage
+                                    newsBitmaps.add(
+                                        BitmapFactory.decodeStream(
+                                            NetworkUtility().getInputStreamFromUrl(
+                                                newsimgLink
+                                            )
                                         )
                                     )
-                                )
+                                } catch (ex: Exception) {
+                                    newsBitmaps.add(
+                                        BitmapFactory.decodeResource(
+                                            appContx.getResources(),
+                                            R.drawable.face_holder
+                                        )
+                                    )
+                                }
                             }
                             makeToast("News Added - " + newsList.size)
+                            pDNews.dismiss()
+                            Snackbar.make(parentLayout, "Auto Update Wallpaper, every ?", Snackbar.LENGTH_SHORT)
+                                .setAction("Action", null)
+                                .setAnchorView(R.id.fab_main).show()
                         }
 
                     }
