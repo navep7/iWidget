@@ -490,7 +490,7 @@
         android:src="@android:drawable/ic_popup_sync" />
 
     <ImageButton
-        android:id="@+id/imgbtn_music"
+        android:id="@+id/imgbtn_speech"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:scaleType="fitXY"

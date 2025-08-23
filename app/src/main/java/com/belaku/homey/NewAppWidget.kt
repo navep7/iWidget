@@ -4,7 +4,6 @@ package com.belaku.homey
 // Weather Key - 9fa8e101240ab18615e3133b051e767e
 
 import android.Manifest
-import android.accounts.AccountManager
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.WallpaperManager
@@ -34,7 +33,6 @@ import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.media.MediaPlayer
 import android.net.Uri
-import android.net.wifi.WifiManager
 import android.os.Build
 import android.provider.ContactsContract
 import android.provider.Settings
@@ -62,10 +60,8 @@ import com.belaku.homey.SetWallWorker.Companion.steps
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.IOException
-import java.io.InputStream
 import java.util.Collections
 import java.util.Date
-import java.util.LinkedList
 import java.util.Locale
 import kotlin.properties.Delegates
 
@@ -140,7 +136,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
             remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_music,
+                R.id.imgbtn_speech,
                 PendingIntent.getActivity(
                     context,
                     25,
@@ -340,7 +336,7 @@ class NewAppWidget : AppWidgetProvider() {
             secondaryColor,
             primaryColor
         )
-        remoteViews?.setColorInt(R.id.imgbtn_music, "setColorFilter", secondaryColor, primaryColor)
+        remoteViews?.setColorInt(R.id.imgbtn_speech, "setColorFilter", secondaryColor, primaryColor)
 
 
         sharedPreferences = context.getSharedPreferences("UserPreferences", MODE_PRIVATE)
@@ -378,7 +374,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.imgbtn_music,
+            R.id.imgbtn_speech,
             PendingIntent.getActivity(
                 context,
                 25,

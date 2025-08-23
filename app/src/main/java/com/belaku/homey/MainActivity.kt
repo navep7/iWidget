@@ -371,7 +371,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         imgBtnShare.setOnClickListener {
-            var textToShare = dialogMessage.text
+            var textToShare = dialogMessage.text.toString()
             if (textToShare.length > 5) {
                 val shareIntent = Intent()
                 shareIntent.setAction(Intent.ACTION_SEND)
