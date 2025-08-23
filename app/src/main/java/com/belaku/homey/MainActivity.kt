@@ -154,7 +154,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     @SuppressLint("MissingPermission")
-    @RequiresApi(Build.VERSION_CODES.Q)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -288,8 +288,8 @@ class MainActivity : AppCompatActivity() {
                             Manifest.permission.CALL_PHONE,
                             Manifest.permission.ACTIVITY_RECOGNITION,
                             Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.POST_NOTIFICATIONS
-
+                            Manifest.permission.POST_NOTIFICATIONS,
+                            Manifest.permission.BLUETOOTH_CONNECT
                         ),
                         CONTACTS_P
                     )
