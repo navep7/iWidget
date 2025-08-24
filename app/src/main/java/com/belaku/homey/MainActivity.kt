@@ -19,10 +19,12 @@ import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
+import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
@@ -1054,12 +1056,12 @@ class MainActivity : AppCompatActivity() {
                     startStepsService()
                     usageStatsPermissionDialog()
                     rawTweets(false)
-                    //     BluetoothState()
+                         BluetoothState()
                 }
         }
     }
 
-    /*  private fun BluetoothState() {
+      private fun BluetoothState() {
           var wTAG = "BluetoothState ~ "
 
 
@@ -1091,7 +1093,7 @@ class MainActivity : AppCompatActivity() {
           val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
           appContx.registerReceiver(mBluetoothReceiver, filter)
 
-      }*/
+      }
 
 
     private fun startStepsService() {
@@ -1351,6 +1353,20 @@ class MainActivity : AppCompatActivity() {
                                 4
                             ) + "°C" + " - " + tempKind
                         )
+
+                        remoteViews?.setTextViewText(R.id.tx_weather_icon_temp, tempC.substring(
+                            0,
+                            2
+                        ) + "°C")
+                        remoteViews?.setTextViewText(R.id.tx_weather_icon_state, weatherIconState + "..,")
+                        if (weatherIconID.startsWith("5"))
+                            remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.rain)
+                        if (weatherIconID.equals("800"))
+                            remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clear_sky)
+                        if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals("803") || weatherIconID.equals("804"))
+                            remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clouds)
+
+                        appWidM.updateAppWidget(newAppWidget, remoteViews)
 
                         sharedPreferencesEditor.putString(
                             "weatherTemp",
