@@ -547,10 +547,10 @@ class NewAppWidget : AppWidgetProvider() {
             greeting(context, remoteViews!!, timeOfDay)
         }
 
-        if (newsList.size > 1 && newsIndex == 1) {
+        if (newsList.size > 1) {
             remoteViews?.setTextViewText(
                 R.id.tx_news,
-                Html.fromHtml("<u>" + (newsIndex).toString() + ". " + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY)
+                Html.fromHtml("<u>" + (newsIndex + 1).toString() + ". " + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY)
             )
 
 
@@ -613,14 +613,14 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (NEWS_NEXT == intent.action) {
 
-                if (newsIndex < newsList.size - 2)
+                if (newsIndex < newsList.size - 1)
                     newsIndex++
-                else newsIndex = 1
+                else newsIndex = 0
 
-                remoteViews?.setTextViewText(
-                    R.id.tx_news,
-                    Html.fromHtml("<u>" + newsIndex + ". " + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY)
-                )
+            remoteViews?.setTextViewText(
+                R.id.tx_news,
+                Html.fromHtml("<u>" + (newsIndex + 1) + ". " + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY)
+            )
 
 
             dNews = BitmapDrawable(newsBitmaps[newsIndex])
@@ -638,9 +638,9 @@ class NewAppWidget : AppWidgetProvider() {
                 newsIndex--
             else newsIndex = newsList.size - 1
 
-            remoteViews?.setTextViewText(
+           remoteViews?.setTextViewText(
                 R.id.tx_news,
-                Html.fromHtml("<u>" + newsIndex + ". " + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY)
+                Html.fromHtml("<u>" + (newsIndex + 1) + ". " + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY)
             )
 
 

@@ -155,6 +155,7 @@ class MainActivity : AppCompatActivity() {
         "https://api.pexels.com/v1/search?query=$queryType&per_page=10"
     private lateinit var binding: ActivityMainBinding
 
+    @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("MissingPermission")
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -180,13 +181,13 @@ class MainActivity : AppCompatActivity() {
 
         cDate = Calendar.getInstance().get(Calendar.DATE)
         if (sharedPreferences.getInt("Date", 0) == 0) {
-            makeToast("fT")
+       //     makeToast("fT")
             newsList.clear()
             sharedPreferencesEditor.putInt("Date", cDate).apply()
         } else {
             if (cDate != sharedPreferences.getInt("Date", 0)) {
                 newsList.clear()
-                makeToast("new Day!")
+         //       makeToast("new Day!")
                 sharedPreferencesEditor.putInt("Date", cDate).apply()
             }
         }
@@ -315,16 +316,21 @@ class MainActivity : AppCompatActivity() {
 
                 if (newsList.size == 0) {
                     pDNews = ProgressDialog(this@MainActivity)
-                    pDNews.setTitle("fetchingNews")
+                    pDNews.setCancelable(false)
+                    pDNews.setTitle("fetching News...")
                     pDNews.show()
+                    val jobScheduler =
+                        appContx.getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
                     val serviceComponent = ComponentName(appContx, DailyJobService::class.java)
-                    val builder = JobInfo.Builder(1, serviceComponent)
-                        .setPeriodic(AlarmManager.INTERVAL_DAY) // Schedule to run daily
-                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY) // Optional: require network
-                        .setPersisted(true) // Optional: persist across reboots
+                     // Optional: persist across reboots
 
-                    val jobScheduler = appContx.getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
-                    jobScheduler.schedule(builder.build())
+                    GlobalScope.launch(Dispatchers.IO) {
+                        val builder = JobInfo.Builder(1, serviceComponent)
+                            .setPeriodic(AlarmManager.INTERVAL_DAY) // Schedule to run daily
+                            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY) // Optional: require network
+                            .setPersisted(true)
+                        jobScheduler.schedule(builder.build())
+                    }
                 }
             } else {
                 fabDay.visibility = View.GONE
@@ -722,17 +728,6 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
-    fun scheduleDailyJob(context: Context) {
-        val serviceComponent: ComponentName = ComponentName(context, DailyJobService::class.java)
-        val builder = JobInfo.Builder(1, serviceComponent)
-            .setPeriodic(AlarmManager.INTERVAL_DAY) // Schedule to run daily
-            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY) // Optional: require network
-            .setPersisted(true) // Optional: persist across reboots
-
-        val jobScheduler = context.getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
-        jobScheduler.schedule(builder.build())
-    }
-
 
     private fun appUsageStats(applicationContext: Context?) {
 
@@ -740,7 +735,10 @@ class MainActivity : AppCompatActivity() {
 
         val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
 
-        val timeOfDay = if (currentHour >= 6 && currentHour < 12) {
+
+        val timeOfDay = if (currentHour < 6) {
+            "Night"
+        } else if (currentHour >= 6 && currentHour < 12) {
             "Morning"
         } else if (currentHour >= 12 && currentHour < 17) {
             "Afternoon"
@@ -757,19 +755,9 @@ class MainActivity : AppCompatActivity() {
 
         val beginCal = Calendar.getInstance()
         val endCal = Calendar.getInstance()
-        if (timeOfDay.equals("Morning")) {
-            beginCal.set(cYear, cMonth - 1, cDate, 9, 0)
-            endCal.set(cYear, cMonth, cDate, 12, 0)
-        } else if (timeOfDay.equals("Afternoon")) {
-            beginCal.set(cYear, cMonth - 1, cDate, 12, 0)
-            endCal.set(cYear, cMonth, cDate, 17, 0)
-        } else if (timeOfDay.equals("Evening")) {
-            beginCal.set(cYear, cMonth - 1, cDate, 17, 0)
-            endCal.set(cYear, cMonth, cDate, 21, 0)
-        } else if (timeOfDay.equals("Night")) {
-            beginCal.set(cYear, cMonth - 1, cDate, 21, 0)
-            endCal.set(cYear, cMonth - 1, cDate, 23, 57)
-        }
+
+        beginCal.set(cYear, cMonth - 1, cDate, 0, 0)
+        endCal.set(cYear, cMonth, cDate, 0, 0)
 
         val queryUsageStats = usageStatsManager.queryUsageStats(
             UsageStatsManager.INTERVAL_BEST,
@@ -805,6 +793,7 @@ class MainActivity : AppCompatActivity() {
 
                             }
         }
+
         saveApps(choosenApps)
 
     }
