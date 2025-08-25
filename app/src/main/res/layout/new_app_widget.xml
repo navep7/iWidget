@@ -107,7 +107,9 @@
             android:id="@+id/a_clock"
             android:layout_width="100dp"
             android:layout_height="100dp"
+            android:layout_above="@+id/tx_placeandweather"
             android:layout_below="@+id/tx_wish"
+            android:background="@drawable/weather_rounded_corner"
             android:dial="@drawable/walp_icon"
             android:hand_second="@drawable/s_hand" />
 
