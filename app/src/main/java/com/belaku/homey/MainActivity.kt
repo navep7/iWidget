@@ -656,7 +656,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        makeSnack("Tweets - ${listTweets.size}")
+ //       makeSnack("Tweets - ${listTweets.size}")
 
         var bitmapTwPic: Bitmap =
             drawableToBitmap(applicationContext, resources.getDrawable(R.drawable.walp_icon))
