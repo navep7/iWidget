@@ -122,23 +122,17 @@ import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var mBluetoothReceiver: BroadcastReceiver
     private lateinit var dialogMessage: EditText
     private val REQUEST_CODE_SPEECH_INPUT: Int = 100
     private lateinit var editTextTwitterHandle: EditText
     private lateinit var twitterHandleDialog: View
     private lateinit var responseTweets: okhttp3.Response
     private lateinit var responseTweetID: okhttp3.Response
-    private val tweets: ArrayList<String> = ArrayList()
     private lateinit var twitterID: String
     private lateinit var twitterPicUrl: String
     private lateinit var connectivityManager: ConnectivityManager
-    private lateinit var btnContactsAccess: Button
-    private lateinit var btnDialPhone: Button
-    private lateinit var btnActRecognition: Button
-    private lateinit var btnUsageStats: Button
     private val CONTACTS_P: Int = 1
-    private val DIAL_P: Int = 2
-    private val ACT_R: Int = 3
     private val LOC_P: Int = 4
     private val TAG: String = "MainActivity"
     private lateinit var frameMin: FrameLayout
@@ -341,6 +335,10 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+
+        BluetoothState()
+        val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+        appContx.registerReceiver(mBluetoothReceiver, filter)
 
 
     }
@@ -1045,7 +1043,6 @@ class MainActivity : AppCompatActivity() {
                     startStepsService()
                     usageStatsPermissionDialog()
                     rawTweets(false)
-                         BluetoothState()
                 }
         }
     }
@@ -1054,7 +1051,7 @@ class MainActivity : AppCompatActivity() {
           var wTAG = "BluetoothState ~ "
 
 
-          val mBluetoothReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+           mBluetoothReceiver = object : BroadcastReceiver() {
               override fun onReceive(context: Context?, intent: Intent) {
 
                   val action = intent.action
@@ -1078,9 +1075,6 @@ class MainActivity : AppCompatActivity() {
                   }
               }
           }
-
-          val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-          appContx.registerReceiver(mBluetoothReceiver, filter)
 
       }
 
