@@ -564,11 +564,11 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         var timeOfDay = if (currentHour >= 6 && currentHour < 12) {
-            "Morning"
+            "Morn."
         } else if (currentHour >= 12 && currentHour < 17) {
-            "Afternoon"
+            "Noon."
         } else if (currentHour >= 17 && currentHour < 21) {
-            "Evening"
+            "Eve."
         } else {
             "Night"
         }
@@ -958,7 +958,7 @@ class NewAppWidget : AppWidgetProvider() {
             .query(ContactsContract.Profile.CONTENT_URI, null, null, null, null)
         c?.moveToFirst()
         gpName = c!!.getString(c.getColumnIndex("display_name"))
-        c?.close()
+        c.close()
 
         if (timeOfDay.equals("Morning"))
             timelyWish = "\uD83C\uDF3B $timeOfDay, ${gpName.split(" ").get(0)}!"

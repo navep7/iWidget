@@ -37,7 +37,10 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-multidex = { module = "androidx.multidex:multidex" }
 blur_tutorial = { module = "com.cleveroad.blur_tutorial:blur_tutorial", version.ref = "blur_tutorial" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+firebase-ai = { module = "com.google.firebase:firebase-ai" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-crashlytics-ndk = { module = "com.google.firebase:firebase-crashlytics-ndk" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 gms-play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }

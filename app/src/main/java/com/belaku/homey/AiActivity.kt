@@ -1,5 +1,6 @@
 package com.belaku.homey
 
+
 import AppsAdapter
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
@@ -13,22 +14,44 @@ import android.renderscript.Allocation
 import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicBlur
+import android.text.method.ScrollingMovementMethod
 import android.transition.Fade
 import android.transition.Slide
+import android.view.KeyEvent
 import android.view.Window
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
+import android.widget.RelativeLayout
+import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.belaku.homey.MainActivity.Companion.apps
+import com.belaku.homey.MainActivity.Companion.imgDescs
+import com.belaku.homey.MainActivity.Companion.imgUrls
+import com.belaku.homey.MainActivity.Companion.pD
+import com.belaku.homey.MainActivity.Companion.queryType
+import com.belaku.homey.MainActivity.Companion.sN
+import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.databinding.ActivityAiBinding
+import com.google.firebase.Firebase
+import com.google.firebase.ai.ai
+import com.google.firebase.ai.type.GenerativeBackend
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
 
+    private lateinit var prompt: String
+    private lateinit var txAi: TextView
+    private lateinit var edtxAi: EditText
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityAiBinding
 
@@ -41,18 +64,38 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         setContentView(binding.root)
 
 
-
-        val rootLayout = findViewById<ConstraintLayout>(R.id.apps_layout)
+        val rootLayout = findViewById<RelativeLayout>(R.id.ai_layout)
         rootLayout.setBackgroundDrawable(BitmapDrawable(getResources(), blur(applicationContext, SetWallWorker.wallBitmap)))
 
 
-       /* val blurRadius = 20.0f
-        val blurEffect = RenderEffect.createBlurEffect(
-            blurRadius,
-            blurRadius,
-            Shader.TileMode.CLAMP
-        )
-        rootLayout.setRenderEffect(blurEffect);*/
+        edtxAi = findViewById<EditText>(R.id.edtx_ai)
+        txAi = findViewById<TextView>(R.id.tx_ai_response)
+        txAi.movementMethod = ScrollingMovementMethod()
+
+
+
+            val generativeModel = Firebase.ai(backend = GenerativeBackend.googleAI())
+                .generativeModel("gemini-2.5-flash")
+
+
+
+
+        edtxAi.setOnEditorActionListener(TextView.OnEditorActionListener { v, actionId, event ->
+            if ((event != null && (event.keyCode == KeyEvent.KEYCODE_ENTER)) || (actionId == EditorInfo.IME_ACTION_DONE)) {
+                //do what you want on the press of 'done'
+                prompt = edtxAi.text.toString()
+                txAi.setText("Generating AI response, please wait...")
+                lifecycleScope.launch {
+                    val txtResponse = generativeModel.generateContent(prompt)
+                    Toast.makeText(applicationContext, txtResponse.text, Toast.LENGTH_LONG).show()
+                    txAi.setText(txtResponse.text)
+                }
+            }
+            false
+        })
+
+
+
 
 
     }

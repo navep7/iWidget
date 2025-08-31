@@ -66,8 +66,10 @@ dependencies {
 
 
     implementation(platform(libs.firebase.bom))
-    implementation("com.google.firebase:firebase-crashlytics-ndk")
-    implementation("com.google.firebase:firebase-analytics")
+    implementation(libs.firebase.crashlytics.ndk)
+    implementation(libs.firebase.analytics)
+
+    implementation(libs.firebase.ai)
 
     implementation(libs.android.maps.utils)
     implementation(libs.android.gif.drawable)

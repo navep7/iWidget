@@ -256,13 +256,13 @@ class MainActivity : AppCompatActivity() {
             getCity()
         }
 
-        intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
+       /* intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
         var compName = ComponentName(this, DeviceAdmin::class.java)
         intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, compName)
         intent.putExtra(
             DevicePolicyManager.EXTRA_ADD_EXPLANATION,
             "Enable Admin Access for Lock screen shortcut to work from the App's Widget"
-        )
+        )*/
 
         launcher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()

@@ -1,13 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/apps_layout"
+    android:id="@+id/ai_layout"
     android:background="#80ffffff"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+    <EditText
+        android:id="@+id/edtx_ai"
+        android:imeOptions="actionDone"
+        android:inputType="text"
+        android:hint="Search AI, type in the prompt..."
+        android:textStyle="bold|italic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginTop="50dp"
+        android:layout_alignParentTop="true"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:id="@+id/tx_ai_response"
+        android:text="AI response..."
+        android:textStyle="bold"
+        android:layout_below="@id/edtx_ai"
+        android:layout_margin="@dimen/fab_margin"
+        android:scrollbars="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+
+</RelativeLayout>
