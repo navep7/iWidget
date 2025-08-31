@@ -135,6 +135,22 @@ class NewAppWidget : AppWidgetProvider() {
             newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
 
+            val aiIntent = Intent(context, AiActivity::class.java)
+            aiIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+            aiIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+            val aiPendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                aiIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.tx_ai,
+                aiPendingIntent
+            )
+
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgbtn_speech,
                 PendingIntent.getActivity(
@@ -372,6 +388,22 @@ class NewAppWidget : AppWidgetProvider() {
         currentHour = now[Calendar.HOUR_OF_DAY]
         currentMin = now[Calendar.MINUTE]
 
+
+        val aiIntent = Intent(context, AiActivity::class.java)
+        aiIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+        aiIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        val aiPendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            aiIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_ai,
+            aiPendingIntent
+        )
 
         remoteViews?.setOnClickPendingIntent(
             R.id.imgbtn_speech,

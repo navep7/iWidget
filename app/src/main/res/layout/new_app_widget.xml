@@ -578,8 +578,17 @@
         android:padding="5dp"
         android:src="@drawable/tw" />
 
-
-
+    <TextView
+        android:id="@+id/tx_ai"
+        android:text="✨"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:scaleType="fitXY"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/tx_tweets"
+        android:background="@drawable/rounded_corner"
+        android:padding="5dp"
+        tools:ignore="HardcodedText" />
 
     <ImageButton
         android:id="@+id/twShare"
