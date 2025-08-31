@@ -1,7 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("com.chaquo.python")
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
+ //   id("com.chaquo.python")
 }
 
 android {
@@ -26,7 +28,7 @@ android {
         }
 
 
-        chaquopy {
+      /*  chaquopy {
             defaultConfig {
                 pip {
                     version = "3.8" // Specify your desired Python version
@@ -35,7 +37,7 @@ android {
                     }
                 }
             }
-        }
+        }*/
 
     }
 
@@ -61,6 +63,11 @@ android {
 }
 
 dependencies {
+
+
+    implementation(platform(libs.firebase.bom))
+    implementation("com.google.firebase:firebase-crashlytics-ndk")
+    implementation("com.google.firebase:firebase-analytics")
 
     implementation(libs.android.maps.utils)
     implementation(libs.android.gif.drawable)

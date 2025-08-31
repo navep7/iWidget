@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "662346122694",
+    "project_id": "nhome-8c61c",
+    "storage_bucket": "nhome-8c61c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:662346122694:android:fdabcce47bd89188c15ec7",
+        "android_client_info": {
+          "package_name": "com.belaku.homey"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDhygB8Bzc7dkvvbbRPeUSDxI1CX-LrYE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

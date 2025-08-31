@@ -974,6 +974,8 @@ class MainActivity : AppCompatActivity() {
             setWalls(15)
             sharedPreferencesEditor.putStringSet("walls", HashSet(imgUrls)).apply()
             sharedPreferencesEditor.putStringSet("wallDescs", HashSet(imgDescs)).apply()
+
+        //    throw RuntimeException("TestCraash")
         }
 
         fabHour.setOnClickListener {
@@ -1330,12 +1332,12 @@ class MainActivity : AppCompatActivity() {
 
 
                         Log.d("weatherInfo", tempC + " - " + tempKind)
-                        makeToast(
+                       /* makeToast(
                             "weatherInfo - " + tempC.substring(
                                 0,
                                 4
                             ) + "°C" + " - " + tempKind
-                        )
+                        )*/
 
                         remoteViews?.setTextViewText(R.id.tx_weather_icon_temp, tempC.substring(
                             0,
