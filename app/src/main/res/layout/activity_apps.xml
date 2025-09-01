@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/apps_layout"
     android:background="#80ffffff"
     android:layout_width="match_parent"
@@ -10,13 +9,36 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="@android:color/darker_gray"
+        android:layout_marginTop="50dp"
+        android:layout_alignParentTop="true"/>
+
+    <TextView
+        android:id="@+id/tx_t"
+        android:text="Apps..."
+        android:textStyle="bold"
+        android:textSize="50dp"
+        android:layout_marginTop="50dp"
+        android:layout_alignParentTop="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_below="@+id/tx_t"/>
+
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_apps"
-        android:layout_marginTop="100dp"
-        android:layout_marginBottom="50dp"
-        android:layout_marginStart="@dimen/fab_margin"
-        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_margin="@dimen/fab_margin"
+        android:layout_below="@+id/tx_t"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+</RelativeLayout>

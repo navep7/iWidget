@@ -16,6 +16,7 @@ import android.renderscript.ScriptIntrinsicBlur
 import android.transition.Fade
 import android.transition.Slide
 import android.view.Window
+import android.widget.RelativeLayout
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -47,7 +48,7 @@ class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         recyclerView.adapter = adapter
 
 
-        val rootLayout = findViewById<ConstraintLayout>(R.id.apps_layout)
+        val rootLayout = findViewById<RelativeLayout>(R.id.apps_layout)
         rootLayout.setBackgroundDrawable(BitmapDrawable(getResources(), blur(applicationContext, SetWallWorker.wallBitmap)))
 
 
