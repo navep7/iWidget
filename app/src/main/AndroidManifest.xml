@@ -76,6 +76,13 @@
             android:theme="@style/Theme.Homey" />
 
         <activity
+            android:name=".RemindersActivity"
+            android:exported="false"
+            android:label="Apps"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Homey" />
+
+        <activity
             android:name=".MusicActivity"
             android:exported="false"
             android:label="Music"

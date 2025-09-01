@@ -151,6 +151,22 @@ class NewAppWidget : AppWidgetProvider() {
                 aiPendingIntent
             )
 
+            val remindersIntent = Intent(context, RemindersActivity::class.java)
+            remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+            remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+            val remindersPendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                remindersIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.tx_reminders,
+                remindersPendingIntent
+            )
+
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgbtn_speech,
                 PendingIntent.getActivity(
@@ -403,6 +419,22 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setOnClickPendingIntent(
             R.id.tx_ai,
             aiPendingIntent
+        )
+
+        val remindersIntent = Intent(context, RemindersActivity::class.java)
+        remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+        remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        val remindersPendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            remindersIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_reminders,
+            remindersPendingIntent
         )
 
         remoteViews?.setOnClickPendingIntent(
