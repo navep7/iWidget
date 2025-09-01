@@ -34,6 +34,7 @@
         <TextView
             android:id="@+id/tx_ai"
             android:text="✨"
+            android:gravity="center"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:scaleType="fitXY"
@@ -44,6 +45,47 @@
             android:padding="5dp"
             tools:ignore="HardcodedText" />
 
+        <ImageButton
+            android:id="@+id/fab_blue"
+            android:src="@drawable/blue_off"
+            android:gravity="center"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:scaleType="fitXY"
+            android:layout_margin="5dp"
+            android:layout_alignParentTop="true"
+            android:layout_toStartOf="@+id/tx_ai"
+            android:background="@drawable/weather_rounded_corner"
+            android:padding="5dp"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/tx_reminders"
+            android:text="🔔"
+            android:gravity="center"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:scaleType="fitXY"
+            android:layout_margin="5dp"
+            android:layout_alignParentTop="true"
+            android:layout_toStartOf="@+id/fab_blue"
+            android:background="@drawable/rounded_corner_gray"
+            android:padding="5dp"
+            tools:ignore="HardcodedText" />
+
+        <ImageButton
+            android:id="@+id/fab_wifi"
+            android:src="@drawable/wifi_off"
+            android:gravity="center"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:scaleType="fitXY"
+            android:layout_margin="5dp"
+            android:layout_alignParentTop="true"
+            android:layout_toStartOf="@+id/tx_reminders"
+            android:background="@drawable/weather_rounded_corner"
+            android:padding="5dp"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/tx_weather_icon_temp"
@@ -80,7 +122,7 @@
             android:id="@+id/weather_icon"
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:layout_marginBottom="-5dp"
+            android:layout_marginTop="@dimen/fab_margin"
             android:layout_below="@+id/tx_wish"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="5dp"
@@ -88,33 +130,6 @@
             android:background="@drawable/weather_rounded_corner"
             android:scaleType="fitXY" />
 
-
-        <ImageButton
-            android:id="@+id/fab_wifi"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:padding="5dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="5dp"
-            android:layout_alignBaseline="@+id/tx_day_date"
-            android:src="@drawable/wifi_off"
-            android:layout_marginStart="5dp"
-            android:layout_marginBottom="5dp"
-            android:background="@drawable/rounded_corner"
-            android:scaleType="fitXY" />
-
-        <ImageButton
-            android:id="@+id/fab_blue"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:padding="5dp"
-            android:layout_toStartOf="@+id/fab_wifi"
-            android:layout_alignBaseline="@+id/tx_day_date"
-            android:src="@drawable/blue_off"
-            android:layout_marginEnd="5dp"
-            android:layout_marginBottom="5dp"
-            android:background="@drawable/rounded_corner"
-            android:scaleType="fitXY" />
 
 
         <AnalogClock

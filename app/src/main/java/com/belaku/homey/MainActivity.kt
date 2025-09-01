@@ -175,13 +175,10 @@ class MainActivity : AppCompatActivity() {
 
         cDate = Calendar.getInstance().get(Calendar.DATE)
         if (sharedPreferences.getInt("Date", 0) == 0) {
-       //     makeToast("fT")
-            newsList.clear()
+
             sharedPreferencesEditor.putInt("Date", cDate).apply()
         } else {
             if (cDate != sharedPreferences.getInt("Date", 0)) {
-                newsList.clear()
-         //       makeToast("new Day!")
                 sharedPreferencesEditor.putInt("Date", cDate).apply()
             }
         }
@@ -1370,6 +1367,7 @@ class MainActivity : AppCompatActivity() {
 
         fun getNews(tDate: Int) {
 
+            makeToast("getNews - $cYear-$cMonth-$tDate")
             newsList.toMutableList().clear()
 
             ApiUtilities.getApiInterface()
@@ -1387,7 +1385,14 @@ class MainActivity : AppCompatActivity() {
                         //  newsList.toMutableList().clear()
                         if (response.isSuccessful) {
 
-                            for (i in 1 until response.body()?.articles!!.size - 1) {
+                            var newsRespSize = response.body()?.articles!!.size
+                            if (newsRespSize > 3) {
+                                newsList.clear()
+                                newsBitmaps.clear()
+                                newsLinks.clear()
+                            }
+
+                            for (i in 1 until newsRespSize - 1) {
                                 newsList.add(response.body()?.articles!!.get(i).title)
                                 newsLinks.add(response.body()?.articles!!.get(i).url)
                                 try {
