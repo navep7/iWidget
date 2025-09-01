@@ -26,6 +26,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.ui.AppBarConfiguration
 import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.MainActivity.Companion.sharedPreferences
+import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.databinding.ActivityRemindersBinding
 
 
@@ -77,8 +79,18 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
             arrayListHabits
         )
         listViewHabits.setAdapter(adapterHabits)
-        listViewHabits.onItemClickListener = OnItemClickListener { parent, view, position, id ->
 
+        for (i in 0 until arrayListHabits.size) {
+            if (sharedPreferences.getBoolean("cB$i", false))
+                listViewHabits.setItemChecked(i, true)
+            else listViewHabits.setItemChecked(i, false)
+        }
+
+        listViewHabits.onItemClickListener = OnItemClickListener { parent, view, position, id ->
+            if ((view as CheckedTextView).isChecked)
+                sharedPreferencesEditor.putBoolean("cB$position", true)
+            else sharedPreferencesEditor.putBoolean("cB$position", false)
+            sharedPreferencesEditor.apply()
         }
 
         adapterReminders = ArrayAdapter<String>(
