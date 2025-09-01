@@ -14,15 +14,19 @@ import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicBlur
 import android.view.View
+import android.widget.AdapterView.OnItemClickListener
+import android.widget.ArrayAdapter
+import android.widget.CheckedTextView
 import android.widget.EditText
+import android.widget.ListView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.ui.AppBarConfiguration
 import com.belaku.homey.MainActivity.Companion.apps
+import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.databinding.ActivityRemindersBinding
-
 
 
 class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
@@ -43,8 +47,13 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         setContentView(binding.root)
 
 
-        val rootLayout = findViewById<RelativeLayout>(R.id.ai_layout)
-        rootLayout.setBackgroundDrawable(BitmapDrawable(getResources(), blur(applicationContext, SetWallWorker.wallBitmap)))
+        val rootLayout = findViewById<RelativeLayout>(R.id.reminders_layout)
+        rootLayout.setBackgroundDrawable(
+            BitmapDrawable(
+                getResources(),
+                blur(applicationContext, SetWallWorker.wallBitmap)
+            )
+        )
 
 
         binding.txAddHabits.setOnClickListener(View.OnClickListener {
@@ -59,8 +68,25 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
             cdd.show()
         })
 
+        var listViewHabits = findViewById<ListView>(R.id.rv_habits)
+        listViewHabits.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE)
 
+        adapterHabits = ArrayAdapter<String>(
+            this,
+            android.R.layout.simple_list_item_multiple_choice,  // Default layout for a single text item
+            arrayListHabits
+        )
+        listViewHabits.setAdapter(adapterHabits)
+        listViewHabits.onItemClickListener = OnItemClickListener { parent, view, position, id ->
 
+        }
+
+        adapterReminders = ArrayAdapter<String>(
+            this,
+            android.R.layout.simple_list_item_1,  // Default layout for a single text item
+            arrayListReminders
+        )
+        findViewById<ListView>(R.id.rv_reminders).setAdapter(adapterReminders)
 
 
     }
@@ -95,6 +121,8 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
     }
 
     companion object {
+        lateinit var adapterHabits: ArrayAdapter<String>
+        lateinit var adapterReminders: ArrayAdapter<String>
         var arrayListHabits: ArrayList<String> = ArrayList()
         var arrayListReminders: ArrayList<String> = ArrayList()
     }

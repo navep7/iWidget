@@ -993,13 +993,13 @@ class NewAppWidget : AppWidgetProvider() {
         c.close()
 
         if (timeOfDay.equals("Morning"))
-            timelyWish = "\uD83C\uDF3B $timeOfDay, ${gpName.split(" ").get(0)}!"
+            timelyWish = "\uD83C\uDF3B $timeOfDay"//, ${gpName.split(" ").get(0)}!"
         else if (timeOfDay.equals("Afternoon"))
-            timelyWish = "\uFE0F $timeOfDay, ${gpName.split(" ").get(0)}!"
+            timelyWish = "\uFE0F $timeOfDay"//, ${gpName.split(" ").get(0)}!"
         else if (timeOfDay.equals("Evening"))
-            timelyWish = "\uD83C\uDF41 $timeOfDay, ${gpName.split(" ").get(0)}!"
+            timelyWish = "\uD83C\uDF41 $timeOfDay"//, ${gpName.split(" ").get(0)}!"
         else if (timeOfDay.equals("Night"))
-            timelyWish = "\uD83D\uDCA4 $timeOfDay, ${gpName.split(" ").get(0)}!"
+            timelyWish = "\uD83D\uDCA4 $timeOfDay"//, ${gpName.split(" ").get(0)}!"
 
     }
 
