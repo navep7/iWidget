@@ -17,22 +17,19 @@ import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicBlur
 import android.view.View
+import android.widget.AdapterView
 import android.widget.AdapterView.OnItemClickListener
 import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.CheckedTextView
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.RelativeLayout
-import android.widget.Spinner
 import android.widget.TextView
 import android.widget.TimePicker
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-
 import androidx.navigation.ui.AppBarConfiguration
 import com.belaku.homey.MainActivity.Companion.apps
-import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
@@ -114,12 +111,27 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
             sharedPreferencesEditor.apply()
         }
 
+        listViewHabits.setOnItemLongClickListener(AdapterView.OnItemLongClickListener { parent, view, position, id -> // Remove the item from the data source
+            arrayListHabits.removeAt(position)
+            // Notify the adapter that the data has changed
+            adapterHabits.notifyDataSetChanged()
+            true
+        })
+
+        var listviewReminders = findViewById<ListView>(R.id.rv_reminders)
         adapterReminders = ArrayAdapter<String>(
             this,
             android.R.layout.simple_list_item_1,  // Default layout for a single text item
             arrayListReminders
         )
-        findViewById<ListView>(R.id.rv_reminders).setAdapter(adapterReminders)
+        listviewReminders.setAdapter(adapterReminders)
+
+        listviewReminders.setOnItemLongClickListener(AdapterView.OnItemLongClickListener { parent, view, position, id -> // Remove the item from the data source
+            arrayListReminders.removeAt(position)
+            // Notify the adapter that the data has changed
+            adapterReminders.notifyDataSetChanged()
+            true
+        })
 
 
     }
