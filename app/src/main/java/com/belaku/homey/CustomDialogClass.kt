@@ -1,8 +1,12 @@
 package com.belaku.homey
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlarmManager
 import android.app.Dialog
-import android.app.TimePickerDialog
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.Window
@@ -13,6 +17,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.RemindersActivity.Companion.previewSelectedTimeTextView
+import java.util.Calendar
 
 
 class CustomDialogClass // TODO Auto-generated constructor stub
@@ -71,10 +76,59 @@ class CustomDialogClass // TODO Auto-generated constructor stub
                 dismiss()
             }
             R.id.remind_button -> {
-                arrayListHorRs.add(findViewById<EditText>(R.id.etTitle).text.toString() + "\t@\t" + previewSelectedTimeTextView.text + "\t\t\t:\t\t\t" + findViewById<Spinner>(R.id.remindertype).selectedItem)
+                var rSubject = findViewById<EditText>(R.id.etTitle).text.toString()
+                var rTime = previewSelectedTimeTextView.text
+                var rType = findViewById<Spinner>(R.id.remindertype).selectedItem
+                arrayListHorRs.add(rSubject + "\t@\t" + rTime + "\t\t\t:\t\t\t" + rType)
                 adapterHorRs.notifyDataSetChanged()
+                addAlarm(rSubject, rTime.toString(), rType.toString())
             }
         }
         dismiss()
     }
+
+    @SuppressLint("ScheduleExactAlarm")
+    private fun addAlarm(rSubject: String, rTime: String, rType: String) {
+
+        makeToast("addAlarm - $rSubject : $rTime : $rType" )
+
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val alarmIntent: Intent = Intent(
+            context,
+            AlarmBroadcastReceiver::class.java
+        )
+        val pendingIntent = PendingIntent.getBroadcast(
+            context, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE
+        )
+
+
+        // Calculate the trigger time in milliseconds (e.g., for 7:30 AM tomorrow)
+        val calendar: Calendar = Calendar.getInstance()
+        calendar.setTimeInMillis(System.currentTimeMillis())
+        calendar.set(Calendar.HOUR_OF_DAY, Calendar.getInstance().get(Calendar.HOUR_OF_DAY))
+        calendar.set(Calendar.MINUTE, Calendar.getInstance().get(Calendar.MINUTE) + 1)
+        calendar.set(Calendar.SECOND, Calendar.getInstance().get(Calendar.SECOND))
+        calendar.set(Calendar.MILLISECOND, 0)
+
+
+        // If the target time is in the past for the current day, set it for the next day
+        if (calendar.timeInMillis <= System.currentTimeMillis()) {
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
+        }
+
+        try {
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,  // Wakes up the device to fire the alarm
+                calendar.timeInMillis,
+                pendingIntent
+            )
+            makeToast("AlarmSET @ ${calendar.time}")
+        } catch (ex: Exception) {
+            makeToast("AlarmEx - ${ex.message}")
+        }
+
+
+    }
+
+
 }

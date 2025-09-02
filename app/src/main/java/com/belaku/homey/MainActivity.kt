@@ -12,7 +12,6 @@ import android.app.AppOpsManager.OPSTR_GET_USAGE_STATS
 import android.app.Dialog
 import android.app.ProgressDialog
 import android.app.WallpaperManager
-import android.app.admin.DevicePolicyManager
 import android.app.job.JobInfo
 import android.app.job.JobScheduler
 import android.app.usage.UsageStats
@@ -157,6 +156,7 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
 
         mAct = this@MainActivity
         appContx = applicationContext
@@ -1042,6 +1042,14 @@ class MainActivity : AppCompatActivity() {
                     startStepsService()
                     usageStatsPermissionDialog()
                     rawTweets(false)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // Android 12 (API 31) and above
+                        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+                        if (!alarmManager.canScheduleExactAlarms()) {
+                            // Explain to the user why the permission is needed
+                            val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+                            startActivity(intent)
+                        }
+                    }
                 }
         }
     }
