@@ -78,19 +78,23 @@ class CustomDialogClass // TODO Auto-generated constructor stub
             R.id.remind_button -> {
                 var rSubject = findViewById<EditText>(R.id.etTitle).text.toString()
                 var rTime = previewSelectedTimeTextView.text
+                var rTimeSplits = rTime.split(":")
+                var h = rTimeSplits[0]
+                var m = rTimeSplits[1].substring(0, 2)
+                makeToast("h - $h and m - $m")
                 var rType = findViewById<Spinner>(R.id.remindertype).selectedItem
                 arrayListHorRs.add(rSubject + "\t@\t" + rTime + "\t\t\t:\t\t\t" + rType)
                 adapterHorRs.notifyDataSetChanged()
-                addAlarm(rSubject, rTime.toString(), rType.toString())
+                addAlarm(rSubject, h.toInt(), m.toInt(), rType.toString())
             }
         }
         dismiss()
     }
 
     @SuppressLint("ScheduleExactAlarm")
-    private fun addAlarm(rSubject: String, rTime: String, rType: String) {
+    private fun addAlarm(rSubject: String, hr: Int, mn: Int,  rType: String) {
 
-        makeToast("addAlarm - $rSubject : $rTime : $rType" )
+        makeToast("addAlarm - $rSubject @ $hr:$mn , $rType" )
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val alarmIntent: Intent = Intent(
@@ -106,7 +110,7 @@ class CustomDialogClass // TODO Auto-generated constructor stub
         val calendar: Calendar = Calendar.getInstance()
         calendar.setTimeInMillis(System.currentTimeMillis())
         calendar.set(Calendar.HOUR_OF_DAY, Calendar.getInstance().get(Calendar.HOUR_OF_DAY))
-        calendar.set(Calendar.MINUTE, Calendar.getInstance().get(Calendar.MINUTE) + 1)
+        calendar.set(Calendar.MINUTE, Calendar.getInstance().get(Calendar.MINUTE) + 3)
         calendar.set(Calendar.SECOND, Calendar.getInstance().get(Calendar.SECOND))
         calendar.set(Calendar.MILLISECOND, 0)
 
