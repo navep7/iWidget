@@ -22,20 +22,26 @@ class CustomDialogClass // TODO Auto-generated constructor stub
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
-        setContentView(R.layout.custom_dialog)
+
 
         if (strHorR.equals("Habit")) {
             arrayListHorRs = RemindersActivity.arrayListHabits
             adapterHorRs = RemindersActivity.adapterHabits
+            setContentView(R.layout.habit_dialog)
+
+            editText = findViewById<EditText>(R.id.edtx)
+            editText.setHint("Add a $strHorR")
+            findViewById<Button>(R.id.btn_okd).setOnClickListener(this)
+            findViewById<Button>(R.id.btn_canceld).setOnClickListener(this)
         } else {
             arrayListHorRs = RemindersActivity.arrayListReminders
             adapterHorRs = RemindersActivity.adapterReminders
+         //   setContentView(R.layout.reminder_dialog)
+            makeToast("Yet2IMPL")
+            setContentView(R.layout.reminder_dialog)
         }
 
-        editText = findViewById<EditText>(R.id.edtx)
-        editText.setHint("Add a $strHorR")
-        findViewById<Button>(R.id.btn_okd).setOnClickListener(this)
-        findViewById<Button>(R.id.btn_canceld).setOnClickListener(this)
+
 
     }
 

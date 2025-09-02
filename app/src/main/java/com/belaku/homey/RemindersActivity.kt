@@ -20,6 +20,7 @@ import android.widget.CheckedTextView
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.RelativeLayout
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -68,6 +69,8 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
             val cdd = CustomDialogClass(this@RemindersActivity, "Reminder")
             cdd.getWindow()?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             cdd.show()
+
+            cdd.findViewById<Spinner>(R.id.remindertype).adapter = ArrayAdapter(this,android.R.layout.simple_list_item_1,resources.getStringArray(R.array.ReminderTypes))
         })
 
         var listViewHabits = findViewById<ListView>(R.id.rv_habits)
