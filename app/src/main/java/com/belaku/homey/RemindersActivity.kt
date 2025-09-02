@@ -2,11 +2,14 @@ package com.belaku.homey
 
 
 import AppsAdapter
+import android.app.TimePickerDialog
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
+import android.icu.util.Calendar
 import android.os.Build
 import android.os.Bundle
 import android.renderscript.Allocation
@@ -16,23 +19,28 @@ import android.renderscript.ScriptIntrinsicBlur
 import android.view.View
 import android.widget.AdapterView.OnItemClickListener
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.CheckedTextView
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.RelativeLayout
 import android.widget.Spinner
 import android.widget.TextView
+import android.widget.TimePicker
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+
 import androidx.navigation.ui.AppBarConfiguration
 import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
+import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.belaku.homey.databinding.ActivityRemindersBinding
 
 
 class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
+
 
 
     private lateinit var prompt: String
@@ -51,12 +59,24 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
 
         val rootLayout = findViewById<RelativeLayout>(R.id.reminders_layout)
-        rootLayout.setBackgroundDrawable(
-            BitmapDrawable(
-                getResources(),
-                blur(applicationContext, SetWallWorker.wallBitmap)
+        try {
+            rootLayout.setBackgroundDrawable(
+                BitmapDrawable(
+                    getResources(),
+                    blur(applicationContext, wallBitmap)
+                )
             )
-        )
+        } catch (ex: Exception) {
+
+            wallBitmap = BitmapFactory.decodeResource(resources, R.drawable.gradient_glass)
+
+            rootLayout.setBackgroundDrawable(
+                BitmapDrawable(
+                    getResources(),
+                    blur(applicationContext, wallBitmap)
+                )
+            )
+        }
 
 
         binding.txAddHabits.setOnClickListener(View.OnClickListener {
@@ -69,8 +89,6 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
             val cdd = CustomDialogClass(this@RemindersActivity, "Reminder")
             cdd.getWindow()?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             cdd.show()
-
-            cdd.findViewById<Spinner>(R.id.remindertype).adapter = ArrayAdapter(this,android.R.layout.simple_list_item_1,resources.getStringArray(R.array.ReminderTypes))
         })
 
         var listViewHabits = findViewById<ListView>(R.id.rv_habits)
@@ -136,10 +154,74 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
     }
 
     companion object {
+
+        lateinit var previewSelectedTimeTextView: TextView
+        val timePickerDialogListener: TimePickerDialog.OnTimeSetListener =
+            object : TimePickerDialog.OnTimeSetListener {
+                override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
+
+                    // logic to properly handle
+                    // the picked timings by user
+                    val formattedTime: String = when {
+                        hourOfDay == 0 -> {
+                            if (minute < 10) {
+                                "${hourOfDay + 12}:0${minute} am"
+                            } else {
+                                "${hourOfDay + 12}:${minute} am"
+                            }
+                        }
+                        hourOfDay > 12 -> {
+                            if (minute < 10) {
+                                "${hourOfDay - 12}:0${minute} pm"
+                            } else {
+                                "${hourOfDay - 12}:${minute} pm"
+                            }
+                        }
+                        hourOfDay == 12 -> {
+                            if (minute < 10) {
+                                "${hourOfDay}:0${minute} pm"
+                            } else {
+                                "${hourOfDay}:${minute} pm"
+                            }
+                        }
+                        else -> {
+                            if (minute < 10) {
+                                "${hourOfDay}:${minute} am"
+                            } else {
+                                "${hourOfDay}:${minute} am"
+                            }
+                        }
+                    }
+
+                    previewSelectedTimeTextView.setText(formattedTime)
+                }
+            }
         lateinit var adapterHabits: ArrayAdapter<String>
         lateinit var adapterReminders: ArrayAdapter<String>
         var arrayListHabits: ArrayList<String> = ArrayList()
         var arrayListReminders: ArrayList<String> = ArrayList()
+    }
+
+    fun timePicker(view: View) {
+        val timePicker: TimePickerDialog = TimePickerDialog(
+            // pass the Context
+            this,
+            // listener to perform task
+            // when time is picked
+            timePickerDialogListener,
+
+            Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
+            // default minute when the time picker
+            // dialog is opened
+            Calendar.getInstance().get(Calendar.MINUTE),
+            // 24 hours time picker is
+            // false (varies according to the region)
+            false
+        )
+
+        // then after building the timepicker
+        // dialog show the dialog to user
+        timePicker.show()
     }
 
 }
