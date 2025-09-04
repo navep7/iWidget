@@ -9,6 +9,7 @@ import android.app.PendingIntent
 import android.app.WallpaperManager
 import android.app.admin.DevicePolicyManager
 import android.app.usage.UsageStats
+import android.app.usage.UsageStatsManager
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
@@ -349,6 +350,7 @@ class NewAppWidget : AppWidgetProvider() {
         val wallpaperManager = WallpaperManager.getInstance(context)
         val wallpaperColors = wallpaperManager.getWallpaperColors(WallpaperManager.FLAG_SYSTEM)
 
+
         if (wallpaperColors != null) {
             if (wallpaperColors.primaryColor.toArgb() != null)
             primaryColor = wallpaperColors.primaryColor.toArgb()
@@ -421,6 +423,7 @@ class NewAppWidget : AppWidgetProvider() {
         currentHour = now[Calendar.HOUR_OF_DAY]
         currentMin = now[Calendar.MINUTE]
 
+        getScreenTime()
 
         val aiIntent = Intent(context, AiActivity::class.java)
         aiIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
@@ -837,6 +840,32 @@ class NewAppWidget : AppWidgetProvider() {
         } catch (ex: Exception) {
             makeToast("EXXx ${ex.message}")
         }
+    }
+
+    private fun getScreenTime() {
+
+        val usageStatsManager = appContx.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val calendar = Calendar.getInstance()
+        val endTime = calendar.timeInMillis
+        calendar.add(Calendar.DAY_OF_YEAR, -1) // Query for the last 24 hours
+        val startTime = calendar.timeInMillis
+
+
+        // Get a map of package names to UsageStats objects
+        val usageStatsMap = usageStatsManager.queryAndAggregateUsageStats(startTime, endTime)
+
+        var totalScreenTimeInMillis: Long = 0
+        for (usageStats in usageStatsMap.values) {
+            totalScreenTimeInMillis += usageStats.totalTimeInForeground
+        }
+
+        // Convert to desired units (e.g., minutes, hours)
+        val totalScreenTimeInMinutes = totalScreenTimeInMillis / (1000 * 60 * 60)
+
+
+        remoteViews?.setTextViewText(R.id.tx_st_since, "since $currentHour, yday...")
+        remoteViews?.setTextViewText(R.id.btn_screentime, "Screen time ~ ${totalScreenTimeInMinutes.toString()} hrs")
+
     }
 
 

@@ -23,8 +23,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="@dimen/fab_margin"
             android:layout_gravity="center"
+            android:layout_marginStart="@dimen/fab_margin"
             android:text="a Wish..."
             android:textColor="?attr/colorPrimaryDark"
             android:textSize="33sp"
@@ -33,103 +33,101 @@
 
         <TextView
             android:id="@+id/tx_ai"
-            android:text="✨"
-            android:gravity="center"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:scaleType="fitXY"
-            android:layout_margin="5dp"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
+            android:layout_margin="5dp"
             android:background="@drawable/rounded_corner_gray"
+            android:gravity="center"
             android:padding="5dp"
+            android:scaleType="fitXY"
+            android:text="✨"
             tools:ignore="HardcodedText" />
 
         <ImageButton
             android:id="@+id/fab_blue"
-            android:src="@drawable/blue_off"
-            android:gravity="center"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:scaleType="fitXY"
-            android:layout_margin="5dp"
             android:layout_alignParentTop="true"
+            android:layout_margin="5dp"
             android:layout_toStartOf="@+id/tx_ai"
             android:background="@drawable/weather_rounded_corner"
+            android:gravity="center"
             android:padding="5dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/blue_off"
             tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/tx_reminders"
-            android:text="🔔"
-            android:gravity="center"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:scaleType="fitXY"
-            android:layout_margin="5dp"
             android:layout_alignParentTop="true"
+            android:layout_margin="5dp"
             android:layout_toStartOf="@+id/fab_blue"
             android:background="@drawable/rounded_corner_gray"
+            android:gravity="center"
             android:padding="5dp"
+            android:scaleType="fitXY"
+            android:text="🔔"
             tools:ignore="HardcodedText" />
 
         <ImageButton
             android:id="@+id/fab_wifi"
-            android:src="@drawable/wifi_off"
-            android:gravity="center"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:scaleType="fitXY"
-            android:layout_margin="5dp"
             android:layout_alignParentTop="true"
+            android:layout_margin="5dp"
             android:layout_toStartOf="@+id/tx_reminders"
             android:background="@drawable/weather_rounded_corner"
+            android:gravity="center"
             android:padding="5dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/wifi_off"
             tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/tx_weather_icon_temp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/weather_icon"
+            android:layout_marginEnd="-15dp"
+            android:layout_marginBottom="-50dp"
+            android:layout_toStartOf="@+id/weather_icon"
+            android:background="@drawable/gradient_glass"
+            android:scaleType="fitXY"
             android:text="25°C"
             android:textColor="?attr/colorTertiary"
             android:textSize="25dp"
-            android:textStyle="bold"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/weather_icon"
-            android:layout_toStartOf="@+id/weather_icon"
-            android:layout_marginEnd="-15dp"
-            android:layout_marginBottom="-50dp"
-            android:background="@drawable/gradient_glass"
-            android:scaleType="fitXY" />
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tx_weather_icon_state"
-            android:text="State..,"
-            android:textColor="?attr/colorTertiary"
-            android:textStyle="bold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/weather_icon"
-            android:layout_toStartOf="@+id/weather_icon"
             android:layout_marginEnd="-25dp"
             android:layout_marginBottom="-25dp"
+            android:layout_toStartOf="@+id/weather_icon"
             android:background="@drawable/gradient_glass"
-            android:scaleType="fitXY" />
-
+            android:scaleType="fitXY"
+            android:text="State..,"
+            android:textColor="?attr/colorTertiary"
+            android:textStyle="bold" />
 
 
         <ImageButton
             android:id="@+id/weather_icon"
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:layout_marginTop="@dimen/fab_margin"
             android:layout_below="@+id/tx_wish"
             android:layout_alignParentEnd="true"
+            android:layout_marginTop="@dimen/fab_margin"
             android:layout_marginEnd="5dp"
-            android:src="@drawable/clouds"
             android:background="@drawable/weather_rounded_corner"
-            android:scaleType="fitXY" />
-
+            android:scaleType="fitXY"
+            android:src="@drawable/clouds" />
 
 
         <AnalogClock
@@ -148,8 +146,8 @@
             android:layout_below="@+id/tx_wish"
             android:layout_toEndOf="@+id/a_clock"
             android:format12Hour="k:mm:ss"
-            android:textSize="35sp"
             android:textColor="?attr/colorPrimaryDark"
+            android:textSize="35sp"
             android:textStyle="bold" />
 
         <TextView
@@ -168,21 +166,22 @@
 
         <TextView
             android:id="@+id/tx_placeandweather"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tx_day_date"
+            android:layout_marginStart="@dimen/fab_margin"
+            android:ellipsize="marquee"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
             android:singleLine="true"
             android:text="Place ↺ Weather"
             android:textColor="?attr/colorPrimaryDark"
             android:textSize="15sp"
-            android:textStyle="bold"
-            android:ellipsize="marquee"
-            android:layout_marginStart="@dimen/fab_margin"
-            android:layout_below="@+id/tx_day_date"
-            android:marqueeRepeatLimit ="marquee_forever"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:scrollHorizontally="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-        <requestFocus />
+            android:textStyle="bold">
+
+            <requestFocus />
         </TextView>
 
     </RelativeLayout>
@@ -196,13 +195,12 @@
         android:background="#80FFFFFF">
 
 
-
         <ImageView
             android:id="@+id/imgv_news"
             android:layout_width="75dp"
             android:layout_height="50dp"
-            android:scaleType="fitXY"
-            android:layout_alignParentStart="true"/>
+            android:layout_alignParentStart="true"
+            android:scaleType="fitXY" />
 
         <TextView
             android:id="@+id/tx_news"
@@ -237,7 +235,6 @@
             android:src="@android:drawable/ic_media_next" />
 
     </RelativeLayout>
-
 
 
     <LinearLayout
@@ -461,8 +458,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/ll_apps"
-        android:layout_marginTop="5dp"
         android:layout_marginStart="@dimen/fab_margin"
+        android:layout_marginTop="5dp"
         android:layout_toRightOf="@+id/imgbtn_conf"
         android:indeterminate="true"
         android:indeterminateTint="?attr/colorSecondary"
@@ -475,13 +472,13 @@
         android:id="@+id/imgbtn_location"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:scaleType="fitXY"
         android:layout_below="@+id/ll_apps"
-        android:layout_toStartOf="@+id/imgbtn_lock"
-        android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginTop="5dp"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_toStartOf="@+id/imgbtn_lock"
         android:background="@drawable/rounded_corner"
         android:padding="5dp"
+        android:scaleType="fitXY"
         android:src="@drawable/location" />
 
     <ImageButton
@@ -489,9 +486,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/ll_apps"
-        android:layout_toStartOf="@+id/imgbtn_conf"
-        android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginTop="5dp"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_toStartOf="@+id/imgbtn_conf"
         android:background="@drawable/rounded_corner"
         android:padding="5dp"
         android:src="@android:drawable/ic_lock_lock" />
@@ -501,35 +498,63 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/ll_apps"
-        android:padding="5dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="5dp"
         android:background="@drawable/rounded_corner"
+        android:padding="5dp"
         android:src="@android:drawable/ic_menu_search" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fab_margin"
+        android:layout_below="@+id/imgbtn_conf"
+        android:background="@drawable/weather_rounded_corner">
+
+        <TextView
+            android:id="@+id/tx_st_since"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:text="since..."
+            android:textStyle="bold|italic"/>
+
+        <Button
+            android:id="@+id/btn_screentime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/fab_margin"
+            android:background="@android:color/transparent"
+            android:text="Screen time ~ "
+            android:textColor="@android:color/holo_red_light"
+            android:textSize="25sp"
+            android:textStyle="bold" />
+
+    </RelativeLayout>
 
     <ImageButton
         android:id="@+id/imgbtn_set"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/ll_apps"
-        android:layout_toEndOf="@+id/imgbtn_conf"
-        android:padding="5dp"
         android:layout_marginStart="@dimen/fab_margin"
         android:layout_marginTop="5dp"
+        android:layout_toEndOf="@+id/imgbtn_conf"
         android:background="@drawable/rounded_corner"
+        android:padding="5dp"
         android:src="@android:drawable/ic_popup_sync" />
 
     <ImageButton
         android:id="@+id/imgbtn_speech"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:scaleType="fitXY"
         android:layout_below="@+id/ll_apps"
-        android:layout_toEndOf="@+id/imgbtn_set"
-        android:padding="5dp"
         android:layout_marginStart="@dimen/fab_margin"
         android:layout_marginTop="5dp"
+        android:layout_toEndOf="@+id/imgbtn_set"
         android:background="@drawable/rounded_corner"
+        android:padding="5dp"
+        android:scaleType="fitXY"
         android:src="@android:drawable/ic_btn_speak_now" />
 
     <RelativeLayout
@@ -543,12 +568,12 @@
             android:id="@+id/txx_steps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:text="Steps,"
-            android:textStyle="bold|italic"
+            android:layout_alignParentStart="true"
             android:layout_marginStart="@dimen/fab_margin"
             android:layout_marginEnd="@dimen/fab_margin"
-            android:layout_alignParentStart="true"/>
+            android:text="Steps,"
+            android:textColor="@android:color/white"
+            android:textStyle="bold|italic" />
 
         <ImageButton
             android:id="@+id/imgv_steps"
@@ -566,11 +591,11 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/fab_margin"
             android:layout_toEndOf="@+id/imgv_steps"
-            android:textSize="15sp"
-            android:maxLines="3"
             android:ellipsize="end"
-            android:textStyle="bold"
+            android:maxLines="3"
             android:textColor="@android:color/white"
+            android:textSize="15sp"
+            android:textStyle="bold"
             tools:ignore="HardcodedText" />
 
         <TextView
@@ -588,8 +613,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/fab_margin"
-            android:textColor="@android:color/white"
             android:layout_toEndOf="@+id/vertical_divider"
+            android:textColor="@android:color/white"
             android:textSize="15sp"
             android:textStyle="bold" />
 
@@ -600,11 +625,11 @@
         android:id="@+id/twSettings"
         android:layout_width="35dp"
         android:layout_height="35dp"
-        android:scaleType="fitXY"
-        android:layout_alignParentStart="true"
         android:layout_above="@+id/tx_tweets"
+        android:layout_alignParentStart="true"
         android:background="@drawable/gradient_glass"
         android:padding="5dp"
+        android:scaleType="fitXY"
         android:src="@drawable/tw" />
 
 
@@ -612,43 +637,44 @@
         android:id="@+id/twShare"
         android:layout_width="35dp"
         android:layout_height="35dp"
-        android:scaleType="fitXY"
-        android:layout_alignParentEnd="true"
         android:layout_above="@+id/tx_tweets"
-        android:background="@drawable/gradient_glass"  android:padding="5dp"
+        android:layout_alignParentEnd="true"
+        android:background="@drawable/gradient_glass"
+        android:padding="5dp"
+        android:scaleType="fitXY"
         android:src="@drawable/share" />
 
 
     <TextView
         android:id="@+id/tx_tweets"
-        android:textColor="?attr/colorPrimaryDark"
-        android:maxLines="3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#80FFFFFF"
         android:layout_above="@+id/tx_desc_walltype"
-        android:gravity="center"
-        android:text="Tweets"
-        android:autoLink="all"
-        android:linksClickable="true"
         android:layout_marginBottom="3dp"
+        android:autoLink="all"
+        android:background="#80FFFFFF"
         android:ellipsize="end"
+        android:gravity="center"
+        android:linksClickable="true"
+        android:maxLines="3"
+        android:text="Tweets"
+        android:textColor="?attr/colorPrimaryDark"
         android:textSize="15sp"
         android:textStyle="bold" />
 
 
     <TextView
         android:id="@+id/tx_desc_walltype"
-        android:textColor="?attr/colorPrimaryDark"
-        android:autoLink="web"
-        android:linksClickable="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
+        android:autoLink="web"
         android:background="@drawable/gradient_glass_flattop"
         android:gravity="center"
+        android:linksClickable="true"
         android:text="..."
+        android:textColor="?attr/colorPrimaryDark"
         android:textStyle="bold" />
 
 
