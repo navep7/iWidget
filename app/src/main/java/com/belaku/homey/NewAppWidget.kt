@@ -116,7 +116,9 @@ class NewAppWidget : AppWidgetProvider() {
         val wallpaperColors = wallpaperManager.getWallpaperColors(WallpaperManager.FLAG_SYSTEM)
 
         if (wallpaperColors != null) {
+            if (wallpaperColors.primaryColor != null)
             primaryColor = wallpaperColors.primaryColor.toArgb()
+
             if (wallpaperColors.secondaryColor != null)
                 secondaryColor = wallpaperColors.secondaryColor!!.toArgb()
             else secondaryColor = Color.LTGRAY
@@ -348,7 +350,9 @@ class NewAppWidget : AppWidgetProvider() {
         val wallpaperColors = wallpaperManager.getWallpaperColors(WallpaperManager.FLAG_SYSTEM)
 
         if (wallpaperColors != null) {
+            if (wallpaperColors.primaryColor.toArgb() != null)
             primaryColor = wallpaperColors.primaryColor.toArgb()
+            else primaryColor = Color.RED
             if (wallpaperColors.secondaryColor != null)
                 secondaryColor = wallpaperColors.secondaryColor!!.toArgb()
             else secondaryColor = Color.LTGRAY
@@ -357,18 +361,31 @@ class NewAppWidget : AppWidgetProvider() {
                 tertianaryColor = wallpaperColors.tertiaryColor!!.toArgb()
             else tertianaryColor = Color.DKGRAY
 
+            remoteViews?.setColorInt(R.id.imgbtn_lock, "setColorFilter", primaryColor, secondaryColor)
+            remoteViews?.setColorInt(R.id.imgbtn_conf, "setColorFilter", tertianaryColor, primaryColor)
+            remoteViews?.setColorInt(R.id.imgbtn_set, "setColorFilter", primaryColor, secondaryColor)
+            remoteViews?.setColorInt(
+                R.id.imgbtn_location,
+                "setColorFilter",
+                secondaryColor,
+                primaryColor
+            )
+            remoteViews?.setColorInt(R.id.imgbtn_speech, "setColorFilter", secondaryColor, primaryColor)
+        } else {
+            primaryColor = Color.BLACK
+            secondaryColor = Color.WHITE
+            tertianaryColor = Color.RED
+            remoteViews?.setColorInt(R.id.imgbtn_lock, "setColorFilter", primaryColor, secondaryColor)
+            remoteViews?.setColorInt(R.id.imgbtn_conf, "setColorFilter", tertianaryColor, primaryColor)
+            remoteViews?.setColorInt(R.id.imgbtn_set, "setColorFilter", primaryColor, secondaryColor)
+            remoteViews?.setColorInt(
+                R.id.imgbtn_location,
+                "setColorFilter",
+                secondaryColor,
+                primaryColor
+            )
+            remoteViews?.setColorInt(R.id.imgbtn_speech, "setColorFilter", secondaryColor, primaryColor)
         }
-
-        remoteViews?.setColorInt(R.id.imgbtn_lock, "setColorFilter", primaryColor, secondaryColor)
-        remoteViews?.setColorInt(R.id.imgbtn_conf, "setColorFilter", tertianaryColor, primaryColor)
-        remoteViews?.setColorInt(R.id.imgbtn_set, "setColorFilter", primaryColor, secondaryColor)
-        remoteViews?.setColorInt(
-            R.id.imgbtn_location,
-            "setColorFilter",
-            secondaryColor,
-            primaryColor
-        )
-        remoteViews?.setColorInt(R.id.imgbtn_speech, "setColorFilter", secondaryColor, primaryColor)
 
 
         sharedPreferences = context.getSharedPreferences("UserPreferences", MODE_PRIVATE)

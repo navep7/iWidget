@@ -18,11 +18,11 @@ import com.belaku.homey.MainActivity.Companion.makeToast
 class AlarmBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         makeToast("Alarm triggered!")
-        notifyAlarm()
+        notifyAlarm(intent.getStringExtra("alertSub"))
         // You can perform other actions here, like starting a service or showing a notification
     }
 
-    private fun notifyAlarm() {
+    private fun notifyAlarm(rSubject: String?) {
 
         val CHANNEL_ID = "my_channel_id"
         val name: CharSequence = "My Channel Name"
@@ -47,8 +47,8 @@ class AlarmBroadcastReceiver : BroadcastReceiver() {
 
         val builder: NotificationCompat.Builder = NotificationCompat.Builder(appContx, CHANNEL_ID)
             .setSmallIcon(R.drawable.walp_icon)
-            .setContentTitle("My Notification")
-            .setContentText("This is a notification with sound!")
+            .setContentTitle("Reminding you to..")
+            .setContentText("rSubject")
             .setPriority(NotificationCompat.PRIORITY_HIGH) // Match channel importance
 
         val notificationManagerCompat = NotificationManagerCompat.from(appContx)

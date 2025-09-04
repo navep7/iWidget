@@ -94,13 +94,13 @@ class CustomDialogClass // TODO Auto-generated constructor stub
     @SuppressLint("ScheduleExactAlarm")
     private fun addAlarm(rSubject: String, hr: Int, mn: Int,  rType: String) {
 
-        makeToast("addAlarm - $rSubject @ $hr:$mn , $rType" )
+   //     makeToast("addAlarm - $rSubject @ $hr:$mn -  ${Calendar.getInstance().get(Calendar.HOUR_OF_DAY)}:${Calendar.getInstance().get(Calendar.MINUTE) + 3} ,  $rType" )
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val alarmIntent: Intent = Intent(
             context,
             AlarmBroadcastReceiver::class.java
-        )
+        ).putExtra("alertSub", rSubject)
         val pendingIntent = PendingIntent.getBroadcast(
             context, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE
         )
@@ -109,8 +109,8 @@ class CustomDialogClass // TODO Auto-generated constructor stub
         // Calculate the trigger time in milliseconds (e.g., for 7:30 AM tomorrow)
         val calendar: Calendar = Calendar.getInstance()
         calendar.setTimeInMillis(System.currentTimeMillis())
-        calendar.set(Calendar.HOUR_OF_DAY, Calendar.getInstance().get(Calendar.HOUR_OF_DAY))
-        calendar.set(Calendar.MINUTE, Calendar.getInstance().get(Calendar.MINUTE) + 3)
+        calendar.set(Calendar.HOUR_OF_DAY, hr)
+        calendar.set(Calendar.MINUTE, mn)
         calendar.set(Calendar.SECOND, Calendar.getInstance().get(Calendar.SECOND))
         calendar.set(Calendar.MILLISECOND, 0)
 
