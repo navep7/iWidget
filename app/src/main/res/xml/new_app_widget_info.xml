@@ -9,6 +9,6 @@
     android:previewLayout="@layout/new_app_widget"
     android:resizeMode="horizontal|vertical"
     android:targetCellWidth="5"
-    android:targetCellHeight="5"
+    android:targetCellHeight="6"
     android:widgetCategory="home_screen"
     tools:ignore="UnusedAttribute" />

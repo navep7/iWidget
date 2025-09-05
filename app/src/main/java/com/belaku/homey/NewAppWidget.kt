@@ -862,9 +862,14 @@ class NewAppWidget : AppWidgetProvider() {
         // Convert to desired units (e.g., minutes, hours)
         val totalScreenTimeInMinutes = totalScreenTimeInMillis / (1000 * 60 * 60)
 
+        var ampm: String
 
-        remoteViews?.setTextViewText(R.id.tx_st_since, "since $currentHour, yday...")
-        remoteViews?.setTextViewText(R.id.btn_screentime, "Screen time ~ ${totalScreenTimeInMinutes.toString()} hrs")
+        if (currentHour < 12)
+            ampm = "am"
+        else ampm = "pm"
+
+        remoteViews?.setTextViewText(R.id.tx_st_since, "since ${currentHour % 12} $ampm, yday...")
+        remoteViews?.setTextViewText(R.id.btn_screentime, "Screen time ~ ${totalScreenTimeInMinutes.toString()}+ Hrs")
 
     }
 

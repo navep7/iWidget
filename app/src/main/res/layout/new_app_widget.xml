@@ -509,6 +509,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
         android:layout_below="@+id/imgbtn_conf"
+        android:layout_toRightOf="@+id/twSettings"
+        android:layout_toLeftOf="@+id/twShare"
         android:background="@drawable/weather_rounded_corner">
 
         <TextView
@@ -519,15 +521,15 @@
             android:text="since..."
             android:textStyle="bold|italic"/>
 
-        <Button
+        <TextView
             android:id="@+id/btn_screentime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/fab_margin"
             android:background="@android:color/transparent"
-            android:text="Screen time ~ "
+            android:text="Screen time ~ 10 Hrs"
             android:textColor="@android:color/holo_red_light"
-            android:textSize="25sp"
+            android:textSize="21sp"
             android:textStyle="bold" />
 
     </RelativeLayout>
