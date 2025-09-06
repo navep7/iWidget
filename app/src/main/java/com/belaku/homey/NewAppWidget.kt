@@ -281,27 +281,27 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
             remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_add3,
+                R.id.imgv_app3,
                 launcherPendingIntent
             )
 
             remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_add1,
+                R.id.imgv_app1,
                 getPendingSelfIntent(context, APP1_CLICKED)
             )
 
             remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_add2,
+                R.id.imgv_app2,
                 getPendingSelfIntent(context, APP2_CLICKED)
             )
 
             remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_add4,
+                R.id.imgv_app4,
                 getPendingSelfIntent(context, APP4_CLICKED)
             )
 
             remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_add5,
+                R.id.imgv_app5,
                 getPendingSelfIntent(context, APP5_CLICKED)
             )
 
@@ -505,12 +505,12 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_add1,
+            R.id.imgv_app1,
             getPendingSelfIntent(context, APP1_CLICKED)
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_add2,
+            R.id.imgv_app2,
             getPendingSelfIntent(context, APP2_CLICKED)
         )
 
@@ -540,17 +540,17 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_add3,
+            R.id.imgv_app3,
             launcherPendingIntent
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_add4,
+            R.id.imgv_app4,
             getPendingSelfIntent(context, APP4_CLICKED)
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_add5,
+            R.id.imgv_app5,
             getPendingSelfIntent(context, APP5_CLICKED)
         )
 
@@ -1268,18 +1268,18 @@ class NewAppWidget : AppWidgetProvider() {
 
                 if (i == 0) {
                     remoteViews!!.setImageViewBitmap(
-                        R.id.imgv_add1,
+                        R.id.imgv_app1,
                         drawableToBitmap(context, d).getCircledBitmap()
                     )
                 } else if (i == 1) {
                     remoteViews!!.setImageViewBitmap(
-                        R.id.imgv_add2,
+                        R.id.imgv_app2,
                         drawableToBitmap(context, d).getCircledBitmap()
                     )
                     //   remoteViews!!.setTextViewText(R.id.tx_c2, fApps[1].name)
                 } else if (i == 2) {
                     remoteViews!!.setImageViewBitmap(
-                        R.id.imgv_add3,
+                        R.id.imgv_app3,
                         drawableToBitmap(
                             context,
                             appContx.resources.getDrawable(R.drawable.launch_e)
@@ -1288,14 +1288,14 @@ class NewAppWidget : AppWidgetProvider() {
                     //     remoteViews!!.setTextViewText(R.id.tx_c3, fApps[2].name)
                 } else if (i == 3) {
                     remoteViews!!.setImageViewBitmap(
-                        R.id.imgv_add4,
+                        R.id.imgv_app4,
                         drawableToBitmap(context, d).getCircledBitmap()
                     )
 
                     //   remoteViews!!.setTextViewText(R.id.tx_c4, fApps[3].name)
                 } else if (i == 4) {
                     remoteViews!!.setImageViewBitmap(
-                        R.id.imgv_add5,
+                        R.id.imgv_app5,
                         drawableToBitmap(context, d).getCircledBitmap()
                     )
 
