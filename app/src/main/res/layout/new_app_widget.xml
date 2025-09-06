@@ -188,6 +188,7 @@
 
     <RelativeLayout
         android:id="@+id/rl_news"
+        android:visibility="invisible"
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:layout_below="@+id/rl_clocks"
@@ -288,7 +289,7 @@
         android:id="@+id/ll_contacts"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/rl_news"
+        android:layout_below="@+id/rl_clocks"
         android:layout_marginStart="@dimen/fab_margin"
         android:layout_marginTop="3dp"
         android:layout_marginEnd="@dimen/fab_margin"
