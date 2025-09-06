@@ -62,13 +62,13 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
     override fun doWork(): Result {
 
         Log.d(TAG, "doWork!")
-        sharedPreferences = applicationContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        appContx = applicationContext
+        sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
         urls = ArrayList(sharedPreferences.getStringSet("walls", null)!!)
         urls.sort()
 
-        appContx = applicationContext
         wm = WallpaperManager.getInstance(appContx)
 
         setWall(true)
@@ -207,7 +207,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 wallDesc = wallDescs.get(randomWallIndex)
 
 
-                try {
+           //     try {
 
 
                     wallBitmap = BitmapFactory.decodeStream(
@@ -251,11 +251,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     }, 1000)
 
 
-                } catch (ex: Exception) {
-                    remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
-                    Log.d(TAG, "setWallEx1 - $ex")
-                }
+
 
             } catch (e: IOException) {
                 remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.INVISIBLE)

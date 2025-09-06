@@ -308,8 +308,8 @@ class MainActivity : AppCompatActivity() {
                 if (newsList.size == 0) {
                     pDNews = ProgressDialog(this@MainActivity)
                     pDNews.setCancelable(false)
-                    pDNews.setTitle("fetching News...")
-                    pDNews.show()
+                //    pDNews.setTitle("fetching News...")
+                //    pDNews.show()
                     val jobScheduler =
                         appContx.getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
                     val serviceComponent = ComponentName(appContx, DailyJobService::class.java)
@@ -938,7 +938,7 @@ class MainActivity : AppCompatActivity() {
 
         workManager.enqueueUniquePeriodicWork(
             TAG,
-            ExistingPeriodicWorkPolicy.REPLACE,
+            ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
             periodicWorkRequest
         )
     }
@@ -1375,7 +1375,7 @@ class MainActivity : AppCompatActivity() {
 
         fun getNews(tDate: Int) {
 
-            makeToast("getNews - $cYear-$cMonth-$tDate")
+        //    makeToast("getNews - $cYear-$cMonth-$tDate")
             newsList.toMutableList().clear()
 
             ApiUtilities.getApiInterface()
@@ -1384,6 +1384,7 @@ class MainActivity : AppCompatActivity() {
 
                     override fun onFailure(call: Call<MainNews>, t: Throwable) {
                         makeToast("onFailure - " + t.message)
+                        pDNews.dismiss()
                     }
 
                     override fun onResponse(

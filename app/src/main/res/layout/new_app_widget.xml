@@ -457,7 +457,7 @@
         android:id="@+id/progressBar_cyclic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/ll_apps"
+        android:layout_below="@+id/rl_screentime"
         android:layout_marginStart="@dimen/fab_margin"
         android:layout_marginTop="5dp"
         android:layout_toRightOf="@+id/imgbtn_conf"
@@ -472,11 +472,11 @@
         android:id="@+id/imgbtn_location"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_below="@+id/ll_apps"
+        android:layout_below="@+id/rl_screentime"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="@dimen/fab_margin"
         android:layout_toStartOf="@+id/imgbtn_lock"
-        android:background="@drawable/rounded_corner"
+        android:background="@drawable/rounded_corner_white"
         android:padding="5dp"
         android:scaleType="fitXY"
         android:src="@drawable/location" />
@@ -485,11 +485,11 @@
         android:id="@+id/imgbtn_lock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/ll_apps"
+        android:layout_below="@+id/rl_screentime"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="@dimen/fab_margin"
         android:layout_toStartOf="@+id/imgbtn_conf"
-        android:background="@drawable/rounded_corner"
+        android:background="@drawable/rounded_corner_black"
         android:padding="5dp"
         android:src="@android:drawable/ic_lock_lock" />
 
@@ -497,21 +497,23 @@
         android:id="@+id/imgbtn_conf"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/ll_apps"
+        android:layout_below="@+id/rl_screentime"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="5dp"
-        android:background="@drawable/rounded_corner"
+        android:background="@drawable/rounded_corner_white"
         android:padding="5dp"
         android:src="@android:drawable/ic_menu_search" />
 
     <RelativeLayout
+        android:id="@+id/rl_screentime"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/fab_margin"
-        android:layout_below="@+id/imgbtn_conf"
+        android:layout_marginStart="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_below="@+id/ll_apps"
         android:layout_toRightOf="@+id/twSettings"
         android:layout_toLeftOf="@+id/twShare"
-        android:background="@drawable/weather_rounded_corner">
+        android:background="@drawable/gradient_glass_rounded">
 
         <TextView
             android:id="@+id/tx_st_since"
@@ -538,11 +540,11 @@
         android:id="@+id/imgbtn_set"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/ll_apps"
+        android:layout_below="@+id/rl_screentime"
         android:layout_marginStart="@dimen/fab_margin"
         android:layout_marginTop="5dp"
         android:layout_toEndOf="@+id/imgbtn_conf"
-        android:background="@drawable/rounded_corner"
+        android:background="@drawable/rounded_corner_black"
         android:padding="5dp"
         android:src="@android:drawable/ic_popup_sync" />
 
@@ -550,11 +552,11 @@
         android:id="@+id/imgbtn_speech"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_below="@+id/ll_apps"
+        android:layout_below="@+id/rl_screentime"
         android:layout_marginStart="@dimen/fab_margin"
         android:layout_marginTop="5dp"
         android:layout_toEndOf="@+id/imgbtn_set"
-        android:background="@drawable/rounded_corner"
+        android:background="@drawable/rounded_corner_white"
         android:padding="5dp"
         android:scaleType="fitXY"
         android:src="@android:drawable/ic_btn_speak_now" />

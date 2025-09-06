@@ -117,7 +117,6 @@ class NewAppWidget : AppWidgetProvider() {
         val wallpaperColors = wallpaperManager.getWallpaperColors(WallpaperManager.FLAG_SYSTEM)
 
         if (wallpaperColors != null) {
-            if (wallpaperColors.primaryColor != null)
             primaryColor = wallpaperColors.primaryColor.toArgb()
 
             if (wallpaperColors.secondaryColor != null)
@@ -347,47 +346,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         Log.d(TAG, "onReceive ${intent.action}")
 
-        val wallpaperManager = WallpaperManager.getInstance(context)
-        val wallpaperColors = wallpaperManager.getWallpaperColors(WallpaperManager.FLAG_SYSTEM)
 
-
-        if (wallpaperColors != null) {
-            if (wallpaperColors.primaryColor.toArgb() != null)
-            primaryColor = wallpaperColors.primaryColor.toArgb()
-            else primaryColor = Color.RED
-            if (wallpaperColors.secondaryColor != null)
-                secondaryColor = wallpaperColors.secondaryColor!!.toArgb()
-            else secondaryColor = Color.LTGRAY
-
-            if (wallpaperColors.tertiaryColor != null)
-                tertianaryColor = wallpaperColors.tertiaryColor!!.toArgb()
-            else tertianaryColor = Color.DKGRAY
-
-            remoteViews?.setColorInt(R.id.imgbtn_lock, "setColorFilter", primaryColor, secondaryColor)
-            remoteViews?.setColorInt(R.id.imgbtn_conf, "setColorFilter", tertianaryColor, primaryColor)
-            remoteViews?.setColorInt(R.id.imgbtn_set, "setColorFilter", primaryColor, secondaryColor)
-            remoteViews?.setColorInt(
-                R.id.imgbtn_location,
-                "setColorFilter",
-                secondaryColor,
-                primaryColor
-            )
-            remoteViews?.setColorInt(R.id.imgbtn_speech, "setColorFilter", secondaryColor, primaryColor)
-        } else {
-            primaryColor = Color.BLACK
-            secondaryColor = Color.WHITE
-            tertianaryColor = Color.RED
-            remoteViews?.setColorInt(R.id.imgbtn_lock, "setColorFilter", primaryColor, secondaryColor)
-            remoteViews?.setColorInt(R.id.imgbtn_conf, "setColorFilter", tertianaryColor, primaryColor)
-            remoteViews?.setColorInt(R.id.imgbtn_set, "setColorFilter", primaryColor, secondaryColor)
-            remoteViews?.setColorInt(
-                R.id.imgbtn_location,
-                "setColorFilter",
-                secondaryColor,
-                primaryColor
-            )
-            remoteViews?.setColorInt(R.id.imgbtn_speech, "setColorFilter", secondaryColor, primaryColor)
-        }
 
 
         sharedPreferences = context.getSharedPreferences("UserPreferences", MODE_PRIVATE)
@@ -509,7 +468,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         val intentBluetooth = Intent(context, MainActivity::class.java)
         if (mBluetoothAdapter.isEnabled)
-        intentBluetooth.putExtra("BLUE", "disable")
+            intentBluetooth.putExtra("BLUE", "disable")
         else intentBluetooth.putExtra("BLUE", "enable")
         val pendingIntentBluetooth = PendingIntent.getActivity(
             context,
@@ -634,14 +593,18 @@ class NewAppWidget : AppWidgetProvider() {
         if (newsList.size > 1) {
             remoteViews?.setTextViewText(
                 R.id.tx_news,
-                Html.fromHtml("<u>" + (newsIndex + 1).toString() + ". " + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY)
+                Html.fromHtml(
+                    "<u>" + (newsIndex + 1).toString() + ". " + newsList[newsIndex] + "</u>",
+                    Html.FROM_HTML_MODE_LEGACY
+                )
             )
 
 
             dNews = BitmapDrawable(newsBitmaps[newsIndex])
 
 
-            remoteViews?.setImageViewBitmap(R.id.imgv_news,
+            remoteViews?.setImageViewBitmap(
+                R.id.imgv_news,
                 drawableToBitmap(context, dNews)
             )
 
@@ -682,11 +645,13 @@ class NewAppWidget : AppWidgetProvider() {
         if (GET_WEATHER == intent.action) {
             remoteViews?.setTextViewText(R.id.tx_weather_icon_temp, "")
             getWeatherData()
-            remoteViews?.setTextViewText(R.id.tx_weather_icon_temp,
+            remoteViews?.setTextViewText(
+                R.id.tx_weather_icon_temp,
                 MainActivity.tempC.substring(
                     0,
                     2
-                ) + "°C")
+                ) + "°C"
+            )
         }
 
         if (NEWS_CLICK == intent.action) {
@@ -697,20 +662,24 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (NEWS_NEXT == intent.action) {
 
-                if (newsIndex < newsList.size - 1)
-                    newsIndex++
-                else newsIndex = 0
+            if (newsIndex < newsList.size - 1)
+                newsIndex++
+            else newsIndex = 0
 
             remoteViews?.setTextViewText(
                 R.id.tx_news,
-                Html.fromHtml("<u>" + (newsIndex + 1) + ". " + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY)
+                Html.fromHtml(
+                    "<u>" + (newsIndex + 1) + ". " + newsList[newsIndex] + "</u>",
+                    Html.FROM_HTML_MODE_LEGACY
+                )
             )
 
 
             dNews = BitmapDrawable(newsBitmaps[newsIndex])
 
 
-            remoteViews?.setImageViewBitmap(R.id.imgv_news,
+            remoteViews?.setImageViewBitmap(
+                R.id.imgv_news,
                 drawableToBitmap(context, dNews)
             )
 
@@ -722,16 +691,20 @@ class NewAppWidget : AppWidgetProvider() {
                 newsIndex--
             else newsIndex = newsList.size - 1
 
-           remoteViews?.setTextViewText(
+            remoteViews?.setTextViewText(
                 R.id.tx_news,
-                Html.fromHtml("<u>" + (newsIndex + 1) + ". " + newsList[newsIndex] + "</u>", Html.FROM_HTML_MODE_LEGACY)
+                Html.fromHtml(
+                    "<u>" + (newsIndex + 1) + ". " + newsList[newsIndex] + "</u>",
+                    Html.FROM_HTML_MODE_LEGACY
+                )
             )
 
 
             dNews = BitmapDrawable(newsBitmaps[newsIndex])
 
 
-            remoteViews?.setImageViewBitmap(R.id.imgv_news,
+            remoteViews?.setImageViewBitmap(
+                R.id.imgv_news,
                 drawableToBitmap(context, dNews)
             )
 
@@ -792,6 +765,86 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
+        val wallpaperManager = WallpaperManager.getInstance(context)
+        val wallpaperColors = wallpaperManager.getWallpaperColors(WallpaperManager.FLAG_SYSTEM)
+
+
+        if (wallpaperColors != null) {
+            primaryColor = wallpaperColors.primaryColor.toArgb()
+            if (wallpaperColors.secondaryColor != null)
+                secondaryColor = wallpaperColors.secondaryColor!!.toArgb()
+            else secondaryColor = Color.LTGRAY
+
+            if (wallpaperColors.tertiaryColor != null)
+                tertianaryColor = wallpaperColors.tertiaryColor!!.toArgb()
+            else tertianaryColor = Color.DKGRAY
+
+            remoteViews?.setColorInt(
+                R.id.imgbtn_lock,
+                "setColorFilter",
+                primaryColor,
+                secondaryColor
+            )
+            remoteViews?.setColorInt(
+                R.id.imgbtn_conf,
+                "setColorFilter",
+                tertianaryColor,
+                primaryColor
+            )
+            remoteViews?.setColorInt(
+                R.id.imgbtn_set,
+                "setColorFilter",
+                primaryColor,
+                secondaryColor
+            )
+            remoteViews?.setColorInt(
+                R.id.imgbtn_location,
+                "setColorFilter",
+                secondaryColor,
+                primaryColor
+            )
+            remoteViews?.setColorInt(
+                R.id.imgbtn_speech,
+                "setColorFilter",
+                secondaryColor,
+                primaryColor
+            )
+        } else {
+            primaryColor = Color.BLACK
+            secondaryColor = Color.WHITE
+            tertianaryColor = Color.RED
+            remoteViews?.setColorInt(
+                R.id.imgbtn_lock,
+                "setColorFilter",
+                primaryColor,
+                secondaryColor
+            )
+            remoteViews?.setColorInt(
+                R.id.imgbtn_conf,
+                "setColorFilter",
+                tertianaryColor,
+                primaryColor
+            )
+            remoteViews?.setColorInt(
+                R.id.imgbtn_set,
+                "setColorFilter",
+                primaryColor,
+                secondaryColor
+            )
+            remoteViews?.setColorInt(
+                R.id.imgbtn_location,
+                "setColorFilter",
+                secondaryColor,
+                primaryColor
+            )
+            remoteViews?.setColorInt(
+                R.id.imgbtn_speech,
+                "setColorFilter",
+                secondaryColor,
+                primaryColor
+            )
+        }
+
         if (APP1_CLICKED == intent.action) {
             var app = choosenApps[0]
             Log.d("APP1_CLICKED", app.name)
@@ -844,7 +897,8 @@ class NewAppWidget : AppWidgetProvider() {
 
     private fun getScreenTime() {
 
-        val usageStatsManager = appContx.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val usageStatsManager =
+            appContx.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val calendar = Calendar.getInstance()
         val endTime = calendar.timeInMillis
         calendar.add(Calendar.DAY_OF_YEAR, -1) // Query for the last 24 hours
@@ -869,7 +923,10 @@ class NewAppWidget : AppWidgetProvider() {
         else ampm = "pm"
 
         remoteViews?.setTextViewText(R.id.tx_st_since, "since ${currentHour % 12} $ampm, yday...")
-        remoteViews?.setTextViewText(R.id.btn_screentime, "Screen time ~ ${totalScreenTimeInMinutes.toString()}+ Hrs")
+        remoteViews?.setTextViewText(
+            R.id.btn_screentime,
+            "Screen time ~ ${totalScreenTimeInMinutes.toString()}+ Hrs"
+        )
 
     }
 
@@ -913,7 +970,7 @@ class NewAppWidget : AppWidgetProvider() {
         } else {
             when (dfDate.format(c).toInt()) {
                 in 11..20 -> postFixDate = "ᵗʰ"
-                21,31 -> postFixDate = "ˢᵗ"
+                21, 31 -> postFixDate = "ˢᵗ"
                 22 -> postFixDate = "ⁿᵈ"
                 23 -> postFixDate = "ʳᵈ"
                 in 24..30 -> postFixDate = "ᵗʰ"
@@ -926,13 +983,17 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         if (MainActivity.tempC.length > 3) {
-            remoteViews?.setTextViewText(R.id.tx_weather_icon_temp,
+            remoteViews?.setTextViewText(
+                R.id.tx_weather_icon_temp,
                 MainActivity.tempC.substring(
                     0,
                     2
-                ) + "°C")
-            remoteViews?.setTextViewText(R.id.tx_weather_icon_state,
-                MainActivity.weatherIconState + "..,")
+                ) + "°C"
+            )
+            remoteViews?.setTextViewText(
+                R.id.tx_weather_icon_state,
+                MainActivity.weatherIconState + "..,"
+            )
             remoteViews?.setTextViewText(
                 R.id.tx_placeandweather,
                 "⚲ " + cityname
@@ -941,23 +1002,33 @@ class NewAppWidget : AppWidgetProvider() {
                 remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.rain)
             if (weatherIconID.equals("800"))
                 remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clear_sky)
-            if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals("803") || weatherIconID.equals("804"))
+            if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals("803") || weatherIconID.equals(
+                    "804"
+                )
+            )
                 remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clouds)
-        }  else {
+        } else {
             getWeatherData()
             if (MainActivity.tempC.length > 3) {
-                remoteViews?.setTextViewText(R.id.tx_weather_icon_temp,
+                remoteViews?.setTextViewText(
+                    R.id.tx_weather_icon_temp,
                     MainActivity.tempC.substring(
                         0,
                         2
-                    ) + "°C")
-                remoteViews?.setTextViewText(R.id.tx_weather_icon_state,
-                    MainActivity.weatherIconState + "..,")
+                    ) + "°C"
+                )
+                remoteViews?.setTextViewText(
+                    R.id.tx_weather_icon_state,
+                    MainActivity.weatherIconState + "..,"
+                )
                 remoteViews?.setTextViewText(
                     R.id.tx_placeandweather,
                     cityname
                 )
-                if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals("803") || weatherIconID.equals("804"))
+                if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals(
+                        "803"
+                    ) || weatherIconID.equals("804")
+                )
                     remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clouds)
             }
         }
@@ -1278,7 +1349,8 @@ class NewAppWidget : AppWidgetProvider() {
         private const val NEWS_NEXT = "newsNext"
         private const val NEWS_PREV = "newsPrev"
         private const val WIFI_AUTO = "wifiAuto"
-    //    private const val RL_INVERT = "rlInvert"
+
+        //    private const val RL_INVERT = "rlInvert"
         private const val GET_WEATHER = "getWeather"
         private const val STEPS_NOW = "resetSteps"
         private const val LOCK_PHONE = "lockPhone"
