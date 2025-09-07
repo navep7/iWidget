@@ -30,6 +30,8 @@ import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.hardware.camera2.CameraAccessException
+import android.hardware.camera2.CameraManager
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.media.MediaPlayer
@@ -219,6 +221,12 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.fab_wifi,
                 getPendingSelfIntent(context, WIFI_AUTO)
             )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.fab_torch,
+                getPendingSelfIntent(context, TORCH_STATE)
+            )
+
 
             val intent = Intent(context, MainActivity::class.java)
             val pendingIntentBluetooth = PendingIntent.getActivity(
@@ -464,6 +472,11 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setOnClickPendingIntent(
             R.id.fab_wifi,
             getPendingSelfIntent(context, WIFI_AUTO)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.fab_torch,
+            getPendingSelfIntent(context, TORCH_STATE)
         )
 
         val intentBluetooth = Intent(context, MainActivity::class.java)
@@ -718,6 +731,41 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
+        if (TORCH_STATE == intent.action) {
+
+            val isFlashAvailable =
+                context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)
+            if (!isFlashAvailable) {
+                return
+            }
+            val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+            var cameraId: String? = null
+            try {
+                cameraId = cameraManager.cameraIdList[0] // Typically the back camera
+            } catch (e: CameraAccessException) {
+                e.printStackTrace()
+                return
+            }
+
+            try {
+                if (cameraId != null) {
+                    if (!sharedPreferences.getBoolean("Torch", false)) {
+                        cameraManager.setTorchMode(cameraId, true)
+                        remoteViews?.setImageViewResource(R.id.fab_torch, R.drawable.torch_on)
+                        sharedPreferencesEditor.putBoolean("Torch", true).apply()
+                    } else {
+                        cameraManager.setTorchMode(cameraId, false)
+                        remoteViews?.setImageViewResource(R.id.fab_torch, R.drawable.torch_off)
+                        sharedPreferencesEditor.putBoolean("Torch", false).apply()
+                    }
+                }
+            } catch (e: CameraAccessException) {
+                e.printStackTrace()
+            }
+
+
+        }
+
 
         if (STEPS_NOW == intent.action) {
             if (boolNewLap) {
@@ -894,6 +942,7 @@ class NewAppWidget : AppWidgetProvider() {
             makeToast("EXXx ${ex.message}")
         }
     }
+
 
     private fun getScreenTime() {
 
@@ -1349,6 +1398,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val NEWS_NEXT = "newsNext"
         private const val NEWS_PREV = "newsPrev"
         private const val WIFI_AUTO = "wifiAuto"
+        private const val TORCH_STATE = "torch"
 
         //    private const val RL_INVERT = "rlInvert"
         private const val GET_WEATHER = "getWeather"
