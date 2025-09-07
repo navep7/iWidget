@@ -702,8 +702,8 @@ class MainActivity : AppCompatActivity() {
                 val geocoder = Geocoder(this, Locale.getDefault())
 
                 val Adress = geocoder.getFromLocation(location.latitude, location.longitude, 1)
-                cityname = Adress?.get(0)!!.subLocality
-                //  Adress?.toString()?.split(",")?.get(2) ?: Adress?.get(0)?.subAdminArea.toString()
+                cityname = Adress?.get(0)!!.getAddressLine(0)
+                 // Adress?.toString()?.split(",")?.get(2) ?: Adress?.get(0)?.subAdminArea.toString()
 
 
             }

@@ -13,6 +13,7 @@ import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import androidx.appcompat.app.AppCompatActivity
+import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.databinding.ActivityMapsBinding
 import com.google.android.gms.location.LocationCallback
@@ -39,7 +40,8 @@ import java.io.IOException
 import java.util.Locale
 
 
-class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnMapReadyCallback, GoogleMap.OnMapClickListener {
+class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnMapReadyCallback,
+    GoogleMap.OnMapClickListener {
 
     private var boolStreetMarkerClicked: Boolean = false
     private lateinit var cAddrs: MutableList<Address>
@@ -102,12 +104,12 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
                     if (boolstreetViewPanorama) {
 
                         if (!boolStreetMarkerClicked)
-                        mStreetViewPanorama.setPosition(
-                            LatLng(
-                                location.latitude,
-                                location.longitude
+                            mStreetViewPanorama.setPosition(
+                                LatLng(
+                                    location.latitude,
+                                    location.longitude
+                                )
                             )
-                        )
 
 
                         //do something
@@ -128,19 +130,19 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
 
                         if (mStreetViewPanorama.location != null)
 
-                                getAddress(
-                                    mStreetViewPanorama.location.position.latitude,
-                                    mStreetViewPanorama.location.position.longitude
-                                )
+                            getAddress(
+                                mStreetViewPanorama.location.position.latitude,
+                                mStreetViewPanorama.location.position.longitude
+                            )
 
                     }
                     if (boolMapReady) {
 
                         var addrs = ""
                         if (cAddrs[0].maxAddressLineIndex > 0)
-                        for (i in 0 until cAddrs[0].maxAddressLineIndex) {
-                            addrs = addrs + cAddrs[0].getAddressLine(i)
-                        }
+                            for (i in 0 until cAddrs[0].maxAddressLineIndex) {
+                                addrs = addrs + cAddrs[0].getAddressLine(i)
+                            }
                         else addrs = cAddrs[0].subLocality
                         addPresentMarker(LatLng(location.latitude, location.longitude), addrs)
 
@@ -179,7 +181,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
             val icnGenerator: IconGenerator = IconGenerator(this)
             // Bitmap bmp = icnGenerator.makeIcon(Html.fromHtml("<b><font color=\"#000000\">" + mAddresses[0] + mAddresses[1] + mAddresses[2] + "\n" + mAddresses[3] + mAddresses[4] + "</font></b>"));
             val bmp: Bitmap = icnGenerator.makeIcon(
-              addrs
+                addrs
             )
             icon = BitmapDescriptorFactory.fromBitmap(bmp)
         }
@@ -201,6 +203,9 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
         try {
             cAddrs = gcd.getFromLocation(lat, lng, 1)!!
             //   makeToast(cAddrs?.get(0)!!.subLocality)
+
+            cityname = cAddrs?.get(0)!!.getAddressLine(0)
+
             Snackbar.make(
                 window.decorView.rootView,
                 cAddrs?.get(0)!!.subLocality,

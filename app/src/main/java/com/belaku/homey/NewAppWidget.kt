@@ -1044,7 +1044,7 @@ class NewAppWidget : AppWidgetProvider() {
                 MainActivity.weatherIconState + "..,"
             )
             remoteViews?.setTextViewText(
-                R.id.tx_placeandweather,
+                R.id.tx_place,
                 "⚲ " + cityname
             )
             if (weatherIconID.startsWith("5"))
@@ -1071,7 +1071,7 @@ class NewAppWidget : AppWidgetProvider() {
                     MainActivity.weatherIconState + "..,"
                 )
                 remoteViews?.setTextViewText(
-                    R.id.tx_placeandweather,
+                    R.id.tx_place,
                     cityname
                 )
                 if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals(

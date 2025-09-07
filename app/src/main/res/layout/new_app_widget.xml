@@ -163,7 +163,7 @@
             android:id="@+id/a_clock"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_above="@+id/tx_placeandweather"
+            android:layout_above="@+id/tx_place"
             android:layout_below="@+id/tx_wish"
             android:dial="@drawable/walp_icon"
             android:hand_second="@drawable/s_hand" />
@@ -194,7 +194,7 @@
 
 
         <TextView
-            android:id="@+id/tx_placeandweather"
+            android:id="@+id/tx_place"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/tx_day_date"
@@ -205,7 +205,7 @@
             android:marqueeRepeatLimit="marquee_forever"
             android:scrollHorizontally="true"
             android:singleLine="true"
-            android:text="Place ↺ Weather"
+            android:text="Place"
             android:textColor="?attr/colorPrimaryDark"
             android:textSize="15sp"
             android:textStyle="bold">
