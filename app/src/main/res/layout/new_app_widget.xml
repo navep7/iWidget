@@ -92,7 +92,7 @@
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_alignParentTop="true"
-            android:layout_margin="5dp"
+            android:layout_marginTop="5dp"
             android:layout_toEndOf="@+id/tx_wish"
             android:background="@drawable/weather_rounded_corner"
             android:gravity="center"
@@ -101,21 +101,51 @@
             android:src="@drawable/torch_off"
             tools:ignore="HardcodedText" />
 
-<!--
         <ImageButton
             android:id="@+id/fab_camera"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_alignParentTop="true"
-            android:layout_margin="5dp"
-            android:layout_toEndOf="@+id/fab_torch"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="3dp"
+            android:layout_toEndOf="@+id/fab_settings"
             android:background="@drawable/weather_rounded_corner"
             android:gravity="center"
             android:padding="5dp"
             android:scaleType="fitXY"
             android:src="@android:drawable/ic_menu_camera"
             tools:ignore="HardcodedText" />
--->
+
+        <ImageButton
+            android:id="@+id/fab_settings"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="3dp"
+            android:layout_toEndOf="@+id/fab_torch"
+            android:background="@drawable/weather_rounded_corner"
+            android:gravity="center"
+            android:padding="5dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/settings"
+            tools:ignore="HardcodedText" />
+
+        <!--
+                <ImageButton
+                    android:id="@+id/fab_camera"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_margin="5dp"
+                    android:layout_toEndOf="@+id/fab_torch"
+                    android:background="@drawable/weather_rounded_corner"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:scaleType="fitXY"
+                    android:src="@android:drawable/ic_menu_camera"
+                    tools:ignore="HardcodedText" />
+        -->
 
 
         <TextView
@@ -751,7 +781,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/rl_apps"
         android:layout_margin="5dp"
-        android:layout_toLeftOf="@+id/twShare"
+        android:layout_toLeftOf="@+id/fab_share"
         android:layout_toRightOf="@+id/twSettings"
         android:background="@drawable/gradient_glass_rounded">
 
@@ -878,15 +908,16 @@
 
 
     <ImageButton
-        android:id="@+id/twShare"
+        android:id="@+id/fab_share"
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:layout_above="@+id/tx_tweets"
         android:layout_alignParentEnd="true"
-        android:background="@drawable/gradient_glass"
-        android:padding="5dp"
-        android:scaleType="fitXY"
-        android:src="@drawable/share" />
+        android:background="@drawable/weather_rounded_corner"
+        android:gravity="center"
+        android:src="@android:drawable/ic_menu_share"
+        tools:ignore="HardcodedText" />
+
 
 
     <TextView

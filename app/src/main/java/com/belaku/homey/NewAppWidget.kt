@@ -4,6 +4,9 @@ package com.belaku.homey
 // Weather Key - 9fa8e101240ab18615e3133b051e767e
 
 import android.Manifest
+import android.R.attr
+import android.R.attr.height
+import android.R.attr.width
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.WallpaperManager
@@ -38,14 +41,17 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.provider.ContactsContract
+import android.provider.MediaStore
 import android.provider.Settings
 import android.text.Html
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.getWeatherData
@@ -62,6 +68,8 @@ import com.belaku.homey.SetWallWorker.Companion.initialSteps
 import com.belaku.homey.SetWallWorker.Companion.steps
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.util.Collections
 import java.util.Date
@@ -196,8 +204,8 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
             remoteViews?.setOnClickPendingIntent(
-                R.id.twShare,
-                getPendingSelfIntent(context, TW_SHARE)
+                R.id.fab_share,
+                getPendingSelfIntent(context, FAB_SHARE)
             )
 
 
@@ -450,8 +458,8 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.twShare,
-            getPendingSelfIntent(context, TW_SHARE)
+            R.id.fab_share,
+            getPendingSelfIntent(context, FAB_SHARE)
         )
 
         remoteViews?.setOnClickPendingIntent(
@@ -643,17 +651,13 @@ class NewAppWidget : AppWidgetProvider() {
         todaysDate(context)
 
 
-        if (TW_SHARE == intent.action) {
-            val sendIntent: Intent = Intent().apply {
-                action = Intent.ACTION_SEND
-                putExtra(Intent.EXTRA_TEXT, tW)
-                type = "text/plain"
-            }
+        if (FAB_SHARE == intent.action) {
 
-            val shareIntent = Intent.createChooser(sendIntent, null) // "null" for default title
-            shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            appContx.startActivity(shareIntent)
         }
+
+
+
+
 
         if (GET_WEATHER == intent.action) {
             remoteViews?.setTextViewText(R.id.tx_weather_icon_temp, "")
@@ -977,6 +981,20 @@ class NewAppWidget : AppWidgetProvider() {
             "Screen time ~ ${totalScreenTimeInMinutes.toString()}+ Hrs"
         )
 
+    }
+
+    private fun shareWidget(context: Context, bitmap: Bitmap) {
+        val bitmapPath = MediaStore.Images.Media.insertImage(
+            appContx.getContentResolver(), bitmap, "title", ""
+        )
+        val uri = Uri.parse(bitmapPath)
+        val shareIntent = Intent(Intent.ACTION_SEND)
+        shareIntent.setType("image/*")
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "App")
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "Currently a new version of KiKi app is available.")
+        shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
+        shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(Intent.createChooser(shareIntent, "Share").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
 
@@ -1393,7 +1411,7 @@ class NewAppWidget : AppWidgetProvider() {
         lateinit var newAppWidget: ComponentName
 
 
-        private const val TW_SHARE = "twShare"
+        private const val FAB_SHARE = "fabShare"
         private const val NEWS_CLICK = "newsClick"
         private const val NEWS_NEXT = "newsNext"
         private const val NEWS_PREV = "newsPrev"
