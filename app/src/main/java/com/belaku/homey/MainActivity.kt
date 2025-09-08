@@ -62,6 +62,7 @@ import android.widget.TextView
 import android.widget.TextView.OnEditorActionListener
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -1432,6 +1433,10 @@ class MainActivity : AppCompatActivity() {
                     }
                 })
 
+
+        }
+
+        fun pickContact() {
 
         }
 

@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_gravity="center"
-            android:layout_marginStart="@dimen/fab_margin"
+
             android:text="a Wish..."
             android:textColor="?attr/colorPrimaryDark"
             android:textSize="33sp"
@@ -101,7 +101,7 @@
             android:src="@drawable/torch_off"
             tools:ignore="HardcodedText" />
 
-        <ImageButton
+       <!-- <ImageButton
             android:id="@+id/fab_camera"
             android:layout_width="35dp"
             android:layout_height="35dp"
@@ -129,23 +129,7 @@
             android:padding="5dp"
             android:scaleType="fitXY"
             android:src="@drawable/settings"
-            tools:ignore="HardcodedText" />
-
-        <!--
-                <ImageButton
-                    android:id="@+id/fab_camera"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_margin="5dp"
-                    android:layout_toEndOf="@+id/fab_torch"
-                    android:background="@drawable/weather_rounded_corner"
-                    android:gravity="center"
-                    android:padding="5dp"
-                    android:scaleType="fitXY"
-                    android:src="@android:drawable/ic_menu_camera"
-                    tools:ignore="HardcodedText" />
-        -->
+            tools:ignore="HardcodedText" />-->
 
 
         <TextView
@@ -350,13 +334,12 @@
 
         <LinearLayout
             android:id="@+id/ll_apps2"
-            android:visibility="invisible"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/ll_apps"
-            android:layout_marginStart="55dp"
-            android:layout_marginTop="-10dp"
-            android:layout_marginEnd="@dimen/fab_margin">
+            android:gravity="center"
+            android:layout_marginTop="-10dp" >
 
 
             <ImageView
@@ -371,7 +354,7 @@
                 android:id="@+id/imgv_app7"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_marginStart="35dp"
+                android:layout_marginStart="25dp"
                 android:scaleType="fitXY"
                 android:src="@android:drawable/ic_input_add"
                 android:background="@drawable/rounded_corner_gray" />
@@ -389,7 +372,7 @@
                 android:id="@+id/imgv_app9"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_marginStart="35dp"
+                android:layout_marginStart="25dp"
                 android:scaleType="fitXY"
                 android:src="@android:drawable/ic_input_add"
                 android:background="@drawable/rounded_corner_gray"  />
@@ -478,6 +461,37 @@
             </RelativeLayout>
 
             <RelativeLayout
+                android:id="@+id/rl_contact"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp">
+
+                <ImageView
+                    android:id="@+id/imgv_contact"
+                    android:layout_width="55dp"
+                    android:layout_height="55dp"
+                    android:src="@drawable/contacts"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:scaleType="fitXY" />
+
+                <TextView
+                    android:id="@+id/tx_c"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignStart="@+id/imgv_contact"
+                    android:layout_alignBottom="@+id/imgv_contact"
+                    android:layout_margin="1dp"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:maxWidth="55sp"
+                    android:maxLines="1"
+                    android:textColor="?attr/colorPrimaryInverse"
+                    android:textSize="25sp"
+                    android:textStyle="bold" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
                 android:id="@+id/rl_contact3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -539,17 +553,30 @@
 
             </RelativeLayout>
 
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/ll_contacts2"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ll_contacts"
+            android:gravity="center"
+            android:layout_marginTop="-5dp"
+            android:layout_marginBottom="5dp" >
+
             <RelativeLayout
                 android:id="@+id/rl_contact5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:visibility="gone">
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                >
 
                 <ImageView
                     android:id="@+id/imgv_contact5"
-                    android:layout_width="55dp"
-                    android:layout_height="55dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/rounded_corner_gray"
                     android:background="?android:attr/selectableItemBackground"
                     android:scaleType="fitXY" />
 
@@ -561,42 +588,32 @@
                     android:layout_alignBottom="@+id/imgv_contact5"
                     android:layout_margin="1dp"
                     android:ellipsize="end"
+                    android:text="+.."
                     android:gravity="center"
                     android:maxWidth="55sp"
                     android:maxLines="1"
                     android:textColor="?attr/colorPrimaryInverse"
-                    android:textSize="25sp"
+                    android:textSize="21sp"
                     android:textStyle="bold" />
 
             </RelativeLayout>
 
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:id="@+id/ll_contacts2"
-            android:visibility="invisible"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/ll_contacts"
-            android:layout_marginStart="65dp"
-            android:layout_marginTop="-10dp"
-            android:layout_marginEnd="@dimen/fab_margin">
 
 
             <RelativeLayout
                 android:id="@+id/rl_contact6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp">
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginStart="25dp"
+                >
 
                 <ImageView
                     android:id="@+id/imgv_contact6"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/rounded_corner_gray"
                     android:background="?android:attr/selectableItemBackground"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/rounded_corner_gray" />
+                    android:scaleType="fitXY" />
 
                 <TextView
                     android:id="@+id/tx_c6"
@@ -606,31 +623,30 @@
                     android:layout_alignBottom="@+id/imgv_contact6"
                     android:layout_margin="1dp"
                     android:ellipsize="end"
-                    android:gravity="center"
-                    android:maxWidth="35sp"
-                    android:maxLines="1"
                     android:text="+.."
+                    android:gravity="center"
+                    android:maxWidth="55sp"
+                    android:maxLines="1"
                     android:textColor="?attr/colorPrimaryInverse"
-                    android:textSize="15sp"
+                    android:textSize="21sp"
                     android:textStyle="bold" />
-
 
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/rl_contact7"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:layout_marginStart="25dp"
-                android:layout_marginTop="5dp">
+                >
 
                 <ImageView
                     android:id="@+id/imgv_contact7"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/rounded_corner_gray"
                     android:background="?android:attr/selectableItemBackground"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/rounded_corner_gray" />
+                    android:scaleType="fitXY" />
 
                 <TextView
                     android:id="@+id/tx_c7"
@@ -640,85 +656,48 @@
                     android:layout_alignBottom="@+id/imgv_contact7"
                     android:layout_margin="1dp"
                     android:ellipsize="end"
-                    android:gravity="center"
-                    android:maxWidth="35sp"
-                    android:maxLines="1"
                     android:text="+.."
+                    android:gravity="center"
+                    android:maxWidth="55sp"
+                    android:maxLines="1"
                     android:textColor="?attr/colorPrimaryInverse"
-                    android:textSize="15sp"
+                    android:textSize="21sp"
                     android:textStyle="bold" />
-
 
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/rl_contact8"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:layout_marginStart="25dp"
-                android:layout_marginTop="5dp">
+                >
 
                 <ImageView
                     android:id="@+id/imgv_contact8"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/rounded_corner_gray"
                     android:background="?android:attr/selectableItemBackground"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/rounded_corner_gray" />
+                    android:scaleType="fitXY" />
 
                 <TextView
-                    android:id="@+id/tx_c8"
+                    android:id="@+id/tx_c9"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignStart="@+id/imgv_contact8"
                     android:layout_alignBottom="@+id/imgv_contact8"
                     android:layout_margin="1dp"
                     android:ellipsize="end"
-                    android:gravity="center"
-                    android:maxWidth="35sp"
-                    android:maxLines="1"
                     android:text="+.."
+                    android:gravity="center"
+                    android:maxWidth="55sp"
+                    android:maxLines="1"
                     android:textColor="?attr/colorPrimaryInverse"
-                    android:textSize="15sp"
+                    android:textSize="21sp"
                     android:textStyle="bold" />
 
-
             </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/rl_contact9"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="25dp"
-                android:layout_marginTop="5dp">
-
-                <ImageView
-                    android:id="@+id/imgv_contact9"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/rounded_corner_gray" />
-
-                <TextView
-                    android:id="@+id/tx_c9"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignStart="@+id/imgv_contact9"
-                    android:layout_alignBottom="@+id/imgv_contact9"
-                    android:layout_margin="1dp"
-                    android:ellipsize="end"
-                    android:gravity="center"
-                    android:maxWidth="35sp"
-                    android:maxLines="1"
-                    android:text="+.."
-                    android:textColor="?attr/colorPrimaryInverse"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-
-            </RelativeLayout>
-
 
         </LinearLayout>
 

@@ -4,9 +4,6 @@ package com.belaku.homey
 // Weather Key - 9fa8e101240ab18615e3133b051e767e
 
 import android.Manifest
-import android.R.attr
-import android.R.attr.height
-import android.R.attr.width
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.WallpaperManager
@@ -45,13 +42,11 @@ import android.provider.MediaStore
 import android.provider.Settings
 import android.text.Html
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.getWeatherData
@@ -68,8 +63,6 @@ import com.belaku.homey.SetWallWorker.Companion.initialSteps
 import com.belaku.homey.SetWallWorker.Companion.steps
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
 import java.util.Collections
 import java.util.Date
@@ -322,6 +315,11 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
             remoteViews?.setOnClickPendingIntent(
+                R.id.imgv_contact,
+                getPendingSelfIntent(context, C_CLICKED)
+            )
+
+            remoteViews?.setOnClickPendingIntent(
                 R.id.imgv_contact1,
                 getPendingSelfIntent(context, C1_CLICKED)
             )
@@ -339,6 +337,26 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgv_contact4,
                 getPendingSelfIntent(context, C4_CLICKED)
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgv_contact5,
+                getPendingSelfIntent(context, C5_CLICKED)
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgv_contact6,
+                getPendingSelfIntent(context, C6_CLICKED)
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgv_contact7,
+                getPendingSelfIntent(context, C7_CLICKED)
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgv_contact8,
+                getPendingSelfIntent(context, C8_CLICKED)
             )
 
 
@@ -576,6 +594,11 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_contact,
+            getPendingSelfIntent(context, C_CLICKED)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
             R.id.imgv_contact1,
             getPendingSelfIntent(context, C1_CLICKED)
         )
@@ -595,14 +618,34 @@ class NewAppWidget : AppWidgetProvider() {
             getPendingSelfIntent(context, C4_CLICKED)
         )
 
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_contact5,
+            getPendingSelfIntent(context, C5_CLICKED)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_contact6,
+            getPendingSelfIntent(context, C6_CLICKED)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_contact7,
+            getPendingSelfIntent(context, C7_CLICKED)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_contact8,
+            getPendingSelfIntent(context, C8_CLICKED)
+        )
+
         var timeOfDay = if (currentHour >= 6 && currentHour < 12) {
-            "Morn."
+            "Morni.."
         } else if (currentHour >= 12 && currentHour < 17) {
-            "Noon."
+            "Noon.."
         } else if (currentHour >= 17 && currentHour < 21) {
-            "Eve."
+            "Eve..,"
         } else {
-            "Night"
+            "Night.."
         }
 
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS)
@@ -922,6 +965,11 @@ class NewAppWidget : AppWidgetProvider() {
             launchApp(context, app.pName)
         }
 
+        if (C_CLICKED == intent.action) {
+            val intentContacts = Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI)
+            intentContacts.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            appContx.startActivity(intentContacts)
+        }
         if (C1_CLICKED == intent.action) {
             dialPhoneNumber(context, favContacts.get(0).number)
         }
@@ -934,6 +982,20 @@ class NewAppWidget : AppWidgetProvider() {
         if (C4_CLICKED == intent.action) {
             dialPhoneNumber(context, favContacts.get(3).number)
         }
+        if (C5_CLICKED == intent.action) {
+            dialPhoneNumber(context, favContacts.get(4).number)
+        }
+        if (C6_CLICKED == intent.action) {
+            if (favContacts.size > 5)
+            dialPhoneNumber(context, favContacts.get(5).number)
+            else selectContact()
+        }
+        if (C7_CLICKED == intent.action) {
+            dialPhoneNumber(context, favContacts.get(6).number)
+        }
+        if (C8_CLICKED == intent.action) {
+            dialPhoneNumber(context, favContacts.get(8).number)
+        }
 
 
         try {
@@ -945,6 +1007,13 @@ class NewAppWidget : AppWidgetProvider() {
         } catch (ex: Exception) {
             makeToast("EXXx ${ex.message}")
         }
+    }
+
+    private fun selectContact() {
+
+        makeToast("yet2Impl")
+        MainActivity.pickContact()
+
     }
 
 
@@ -1181,14 +1250,14 @@ class NewAppWidget : AppWidgetProvider() {
         gpName = c!!.getString(c.getColumnIndex("display_name"))
         c.close()
 
-        if (timeOfDay.equals("Morning"))
-            timelyWish = "\uD83C\uDF3B $timeOfDay"//, ${gpName.split(" ").get(0)}!"
-        else if (timeOfDay.equals("Afternoon"))
-            timelyWish = "\uFE0F $timeOfDay"//, ${gpName.split(" ").get(0)}!"
-        else if (timeOfDay.equals("Evening"))
-            timelyWish = "\uD83C\uDF41 $timeOfDay"//, ${gpName.split(" ").get(0)}!"
-        else if (timeOfDay.equals("Night"))
-            timelyWish = "\uD83D\uDCA4 $timeOfDay"//, ${gpName.split(" ").get(0)}!"
+        if (timeOfDay.equals("Morni.."))
+            timelyWish = "\uD83C\uDF3B$timeOfDay "//, ${gpName.split(" ").get(0)}!"
+        else if (timeOfDay.equals("Noon.."))
+            timelyWish = "\uFE0F$timeOfDay "//, ${gpName.split(" ").get(0)}!"
+        else if (timeOfDay.equals("Eve..,"))
+            timelyWish = "\uD83C\uDF41$timeOfDay "//, ${gpName.split(" ").get(0)}!"
+        else if (timeOfDay.equals("Night.."))
+            timelyWish = "\uD83D\uDCA4$timeOfDay "//, ${gpName.split(" ").get(0)}!"
 
     }
 
@@ -1429,10 +1498,15 @@ class NewAppWidget : AppWidgetProvider() {
         private const val APP4_CLICKED = "App4Clicked"
         private const val APP5_CLICKED = "App5Clicked"
 
+        private const val C_CLICKED = "CClicked"
         private const val C1_CLICKED = "C1Clicked"
         private const val C2_CLICKED = "C2Clicked"
         private const val C3_CLICKED = "C3Clicked"
         private const val C4_CLICKED = "C4Clicked"
+        private const val C5_CLICKED = "C5Clicked"
+        private const val C6_CLICKED = "C6Clicked"
+        private const val C7_CLICKED = "C7Clicked"
+        private const val C8_CLICKED = "C8Clicked"
     }
 
 
