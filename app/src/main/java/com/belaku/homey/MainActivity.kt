@@ -80,7 +80,7 @@ import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.belaku.homey.AppChooserDialog.Companion.choosenApps
+import com.belaku.homey.NewAppWidget.Companion.choosenApps
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
@@ -727,7 +727,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun appUsageStats(applicationContext: Context?) {
 
-        choosenApps.clear()
+     //   choosenApps.clear()
 
         val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
 

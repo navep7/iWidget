@@ -207,9 +207,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 wallDesc = wallDescs.get(randomWallIndex)
 
 
-           //     try {
-
-
                     wallBitmap = BitmapFactory.decodeStream(
                         URL(
                             urls[randomWallIndex].substring(

@@ -89,8 +89,8 @@ class NewAppWidget : AppWidgetProvider() {
 
     private var currentHour by Delegates.notNull<Int>()
     private var currentMin by Delegates.notNull<Int>()
-    var choosenApps: ArrayList<App> = ArrayList()
     lateinit var gpName: String
+
 
 
     override fun onEnabled(context: Context?) {
@@ -312,6 +312,26 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgv_app5,
                 getPendingSelfIntent(context, APP5_CLICKED)
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgv_app6,
+                getPendingSelfIntent(context, APP6_CLICKED)
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgv_app7,
+                getPendingSelfIntent(context, APP7_CLICKED)
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgv_app8,
+                getPendingSelfIntent(context, APP8_CLICKED)
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgv_app9,
+                getPendingSelfIntent(context, APP9_CLICKED)
             )
 
             remoteViews?.setOnClickPendingIntent(
@@ -591,6 +611,26 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setOnClickPendingIntent(
             R.id.imgv_app5,
             getPendingSelfIntent(context, APP5_CLICKED)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_app6,
+            getPendingSelfIntent(context, APP6_CLICKED)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_app7,
+            getPendingSelfIntent(context, APP7_CLICKED)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_app8,
+            getPendingSelfIntent(context, APP8_CLICKED)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_app9,
+            getPendingSelfIntent(context, APP9_CLICKED)
         )
 
         remoteViews?.setOnClickPendingIntent(
@@ -965,6 +1005,51 @@ class NewAppWidget : AppWidgetProvider() {
             launchApp(context, app.pName)
         }
 
+        if (APP6_CLICKED == intent.action) {
+            makeToast("CZ - " + selectedApps.size)
+            if (selectedApps.size > 0) {
+                var app = selectedApps[0]
+                Log.d("APP6_CLICKED", app.pName)
+                launchApp(context, app.pName)
+            } else {
+                context.startActivity(Intent(context, AppChooserDialog::class.java).putExtra("id", 6).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }
+        }
+
+        if (APP7_CLICKED == intent.action) {
+            makeToast("CZ - " + selectedApps.size)
+            if (selectedApps.size > 1) {
+                var app = selectedApps[1]
+                Log.d("APP7_CLICKED", app.pName)
+                launchApp(context, app.pName)
+            } else {
+                context.startActivity(Intent(context, AppChooserDialog::class.java).putExtra("id", 7).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }
+        }
+
+
+        if (APP8_CLICKED == intent.action) {
+            makeToast("CZ - " + selectedApps.size)
+            if (selectedApps.size > 2) {
+                var app = selectedApps[2]
+                Log.d("APP8_CLICKED", app.pName)
+                launchApp(context, app.pName)
+            } else {
+                context.startActivity(Intent(context, AppChooserDialog::class.java).putExtra("id", 8).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }
+        }
+
+        if (APP9_CLICKED == intent.action) {
+            makeToast("CZ - " + selectedApps.size)
+            if (selectedApps.size > 3) {
+                var app = selectedApps[3]
+                Log.d("APP9_CLICKED", app.pName)
+                launchApp(context, app.pName)
+            } else {
+                context.startActivity(Intent(context, AppChooserDialog::class.java).putExtra("id", 9).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }
+        }
+
         if (C_CLICKED == intent.action) {
             val intentContacts = Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI)
             intentContacts.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -983,7 +1068,9 @@ class NewAppWidget : AppWidgetProvider() {
             dialPhoneNumber(context, favContacts.get(3).number)
         }
         if (C5_CLICKED == intent.action) {
-            dialPhoneNumber(context, favContacts.get(4).number)
+            if (favContacts.size > 4)
+              dialPhoneNumber(context, favContacts.get(4).number)
+            else selectContact()
         }
         if (C6_CLICKED == intent.action) {
             if (favContacts.size > 5)
@@ -991,12 +1078,20 @@ class NewAppWidget : AppWidgetProvider() {
             else selectContact()
         }
         if (C7_CLICKED == intent.action) {
+            if (favContacts.size > 6)
             dialPhoneNumber(context, favContacts.get(6).number)
+            else selectContact()
         }
         if (C8_CLICKED == intent.action) {
+            if (favContacts.size > 7)
             dialPhoneNumber(context, favContacts.get(8).number)
+            else selectContact()
         }
 
+
+        /*{
+                context.startActivity(Intent(context, AppChooserDialog::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }*/
 
         try {
             if (sharedPreferences.getBoolean("Blue", false))
@@ -1269,6 +1364,9 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     companion object {
+        var choosenApps: ArrayList<App> = ArrayList()
+        var selectedApps: ArrayList<SelectedApp> = ArrayList()
+        lateinit var selectedApp: Bitmap
         var newsList: ArrayList<String> =
             ArrayList()
         var newsLinks: ArrayList<String> =
@@ -1497,6 +1595,10 @@ class NewAppWidget : AppWidgetProvider() {
         private const val APP2_CLICKED = "App2Clicked"
         private const val APP4_CLICKED = "App4Clicked"
         private const val APP5_CLICKED = "App5Clicked"
+        private const val APP6_CLICKED = "App6Clicked"
+        private const val APP7_CLICKED = "App7Clicked"
+        private const val APP8_CLICKED = "App8Clicked"
+        private const val APP9_CLICKED = "App9Clicked"
 
         private const val C_CLICKED = "CClicked"
         private const val C1_CLICKED = "C1Clicked"
