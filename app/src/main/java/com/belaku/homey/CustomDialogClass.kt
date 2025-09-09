@@ -81,7 +81,6 @@ class CustomDialogClass // TODO Auto-generated constructor stub
                 var rTimeSplits = rTime.split(":")
                 var h = rTimeSplits[0]
                 var m = rTimeSplits[1].substring(0, 2)
-                makeToast("h - $h and m - $m")
                 var rType = findViewById<Spinner>(R.id.remindertype).selectedItem
                 arrayListHorRs.add(rSubject + "\t@\t" + rTime + "\t\t\t:\t\t\t" + rType)
                 adapterHorRs.notifyDataSetChanged()

@@ -198,12 +198,10 @@ class MainActivity : AppCompatActivity() {
 
         if (intent != null)
             if (intent.getStringExtra("STH") != null) {
-                makeToast(intent.getStringExtra("STH").toString())
                 if (intent.getStringExtra("STH").equals("Set Twitter Handle"))
                     showTwitterHandleDialog()
                 else makeToast("yet2Impl")
             } else if (intent.getStringExtra("BLUE") != null) {
-                makeToast("Bluetooth request - " + intent.getStringExtra("BLUE"))
 
                 if (intent.getStringExtra("BLUE") == "enable") {
                     val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
@@ -214,7 +212,6 @@ class MainActivity : AppCompatActivity() {
                 }
 
             } else if (intent.getStringExtra("STT") != null) {
-                makeToast("STT here")
                 showSTTDialog()
             }
 

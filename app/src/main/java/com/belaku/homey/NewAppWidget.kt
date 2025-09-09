@@ -37,6 +37,8 @@ import android.icu.util.Calendar
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
@@ -48,6 +50,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.MainActivity.Companion.appWidM
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.getWeatherData
 import com.belaku.homey.MainActivity.Companion.listTweets
@@ -890,13 +893,25 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (WALL_CHANGE == intent.action) {
 
+
             remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.VISIBLE)
             remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
+
+            for (i in 0 until selectedApps.size) {
+                if (i == 0)
+                    remoteViews?.setImageViewBitmap(R.id.imgv_app6, selectedApps[i].icon.getCircledBitmap())
+                else if (i == 1)
+                    remoteViews?.setImageViewBitmap(R.id.imgv_app7, selectedApps[i].icon.getCircledBitmap())
+                else if (i == 2)
+                    remoteViews?.setImageViewBitmap(R.id.imgv_app8, selectedApps[i].icon.getCircledBitmap())
+                else if (i == 3)
+                    remoteViews?.setImageViewBitmap(R.id.imgv_app9, selectedApps[i].icon.getCircledBitmap())
+            }
+            appWidM.updateAppWidget(newAppWidget, remoteViews)
 
             Thread {
                 SetWallWorker.setWall(true)
             }.start()
-
 
         }
 
@@ -1006,7 +1021,6 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
         if (APP6_CLICKED == intent.action) {
-            makeToast("CZ - " + selectedApps.size)
             if (selectedApps.size > 0) {
                 var app = selectedApps[0]
                 Log.d("APP6_CLICKED", app.pName)
@@ -1017,7 +1031,6 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
         if (APP7_CLICKED == intent.action) {
-            makeToast("CZ - " + selectedApps.size)
             if (selectedApps.size > 1) {
                 var app = selectedApps[1]
                 Log.d("APP7_CLICKED", app.pName)
@@ -1029,7 +1042,6 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         if (APP8_CLICKED == intent.action) {
-            makeToast("CZ - " + selectedApps.size)
             if (selectedApps.size > 2) {
                 var app = selectedApps[2]
                 Log.d("APP8_CLICKED", app.pName)
@@ -1040,7 +1052,6 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
         if (APP9_CLICKED == intent.action) {
-            makeToast("CZ - " + selectedApps.size)
             if (selectedApps.size > 3) {
                 var app = selectedApps[3]
                 Log.d("APP9_CLICKED", app.pName)

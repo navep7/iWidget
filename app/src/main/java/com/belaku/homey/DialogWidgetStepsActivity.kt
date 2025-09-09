@@ -39,7 +39,6 @@ class DialogWidgetStepsActivity : Activity() {
         txSteps.text = "Total Steps ~ $steps"
 
         appContx = applicationContext
-        makeToast("lapCount - " + lapCount)
 
         if (lapCount == 1)
             cv1.visibility = View.VISIBLE

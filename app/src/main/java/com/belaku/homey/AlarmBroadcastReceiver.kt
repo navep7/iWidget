@@ -17,7 +17,6 @@ import com.belaku.homey.MainActivity.Companion.makeToast
 
 class AlarmBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        makeToast("Alarm triggered!")
         notifyAlarm(intent.getStringExtra("alertSub"))
         // You can perform other actions here, like starting a service or showing a notification
     }

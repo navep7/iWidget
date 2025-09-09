@@ -8,6 +8,10 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.widget.AdapterView.OnItemClickListener
@@ -40,7 +44,6 @@ class AppChooserDialog : Activity() {
 
         if (intent.extras != null)
         appID = intent.extras!!.getInt("id")
-        makeToast("appID - " + appID)
 
         if (appID == 6)
             appViewID = R.id.imgv_app6
@@ -62,23 +65,31 @@ class AppChooserDialog : Activity() {
 
         gridView.onItemClickListener = OnItemClickListener { _, _, position, _ ->
             Toast.makeText(applicationContext, appLists.get(position).name, Toast.LENGTH_SHORT).show()
-            makeToast("b4 - ${choosenApps.size}")
-            makeToast("a4 - ${choosenApps.size}")
             selectedApp = appLists.get(position).icon
             selectedApps.add(SelectedApp(appLists[position].name, appLists[position].pName, selectedApp))
-            remoteViews?.setImageViewBitmap(appViewID, selectedApp)
+            remoteViews?.setImageViewBitmap(appViewID, selectedApp.getCircledBitmap())
             appWidM.updateAppWidget(newAppWidget, remoteViews)
             goHome()
         }
-
-
-
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+    }
+
+    private fun Bitmap.getCircledBitmap(): Bitmap {
+        val output = Bitmap.createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(output)
+        val paint = Paint()
+        val rect = Rect(0, 0, this.width, this.height)
+        paint.isAntiAlias = true
+        canvas.drawARGB(0, 0, 0, 0)
+        canvas.drawCircle(this.width / 2f, this.height / 2f, this.width / 2f, paint)
+        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+        canvas.drawBitmap(this, rect, rect, paint)
+        return output
     }
 
     override fun onDestroy() {
