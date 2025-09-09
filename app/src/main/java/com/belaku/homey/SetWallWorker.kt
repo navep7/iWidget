@@ -33,6 +33,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.MainActivity.Companion.appWidM
 import com.belaku.homey.MainActivity.Companion.makeSnack
 import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.queryType
@@ -237,11 +238,11 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.INVISIBLE)
                     remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
 
-                    val intent = Intent(appContx, NewAppWidget::class.java)
+                    /*val intent = Intent(appContx, NewAppWidget::class.java)
                     intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
                     newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
                     intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, newAppWidget)
-                    appContx.sendBroadcast(intent)
+                    appContx.sendBroadcast(intent)*/
 
                     Handler(Looper.getMainLooper()).postDelayed(Runnable {
                         makeSnack("$queryType wallpapers Set, updates every $wallDelay mins. Add the Widget to see more of the Magic!")
@@ -255,9 +256,8 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
                 Log.d(TAG, "setWallEx2 - $e")
             }
-            newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
-            AppWidgetManager.getInstance(appContx)
-                .updateAppWidget(newAppWidget, remoteViews)
+         //   newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
+                appWidM.updateAppWidget(newAppWidget, remoteViews)
 
         }
     }

@@ -907,7 +907,7 @@ class NewAppWidget : AppWidgetProvider() {
                 else if (i == 3)
                     remoteViews?.setImageViewBitmap(R.id.imgv_app9, selectedApps[i].icon.getCircledBitmap())
             }
-            appWidM.updateAppWidget(newAppWidget, remoteViews)
+       //     appWidM.updateAppWidget(newAppWidget, remoteViews)
 
             Thread {
                 SetWallWorker.setWall(true)
