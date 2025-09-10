@@ -9,7 +9,7 @@ public class DayChangeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (Intent.ACTION_DATE_CHANGED.equals(intent.getAction())) {
-            SetWallWorker.steps = 0;
+            SetWallWorker.stepsToday = 0;
         }
     }
 }

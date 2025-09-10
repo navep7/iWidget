@@ -63,7 +63,7 @@ import com.belaku.homey.MainActivity.Companion.twitterProfileName
 import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.initialSteps
-import com.belaku.homey.SetWallWorker.Companion.steps
+import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.IOException
@@ -439,6 +439,9 @@ class NewAppWidget : AppWidgetProvider() {
         currentHour = now[Calendar.HOUR_OF_DAY]
         currentMin = now[Calendar.MINUTE]
 
+        if (currentHour == 0)
+            stepsToday = 0
+
         getScreenTime()
 
         val aiIntent = Intent(context, AiActivity::class.java)
@@ -718,6 +721,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
+
         remoteViews?.setTextViewText(
             R.id.tx_desc_walltype,
             Html.fromHtml(
@@ -869,7 +873,7 @@ class NewAppWidget : AppWidgetProvider() {
             }
             boolNewLap = !boolNewLap
             if (initialSteps == 0)
-                initialSteps = steps
+                initialSteps = stepsToday
             else initialSteps = 0
         }
 
@@ -1104,15 +1108,30 @@ class NewAppWidget : AppWidgetProvider() {
                 context.startActivity(Intent(context, AppChooserDialog::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             }*/
 
+        for (i in 0 until selectedApps.size) {
+            if (i == 0)
+                remoteViews?.setImageViewBitmap(R.id.imgv_app6, selectedApps[i].icon.getCircledBitmap())
+            else if (i == 1)
+                remoteViews?.setImageViewBitmap(R.id.imgv_app7, selectedApps[i].icon.getCircledBitmap())
+            else if (i == 2)
+                remoteViews?.setImageViewBitmap(R.id.imgv_app8, selectedApps[i].icon.getCircledBitmap())
+            else if (i == 3)
+                remoteViews?.setImageViewBitmap(R.id.imgv_app9, selectedApps[i].icon.getCircledBitmap())
+        }
+
         try {
             if (sharedPreferences.getBoolean("Blue", false))
                 remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_on)
             else remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_off)
-            newAppWidget = ComponentName(context, NewAppWidget::class.java)
-            AppWidgetManager.getInstance(context).updateAppWidget(newAppWidget, remoteViews)
         } catch (ex: Exception) {
             makeToast("EXXx ${ex.message}")
         }
+
+
+        newAppWidget = ComponentName(context, NewAppWidget::class.java)
+        AppWidgetManager.getInstance(context).updateAppWidget(newAppWidget, remoteViews)
+
+
     }
 
     private fun selectContact() {
@@ -1277,7 +1296,7 @@ class NewAppWidget : AppWidgetProvider() {
         // remoteViews?.setTextViewText(R.id.tx_date, formattedDate)
         sharedPreferencesEditor.putBoolean("DateSet", true).apply()
         sharedPreferencesEditor.putString("fD", formattedDate).apply()
-        remoteViews?.setTextViewText(R.id.tx_steps, "Today, " + steps.toString())
+        remoteViews?.setTextViewText(R.id.tx_steps, "Today, " + stepsToday.toString())
         remoteViews?.setTextViewText(
             R.id.tx_day_date,
             SimpleDateFormat("EEE", Locale.getDefault()).format(c) +

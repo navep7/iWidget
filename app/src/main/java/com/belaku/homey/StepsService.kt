@@ -21,7 +21,7 @@ import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.initialSteps
-import com.belaku.homey.SetWallWorker.Companion.steps
+import com.belaku.homey.SetWallWorker.Companion.stepsToday
 
 
 class StepsService : Service() {
@@ -62,19 +62,19 @@ class StepsService : Service() {
 
         mSensorEventListener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent) {
-                Log.d("onSensorChanged",  steps.toString())
-                steps++
+                Log.d("onSensorChanged",  stepsToday.toString())
+                stepsToday++
 
-                if (steps > 7)
+                if (stepsToday > 7)
                     remoteViews?.setViewVisibility(R.id.tx_n_steps, View.VISIBLE)
 
 
-                if (steps % 10 == 0) {
-                    remoteViews?.setTextViewText(R.id.tx_steps, "Today, " + steps.toString())
+                if (stepsToday % 10 == 0) {
+                    remoteViews?.setTextViewText(R.id.tx_steps, "Today, " + stepsToday.toString())
                     if (boolNewLap) {
                         remoteViews?.setTextViewText(
                             R.id.tx_n_steps,
-                            (steps - initialSteps).toString()
+                            (stepsToday - initialSteps).toString()
                         )
                         initialSteps++
                     }
@@ -93,7 +93,7 @@ class StepsService : Service() {
 
         Log.d("Service Status","Starting Service")
 
-        steps = 0
+        stepsToday = 0
        sensorManager.registerListener(mSensorEventListener, stepCounterSensor, SensorManager.SENSOR_DELAY_NORMAL)
       //    makeToast("step UP!")
 

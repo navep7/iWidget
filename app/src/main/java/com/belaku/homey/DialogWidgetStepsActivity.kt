@@ -14,7 +14,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.NewAppWidget.Companion.lapCount
-import com.belaku.homey.SetWallWorker.Companion.steps
+import com.belaku.homey.SetWallWorker.Companion.stepsToday
 
 
 class DialogWidgetStepsActivity : Activity() {
@@ -36,7 +36,7 @@ class DialogWidgetStepsActivity : Activity() {
         var cv2: CardView = findViewById(R.id.cv2)
         var cv3: CardView = findViewById(R.id.cv3)
 
-        txSteps.text = "Total Steps ~ $steps"
+        txSteps.text = "Total Steps ~ $stepsToday"
 
         appContx = applicationContext
 
