@@ -65,7 +65,7 @@ class StepsService : Service() {
                 Log.d("onSensorChanged",  stepsToday.toString())
                 stepsToday++
 
-                if (stepsToday > 7)
+                if (stepsToday > 1)
                     remoteViews?.setViewVisibility(R.id.tx_n_steps, View.VISIBLE)
 
 

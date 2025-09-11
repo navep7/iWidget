@@ -43,7 +43,7 @@ class AppChooserDialog : Activity() {
 
 
         if (intent.extras != null)
-        appID = intent.extras!!.getInt("id")
+            appID = intent.extras!!.getInt("id")
 
         if (appID == 6)
             appViewID = R.id.imgv_app6
@@ -58,15 +58,22 @@ class AppChooserDialog : Activity() {
 
         //   list.add(App("DSA", R.drawable.calls))
 
-     //   appLists.add(SelectedApp("n", applicationContext.resources.getDrawable(R.drawable.launch_e)))
+        //   appLists.add(SelectedApp("n", applicationContext.resources.getDrawable(R.drawable.launch_e)))
         val adapter = GridViewAdapter(this, appLists)
         gridView.adapter = adapter
 
 
         gridView.onItemClickListener = OnItemClickListener { _, _, position, _ ->
-            Toast.makeText(applicationContext, appLists.get(position).name, Toast.LENGTH_SHORT).show()
+            Toast.makeText(applicationContext, appLists.get(position).name, Toast.LENGTH_SHORT)
+                .show()
             selectedApp = appLists.get(position).icon
-            selectedApps.add(SelectedApp(appLists[position].name, appLists[position].pName, selectedApp))
+            selectedApps.add(
+                SelectedApp(
+                    appLists[position].name,
+                    appLists[position].pName,
+                    selectedApp
+                )
+            )
             remoteViews?.setImageViewBitmap(appViewID, selectedApp.getCircledBitmap())
             appWidM.updateAppWidget(newAppWidget, remoteViews)
             goHome()
@@ -141,7 +148,7 @@ class AppChooserDialog : Activity() {
             }
         }
 
-     //   sortApps(appNames, appIcons)
+        //   sortApps(appNames, appIcons)
 
     }
 

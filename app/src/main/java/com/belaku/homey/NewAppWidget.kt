@@ -439,7 +439,7 @@ class NewAppWidget : AppWidgetProvider() {
         currentHour = now[Calendar.HOUR_OF_DAY]
         currentMin = now[Calendar.MINUTE]
 
-        if (currentHour == 0)
+        if (currentHour == 23)
             stepsToday = 0
 
         getScreenTime()
