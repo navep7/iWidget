@@ -2,10 +2,7 @@ package com.belaku.homey
 
 
 import AppsAdapter
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
 import android.content.Context
-import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.os.Build
@@ -14,41 +11,35 @@ import android.renderscript.Allocation
 import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicBlur
+import android.speech.tts.TextToSpeech
 import android.text.method.ScrollingMovementMethod
-import android.transition.Fade
-import android.transition.Slide
 import android.view.KeyEvent
-import android.view.Window
+import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.belaku.homey.MainActivity.Companion.apps
-import com.belaku.homey.MainActivity.Companion.imgDescs
-import com.belaku.homey.MainActivity.Companion.imgUrls
-import com.belaku.homey.MainActivity.Companion.pD
-import com.belaku.homey.MainActivity.Companion.queryType
-import com.belaku.homey.MainActivity.Companion.sN
-import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.databinding.ActivityAiBinding
 import com.google.firebase.Firebase
 import com.google.firebase.ai.ai
 import com.google.firebase.ai.type.GenerativeBackend
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 
-class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent {
+class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInitListener {
 
 
+    private lateinit var tts: TextToSpeech
+    private lateinit var playAI: ImageButton
     private lateinit var prompt: String
     private lateinit var txAi: TextView
     private lateinit var edtxAi: EditText
@@ -63,11 +54,14 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
         setContentView(binding.root)
 
+        tts = TextToSpeech(this, this)
+
 
         val rootLayout = findViewById<RelativeLayout>(R.id.ai_layout)
         rootLayout.setBackgroundDrawable(BitmapDrawable(getResources(), blur(applicationContext, SetWallWorker.wallBitmap)))
 
 
+        playAI = findViewById<ImageButton>(R.id.play_ai)
         edtxAi = findViewById<EditText>(R.id.edtx_ai)
         txAi = findViewById<TextView>(R.id.tx_ai_response)
         txAi.movementMethod = ScrollingMovementMethod()
@@ -89,15 +83,45 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent {
                     val txtResponse = generativeModel.generateContent(prompt)
                     Toast.makeText(applicationContext, txtResponse.text, Toast.LENGTH_LONG).show()
                     txAi.setText(txtResponse.text)
+
+                    playAI.visibility = View.VISIBLE
+
+                    playAI.setOnClickListener(View.OnClickListener {
+                        if (tts.isSpeaking) {
+                            tts.stop()
+                            playAI.setImageResource(android.R.drawable.ic_media_play)
+                        }
+                        else {
+                            speakLongText(txtResponse.text.toString())
+                            playAI.setImageResource(android.R.drawable.ic_media_pause)
+                        }
+                    })
+
                 }
             }
             false
         })
 
+    }
 
+    override fun onDestroy() {
+        tts.stop()
+        super.onDestroy()
+    }
 
-
-
+    fun speakLongText(longText: String) {
+        tts?.let {
+            val maxLength = 4000 // Get max length supported by engine
+            if (longText.length <= maxLength) {
+                it.speak(longText, TextToSpeech.QUEUE_FLUSH, null, "unique_utterance_id")
+            } else {
+                // Split the long text into smaller parts
+                val chunks = longText.chunked(maxLength)
+                for (chunk in chunks) {
+                    it.speak(chunk, TextToSpeech.QUEUE_ADD, null, "unique_utterance_id_part_${chunks.indexOf(chunk)}")
+                }
+            }
+        }
     }
 
     fun blur(context: Context?, image: Bitmap): Bitmap {
@@ -128,5 +152,17 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         val launchIntent = packageManager.getLaunchIntentForPackage(apps[pos].pName)
         startActivity(launchIntent)
     }
+
+    override fun onInit(status: Int) {
+        // TODO Auto-generated method stub
+        if (status == TextToSpeech.SUCCESS) {
+            val result = tts.setLanguage(Locale.UK)
+
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Toast.makeText(this, "Language Not Supported", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
 
 }

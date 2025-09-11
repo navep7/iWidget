@@ -49,10 +49,21 @@
         android:text="AI response..."
         android:textStyle="bold"
         android:layout_below="@id/edtx_ai"
+        android:layout_above="@+id/play_ai"
         android:layout_margin="@dimen/fab_margin"
         android:scrollbars="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+
+    <ImageButton
+        android:id="@+id/play_ai"
+        android:visibility="invisible"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="@dimen/fab_margin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_media_play"/>
 
 
 </RelativeLayout>
