@@ -37,20 +37,23 @@ import android.icu.util.Calendar
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
 import android.text.Html
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.RemoteViews
+import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import com.belaku.homey.MainActivity.Companion.appContx
-import com.belaku.homey.MainActivity.Companion.appWidM
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.getWeatherData
 import com.belaku.homey.MainActivity.Companion.listTweets
@@ -64,8 +67,11 @@ import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.initialSteps
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
+import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.util.Collections
 import java.util.Date
@@ -743,6 +749,30 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (FAB_SHARE == intent.action) {
 
+            val inflater =
+                context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            val appWidgetView: View = inflater.inflate(R.layout.new_app_widget, null)
+
+            loadWidgetToShare(appWidgetView)
+            appWidgetView.measure(View.MeasureSpec.makeMeasureSpec(screenWidth, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(screenHeight, View.MeasureSpec.EXACTLY));
+            appWidgetView.layout(0, 0, appWidgetView.getMeasuredWidth(), appWidgetView.getMeasuredHeight());
+
+            var bitmapWidget = Bitmap.createBitmap(
+                appWidgetView.width,
+                appWidgetView.height,
+                Bitmap.Config.ARGB_8888
+            )
+
+            val canvas = Canvas(bitmapWidget)
+
+            appWidgetView.draw(canvas)
+
+            bitmapWidget = Bitmap.createScaledBitmap(bitmapWidget, Math.round(bitmapWidget.width * 50 / 100.0f), Math.round(bitmapWidget.height * 50 / 100.0f), true)
+
+            shareBitmap(bitmapWidget)
+
+
         }
 
 
@@ -1134,6 +1164,85 @@ class NewAppWidget : AppWidgetProvider() {
 
     }
 
+    @SuppressLint("SetTextI18n")
+    private fun loadWidgetToShare(appWidgetView: View) {
+
+        val backgroundDrawable: BitmapDrawable = BitmapDrawable(appContx.getResources(), wallBitmap)
+        appWidgetView.findViewById<RelativeLayout>(R.id.rl_widget_layout).setBackground(backgroundDrawable)
+
+        appWidgetView.findViewById<TextView>(R.id.tx_wish).setText(timelyWish)
+        appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_temp).setText(MainActivity.tempC.substring(
+            0,
+            2
+        ) + "°C")
+        appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_state).setText(MainActivity.weatherIconState + "..,")
+        appWidgetView.findViewById<TextView>(R.id.tx_day_date).setText(SimpleDateFormat("EEE", Locale.getDefault()).format(Calendar.getInstance().time) +
+                "│" + formattedDate)
+        appWidgetView.findViewById<TextView>(R.id.tx_place).setText(cityname)
+     //   appWidgetView.findViewById<TextView>(R.id.tx_steps).setText(stepsToday)
+
+        readApps()
+
+
+        appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact5).visibility = View.INVISIBLE
+        appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact6).visibility = View.INVISIBLE
+        appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact7).visibility = View.INVISIBLE
+        appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact8).visibility = View.INVISIBLE
+
+
+        appWidgetView.findViewById<ImageView>(R.id.imgv_app6).visibility = View.INVISIBLE
+        appWidgetView.findViewById<ImageView>(R.id.imgv_app7).visibility = View.INVISIBLE
+        appWidgetView.findViewById<ImageView>(R.id.imgv_app8).visibility = View.INVISIBLE
+        appWidgetView.findViewById<ImageView>(R.id.imgv_app9).visibility = View.INVISIBLE
+
+
+
+
+
+        appWidgetView.findViewById<TextView>(R.id.tx_desc_walltype).setText(Html.fromHtml(
+            wD + "<br>" + qT.split(" ")[0].substring(0, 1)
+                .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
+            Html.FROM_HTML_MODE_LEGACY
+        ))
+        appWidgetView.findViewById<TextView>(R.id.tx_tweets).setText("@" + twitterProfileName + "\t ~ \t" + tW)
+
+
+    }
+
+    private fun shareBitmap(bitmapWidget: Bitmap) {
+
+        val cachePath: File = File(appContx.getCacheDir(), "images")
+        cachePath.mkdirs() // Create the directory if it doesn't exist
+        val imageFile: File = File(cachePath, "image_to_share.png")
+
+        try {
+            val outputStream: FileOutputStream = FileOutputStream(imageFile)
+            bitmapWidget.compress(
+                Bitmap.CompressFormat.PNG,
+                100,
+                outputStream
+            ) // Adjust format and quality as needed
+            outputStream.flush()
+            outputStream.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
+            return  // Handle the error appropriately
+        }
+
+        val contentUri = FileProvider.getUriForFile(
+            appContx,
+            appContx.getApplicationContext().getPackageName() + ".fileprovider",
+            imageFile
+        )
+
+        val shareIntent = Intent(Intent.ACTION_SEND)
+        shareIntent.setType("image/*")
+        shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri)
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) // Grant temporary read permission
+
+        appContx.startActivity(Intent.createChooser(shareIntent, "Share Image Using").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    }
+
     private fun selectContact() {
 
         makeToast("yet2Impl")
@@ -1522,6 +1631,7 @@ class NewAppWidget : AppWidgetProvider() {
                 return AppCompatResources.getDrawable(context, R.drawable.calls)!!
             }
         }
+
 
         @SuppressLint("UseCompatLoadingForDrawables")
         fun addAppInWidget(context: Context, fApps: ArrayList<App>) {
