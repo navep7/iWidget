@@ -755,7 +755,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             loadWidgetToShare(appWidgetView)
             appWidgetView.measure(View.MeasureSpec.makeMeasureSpec(screenWidth, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(screenHeight, View.MeasureSpec.EXACTLY));
+                View.MeasureSpec.makeMeasureSpec(screenHeight - 725, View.MeasureSpec.EXACTLY));
             appWidgetView.layout(0, 0, appWidgetView.getMeasuredWidth(), appWidgetView.getMeasuredHeight());
 
             var bitmapWidget = Bitmap.createBitmap(
