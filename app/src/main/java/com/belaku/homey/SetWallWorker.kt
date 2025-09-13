@@ -210,41 +210,41 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 wallDesc = wallDescs.get(randomWallIndex)
 
 
-                    wallBitmap = BitmapFactory.decodeStream(
-                        URL(
-                            urls[randomWallIndex].substring(
-                                4,
-                                urls[randomWallIndex].length
-                            )
-                        ).openConnection().getInputStream()
+                wallBitmap = BitmapFactory.decodeStream(
+                    URL(
+                        urls[randomWallIndex].substring(
+                            4,
+                            urls[randomWallIndex].length
+                        )
+                    ).openConnection().getInputStream()
+                )
+
+                val scaledBitmap =
+                    Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
+
+                if (b)
+                    wm.setBitmap(scaledBitmap)
+
+                val c = Calendar.getInstance()
+                updateTime =
+                    "" + c.get(Calendar.HOUR_OF_DAY) + ":" + c.get(Calendar.MINUTE) + ":" + c.get(
+                        Calendar.SECOND
                     )
 
-                    val scaledBitmap =
-                        Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
-
-                    if (b)
-                        wm.setBitmap(scaledBitmap)
-
-                    val c = Calendar.getInstance()
-                    updateTime =
-                        "" + c.get(Calendar.HOUR_OF_DAY) + ":" + c.get(Calendar.MINUTE) + ":" + c.get(
-                            Calendar.SECOND
-                        )
-
-                    if (b) {
-                        sharedPreferencesEditor.putString("wD", wallDesc.split("+")[1]).apply()
-                        sharedPreferencesEditor.putString("uT", updateTime).apply()
-                    }
-                    Log.d(TAG, "Set successfully")
-                    pD.dismiss()
-                    remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
+                if (b) {
+                    sharedPreferencesEditor.putString("wD", wallDesc.split("+")[1]).apply()
+                    sharedPreferencesEditor.putString("uT", updateTime).apply()
+                }
+                Log.d(TAG, "Set successfully")
+                pD.dismiss()
+                remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.INVISIBLE)
+                remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
 
                 var wD = wallDesc.split("+")[1]
                 var qT = queryType
                 var dU = delayUnit
                 var uT = updateTime
-                 remoteViews?.setTextViewText(
+                remoteViews?.setTextViewText(
                     R.id.tx_desc_walltype,
                     Html.fromHtml(
                         wD + "<br>" + qT.split(" ")[0].substring(0, 1)
@@ -253,17 +253,15 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     )
                 )
 
-                    /*val intent = Intent(appContx, NewAppWidget::class.java)
-                    intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
-                    newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
-                    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, newAppWidget)
-                    appContx.sendBroadcast(intent)*/
+                val intent = Intent(appContx, NewAppWidget::class.java)
+                intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
+                newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
+                //   intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, newAppWidget)
+                appContx.sendBroadcast(intent)
 
-                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                        makeSnack("$queryType wallpapers Set, updates every $wallDelay mins. Add the Widget to see more of the Magic!")
-                    }, 1000)
-
-
+                Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                    makeSnack("$queryType wallpapers Set, updates every $wallDelay mins. Add the Widget to see more of the Magic!")
+                }, 1000)
 
 
             } catch (e: IOException) {
@@ -271,8 +269,8 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
                 Log.d(TAG, "setWallEx2 - $e")
             }
-         //   newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
-                appWidM.updateAppWidget(newAppWidget, remoteViews)
+            //   newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
+            appWidM.updateAppWidget(newAppWidget, remoteViews)
 
         }
     }

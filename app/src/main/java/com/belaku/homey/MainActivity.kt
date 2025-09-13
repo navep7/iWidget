@@ -254,13 +254,13 @@ class MainActivity : AppCompatActivity() {
             getCity()
         }
 
-       /* intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
-        var compName = ComponentName(this, DeviceAdmin::class.java)
-        intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, compName)
-        intent.putExtra(
-            DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-            "Enable Admin Access for Lock screen shortcut to work from the App's Widget"
-        )*/
+        /* intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
+         var compName = ComponentName(this, DeviceAdmin::class.java)
+         intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, compName)
+         intent.putExtra(
+             DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+             "Enable Admin Access for Lock screen shortcut to work from the App's Widget"
+         )*/
 
         launcher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -309,12 +309,12 @@ class MainActivity : AppCompatActivity() {
                 if (newsList.size == 0) {
                     pDNews = ProgressDialog(this@MainActivity)
                     pDNews.setCancelable(false)
-                //    pDNews.setTitle("fetching News...")
-                //    pDNews.show()
+                    //    pDNews.setTitle("fetching News...")
+                    //    pDNews.show()
                     val jobScheduler =
                         appContx.getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
                     val serviceComponent = ComponentName(appContx, DailyJobService::class.java)
-                     // Optional: persist across reboots
+                    // Optional: persist across reboots
 
                     GlobalScope.launch(Dispatchers.IO) {
                         val builder = JobInfo.Builder(1, serviceComponent)
@@ -387,7 +387,6 @@ class MainActivity : AppCompatActivity() {
 
         customDialog.show()
     }
-
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -655,7 +654,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
- //       makeSnack("Tweets - ${listTweets.size}")
+        //       makeSnack("Tweets - ${listTweets.size}")
 
         var bitmapTwPic: Bitmap =
             drawableToBitmap(applicationContext, resources.getDrawable(R.drawable.walp_icon))
@@ -705,7 +704,7 @@ class MainActivity : AppCompatActivity() {
 
                 val Adress = geocoder.getFromLocation(location.latitude, location.longitude, 1)
                 cityname = Adress?.get(0)!!.getAddressLine(0)
-                 // Adress?.toString()?.split(",")?.get(2) ?: Adress?.get(0)?.subAdminArea.toString()
+                // Adress?.toString()?.split(",")?.get(2) ?: Adress?.get(0)?.subAdminArea.toString()
 
 
             }
@@ -728,7 +727,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun appUsageStats(applicationContext: Context?) {
 
-     //   choosenApps.clear()
+        //   choosenApps.clear()
 
         val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
 
@@ -974,7 +973,7 @@ class MainActivity : AppCompatActivity() {
             sharedPreferencesEditor.putStringSet("walls", HashSet(imgUrls)).apply()
             sharedPreferencesEditor.putStringSet("wallDescs", HashSet(imgDescs)).apply()
 
-        //    throw RuntimeException("TestCraash")
+            //    throw RuntimeException("TestCraash")
         }
 
         fabHour.setOnClickListener {
@@ -1056,36 +1055,38 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-      private fun BluetoothState() {
-          var wTAG = "BluetoothState ~ "
+    private fun BluetoothState() {
+        var wTAG = "BluetoothState ~ "
 
 
-           mBluetoothReceiver = object : BroadcastReceiver() {
-              override fun onReceive(context: Context?, intent: Intent) {
+        mBluetoothReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent) {
 
-                  val action = intent.action
-                  makeSnack("onReceive BLT - " + action)
+                val action = intent.action
+                makeSnack("onReceive BLT - " + action)
 
 
-                  if (BluetoothAdapter.ACTION_STATE_CHANGED == action) {
-                      val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
-                      when (state) {
-                          BluetoothAdapter.STATE_OFF -> {
-                              remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_off)
-                              appWidM.updateAppWidget(newAppWidget, remoteViews)
-                          }
-                          BluetoothAdapter.STATE_TURNING_OFF -> {}
-                          BluetoothAdapter.STATE_ON -> {
-                              remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_on)
-                              appWidM.updateAppWidget(newAppWidget, remoteViews)
-                          }
-                          BluetoothAdapter.STATE_TURNING_ON -> {}
-                      }
-                  }
-              }
-          }
+                if (BluetoothAdapter.ACTION_STATE_CHANGED == action) {
+                    val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
+                    when (state) {
+                        BluetoothAdapter.STATE_OFF -> {
+                            remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_off)
+                            appWidM.updateAppWidget(newAppWidget, remoteViews)
+                        }
 
-      }
+                        BluetoothAdapter.STATE_TURNING_OFF -> {}
+                        BluetoothAdapter.STATE_ON -> {
+                            remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_on)
+                            appWidM.updateAppWidget(newAppWidget, remoteViews)
+                        }
+
+                        BluetoothAdapter.STATE_TURNING_ON -> {}
+                    }
+                }
+            }
+        }
+
+    }
 
 
     private fun startStepsService() {
@@ -1339,23 +1340,34 @@ class MainActivity : AppCompatActivity() {
 
 
                         Log.d("weatherInfo", tempC + " - " + tempKind)
-                       /* makeToast(
-                            "weatherInfo - " + tempC.substring(
-                                0,
-                                4
-                            ) + "°C" + " - " + tempKind
-                        )*/
+                        /* makeToast(
+                             "weatherInfo - " + tempC.substring(
+                                 0,
+                                 4
+                             ) + "°C" + " - " + tempKind
+                         )*/
 
-                        remoteViews?.setTextViewText(R.id.tx_weather_icon_temp, tempC.substring(
-                            0,
-                            2
-                        ) + "°C")
-                        remoteViews?.setTextViewText(R.id.tx_weather_icon_state, weatherIconState + "..,")
+                        remoteViews?.setTextViewText(
+                            R.id.tx_weather_icon_temp, tempC.substring(
+                                0,
+                                2
+                            ) + "°C"
+                        )
+                        remoteViews?.setTextViewText(
+                            R.id.tx_weather_icon_state,
+                            weatherIconState + "..,"
+                        )
                         if (weatherIconID.startsWith("5"))
                             remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.rain)
                         if (weatherIconID.equals("800"))
-                            remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clear_sky)
-                        if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals("803") || weatherIconID.equals("804"))
+                            remoteViews?.setImageViewResource(
+                                R.id.weather_icon,
+                                R.drawable.clear_sky
+                            )
+                        if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals(
+                                "803"
+                            ) || weatherIconID.equals("804")
+                        )
                             remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clouds)
 
                         appWidM.updateAppWidget(newAppWidget, remoteViews)
@@ -1377,7 +1389,7 @@ class MainActivity : AppCompatActivity() {
 
         fun getNews(tDate: Int) {
 
-        //    makeToast("getNews - $cYear-$cMonth-$tDate")
+            //    makeToast("getNews - $cYear-$cMonth-$tDate")
             newsList.toMutableList().clear()
 
             ApiUtilities.getApiInterface()
@@ -1426,7 +1438,11 @@ class MainActivity : AppCompatActivity() {
                             }
                             makeToast("News Added - " + newsList.size)
                             pDNews.dismiss()
-                            Snackbar.make(parentLayout, "Auto Update Wallpaper, every ?", Snackbar.LENGTH_SHORT)
+                            Snackbar.make(
+                                parentLayout,
+                                "Auto Update Wallpaper, every ?",
+                                Snackbar.LENGTH_SHORT
+                            )
                                 .setAction("Action", null)
                                 .setAnchorView(R.id.fab_main).show()
                         }

@@ -101,7 +101,6 @@ class NewAppWidget : AppWidgetProvider() {
     lateinit var gpName: String
 
 
-
     override fun onEnabled(context: Context?) {
         super.onEnabled(context)
         appContx = context!!
@@ -409,8 +408,8 @@ class NewAppWidget : AppWidgetProvider() {
 
         Log.d(TAG, "onReceive ${intent.action}")
 
-
-
+        if (!intent.action.equals("android.appwidget.action.APPWIDGET_UPDATE"))
+            makeToast("onReceive ${intent.action}")
 
         sharedPreferences = context.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
@@ -754,9 +753,16 @@ class NewAppWidget : AppWidgetProvider() {
             val appWidgetView: View = inflater.inflate(R.layout.new_app_widget, null)
 
             loadWidgetToShare(appWidgetView)
-            appWidgetView.measure(View.MeasureSpec.makeMeasureSpec(screenWidth, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(screenHeight - 725, View.MeasureSpec.EXACTLY));
-            appWidgetView.layout(0, 0, appWidgetView.getMeasuredWidth(), appWidgetView.getMeasuredHeight());
+            appWidgetView.measure(
+                View.MeasureSpec.makeMeasureSpec(screenWidth, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(screenHeight - 725, View.MeasureSpec.EXACTLY)
+            );
+            appWidgetView.layout(
+                0,
+                0,
+                appWidgetView.getMeasuredWidth(),
+                appWidgetView.getMeasuredHeight()
+            );
 
             var bitmapWidget = Bitmap.createBitmap(
                 appWidgetView.width,
@@ -768,7 +774,12 @@ class NewAppWidget : AppWidgetProvider() {
 
             appWidgetView.draw(canvas)
 
-            bitmapWidget = Bitmap.createScaledBitmap(bitmapWidget, Math.round(bitmapWidget.width * 50 / 100.0f), Math.round(bitmapWidget.height * 50 / 100.0f), true)
+            bitmapWidget = Bitmap.createScaledBitmap(
+                bitmapWidget,
+                Math.round(bitmapWidget.width * 50 / 100.0f),
+                Math.round(bitmapWidget.height * 50 / 100.0f),
+                true
+            )
 
             shareBitmap(bitmapWidget)
 
@@ -791,61 +802,6 @@ class NewAppWidget : AppWidgetProvider() {
             )
         }
 
-        if (NEWS_CLICK == intent.action) {
-            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(newsLinks[newsIndex]))
-            browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            appContx.startActivity(browserIntent)
-        }
-
-        if (NEWS_NEXT == intent.action) {
-
-            if (newsIndex < newsList.size - 1)
-                newsIndex++
-            else newsIndex = 0
-
-            remoteViews?.setTextViewText(
-                R.id.tx_news,
-                Html.fromHtml(
-                    "<u>" + (newsIndex + 1) + ". " + newsList[newsIndex] + "</u>",
-                    Html.FROM_HTML_MODE_LEGACY
-                )
-            )
-
-
-            dNews = BitmapDrawable(newsBitmaps[newsIndex])
-
-
-            remoteViews?.setImageViewBitmap(
-                R.id.imgv_news,
-                drawableToBitmap(context, dNews)
-            )
-
-        }
-
-        if (NEWS_PREV == intent.action) {
-
-            if (newsIndex > 0)
-                newsIndex--
-            else newsIndex = newsList.size - 1
-
-            remoteViews?.setTextViewText(
-                R.id.tx_news,
-                Html.fromHtml(
-                    "<u>" + (newsIndex + 1) + ". " + newsList[newsIndex] + "</u>",
-                    Html.FROM_HTML_MODE_LEGACY
-                )
-            )
-
-
-            dNews = BitmapDrawable(newsBitmaps[newsIndex])
-
-
-            remoteViews?.setImageViewBitmap(
-                R.id.imgv_news,
-                drawableToBitmap(context, dNews)
-            )
-
-        }
 
         if (WIFI_AUTO == intent.action) {
 
@@ -933,15 +889,27 @@ class NewAppWidget : AppWidgetProvider() {
 
             for (i in 0 until selectedApps.size) {
                 if (i == 0)
-                    remoteViews?.setImageViewBitmap(R.id.imgv_app6, selectedApps[i].icon.getCircledBitmap())
+                    remoteViews?.setImageViewBitmap(
+                        R.id.imgv_app6,
+                        selectedApps[i].icon.getCircledBitmap()
+                    )
                 else if (i == 1)
-                    remoteViews?.setImageViewBitmap(R.id.imgv_app7, selectedApps[i].icon.getCircledBitmap())
+                    remoteViews?.setImageViewBitmap(
+                        R.id.imgv_app7,
+                        selectedApps[i].icon.getCircledBitmap()
+                    )
                 else if (i == 2)
-                    remoteViews?.setImageViewBitmap(R.id.imgv_app8, selectedApps[i].icon.getCircledBitmap())
+                    remoteViews?.setImageViewBitmap(
+                        R.id.imgv_app8,
+                        selectedApps[i].icon.getCircledBitmap()
+                    )
                 else if (i == 3)
-                    remoteViews?.setImageViewBitmap(R.id.imgv_app9, selectedApps[i].icon.getCircledBitmap())
+                    remoteViews?.setImageViewBitmap(
+                        R.id.imgv_app9,
+                        selectedApps[i].icon.getCircledBitmap()
+                    )
             }
-       //     appWidM.updateAppWidget(newAppWidget, remoteViews)
+            //     appWidM.updateAppWidget(newAppWidget, remoteViews)
 
             Thread {
                 SetWallWorker.setWall(true)
@@ -1060,7 +1028,12 @@ class NewAppWidget : AppWidgetProvider() {
                 Log.d("APP6_CLICKED", app.pName)
                 launchApp(context, app.pName)
             } else {
-                context.startActivity(Intent(context, AppChooserDialog::class.java).putExtra("id", 6).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                context.startActivity(
+                    Intent(context, AppChooserDialog::class.java).putExtra(
+                        "id",
+                        6
+                    ).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
             }
         }
 
@@ -1070,7 +1043,12 @@ class NewAppWidget : AppWidgetProvider() {
                 Log.d("APP7_CLICKED", app.pName)
                 launchApp(context, app.pName)
             } else {
-                context.startActivity(Intent(context, AppChooserDialog::class.java).putExtra("id", 7).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                context.startActivity(
+                    Intent(context, AppChooserDialog::class.java).putExtra(
+                        "id",
+                        7
+                    ).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
             }
         }
 
@@ -1081,7 +1059,12 @@ class NewAppWidget : AppWidgetProvider() {
                 Log.d("APP8_CLICKED", app.pName)
                 launchApp(context, app.pName)
             } else {
-                context.startActivity(Intent(context, AppChooserDialog::class.java).putExtra("id", 8).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                context.startActivity(
+                    Intent(context, AppChooserDialog::class.java).putExtra(
+                        "id",
+                        8
+                    ).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
             }
         }
 
@@ -1091,7 +1074,12 @@ class NewAppWidget : AppWidgetProvider() {
                 Log.d("APP9_CLICKED", app.pName)
                 launchApp(context, app.pName)
             } else {
-                context.startActivity(Intent(context, AppChooserDialog::class.java).putExtra("id", 9).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                context.startActivity(
+                    Intent(context, AppChooserDialog::class.java).putExtra(
+                        "id",
+                        9
+                    ).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
             }
         }
 
@@ -1114,22 +1102,22 @@ class NewAppWidget : AppWidgetProvider() {
         }
         if (C5_CLICKED == intent.action) {
             if (favContacts.size > 4)
-              dialPhoneNumber(context, favContacts.get(4).number)
+                dialPhoneNumber(context, favContacts.get(4).number)
             else selectContact()
         }
         if (C6_CLICKED == intent.action) {
             if (favContacts.size > 5)
-            dialPhoneNumber(context, favContacts.get(5).number)
+                dialPhoneNumber(context, favContacts.get(5).number)
             else selectContact()
         }
         if (C7_CLICKED == intent.action) {
             if (favContacts.size > 6)
-            dialPhoneNumber(context, favContacts.get(6).number)
+                dialPhoneNumber(context, favContacts.get(6).number)
             else selectContact()
         }
         if (C8_CLICKED == intent.action) {
             if (favContacts.size > 7)
-            dialPhoneNumber(context, favContacts.get(8).number)
+                dialPhoneNumber(context, favContacts.get(8).number)
             else selectContact()
         }
 
@@ -1140,13 +1128,25 @@ class NewAppWidget : AppWidgetProvider() {
 
         for (i in 0 until selectedApps.size) {
             if (i == 0)
-                remoteViews?.setImageViewBitmap(R.id.imgv_app6, selectedApps[i].icon.getCircledBitmap())
+                remoteViews?.setImageViewBitmap(
+                    R.id.imgv_app6,
+                    selectedApps[i].icon.getCircledBitmap()
+                )
             else if (i == 1)
-                remoteViews?.setImageViewBitmap(R.id.imgv_app7, selectedApps[i].icon.getCircledBitmap())
+                remoteViews?.setImageViewBitmap(
+                    R.id.imgv_app7,
+                    selectedApps[i].icon.getCircledBitmap()
+                )
             else if (i == 2)
-                remoteViews?.setImageViewBitmap(R.id.imgv_app8, selectedApps[i].icon.getCircledBitmap())
+                remoteViews?.setImageViewBitmap(
+                    R.id.imgv_app8,
+                    selectedApps[i].icon.getCircledBitmap()
+                )
             else if (i == 3)
-                remoteViews?.setImageViewBitmap(R.id.imgv_app9, selectedApps[i].icon.getCircledBitmap())
+                remoteViews?.setImageViewBitmap(
+                    R.id.imgv_app9,
+                    selectedApps[i].icon.getCircledBitmap()
+                )
         }
 
         try {
@@ -1168,18 +1168,24 @@ class NewAppWidget : AppWidgetProvider() {
     private fun loadWidgetToShare(appWidgetView: View) {
 
         val backgroundDrawable: BitmapDrawable = BitmapDrawable(appContx.getResources(), wallBitmap)
-        appWidgetView.findViewById<RelativeLayout>(R.id.rl_widget_layout).setBackground(backgroundDrawable)
+        appWidgetView.findViewById<RelativeLayout>(R.id.rl_widget_layout)
+            .setBackground(backgroundDrawable)
 
         appWidgetView.findViewById<TextView>(R.id.tx_wish).setText(timelyWish)
-        appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_temp).setText(MainActivity.tempC.substring(
-            0,
-            2
-        ) + "°C")
-        appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_state).setText(MainActivity.weatherIconState + "..,")
-        appWidgetView.findViewById<TextView>(R.id.tx_day_date).setText(SimpleDateFormat("EEE", Locale.getDefault()).format(Calendar.getInstance().time) +
-                "│" + formattedDate)
+        appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_temp).setText(
+            MainActivity.tempC.substring(
+                0,
+                2
+            ) + "°C"
+        )
+        appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_state)
+            .setText(MainActivity.weatherIconState + "..,")
+        appWidgetView.findViewById<TextView>(R.id.tx_day_date).setText(
+            SimpleDateFormat("EEE", Locale.getDefault()).format(Calendar.getInstance().time) +
+                    "│" + formattedDate
+        )
         appWidgetView.findViewById<TextView>(R.id.tx_place).setText(cityname)
-     //   appWidgetView.findViewById<TextView>(R.id.tx_steps).setText(stepsToday)
+        //   appWidgetView.findViewById<TextView>(R.id.tx_steps).setText(stepsToday)
 
         readApps()
 
@@ -1199,12 +1205,15 @@ class NewAppWidget : AppWidgetProvider() {
 
 
 
-        appWidgetView.findViewById<TextView>(R.id.tx_desc_walltype).setText(Html.fromHtml(
-            wD + "<br>" + qT.split(" ")[0].substring(0, 1)
-                .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
-            Html.FROM_HTML_MODE_LEGACY
-        ))
-        appWidgetView.findViewById<TextView>(R.id.tx_tweets).setText("@" + twitterProfileName + "\t ~ \t" + tW)
+        appWidgetView.findViewById<TextView>(R.id.tx_desc_walltype).setText(
+            Html.fromHtml(
+                wD + "<br>" + qT.split(" ")[0].substring(0, 1)
+                    .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
+                Html.FROM_HTML_MODE_LEGACY
+            )
+        )
+        appWidgetView.findViewById<TextView>(R.id.tx_tweets)
+            .setText("@" + twitterProfileName + "\t ~ \t" + tW)
 
 
     }
@@ -1240,7 +1249,10 @@ class NewAppWidget : AppWidgetProvider() {
         shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri)
         shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) // Grant temporary read permission
 
-        appContx.startActivity(Intent.createChooser(shareIntent, "Share Image Using").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        appContx.startActivity(
+            Intent.createChooser(shareIntent, "Share Image Using")
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        )
     }
 
     private fun selectContact() {
@@ -1297,7 +1309,9 @@ class NewAppWidget : AppWidgetProvider() {
         shareIntent.putExtra(Intent.EXTRA_TEXT, "Currently a new version of KiKi app is available.")
         shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
         shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(Intent.createChooser(shareIntent, "Share").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        context.startActivity(
+            Intent.createChooser(shareIntent, "Share").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        )
     }
 
 
