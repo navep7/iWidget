@@ -19,8 +19,7 @@ import android.widget.GridView
 import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.belaku.homey.MainActivity.Companion.appWidM
-import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.choosenApps
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews

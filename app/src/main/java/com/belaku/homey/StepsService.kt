@@ -17,6 +17,7 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
@@ -78,7 +79,7 @@ class StepsService : Service() {
                         )
                         initialSteps++
                     }
-                    AppWidgetManager.getInstance(appContx).updateAppWidget(newAppWidget, remoteViews)
+                    appWidM.updateAppWidget(newAppWidget, remoteViews)
                 }
 
             }

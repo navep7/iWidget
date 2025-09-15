@@ -36,7 +36,6 @@ class RvAdapter internal constructor(
     //    holder.ryTextView.text = desc
         url = url.split("+ ")[1]
 
-        Log.d("SSver7", url)
 
         holder.rvImgv.setImageURI(Uri.parse(url))
 

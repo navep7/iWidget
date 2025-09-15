@@ -34,7 +34,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.belaku.homey.MainActivity.Companion.appContx
-import com.belaku.homey.MainActivity.Companion.appWidM
 import com.belaku.homey.MainActivity.Companion.delayUnit
 import com.belaku.homey.MainActivity.Companion.makeSnack
 import com.belaku.homey.MainActivity.Companion.pD
@@ -44,8 +43,8 @@ import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.updateTime
 import com.belaku.homey.MainActivity.Companion.wallDelay
+import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
-import com.belaku.homey.NewAppWidget.Companion.newsList
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.screenHeight
 import com.belaku.homey.NewAppWidget.Companion.screenWidth

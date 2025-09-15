@@ -83,6 +83,7 @@ import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.choosenApps
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
@@ -1193,7 +1194,6 @@ class MainActivity : AppCompatActivity() {
         lateinit var pDNews: ProgressDialog
         lateinit var pD: ProgressDialog
         private lateinit var newsimgLink: String
-        lateinit var appWidM: AppWidgetManager
         val mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         var apps: ArrayList<InstalledApp> = ArrayList()
         var wallDelay: Int = 0

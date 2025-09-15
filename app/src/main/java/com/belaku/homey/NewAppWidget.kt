@@ -388,12 +388,12 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
 
-            appWidgetManager.updateAppWidget(appWidgetId, remoteViews)
+            appWidM.updateAppWidget(appWidgetId, remoteViews)
         }
 
 
 
-        appWidgetManager.updateAppWidget(newAppWidget, remoteViews)
+        appWidM.updateAppWidget(newAppWidget, remoteViews)
 
     }
 
@@ -1159,7 +1159,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
-        AppWidgetManager.getInstance(context).updateAppWidget(newAppWidget, remoteViews)
+        appWidM.updateAppWidget(newAppWidget, remoteViews)
 
 
     }
@@ -1517,6 +1517,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     companion object {
+        lateinit var appWidM: AppWidgetManager
         var choosenApps: ArrayList<App> = ArrayList()
         var selectedApps: ArrayList<SelectedApp> = ArrayList()
         lateinit var selectedApp: Bitmap
