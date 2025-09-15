@@ -76,56 +76,9 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         setWall(true)
 
         WifiState()
-        BluetoothState()
+   //     BluetoothState()
 
         return Result.success()
-    }
-
-    private fun BluetoothState() {
-
-        if (!sharedPreferences.getBoolean("BRd", false)) {
-            Log.d(TAG, "BlBrRd")
-            sharedPreferencesEditor.putBoolean("BRd", true).apply()
-
-            val mBluetoothReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-                @SuppressLint("UnsafeIntentLaunch")
-                override fun onReceive(context: Context, intent: Intent) {
-
-                    val state = intent?.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
-
-                    when (state) {
-
-                        BluetoothAdapter.STATE_CONNECTED ->
-                            Log.d(TAG, "STATE_CONNECTED")
-
-                        BluetoothAdapter.STATE_DISCONNECTED ->
-                            Log.d(TAG, "STATE_DISCONNECTED")
-
-
-                        BluetoothAdapter.STATE_OFF -> {
-                            Log.d(TAG, "STATE_OFF")
-                            sharedPreferencesEditor.putBoolean("Blue", false).apply()
-                        }
-
-                        BluetoothAdapter.STATE_ON -> {
-                            Log.d(TAG, "STATE_ON")
-                            sharedPreferencesEditor.putBoolean("Blue", true).apply()
-                        }
-
-                    }
-
-                    Thread {
-                        setWall(false)
-                    }.start()
-
-                }
-            }
-
-            appContx.registerReceiver(
-                mBluetoothReceiver,
-                IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-            )
-        }
     }
 
 

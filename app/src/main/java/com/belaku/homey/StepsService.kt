@@ -1,10 +1,15 @@
 package com.belaku.homey
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.appwidget.AppWidgetManager
+import android.bluetooth.BluetoothAdapter
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -17,11 +22,15 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.MainActivity.Companion.sharedPreferences
+import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
+import com.belaku.homey.SetWallWorker.Companion.TAG
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.initialSteps
+import com.belaku.homey.SetWallWorker.Companion.setWall
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
 
 
@@ -58,6 +67,9 @@ class StepsService : Service() {
         }
 
         appContx = applicationContext
+
+        BluetoothState()
+
         sensorManager = appContx.getSystemService(SENSOR_SERVICE) as SensorManager
         stepCounterSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)!!
 
@@ -87,6 +99,53 @@ class StepsService : Service() {
             override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {
                 Log.d("MY_APP", "$sensor - $accuracy")
             }
+        }
+    }
+
+    private fun BluetoothState() {
+
+        if (!sharedPreferences.getBoolean("BRd", false)) {
+            Log.d(TAG, "BlBrRd")
+            sharedPreferencesEditor.putBoolean("BRd", true).apply()
+
+            val mBluetoothReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+                @SuppressLint("UnsafeIntentLaunch")
+                override fun onReceive(context: Context, intent: Intent) {
+
+                    val state = intent?.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
+
+                    when (state) {
+
+                        BluetoothAdapter.STATE_CONNECTED ->
+                            Log.d(TAG, "STATE_CONNECTED")
+
+                        BluetoothAdapter.STATE_DISCONNECTED ->
+                            Log.d(TAG, "STATE_DISCONNECTED")
+
+
+                        BluetoothAdapter.STATE_OFF -> {
+                            Log.d(TAG, "STATE_OFF")
+                            sharedPreferencesEditor.putBoolean("Blue", false).apply()
+                        }
+
+                        BluetoothAdapter.STATE_ON -> {
+                            Log.d(TAG, "STATE_ON")
+                            sharedPreferencesEditor.putBoolean("Blue", true).apply()
+                        }
+
+                    }
+
+                    Thread {
+                        setWall(false)
+                    }.start()
+
+                }
+            }
+
+            appContx.registerReceiver(
+                mBluetoothReceiver,
+                IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+            )
         }
     }
 

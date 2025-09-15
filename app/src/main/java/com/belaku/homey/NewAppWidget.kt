@@ -37,6 +37,8 @@ import android.icu.util.Calendar
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
@@ -44,7 +46,6 @@ import android.text.Html
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.RemoteViews
@@ -408,8 +409,15 @@ class NewAppWidget : AppWidgetProvider() {
 
         Log.d(TAG, "onReceive ${intent.action}")
 
-        if (!intent.action.equals("android.appwidget.action.APPWIDGET_UPDATE"))
-            makeToast("onReceive ${intent.action}")
+        if (intent.action.equals("android.appwidget.action.APPWIDGET_UPDATE"))
+        Handler(Looper.getMainLooper()).postDelayed( Runnable {
+            Receive(intent, context)
+        }, 1000)
+        else Receive(intent, context)
+
+    }
+
+    private fun Receive(intent: Intent, context: Context) {
 
         sharedPreferences = context.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
@@ -816,7 +824,7 @@ class NewAppWidget : AppWidgetProvider() {
             val isFlashAvailable =
                 context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)
             if (!isFlashAvailable) {
-                return
+                //  return
             }
             val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
             var cameraId: String? = null
@@ -824,7 +832,7 @@ class NewAppWidget : AppWidgetProvider() {
                 cameraId = cameraManager.cameraIdList[0] // Typically the back camera
             } catch (e: CameraAccessException) {
                 e.printStackTrace()
-                return
+                //   return
             }
 
             try {
@@ -1160,7 +1168,6 @@ class NewAppWidget : AppWidgetProvider() {
 
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
         appWidM.updateAppWidget(newAppWidget, remoteViews)
-
 
     }
 
