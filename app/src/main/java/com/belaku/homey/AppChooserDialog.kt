@@ -19,6 +19,7 @@ import android.widget.GridView
 import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.choosenApps
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
@@ -44,14 +45,13 @@ class AppChooserDialog : Activity() {
         if (intent.extras != null)
             appID = intent.extras!!.getInt("id")
 
-        if (appID == 6)
-            appViewID = R.id.imgv_app6
-        else if (appID == 7)
-            appViewID = R.id.imgv_app7
-        else if (appID == 8)
-            appViewID = R.id.imgv_app8
-        else if (appID == 9)
-            appViewID = R.id.imgv_app9
+
+        when (appID) {
+            6 -> appViewID = R.id.imgv_app6
+            7 -> appViewID = R.id.imgv_app7
+            8 -> appViewID = R.id.imgv_app8
+            9 -> appViewID = R.id.imgv_app9
+        }
 
         getApps(applicationContext)
 
