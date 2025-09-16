@@ -62,15 +62,11 @@ import android.widget.TextView
 import android.widget.TextView.OnEditorActionListener
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.view.MenuProvider
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -85,6 +81,7 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.choosenApps
+import com.belaku.homey.NewAppWidget.Companion.contactActivityResultLauncher
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
@@ -154,6 +151,7 @@ class MainActivity : AppCompatActivity() {
         "https://api.pexels.com/v1/search?query=$queryType&per_page=10"
     private lateinit var binding: ActivityMainBinding
 
+
     @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("MissingPermission")
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -175,6 +173,22 @@ class MainActivity : AppCompatActivity() {
         screenHeight = metrics.heightPixels
         screenWidth = metrics.widthPixels
 
+
+        contactActivityResultLauncher = registerForActivityResult<Intent, ActivityResult>(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result: ActivityResult ->
+            if (result.resultCode == RESULT_OK) {
+                // Handle the result data from the Intent
+                val data = result.data
+
+                if (data != null) {
+                    data.data?.let { getContactDetails(it) }
+                }
+
+                     //   makeToast(data.toString())
+                // Process data here
+            }
+        }
 
         if (apps.size == 0)
             getApps()
@@ -343,6 +357,21 @@ class MainActivity : AppCompatActivity() {
         appContx.registerReceiver(mBluetoothReceiver, filter)
 
 
+    }
+
+    @SuppressLint("Range")
+    private fun getContactDetails(contactUri: Uri) {
+        val cursor = contentResolver.query(contactUri, null, null, null, null)
+        if (cursor != null && cursor.moveToFirst()) {
+            val cName = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME))
+            val cNum = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+
+            makeToast(cName + " - " + cNum)
+
+            // You can also query for phone numbers or other details using other URIs like ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+            cursor.close()
+            // Use the retrieved name or other details
+        }
     }
 
     fun isJobScheduled(context: Context, jobId: Int): Boolean {
@@ -1212,6 +1241,8 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
 
+        private val CPick: Int = 7
+        private val REQUEST_CONTACT_PICKER: Int = 9
         lateinit var pDNews: ProgressDialog
         lateinit var pD: ProgressDialog
         private lateinit var newsimgLink: String
@@ -1474,7 +1505,15 @@ class MainActivity : AppCompatActivity() {
 
         }
 
+
+
         fun pickContact() {
+
+            makeToast("pickContact!")
+            val intent = Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI)
+            contactActivityResultLauncher.launch(intent)
+        }
+
 
         }
 
@@ -1483,4 +1522,3 @@ class MainActivity : AppCompatActivity() {
 
     // handle sensor event
 
-}

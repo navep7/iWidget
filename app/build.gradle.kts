@@ -64,6 +64,7 @@ android {
 
 dependencies {
 
+  //  implementation(libs.androidx.activity.ktx)
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.crashlytics.ndk)

@@ -50,6 +50,7 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
+import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
@@ -409,9 +410,9 @@ class NewAppWidget : AppWidgetProvider() {
         Log.d(TAG, "onReceive ${intent.action}")
 
         if (intent.action.equals("android.appwidget.action.APPWIDGET_UPDATE"))
-        Handler(Looper.getMainLooper()).postDelayed( Runnable {
-            Receive(intent, context)
-        }, 1000)
+            Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                Receive(intent, context)
+            }, 1000)
         else Receive(intent, context)
 
     }
@@ -1279,7 +1280,7 @@ class NewAppWidget : AppWidgetProvider() {
 
     private fun selectContact() {
 
-        makeToast("yet2Impl")
+        makeToast("pickContact!")
         MainActivity.pickContact()
 
     }
@@ -1539,6 +1540,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     companion object {
+        lateinit var contactActivityResultLauncher: ActivityResultLauncher<Intent>
         var tW: String = "..."
         lateinit var appWidM: AppWidgetManager
         var choosenApps: ArrayList<App> = ArrayList()
