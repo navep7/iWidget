@@ -172,6 +172,19 @@
             android:scaleType="fitXY"
             android:src="@drawable/clouds" />
 
+        <TextView
+            android:id="@+id/tx_ref_weather_icon"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_below="@+id/tx_wish"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="@dimen/fab_margin"
+            android:layout_marginEnd="5dp"
+            android:scaleType="fitXY"
+            android:gravity="center"
+            android:textSize="50sp"
+            android:text="↻" />
+
 
         <AnalogClock
             android:id="@+id/a_clock"
