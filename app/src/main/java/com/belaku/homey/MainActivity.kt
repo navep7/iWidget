@@ -94,6 +94,7 @@ import com.belaku.homey.NewAppWidget.Companion.newsList
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.screenHeight
 import com.belaku.homey.NewAppWidget.Companion.screenWidth
+import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.databinding.ActivityMainBinding
 import com.bumptech.glide.Glide
 import com.google.android.gms.location.LocationServices
@@ -215,9 +216,11 @@ class MainActivity : AppCompatActivity() {
                     bluetoothLauncher.launch(disableintent)
                 }
 
-            } else if (intent.getStringExtra("STT") != null) {
+            } else if (intent.getStringExtra("STT") != null)
                 showSTTDialog()
-            }
+            else if (intent.getStringExtra("TWE") != null)
+                showTweetDialog(tW)
+
 
         setSupportActionBar(binding.toolbar)
 
@@ -385,6 +388,24 @@ class MainActivity : AppCompatActivity() {
                 startActivity(Intent.createChooser(shareIntent, "Share text using:"))
             }
         }
+
+        customDialog.show()
+    }
+
+    private fun showTweetDialog(twInD : String) {
+        val customDialog = Dialog(this)
+        customDialog.setContentView(R.layout.speech_to_text_layout)
+
+        val dialogTitle = customDialog.findViewById<TextView>(R.id.dialogTitle)
+        dialogMessage = customDialog.findViewById<EditText>(R.id.dialogMessage)
+        dialogMessage.visibility = View.INVISIBLE
+        val dialogButton = customDialog.findViewById<Button>(R.id.dialogButton)
+        dialogButton.visibility = View.INVISIBLE
+        val imgBtnShare = customDialog.findViewById<ImageButton>(R.id.imgbtn_stt_share)
+
+        dialogTitle.text = tW
+
+
 
         customDialog.show()
     }

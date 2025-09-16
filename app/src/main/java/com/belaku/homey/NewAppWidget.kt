@@ -92,7 +92,6 @@ class NewAppWidget : AppWidgetProvider() {
     private lateinit var qT: String
     private lateinit var uT: String
     private lateinit var dU: String
-    private var tW: String = "..."
 
     private lateinit var mp: MediaPlayer
 
@@ -388,7 +387,7 @@ class NewAppWidget : AppWidgetProvider() {
                 getPendingSelfIntent(context, C8_CLICKED)
             )
 
-
+            appWidM = AppWidgetManager.getInstance(appContx)
             appWidM.updateAppWidget(appWidgetId, remoteViews)
         }
 
@@ -750,6 +749,18 @@ class NewAppWidget : AppWidgetProvider() {
         )
         //🖍
 
+        if (tW.length > 90) {
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.tx_tweets,
+                PendingIntent.getActivity(
+                    context,
+                    25,
+                    Intent(context, MainActivity::class.java).putExtra("TWE", "showTweet"),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+        } else remoteViews?.setOnClickPendingIntent(R.id.tx_tweets, null)
 
         todaysDate(context)
 
@@ -1165,6 +1176,10 @@ class NewAppWidget : AppWidgetProvider() {
             makeToast("EXXx ${ex.message}")
         }
 
+        if ("TWEET".equals(intent.getAction()))
+            makeToast(tW)
+
+
 
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
         appWidM.updateAppWidget(newAppWidget, remoteViews)
@@ -1524,6 +1539,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     companion object {
+        var tW: String = "..."
         lateinit var appWidM: AppWidgetManager
         var choosenApps: ArrayList<App> = ArrayList()
         var selectedApps: ArrayList<SelectedApp> = ArrayList()
