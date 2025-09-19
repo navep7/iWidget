@@ -409,6 +409,39 @@ class NewAppWidget : AppWidgetProvider() {
 
         Log.d(TAG, "onReceive ${intent.action}")
 
+
+        // Keep track of the current frame
+        var currentFrameIndex = 0
+        val animationFrames =
+            intArrayOf(R.drawable.rain0, R.drawable.rain1, R.drawable.rain2 /* ... */)
+
+
+        // Create a handler or a timer to update the frames
+        val handler = Handler()
+        val runnable: Runnable = object : Runnable {
+            override fun run() {
+                // Update the ImageView with the next frame
+                remoteViews?.setImageViewResource(R.id.animation_image, animationFrames[currentFrameIndex])
+
+                // Increment frame index and loop if necessary
+                currentFrameIndex = (currentFrameIndex + 1) % animationFrames.size
+
+                // Apply the updates to the widget/notification
+                appWidM.updateAppWidget(newAppWidget, remoteViews) // For App Widgets
+
+                // notificationManager.notify(notificationId, notification); // For Notifications
+
+                // Schedule the next frame update
+                handler.postDelayed(
+                    this,
+                    100
+                ) // Use the duration defined in XML
+            }
+        }
+
+        handler.post(runnable);
+
+
         if (intent.action.equals("android.appwidget.action.APPWIDGET_UPDATE"))
             Handler(Looper.getMainLooper()).postDelayed(Runnable {
                 Receive(intent, context)

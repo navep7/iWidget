@@ -9,6 +9,12 @@
     android:orientation="vertical"
     android:theme="@style/Theme.Material3.DynamicColors.Light">
 
+    <ImageView
+        android:id="@+id/animation_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/walp_icon" />
 
     <RelativeLayout
         android:id="@+id/rl_clocks"
