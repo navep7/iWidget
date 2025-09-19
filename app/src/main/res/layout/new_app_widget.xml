@@ -180,9 +180,7 @@
             android:layout_alignParentEnd="true"
             android:layout_marginTop="@dimen/fab_margin"
             android:layout_marginEnd="5dp"
-
-            android:scaleType="fitXY"
-            android:src="@drawable/walp_icon" />
+            android:scaleType="fitXY" />
 
 
         <TextView
@@ -360,7 +358,7 @@
 
         <LinearLayout
             android:id="@+id/ll_apps2"
-
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/ll_apps"
@@ -584,7 +582,7 @@
 
         <LinearLayout
             android:id="@+id/ll_contacts2"
-
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/ll_contacts"
@@ -899,6 +897,59 @@
 
     </RelativeLayout>
 
+
+    <RelativeLayout
+        android:background="@drawable/gradient_glass_rounded"
+        android:layout_above="@+id/tx_tweets"
+        android:layout_margin="5dp"
+        android:layout_below="@+id/imgbtn_conf"
+        android:layout_toRightOf="@+id/twSettings"
+        android:layout_toLeftOf="@+id/fab_share"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tx_sname"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="5dp"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Song name.."/>
+
+        <ImageButton
+            android:id="@+id/imgbtn_media_prev"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/tx_sname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:src="@android:drawable/ic_media_previous"/>
+
+
+        <ImageButton
+            android:id="@+id/imgbtn_media_play_pause"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/imgbtn_media_prev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/gradient_glass_rounded"
+            android:src="@android:drawable/ic_media_play"/>
+
+
+        <ImageButton
+            android:id="@+id/imgbtn_media_next"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/imgbtn_media_play_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:src="@android:drawable/ic_media_next"/>
+
+
+
+
+    </RelativeLayout>
 
     <ImageButton
         android:id="@+id/twSettings"

@@ -34,7 +34,11 @@ import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
+import android.media.AudioManager
+import android.media.MediaMetadata
 import android.media.MediaPlayer
+import android.media.session.MediaSessionManager
+import android.media.session.PlaybackState
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -54,7 +58,9 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.FileProvider
+import androidx.core.content.getSystemService
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.getWeatherData
@@ -388,7 +394,7 @@ class NewAppWidget : AppWidgetProvider() {
                 getPendingSelfIntent(context, C8_CLICKED)
             )
 
-            appWidM = AppWidgetManager.getInstance(appContx)
+            appWidM = AppWidgetManager.getInstance(context)
             appWidM.updateAppWidget(appWidgetId, remoteViews)
         }
 
@@ -415,6 +421,7 @@ class NewAppWidget : AppWidgetProvider() {
         val animationFrames =
             intArrayOf(R.drawable.rain0, R.drawable.rain1, R.drawable.rain2 /* ... */)
 
+        checkMusicStatus()
 
         // Create a handler or a timer to update the frames
         val handler = Handler()
@@ -439,7 +446,7 @@ class NewAppWidget : AppWidgetProvider() {
             }
         }
 
-        handler.post(runnable);
+    //    handler.post(runnable);
 
 
         if (intent.action.equals("android.appwidget.action.APPWIDGET_UPDATE"))
@@ -449,6 +456,34 @@ class NewAppWidget : AppWidgetProvider() {
         else Receive(intent, context)
 
     }
+
+    private fun checkMusicStatus() {
+
+
+        var audioManager = appContx.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+        val isMusicActive: Boolean = audioManager.isMusicActive()
+
+
+        if (isMusicActive) {
+            remoteViews?.setTextViewText(R.id.tx_sname, "Music is currently active." )
+        //    detectMusic()
+        } else {
+            remoteViews?.setTextViewText(R.id.tx_sname,"No music is currently active.")
+        }
+    }
+
+   /* private fun detectMusic() {
+
+        val m = appContx.getSystemService<MediaSessionManager>()!!
+        val component = ComponentName(appContx, MusicNotificationListenerService::class.java)
+        val sessions = m.getActiveSessions(component)
+        Log.d("Sessions", "count: ${sessions.size}")
+        sessions.forEach {
+            Log.d("Sessions", "$it -- " + (it?.metadata?.keySet()?.joinToString()))
+            Log.d("Sessions", "$it -- " + (it?.metadata?.getString(MediaMetadata.METADATA_KEY_TITLE)))
+        }
+    }*/
 
     private fun Receive(intent: Intent, context: Context) {
 
@@ -1216,6 +1251,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
+        appWidM = AppWidgetManager.getInstance(context)
         appWidM.updateAppWidget(newAppWidget, remoteViews)
 
     }
