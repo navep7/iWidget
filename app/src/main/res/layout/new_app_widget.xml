@@ -5,6 +5,8 @@
     android:id="@+id/rl_widget_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
+    android:layout_gravity="center"
     android:background="@drawable/gradient_glass"
     android:orientation="vertical"
     android:theme="@style/Theme.Material3.DynamicColors.Light">
@@ -358,7 +360,7 @@
 
         <LinearLayout
             android:id="@+id/ll_apps2"
-            android:visibility="gone"
+            android:visibility="invisible"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/ll_apps"
@@ -425,13 +427,13 @@
                 android:id="@+id/rl_contact1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:visibility="gone">
+                android:layout_margin="5dp">
 
                 <ImageView
                     android:id="@+id/imgv_contact1"
                     android:layout_width="55dp"
                     android:layout_height="55dp"
+                    android:src="@drawable/rounded_corner"
                     android:background="?android:attr/selectableItemBackground"
                     android:scaleType="fitXY" />
 
@@ -443,6 +445,7 @@
                     android:layout_alignBottom="@+id/imgv_contact1"
                     android:layout_margin="1dp"
                     android:ellipsize="end"
+                    android:text=" + "
                     android:gravity="center"
                     android:maxWidth="55sp"
                     android:maxLines="1"
@@ -457,18 +460,19 @@
                 android:id="@+id/rl_contact2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:visibility="gone">
+                android:layout_margin="5dp">
 
                 <ImageView
                     android:id="@+id/imgv_contact2"
                     android:layout_width="55dp"
                     android:layout_height="55dp"
+                    android:src="@drawable/rounded_corner"
                     android:background="?android:attr/selectableItemBackground"
                     android:scaleType="fitXY" />
 
                 <TextView
                     android:id="@+id/tx_c2"
+                    android:text=" + "
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignStart="@+id/imgv_contact2"
@@ -519,13 +523,13 @@
                 android:id="@+id/rl_contact3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:visibility="gone">
+                android:layout_margin="5dp">
 
                 <ImageView
                     android:id="@+id/imgv_contact3"
                     android:layout_width="55dp"
                     android:layout_height="55dp"
+                    android:src="@drawable/rounded_corner"
                     android:background="?android:attr/selectableItemBackground"
                     android:scaleType="fitXY" />
 
@@ -537,6 +541,7 @@
                     android:layout_alignBottom="@+id/imgv_contact3"
                     android:layout_margin="1dp"
                     android:ellipsize="end"
+                    android:text=" + "
                     android:gravity="center"
                     android:maxWidth="55sp"
                     android:maxLines="1"
@@ -550,18 +555,19 @@
                 android:id="@+id/rl_contact4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:visibility="gone">
+                android:layout_margin="5dp">
 
                 <ImageView
                     android:id="@+id/imgv_contact4"
                     android:layout_width="55dp"
                     android:layout_height="55dp"
+                    android:src="@drawable/rounded_corner"
                     android:background="?android:attr/selectableItemBackground"
                     android:scaleType="fitXY" />
 
                 <TextView
                     android:id="@+id/tx_c4"
+                    android:text=" + "
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignStart="@+id/imgv_contact4"
@@ -582,7 +588,7 @@
 
         <LinearLayout
             android:id="@+id/ll_contacts2"
-            android:visibility="gone"
+            android:visibility="invisible"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/ll_contacts"
@@ -902,11 +908,11 @@
         android:background="@drawable/gradient_glass_rounded"
         android:layout_above="@+id/tx_tweets"
         android:layout_margin="5dp"
-        android:layout_below="@+id/imgbtn_conf"
+        android:visibility="gone"
         android:layout_toRightOf="@+id/twSettings"
         android:layout_toLeftOf="@+id/fab_share"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/tx_sname"
