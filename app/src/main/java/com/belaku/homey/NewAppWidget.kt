@@ -163,7 +163,7 @@ class NewAppWidget : AppWidgetProvider() {
                 context,
                 0,
                 aiIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
             remoteViews?.setOnClickPendingIntent(
@@ -179,7 +179,7 @@ class NewAppWidget : AppWidgetProvider() {
                 context,
                 0,
                 remindersIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
             remoteViews?.setOnClickPendingIntent(
@@ -191,22 +191,29 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.imgbtn_speech,
                 PendingIntent.getActivity(
                     context,
-                    25,
-                    Intent(context, MainActivity::class.java).putExtra("STT", "SpeechToText"),
+                    35,
+                    Intent(context, MainActivity::class.java).putExtra("intent2Main", "SpeechToText"),
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
             )
 
-            val intentSTH = Intent(context, MainActivity::class.java)
-            val strSTH = "Set Twitter Handle"
-            intentSTH.putExtra("STH", strSTH)
+            remoteViews?.setOnClickPendingIntent(
+                R.id.tx_tweets,
+                PendingIntent.getActivity(
+                    context,
+                    25,
+                    Intent(context, MainActivity::class.java).putExtra("intent2Main", "showTweet"),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.twSettings,
                 PendingIntent.getActivity(
                     context,
                     21,
-                    intentSTH,
+                    Intent(context, MainActivity::class.java).putExtra("intent2Main", "setTwitterHandle"),
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
             )
@@ -485,6 +492,7 @@ class NewAppWidget : AppWidgetProvider() {
         }
     }*/
 
+    @SuppressLint("NewApi")
     private fun Receive(intent: Intent, context: Context) {
 
         sharedPreferences = context.getSharedPreferences("UserPreferences", MODE_PRIVATE)
@@ -533,7 +541,7 @@ class NewAppWidget : AppWidgetProvider() {
             context,
             0,
             aiIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         remoteViews?.setOnClickPendingIntent(
@@ -549,7 +557,7 @@ class NewAppWidget : AppWidgetProvider() {
             context,
             0,
             remindersIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         remoteViews?.setOnClickPendingIntent(
@@ -561,22 +569,28 @@ class NewAppWidget : AppWidgetProvider() {
             R.id.imgbtn_speech,
             PendingIntent.getActivity(
                 context,
-                25,
-                Intent(context, MainActivity::class.java).putExtra("STT", "SpeechToText"),
+                35,
+                Intent(context, MainActivity::class.java).putExtra("intent2Main", "SpeechToText"),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
         )
 
-        val intentSTH = Intent(context, MainActivity::class.java)
-        val strSTH = "Set Twitter Handle"
-        intentSTH.putExtra("STH", strSTH)
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_tweets,
+            PendingIntent.getActivity(
+                context,
+                25,
+                Intent(context, MainActivity::class.java).putExtra("intent2Main", "showTweet"),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        )
 
         remoteViews?.setOnClickPendingIntent(
             R.id.twSettings,
             PendingIntent.getActivity(
                 context,
                 21,
-                intentSTH,
+                Intent(context, MainActivity::class.java).putExtra("intent2Main", "setTwitterHandle"),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
         )
@@ -614,8 +628,8 @@ class NewAppWidget : AppWidgetProvider() {
 
         val intentBluetooth = Intent(context, MainActivity::class.java)
         if (mBluetoothAdapter.isEnabled)
-            intentBluetooth.putExtra("BLUE", "disable")
-        else intentBluetooth.putExtra("BLUE", "enable")
+            intentBluetooth.putExtra("intent2Main", "BLUEDisable")
+        else intentBluetooth.putExtra("intent2Main", "BLUEEnable")
         val pendingIntentBluetooth = PendingIntent.getActivity(
             context,
             0,
@@ -682,7 +696,7 @@ class NewAppWidget : AppWidgetProvider() {
             context,
             0,
             launcherIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         remoteViews?.setOnClickPendingIntent(
@@ -817,19 +831,6 @@ class NewAppWidget : AppWidgetProvider() {
             "@" + twitterProfileName + "\t ~ \t" + tW
         )
         //🖍
-
-        if (tW.length > 90) {
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.tx_tweets,
-                PendingIntent.getActivity(
-                    context,
-                    25,
-                    Intent(context, MainActivity::class.java).putExtra("TWE", "showTweet"),
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-        } else remoteViews?.setOnClickPendingIntent(R.id.tx_tweets, null)
 
         todaysDate(context)
 
@@ -1590,13 +1591,13 @@ class NewAppWidget : AppWidgetProvider() {
         gpName = c!!.getString(c.getColumnIndex("display_name"))
         c.close()
 
-        if (timeOfDay.equals("Morni.."))
+        if (timeOfDay == "Morni..")
             timelyWish = "\uD83C\uDF3B$timeOfDay "//, ${gpName.split(" ").get(0)}!"
-        else if (timeOfDay.equals("Noon.."))
-            timelyWish = "\uFE0F$timeOfDay "//, ${gpName.split(" ").get(0)}!"
-        else if (timeOfDay.equals("Eve..,"))
+        else if (timeOfDay == "Noon..")
+            timelyWish = "☀\uFE0F$timeOfDay "//, ${gpName.split(" ").get(0)}!"
+        else if (timeOfDay == "Eve..,")
             timelyWish = "\uD83C\uDF41$timeOfDay "//, ${gpName.split(" ").get(0)}!"
-        else if (timeOfDay.equals("Night.."))
+        else if (timeOfDay == "Night..")
             timelyWish = "\uD83D\uDCA4$timeOfDay "//, ${gpName.split(" ").get(0)}!"
 
     }

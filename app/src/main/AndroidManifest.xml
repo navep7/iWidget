@@ -51,7 +51,7 @@
     <application
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
+        android:fullBackupContent="false"
         android:icon="@drawable/launch"
         android:label="@string/app_name"
         android:roundIcon="@drawable/walp_icon"
@@ -59,6 +59,11 @@
         android:theme="@style/Theme.Homey"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="@string/admob_app_id"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

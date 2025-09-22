@@ -51,6 +51,8 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
@@ -94,7 +96,14 @@ import com.belaku.homey.NewAppWidget.Companion.screenWidth
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.databinding.ActivityMainBinding
 import com.bumptech.glide.Glide
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.StreetViewPanoramaCamera
 import com.google.android.gms.tasks.Task
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
@@ -115,6 +124,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.IOException
 import java.net.URL
 import java.util.Collections
 import java.util.Locale
@@ -185,7 +195,7 @@ class MainActivity : AppCompatActivity() {
                     data.data?.let { getContactDetails(it) }
                 }
 
-                     //   makeToast(data.toString())
+                //   makeToast(data.toString())
                 // Process data here
             }
         }
@@ -215,25 +225,25 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-        if (intent != null)
-            if (intent.getStringExtra("STH") != null) {
-                if (intent.getStringExtra("STH").equals("Set Twitter Handle"))
-                    showTwitterHandleDialog()
-                else makeToast("yet2Impl")
-            } else if (intent.getStringExtra("BLUE") != null) {
+        if (intent != null) {
+            var intentStr = intent.getStringExtra("intent2Main")
+            if (intentStr != null)
+                makeToast(intentStr)
 
-                if (intent.getStringExtra("BLUE") == "enable") {
-                    val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                    bluetoothLauncher.launch(enableBtIntent)
-                } else {
-                    val disableintent = Intent("android.bluetooth.adapter.action.REQUEST_DISABLE")
-                    bluetoothLauncher.launch(disableintent)
-                }
-
-            } else if (intent.getStringExtra("STT") != null)
+            if (intentStr.equals("setTwitterHandle"))
+                showTwitterHandleDialog()
+            else if (intentStr.equals("SpeechToText"))
                 showSTTDialog()
-            else if (intent.getStringExtra("TWE") != null)
+            else if (intentStr.equals("BLUEDisable")) {
+                val disableintent = Intent("android.bluetooth.adapter.action.REQUEST_DISABLE")
+                bluetoothLauncher.launch(disableintent)
+            } else if (intentStr.equals("BLUEEnable")) {
+                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                bluetoothLauncher.launch(enableBtIntent)
+            } else if (intentStr.equals("showTweet"))
                 showTweetDialog(tW)
+
+        }
 
 
         setSupportActionBar(binding.toolbar)
@@ -363,8 +373,10 @@ class MainActivity : AppCompatActivity() {
     private fun getContactDetails(contactUri: Uri) {
         val cursor = contentResolver.query(contactUri, null, null, null, null)
         if (cursor != null && cursor.moveToFirst()) {
-            val cName = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME))
-            val cNum = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+            val cName =
+                cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME))
+            val cNum =
+                cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
 
             makeToast(cName + " - " + cNum)
 
@@ -374,17 +386,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun isJobScheduled(context: Context, jobId: Int): Boolean {
-        val jobScheduler = context.getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
-        // getPendingJob(int) returns the JobInfo for the given job ID if it's scheduled, otherwise null.
-        val jobInfo = jobScheduler.getPendingJob(jobId)
-        return jobInfo != null
-        return false
-    }
 
     private fun showSTTDialog() {
-        val customDialog = Dialog(this)
-        customDialog.setContentView(R.layout.speech_to_text_layout)
+        val customDialog = Dialog(this@MainActivity)
+        customDialog.setContentView(R.layout.stt_dialog)
 
         val dialogTitle = customDialog.findViewById<TextView>(R.id.dialogTitle)
         dialogMessage = customDialog.findViewById<EditText>(R.id.dialogMessage)
@@ -421,9 +426,9 @@ class MainActivity : AppCompatActivity() {
         customDialog.show()
     }
 
-    private fun showTweetDialog(twInD : String) {
+    private fun showTweetDialog(twInD: String) {
         val customDialog = Dialog(this)
-        customDialog.setContentView(R.layout.speech_to_text_layout)
+        customDialog.setContentView(R.layout.tweet_dialog)
 
         val dialogTitle = customDialog.findViewById<TextView>(R.id.dialogTitle)
         dialogMessage = customDialog.findViewById<EditText>(R.id.dialogMessage)
@@ -433,8 +438,6 @@ class MainActivity : AppCompatActivity() {
         val imgBtnShare = customDialog.findViewById<ImageButton>(R.id.imgbtn_stt_share)
 
         dialogTitle.text = tW
-
-
 
         customDialog.show()
     }
@@ -742,25 +745,56 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     private fun getCity() {
+        var locationRequest = LocationRequest.create()
+        locationRequest.setInterval(30000)
+        locationRequest.setSmallestDisplacement(1f)
+        locationRequest.setFastestInterval(10000)
+        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
 
-        val task: Task<Location> =
-            LocationServices.getFusedLocationProviderClient(this).lastLocation
+        //instantiating the LocationCallBack
+        val locationCallback = object : LocationCallback(), GoogleMap.OnMarkerClickListener {
+            override fun onLocationResult(locationResult: LocationResult) {
+                val location = locationResult.lastLocation
+                if (location != null) {
+                    getAddress(location.latitude, location.longitude)
+                }
+            }
 
-        task.addOnSuccessListener { location ->
-            if (location != null) {
-
-                cityLat = location.latitude
-                cityLng = location.longitude
-                val geocoder = Geocoder(this, Locale.getDefault())
-
-                val Adress = geocoder.getFromLocation(location.latitude, location.longitude, 1)
-                cityname = Adress?.get(0)!!.getAddressLine(0)
-                // Adress?.toString()?.split(",")?.get(2) ?: Adress?.get(0)?.subAdminArea.toString()
-
-
+            override fun onMarkerClick(p0: Marker): Boolean {
+                makeToast("nothin")
+                return true
             }
         }
 
+        var fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+
+        fusedLocationProviderClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
+    }
+
+    fun getAddress(lat: Double, lng: Double) {
+        val gcd = Geocoder(applicationContext)
+        Locale.getDefault()
+        try {
+            var cAddrs = gcd.getFromLocation(lat, lng, 1)!!
+            //   makeToast(cAddrs?.get(0)!!.subLocality)
+
+            cityname = cAddrs?.get(0)!!.getAddressLine(0)
+            //   makeToast("cityname - " + cityname)
+
+            Snackbar.make(
+                window.decorView.rootView,
+                cAddrs?.get(0)!!.subLocality,
+                Snackbar.LENGTH_INDEFINITE
+            ).show()
+        } catch (e: IOException) {
+            // TODO Auto-generated catch block
+            e.printStackTrace()
+            makeToast("GCD - IOException \n $e")
+        }
 
     }
 
@@ -1506,19 +1540,19 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-
         fun pickContact() {
 
             makeToast("pickContact!")
-            val intent = Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI)
+            val intent =
+                Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI)
             contactActivityResultLauncher.launch(intent)
-        }
-
-
         }
 
 
     }
 
-    // handle sensor event
+
+}
+
+// handle sensor event
 
