@@ -33,7 +33,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.icu.util.Calendar
 import android.location.Geocoder
-import android.location.Location
+import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Build
@@ -51,8 +51,6 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.animation.AlphaAnimation
-import android.view.animation.Animation
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
@@ -96,15 +94,13 @@ import com.belaku.homey.NewAppWidget.Companion.screenWidth
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.databinding.ActivityMainBinding
 import com.bumptech.glide.Glide
+import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.StreetViewPanoramaCamera
-import com.google.android.gms.tasks.Task
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -178,6 +174,13 @@ class MainActivity : AppCompatActivity() {
         sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
+
+        MobileAds.initialize(
+            this
+        ) { initializationStatus -> //Showing a simple Toast Message to the user when The Google AdMob Sdk Initialization is Completed
+            //   Toast.makeText( this@MainActivity, "AdMob Sdk Initialize $initializationStatus", Toast.LENGTH_LONG ).show()
+        }
+
         val metrics = DisplayMetrics()
         getWindowManager().getDefaultDisplay().getMetrics(metrics)
         screenHeight = metrics.heightPixels
@@ -218,8 +221,8 @@ class MainActivity : AppCompatActivity() {
 
         var bluetoothLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode == AppCompatActivity.RESULT_OK) {
-                    // Bluetooth enabled by user
+                if (result.resultCode == RESULT_OK) {
+                    makeToast("Bluetooth enabled by user")
                 } else {
                     // Bluetooth not enabled by user
                 }
@@ -230,18 +233,13 @@ class MainActivity : AppCompatActivity() {
             if (intentStr != null)
                 makeToast(intentStr)
 
-            if (intentStr.equals("setTwitterHandle"))
-                showTwitterHandleDialog()
-            else if (intentStr.equals("SpeechToText"))
-                showSTTDialog()
-            else if (intentStr.equals("BLUEDisable")) {
+            if (intentStr.equals("BLUEDisable")) {
                 val disableintent = Intent("android.bluetooth.adapter.action.REQUEST_DISABLE")
                 bluetoothLauncher.launch(disableintent)
             } else if (intentStr.equals("BLUEEnable")) {
                 val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
                 bluetoothLauncher.launch(enableBtIntent)
-            } else if (intentStr.equals("showTweet"))
-                showTweetDialog(tW)
+            }
 
         }
 
@@ -1128,6 +1126,12 @@ class MainActivity : AppCompatActivity() {
                     startStepsService()
                     usageStatsPermissionDialog()
                     rawTweets(false)
+
+                    if (!isLocationEnabled(applicationContext)) {
+                        val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                        applicationContext.startActivity(intent.setFlags(FLAG_ACTIVITY_NEW_TASK))
+                    }
+
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // Android 12 (API 31) and above
                         val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
                         if (!alarmManager.canScheduleExactAlarms()) {
@@ -1138,6 +1142,12 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
         }
+    }
+
+    fun isLocationEnabled(context: Context): Boolean {
+        val locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
     private fun BluetoothState() {

@@ -184,9 +184,10 @@ class NewAppWidget : AppWidgetProvider() {
                 remindersPendingIntent
             )
 
+
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgbtn_speech, PendingIntent.getActivity(
-                    context, 0,
+                    context, 1,
                     Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "StT"),
                     PendingIntent.FLAG_IMMUTABLE
                 )
@@ -194,7 +195,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.tx_tweets, PendingIntent.getActivity(
-                    context, 0,
+                    context, 2,
                     Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "ST"),
                     PendingIntent.FLAG_IMMUTABLE
                 )
@@ -203,11 +204,23 @@ class NewAppWidget : AppWidgetProvider() {
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.twSettings, PendingIntent.getActivity(
-                    context, 2,
+                    context, 3,
                     Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "STH"),
                     PendingIntent.FLAG_IMMUTABLE
                 )
             )
+
+            val intentBluetooth = Intent(context, DialogActivity::class.java)
+            if (mBluetoothAdapter.isEnabled)
+                intentBluetooth.putExtra("DialogIntent", "BLUEDisable")
+            else intentBluetooth.putExtra("DialogIntent", "BLUEEnable")
+            val pendingIntentBluetooth = PendingIntent.getActivity(
+                context,
+                4,
+                intentBluetooth,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            remoteViews?.setOnClickPendingIntent(R.id.fab_blue, pendingIntentBluetooth)
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.fab_share,
@@ -241,15 +254,6 @@ class NewAppWidget : AppWidgetProvider() {
                 getPendingSelfIntent(context, TORCH_STATE)
             )
 
-
-            val intent = Intent(context, MainActivity::class.java)
-            val pendingIntentBluetooth = PendingIntent.getActivity(
-                context,
-                0,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            remoteViews?.setOnClickPendingIntent(R.id.fab_blue, pendingIntentBluetooth)
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgv_steps,
@@ -417,9 +421,9 @@ class NewAppWidget : AppWidgetProvider() {
         // Keep track of the current frame
         var currentFrameIndex = 0
         val animationFrames =
-            intArrayOf(R.drawable.rain0, R.drawable.rain1, R.drawable.rain2 /* ... */)
+            intArrayOf( /* ... */)
 
-        checkMusicStatus()
+        checkMusicStatus(context)
 
         // Create a handler or a timer to update the frames
         val handler = Handler()
@@ -458,10 +462,9 @@ class NewAppWidget : AppWidgetProvider() {
 
     }
 
-    private fun checkMusicStatus() {
+    private fun checkMusicStatus(contx: Context) {
 
-
-        var audioManager = appContx.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        var audioManager = contx.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
         val isMusicActive: Boolean = audioManager.isMusicActive()
 
@@ -559,9 +562,10 @@ class NewAppWidget : AppWidgetProvider() {
             remindersPendingIntent
         )
 
+
         remoteViews?.setOnClickPendingIntent(
             R.id.imgbtn_speech, PendingIntent.getActivity(
-                context, 0,
+                context, 1,
                 Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "StT"),
                 PendingIntent.FLAG_IMMUTABLE
             )
@@ -569,20 +573,32 @@ class NewAppWidget : AppWidgetProvider() {
 
         remoteViews?.setOnClickPendingIntent(
             R.id.tx_tweets, PendingIntent.getActivity(
-                context, 1,
+                context, 2,
                 Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "ST"),
                 PendingIntent.FLAG_IMMUTABLE
             )
         )
 
+
         remoteViews?.setOnClickPendingIntent(
             R.id.twSettings, PendingIntent.getActivity(
-                context, 2,
+                context, 3,
                 Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "STH"),
                 PendingIntent.FLAG_IMMUTABLE
             )
         )
 
+        val intentBluetooth = Intent(context, DialogActivity::class.java)
+        if (mBluetoothAdapter.isEnabled)
+            intentBluetooth.putExtra("DialogIntent", "BLUEDisable")
+        else intentBluetooth.putExtra("DialogIntent", "BLUEEnable")
+        val pendingIntentBluetooth = PendingIntent.getActivity(
+            context,
+            4,
+            intentBluetooth,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        remoteViews?.setOnClickPendingIntent(R.id.fab_blue, pendingIntentBluetooth)
 
 
         remoteViews?.setOnClickPendingIntent(
@@ -614,18 +630,6 @@ class NewAppWidget : AppWidgetProvider() {
             R.id.fab_torch,
             getPendingSelfIntent(context, TORCH_STATE)
         )
-
-        val intentBluetooth = Intent(context, MainActivity::class.java)
-        if (mBluetoothAdapter.isEnabled)
-            intentBluetooth.putExtra("intent2Main", "BLUEDisable")
-        else intentBluetooth.putExtra("intent2Main", "BLUEEnable")
-        val pendingIntentBluetooth = PendingIntent.getActivity(
-            context,
-            0,
-            intentBluetooth,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        remoteViews?.setOnClickPendingIntent(R.id.fab_blue, pendingIntentBluetooth)
 
 
         remoteViews?.setOnClickPendingIntent(
@@ -815,11 +819,6 @@ class NewAppWidget : AppWidgetProvider() {
             )
         )
 
-        remoteViews?.setTextViewText(
-            R.id.tx_tweets,
-            "@" + twitterProfileName + "\t ~ \t" + tW
-        )
-        //🖍
 
         todaysDate(context)
 
@@ -882,11 +881,9 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         if (WIFI_AUTO == intent.action) {
-
             var wifiIntent = Intent(Settings.ACTION_WIFI_SETTINGS)
             wifiIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             appContx.startActivity(wifiIntent)
-
         }
 
         if (TORCH_STATE == intent.action) {
@@ -961,38 +958,67 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (WALL_CHANGE == intent.action) {
 
+            noRewards = sharedPreferences.getInt("noRewards", 5)
 
-            remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
-
-            for (i in 0 until selectedApps.size) {
-                if (i == 0)
-                    remoteViews?.setImageViewBitmap(
-                        R.id.imgv_app6,
-                        selectedApps[i].icon.getCircledBitmap()
-                    )
-                else if (i == 1)
-                    remoteViews?.setImageViewBitmap(
-                        R.id.imgv_app7,
-                        selectedApps[i].icon.getCircledBitmap()
-                    )
-                else if (i == 2)
-                    remoteViews?.setImageViewBitmap(
-                        R.id.imgv_app8,
-                        selectedApps[i].icon.getCircledBitmap()
-                    )
-                else if (i == 3)
-                    remoteViews?.setImageViewBitmap(
-                        R.id.imgv_app9,
-                        selectedApps[i].icon.getCircledBitmap()
-                    )
+            if (noRewards > 0) {
+                noRewards--
+                remoteViews?.setTextViewText(R.id.tx_rewards_count, "$noRewards")
+            } else {
+                remoteViews?.setTextViewText(R.id.tx_rewards_count, "$noRewards AD!")
             }
-            //     appWidM.updateAppWidget(newAppWidget, remoteViews)
+            sharedPreferencesEditor.putInt("noRewards", noRewards).apply()
 
-            Thread {
-                SetWallWorker.setWall(true)
-            }.start()
+            if (noRewards != 0) {
 
+                remoteViews?.setTextViewText(
+                    R.id.tx_tweets,
+                    "@" + twitterProfileName + "\t ~ \t" + tW
+                )
+                //🖍
+
+                remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
+
+                for (i in 0 until selectedApps.size) {
+                    if (i == 0)
+                        remoteViews?.setImageViewBitmap(
+                            R.id.imgv_app6,
+                            selectedApps[i].icon.getCircledBitmap()
+                        )
+                    else if (i == 1)
+                        remoteViews?.setImageViewBitmap(
+                            R.id.imgv_app7,
+                            selectedApps[i].icon.getCircledBitmap()
+                        )
+                    else if (i == 2)
+                        remoteViews?.setImageViewBitmap(
+                            R.id.imgv_app8,
+                            selectedApps[i].icon.getCircledBitmap()
+                        )
+                    else if (i == 3)
+                        remoteViews?.setImageViewBitmap(
+                            R.id.imgv_app9,
+                            selectedApps[i].icon.getCircledBitmap()
+                        )
+                }
+                //     appWidM.updateAppWidget(newAppWidget, remoteViews)
+
+                Thread {
+                    SetWallWorker.setWall(true)
+                }.start()
+
+            } else {
+                makeToast("Watch an AD to auto change Walls for next 7 times!")
+                remoteViews?.setTextViewText(R.id.tx_rewards_count, "\uD83D\uDC41\uFE0FAD!")
+                remoteViews?.setOnClickPendingIntent(
+                    R.id.tx_rewards_count, PendingIntent.getActivity(
+                        context,
+                        5,
+                        Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "AD"),
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    )
+                )
+            }
         }
 
         val wallpaperManager = WallpaperManager.getInstance(context)
@@ -1599,6 +1625,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     companion object {
+        var noRewards by Delegates.notNull<Int>()
         lateinit var contactActivityResultLauncher: ActivityResultLauncher<Intent>
         var tW: String = "..."
         lateinit var appWidM: AppWidgetManager
