@@ -35,10 +35,7 @@ import android.hardware.camera2.CameraManager
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.media.AudioManager
-import android.media.MediaMetadata
 import android.media.MediaPlayer
-import android.media.session.MediaSessionManager
-import android.media.session.PlaybackState
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -58,9 +55,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.FileProvider
-import androidx.core.content.getSystemService
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.getWeatherData
@@ -90,6 +85,8 @@ import kotlin.properties.Delegates
 class NewAppWidget : AppWidgetProvider() {
 
 
+    private lateinit var pendingIntentD: PendingIntent
+    private lateinit var intentD: Intent
     private lateinit var dNews: Drawable
     private var randomTweetIndex: Int = 0
     private lateinit var formattedDate: String
@@ -188,33 +185,27 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
             remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_speech,
-                PendingIntent.getActivity(
-                    context,
-                    35,
-                    Intent(context, MainActivity::class.java).putExtra("intent2Main", "SpeechToText"),
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                R.id.imgbtn_speech, PendingIntent.getActivity(
+                    context, 0,
+                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "StT"),
+                    PendingIntent.FLAG_IMMUTABLE
                 )
             )
 
             remoteViews?.setOnClickPendingIntent(
-                R.id.tx_tweets,
-                PendingIntent.getActivity(
-                    context,
-                    25,
-                    Intent(context, MainActivity::class.java).putExtra("intent2Main", "showTweet"),
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                R.id.tx_tweets, PendingIntent.getActivity(
+                    context, 0,
+                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "ST"),
+                    PendingIntent.FLAG_IMMUTABLE
                 )
             )
 
 
             remoteViews?.setOnClickPendingIntent(
-                R.id.twSettings,
-                PendingIntent.getActivity(
-                    context,
-                    21,
-                    Intent(context, MainActivity::class.java).putExtra("intent2Main", "setTwitterHandle"),
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                R.id.twSettings, PendingIntent.getActivity(
+                    context, 2,
+                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "STH"),
+                    PendingIntent.FLAG_IMMUTABLE
                 )
             )
 
@@ -435,7 +426,10 @@ class NewAppWidget : AppWidgetProvider() {
         val runnable: Runnable = object : Runnable {
             override fun run() {
                 // Update the ImageView with the next frame
-                remoteViews?.setImageViewResource(R.id.animation_image, animationFrames[currentFrameIndex])
+                remoteViews?.setImageViewResource(
+                    R.id.animation_image,
+                    animationFrames[currentFrameIndex]
+                )
 
                 // Increment frame index and loop if necessary
                 currentFrameIndex = (currentFrameIndex + 1) % animationFrames.size
@@ -453,7 +447,7 @@ class NewAppWidget : AppWidgetProvider() {
             }
         }
 
-    //    handler.post(runnable);
+        //    handler.post(runnable);
 
 
         if (intent.action.equals("android.appwidget.action.APPWIDGET_UPDATE"))
@@ -473,24 +467,24 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         if (isMusicActive) {
-            remoteViews?.setTextViewText(R.id.tx_sname, "Music is currently active." )
-        //    detectMusic()
+            remoteViews?.setTextViewText(R.id.tx_sname, "Music is currently active.")
+            //    detectMusic()
         } else {
-            remoteViews?.setTextViewText(R.id.tx_sname,"No music is currently active.")
+            remoteViews?.setTextViewText(R.id.tx_sname, "No music is currently active.")
         }
     }
 
-   /* private fun detectMusic() {
+    /* private fun detectMusic() {
 
-        val m = appContx.getSystemService<MediaSessionManager>()!!
-        val component = ComponentName(appContx, MusicNotificationListenerService::class.java)
-        val sessions = m.getActiveSessions(component)
-        Log.d("Sessions", "count: ${sessions.size}")
-        sessions.forEach {
-            Log.d("Sessions", "$it -- " + (it?.metadata?.keySet()?.joinToString()))
-            Log.d("Sessions", "$it -- " + (it?.metadata?.getString(MediaMetadata.METADATA_KEY_TITLE)))
-        }
-    }*/
+         val m = appContx.getSystemService<MediaSessionManager>()!!
+         val component = ComponentName(appContx, MusicNotificationListenerService::class.java)
+         val sessions = m.getActiveSessions(component)
+         Log.d("Sessions", "count: ${sessions.size}")
+         sessions.forEach {
+             Log.d("Sessions", "$it -- " + (it?.metadata?.keySet()?.joinToString()))
+             Log.d("Sessions", "$it -- " + (it?.metadata?.getString(MediaMetadata.METADATA_KEY_TITLE)))
+         }
+     }*/
 
     @SuppressLint("NewApi")
     private fun Receive(intent: Intent, context: Context) {
@@ -566,34 +560,29 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.imgbtn_speech,
-            PendingIntent.getActivity(
-                context,
-                35,
-                Intent(context, MainActivity::class.java).putExtra("intent2Main", "SpeechToText"),
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            R.id.imgbtn_speech, PendingIntent.getActivity(
+                context, 0,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "StT"),
+                PendingIntent.FLAG_IMMUTABLE
             )
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.tx_tweets,
-            PendingIntent.getActivity(
-                context,
-                25,
-                Intent(context, MainActivity::class.java).putExtra("intent2Main", "showTweet"),
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            R.id.tx_tweets, PendingIntent.getActivity(
+                context, 1,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "ST"),
+                PendingIntent.FLAG_IMMUTABLE
             )
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.twSettings,
-            PendingIntent.getActivity(
-                context,
-                21,
-                Intent(context, MainActivity::class.java).putExtra("intent2Main", "setTwitterHandle"),
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            R.id.twSettings, PendingIntent.getActivity(
+                context, 2,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "STH"),
+                PendingIntent.FLAG_IMMUTABLE
             )
         )
+
 
 
         remoteViews?.setOnClickPendingIntent(
@@ -636,8 +625,8 @@ class NewAppWidget : AppWidgetProvider() {
             intentBluetooth,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-
         remoteViews?.setOnClickPendingIntent(R.id.fab_blue, pendingIntentBluetooth)
+
 
         remoteViews?.setOnClickPendingIntent(
             R.id.imgv_steps,
