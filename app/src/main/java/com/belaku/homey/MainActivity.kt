@@ -12,6 +12,7 @@ import android.app.AppOpsManager.OPSTR_GET_USAGE_STATS
 import android.app.Dialog
 import android.app.ProgressDialog
 import android.app.WallpaperManager
+import android.app.admin.DevicePolicyManager
 import android.app.job.JobInfo
 import android.app.job.JobScheduler
 import android.app.usage.UsageStats
@@ -280,13 +281,13 @@ class MainActivity : AppCompatActivity() {
             getCity()
         }
 
-        /* intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
+         intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
          var compName = ComponentName(this, DeviceAdmin::class.java)
          intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, compName)
          intent.putExtra(
              DevicePolicyManager.EXTRA_ADD_EXPLANATION,
              "Enable Admin Access for Lock screen shortcut to work from the App's Widget"
-         )*/
+         )
 
         launcher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -1144,11 +1145,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun isLocationEnabled(context: Context): Boolean {
-        val locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
-                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-    }
+
 
     private fun BluetoothState() {
         var wTAG = "BluetoothState ~ "
@@ -1556,6 +1553,12 @@ class MainActivity : AppCompatActivity() {
             val intent =
                 Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI)
             contactActivityResultLauncher.launch(intent)
+        }
+
+        fun isLocationEnabled(context: Context): Boolean {
+            val locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
+            return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                    locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
         }
 
 

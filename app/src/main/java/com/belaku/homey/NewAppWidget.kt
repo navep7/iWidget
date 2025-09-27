@@ -17,6 +17,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.database.Cursor
@@ -144,7 +145,22 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
+        if (!MainActivity.isLocationEnabled(context)) {
+            remoteViews?.setTextViewText(R.id.tx_place, "Please Enable Location services!")
 
+            val locIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            val locPendingIntent = PendingIntent.getActivity(
+                context,
+                21,
+                locIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            remoteViews?.setOnClickPendingIntent(R.id.tx_place,
+                locPendingIntent)
+        } else  remoteViews?.setTextViewText(
+            R.id.tx_place,
+            "⚲ " + cityname
+        )
 
 
         for (appWidgetId in appWidgetIds) {
@@ -424,6 +440,24 @@ class NewAppWidget : AppWidgetProvider() {
             intArrayOf( /* ... */)
 
         checkMusicStatus(context)
+
+        if (!MainActivity.isLocationEnabled(context)) {
+            remoteViews?.setTextViewText(R.id.tx_place, "Please Enable Location services!")
+
+            val locIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            val locPendingIntent = PendingIntent.getActivity(
+                context,
+                21,
+                locIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            remoteViews?.setOnClickPendingIntent(R.id.tx_place,
+                locPendingIntent)
+        } else  remoteViews?.setTextViewText(
+            R.id.tx_place,
+            "⚲ " + cityname
+        )
+
 
         // Create a handler or a timer to update the frames
         val handler = Handler()
@@ -1292,8 +1326,6 @@ class NewAppWidget : AppWidgetProvider() {
             SimpleDateFormat("EEE", Locale.getDefault()).format(Calendar.getInstance().time) +
                     "│" + formattedDate
         )
-        appWidgetView.findViewById<TextView>(R.id.tx_place).setText(cityname)
-        //   appWidgetView.findViewById<TextView>(R.id.tx_steps).setText(stepsToday)
 
         readApps()
 
@@ -1486,10 +1518,7 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.tx_weather_icon_state,
                 MainActivity.weatherIconState + "..,"
             )
-            remoteViews?.setTextViewText(
-                R.id.tx_place,
-                "⚲ " + cityname
-            )
+
             if (weatherIconID.startsWith("5"))
                 remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.rain)
             if (weatherIconID.equals("800"))
@@ -1513,10 +1542,7 @@ class NewAppWidget : AppWidgetProvider() {
                     R.id.tx_weather_icon_state,
                     MainActivity.weatherIconState + "..,"
                 )
-                remoteViews?.setTextViewText(
-                    R.id.tx_place,
-                    cityname
-                )
+
                 if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals(
                         "803"
                     ) || weatherIconID.equals("804")

@@ -2,6 +2,8 @@ package com.belaku.homey
 
 import android.R.attr.button
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.graphics.Bitmap
 import android.location.Address
 import android.location.Geocoder
@@ -9,6 +11,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
@@ -61,6 +64,11 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
+
+        if (!MainActivity.isLocationEnabled(applicationContext)) {
+            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            applicationContext.startActivity(intent.setFlags(FLAG_ACTIVITY_NEW_TASK))
+        }
 
         mStreetViewPanoramaView = findViewById(R.id.streetviewpanorama)
         mSupportMapFragment =
