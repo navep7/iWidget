@@ -843,6 +843,8 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
+        remoteViews?.setTextViewText(R.id.tx_tweets,
+            "@" + twitterProfileName + "\t ~ \t" + tW)
 
         remoteViews?.setTextViewText(
             R.id.tx_desc_walltype,
