@@ -843,6 +843,8 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
+        remoteViews?.setTextViewText(R.id.tx_rewards_count, "" + sharedPreferences.getInt("noRewards", 5))
+
         remoteViews?.setTextViewText(R.id.tx_tweets,
             "@" + twitterProfileName + "\t ~ \t" + tW)
 
