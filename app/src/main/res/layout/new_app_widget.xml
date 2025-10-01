@@ -214,7 +214,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/tx_wish"
             android:layout_toEndOf="@+id/a_clock"
-            android:format12Hour="k:mm:ss"
+            android:format24Hour="k:mm:ss"
             android:textColor="?attr/colorPrimaryDark"
             android:textSize="35sp"
             android:textStyle="bold" />

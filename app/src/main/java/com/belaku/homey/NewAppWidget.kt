@@ -86,6 +86,7 @@ import kotlin.properties.Delegates
 class NewAppWidget : AppWidgetProvider() {
 
 
+    private lateinit var nowCalendar: Calendar
     private lateinit var ampm: String
     private lateinit var pendingIntentD: PendingIntent
     private lateinit var intentD: Intent
@@ -555,10 +556,19 @@ class NewAppWidget : AppWidgetProvider() {
 
         appIndex = 0
 
-        var now = Calendar.getInstance()
+        nowCalendar = Calendar.getInstance()
 
-        currentHour = now[Calendar.HOUR_OF_DAY]
-        currentMin = now[Calendar.MINUTE]
+        currentHour = nowCalendar[Calendar.HOUR_OF_DAY]
+        currentMin = nowCalendar[Calendar.MINUTE]
+        if (nowCalendar[Calendar.AM_PM] == Calendar.AM)
+            ampm = "am"
+        else ampm = "pm"
+
+
+        /*if (currentHour.toString().length == 1)
+            currentHour = ("0$currentHour").toInt()
+        if (currentMin.toString().length == 1)
+            currentMin = ("0$currentMin").toInt()*/
 
         if (currentHour == 23)
             stepsToday = 0
@@ -1321,7 +1331,7 @@ class NewAppWidget : AppWidgetProvider() {
         appWidgetView.findViewById<TextView>(R.id.tx_wish).setText(timelyWish)
 
         appWidgetView.findViewById<TextView>(R.id.tx_st_since).setText( "since ${currentHour % 12} $ampm, yday...")
-        appWidgetView.findViewById<TextView>(R.id.clock).setText("$currentHour : $currentMin")
+        appWidgetView.findViewById<TextView>(R.id.clock).setText("${nowCalendar.get(Calendar.HOUR)}:$currentMin $ampm")
         appWidgetView.findViewById<TextView>(R.id.tx_place).setText("⚲ " + cityname)
         appWidgetView.findViewById<TextView>(R.id.tx_steps).setText("Today, " + stepsToday.toString())
         appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact1).visibility = View.INVISIBLE
@@ -1444,10 +1454,6 @@ class NewAppWidget : AppWidgetProvider() {
         // Convert to desired units (e.g., minutes, hours)
         val totalScreenTimeInMinutes = totalScreenTimeInMillis / (1000 * 60 * 60)
 
-
-        if (currentHour < 12)
-            ampm = "am"
-        else ampm = "pm"
 
         remoteViews?.setTextViewText(R.id.tx_st_since, "since ${currentHour % 12} $ampm, yday...")
         remoteViews?.setTextViewText(
