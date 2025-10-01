@@ -15,8 +15,8 @@
     <TextView
         android:id="@+id/tx_app_name"
         android:maxLines="1"
+        android:text="App name"
         android:gravity="center"
-        android:background="@drawable/gradient_glass"
         android:textStyle="bold"
         android:ellipsize="end"
         android:layout_below="@+id/imgv_app_icon"

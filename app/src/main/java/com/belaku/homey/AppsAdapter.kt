@@ -5,6 +5,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.belaku.homey.InstalledApp
+import com.belaku.homey.NewAppWidget
 import com.belaku.homey.NewAppWidget.Companion.primaryColor
 import com.belaku.homey.NewAppWidget.Companion.tertianaryColor
 import com.belaku.homey.R
@@ -37,6 +38,9 @@ class AppsAdapter(private val dataList: List<InstalledApp>,
         fun bind(item: InstalledApp) {
             // Bind data to views in item_grid.xml
             itemView.findViewById<TextView>(R.id.tx_app_name).setText(item.name)
+
+            itemView.findViewById<TextView>(R.id.tx_app_name).setTextColor(NewAppWidget.tertianaryColor)
+
         //    itemView.findViewById<TextView>(R.id.tx_app_name).setTextColor(tertianaryColor)
             itemView.findViewById<ImageView>(R.id.imgv_app_icon).setImageDrawable(item.icon)
         }

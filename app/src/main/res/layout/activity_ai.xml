@@ -47,6 +47,7 @@
     <TextView
         android:id="@+id/tx_ai_response"
         android:text="AI response..."
+        android:textSize="35sp"
         android:textStyle="bold"
         android:layout_below="@id/edtx_ai"
         android:layout_above="@+id/play_ai"
