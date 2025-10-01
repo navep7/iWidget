@@ -278,7 +278,7 @@ class MainActivity : AppCompatActivity() {
             ) == PERMISSION_GRANTED)
         ) {
             getFavoriteContacts(applicationContext)
-            getCity()
+         //   getCity()
         }
 
          intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
@@ -1123,7 +1123,7 @@ class MainActivity : AppCompatActivity() {
             if (grantResults.isNotEmpty())
                 if (grantResults[0].equals(PERMISSION_GRANTED)) {
                     getFavoriteContacts(applicationContext)
-                    getCity()
+                //    getCity()
                     startStepsService()
                     usageStatsPermissionDialog()
                     rawTweets(false)

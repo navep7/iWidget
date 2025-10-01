@@ -86,6 +86,7 @@ import kotlin.properties.Delegates
 class NewAppWidget : AppWidgetProvider() {
 
 
+    private lateinit var ampm: String
     private lateinit var pendingIntentD: PendingIntent
     private lateinit var intentD: Intent
     private lateinit var dNews: Drawable
@@ -1318,6 +1319,21 @@ class NewAppWidget : AppWidgetProvider() {
             .setBackground(backgroundDrawable)
 
         appWidgetView.findViewById<TextView>(R.id.tx_wish).setText(timelyWish)
+
+        appWidgetView.findViewById<TextView>(R.id.tx_st_since).setText( "since ${currentHour % 12} $ampm, yday...")
+        appWidgetView.findViewById<TextView>(R.id.clock).setText("$currentHour : $currentMin")
+        appWidgetView.findViewById<TextView>(R.id.tx_place).setText("⚲ " + cityname)
+        appWidgetView.findViewById<TextView>(R.id.tx_steps).setText("Today, " + stepsToday.toString())
+        appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact1).visibility = View.INVISIBLE
+        appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact2).visibility = View.INVISIBLE
+        appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact3).visibility = View.INVISIBLE
+        appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact4).visibility = View.INVISIBLE
+        appWidgetView.findViewById<ImageView>(R.id.imgv_app3).setImageBitmap(
+            drawableToBitmap(
+                appContx,
+                appContx.resources.getDrawable(R.drawable.launch_e)
+            )
+        )
         appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_temp).setText(
             MainActivity.tempC.substring(
                 0,
@@ -1428,7 +1444,6 @@ class NewAppWidget : AppWidgetProvider() {
         // Convert to desired units (e.g., minutes, hours)
         val totalScreenTimeInMinutes = totalScreenTimeInMillis / (1000 * 60 * 60)
 
-        var ampm: String
 
         if (currentHour < 12)
             ampm = "am"

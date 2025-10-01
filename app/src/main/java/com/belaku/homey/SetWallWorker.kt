@@ -1,5 +1,6 @@
 package com.belaku.homey
 
+import android.annotation.SuppressLint
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
@@ -12,6 +13,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.icu.util.Calendar
+import android.location.Geocoder
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -28,7 +30,9 @@ import androidx.core.content.ContextCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.delayUnit
+import com.belaku.homey.MainActivity.Companion.mAct
 import com.belaku.homey.MainActivity.Companion.makeSnack
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
@@ -44,8 +48,16 @@ import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.screenHeight
 import com.belaku.homey.NewAppWidget.Companion.screenWidth
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.Marker
+import com.google.android.material.snackbar.Snackbar
 import java.io.IOException
 import java.net.URL
+import java.util.Locale
 import kotlin.random.Random
 
 
@@ -69,11 +81,63 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         wm = WallpaperManager.getInstance(appContx)
 
         setWall(true)
+        getCity()
 
         WifiState()
    //     BluetoothState()
 
         return Result.success()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getCity() {
+        var locationRequest = LocationRequest.create()
+        locationRequest.setInterval(30000)
+        locationRequest.setSmallestDisplacement(1f)
+        locationRequest.setFastestInterval(10000)
+        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
+
+        //instantiating the LocationCallBack
+        val locationCallback = object : LocationCallback(), GoogleMap.OnMarkerClickListener {
+            override fun onLocationResult(locationResult: LocationResult) {
+                val location = locationResult.lastLocation
+                if (location != null) {
+                    getAddress(location.latitude, location.longitude)
+                }
+            }
+
+            override fun onMarkerClick(p0: Marker): Boolean {
+                makeToast("nothin")
+                return true
+            }
+        }
+
+        var fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
+
+        fusedLocationProviderClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
+    }
+
+    private fun getAddress(latitude: Double, longitude: Double) {
+        val gcd = Geocoder(applicationContext)
+        Locale.getDefault()
+        try {
+            var cAddrs = gcd.getFromLocation(latitude, longitude, 1)!!
+            //   makeToast(cAddrs?.get(0)!!.subLocality)
+
+            cityname = cAddrs?.get(0)!!.getAddressLine(0)
+            //   makeToast("cityname - " + cityname)
+
+
+        } catch (e: IOException) {
+            // TODO Auto-generated catch block
+            e.printStackTrace()
+            makeToast("GCD - IOException \n $e")
+        }
+
     }
 
 
