@@ -541,7 +541,10 @@ class NewAppWidget : AppWidgetProvider() {
             if (intent.action.equals("wallChange")) {
                 Log.d(TAG + "TwAct", intent.action.toString())
                 randomTweetIndex = (0..listTweets.size - 1).random()
+
+                if (noRewards != 0)
                 tW = listTweets[randomTweetIndex]
+                else tW = listTweets[0]
                 sharedPreferencesEditor.putString("tW", tW).apply()
             } else {
                 tW = sharedPreferences.getString("tW", "").toString()
@@ -1028,28 +1031,6 @@ class NewAppWidget : AppWidgetProvider() {
                 remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.VISIBLE)
                 remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
 
-                for (i in 0 until selectedApps.size) {
-                    if (i == 0)
-                        remoteViews?.setImageViewBitmap(
-                            R.id.imgv_app6,
-                            selectedApps[i].icon.getCircledBitmap()
-                        )
-                    else if (i == 1)
-                        remoteViews?.setImageViewBitmap(
-                            R.id.imgv_app7,
-                            selectedApps[i].icon.getCircledBitmap()
-                        )
-                    else if (i == 2)
-                        remoteViews?.setImageViewBitmap(
-                            R.id.imgv_app8,
-                            selectedApps[i].icon.getCircledBitmap()
-                        )
-                    else if (i == 3)
-                        remoteViews?.setImageViewBitmap(
-                            R.id.imgv_app9,
-                            selectedApps[i].icon.getCircledBitmap()
-                        )
-                }
                 //     appWidM.updateAppWidget(newAppWidget, remoteViews)
 
                 Thread {
@@ -1372,9 +1353,6 @@ class NewAppWidget : AppWidgetProvider() {
         appWidgetView.findViewById<ImageView>(R.id.imgv_app9).visibility = View.INVISIBLE
 
 
-
-
-
         appWidgetView.findViewById<TextView>(R.id.tx_desc_walltype).setText(
             Html.fromHtml(
                 wD + "<br>" + qT.split(" ")[0].substring(0, 1)
@@ -1676,7 +1654,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     companion object {
-        var noRewards by Delegates.notNull<Int>()
+        var noRewards: Int = 0
         lateinit var contactActivityResultLauncher: ActivityResultLauncher<Intent>
         var tW: String = "..."
         lateinit var appWidM: AppWidgetManager

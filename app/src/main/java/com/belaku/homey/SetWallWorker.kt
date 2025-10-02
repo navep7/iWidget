@@ -271,7 +271,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 appContx.sendBroadcast(intent)
 
                 Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                    makeSnack("$queryType wallpapers Set, updates every $wallDelay mins. Add the Widget to see more of the Magic!")
+                    makeSnack("$queryType wallpapers Set, updates every $wallDelay mins. Add the HomeScreen Widget to see more of the Magic!")
                 }, 1000)
 
 

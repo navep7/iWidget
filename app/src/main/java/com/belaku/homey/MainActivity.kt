@@ -22,6 +22,7 @@ import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.IntentFilter
@@ -68,6 +69,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -131,6 +133,7 @@ import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var intentAdmin: Intent
     private lateinit var mBluetoothReceiver: BroadcastReceiver
     private lateinit var dialogMessage: EditText
     private val REQUEST_CODE_SPEECH_INPUT: Int = 100
@@ -278,16 +281,16 @@ class MainActivity : AppCompatActivity() {
             ) == PERMISSION_GRANTED)
         ) {
             getFavoriteContacts(applicationContext)
-         //   getCity()
+            //   getCity()
         }
 
-         intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
-         var compName = ComponentName(this, DeviceAdmin::class.java)
-         intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, compName)
-         intent.putExtra(
-             DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-             "Enable Admin Access for Lock screen shortcut to work from the App's Widget"
-         )
+        intentAdmin = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
+        var compName = ComponentName(this, DeviceAdmin::class.java)
+        intentAdmin.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, compName)
+        intentAdmin.putExtra(
+            DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+            "Enable Admin Access for Lock screen shortcut to work from the App's Widget"
+        )
 
         launcher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -318,14 +321,52 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-        getResult.launch(intent)
+        //instructionsDialog
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Instructions")
+        builder.setMessage(
+            "The App needs below access.." +
+                    "\n1. Admin Access - to lock screen from shortcut in the Widget" +
+                    "\n2. Device location - to display location address in the Widget" +
+                    "\n3. Physical Activity - to recognise walking state and display step count in the Widget" +
+                    "\n4. Contacts - to show your favorite contacts in the Widget, to dial easily." +
+                    "\n5. Nearby Devices - for indicating Bluetooth connection status in the Widget" +
+                    "\n6. Notifications - to notify of set Reminders" +
+                    "\n7. Dial Phone calls - to quickly dial your favorite contacts from the Widget" +
+                    "\n8. App Usage Stats - to display most used Apps in the Widget" +
+                    "\n\n Requesting you to enable each permission in the upcoming screens, for the Widget to work correctly!"
+        )
+
+        builder.setPositiveButton("OK") { dialog: DialogInterface, which: Int ->
+            // Handle positive button click
+            // For example, dismiss the dialog
+            getResult.launch(intentAdmin)
+            dialog.dismiss()
+        }
+
+        val alertDialog: AlertDialog = builder.create()
+
+
+
+        if (!(getAdminStatus() &&
+            ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) == PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACTIVITY_RECOGNITION) == PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.READ_CONTACTS) == PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.BLUETOOTH_CONNECT) == PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.POST_NOTIFICATIONS) == PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.CALL_PHONE) == PERMISSION_GRANTED
+            ))
+        alertDialog.show()
+
+
+
 
         sharedPreferencesEditor.putString("qT", queryType).apply()
 
         fabMain.setOnClickListener { view ->
 
             if (fabDay.visibility == View.GONE) {
-
 
                 fabDay.visibility = View.VISIBLE
                 frameMin.visibility = View.VISIBLE
@@ -784,11 +825,6 @@ class MainActivity : AppCompatActivity() {
             cityname = cAddrs?.get(0)!!.getAddressLine(0)
             //   makeToast("cityname - " + cityname)
 
-            Snackbar.make(
-                window.decorView.rootView,
-                cAddrs?.get(0)!!.subLocality,
-                Snackbar.LENGTH_INDEFINITE
-            ).show()
         } catch (e: IOException) {
             // TODO Auto-generated catch block
             e.printStackTrace()
@@ -1123,7 +1159,7 @@ class MainActivity : AppCompatActivity() {
             if (grantResults.isNotEmpty())
                 if (grantResults[0].equals(PERMISSION_GRANTED)) {
                     getFavoriteContacts(applicationContext)
-                //    getCity()
+                    //    getCity()
                     startStepsService()
                     usageStatsPermissionDialog()
                     rawTweets(false)
@@ -1144,7 +1180,6 @@ class MainActivity : AppCompatActivity() {
                 }
         }
     }
-
 
 
     private fun BluetoothState() {

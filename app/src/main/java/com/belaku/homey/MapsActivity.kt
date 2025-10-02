@@ -214,11 +214,6 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
 
             cityname = cAddrs?.get(0)!!.getAddressLine(0)
 
-            Snackbar.make(
-                window.decorView.rootView,
-                cAddrs?.get(0)!!.subLocality,
-                Snackbar.LENGTH_INDEFINITE
-            ).show()
         } catch (e: IOException) {
             // TODO Auto-generated catch block
             e.printStackTrace()
