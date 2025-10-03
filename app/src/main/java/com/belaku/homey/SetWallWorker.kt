@@ -22,6 +22,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.text.Html
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import androidx.annotation.NonNull
@@ -206,7 +207,12 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         fun setWall(b: Boolean) {
 
             wm = WallpaperManager.getInstance(appContx)
-            wm.setWallpaperOffsetSteps(1F, 1F);
+            wm.setWallpaperOffsetSteps(1F, 1F)
+
+            val metrics = DisplayMetrics()
+            mAct.getWindowManager().getDefaultDisplay().getMetrics(metrics)
+            screenHeight = metrics.heightPixels
+            screenWidth = metrics.widthPixels
             wm.suggestDesiredDimensions(screenWidth, screenHeight)
 
             try {
