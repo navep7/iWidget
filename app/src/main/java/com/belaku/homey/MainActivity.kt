@@ -1151,6 +1151,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+
+        sharedPreferencesEditor.putStringSet("walls", HashSet(imgUrls)).apply()
+        sharedPreferencesEditor.putStringSet("wallDescs", HashSet(imgDescs)).apply()
     }
 
 
