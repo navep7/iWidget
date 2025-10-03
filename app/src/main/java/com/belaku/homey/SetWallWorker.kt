@@ -210,7 +210,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             wm.setWallpaperOffsetSteps(1F, 1F)
 
             val metrics = DisplayMetrics()
-            mAct.getWindowManager().getDefaultDisplay().getMetrics(metrics)
+            mAct.windowManager.getDefaultDisplay().getMetrics(metrics)
             screenHeight = metrics.heightPixels
             screenWidth = metrics.widthPixels
             wm.suggestDesiredDimensions(screenWidth, screenHeight)
@@ -226,6 +226,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 randomWallIndex = Random.Default.nextInt(urls.size)
                 wallDesc = wallDescs.get(randomWallIndex)
 
+                Log.d("settingWD",  urls[randomWallIndex])
 
                 wallBitmap = BitmapFactory.decodeStream(
                     URL(
