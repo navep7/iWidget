@@ -196,7 +196,12 @@ class DialogActivity : AppCompatActivity() {
                 bluetoothLauncher.launch(disableintent)
             } else if (dialogIntentStr == "AD") {
 
-                llDialog.visibility = View.INVISIBLE
+                txTitle.setText("loading Advertisement, please wait...")
+                txContent.visibility = View.GONE
+                edtxDialog.visibility = View.GONE
+                imgbtnShare.visibility = View.GONE
+                btnOk.visibility = View.GONE
+                btnCancel.visibility = View.GONE
 
                 RewardedInterstitialAd.load(
                     this,
@@ -215,6 +220,7 @@ class DialogActivity : AppCompatActivity() {
                                 sharedPreferencesEditor.putInt("noRewards", 7).apply()
                                 noRewards = 7
                                 remoteViews?.setTextViewText(R.id.tx_rewards_count, "" + 7)
+                                txTitle.setText("swipe outside to continue changing walls.")
                                 appWidM.updateAppWidget(newAppWidget, remoteViews)
                             }
                         }
