@@ -128,6 +128,8 @@ import java.net.URL
 import java.util.Collections
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 import kotlin.properties.Delegates
 
 
@@ -741,6 +743,7 @@ class MainActivity : AppCompatActivity() {
             try {
                 val item = dataArray.getJSONObject(i)
                 val tweet = item.getString("text")
+                if(!containsLinkRegex(tweet))
                 listTweets.add(tweet)
 
             } catch (e: JSONException) {
@@ -780,6 +783,16 @@ class MainActivity : AppCompatActivity() {
         appWidM = AppWidgetManager.getInstance(appContx)
         appWidM.updateAppWidget(newAppWidget, remoteViews)
 
+    }
+
+    fun containsLinkRegex(text: String?): Boolean {
+        // A common regex for URLs, including http, https, ftp, and file schemes.
+        // This regex is a simplified example and might need adjustment for specific edge cases.
+        val urlRegex =
+            "\\b((https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|])"
+        val pattern: Pattern = Pattern.compile(urlRegex, Pattern.CASE_INSENSITIVE)
+        val matcher: Matcher = pattern.matcher(text)
+        return matcher.find() // Returns true if a match is found
     }
 
 
