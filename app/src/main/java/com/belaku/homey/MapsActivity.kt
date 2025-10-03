@@ -152,6 +152,8 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
                                 addrs = addrs + cAddrs[0].getAddressLine(i)
                             }
                         else addrs = cAddrs[0].subLocality
+
+                        mGoogleMap.clear()
                         addPresentMarker(LatLng(location.latitude, location.longitude), addrs)
 
                         mGoogleMap.setOnMapClickListener(this@MapsActivity)
