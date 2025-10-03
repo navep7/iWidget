@@ -9,7 +9,7 @@
 
     <EditText
         android:id="@+id/edtx_prompt"
-        android:hint="Set Wallpaper Type"
+        android:hint="Search Wallpapers..."
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:imeOptions="actionDone"
