@@ -1312,7 +1312,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (isWifiEnabled(context))
             if (!isWifiConnected(context))
-                remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_on_but_notconnected)
+                remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_on_but_not_connected)
 
 
         if ("TWEET".equals(intent.getAction()))
