@@ -17,7 +17,6 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.database.Cursor
@@ -37,7 +36,9 @@ import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.media.AudioManager
 import android.media.MediaPlayer
+import android.net.ConnectivityManager
 import android.net.Uri
+import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -262,10 +263,17 @@ class NewAppWidget : AppWidgetProvider() {
                 getPendingSelfIntent(context, NEWS_CLICK)
             )
 
-            remoteViews?.setOnClickPendingIntent(
-                R.id.fab_wifi,
-                getPendingSelfIntent(context, WIFI_AUTO)
+            val intentWifi = Intent(context, DialogActivity::class.java)
+            if (isWifiEnabled(context))
+                intentWifi.putExtra("DialogIntent", "WifiDisable")
+            else intentWifi.putExtra("DialogIntent", "WifiEnable")
+            val pendingIntentWifi = PendingIntent.getActivity(
+                context,
+                6,
+                intentWifi,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
+            remoteViews?.setOnClickPendingIntent(R.id.fab_wifi, pendingIntentWifi)
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.fab_torch,
@@ -669,10 +677,21 @@ class NewAppWidget : AppWidgetProvider() {
             getPendingSelfIntent(context, NEWS_CLICK)
         )
 
-        remoteViews?.setOnClickPendingIntent(
-            R.id.fab_wifi,
-            getPendingSelfIntent(context, WIFI_AUTO)
+        val intentWifi = Intent(context, DialogActivity::class.java)
+        if (isWifiEnabled(context)) {
+            intentWifi.putExtra("DialogIntent", "WifiDisable")
+            remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_on)
+        } else {
+            intentWifi.putExtra("DialogIntent", "WifiEnable")
+            remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_off)
+        }
+        val pendingIntentWifi = PendingIntent.getActivity(
+            context,
+            6,
+            intentWifi,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+        remoteViews?.setOnClickPendingIntent(R.id.fab_wifi, pendingIntentWifi)
 
         remoteViews?.setOnClickPendingIntent(
             R.id.fab_torch,
@@ -1291,6 +1310,11 @@ class NewAppWidget : AppWidgetProvider() {
             makeToast("EXXx ${ex.message}")
         }
 
+        if (isWifiEnabled(context))
+            if (!isWifiConnected(context))
+                remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_on_but_notconnected)
+
+
         if ("TWEET".equals(intent.getAction()))
             makeToast(tW)
 
@@ -1300,6 +1324,25 @@ class NewAppWidget : AppWidgetProvider() {
         appWidM = AppWidgetManager.getInstance(context)
         appWidM.updateAppWidget(newAppWidget, remoteViews)
 
+    }
+
+    fun isWifiEnabled(context: Context): Boolean {
+        val wifiManager =
+            context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        if (wifiManager != null) {
+            return wifiManager.isWifiEnabled
+        }
+        return false // Handle the case where WifiManager is null
+    }
+
+    fun isWifiConnected(context: Context): Boolean {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (connectivityManager != null) {
+            val wifiInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
+            return wifiInfo != null && wifiInfo.isConnected
+        }
+        return false
     }
 
     @SuppressLint("SetTextI18n")
