@@ -449,11 +449,26 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun markAsFav(contactId: Long) {
+         // Replace with the actual contact ID
+        val values = ContentValues()
+        values.put(ContactsContract.Contacts.STARRED, 1) // 1 for favorite, 0 for not favorite
+
+        getContentResolver().update(
+            ContactsContract.Contacts.CONTENT_URI,
+            values,
+            ContactsContract.Contacts._ID + " = ?",
+            arrayOf<String>(contactId.toString())
+        )
+    }
+
+
     fun getContactDetails(displayName: String, contactId: Long) {
         val contentResolver = contentResolver
         var phoneCursor: Cursor? = null
         var emailCursor: Cursor? = null
 
+        markAsFav(contactId)
         try {
             // Get phone numbers
             phoneCursor = contentResolver.query(
@@ -1065,14 +1080,10 @@ class MainActivity : AppCompatActivity() {
             val builder = AlertDialog.Builder(this)
 
             builder.setTitle("Favorites") // Set the title of the dialog
-            builder.setMessage("You've got no Contacts marked as Favorite!.. Go ahead add some to dial from the widget directly.") // Set the message of the dialog
+            builder.setMessage("You've got no Contacts marked as Favorite!.. You can add some to dial from the widget directly, by clicking on + contact button in the Widget.") // Set the message of the dialog
 
             // Set the Positive Button and its action
-            builder.setPositiveButton("Add") { dialog: DialogInterface, which: Int ->
-
-
-                pickContact()
-
+            builder.setPositiveButton("Ok") { dialog: DialogInterface, which: Int ->
                 dialog.dismiss() // Dismiss the dialog
             }
 
@@ -1084,20 +1095,6 @@ class MainActivity : AppCompatActivity() {
         cursor.close()
     }
 
-    private fun markContactAsFavorite(contactUri: Uri) {
-        val contentResolver = contentResolver
-        val values = ContentValues().apply {
-            put(ContactsContract.Contacts.STARRED, 1) // 1 to mark as favorite, 0 to unmark
-        }
-
-        val rowsUpdated = contentResolver.update(contactUri, values, null, null)
-
-        if (rowsUpdated > 0) {
-            Toast.makeText(this, "Contact marked as favorite", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(this, "Failed to mark contact as favorite", Toast.LENGTH_SHORT).show()
-        }
-    }
 
     private fun saveContacts() {
         val key = "CTS"

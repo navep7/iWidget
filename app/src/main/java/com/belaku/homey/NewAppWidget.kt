@@ -1258,24 +1258,81 @@ class NewAppWidget : AppWidgetProvider() {
             if (favContacts != null)
                 if (favContacts.size > 0)
                     dialPhoneNumber(context, favContacts.get(0).number)
-                else MainActivity.pickContact()
-            else MainActivity.pickContact()
+                else remoteViews?.setOnClickPendingIntent(
+                    R.id.imgv_contact1, PendingIntent.getActivity(
+                        context, 111,
+                        Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
+                        PendingIntent.FLAG_IMMUTABLE
+                    )
+                )
+            else remoteViews?.setOnClickPendingIntent(
+                R.id.imgv_contact1, PendingIntent.getActivity(
+                    context, 111,
+                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+            )
 
         }
         if (C2_CLICKED == intent.action) {
             if (favContacts != null)
-                if (favContacts.size > 0)
+                if (favContacts.size > 1)
                     dialPhoneNumber(context, favContacts.get(1).number)
+                else remoteViews?.setOnClickPendingIntent(
+                    R.id.imgv_contact2, PendingIntent.getActivity(
+                        context, 111,
+                        Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
+                        PendingIntent.FLAG_IMMUTABLE
+                    )
+                )
+            else remoteViews?.setOnClickPendingIntent(
+                R.id.imgv_contact2, PendingIntent.getActivity(
+                    context, 111,
+                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+
         }
         if (C3_CLICKED == intent.action) {
             if (favContacts != null)
-                if (favContacts.size > 0)
+                if (favContacts.size > 2)
                     dialPhoneNumber(context, favContacts.get(2).number)
+                else remoteViews?.setOnClickPendingIntent(
+                    R.id.imgv_contact3, PendingIntent.getActivity(
+                        context, 111,
+                        Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
+                        PendingIntent.FLAG_IMMUTABLE
+                    )
+                )
+            else remoteViews?.setOnClickPendingIntent(
+                R.id.imgv_contact3, PendingIntent.getActivity(
+                    context, 111,
+                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+
         }
         if (C4_CLICKED == intent.action) {
             if (favContacts != null)
-                if (favContacts.size > 0)
+                if (favContacts.size > 3)
                     dialPhoneNumber(context, favContacts.get(3).number)
+                else remoteViews?.setOnClickPendingIntent(
+                    R.id.imgv_contact4, PendingIntent.getActivity(
+                        context, 111,
+                        Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
+                        PendingIntent.FLAG_IMMUTABLE
+                    )
+                )
+            else remoteViews?.setOnClickPendingIntent(
+                R.id.imgv_contact4, PendingIntent.getActivity(
+                    context, 111,
+                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+
         }
         if (C5_CLICKED == intent.action) {
             if (favContacts.size > 4)

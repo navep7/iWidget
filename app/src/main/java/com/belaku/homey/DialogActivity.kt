@@ -1,16 +1,24 @@
 package com.belaku.homey
 
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.AlertDialog
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
+import android.content.ContentValues
+import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
+import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.os.Handler
+import android.provider.ContactsContract
 import android.provider.Settings
 import android.speech.RecognizerIntent
 import android.util.Log
@@ -31,10 +39,13 @@ import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.makeSnack
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
+import com.belaku.homey.MainActivity.Companion.pickContact
+import com.belaku.homey.MainActivity.Companion.pickContactLauncher
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
+import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
@@ -45,6 +56,7 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -150,7 +162,23 @@ class DialogActivity : AppCompatActivity() {
         var dialogIntentStr = intent.getStringExtra("DialogIntent")
 
         if (dialogIntentStr != null) {
-            if (dialogIntentStr == "StT") {
+            if (dialogIntentStr == "PC") {
+                pickContactLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                    if (result.resultCode == Activity.RESULT_OK) {
+                        val contactUri = result.data?.data
+                        if (contactUri != null) {
+                            getContactInfo(contactUri)
+                            // markContactAsFavorite(contactUri)
+                        }
+                    }
+                }
+                val intent = Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
+                try {
+                    pickContactLauncher.launch(intent)
+                } catch (ex: Exception) {
+                    makeToast("Ex - ${ex.message}")
+                }
+            } else if (dialogIntentStr == "StT") {
                 edtxDialog.visibility = View.INVISIBLE
                 btnOk.visibility = View.INVISIBLE
                 btnCancel.visibility = View.INVISIBLE
@@ -261,6 +289,202 @@ class DialogActivity : AppCompatActivity() {
                 )
             }
 
+        }
+    }
+
+    private fun getContactInfo(contactUri: Uri) {
+        val contentResolver = contentResolver
+        var cursor: Cursor? = null
+
+        try {
+            cursor = contentResolver.query(
+                contactUri!!,
+                arrayOf(
+                    ContactsContract.Contacts.DISPLAY_NAME,
+                    ContactsContract.Contacts._ID,  // Add other desired columns like HAS_PHONE_NUMBER, PHOTO_URI, etc.
+                ),
+                null,
+                null,
+                null
+            )
+
+            if (cursor != null && cursor.moveToFirst()) {
+                val displayNameIndex = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
+                val contactIdIndex = cursor.getColumnIndex(ContactsContract.Contacts._ID)
+
+                if (displayNameIndex != -1) {
+                    val displayName = cursor.getString(displayNameIndex)
+                    val contactId = cursor.getLong(contactIdIndex)
+                    getContactDetails(displayName, contactId)
+
+                    // Now you have the display name and ID for the contact
+                    // You can use the contactId to query for phone numbers, email addresses, etc.
+                    // using ContactsContract.CommonDataKinds.Phone or ContactsContract.CommonDataKinds.Email
+                }
+            }
+        } finally {
+            cursor?.close()
+        }
+    }
+
+    fun markAsFav(contactId: Long) {
+        // Replace with the actual contact ID
+        val values = ContentValues()
+        values.put(ContactsContract.Contacts.STARRED, 1) // 1 for favorite, 0 for not favorite
+
+        getContentResolver().update(
+            ContactsContract.Contacts.CONTENT_URI,
+            values,
+            ContactsContract.Contacts._ID + " = ?",
+            arrayOf<String>(contactId.toString())
+        )
+
+        getFavoriteContacts(applicationContext)
+    }
+
+    @SuppressLint("Range", "UseCompatLoadingForDrawables")
+    fun getFavoriteContacts(context: Context) {
+
+        favContacts = ArrayList()
+
+        val queryUri = ContactsContract.Contacts.CONTENT_URI.buildUpon()
+            .appendQueryParameter(ContactsContract.Contacts.EXTRA_ADDRESS_BOOK_INDEX, "true")
+            .build()
+
+        val projection = arrayOf(
+            ContactsContract.Contacts._ID,
+            ContactsContract.Contacts.DISPLAY_NAME,
+            ContactsContract.Contacts.STARRED,
+            ContactsContract.Contacts.HAS_PHONE_NUMBER
+        )
+
+        val selection = ContactsContract.Contacts.STARRED + "='1'"
+
+        val cursor = context.contentResolver.query(
+            queryUri,
+            projection, selection, null, null
+        )
+
+        while (cursor!!.moveToNext()) {
+            val contactID = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
+            var phoneNumber: String = "7"
+
+            if (Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
+
+                val phones: Cursor? = context.getContentResolver().query(
+                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                    null,
+                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactID,
+                    null,
+                    null
+                )
+                while (phones!!.moveToNext()) {
+                    phoneNumber =
+                        phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                    phoneNumber = phoneNumber.filter { !it.isWhitespace() }
+                }
+            }
+
+            val intent = Intent(Intent.ACTION_VIEW)
+            val uri = Uri.withAppendedPath(
+                ContactsContract.Contacts.CONTENT_URI, contactID.toString()
+            )
+            intent.data = uri
+            val cPhUri = intent.toUri(0)
+
+            val cNme = cursor.getString(
+                cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
+            )
+
+            var c = Contact(cNme, phoneNumber, cPhUri)
+
+            favContacts.add(c)
+        }
+
+
+
+        if (favContacts.size > 0)
+            saveContacts()
+        else {
+            makeToast("You've got no Contacts marked as Favorute!.. Go ahead add some to dial from the widget directly.")
+            val builder = AlertDialog.Builder(this)
+
+            builder.setTitle("Favorites") // Set the title of the dialog
+            builder.setMessage("You've got no Contacts marked as Favorite!.. Go ahead add some to dial from the widget directly.") // Set the message of the dialog
+
+            // Set the Positive Button and its action
+            builder.setPositiveButton("Add") { dialog: DialogInterface, which: Int ->
+
+
+                pickContact()
+
+                dialog.dismiss() // Dismiss the dialog
+            }
+
+            // Create and show the AlertDialog
+            val alertDialog: AlertDialog = builder.create()
+            alertDialog.show()
+        }
+
+        cursor.close()
+
+        appWidM.updateAppWidget(newAppWidget, remoteViews)
+    }
+
+    private fun saveContacts() {
+        val key = "CTS"
+        val gson = Gson()
+        val json = gson.toJson(favContacts)
+        sharedPreferencesEditor.remove(key).commit()
+        sharedPreferencesEditor.putString(key, json).commit()
+    }
+
+    private fun getContactDetails(displayName: String?, contactId: Long) {
+        val contentResolver = contentResolver
+        var phoneCursor: Cursor? = null
+        var emailCursor: Cursor? = null
+
+        markAsFav(contactId)
+        try {
+            // Get phone numbers
+            phoneCursor = contentResolver.query(
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER),
+                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                arrayOf(contactId.toString()),
+                null
+            )
+
+            if (phoneCursor != null && phoneCursor.moveToFirst()) {
+                val phoneNumberIndex =
+                    phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                if (phoneNumberIndex != -1) {
+                    val phoneNumber = phoneCursor.getString(phoneNumberIndex)
+                    // Process phone number
+                    makeToast("Contct - $displayName : $phoneNumber")
+                }
+            }
+
+            // Get email addresses
+            emailCursor = contentResolver.query(
+                ContactsContract.CommonDataKinds.Email.CONTENT_URI,
+                arrayOf(ContactsContract.CommonDataKinds.Email.ADDRESS),
+                ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
+                arrayOf(contactId.toString()),
+                null
+            )
+
+            if (emailCursor != null && emailCursor.moveToFirst()) {
+                val emailAddressIndex =
+                    emailCursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS)
+                if (emailAddressIndex != -1) {
+                    val emailAddress = emailCursor.getString(emailAddressIndex)
+                    // Process email address
+                }
+            }
+        } finally {
+            phoneCursor?.close()
+            emailCursor?.close()
         }
     }
 
