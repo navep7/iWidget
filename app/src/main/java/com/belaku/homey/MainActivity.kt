@@ -21,6 +21,7 @@ import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
 import android.content.ComponentName
+import android.content.ContentValues
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -85,7 +86,6 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.choosenApps
-import com.belaku.homey.NewAppWidget.Companion.contactActivityResultLauncher
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
@@ -182,6 +182,7 @@ class MainActivity : AppCompatActivity() {
         sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
+        launchers()
 
         MobileAds.initialize(
             this
@@ -195,21 +196,6 @@ class MainActivity : AppCompatActivity() {
         screenWidth = metrics.widthPixels
 
 
-        contactActivityResultLauncher = registerForActivityResult<Intent, ActivityResult>(
-            ActivityResultContracts.StartActivityForResult()
-        ) { result: ActivityResult ->
-            if (result.resultCode == RESULT_OK) {
-                // Handle the result data from the Intent
-                val data = result.data
-
-                if (data != null) {
-                    data.data?.let { getContactDetails(it) }
-                }
-
-                //   makeToast(data.toString())
-                // Process data here
-            }
-        }
 
         if (apps.size == 0)
             getApps()
@@ -314,6 +300,7 @@ class MainActivity : AppCompatActivity() {
                         mAct,
                         arrayOf(
                             Manifest.permission.READ_CONTACTS,
+                            Manifest.permission.WRITE_CONTACTS,
                             Manifest.permission.CALL_PHONE,
                             Manifest.permission.ACTIVITY_RECOGNITION,
                             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -413,20 +400,100 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    @SuppressLint("Range")
-    private fun getContactDetails(contactUri: Uri) {
-        val cursor = contentResolver.query(contactUri, null, null, null, null)
-        if (cursor != null && cursor.moveToFirst()) {
-            val cName =
-                cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME))
-            val cNum =
-                cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+    private fun launchers() {
 
-            makeToast(cName + " - " + cNum)
+        pickContactLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val contactUri = result.data?.data
+                if (contactUri != null) {
+                    getContactInfo(contactUri)
+                // markContactAsFavorite(contactUri)
+                }
+            }
+        }
 
-            // You can also query for phone numbers or other details using other URIs like ContactsContract.CommonDataKinds.Phone.CONTENT_URI
-            cursor.close()
-            // Use the retrieved name or other details
+    }
+
+    fun getContactInfo(contactUri: Uri) {
+        val contentResolver = contentResolver
+        var cursor: Cursor? = null
+
+        try {
+            cursor = contentResolver.query(
+                contactUri!!,
+                arrayOf(
+                    ContactsContract.Contacts.DISPLAY_NAME,
+                    ContactsContract.Contacts._ID,  // Add other desired columns like HAS_PHONE_NUMBER, PHOTO_URI, etc.
+                ),
+                null,
+                null,
+                null
+            )
+
+            if (cursor != null && cursor.moveToFirst()) {
+                val displayNameIndex = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
+                val contactIdIndex = cursor.getColumnIndex(ContactsContract.Contacts._ID)
+
+                if (displayNameIndex != -1) {
+                    val displayName = cursor.getString(displayNameIndex)
+                    val contactId = cursor.getLong(contactIdIndex)
+                    getContactDetails(displayName, contactId)
+
+                    // Now you have the display name and ID for the contact
+                    // You can use the contactId to query for phone numbers, email addresses, etc.
+                    // using ContactsContract.CommonDataKinds.Phone or ContactsContract.CommonDataKinds.Email
+                }
+            }
+        } finally {
+            cursor?.close()
+        }
+    }
+
+    fun getContactDetails(displayName: String, contactId: Long) {
+        val contentResolver = contentResolver
+        var phoneCursor: Cursor? = null
+        var emailCursor: Cursor? = null
+
+        try {
+            // Get phone numbers
+            phoneCursor = contentResolver.query(
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER),
+                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                arrayOf(contactId.toString()),
+                null
+            )
+
+            if (phoneCursor != null && phoneCursor.moveToFirst()) {
+                val phoneNumberIndex =
+                    phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                if (phoneNumberIndex != -1) {
+                    val phoneNumber = phoneCursor.getString(phoneNumberIndex)
+                    // Process phone number
+                    makeToast("Contct - $displayName : $phoneNumber")
+                }
+            }
+
+            // Get email addresses
+            emailCursor = contentResolver.query(
+                ContactsContract.CommonDataKinds.Email.CONTENT_URI,
+                arrayOf(ContactsContract.CommonDataKinds.Email.ADDRESS),
+                ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
+                arrayOf(contactId.toString()),
+                null
+            )
+
+            if (emailCursor != null && emailCursor.moveToFirst()) {
+                val emailAddressIndex =
+                    emailCursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS)
+                if (emailAddressIndex != -1) {
+                    val emailAddress = emailCursor.getString(emailAddressIndex)
+                    // Process email address
+                }
+            }
+        } finally {
+            phoneCursor?.close()
+            emailCursor?.close()
         }
     }
 
@@ -989,17 +1056,46 @@ class MainActivity : AppCompatActivity() {
             favContacts.add(c)
         }
 
-        saveContacts()
+
+
+        if (favContacts.size > 0)
+            saveContacts()
+        else {
+            makeToast("You've got no Contacts marked as Favorute!.. Go ahead add some to dial from the widget directly.")
+            val builder = AlertDialog.Builder(this)
+
+            builder.setTitle("Favorites") // Set the title of the dialog
+            builder.setMessage("You've got no Contacts marked as Favorite!.. Go ahead add some to dial from the widget directly.") // Set the message of the dialog
+
+            // Set the Positive Button and its action
+            builder.setPositiveButton("Add") { dialog: DialogInterface, which: Int ->
+
+
+                pickContact()
+
+                dialog.dismiss() // Dismiss the dialog
+            }
+
+            // Create and show the AlertDialog
+            val alertDialog: AlertDialog = builder.create()
+            alertDialog.show()
+        }
 
         cursor.close()
+    }
 
-        for (i in 0 until favContacts.size) {
-            Log.d(
-                "cLog",
-                "cName: ${favContacts.get(i).name}, cPic: ${favContacts.get(i).image}, cNum: ${
-                    favContacts.get(i).number
-                } "
-            )
+    private fun markContactAsFavorite(contactUri: Uri) {
+        val contentResolver = contentResolver
+        val values = ContentValues().apply {
+            put(ContactsContract.Contacts.STARRED, 1) // 1 to mark as favorite, 0 to unmark
+        }
+
+        val rowsUpdated = contentResolver.update(contactUri, values, null, null)
+
+        if (rowsUpdated > 0) {
+            Toast.makeText(this, "Contact marked as favorite", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Failed to mark contact as favorite", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -1335,6 +1431,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
 
+        lateinit var pickContactLauncher: ActivityResultLauncher<Intent>
         private val CPick: Int = 7
         private val REQUEST_CONTACT_PICKER: Int = 9
         lateinit var pDNews: ProgressDialog
@@ -1600,18 +1697,20 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        fun pickContact() {
-
-            makeToast("pickContact!")
-            val intent =
-                Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI)
-            contactActivityResultLauncher.launch(intent)
-        }
 
         fun isLocationEnabled(context: Context): Boolean {
             val locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
             return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
                     locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        }
+
+        fun pickContact() {
+            val intent = Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
+            try {
+                pickContactLauncher.launch(intent)
+            } catch (ex: Exception) {
+                makeToast("Ex - ${ex.message}")
+            }
         }
 
 

@@ -5,6 +5,7 @@ package com.belaku.homey
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.PendingIntent
 import android.app.WallpaperManager
 import android.app.admin.DevicePolicyManager
@@ -54,6 +55,7 @@ import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
@@ -65,6 +67,7 @@ import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.newsIndex
+import com.belaku.homey.MainActivity.Companion.pickContactLauncher
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
@@ -114,7 +117,7 @@ class NewAppWidget : AppWidgetProvider() {
         appContx = context!!
         onEn = true
         dNews = appContx.resources.getDrawable(R.drawable.face_holder)
-        Log.d("onEnabled! - ", favContacts.size.toString())
+//        Log.d("onEnabled! - ", favContacts.size.toString())
         getWeatherData()
     }
 
@@ -158,9 +161,11 @@ class NewAppWidget : AppWidgetProvider() {
                 locIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
-            remoteViews?.setOnClickPendingIntent(R.id.tx_place,
-                locPendingIntent)
-        } else  remoteViews?.setTextViewText(
+            remoteViews?.setOnClickPendingIntent(
+                R.id.tx_place,
+                locPendingIntent
+            )
+        } else remoteViews?.setTextViewText(
             R.id.tx_place,
             "⚲ " + cityname
         )
@@ -461,9 +466,11 @@ class NewAppWidget : AppWidgetProvider() {
                 locIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
-            remoteViews?.setOnClickPendingIntent(R.id.tx_place,
-                locPendingIntent)
-        } else  remoteViews?.setTextViewText(
+            remoteViews?.setOnClickPendingIntent(
+                R.id.tx_place,
+                locPendingIntent
+            )
+        } else remoteViews?.setTextViewText(
             R.id.tx_place,
             "⚲ " + cityname
         )
@@ -551,7 +558,7 @@ class NewAppWidget : AppWidgetProvider() {
                 randomTweetIndex = (0..listTweets.size - 1).random()
 
                 if (noRewards != 0)
-                tW = listTweets[randomTweetIndex]
+                    tW = listTweets[randomTweetIndex]
                 else tW = listTweets[0]
                 sharedPreferencesEditor.putString("tW", tW).apply()
             } else {
@@ -876,10 +883,15 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
-        remoteViews?.setTextViewText(R.id.tx_rewards_count, "" + sharedPreferences.getInt("noRewards", 5))
+        remoteViews?.setTextViewText(
+            R.id.tx_rewards_count,
+            "" + sharedPreferences.getInt("noRewards", 5)
+        )
 
-        remoteViews?.setTextViewText(R.id.tx_tweets,
-            "@" + twitterProfileName + "\t ~ \t" + tW)
+        remoteViews?.setTextViewText(
+            R.id.tx_tweets,
+            "@" + twitterProfileName + "\t ~ \t" + tW
+        )
 
         remoteViews?.setTextViewText(
             R.id.tx_desc_walltype,
@@ -1236,22 +1248,34 @@ class NewAppWidget : AppWidgetProvider() {
             }
         }
 
+
         if (C_CLICKED == intent.action) {
             val intentContacts = Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI)
             intentContacts.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             appContx.startActivity(intentContacts)
         }
         if (C1_CLICKED == intent.action) {
-            dialPhoneNumber(context, favContacts.get(0).number)
+            if (favContacts != null)
+                if (favContacts.size > 0)
+                    dialPhoneNumber(context, favContacts.get(0).number)
+                else MainActivity.pickContact()
+            else MainActivity.pickContact()
+
         }
         if (C2_CLICKED == intent.action) {
-            dialPhoneNumber(context, favContacts.get(1).number)
+            if (favContacts != null)
+                if (favContacts.size > 0)
+                    dialPhoneNumber(context, favContacts.get(1).number)
         }
         if (C3_CLICKED == intent.action) {
-            dialPhoneNumber(context, favContacts.get(2).number)
+            if (favContacts != null)
+                if (favContacts.size > 0)
+                    dialPhoneNumber(context, favContacts.get(2).number)
         }
         if (C4_CLICKED == intent.action) {
-            dialPhoneNumber(context, favContacts.get(3).number)
+            if (favContacts != null)
+                if (favContacts.size > 0)
+                    dialPhoneNumber(context, favContacts.get(3).number)
         }
         if (C5_CLICKED == intent.action) {
             if (favContacts.size > 4)
@@ -1312,7 +1336,10 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (isWifiEnabled(context))
             if (!isWifiConnected(context))
-                remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_on_but_not_connected)
+                remoteViews?.setImageViewResource(
+                    R.id.fab_wifi,
+                    R.drawable.wifi_on_but_not_connected
+                )
 
 
         if ("TWEET".equals(intent.getAction()))
@@ -1354,10 +1381,13 @@ class NewAppWidget : AppWidgetProvider() {
 
         appWidgetView.findViewById<TextView>(R.id.tx_wish).setText(timelyWish)
 
-        appWidgetView.findViewById<TextView>(R.id.tx_st_since).setText( "since ${currentHour % 12} $ampm, yday...")
-        appWidgetView.findViewById<TextView>(R.id.clock).setText("${nowCalendar.get(Calendar.HOUR)}:$currentMin $ampm")
+        appWidgetView.findViewById<TextView>(R.id.tx_st_since)
+            .setText("since ${currentHour % 12} $ampm, yday...")
+        appWidgetView.findViewById<TextView>(R.id.clock)
+            .setText("${nowCalendar.get(Calendar.HOUR)}:$currentMin $ampm")
         appWidgetView.findViewById<TextView>(R.id.tx_place).setText("⚲ " + cityname)
-        appWidgetView.findViewById<TextView>(R.id.tx_steps).setText("Today, " + stepsToday.toString())
+        appWidgetView.findViewById<TextView>(R.id.tx_steps)
+            .setText("Today, " + stepsToday.toString())
         appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact1).visibility = View.INVISIBLE
         appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact2).visibility = View.INVISIBLE
         appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact3).visibility = View.INVISIBLE
@@ -1625,7 +1655,9 @@ class NewAppWidget : AppWidgetProvider() {
 
         conIndex = 0
 
-        addContactInWidget(appContx, favContacts)
+        if (favContacts != null)
+            if (favContacts.size > 0)
+                addContactInWidget(appContx, favContacts)
     }
 
 
