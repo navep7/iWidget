@@ -1349,7 +1349,7 @@ class MainActivity : AppCompatActivity() {
         if (imgUrls.size == 0) {
 
             if (queryType.length != 0) {
-                makeSnack("Showing $queryType wallpapers... Search using above Bar if you seek something else.. Or Set!")
+
                 pexelUrl = "https://api.pexels.com/v1/search?query=$queryType&per_page=35"
                 val request: StringRequest = @SuppressLint("NotifyDataSetChanged")
                 object : StringRequest(
@@ -1364,14 +1364,18 @@ class MainActivity : AppCompatActivity() {
                             val length = jsonArray.length()
 
 
-                            for (i in 0 until length) {
-                                val jsonObject = jsonArray.getJSONObject(i)
-                                val objectImages = jsonObject.getJSONObject("src")
-                                imgUrls.add("$i + ${objectImages.getString("original")}")
-                                imgDescs.add("$i + ${jsonObject.getString("alt")})")
-                            }
+                            if (length > 0 ) {
+                                makeSnack("Showing $queryType wallpapers... Search using above Bar if you seek something else.. Or Set!")
+                                for (i in 0 until length) {
+                                    val jsonObject = jsonArray.getJSONObject(i)
+                                    val objectImages = jsonObject.getJSONObject("src")
+                                    imgUrls.add("$i + ${objectImages.getString("original")}")
+                                    imgDescs.add("$i + ${jsonObject.getString("alt")})")
+                                }
+                                rvAdapter.notifyItemRangeChanged(0, length)
+                            } else makeSnack("doesn't match any existing set")
 
-                            rvAdapter.notifyItemRangeChanged(0, length)
+
                             pD.dismiss()
 
 
