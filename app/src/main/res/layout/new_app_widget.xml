@@ -360,7 +360,7 @@
 
         <LinearLayout
             android:id="@+id/ll_apps2"
-            android:visibility="invisible"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/ll_apps"
@@ -588,7 +588,7 @@
 
         <LinearLayout
             android:id="@+id/ll_contacts2"
-            android:visibility="invisible"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/ll_contacts"
@@ -814,6 +814,8 @@
             android:textStyle="bold" />
 
     </RelativeLayout>
+
+
 
 
     <ImageButton
