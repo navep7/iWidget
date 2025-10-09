@@ -90,6 +90,7 @@ import kotlin.properties.Delegates
 class NewAppWidget : AppWidgetProvider() {
 
 
+    private lateinit var dayOfTheWeek: String
     private lateinit var nowCalendar: Calendar
     private lateinit var ampm: String
     private lateinit var pendingIntentD: PendingIntent
@@ -287,8 +288,19 @@ class NewAppWidget : AppWidgetProvider() {
 
 
             remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_steps,
+                R.id.tx_now_steps,
                 getPendingSelfIntent(context, STEPS_NOW)
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.tx_steps_info, PendingIntent.getActivity(
+                    context, 7,
+                    Intent(context, DialogActivity::class.java).putExtra(
+                        "DialogIntent",
+                        "stepsInfo"
+                    ),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
             )
 
             remoteViews?.setOnClickPendingIntent(
@@ -588,8 +600,6 @@ class NewAppWidget : AppWidgetProvider() {
         if (currentMin.toString().length == 1)
             currentMin = ("0$currentMin").toInt()*/
 
-        if (currentHour == 23)
-            stepsToday = 0
 
         getScreenTime()
 
@@ -707,7 +717,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_steps,
+            R.id.tx_now_steps,
             getPendingSelfIntent(context, STEPS_NOW)
         )
 
@@ -1007,10 +1017,12 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (STEPS_NOW == intent.action) {
             if (boolNewLap) {
+                remoteViews?.setTextViewText(R.id.tx_now_steps, " + ")
                 remoteViews?.setTextViewText(R.id.tx_n_steps, "")
                 remoteViews?.setViewVisibility(R.id.vertical_divider, View.INVISIBLE)
                 //  remoteViews?.setTextViewText(R.id.tx_add_remove_newlap, "+")
             } else {
+                remoteViews?.setTextViewText(R.id.tx_now_steps, " - ")
                 remoteViews?.setTextViewText(R.id.tx_n_steps, "Now, " + "0")
                 remoteViews?.setViewVisibility(R.id.vertical_divider, View.VISIBLE)
                 //  remoteViews?.setTextViewText(R.id.tx_add_remove_newlap, "x")
@@ -1444,7 +1456,7 @@ class NewAppWidget : AppWidgetProvider() {
             .setText("${nowCalendar.get(Calendar.HOUR)}:$currentMin $ampm")
         appWidgetView.findViewById<TextView>(R.id.tx_place).setText("⚲ " + cityname)
         appWidgetView.findViewById<TextView>(R.id.tx_steps)
-            .setText("Today, " + stepsToday.toString())
+            .setText("$dayOfTheWeek ~ " + stepsToday.toString())
         appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact1).visibility = View.INVISIBLE
         appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact2).visibility = View.INVISIBLE
         appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact3).visibility = View.INVISIBLE
@@ -1550,6 +1562,26 @@ class NewAppWidget : AppWidgetProvider() {
         calendar.add(Calendar.DAY_OF_YEAR, -1) // Query for the last 24 hours
         val startTime = calendar.timeInMillis
 
+        when (calendar.get(Calendar.DAY_OF_WEEK)) {
+            1 -> dayOfTheWeek = "Monday"
+            2 -> dayOfTheWeek = "Tuesday"
+            3 -> dayOfTheWeek = "Wednesday"
+            4 -> dayOfTheWeek = "Thursday"
+            5 -> dayOfTheWeek = "Friday"
+            6 -> dayOfTheWeek = "Saturday"
+            7 -> dayOfTheWeek = "Sunday"
+        }
+
+
+    //    makeToast("cmprng - " + sharedPreferences.getString("day", "someday") + " VS " + dayOfTheWeek)
+        if (sharedPreferences.getString("day", "someday").equals(dayOfTheWeek))
+      //      makeToast("same Day")
+        else {
+        //    makeToast("diff Day")
+            stepsToday = 0
+        }
+
+        sharedPreferencesEditor.putString("day", dayOfTheWeek).apply()
 
         // Get a map of package names to UsageStats objects
         val usageStatsMap = usageStatsManager.queryAndAggregateUsageStats(startTime, endTime)
@@ -1686,7 +1718,7 @@ class NewAppWidget : AppWidgetProvider() {
         // remoteViews?.setTextViewText(R.id.tx_date, formattedDate)
         sharedPreferencesEditor.putBoolean("DateSet", true).apply()
         sharedPreferencesEditor.putString("fD", formattedDate).apply()
-        remoteViews?.setTextViewText(R.id.tx_steps, "Today, " + stepsToday.toString())
+        remoteViews?.setTextViewText(R.id.tx_steps, "$dayOfTheWeek ~ " + stepsToday.toString())
         remoteViews?.setTextViewText(
             R.id.tx_day_date,
             SimpleDateFormat("EEE", Locale.getDefault()).format(c) +
@@ -2014,7 +2046,8 @@ class NewAppWidget : AppWidgetProvider() {
 
         //    private const val RL_INVERT = "rlInvert"
         private const val GET_WEATHER = "getWeather"
-        private const val STEPS_NOW = "resetSteps"
+        private const val STEPS_NOW = "newSteps"
+        private const val STEPS_INFO = "infoSteps"
         private const val LOCK_PHONE = "lockPhone"
         private const val WALL_CHANGE = "wallChange"
         private const val SET_CLICKED = "setButtonClick"

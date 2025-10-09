@@ -34,6 +34,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.viewpager2.widget.ViewPager2
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.makeSnack
@@ -78,6 +79,7 @@ class DialogActivity : AppCompatActivity() {
     private lateinit var llDialog: LinearLayout
     private lateinit var txTitle: TextView
     private lateinit var txContent: TextView
+    private lateinit var vpSteps: ViewPager2
 
     private lateinit var edtxDialog: EditText
 
@@ -157,6 +159,7 @@ class DialogActivity : AppCompatActivity() {
         btnOk = findViewById<Button>(R.id.btn_dialog_ok)
         btnCancel = findViewById<Button>(R.id.btn_dialog_cancel)
         imgbtnShare = findViewById<ImageButton>(R.id.imgbtn_dialog_share)
+        vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
 
 
         var dialogIntentStr = intent.getStringExtra("DialogIntent")
@@ -182,6 +185,7 @@ class DialogActivity : AppCompatActivity() {
                 edtxDialog.visibility = View.INVISIBLE
                 btnOk.visibility = View.INVISIBLE
                 btnCancel.visibility = View.INVISIBLE
+                vpSteps.visibility = View.GONE
                 txTitle.setText("Speech to Text")
                 txContent.setText("listening...")
 
@@ -207,6 +211,7 @@ class DialogActivity : AppCompatActivity() {
                 edtxDialog.visibility = View.INVISIBLE
                 btnOk.visibility = View.INVISIBLE
                 btnCancel.visibility = View.INVISIBLE
+                vpSteps.visibility = View.GONE
                 txTitle.setText("Tweet")
                 txContent.setText(tW)
                 imgbtnShare.setOnClickListener(View.OnClickListener {
@@ -216,6 +221,7 @@ class DialogActivity : AppCompatActivity() {
                 txTitle.setText("Twitter")
                 txContent.visibility = View.INVISIBLE
                 edtxDialog.visibility = View.VISIBLE
+                vpSteps.visibility = View.GONE
                 btnOk.setText("Set")
                 btnOk.setOnClickListener(View.OnClickListener {
                     if (edtxDialog.text.toString().equals("Fact")) {
@@ -258,6 +264,7 @@ class DialogActivity : AppCompatActivity() {
                 imgbtnShare.visibility = View.GONE
                 btnOk.visibility = View.GONE
                 btnCancel.visibility = View.GONE
+                vpSteps.visibility = View.GONE
 
                 RewardedInterstitialAd.load(
                     this,
@@ -287,6 +294,24 @@ class DialogActivity : AppCompatActivity() {
                         }
                     },
                 )
+            } else if (dialogIntentStr == "stepsInfo") {
+                txTitle.setText("Steps...")
+                txContent.visibility = View.GONE
+                edtxDialog.visibility = View.GONE
+                vpSteps.visibility = View.VISIBLE
+
+                var stepsData: ArrayList<String> = ArrayList()
+                stepsData.add("5")
+                stepsData.add("25")
+                stepsData.add("75")
+                stepsData.add("255")
+                stepsData.add("500")
+                stepsData.add("2500")
+                stepsData.add("50000")
+
+
+                vpSteps.adapter = StepsAdapter(stepsData)
+                makeToast("yet2Impl Steps!")
             }
 
         }

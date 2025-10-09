@@ -877,7 +877,6 @@
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_toEndOf="@+id/txx_steps"
-
             android:background="@android:color/transparent"
             android:scaleType="fitXY"
             android:src="@drawable/steps" />
@@ -896,12 +895,24 @@
             tools:ignore="HardcodedText" />
 
         <TextView
+            android:id="@+id/tx_now_steps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/fab_margin"
+            android:layout_toEndOf="@+id/tx_steps"
+            android:text=" + "
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+
+        <TextView
             android:id="@+id/vertical_divider"
             android:layout_width="5dp"
             android:layout_height="match_parent"
             android:layout_marginStart="@dimen/fab_margin"
             android:layout_marginEnd="@dimen/fab_margin"
-            android:layout_toEndOf="@+id/tx_steps"
+            android:layout_toEndOf="@+id/tx_now_steps"
             android:background="@android:color/black"
             android:visibility="invisible" />
 
@@ -914,6 +925,20 @@
             android:textColor="@android:color/white"
             android:textSize="15sp"
             android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tx_steps_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/fab_margin"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/fab_margin"
+            android:text="ⓘ"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+
 
     </RelativeLayout>
 
