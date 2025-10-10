@@ -25,6 +25,7 @@ import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.NewAppWidget.Companion.appWidM
+import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.TAG
@@ -84,6 +85,7 @@ class StepsService : Service() {
 
                 if (stepsToday % 10 == 0) {
                     remoteViews?.setTextViewText(R.id.tx_steps, "Today, " + stepsToday.toString())
+                    sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
                     if (boolNewLap) {
                         remoteViews?.setTextViewText(
                             R.id.tx_n_steps,

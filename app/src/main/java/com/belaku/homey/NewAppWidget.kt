@@ -90,7 +90,7 @@ import kotlin.properties.Delegates
 class NewAppWidget : AppWidgetProvider() {
 
 
-    private lateinit var dayOfTheWeek: String
+    private lateinit var calendar: Calendar
     private lateinit var nowCalendar: Calendar
     private lateinit var ampm: String
     private lateinit var pendingIntentD: PendingIntent
@@ -595,12 +595,6 @@ class NewAppWidget : AppWidgetProvider() {
         else ampm = "pm"
 
 
-        /*if (currentHour.toString().length == 1)
-            currentHour = ("0$currentHour").toInt()
-        if (currentMin.toString().length == 1)
-            currentMin = ("0$currentMin").toInt()*/
-
-
         getScreenTime()
 
         val aiIntent = Intent(context, AiActivity::class.java)
@@ -719,6 +713,17 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setOnClickPendingIntent(
             R.id.tx_now_steps,
             getPendingSelfIntent(context, STEPS_NOW)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_steps_info, PendingIntent.getActivity(
+                context, 7,
+                Intent(context, DialogActivity::class.java).putExtra(
+                    "DialogIntent",
+                    "stepsInfo"
+                ).putExtra("day", calendar.get(Calendar.DAY_OF_WEEK)),
+                PendingIntent.FLAG_IMMUTABLE
+            )
         )
 
         remoteViews?.setOnClickPendingIntent(
@@ -1557,7 +1562,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         val usageStatsManager =
             appContx.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        val calendar = Calendar.getInstance()
+        calendar = Calendar.getInstance()
         val endTime = calendar.timeInMillis
         calendar.add(Calendar.DAY_OF_YEAR, -1) // Query for the last 24 hours
         val startTime = calendar.timeInMillis
@@ -1578,7 +1583,9 @@ class NewAppWidget : AppWidgetProvider() {
       //      makeToast("same Day")
         else {
         //    makeToast("diff Day")
+            sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
             stepsToday = 0
+
         }
 
         sharedPreferencesEditor.putString("day", dayOfTheWeek).apply()
@@ -1818,6 +1825,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     companion object {
+        lateinit var dayOfTheWeek: String
         var noRewards: Int = 0
         lateinit var contactActivityResultLauncher: ActivityResultLauncher<Intent>
         var tW: String = "..."
@@ -2047,7 +2055,6 @@ class NewAppWidget : AppWidgetProvider() {
         //    private const val RL_INVERT = "rlInvert"
         private const val GET_WEATHER = "getWeather"
         private const val STEPS_NOW = "newSteps"
-        private const val STEPS_INFO = "infoSteps"
         private const val LOCK_PHONE = "lockPhone"
         private const val WALL_CHANGE = "wallChange"
         private const val SET_CLICKED = "setButtonClick"

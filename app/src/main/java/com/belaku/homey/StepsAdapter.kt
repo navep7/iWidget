@@ -13,13 +13,34 @@ class StepsAdapter(private val stepsData: ArrayList<String>) : RecyclerView.Adap
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: StepsViewHolder, position: Int) {
         when(position) {
-            0 -> holder.cheeseName.text = "Monday \n ${stepsData[position]}"
-            1 -> holder.cheeseName.text = "Tuesday \n ${stepsData[position]}"
-            2 -> holder.cheeseName.text = "Wednesday \n ${stepsData[position]}"
-            3 -> holder.cheeseName.text = "Thursday \n ${stepsData[position]}"
-            4 -> holder.cheeseName.text = "Friday \n ${stepsData[position]}"
-            5 -> holder.cheeseName.text = "Saturday \n ${stepsData[position]}"
-            6 -> holder.cheeseName.text = "Sunday \n ${stepsData[position]}"
+            0 -> {
+                holder.txSteps.text = "Monday \n ${stepsData[position]} steps..."
+                holder.progressSteps.progress = (stepsData[position].toInt() % 100)
+            }
+            1 -> {
+                holder.txSteps.text = "Tuesday \n ${stepsData[position]} steps..."
+                holder.progressSteps.progress = (stepsData[position].toInt() % 100)
+            }
+            2 -> {
+                holder.txSteps.text = "Wednesday \n ${stepsData[position]} steps..."
+                holder.progressSteps.progress = (stepsData[position].toInt() % 100)
+            }
+            3 -> {
+                holder.txSteps.text = "Thursday \n ${stepsData[position]} steps..."
+                holder.progressSteps.progress = (stepsData[position].toInt() % 100)
+            }
+            4 -> {
+                holder.txSteps.text = "Friday \n ${stepsData[position]} steps..."
+                holder.progressSteps.progress = (stepsData[position].toInt() % 100)
+            }
+            5 -> {
+                holder.txSteps.text = "Saturday \n ${stepsData[position]} steps..."
+                holder.progressSteps.progress = stepsData[position].toInt()
+            }
+            6 -> {
+                holder.txSteps.text = "Sunday \n ${stepsData[position]} steps..."
+                holder.progressSteps.progress = stepsData[position].toInt()
+            }
         }
 
     }

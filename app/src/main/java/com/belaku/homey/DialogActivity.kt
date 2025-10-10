@@ -23,6 +23,7 @@ import android.provider.Settings
 import android.speech.RecognizerIntent
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.view.Window
 import android.widget.Button
 import android.widget.EditText
@@ -88,12 +89,14 @@ class DialogActivity : AppCompatActivity() {
 
     private lateinit var imgbtnShare: ImageButton
 
+    @SuppressLint("ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_dialog)
+
 
         rewardedInterstitialAd?.fullScreenContentCallback =
             object : FullScreenContentCallback() {
@@ -141,16 +144,6 @@ class DialogActivity : AppCompatActivity() {
                 }
             }
 
-        var wifiLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode == AppCompatActivity.RESULT_OK) {
-                    if (blE)
-                        makeToast("Wifi ON")
-                    else makeToast("Wifi OFF")
-                } else {
-                    // Bluetooth not enabled by user
-                }
-            }
 
         llDialog = findViewById<LinearLayout>(R.id.dialog_layout)
         txTitle = findViewById<TextView>(R.id.tx_dialog_title)
@@ -295,22 +288,27 @@ class DialogActivity : AppCompatActivity() {
                     },
                 )
             } else if (dialogIntentStr == "stepsInfo") {
+
+                window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+
+                llDialog.setBackgroundColor(android.R.color.transparent)
                 txTitle.setText("Steps...")
                 txContent.visibility = View.GONE
                 edtxDialog.visibility = View.GONE
                 vpSteps.visibility = View.VISIBLE
 
                 var stepsData: ArrayList<String> = ArrayList()
-                stepsData.add("5")
-                stepsData.add("25")
-                stepsData.add("75")
-                stepsData.add("255")
-                stepsData.add("500")
-                stepsData.add("2500")
-                stepsData.add("50000")
+                stepsData.add(intent.getIntExtra("Monday", 0).toString())
+                stepsData.add(intent.getIntExtra("Tuesday", 0).toString())
+                stepsData.add(intent.getIntExtra("Wednesday", 0).toString())
+                stepsData.add(intent.getIntExtra("Thursday", 0).toString())
+                stepsData.add(intent.getIntExtra("Friday", 0).toString())
+                stepsData.add(intent.getIntExtra("Saturday", 0).toString())
+                stepsData.add(intent.getIntExtra("Sunday", 0).toString())
 
 
                 vpSteps.adapter = StepsAdapter(stepsData)
+                vpSteps.currentItem = intent.getIntExtra("day", 0) - 1
                 makeToast("yet2Impl Steps!")
             }
 
