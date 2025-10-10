@@ -5,7 +5,6 @@ package com.belaku.homey
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.PendingIntent
 import android.app.WallpaperManager
 import android.app.admin.DevicePolicyManager
@@ -55,7 +54,6 @@ import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
@@ -67,7 +65,6 @@ import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.newsIndex
-import com.belaku.homey.MainActivity.Companion.pickContactLauncher
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
@@ -119,7 +116,7 @@ class NewAppWidget : AppWidgetProvider() {
         onEn = true
         dNews = appContx.resources.getDrawable(R.drawable.face_holder)
 //        Log.d("onEnabled! - ", favContacts.size.toString())
-        getWeatherData()
+        getWeatherData(false)
     }
 
     override fun onDisabled(context: Context?) {
@@ -967,7 +964,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (GET_WEATHER == intent.action) {
             remoteViews?.setTextViewText(R.id.tx_weather_icon_temp, "")
-            getWeatherData()
+            getWeatherData(true)
             remoteViews?.setTextViewText(
                 R.id.tx_weather_icon_temp,
                 MainActivity.tempC.substring(
@@ -1701,7 +1698,7 @@ class NewAppWidget : AppWidgetProvider() {
             )
                 remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clouds)
         } else {
-            getWeatherData()
+            getWeatherData(false)
             if (MainActivity.tempC.length > 3) {
                 remoteViews?.setTextViewText(
                     R.id.tx_weather_icon_temp,

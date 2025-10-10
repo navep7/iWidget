@@ -1558,7 +1558,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         @OptIn(DelicateCoroutinesApi::class)
-        fun getWeatherData() {
+        fun getWeatherData(b: Boolean) {
 
             try {
                 val weatherService = Retrofit.Builder()
@@ -1584,7 +1584,8 @@ class MainActivity : AppCompatActivity() {
 
 
                         Log.d("weatherInfo", tempC + " - " + tempKind)
-                         makeToast(
+                        if (b)
+                        makeToast(
                              "weatherInfo - " + tempC.substring(
                                  0,
                                  4

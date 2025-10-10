@@ -15,31 +15,31 @@ class StepsAdapter(private val stepsData: ArrayList<String>) : RecyclerView.Adap
         when(position) {
             0 -> {
                 holder.txSteps.text = "Monday \n ${stepsData[position]} steps..."
-                holder.progressSteps.progress = (stepsData[position].toInt() % 100)
+                holder.progressSteps.progress = (stepsData[position].toInt() / 100)
             }
             1 -> {
                 holder.txSteps.text = "Tuesday \n ${stepsData[position]} steps..."
-                holder.progressSteps.progress = (stepsData[position].toInt() % 100)
+                holder.progressSteps.progress = (stepsData[position].toInt() / 100)
             }
             2 -> {
                 holder.txSteps.text = "Wednesday \n ${stepsData[position]} steps..."
-                holder.progressSteps.progress = (stepsData[position].toInt() % 100)
+                holder.progressSteps.progress = (stepsData[position].toInt() / 100)
             }
             3 -> {
                 holder.txSteps.text = "Thursday \n ${stepsData[position]} steps..."
-                holder.progressSteps.progress = (stepsData[position].toInt() % 100)
+                holder.progressSteps.progress = (stepsData[position].toInt() / 100)
             }
             4 -> {
                 holder.txSteps.text = "Friday \n ${stepsData[position]} steps..."
-                holder.progressSteps.progress = (stepsData[position].toInt() % 100)
+                holder.progressSteps.progress = (stepsData[position].toInt() / 100)
             }
             5 -> {
                 holder.txSteps.text = "Saturday \n ${stepsData[position]} steps..."
-                holder.progressSteps.progress = stepsData[position].toInt()
+                holder.progressSteps.progress = stepsData[position].toInt() / 100
             }
             6 -> {
                 holder.txSteps.text = "Sunday \n ${stepsData[position]} steps..."
-                holder.progressSteps.progress = stepsData[position].toInt()
+                holder.progressSteps.progress = stepsData[position].toInt() / 100
             }
         }
 
