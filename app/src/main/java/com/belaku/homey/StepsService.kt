@@ -84,7 +84,7 @@ class StepsService : Service() {
 
 
                 if (stepsToday % 10 == 0) {
-                    remoteViews?.setTextViewText(R.id.tx_steps, "Today, " + stepsToday.toString())
+                    remoteViews?.setTextViewText(R.id.tx_steps, "$dayOfTheWeek, " + stepsToday.toString())
                     sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
                     if (boolNewLap) {
                         remoteViews?.setTextViewText(

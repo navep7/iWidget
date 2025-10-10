@@ -43,9 +43,11 @@ import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.pickContact
 import com.belaku.homey.MainActivity.Companion.pickContactLauncher
+import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
 import com.belaku.homey.NewAppWidget.Companion.appWidM
+import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
@@ -289,6 +291,7 @@ class DialogActivity : AppCompatActivity() {
                 )
             } else if (dialogIntentStr == "stepsInfo") {
 
+                makeToast(dayOfTheWeek + " - " + sharedPreferences.getInt(dayOfTheWeek, 0))
                 window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
                 llDialog.setBackgroundColor(android.R.color.transparent)
@@ -298,18 +301,18 @@ class DialogActivity : AppCompatActivity() {
                 vpSteps.visibility = View.VISIBLE
 
                 var stepsData: ArrayList<String> = ArrayList()
-                stepsData.add(intent.getIntExtra("Monday", 0).toString())
-                stepsData.add(intent.getIntExtra("Tuesday", 0).toString())
-                stepsData.add(intent.getIntExtra("Wednesday", 0).toString())
-                stepsData.add(intent.getIntExtra("Thursday", 0).toString())
-                stepsData.add(intent.getIntExtra("Friday", 0).toString())
-                stepsData.add(intent.getIntExtra("Saturday", 0).toString())
-                stepsData.add(intent.getIntExtra("Sunday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
 
 
                 vpSteps.adapter = StepsAdapter(stepsData)
                 vpSteps.currentItem = intent.getIntExtra("day", 0) - 1
-                makeToast("yet2Impl Steps!")
+
             }
 
         }
