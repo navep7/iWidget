@@ -47,6 +47,7 @@ import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
 import com.belaku.homey.NewAppWidget.Companion.appWidM
+import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
@@ -91,7 +92,7 @@ class DialogActivity : AppCompatActivity() {
 
     private lateinit var imgbtnShare: ImageButton
 
-    @SuppressLint("ResourceAsColor")
+    @SuppressLint("ResourceAsColor", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -104,7 +105,7 @@ class DialogActivity : AppCompatActivity() {
             object : FullScreenContentCallback() {
                 override fun onAdDismissedFullScreenContent() {
                     // Called when fullscreen content is dismissed.
-                 //   Log.d(TAG, "Ad was dismissed.")
+                    //   Log.d(TAG, "Ad was dismissed.")
                     // Don't forget to set the ad reference to null so you
                     // don't show the ad a second time.
                     rewardedInterstitialAd = null
@@ -112,7 +113,7 @@ class DialogActivity : AppCompatActivity() {
 
                 override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                     // Called when fullscreen content failed to show.
-                 //   Log.d(TAG, "Ad failed to show.")
+                    //   Log.d(TAG, "Ad failed to show.")
                     // Don't forget to set the ad reference to null so you
                     // don't show the ad a second time.
                     rewardedInterstitialAd = null
@@ -120,18 +121,18 @@ class DialogActivity : AppCompatActivity() {
 
                 override fun onAdShowedFullScreenContent() {
                     // Called when fullscreen content is shown.
-                 //   Log.d(TAG, "Ad showed fullscreen content.")
+                    //   Log.d(TAG, "Ad showed fullscreen content.")
 
                 }
 
                 override fun onAdImpression() {
                     // Called when an impression is recorded for an ad.
-                //    Log.d(TAG, "Ad recorded an impression.")
+                    //    Log.d(TAG, "Ad recorded an impression.")
                 }
 
                 override fun onAdClicked() {
                     // Called when an ad is clicked.
-                //    Log.d(TAG, "Ad was clicked.")
+                    //    Log.d(TAG, "Ad was clicked.")
                 }
             }
 
@@ -139,7 +140,7 @@ class DialogActivity : AppCompatActivity() {
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == AppCompatActivity.RESULT_OK) {
                     if (blE)
-                    makeToast("Bluetooth ON")
+                        makeToast("Bluetooth ON")
                     else makeToast("Bluetooth OFF")
                 } else {
                     // Bluetooth not enabled by user
@@ -161,15 +162,16 @@ class DialogActivity : AppCompatActivity() {
 
         if (dialogIntentStr != null) {
             if (dialogIntentStr == "PC") {
-                pickContactLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                    if (result.resultCode == Activity.RESULT_OK) {
-                        val contactUri = result.data?.data
-                        if (contactUri != null) {
-                            getContactInfo(contactUri)
-                            // markContactAsFavorite(contactUri)
+                pickContactLauncher =
+                    registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                        if (result.resultCode == Activity.RESULT_OK) {
+                            val contactUri = result.data?.data
+                            if (contactUri != null) {
+                                getContactInfo(contactUri)
+                                // markContactAsFavorite(contactUri)
+                            }
                         }
                     }
-                }
                 val intent = Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
                 try {
                     pickContactLauncher.launch(intent)
@@ -197,12 +199,18 @@ class DialogActivity : AppCompatActivity() {
 
                 imgbtnShare.setOnClickListener(View.OnClickListener {
                     if (txContent.text != "listening...") {
-                        startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, txContent.text).putExtra(Intent.EXTRA_SUBJECT, "Sharing via nHome!"), "Share via..."))
+                        startActivity(
+                            Intent.createChooser(
+                                Intent(Intent.ACTION_SEND).setType("text/plain")
+                                    .putExtra(Intent.EXTRA_TEXT, txContent.text)
+                                    .putExtra(Intent.EXTRA_SUBJECT, "Sharing via nHome!"),
+                                "Share via..."
+                            )
+                        )
                     }
                 })
 
-            }
-            else  if (dialogIntentStr == "ST") {
+            } else if (dialogIntentStr == "ST") {
                 edtxDialog.visibility = View.INVISIBLE
                 btnOk.visibility = View.INVISIBLE
                 btnCancel.visibility = View.INVISIBLE
@@ -210,9 +218,16 @@ class DialogActivity : AppCompatActivity() {
                 txTitle.setText("Tweet")
                 txContent.setText(tW)
                 imgbtnShare.setOnClickListener(View.OnClickListener {
-                        startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, tW).putExtra(Intent.EXTRA_SUBJECT, "Sharing via nHome!"), "Share via..."))
+                    startActivity(
+                        Intent.createChooser(
+                            Intent(Intent.ACTION_SEND).setType("text/plain")
+                                .putExtra(Intent.EXTRA_TEXT, tW)
+                                .putExtra(Intent.EXTRA_SUBJECT, "Sharing via nHome!"),
+                            "Share via..."
+                        )
+                    )
                 })
-            } else  if (dialogIntentStr == "STH") {
+            } else if (dialogIntentStr == "STH") {
                 txTitle.setText("Twitter")
                 txContent.visibility = View.INVISIBLE
                 edtxDialog.visibility = View.VISIBLE
@@ -251,7 +266,7 @@ class DialogActivity : AppCompatActivity() {
                 } catch (ignored: ActivityNotFoundException) {
                     startActivity(Intent(Settings.ACTION_WIFI_SETTINGS))
                 }
-            }  else if (dialogIntentStr == "AD") {
+            } else if (dialogIntentStr == "AD") {
 
                 txTitle.setText("loading Advertisement, please wait...")
                 txContent.visibility = View.GONE
@@ -292,9 +307,11 @@ class DialogActivity : AppCompatActivity() {
             } else if (dialogIntentStr == "stepsInfo") {
 
                 makeToast(dayOfTheWeek + " - " + sharedPreferences.getInt(dayOfTheWeek, 0))
-                window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                window.setLayout(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                );
 
-                llDialog.setBackgroundColor(android.R.color.transparent)
                 txTitle.setText("Steps...")
                 txContent.visibility = View.GONE
                 edtxDialog.visibility = View.GONE
@@ -313,6 +330,20 @@ class DialogActivity : AppCompatActivity() {
                 vpSteps.adapter = StepsAdapter(stepsData)
                 vpSteps.currentItem = intent.getIntExtra("day", 0) - 1
 
+            } else if (dialogIntentStr == "screenTimeInfo") {
+                makeToast("yet2Impl ScrTime - " + arrayListUsageStats.size)
+                for (i in 0 until arrayListUsageStats.size)
+                    makeToast("H3r3 $i - " + arrayListUsageStats.elementAt(i))
+                window.setLayout(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                );
+
+                txTitle.setText("Screen Time Analysis...")
+                for (i in arrayListUsageStats)
+                    txContent.append("\n" + i)
+                edtxDialog.visibility = View.GONE
+                vpSteps.visibility = View.VISIBLE
             }
 
         }
@@ -578,8 +609,8 @@ class DialogActivity : AppCompatActivity() {
                             appWidM = AppWidgetManager.getInstance(appContx)
                             appWidM.updateAppWidget(newAppWidget, remoteViews)
 
-                        //    Log.d(TAG + "responseTweetID - ", responseBodyString)
-                          //  Log.d(TAG + "Tw ID - ", twitterID + " - " + twitterProfileName)
+                            //    Log.d(TAG + "responseTweetID - ", responseBodyString)
+                            //  Log.d(TAG + "Tw ID - ", twitterID + " - " + twitterProfileName)
 
                             if (b)
                                 pD.dismiss()

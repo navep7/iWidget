@@ -69,6 +69,7 @@ import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
 import com.belaku.homey.MainActivity.Companion.weatherIconID
+import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.initialSteps
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
@@ -85,7 +86,6 @@ import kotlin.properties.Delegates
 
 
 class NewAppWidget : AppWidgetProvider() {
-
 
     private lateinit var calendar: Calendar
     private lateinit var nowCalendar: Calendar
@@ -287,6 +287,18 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setOnClickPendingIntent(
                 R.id.tx_now_steps,
                 getPendingSelfIntent(context, STEPS_NOW)
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.tx_screentime_info,
+                PendingIntent.getActivity(
+                    context, 8,
+                    Intent(context, DialogActivity::class.java).putExtra(
+                        "DialogIntent",
+                        "screenTimeInfo"
+                    ).putExtra("usageStats", arrayListUsageStats),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
             )
 
             remoteViews?.setOnClickPendingIntent(
@@ -710,6 +722,18 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setOnClickPendingIntent(
             R.id.tx_now_steps,
             getPendingSelfIntent(context, STEPS_NOW)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_screentime_info,
+            PendingIntent.getActivity(
+                context, 8,
+                Intent(context, DialogActivity::class.java).putExtra(
+                    "DialogIntent",
+                    "screenTimeInfo"
+                ),
+                PendingIntent.FLAG_IMMUTABLE
+            )
         )
 
         remoteViews?.setOnClickPendingIntent(
@@ -1582,6 +1606,7 @@ class NewAppWidget : AppWidgetProvider() {
         //    makeToast("diff Day")
             sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
             stepsToday = 0
+            appUsageStats(appContx)
 
         }
 
@@ -1606,6 +1631,8 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
     }
+
+
 
     private fun shareWidget(context: Context, bitmap: Bitmap) {
         val bitmapPath = MediaStore.Images.Media.insertImage(
@@ -1822,6 +1849,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     companion object {
+        var arrayListUsageStats: HashSet<String> = HashSet()
         lateinit var dayOfTheWeek: String
         var noRewards: Int = 0
         lateinit var contactActivityResultLauncher: ActivityResultLauncher<Intent>

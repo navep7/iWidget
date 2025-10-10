@@ -85,6 +85,7 @@ import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.belaku.homey.NewAppWidget.Companion.appWidM
+import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
 import com.belaku.homey.NewAppWidget.Companion.choosenApps
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
@@ -977,7 +978,7 @@ class MainActivity : AppCompatActivity() {
             beginCal.timeInMillis,
             endCal.timeInMillis
         )
-        println("results for " + beginCal.time.toGMTString() + " - " + endCal.time.toGMTString())
+        println("results for " + beginCal.time + " - " + endCal.time)
         println("QUS - " + queryUsageStats.size)
         sortApps(queryUsageStats)
 
@@ -996,19 +997,27 @@ class MainActivity : AppCompatActivity() {
             if (queryUsageStats.get(i).totalTimeInForeground > 0)
                 if (!appName.contains("Launcher") || !appName.equals("Home"))
                     if (applicationContext.packageManager.getLaunchIntentForPackage(queryUsageStats[i].packageName) != null)
-                        if (appNames.add(appName))
+                        if (appNames.add(appName)) {
+                            arrayListUsageStats.add(queryUsageStats[i].packageName +  " - " + formatMilliseconds(queryUsageStats[i].totalTimeInForeground))
                             if (choosenApps.size < 5) {
                                 choosenApps.add(
                                     App(
                                         appName, appPname
                                     )
                                 )
-
+                            }
                             }
         }
 
         saveApps(choosenApps)
 
+    }
+
+    fun formatMilliseconds(milliseconds: Long): String {
+        val totalSeconds = milliseconds / 1000
+        val minutes = totalSeconds / 60
+        val seconds = totalSeconds % 60
+        return String.format("%02d:%02d", minutes, seconds)
     }
 
 
@@ -1443,9 +1452,9 @@ class MainActivity : AppCompatActivity() {
         var wallDelay: Int = 0
         var twitterProfileName: String = "Fact"
         var listTweets: ArrayList<String> = ArrayList()
-        private var cDate by Delegates.notNull<Int>()
-        private var cMonth by Delegates.notNull<Int>()
-        private var cYear by Delegates.notNull<Int>()
+        var cDate by Delegates.notNull<Int>()
+        var cMonth by Delegates.notNull<Int>()
+        var cYear by Delegates.notNull<Int>()
         private val newSAPIKEY: String = "3fa88b5851974caea39bcc59bd2e5746"
         var newsIndex: Int = 0
         private val TAG: String = "MainActTAG"

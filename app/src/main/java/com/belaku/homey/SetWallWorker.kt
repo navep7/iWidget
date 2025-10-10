@@ -2,11 +2,15 @@ package com.belaku.homey
 
 import android.annotation.SuppressLint
 import android.app.WallpaperManager
+import android.app.usage.UsageStats
+import android.app.usage.UsageStatsManager
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.PackageManager.NameNotFoundException
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
@@ -31,6 +35,9 @@ import androidx.core.content.ContextCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.MainActivity.Companion.cDate
+import com.belaku.homey.MainActivity.Companion.cMonth
+import com.belaku.homey.MainActivity.Companion.cYear
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.delayUnit
 import com.belaku.homey.MainActivity.Companion.mAct
@@ -45,6 +52,8 @@ import com.belaku.homey.MainActivity.Companion.tempKind
 import com.belaku.homey.MainActivity.Companion.updateTime
 import com.belaku.homey.MainActivity.Companion.wallDelay
 import com.belaku.homey.NewAppWidget.Companion.appWidM
+import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
+import com.belaku.homey.NewAppWidget.Companion.choosenApps
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.screenHeight
@@ -58,6 +67,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.material.snackbar.Snackbar
 import java.io.IOException
 import java.net.URL
+import java.util.Collections
 import java.util.Locale
 import kotlin.random.Random
 
@@ -209,6 +219,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             wm = WallpaperManager.getInstance(appContx)
             wm.setWallpaperOffsetSteps(1F, 1F)
 
+
             val metrics = DisplayMetrics()
             mAct.windowManager.getDefaultDisplay().getMetrics(metrics)
             screenHeight = metrics.heightPixels
@@ -289,6 +300,107 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             }
             //   newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
             appWidM.updateAppWidget(newAppWidget, remoteViews)
+
+        }
+
+        fun appUsageStats(applicationContext: Context?) {
+
+            //   choosenApps.clear()
+
+            val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
+
+
+            val timeOfDay = if (currentHour < 6) {
+                "Night"
+            } else if (currentHour >= 6 && currentHour < 12) {
+                "Morning"
+            } else if (currentHour >= 12 && currentHour < 17) {
+                "Afternoon"
+            } else if (currentHour >= 17 && currentHour < 21) {
+                "Evening"
+            } else {
+                "Night"
+            }
+
+
+            val usageStatsManager =
+                applicationContext?.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager // Context.USAGE_STATS_SERVICE);
+
+
+            val beginCal = Calendar.getInstance()
+            val endCal = Calendar.getInstance()
+
+            beginCal.set(cYear, cMonth - 1, cDate, 0, 0)
+            endCal.set(cYear, cMonth, cDate, 0, 0)
+
+            val queryUsageStats = usageStatsManager.queryUsageStats(
+                UsageStatsManager.INTERVAL_BEST,
+                beginCal.timeInMillis,
+                endCal.timeInMillis
+            )
+            println("results for " + beginCal.time + " - " + endCal.time)
+            println("QUS - " + queryUsageStats.size)
+            sortApps(queryUsageStats)
+
+
+            var appNames = HashSet<String>()
+            for (i in 0 until queryUsageStats.size) {
+
+                var appName = getAppNameFromPkg(applicationContext, queryUsageStats.get(i).packageName)
+                var appPname = queryUsageStats.get(i).packageName
+
+                Log.d(
+                    "queryUsageStats",
+                    "$appName ... - $i : " + queryUsageStats.get(i).totalTimeInForeground
+                )
+
+                if (queryUsageStats.get(i).totalTimeInForeground > 0)
+                    if (!appName.contains("Launcher") || !appName.equals("Home"))
+                        if (applicationContext.packageManager.getLaunchIntentForPackage(queryUsageStats[i].packageName) != null)
+                            if (appNames.add(appName)) {
+                                arrayListUsageStats.add(queryUsageStats[i].packageName +  " - " + formatMilliseconds(queryUsageStats[i].totalTimeInForeground))
+                                if (choosenApps.size < 5) {
+                                    choosenApps.add(
+                                        App(
+                                            appName, appPname
+                                        )
+                                    )
+                                }
+                            }
+            }
+
+         //   saveApps(choosenApps)
+
+        }
+
+        fun formatMilliseconds(milliseconds: Long): String {
+            val totalSeconds = milliseconds / 1000
+            val minutes = totalSeconds / 60
+            val seconds = totalSeconds % 60
+            return String.format("%02d:%02d", minutes, seconds)
+        }
+
+        private fun getAppNameFromPkg(context: Context, packageName: String?): String {
+            val pm: PackageManager = context.getPackageManager()
+            var ai = try {
+                pm.getApplicationInfo(packageName.toString(), 0)
+            } catch (e: NameNotFoundException) {
+                null
+            }
+            val applicationName =
+                (if (ai != null) pm.getApplicationLabel(ai) else "(unknown)") as String
+
+            return applicationName
+        }
+
+        private fun sortApps(queryUsageStats: List<UsageStats>) {
+
+            Collections.sort<UsageStats>(
+                queryUsageStats
+            ) { p1: UsageStats, p2: UsageStats ->
+                p2.totalTimeInForeground.compareTo(p1.totalTimeInForeground)
+                //   p1.name.compareTo(p2.name)
+            }
 
         }
     }
