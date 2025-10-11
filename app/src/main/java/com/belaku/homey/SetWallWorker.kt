@@ -358,7 +358,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     if (!appName.contains("Launcher") || !appName.equals("Home"))
                         if (applicationContext.packageManager.getLaunchIntentForPackage(queryUsageStats[i].packageName) != null)
                             if (appNames.add(appName)) {
-                                arrayListUsageStats.add(queryUsageStats[i].packageName +  " - " + formatMilliseconds(queryUsageStats[i].totalTimeInForeground))
+                                arrayListUsageStats.add(AppUsage(queryUsageStats[i].packageName, formatMilliseconds(queryUsageStats[i].totalTimeInForeground)))
                                 if (choosenApps.size < 5) {
                                     choosenApps.add(
                                         App(

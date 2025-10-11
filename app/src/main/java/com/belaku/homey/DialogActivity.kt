@@ -11,6 +11,8 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.PackageManager.NameNotFoundException
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -21,6 +23,7 @@ import android.os.Handler
 import android.provider.ContactsContract
 import android.provider.Settings
 import android.speech.RecognizerIntent
+import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -76,6 +79,7 @@ import kotlin.properties.Delegates
 
 class DialogActivity : AppCompatActivity() {
 
+    private var muApps: ArrayList<String> = ArrayList()
     private val REQUEST_CODE_SPEECH_INPUT: Int = 100
     private var rewardedInterstitialAd: RewardedInterstitialAd? = null
     private var blE by Delegates.notNull<Boolean>()
@@ -151,6 +155,7 @@ class DialogActivity : AppCompatActivity() {
         llDialog = findViewById<LinearLayout>(R.id.dialog_layout)
         txTitle = findViewById<TextView>(R.id.tx_dialog_title)
         txContent = findViewById<TextView>(R.id.tx_dialog_content)
+        txContent.movementMethod = ScrollingMovementMethod()
         edtxDialog = findViewById<EditText>(R.id.edtx_dialog)
         btnOk = findViewById<Button>(R.id.btn_dialog_ok)
         btnCancel = findViewById<Button>(R.id.btn_dialog_cancel)
@@ -331,22 +336,108 @@ class DialogActivity : AppCompatActivity() {
                 vpSteps.currentItem = intent.getIntExtra("day", 0) - 1
 
             } else if (dialogIntentStr == "screenTimeInfo") {
-                makeToast("yet2Impl ScrTime - " + arrayListUsageStats.size)
-                for (i in 0 until arrayListUsageStats.size)
-                    makeToast("H3r3 $i - " + arrayListUsageStats.elementAt(i))
                 window.setLayout(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
                 );
 
                 txTitle.setText("Screen Time Analysis...")
-                for (i in arrayListUsageStats)
-                    txContent.append("\n" + i)
+
+
+                var b = arrayListUsageStats.distinctBy { it.usageTime }
+                var c = b.sortedBy { it.usageTime }
+
+
+                for (i in c) {
+                    if (i.usageTime.substring(0, 2).toInt() > 10) {
+                        muApps.add("\n" + getAppNameFromPkg(appContx, i.appName) + "\t\t\t\t\t\t" + i.usageTime)
+                        arrayListUsageStats.remove(i)
+                    }
+                }
+
+                txContent.movementMethod = ScrollingMovementMethod()
+                txContent.append("\n Most Used Apps.. > 10 mins")
+
+                for (i in muApps)
+                    txContent.append(i)
+
+                muApps.clear()
+
+                 b = arrayListUsageStats.distinctBy { it.usageTime }
+                 c = b.sortedBy { it.usageTime }
+
+
+                for (i in c) {
+                    if ((i.usageTime.substring(0, 2).toInt() > 5) && (i.usageTime.substring(0, 2).toInt() < 10)) {
+                        muApps.add("\n" + getAppNameFromPkg(appContx, i.appName) + "\t\t\t\t\t\t" + i.usageTime)
+                        arrayListUsageStats.remove(i)
+                    }
+                }
+
+                txContent.movementMethod = ScrollingMovementMethod()
+                txContent.append("\n\n Moderately Apps.. > 5 mins")
+
+                for (i in muApps)
+                    txContent.append(i)
+
+                muApps.clear()
+
+                b = arrayListUsageStats.distinctBy { it.usageTime }
+                c = b.sortedBy { it.usageTime }
+
+
+                for (i in c) {
+                    if ((i.usageTime.substring(0, 2).toInt() > 1) && (i.usageTime.substring(0, 2).toInt() < 5)){
+                        muApps.add("\n" + getAppNameFromPkg(appContx, i.appName) + "\t\t\t\t\t\t" + i.usageTime)
+                        arrayListUsageStats.remove(i)
+                    }
+                }
+
+                txContent.movementMethod = ScrollingMovementMethod()
+                txContent.append("\n\n Least Used Apps.. > 1 mins")
+
+                for (i in muApps)
+                    txContent.append(i)
+
+                muApps.clear()
+
+                b = arrayListUsageStats.distinctBy { it.usageTime }
+                c = b.sortedBy { it.usageTime }
+
+
+                for (i in c) {
+                    if (i.usageTime.substring(0, 2).toInt() == 0){
+                        muApps.add("\n" + getAppNameFromPkg(appContx, i.appName) + "\t\t\t\t\t\t" + i.usageTime)
+                        arrayListUsageStats.remove(i)
+                    }
+                }
+
+                txContent.movementMethod = ScrollingMovementMethod()
+                txContent.append("\n\n Rarely Used Apps.. < 1 mins")
+
+                for (i in muApps)
+                    txContent.append(i)
+
+                muApps.clear()
+
                 edtxDialog.visibility = View.GONE
                 vpSteps.visibility = View.VISIBLE
             }
 
         }
+    }
+
+    private fun getAppNameFromPkg(context: Context, packageName: String?): String {
+        val pm: PackageManager = context.getPackageManager()
+        var ai = try {
+            pm.getApplicationInfo(packageName.toString(), 0)
+        } catch (e: NameNotFoundException) {
+            null
+        }
+        val applicationName =
+            (if (ai != null) pm.getApplicationLabel(ai) else "(unknown)") as String
+
+        return applicationName
     }
 
     private fun getContactInfo(contactUri: Uri) {

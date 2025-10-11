@@ -296,7 +296,7 @@ class NewAppWidget : AppWidgetProvider() {
                     Intent(context, DialogActivity::class.java).putExtra(
                         "DialogIntent",
                         "screenTimeInfo"
-                    ).putExtra("usageStats", arrayListUsageStats),
+                    ),
                     PendingIntent.FLAG_IMMUTABLE
                 )
             )
@@ -1849,7 +1849,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     companion object {
-        var arrayListUsageStats: HashSet<String> = HashSet()
+        var arrayListUsageStats: HashSet<AppUsage> = HashSet()
         lateinit var dayOfTheWeek: String
         var noRewards: Int = 0
         lateinit var contactActivityResultLauncher: ActivityResultLauncher<Intent>
