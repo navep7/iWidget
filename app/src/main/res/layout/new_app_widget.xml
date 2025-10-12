@@ -821,7 +821,7 @@
             android:layout_centerVertical="true"
             android:layout_marginEnd="5dp"
             android:text="ⓘ"
-            android:textSize="15sp"
+            android:textSize="25sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
 
@@ -911,8 +911,8 @@
             android:id="@+id/tx_now_steps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_toEndOf="@+id/tx_steps"
+            android:layout_marginEnd="5dp"
+            android:layout_toStartOf="@+id/tx_steps_info"
             android:text=" + "
             android:textColor="@color/white"
             android:textSize="15sp"
@@ -925,7 +925,7 @@
             android:layout_height="match_parent"
             android:layout_marginStart="3dp"
             android:layout_marginEnd="3dp"
-            android:layout_toEndOf="@+id/tx_now_steps"
+            android:layout_toEndOf="@+id/tx_steps"
             android:background="@android:color/black"
             android:visibility="invisible" />
 

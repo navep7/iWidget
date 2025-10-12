@@ -1048,7 +1048,7 @@ class NewAppWidget : AppWidgetProvider() {
                 remoteViews?.setViewVisibility(R.id.vertical_divider, View.INVISIBLE)
                 //  remoteViews?.setTextViewText(R.id.tx_add_remove_newlap, "+")
             } else {
-                remoteViews?.setTextViewText(R.id.tx_now_steps, " - ")
+                remoteViews?.setTextViewText(R.id.tx_now_steps, " x ")
                 remoteViews?.setTextViewText(R.id.tx_n_steps, "Now, " + "0")
                 remoteViews?.setViewVisibility(R.id.vertical_divider, View.VISIBLE)
                 //  remoteViews?.setTextViewText(R.id.tx_add_remove_newlap, "x")
@@ -1606,7 +1606,7 @@ class NewAppWidget : AppWidgetProvider() {
         //    makeToast("diff Day")
             sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
             stepsToday = 0
-            appUsageStats(appContx)
+        //    appUsageStats(appContx)
 
         }
 

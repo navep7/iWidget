@@ -17,7 +17,6 @@ import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.os.Handler
 import android.provider.ContactsContract
@@ -31,14 +30,17 @@ import android.view.Window
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
+import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.makeSnack
@@ -58,6 +60,7 @@ import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
+import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -79,6 +82,8 @@ import kotlin.properties.Delegates
 
 class DialogActivity : AppCompatActivity() {
 
+    private var stepsVPpos: Int = 0
+    private lateinit var dotsLayout: LinearLayout
     private var muApps: ArrayList<String> = ArrayList()
     private val REQUEST_CODE_SPEECH_INPUT: Int = 100
     private var rewardedInterstitialAd: RewardedInterstitialAd? = null
@@ -161,6 +166,7 @@ class DialogActivity : AppCompatActivity() {
         btnCancel = findViewById<Button>(R.id.btn_dialog_cancel)
         imgbtnShare = findViewById<ImageButton>(R.id.imgbtn_dialog_share)
         vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
+        dotsLayout = findViewById<LinearLayout>(R.id.dotsLayout)
 
 
         var dialogIntentStr = intent.getStringExtra("DialogIntent")
@@ -332,8 +338,31 @@ class DialogActivity : AppCompatActivity() {
                 stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
 
 
-                vpSteps.adapter = StepsAdapter(stepsData)
-                vpSteps.currentItem = intent.getIntExtra("day", 0) - 1
+                var stepsAdapter = StepsAdapter(stepsData)
+                vpSteps.adapter = stepsAdapter
+                stepsVPpos = intent.getIntExtra("day", 0) - 1
+                vpSteps.currentItem = stepsVPpos
+
+
+                // Call setupDots after setting the adapter and getting item count
+                setupDots(stepsAdapter.getItemCount())
+
+
+                // Update dot appearance on page change
+                vpSteps.registerOnPageChangeCallback(object : OnPageChangeCallback() {
+                    override fun onPageSelected(position: Int) {
+                        super.onPageSelected(position)
+                        for (i in 0 until dotsLayout.childCount) {
+                            val dot = dotsLayout.getChildAt(i) as ImageView
+                            dot.setImageDrawable(
+                                ContextCompat.getDrawable(
+                                    this@DialogActivity,
+                                    if (i == position) R.drawable.selected_dot else R.drawable.unselected_dot
+                                )
+                            )
+                        }
+                    }
+                })
 
             } else if (dialogIntentStr == "screenTimeInfo") {
                 window.setLayout(
@@ -343,6 +372,7 @@ class DialogActivity : AppCompatActivity() {
 
                 txTitle.setText("Screen Time Analysis...")
 
+                appUsageStats(applicationContext)
 
                 var b = arrayListUsageStats.distinctBy { it.usageTime }
                 var c = b.sortedBy { it.usageTime }
@@ -424,6 +454,24 @@ class DialogActivity : AppCompatActivity() {
                 vpSteps.visibility = View.VISIBLE
             }
 
+        }
+    }
+
+    // Function to add dots
+    private fun setupDots(count: Int) {
+        dotsLayout.removeAllViews()
+        val dots = arrayOfNulls<ImageView>(count)
+        for (i in 0 until count) {
+            dots[i] = ImageView(this)
+            if (i != stepsVPpos)
+            dots[i]!!.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.unselected_dot))
+            else dots[i]!!.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.selected_dot))
+            val params = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            params.setMargins(8, 0, 8, 0) // Adjust margin as needed
+            dotsLayout.addView(dots[i], params)
         }
     }
 

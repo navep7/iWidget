@@ -305,23 +305,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
         fun appUsageStats(applicationContext: Context?) {
 
-            //   choosenApps.clear()
-
-            val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
-
-
-            val timeOfDay = if (currentHour < 6) {
-                "Night"
-            } else if (currentHour >= 6 && currentHour < 12) {
-                "Morning"
-            } else if (currentHour >= 12 && currentHour < 17) {
-                "Afternoon"
-            } else if (currentHour >= 17 && currentHour < 21) {
-                "Evening"
-            } else {
-                "Night"
-            }
-
 
             val usageStatsManager =
                 applicationContext?.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager // Context.USAGE_STATS_SERVICE);
@@ -334,12 +317,12 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             endCal.set(cYear, cMonth, cDate, 0, 0)
 
             val queryUsageStats = usageStatsManager.queryUsageStats(
-                UsageStatsManager.INTERVAL_BEST,
+                UsageStatsManager.INTERVAL_DAILY,
                 beginCal.timeInMillis,
                 endCal.timeInMillis
             )
             println("results for " + beginCal.time + " - " + endCal.time)
-            println("QUS - " + queryUsageStats.size)
+            println("QUS SWW - " + queryUsageStats.size)
             sortApps(queryUsageStats)
 
 

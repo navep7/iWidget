@@ -979,7 +979,7 @@ class MainActivity : AppCompatActivity() {
             endCal.timeInMillis
         )
         println("results for " + beginCal.time + " - " + endCal.time)
-        println("QUS - " + queryUsageStats.size)
+        println("QUS - MA" + queryUsageStats.size)
         sortApps(queryUsageStats)
 
 
