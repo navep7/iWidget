@@ -341,20 +341,7 @@ class DialogActivity : AppCompatActivity() {
                 var stepsAdapter = StepsAdapter(stepsData)
                 vpSteps.adapter = stepsAdapter
 
-                if (dayOfTheWeek.equals("Monday"))
-                    vpSteps.setCurrentItem(0)
-                else if (dayOfTheWeek == "Tuesday")
-                    vpSteps.setCurrentItem(1)
-                else if (dayOfTheWeek == "Wednesday")
-                    vpSteps.setCurrentItem(2)
-                else if (dayOfTheWeek == "Thursday")
-                    vpSteps.setCurrentItem(3)
-                else if (dayOfTheWeek == "Friday")
-                    vpSteps.setCurrentItem(4)
-                else if (dayOfTheWeek == "Saturday")
-                    vpSteps.setCurrentItem(5)
-                else if (dayOfTheWeek == "Sunday")
-                    vpSteps.setCurrentItem(6)
+
 
 
 
@@ -520,6 +507,21 @@ class DialogActivity : AppCompatActivity() {
                 edtxDialog.visibility = View.GONE
                 vpSteps.visibility = View.VISIBLE
             }
+
+            if (dayOfTheWeek.equals("Monday"))
+                vpSteps.setCurrentItem(0)
+            else if (dayOfTheWeek == "Tuesday")
+                vpSteps.setCurrentItem(1)
+            else if (dayOfTheWeek == "Wednesday")
+                vpSteps.setCurrentItem(2)
+            else if (dayOfTheWeek == "Thursday")
+                vpSteps.setCurrentItem(3)
+            else if (dayOfTheWeek == "Friday")
+                vpSteps.setCurrentItem(4)
+            else if (dayOfTheWeek == "Saturday")
+                vpSteps.setCurrentItem(5)
+            else if (dayOfTheWeek == "Sunday")
+                vpSteps.setCurrentItem(6)
 
         }
     }
