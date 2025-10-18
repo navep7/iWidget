@@ -317,7 +317,7 @@ class DialogActivity : AppCompatActivity() {
                 )
             } else if (dialogIntentStr == "stepsInfo") {
 
-                makeToast(dayOfTheWeek + " - " + sharedPreferences.getInt(dayOfTheWeek, 0))
+                makeToast(dayOfTheWeek)
                 window.setLayout(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
@@ -340,16 +340,80 @@ class DialogActivity : AppCompatActivity() {
 
                 var stepsAdapter = StepsAdapter(stepsData)
                 vpSteps.adapter = stepsAdapter
-                stepsVPpos = intent.getIntExtra("day", 0) - 1
-                vpSteps.currentItem = stepsVPpos
+
+                if (dayOfTheWeek.equals("Monday"))
+                    vpSteps.setCurrentItem(0)
+                else if (dayOfTheWeek == "Tuesday")
+                    vpSteps.setCurrentItem(1)
+                else if (dayOfTheWeek == "Wednesday")
+                    vpSteps.setCurrentItem(2)
+                else if (dayOfTheWeek == "Thursday")
+                    vpSteps.setCurrentItem(3)
+                else if (dayOfTheWeek == "Friday")
+                    vpSteps.setCurrentItem(4)
+                else if (dayOfTheWeek == "Saturday")
+                    vpSteps.setCurrentItem(5)
+                else if (dayOfTheWeek == "Sunday")
+                    vpSteps.setCurrentItem(6)
+
+
+
+
 
 
                 // Call setupDots after setting the adapter and getting item count
                 setupDots(stepsAdapter.getItemCount())
 
 
+                vpSteps.registerOnPageChangeCallback(object : OnPageChangeCallback(
+                ) {
+                    private var myState = 0
+                    private var currentPosition = 0
+                    var currentOffset = 0F
+
+                    override fun onPageScrolled(
+                        position: Int,
+                        positionOffset: Float,
+                        positionOffsetPixels: Int
+                    ) {
+
+                     //   makeToast("$currentOffset VS $positionOffset")
+
+                        if (currentOffset == positionOffset)
+                        if (myState == ViewPager2.SCROLL_STATE_DRAGGING && currentPosition == position && currentPosition == 0) vpSteps.setCurrentItem(6)
+                         if (myState == ViewPager2.SCROLL_STATE_DRAGGING && currentPosition == position && currentPosition == 6) vpSteps.setCurrentItem(0)
+
+                        currentOffset = positionOffset
+
+                        super.onPageScrolled(position, positionOffset, positionOffsetPixels)
+                    }
+
+                    override fun onPageSelected(position: Int) {
+
+                        currentPosition = position
+
+                        super.onPageSelected(position)
+
+                        for (i in 0 until dotsLayout.childCount) {
+                            val dot = dotsLayout.getChildAt(i) as ImageView
+                            dot.setImageDrawable(
+                                ContextCompat.getDrawable(
+                                    this@DialogActivity,
+                                    if (i == position) R.drawable.selected_dot else R.drawable.unselected_dot
+                                )
+                            )
+                        }
+                    }
+
+                    override fun onPageScrollStateChanged(state: Int) {
+                        myState = state
+
+                        super.onPageScrollStateChanged(state)
+                    }
+                })
+
                 // Update dot appearance on page change
-                vpSteps.registerOnPageChangeCallback(object : OnPageChangeCallback() {
+              /*  vpSteps.registerOnPageChangeCallback(object : OnPageChangeCallback() {
                     override fun onPageSelected(position: Int) {
                         super.onPageSelected(position)
                         for (i in 0 until dotsLayout.childCount) {
@@ -361,8 +425,11 @@ class DialogActivity : AppCompatActivity() {
                                 )
                             )
                         }
+
                     }
-                })
+                })*/
+
+
 
             } else if (dialogIntentStr == "screenTimeInfo") {
                 window.setLayout(
