@@ -95,7 +95,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         getCity()
 
         WifiState()
-   //     BluetoothState()
+        //     BluetoothState()
 
         return Result.success()
     }
@@ -237,7 +237,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 randomWallIndex = Random.Default.nextInt(urls.size)
                 wallDesc = wallDescs.get(randomWallIndex)
 
-                Log.d("settingWD",  urls[randomWallIndex])
+                Log.d("settingWD", urls[randomWallIndex])
 
                 wallBitmap = BitmapFactory.decodeStream(
                     URL(
@@ -288,8 +288,9 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 //   intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, newAppWidget)
                 appContx.sendBroadcast(intent)
 
-                Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                    makeSnack("$queryType wallpapers Set, updates every $wallDelay mins. Add the HomeScreen Widget to see more of the Magic!")
+                Handler(Looper.getMainLooper()).postDelayed({
+                    MainActivity.txStatus.setText("$queryType wallpapers Set, updates every $wallDelay mins. Add the HomeScreen Widget to see more of the Magic!")
+                    MainActivity.rlStatus.visibility = View.VISIBLE
                 }, 1000)
 
 
@@ -329,7 +330,8 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             var appNames = HashSet<String>()
             for (i in 0 until queryUsageStats.size) {
 
-                var appName = getAppNameFromPkg(applicationContext, queryUsageStats.get(i).packageName)
+                var appName =
+                    getAppNameFromPkg(applicationContext, queryUsageStats.get(i).packageName)
                 var appPname = queryUsageStats.get(i).packageName
 
                 Log.d(
@@ -339,9 +341,17 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
                 if (queryUsageStats.get(i).totalTimeInForeground > 0)
                     if (!appName.contains("Launcher") || !appName.equals("Home"))
-                        if (applicationContext.packageManager.getLaunchIntentForPackage(queryUsageStats[i].packageName) != null)
+                        if (applicationContext.packageManager.getLaunchIntentForPackage(
+                                queryUsageStats[i].packageName
+                            ) != null
+                        )
                             if (appNames.add(appName)) {
-                                arrayListUsageStats.add(AppUsage(queryUsageStats[i].packageName, formatMilliseconds(queryUsageStats[i].totalTimeInForeground)))
+                                arrayListUsageStats.add(
+                                    AppUsage(
+                                        queryUsageStats[i].packageName,
+                                        formatMilliseconds(queryUsageStats[i].totalTimeInForeground)
+                                    )
+                                )
                                 if (choosenApps.size < 5) {
                                     choosenApps.add(
                                         App(
@@ -352,7 +362,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                             }
             }
 
-         //   saveApps(choosenApps)
+            //   saveApps(choosenApps)
 
         }
 

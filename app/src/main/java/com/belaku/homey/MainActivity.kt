@@ -60,6 +60,7 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
 import android.widget.TextView.OnEditorActionListener
@@ -1233,6 +1234,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun findViewByIds() {
 
+        rlStatus = findViewById(R.id.rl_status)
+        txStatus = findViewById(R.id.tx_status)
         editTextPrompt = findViewById(R.id.edtx_prompt)
         fabMain = findViewById(R.id.fab_main)
         frameMin = findViewById(R.id.frame_fab1)
@@ -1441,6 +1444,8 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
 
+        lateinit var txStatus: TextView
+        lateinit var rlStatus: RelativeLayout
         lateinit var pickContactLauncher: ActivityResultLauncher<Intent>
         private val CPick: Int = 7
         private val REQUEST_CONTACT_PICKER: Int = 9
@@ -1528,7 +1533,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         fun makeSnack(s: String) {
-            sN = Snackbar.make(parentLayout, s, Snackbar.LENGTH_INDEFINITE)
+            sN = Snackbar.make(parentLayout, s, Snackbar.LENGTH_LONG)
             sN.show()
             Log.d("makeToastinG", s)
         }
