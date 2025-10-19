@@ -32,6 +32,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -89,7 +90,7 @@ class DialogActivity : AppCompatActivity() {
     private var rewardedInterstitialAd: RewardedInterstitialAd? = null
     private var blE by Delegates.notNull<Boolean>()
     private var wifE by Delegates.notNull<Boolean>()
-    private lateinit var llDialog: LinearLayout
+    private lateinit var llDialog: RelativeLayout
     private lateinit var txTitle: TextView
     private lateinit var txContent: TextView
     private lateinit var vpSteps: ViewPager2
@@ -157,7 +158,7 @@ class DialogActivity : AppCompatActivity() {
             }
 
 
-        llDialog = findViewById<LinearLayout>(R.id.dialog_layout)
+        llDialog = findViewById<RelativeLayout>(R.id.dialog_layout)
         txTitle = findViewById<TextView>(R.id.tx_dialog_title)
         txContent = findViewById<TextView>(R.id.tx_dialog_content)
         txContent.movementMethod = ScrollingMovementMethod()
@@ -243,6 +244,7 @@ class DialogActivity : AppCompatActivity() {
                 txContent.visibility = View.INVISIBLE
                 edtxDialog.visibility = View.VISIBLE
                 vpSteps.visibility = View.GONE
+                imgbtnShare.visibility = View.GONE
                 btnOk.setText("Set")
                 btnOk.setOnClickListener(View.OnClickListener {
                     if (edtxDialog.text.toString().equals("Fact")) {
