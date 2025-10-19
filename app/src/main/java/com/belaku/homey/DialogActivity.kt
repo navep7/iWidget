@@ -22,6 +22,7 @@ import android.os.Handler
 import android.provider.ContactsContract
 import android.provider.Settings
 import android.speech.RecognizerIntent
+import android.text.Html
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.View
@@ -328,6 +329,10 @@ class DialogActivity : AppCompatActivity() {
                 txTitle.setText("Steps...")
                 txContent.visibility = View.GONE
                 edtxDialog.visibility = View.GONE
+                btnOk.visibility = View.INVISIBLE
+                btnCancel.visibility = View.INVISIBLE
+                imgbtnShare.visibility = View.INVISIBLE
+                vpSteps.visibility = View.GONE
                 vpSteps.visibility = View.VISIBLE
 
                 var stepsData: ArrayList<String> = ArrayList()
@@ -426,7 +431,10 @@ class DialogActivity : AppCompatActivity() {
                     ViewGroup.LayoutParams.MATCH_PARENT
                 );
 
-                txTitle.setText("Screen Time Analysis...")
+                btnOk.visibility = View.INVISIBLE
+                btnCancel.visibility = View.INVISIBLE
+                imgbtnShare.visibility = View.INVISIBLE
+                txTitle.setText("Screen Time Analysis... App Usage Times")
 
                 appUsageStats(applicationContext)
 
@@ -442,7 +450,7 @@ class DialogActivity : AppCompatActivity() {
                 }
 
                 txContent.movementMethod = ScrollingMovementMethod()
-                txContent.append("\n Most Used Apps.. > 10 mins")
+                txContent.append(Html.fromHtml("\n\n<b><u> Most Used Apps.. > 10 mins</u></b>"))
 
                 for (i in muApps)
                     txContent.append(i)
@@ -453,15 +461,17 @@ class DialogActivity : AppCompatActivity() {
                  c = b.sortedBy { it.usageTime }
 
 
-                for (i in c) {
-                    if ((i.usageTime.substring(0, 2).toInt() > 5) && (i.usageTime.substring(0, 2).toInt() < 10)) {
-                        muApps.add("\n" + getAppNameFromPkg(appContx, i.appName) + "\t\t\t\t\t\t" + i.usageTime)
-                        arrayListUsageStats.remove(i)
+
+                for (i in 0 until c.size) {
+                    if ((c[i].usageTime.substring(0, 2).toInt() > 5) && (c[i].usageTime.substring(0, 2).toInt() < 10)) {
+                        muApps.add("\n" + getAppNameFromPkg(appContx, c[i].appName) + "\t\t\t\t\t\t" + c[i].usageTime)
+                        arrayListUsageStats.remove(c[i])
                     }
                 }
 
                 txContent.movementMethod = ScrollingMovementMethod()
-                txContent.append("\n\n Moderately Apps.. > 5 mins")
+                txContent.append("\n\n")
+                txContent.append(Html.fromHtml("<u><b> Moderately Used Apps.. > 5 mins</u></b>"))
 
                 for (i in muApps)
                     txContent.append(i)
@@ -480,7 +490,8 @@ class DialogActivity : AppCompatActivity() {
                 }
 
                 txContent.movementMethod = ScrollingMovementMethod()
-                txContent.append("\n\n Least Used Apps.. > 1 mins")
+                txContent.append("\n\n")
+                txContent.append(Html.fromHtml("<u><b> Least Used Apps.. > 1 mins</u></b>"))
 
                 for (i in muApps)
                     txContent.append(i)
@@ -499,7 +510,8 @@ class DialogActivity : AppCompatActivity() {
                 }
 
                 txContent.movementMethod = ScrollingMovementMethod()
-                txContent.append("\n\n Rarely Used Apps.. < 1 mins")
+                txContent.append("\n\n")
+                txContent.append(Html.fromHtml("<u><b> Rarely Used Apps.. < 1 mins</u></b>"))
 
                 for (i in muApps)
                     txContent.append(i)

@@ -29,6 +29,7 @@
     <EditText
         android:id="@+id/edtx_dialog"
         android:hint="Set"
+        android:layout_centerHorizontal="true"
         android:layout_below="@+id/tx_dialog_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
@@ -49,7 +50,7 @@
 
 
     <LinearLayout
-        android:layout_below="@id/tx_dialog_content"
+        android:layout_below="@id/edtx_dialog"
         android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
