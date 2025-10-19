@@ -47,6 +47,7 @@ import android.os.Process
 import android.provider.ContactsContract
 import android.provider.Settings
 import android.speech.RecognizerIntent
+import android.text.method.ScrollingMovementMethod
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.KeyEvent
@@ -168,7 +169,7 @@ class MainActivity : AppCompatActivity() {
 
 
     @OptIn(DelicateCoroutinesApi::class)
-    @SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission", "SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -316,41 +317,93 @@ class MainActivity : AppCompatActivity() {
 
         //instructionsDialog
 
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Instructions")
-        builder.setMessage(
-            "The App needs below access.." +
-                    "\n1. Admin Access - to lock screen from shortcut in the Widget" +
-                    "\n2. Device location - to display location address in the Widget" +
-                    "\n3. Physical Activity - to recognise walking state and display step count in the Widget" +
-                    "\n4. Contacts - to show your favorite contacts in the Widget, to dial easily." +
-                    "\n5. Nearby Devices - for indicating Bluetooth connection status in the Widget" +
-                    "\n6. Notifications - to notify of set Reminders" +
-                    "\n7. Dial Phone calls - to quickly dial your favorite contacts from the Widget" +
-                    "\n8. App Usage Stats - to display most used Apps in the Widget" +
-                    "\n\n Requesting you to enable each permission in the upcoming screens, for the Widget to work correctly!"
-        )
+        /* val builder = AlertDialog.Builder(this)
+         builder.setTitle("Instructions")
+         builder.setMessage(
+             "The App needs below access.." +
+                     "\n1. Admin Access - to lock screen from shortcut in the Widget" +
+                     "\n2. Device location - to display location address in the Widget" +
+                     "\n3. Physical Activity - to recognise walking state and display step count in the Widget" +
+                     "\n4. Contacts - to show your favorite contacts in the Widget, to dial easily." +
+                     "\n5. Nearby Devices - for indicating Bluetooth connection status in the Widget" +
+                     "\n6. Notifications - to notify of set Reminders" +
+                     "\n7. Dial Phone calls - to quickly dial your favorite contacts from the Widget" +
+                     "\n8. App Usage Stats - to display most used Apps in the Widget" +
+                     "\n\n Requesting you to enable each permission in the upcoming screens, for the Widget to work correctly!"
+         )
 
-        builder.setPositiveButton("OK") { dialog: DialogInterface, which: Int ->
-            // Handle positive button click
-            // For example, dismiss the dialog
-            getResult.launch(intentAdmin)
-            dialog.dismiss()
-        }
+         builder.setPositiveButton("OK") { dialog: DialogInterface, which: Int ->
+             // Handle positive button click
+             // For example, dismiss the dialog
+             getResult.launch(intentAdmin)
+             dialog.dismiss()
+         }
 
-        val alertDialog: AlertDialog = builder.create()
+         val alertDialog: AlertDialog = builder.create()
 
+ */
+
+        val dialogBuilder = AlertDialog.Builder(this@MainActivity)
+        val inflater = LayoutInflater.from(this@MainActivity)
+        val dialogView: View = inflater.inflate(R.layout.instructions_dialog, null)
+        dialogBuilder.setView(dialogView)
+
+        val messageView = dialogView.findViewById<TextView>(R.id.dialog_message)
+
+        messageView.movementMethod = ScrollingMovementMethod()
+
+
+        messageView.text =
+                "\nThe App needs below access.." +
+                "\n1. Admin Access - to lock screen from shortcut in the Widget" +
+                "\n2. Device location - to display location address in the Widget" +
+                "\n3. Physical Activity - to recognise walking state and display step count in the Widget" +
+                "\n4. Contacts - to show your favorite contacts in the Widget, to dial easily." +
+                "\n5. Nearby Devices - for indicating Bluetooth connection status in the Widget" +
+                "\n6. Notifications - to notify of set Reminders" +
+                "\n7. Dial Phone calls - to quickly dial your favorite contacts from the Widget" +
+                "\n8. App Usage Stats - to display most used Apps in the Widget" +
+                "\n\n Requesting you to enable each permission in the upcoming screens, for the Widget to work correctly!"
+
+        dialogBuilder.setTitle("nHome Widget Highlights ~ Underlined words, explain...!")
+            .setPositiveButton("OK") { dialog: DialogInterface, which: Int ->
+                // Handle positive button click
+                // For example, dismiss the dialog
+                getResult.launch(intentAdmin)
+                dialog.dismiss()
+            }
+
+        val alertDialog = dialogBuilder.create()
 
 
         if (!(getAdminStatus() &&
-            ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) == PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACTIVITY_RECOGNITION) == PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.READ_CONTACTS) == PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.BLUETOOTH_CONNECT) == PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.POST_NOTIFICATIONS) == PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.CALL_PHONE) == PERMISSION_GRANTED
-            ))
-        alertDialog.show()
+                    ContextCompat.checkSelfPermission(
+                        applicationContext,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(
+                        applicationContext,
+                        Manifest.permission.ACTIVITY_RECOGNITION
+                    ) == PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(
+                        applicationContext,
+                        Manifest.permission.READ_CONTACTS
+                    ) == PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(
+                        applicationContext,
+                        Manifest.permission.BLUETOOTH_CONNECT
+                    ) == PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(
+                        applicationContext,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) == PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(
+                        applicationContext,
+                        Manifest.permission.CALL_PHONE
+                    ) == PERMISSION_GRANTED
+                    )
+        )
+            alertDialog.show()
 
 
 
@@ -404,15 +457,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun launchers() {
 
-        pickContactLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val contactUri = result.data?.data
-                if (contactUri != null) {
-                    getContactInfo(contactUri)
-                // markContactAsFavorite(contactUri)
+        pickContactLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
+                    val contactUri = result.data?.data
+                    if (contactUri != null) {
+                        getContactInfo(contactUri)
+                        // markContactAsFavorite(contactUri)
+                    }
                 }
             }
-        }
 
     }
 
@@ -452,7 +506,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun markAsFav(contactId: Long) {
-         // Replace with the actual contact ID
+        // Replace with the actual contact ID
         val values = ContentValues()
         values.put(ContactsContract.Contacts.STARRED, 1) // 1 for favorite, 0 for not favorite
 
@@ -829,8 +883,8 @@ class MainActivity : AppCompatActivity() {
             try {
                 val item = dataArray.getJSONObject(i)
                 val tweet = item.getString("text")
-                if(!containsLinkRegex(tweet))
-                listTweets.add(tweet)
+                if (!containsLinkRegex(tweet))
+                    listTweets.add(tweet)
 
             } catch (e: JSONException) {
                 e.printStackTrace()
@@ -999,7 +1053,12 @@ class MainActivity : AppCompatActivity() {
                 if (!appName.contains("Launcher") || !appName.equals("Home"))
                     if (applicationContext.packageManager.getLaunchIntentForPackage(queryUsageStats[i].packageName) != null)
                         if (appNames.add(appName)) {
-                            arrayListUsageStats.add(AppUsage(queryUsageStats[i].packageName, formatMilliseconds(queryUsageStats[i].totalTimeInForeground)))
+                            arrayListUsageStats.add(
+                                AppUsage(
+                                    queryUsageStats[i].packageName,
+                                    formatMilliseconds(queryUsageStats[i].totalTimeInForeground)
+                                )
+                            )
                             if (choosenApps.size < 5) {
                                 choosenApps.add(
                                     App(
@@ -1007,7 +1066,7 @@ class MainActivity : AppCompatActivity() {
                                     )
                                 )
                             }
-                            }
+                        }
         }
 
         saveApps(choosenApps)
@@ -1375,8 +1434,9 @@ class MainActivity : AppCompatActivity() {
                             val length = jsonArray.length()
 
 
-                            if (length > 0 ) {
-                                txStatus.text = "Showing $queryType wallpapers... Search using above Bar if you seek something else.. Or Set!"
+                            if (length > 0) {
+                                txStatus.text =
+                                    "Showing $queryType wallpapers... Search using above Bar if you seek something else.. Or Set!"
                                 for (i in 0 until length) {
                                     val jsonObject = jsonArray.getJSONObject(i)
                                     val objectImages = jsonObject.getJSONObject("src")
@@ -1598,12 +1658,12 @@ class MainActivity : AppCompatActivity() {
 
                         Log.d("weatherInfo", tempC + " - " + tempKind)
                         if (b)
-                        makeToast(
-                             "weatherInfo - " + tempC.substring(
-                                 0,
-                                 4
-                             ) + "°C" + " - " + tempKind
-                         )
+                            makeToast(
+                                "weatherInfo - " + tempC.substring(
+                                    0,
+                                    4
+                                ) + "°C" + " - " + tempKind
+                            )
 
                         remoteViews?.setTextViewText(
                             R.id.tx_weather_icon_temp, tempC.substring(
@@ -1710,7 +1770,6 @@ class MainActivity : AppCompatActivity() {
 
 
         }
-
 
 
         fun isLocationEnabled(context: Context): Boolean {

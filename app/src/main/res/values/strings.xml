@@ -16,4 +16,5 @@
     <string name="admob_app_id">ca-app-pub-6424332507659067~4129533142</string>
     <string name="admob_ri_ad">ca-app-pub-6424332507659067/5386774493</string>
     <string name="admob_ri_test">ca-app-pub-3940256099942544/5224354917</string>
+    <string name="app_instructions">\n</string>
 </resources>
