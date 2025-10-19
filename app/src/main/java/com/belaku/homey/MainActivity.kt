@@ -1197,7 +1197,7 @@ class MainActivity : AppCompatActivity() {
                 pD.setTitle("Wallpaper")
                 pD.setMessage("fetching wallpapers,please wait...")
                 pD.show()
-                sN.dismiss()
+
                 fetchWallpaper(applicationContext)
             }
             false
@@ -1244,6 +1244,7 @@ class MainActivity : AppCompatActivity() {
         fabMin = findViewById(R.id.fab_option_1)
         fabHour = findViewById(R.id.fab_option_2)
         fabDay = findViewById(R.id.fab_option_3)
+        rv = findViewById(R.id.rv_images)
 
     }
 
@@ -1352,15 +1353,13 @@ class MainActivity : AppCompatActivity() {
 
         imgUrls.clear()
         imgDescs.clear()
-
-
-        imgUrls.sort()
-        imgDescs.sort()
+        rv.getRecycledViewPool().clear();
+        rvAdapter.notifyDataSetChanged();
 
 
         if (imgUrls.size == 0) {
 
-            if (queryType.length != 0) {
+            if (queryType.isNotEmpty()) {
 
                 pexelUrl = "https://api.pexels.com/v1/search?query=$queryType&per_page=35"
                 val request: StringRequest = @SuppressLint("NotifyDataSetChanged")
@@ -1377,7 +1376,7 @@ class MainActivity : AppCompatActivity() {
 
 
                             if (length > 0 ) {
-                                makeSnack("Showing $queryType wallpapers... Search using above Bar if you seek something else.. Or Set!")
+                                txStatus.text = "Showing $queryType wallpapers... Search using above Bar if you seek something else.. Or Set!"
                                 for (i in 0 until length) {
                                     val jsonObject = jsonArray.getJSONObject(i)
                                     val objectImages = jsonObject.getJSONObject("src")
@@ -1418,8 +1417,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun setRV(imgUrls: java.util.ArrayList<String>, imgDescs: ArrayList<String>) {
 
-        rv = findViewById(R.id.rv_images)
         rv.layoutManager = StaggeredGridLayoutManager(2, 1)
+
         rvAdapter = RvAdapter(applicationContext, imgUrls, imgDescs)
         rv.adapter = rvAdapter
     }
