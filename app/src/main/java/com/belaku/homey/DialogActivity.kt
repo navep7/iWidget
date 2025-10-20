@@ -3,6 +3,7 @@ package com.belaku.homey
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
 import android.content.ActivityNotFoundException
@@ -17,6 +18,7 @@ import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.provider.ContactsContract
@@ -520,6 +522,18 @@ class DialogActivity : AppCompatActivity() {
 
                 edtxDialog.visibility = View.GONE
                 vpSteps.visibility = View.VISIBLE
+            } else if (dialogIntentStr == "liveWall") {
+                makeToast("LIVEWALL!")
+                val p: String = WallService::class.java.getPackage().getName()
+                val c: String = WallService::class.java.getCanonicalName()
+
+            //    val intentLiveWall = Intent(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER).putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT, ComponentName(p, c))
+            //    startActivity(intentLiveWall)
+
+                val i = Intent()
+                i.setAction(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
+                i.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT, ComponentName(p, c))
+                startActivityForResult(i, 0)
             }
 
             if (dayOfTheWeek.equals("Monday"))

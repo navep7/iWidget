@@ -190,6 +190,8 @@ class NewAppWidget : AppWidgetProvider() {
                 aiPendingIntent
             )
 
+
+
             val remindersIntent = Intent(context, RemindersActivity::class.java)
             remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
             remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -307,6 +309,17 @@ class NewAppWidget : AppWidgetProvider() {
                     Intent(context, DialogActivity::class.java).putExtra(
                         "DialogIntent",
                         "stepsInfo"
+                    ),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.tx_live_weather_effects, PendingIntent.getActivity(
+                    context, 9,
+                    Intent(context, DialogActivity::class.java).putExtra(
+                        "DialogIntent",
+                        "liveWall"
                     ),
                     PendingIntent.FLAG_IMMUTABLE
                 )
@@ -743,6 +756,17 @@ class NewAppWidget : AppWidgetProvider() {
                     "DialogIntent",
                     "stepsInfo"
                 ).putExtra("day", calendar.get(Calendar.DAY_OF_WEEK)),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_live_weather_effects, PendingIntent.getActivity(
+                context, 9,
+                Intent(context, DialogActivity::class.java).putExtra(
+                    "DialogIntent",
+                    "liveWall"
+                ),
                 PendingIntent.FLAG_IMMUTABLE
             )
         )
