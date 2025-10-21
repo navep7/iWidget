@@ -1623,16 +1623,13 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
 
-    //    makeToast("cmprng - " + sharedPreferences.getString("day", "someday") + " VS " + dayOfTheWeek)
-        if (sharedPreferences.getString("day", "someday").equals(dayOfTheWeek))
+       /* if (sharedPreferences.getString("day", "someday").equals(dayOfTheWeek))
       //      makeToast("same Day")
         else {
         //    makeToast("diff Day")
             sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
             stepsToday = 0
-        //    appUsageStats(appContx)
-
-        }
+        }*/
 
         sharedPreferencesEditor.putString("day", dayOfTheWeek).apply()
 

@@ -15,31 +15,45 @@ class StepsAdapter(private val stepsData: ArrayList<String>) : RecyclerView.Adap
         when(position) {
             0 -> {
                 holder.txSteps.text = "Monday \n ${stepsData[position]} steps..."
-                holder.progressSteps.progress = (stepsData[position].toInt() / 100)
+                if (stepsData[position].toInt() > 1000)
+                    holder.progressSteps.progress = stepsData[position].toInt() / 100
+                else  holder.progressSteps.progress = stepsData[position].toInt() / 10
             }
             1 -> {
                 holder.txSteps.text = "Tuesday \n ${stepsData[position]} steps..."
-                holder.progressSteps.progress = (stepsData[position].toInt() / 100)
+                if (stepsData[position].toInt() > 1000)
+                    holder.progressSteps.progress = stepsData[position].toInt() / 100
+                else  holder.progressSteps.progress = stepsData[position].toInt() / 10
             }
             2 -> {
                 holder.txSteps.text = "Wednesday \n ${stepsData[position]} steps..."
-                holder.progressSteps.progress = (stepsData[position].toInt() / 100)
+                if (stepsData[position].toInt() > 1000)
+                    holder.progressSteps.progress = stepsData[position].toInt() / 100
+                else  holder.progressSteps.progress = stepsData[position].toInt() / 10
             }
             3 -> {
                 holder.txSteps.text = "Thursday \n ${stepsData[position]} steps..."
-                holder.progressSteps.progress = (stepsData[position].toInt() / 100)
+                if (stepsData[position].toInt() > 1000)
+                    holder.progressSteps.progress = stepsData[position].toInt() / 100
+                else  holder.progressSteps.progress = stepsData[position].toInt() / 10
             }
             4 -> {
                 holder.txSteps.text = "Friday \n ${stepsData[position]} steps..."
-                holder.progressSteps.progress = (stepsData[position].toInt() / 100)
+                if (stepsData[position].toInt() > 1000)
+                    holder.progressSteps.progress = stepsData[position].toInt() / 100
+                else  holder.progressSteps.progress = stepsData[position].toInt() / 10
             }
             5 -> {
                 holder.txSteps.text = "Saturday \n ${stepsData[position]} steps..."
-                holder.progressSteps.progress = stepsData[position].toInt() / 100
+                if (stepsData[position].toInt() > 1000)
+                    holder.progressSteps.progress = stepsData[position].toInt() / 100
+                else  holder.progressSteps.progress = stepsData[position].toInt() / 10
             }
             6 -> {
                 holder.txSteps.text = "Sunday \n ${stepsData[position]} steps..."
-                holder.progressSteps.progress = stepsData[position].toInt() / 100
+                if (stepsData[position].toInt() > 1000)
+                    holder.progressSteps.progress = stepsData[position].toInt() / 100
+                else  holder.progressSteps.progress = stepsData[position].toInt() / 10
             }
         }
 

@@ -54,6 +54,7 @@ import com.belaku.homey.MainActivity.Companion.wallDelay
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
 import com.belaku.homey.NewAppWidget.Companion.choosenApps
+import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.screenHeight
@@ -93,11 +94,23 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
         setWall(true)
         getCity()
+        DayChanges()
 
         WifiState()
         //     BluetoothState()
 
         return Result.success()
+    }
+
+    private fun DayChanges() {
+
+        if (sharedPreferences.getString("day", "someday").equals(dayOfTheWeek))
+        //      makeToast("same Day")
+        else {
+            //    makeToast("diff Day")
+            sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
+            stepsToday = 0
+        }
     }
 
     @SuppressLint("MissingPermission")
