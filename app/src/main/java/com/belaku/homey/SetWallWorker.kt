@@ -105,7 +105,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
     private fun DayChanges() {
 
         if (sharedPreferences.getString("day", "someday").equals(dayOfTheWeek))
-        //      makeToast("same Day")
+          //    makeToast("same Day")
         else {
             //    makeToast("diff Day")
             sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()

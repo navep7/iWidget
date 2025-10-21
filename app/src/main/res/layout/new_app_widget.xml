@@ -186,6 +186,7 @@
 
         <TextView
             android:id="@+id/tx_live_weather_effects"
+            android:visibility="invisible"
             android:layout_width="75dp"
             android:layout_height="75dp"
             android:layout_below="@+id/tx_wish"

@@ -1612,26 +1612,71 @@ class NewAppWidget : AppWidgetProvider() {
         calendar.add(Calendar.DAY_OF_YEAR, -1) // Query for the last 24 hours
         val startTime = calendar.timeInMillis
 
+
+
         when (calendar.get(Calendar.DAY_OF_WEEK)) {
-            1 -> dayOfTheWeek = "Monday"
-            2 -> dayOfTheWeek = "Tuesday"
-            3 -> dayOfTheWeek = "Wednesday"
-            4 -> dayOfTheWeek = "Thursday"
-            5 -> dayOfTheWeek = "Friday"
-            6 -> dayOfTheWeek = "Saturday"
-            7 -> dayOfTheWeek = "Sunday"
+            1 -> {
+                dayOfTheWeek = "Monday"
+                sharedPreferencesEditor.putInt("Monday", stepsToday).apply()
+                sharedPreferencesEditor.putInt("Tuesday", 0).apply()
+                sharedPreferencesEditor.putInt("Wednesday", 0).apply()
+                sharedPreferencesEditor.putInt("Thursday", 0).apply()
+                sharedPreferencesEditor.putInt("Friday", 0).apply()
+                sharedPreferencesEditor.putInt("Saturday", 0).apply()
+                sharedPreferencesEditor.putInt("Sunday", 0).apply()
+            }
+            2 -> {
+                dayOfTheWeek = "Tuesday"
+                sharedPreferencesEditor.putInt("Tuesday", stepsToday).apply()
+
+                sharedPreferencesEditor.putInt("Wednesday", 0).apply()
+                sharedPreferencesEditor.putInt("Thursday", 0).apply()
+                sharedPreferencesEditor.putInt("Friday", 0).apply()
+                sharedPreferencesEditor.putInt("Saturday", 0).apply()
+                sharedPreferencesEditor.putInt("Sunday", 0).apply()
+            }
+            3 -> {
+                dayOfTheWeek = "Wednesday"
+                sharedPreferencesEditor.putInt("Wednesday", stepsToday).apply()
+
+                sharedPreferencesEditor.putInt("Thursday", 0).apply()
+                sharedPreferencesEditor.putInt("Friday", 0).apply()
+                sharedPreferencesEditor.putInt("Saturday", 0).apply()
+                sharedPreferencesEditor.putInt("Sunday", 0).apply()
+            }
+            4 -> {
+                dayOfTheWeek = "Thursday"
+                sharedPreferencesEditor.putInt("Thursday", stepsToday).apply()
+
+                sharedPreferencesEditor.putInt("Friday", 0).apply()
+                sharedPreferencesEditor.putInt("Saturday", 0).apply()
+                sharedPreferencesEditor.putInt("Sunday", 0).apply()
+            }
+            5 -> {
+                dayOfTheWeek = "Friday"
+                sharedPreferencesEditor.putInt("Friday", stepsToday).apply()
+
+                sharedPreferencesEditor.putInt("Saturday", 0).apply()
+                sharedPreferencesEditor.putInt("Sunday", 0).apply()
+            }
+            6 -> {
+                dayOfTheWeek = "Saturday"
+                sharedPreferencesEditor.putInt("Saturday", stepsToday).apply()
+
+                sharedPreferencesEditor.putInt("Sunday", 0).apply()
+            }
+            7 -> {
+                dayOfTheWeek = "Sunday"
+                sharedPreferencesEditor.putInt("Sunday", stepsToday).apply()
+            }
         }
 
 
-       /* if (sharedPreferences.getString("day", "someday").equals(dayOfTheWeek))
-      //      makeToast("same Day")
-        else {
-        //    makeToast("diff Day")
-            sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
-            stepsToday = 0
-        }*/
 
-        sharedPreferencesEditor.putString("day", dayOfTheWeek).apply()
+        if (sharedPreferences.getString("day", "someday") != dayOfTheWeek) {
+            stepsToday = 0
+            sharedPreferencesEditor.putString("day", dayOfTheWeek).apply()
+        }
 
         // Get a map of package names to UsageStats objects
         val usageStatsMap = usageStatsManager.queryAndAggregateUsageStats(startTime, endTime)
