@@ -2,7 +2,7 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <!-- Background color of the TextView -->
-    <solid android:color="?attr/colorPrimaryInverse"/>
+    <solid android:color="@android:color/darker_gray"/>
     <stroke
         android:width="2dp"
         android:color="@android:color/transparent" /> <!-- Border color and width -->
