@@ -40,15 +40,18 @@ import com.belaku.homey.MainActivity.Companion.cMonth
 import com.belaku.homey.MainActivity.Companion.cYear
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.delayUnit
+import com.belaku.homey.MainActivity.Companion.fabMain
 import com.belaku.homey.MainActivity.Companion.mAct
 import com.belaku.homey.MainActivity.Companion.makeSnack
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.queryType
 import com.belaku.homey.MainActivity.Companion.randomWallIndex
+import com.belaku.homey.MainActivity.Companion.rlStatus
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.tempKind
+import com.belaku.homey.MainActivity.Companion.txStatus
 import com.belaku.homey.MainActivity.Companion.updateTime
 import com.belaku.homey.MainActivity.Companion.wallDelay
 import com.belaku.homey.NewAppWidget.Companion.appWidM
@@ -302,8 +305,9 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 appContx.sendBroadcast(intent)
 
                 Handler(Looper.getMainLooper()).postDelayed({
-                    MainActivity.txStatus.setText("$queryType wallpapers Set, updates every $wallDelay mins. Add the HomeScreen Widget to see more of the Magic!")
-                    MainActivity.rlStatus.visibility = View.VISIBLE
+                    txStatus.setText("\"$queryType\" wallpapers Set, updates every $wallDelay mins. \n Add the HomeScreen Widget to see more of the Magic!")
+                    rlStatus.visibility = View.VISIBLE
+                    fabMain.setText("How to ?")
                 }, 1000)
 
 

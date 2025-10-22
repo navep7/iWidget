@@ -54,13 +54,16 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
+import android.view.View.OnTouchListener
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
@@ -139,6 +142,10 @@ import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity() {
 
+    private val arrayListKeysTxViews: ArrayList<TextView> = ArrayList()
+    private val arrayListKeys: ArrayList<String> = ArrayList()
+    private var selectedKey: String = "Nature"
+    private lateinit var txKey: TextView
     private lateinit var intentAdmin: Intent
     private lateinit var mBluetoothReceiver: BroadcastReceiver
     private lateinit var dialogMessage: EditText
@@ -156,7 +163,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var frameMin: FrameLayout
     private lateinit var frameHour: FrameLayout
     private lateinit var frameDay: FrameLayout
-    private lateinit var fabMain: ExtendedFloatingActionButton
     private lateinit var fabMin: FloatingActionButton
     private lateinit var fabHour: FloatingActionButton
     private lateinit var fabDay: FloatingActionButton
@@ -261,6 +267,7 @@ class MainActivity : AppCompatActivity() {
 
 
         findViewByIds()
+        getTxKeys()
         setRV(imgUrls, imgDescs)
         listeners()
         fetchWallpaper(applicationContext)
@@ -412,12 +419,14 @@ class MainActivity : AppCompatActivity() {
 
         fabMain.setOnClickListener { view ->
 
+            if (fabMain.text == "Set")
             if (fabDay.visibility == View.GONE) {
 
                 fabDay.visibility = View.VISIBLE
                 frameMin.visibility = View.VISIBLE
                 frameHour.visibility = View.VISIBLE
                 frameDay.visibility = View.VISIBLE
+                TxAutoUpdate.visibility = View.VISIBLE
                 // Add animation here to expand the menu
 
                 if (newsList.size == 0) {
@@ -443,7 +452,29 @@ class MainActivity : AppCompatActivity() {
                 frameMin.visibility = View.GONE
                 frameHour.visibility = View.GONE
                 frameDay.visibility = View.GONE
+                TxAutoUpdate.visibility = View.GONE
                 // Add animation here to collapse the menu
+            }
+            else {
+                val builder = AlertDialog.Builder(this)
+
+                // Set the dialog's title and message
+                builder.setTitle("How to Add nHome Widget to HomeScreen")
+                builder.setMessage("1. Goto Device Home Screen.\n" +
+                                    "2. Long press on empty region.\n" +
+                                    "3. Scroll down till you see nHome widget and long press the widget to HomeScreen")
+
+
+                // Set a positive button and its click listener
+                builder.setPositiveButton("OK") { dialog, id ->
+                    // User clicked OK button
+                    dialog.dismiss() // Dismiss the dialog
+                }
+
+
+                // Create the AlertDialog object and show it
+                val dialog = builder.create()
+                dialog.show()
             }
 
         }
@@ -453,6 +484,26 @@ class MainActivity : AppCompatActivity() {
         appContx.registerReceiver(mBluetoothReceiver, filter)
 
 
+    }
+
+    private fun getTxKeys() {
+
+        val childCount: Int = llKeywords.getChildCount()
+
+        for (i in 0 until childCount) {
+            val childView: View = llKeywords.getChildAt(i)
+            if (childView is TextView) {
+                arrayListKeysTxViews.add(childView)
+                arrayListKeys.add(childView.text.toString())
+            }
+        }
+    }
+
+    private fun addWallKey(s: String) {
+        val buttonKey = Button(this)
+        buttonKey.text = s
+
+        llKeywords.addView(buttonKey)
     }
 
     private fun launchers() {
@@ -1217,7 +1268,7 @@ class MainActivity : AppCompatActivity() {
         sharedPreferencesEditor.putString("walltype", queryType).apply()
 
         pD.setTitle("Wallpaper...")
-        pD.setMessage("Setting Wallpaper...")
+        pD.setMessage("Setting \"${queryType}\" wallpaper...")
         pD.show()
         startWallWork(delay)
 
@@ -1242,14 +1293,13 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun listeners() {
 
         editTextPrompt.setOnEditorActionListener(OnEditorActionListener { v, actionId, event ->
             if ((event != null && (event.keyCode == KeyEvent.KEYCODE_ENTER)) || (actionId == EditorInfo.IME_ACTION_DONE)) {
                 //do what you want on the press of 'done'
 
-                imgUrls.clear()
-                imgDescs.clear()
 
                 queryType = editTextPrompt.text.toString()
                 sharedPreferencesEditor.putString("qT", queryType).apply()
@@ -1260,6 +1310,37 @@ class MainActivity : AppCompatActivity() {
                 fetchWallpaper(applicationContext)
             }
             false
+        })
+
+        editTextPrompt.setOnTouchListener(OnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                // Check if the touch event is within the bounds of the drawableRight
+                if (event.x > (editTextPrompt.getWidth() - editTextPrompt.getPaddingRight() - editTextPrompt.getCompoundDrawables()
+                        .get(2).getBounds().width())
+                ) {
+                    // Change the drawable
+                    if (editTextPrompt.getCompoundDrawables().get(2).getConstantState()!!
+                            .equals(resources.getDrawable(R.drawable.fav).constantState)
+                    ) {
+                        editTextPrompt.setCompoundDrawablesWithIntrinsicBounds(
+                            0,
+                            0,
+                            R.drawable.unfav,
+                            0
+                        )
+                    } else {
+                        addWallKey(editTextPrompt.text.toString())
+                        editTextPrompt.setCompoundDrawablesWithIntrinsicBounds(
+                            0,
+                            0,
+                            R.drawable.fav,
+                            0
+                        )
+                    }
+                    return@OnTouchListener true // Consume the event
+                }
+            }
+            false // Let the event propagate if not a drawable click
         })
 
         fabMin.setOnClickListener {
@@ -1293,10 +1374,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun findViewByIds() {
 
+        llKeywords = findViewById(R.id.ll_keys)
         rlStatus = findViewById(R.id.rl_status)
         txStatus = findViewById(R.id.tx_status)
         editTextPrompt = findViewById(R.id.edtx_prompt)
         fabMain = findViewById(R.id.fab_main)
+        TxAutoUpdate = findViewById(R.id.tx_autoupdate)
         frameMin = findViewById(R.id.frame_fab1)
         frameHour = findViewById(R.id.frame_fab2)
         frameDay = findViewById(R.id.frame_fab3)
@@ -1412,8 +1495,8 @@ class MainActivity : AppCompatActivity() {
 
         imgUrls.clear()
         imgDescs.clear()
-        rv.getRecycledViewPool().clear();
-        rvAdapter.notifyDataSetChanged();
+        rv.recycledViewPool.clear()
+        rvAdapter.notifyItemRangeChanged(0, imgUrls.size)
 
 
         if (imgUrls.size == 0) {
@@ -1436,7 +1519,8 @@ class MainActivity : AppCompatActivity() {
 
                             if (length > 0) {
                                 txStatus.text =
-                                    "Showing $queryType wallpapers... Search using above Bar if you seek something else.. Or Set!"
+                                    "Showing $queryType wallpapers...\n1. Search using Top Bar. \n2.Select from Above options, \nif you seek something else.. Or S3t!"
+                                fabMain.setText("Set")
                                 for (i in 0 until length) {
                                     val jsonObject = jsonArray.getJSONObject(i)
                                     val objectImages = jsonObject.getJSONObject("src")
@@ -1503,8 +1587,11 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
 
+        lateinit var fabMain: ExtendedFloatingActionButton
+        lateinit var TxAutoUpdate: TextView
         lateinit var txStatus: TextView
         lateinit var rlStatus: RelativeLayout
+        lateinit var llKeywords: LinearLayout
         lateinit var pickContactLauncher: ActivityResultLauncher<Intent>
         private val CPick: Int = 7
         private val REQUEST_CONTACT_PICKER: Int = 9
@@ -1758,7 +1845,7 @@ class MainActivity : AppCompatActivity() {
                             pDNews.dismiss()
                             Snackbar.make(
                                 parentLayout,
-                                "Auto Update Wallpaper, every ?",
+                                "Auto Update Wallpaper, every,",
                                 Snackbar.LENGTH_SHORT
                             )
                                 .setAction("Action", null)
@@ -1790,8 +1877,24 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    fun WallKeyClick(view: View) {
+        selectedKey = (view as TextView).text.toString()
+        unSelectViews()
+    }
 
+    private fun unSelectViews() {
+        for (i in arrayListKeys) {
+            if (i != selectedKey)
+                arrayListKeysTxViews.get(arrayListKeys.indexOf(i)).setBackgroundResource(R.drawable.circular_tx_border)
+            else {
+                queryType = selectedKey
+                sharedPreferencesEditor.putString("qT", queryType).apply()
+                pD.setTitle("Wallpaper")
+                pD.setMessage("fetching wallpapers,please wait...")
+                pD.show()
+                fetchWallpaper(applicationContext)
+                arrayListKeysTxViews.get(arrayListKeys.indexOf(i)).setBackgroundResource(R.drawable.circular_tx_selected)
+            }
+        }
+    }
 }
-
-// handle sensor event
-
