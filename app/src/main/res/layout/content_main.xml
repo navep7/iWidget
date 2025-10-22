@@ -42,7 +42,7 @@
                 android:layout_gravity="center_vertical"
                 android:textStyle="bold"
                 android:layout_margin="5dp"
-                android:background="@drawable/circular_tx_selected"
+                android:background="@drawable/circular_tx_border"
                 android:padding="8dp" />
 
 

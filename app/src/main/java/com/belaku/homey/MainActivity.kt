@@ -257,7 +257,7 @@ class MainActivity : AppCompatActivity() {
 
         DynamicColors.applyToActivitiesIfAvailable(application)
 
-        queryType = sharedPreferences.getString("walltype", "nature").toString()
+        queryType = sharedPreferences.getString("walltype", "Nature").toString()
 
         sharedPreferences.getStringSet("walls", null)?.let { imgUrls.addAll(it) }
         sharedPreferences.getStringSet("wallDescs", null)?.let { imgDescs.addAll(it) }
@@ -1520,6 +1520,8 @@ class MainActivity : AppCompatActivity() {
                             if (length > 0) {
                                 txStatus.text =
                                     "Showing $queryType wallpapers...\n1. Search using Top Bar. \n2.Select from Above options, \nif you seek something else.. Or S3t!"
+                                selectedKey = queryType
+                                unSelectKeys()
                                 fabMain.setText("Set")
                                 for (i in 0 until length) {
                                     val jsonObject = jsonArray.getJSONObject(i)
@@ -1879,22 +1881,20 @@ class MainActivity : AppCompatActivity() {
 
     fun WallKeyClick(view: View) {
         selectedKey = (view as TextView).text.toString()
-        unSelectViews()
+        queryType = selectedKey
+        sharedPreferencesEditor.putString("qT", queryType).apply()
+        pD.setTitle("Wallpaper")
+        pD.setMessage("fetching wallpapers,please wait...")
+        pD.show()
+        fetchWallpaper(applicationContext)
+        unSelectKeys()
     }
 
-    private fun unSelectViews() {
+    private fun unSelectKeys() {
         for (i in arrayListKeys) {
             if (i != selectedKey)
                 arrayListKeysTxViews.get(arrayListKeys.indexOf(i)).setBackgroundResource(R.drawable.circular_tx_border)
-            else {
-                queryType = selectedKey
-                sharedPreferencesEditor.putString("qT", queryType).apply()
-                pD.setTitle("Wallpaper")
-                pD.setMessage("fetching wallpapers,please wait...")
-                pD.show()
-                fetchWallpaper(applicationContext)
-                arrayListKeysTxViews.get(arrayListKeys.indexOf(i)).setBackgroundResource(R.drawable.circular_tx_selected)
-            }
+            else arrayListKeysTxViews.get(arrayListKeys.indexOf(i)).setBackgroundResource(R.drawable.circular_tx_selected)
         }
     }
 }
