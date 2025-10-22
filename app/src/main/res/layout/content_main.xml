@@ -8,7 +8,7 @@
 
     <EditText
         android:id="@+id/edtx_prompt"
-        android:drawableEnd="@drawable/unfav"
+        android:drawableEnd="@android:drawable/ic_input_add"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -34,74 +34,6 @@
             android:orientation="horizontal">
 
             <!-- Your TextView labels go here -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Nature"
-                android:onClick="WallKeyClick"
-                android:layout_gravity="center_vertical"
-                android:textStyle="bold"
-                android:layout_margin="5dp"
-                android:background="@drawable/circular_tx_border"
-                android:padding="8dp" />
-
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Material Design"
-                android:onClick="WallKeyClick"
-                android:layout_gravity="center_vertical"
-                android:textStyle="bold"
-                android:layout_margin="5dp"
-                android:background="@drawable/circular_tx_border"
-                android:padding="8dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="iPhone Wallpapers"
-                android:onClick="WallKeyClick"
-                android:layout_gravity="center_vertical"
-                android:textStyle="bold"
-                android:layout_margin="5dp"
-                android:background="@drawable/circular_tx_border"
-                android:padding="8dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Colorful Bokeh Lights"
-                android:onClick="WallKeyClick"
-                android:layout_gravity="center_vertical"
-                android:textStyle="bold"
-                android:layout_margin="5dp"
-                android:background="@drawable/circular_tx_border"
-                android:padding="8dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="CountrySide"
-                android:onClick="WallKeyClick"
-                android:layout_gravity="center_vertical"
-                android:textStyle="bold"
-                android:layout_margin="5dp"
-                android:background="@drawable/circular_tx_border"
-                android:padding="8dp" />
-
-            <!-- More labels -->
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab_addkey"
-                android:layout_margin="5dp"
-                android:layout_gravity="center_vertical"
-                app:fabSize="mini"
-                android:src="@android:drawable/ic_input_add"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-
 
         </LinearLayout>
     </HorizontalScrollView>

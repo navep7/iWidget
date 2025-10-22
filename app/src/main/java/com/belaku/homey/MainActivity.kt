@@ -34,6 +34,7 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Typeface
 import android.icu.util.Calendar
 import android.location.Geocoder
 import android.location.LocationManager
@@ -75,6 +76,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.material3.Text
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -267,7 +269,7 @@ class MainActivity : AppCompatActivity() {
 
 
         findViewByIds()
-        getTxKeys()
+        populateKeys()
         setRV(imgUrls, imgDescs)
         listeners()
         fetchWallpaper(applicationContext)
@@ -486,24 +488,35 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun getTxKeys() {
+    private fun populateKeys() {
 
-        val childCount: Int = llKeywords.getChildCount()
+        sharedPreferences.getStringSet("wallKeys", null)?.let { arrayListKeys.addAll(it) }
 
-        for (i in 0 until childCount) {
-            val childView: View = llKeywords.getChildAt(i)
-            if (childView is TextView) {
-                arrayListKeysTxViews.add(childView)
-                arrayListKeys.add(childView.text.toString())
-            }
+        if (arrayListKeys.size == 0) {
+            arrayListKeys.add("Nature")
+            arrayListKeys.add("Material Design")
+            arrayListKeys.add("iPhone Wallpapers")
+            arrayListKeys.add("CountrySide")
+            arrayListKeys.add("Colorful Bokeh Lights")
         }
+
+        for (i in arrayListKeys)
+            addWallKey(i)
+
     }
 
-    private fun addWallKey(s: String) {
-        val buttonKey = Button(this)
-        buttonKey.text = s
 
-        llKeywords.addView(buttonKey)
+    private fun addWallKey(s: String) {
+        val txKey = TextView(this)
+        txKey.text = s
+        txKey.setTypeface(null, Typeface.BOLD);
+        txKey.setBackgroundResource(R.drawable.circular_tx_border)
+        txKey.setOnClickListener {
+            WallKeyClick(txKey)
+        }
+
+        arrayListKeysTxViews.add(txKey)
+        llKeywords.addView(txKey)
     }
 
     private fun launchers() {
@@ -1319,23 +1332,10 @@ class MainActivity : AppCompatActivity() {
                         .get(2).getBounds().width())
                 ) {
                     // Change the drawable
-                    if (editTextPrompt.getCompoundDrawables().get(2).getConstantState()!!
-                            .equals(resources.getDrawable(R.drawable.fav).constantState)
-                    ) {
-                        editTextPrompt.setCompoundDrawablesWithIntrinsicBounds(
-                            0,
-                            0,
-                            R.drawable.unfav,
-                            0
-                        )
-                    } else {
-                        addWallKey(editTextPrompt.text.toString())
-                        editTextPrompt.setCompoundDrawablesWithIntrinsicBounds(
-                            0,
-                            0,
-                            R.drawable.fav,
-                            0
-                        )
+                    var newKey = editTextPrompt.text.toString()
+                    if (!arrayListKeys.contains(newKey)) {
+                        arrayListKeys.add(newKey)
+                        addWallKey(newKey)
                     }
                     return@OnTouchListener true // Consume the event
                 }
@@ -1402,6 +1402,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
 
+        sharedPreferencesEditor.putStringSet("wallKeys", HashSet(arrayListKeys)).apply()
         sharedPreferencesEditor.putStringSet("walls", HashSet(imgUrls)).apply()
         sharedPreferencesEditor.putStringSet("wallDescs", HashSet(imgDescs)).apply()
     }
