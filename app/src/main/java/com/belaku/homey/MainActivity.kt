@@ -62,6 +62,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.HorizontalScrollView
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -76,7 +77,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.material3.Text
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -363,16 +363,16 @@ class MainActivity : AppCompatActivity() {
 
 
         messageView.text =
-                "\nThe App needs below access.." +
-                "\n1. Admin Access - to lock screen from shortcut in the Widget" +
-                "\n2. Device location - to display location address in the Widget" +
-                "\n3. Physical Activity - to recognise walking state and display step count in the Widget" +
-                "\n4. Contacts - to show your favorite contacts in the Widget, to dial easily." +
-                "\n5. Nearby Devices - for indicating Bluetooth connection status in the Widget" +
-                "\n6. Notifications - to notify of set Reminders" +
-                "\n7. Dial Phone calls - to quickly dial your favorite contacts from the Widget" +
-                "\n8. App Usage Stats - to display most used Apps in the Widget" +
-                "\n\n Requesting you to enable each permission in the upcoming screens, for the Widget to work correctly!"
+            "\nThe App needs below access.." +
+                    "\n1. Admin Access - to lock screen from shortcut in the Widget" +
+                    "\n2. Device location - to display location address in the Widget" +
+                    "\n3. Physical Activity - to recognise walking state and display step count in the Widget" +
+                    "\n4. Contacts - to show your favorite contacts in the Widget, to dial easily." +
+                    "\n5. Nearby Devices - for indicating Bluetooth connection status in the Widget" +
+                    "\n6. Notifications - to notify of set Reminders" +
+                    "\n7. Dial Phone calls - to quickly dial your favorite contacts from the Widget" +
+                    "\n8. App Usage Stats - to display most used Apps in the Widget" +
+                    "\n\n Requesting you to enable each permission in the upcoming screens, for the Widget to work correctly!"
 
         dialogBuilder.setTitle("nHome Widget Highlights ~ Underlined words, explain...!")
             .setPositiveButton("OK") { dialog: DialogInterface, which: Int ->
@@ -422,49 +422,51 @@ class MainActivity : AppCompatActivity() {
         fabMain.setOnClickListener { view ->
 
             if (fabMain.text == "Set")
-            if (fabDay.visibility == View.GONE) {
+                if (fabDay.visibility == View.GONE) {
 
-                fabDay.visibility = View.VISIBLE
-                frameMin.visibility = View.VISIBLE
-                frameHour.visibility = View.VISIBLE
-                frameDay.visibility = View.VISIBLE
-                TxAutoUpdate.visibility = View.VISIBLE
-                // Add animation here to expand the menu
+                    fabDay.visibility = View.VISIBLE
+                    frameMin.visibility = View.VISIBLE
+                    frameHour.visibility = View.VISIBLE
+                    frameDay.visibility = View.VISIBLE
+                    TxAutoUpdate.visibility = View.VISIBLE
+                    // Add animation here to expand the menu
 
-                if (newsList.size == 0) {
-                    pDNews = ProgressDialog(this@MainActivity)
-                    pDNews.setCancelable(false)
-                    //    pDNews.setTitle("fetching News...")
-                    //    pDNews.show()
-                    val jobScheduler =
-                        appContx.getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
-                    val serviceComponent = ComponentName(appContx, DailyJobService::class.java)
-                    // Optional: persist across reboots
+                    if (newsList.size == 0) {
+                        pDNews = ProgressDialog(this@MainActivity)
+                        pDNews.setCancelable(false)
+                        //    pDNews.setTitle("fetching News...")
+                        //    pDNews.show()
+                        val jobScheduler =
+                            appContx.getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
+                        val serviceComponent = ComponentName(appContx, DailyJobService::class.java)
+                        // Optional: persist across reboots
 
-                    GlobalScope.launch(Dispatchers.IO) {
-                        val builder = JobInfo.Builder(1, serviceComponent)
-                            .setPeriodic(AlarmManager.INTERVAL_DAY) // Schedule to run daily
-                            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY) // Optional: require network
-                            .setPersisted(true)
-                        jobScheduler.schedule(builder.build())
+                        GlobalScope.launch(Dispatchers.IO) {
+                            val builder = JobInfo.Builder(1, serviceComponent)
+                                .setPeriodic(AlarmManager.INTERVAL_DAY) // Schedule to run daily
+                                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY) // Optional: require network
+                                .setPersisted(true)
+                            jobScheduler.schedule(builder.build())
+                        }
                     }
+                } else {
+                    fabDay.visibility = View.GONE
+                    frameMin.visibility = View.GONE
+                    frameHour.visibility = View.GONE
+                    frameDay.visibility = View.GONE
+                    TxAutoUpdate.visibility = View.GONE
+                    // Add animation here to collapse the menu
                 }
-            } else {
-                fabDay.visibility = View.GONE
-                frameMin.visibility = View.GONE
-                frameHour.visibility = View.GONE
-                frameDay.visibility = View.GONE
-                TxAutoUpdate.visibility = View.GONE
-                // Add animation here to collapse the menu
-            }
             else {
                 val builder = AlertDialog.Builder(this)
 
                 // Set the dialog's title and message
                 builder.setTitle("How to Add nHome Widget to HomeScreen")
-                builder.setMessage("1. Goto Device Home Screen.\n" +
-                                    "2. Long press on empty region.\n" +
-                                    "3. Scroll down till you see nHome widget and long press the widget to HomeScreen")
+                builder.setMessage(
+                    "1. Goto Device Home Screen.\n" +
+                            "2. Long press on empty region.\n" +
+                            "3. Scroll down till you see nHome widget and long press the widget to HomeScreen"
+                )
 
 
                 // Set a positive button and its click listener
@@ -494,23 +496,30 @@ class MainActivity : AppCompatActivity() {
 
         if (arrayListKeys.size == 0) {
             arrayListKeys.add("Nature")
+            addWallKey("Nature", true)
             arrayListKeys.add("Material Design")
+            addWallKey("Material Design", false)
             arrayListKeys.add("iPhone Wallpapers")
+            addWallKey("iPhone Wallpapers", false)
             arrayListKeys.add("CountrySide")
+            addWallKey("CountrySide", false)
             arrayListKeys.add("Colorful Bokeh Lights")
+            addWallKey("Colorful Bokeh Lights", false)
         }
 
-        for (i in arrayListKeys)
-            addWallKey(i)
 
     }
 
 
-    private fun addWallKey(s: String) {
+    private fun addWallKey(s: String, boolSelection: Boolean) {
         val txKey = TextView(this)
         txKey.text = s
-        txKey.setTypeface(null, Typeface.BOLD);
-        txKey.setBackgroundResource(R.drawable.circular_tx_border)
+        txKey.setTypeface(null, Typeface.BOLD)
+        if (boolSelection) {
+            for (i in arrayListKeysTxViews)
+                i.setBackgroundResource(R.drawable.circular_tx_border)
+            txKey.setBackgroundResource(R.drawable.circular_tx_selected)
+        } else txKey.setBackgroundResource(R.drawable.circular_tx_border)
         txKey.setOnClickListener {
             WallKeyClick(txKey)
         }
@@ -1321,6 +1330,7 @@ class MainActivity : AppCompatActivity() {
                 pD.show()
 
                 fetchWallpaper(applicationContext)
+                editTextPrompt.setCompoundDrawablesWithIntrinsicBounds(0, 0, android.R.drawable.ic_input_add, 0)
             }
             false
         })
@@ -1328,14 +1338,17 @@ class MainActivity : AppCompatActivity() {
         editTextPrompt.setOnTouchListener(OnTouchListener { v, event ->
             if (event.action == MotionEvent.ACTION_UP) {
                 // Check if the touch event is within the bounds of the drawableRight
-                if (event.x > (editTextPrompt.getWidth() - editTextPrompt.getPaddingRight() - editTextPrompt.getCompoundDrawables()
-                        .get(2).getBounds().width())
+
+                if (editTextPrompt.compoundDrawables.get(2) != null)
+                if (event.x > (editTextPrompt.width - editTextPrompt.paddingRight - editTextPrompt.compoundDrawables
+                        .get(2).bounds.width())
                 ) {
                     // Change the drawable
                     var newKey = editTextPrompt.text.toString()
                     if (!arrayListKeys.contains(newKey)) {
                         arrayListKeys.add(newKey)
-                        addWallKey(newKey)
+                        addWallKey(newKey, true)
+                        populateSelection(newKey)
                     }
                     return@OnTouchListener true // Consume the event
                 }
@@ -1374,10 +1387,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun findViewByIds() {
 
+        scrollKeys = findViewById(R.id.scroll_keys)
         llKeywords = findViewById(R.id.ll_keys)
         rlStatus = findViewById(R.id.rl_status)
         txStatus = findViewById(R.id.tx_status)
         editTextPrompt = findViewById(R.id.edtx_prompt)
+        editTextPrompt.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
         fabMain = findViewById(R.id.fab_main)
         TxAutoUpdate = findViewById(R.id.tx_autoupdate)
         frameMin = findViewById(R.id.frame_fab1)
@@ -1595,6 +1610,7 @@ class MainActivity : AppCompatActivity() {
         lateinit var txStatus: TextView
         lateinit var rlStatus: RelativeLayout
         lateinit var llKeywords: LinearLayout
+        lateinit var scrollKeys: HorizontalScrollView
         lateinit var pickContactLauncher: ActivityResultLauncher<Intent>
         private val CPick: Int = 7
         private val REQUEST_CONTACT_PICKER: Int = 9
@@ -1893,9 +1909,26 @@ class MainActivity : AppCompatActivity() {
 
     private fun unSelectKeys() {
         for (i in arrayListKeys) {
-            if (i != selectedKey)
-                arrayListKeysTxViews.get(arrayListKeys.indexOf(i)).setBackgroundResource(R.drawable.circular_tx_border)
-            else arrayListKeysTxViews.get(arrayListKeys.indexOf(i)).setBackgroundResource(R.drawable.circular_tx_selected)
+            if (i == selectedKey)
+                populateSelection(i)
         }
+    }
+
+    private fun populateSelection(i: String) {
+
+        llKeywords.removeAllViews()
+
+        var swapIndex = arrayListKeys.indexOf(i)
+        Collections.swap(arrayListKeys, 0, swapIndex)
+
+        for (i in 0 until arrayListKeys.size)
+            if (i == 0)
+                addWallKey(arrayListKeys[i], true)
+            else addWallKey(arrayListKeys[i], false)
+
+
+        scrollKeys.scrollTo(0, 0)
+
+
     }
 }
