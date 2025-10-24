@@ -1473,6 +1473,7 @@ class MainActivity : AppCompatActivity() {
 
                 val action = intent.action
                 makeSnack("onReceive BLT - " + action)
+                appWidM = AppWidgetManager.getInstance(appContx)
 
 
                 if (BluetoothAdapter.ACTION_STATE_CHANGED == action) {
