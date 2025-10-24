@@ -1084,14 +1084,7 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
         if (LOCK_PHONE == intent.action) {
-
-            var deviceManger =
-                context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-            var compName = ComponentName(context, DeviceAdmin::class.java)
-            val active: Boolean = deviceManger.isAdminActive(compName)
-
-            if (active)
-                deviceManger.lockNow()
+            LockAccessibilityService.lockScreenAccessibility(appContx);
         }
 
         if (SET_CLICKED == intent.action) {

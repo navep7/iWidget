@@ -12,7 +12,6 @@ import android.app.AppOpsManager.OPSTR_GET_USAGE_STATS
 import android.app.Dialog
 import android.app.ProgressDialog
 import android.app.WallpaperManager
-import android.app.admin.DevicePolicyManager
 import android.app.job.JobInfo
 import android.app.job.JobScheduler
 import android.app.usage.UsageStats
@@ -72,7 +71,6 @@ import android.widget.TextView
 import android.widget.TextView.OnEditorActionListener
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -147,8 +145,7 @@ class MainActivity : AppCompatActivity() {
     private val arrayListKeysTxViews: ArrayList<TextView> = ArrayList()
     private val arrayListKeys: ArrayList<String> = ArrayList()
     private var selectedKey: String = "Nature"
-    private lateinit var txKey: TextView
-    private lateinit var intentAdmin: Intent
+
     private lateinit var mBluetoothReceiver: BroadcastReceiver
     private lateinit var dialogMessage: EditText
     private val REQUEST_CODE_SPEECH_INPUT: Int = 100
@@ -286,71 +283,8 @@ class MainActivity : AppCompatActivity() {
             //   getCity()
         }
 
-        intentAdmin = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
-        var compName = ComponentName(this, DeviceAdmin::class.java)
-        intentAdmin.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, compName)
-        intentAdmin.putExtra(
-            DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-            "Enable Admin Access for Lock screen shortcut to work from the App's Widget"
-        )
 
-        launcher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
-        ) { result: ActivityResult ->
-            if (result.resultCode == RESULT_OK) {
 
-            }
-        }
-
-        // Receiver
-        val getResult =
-            registerForActivityResult(
-                ActivityResultContracts.StartActivityForResult()
-            ) {
-                if (it.resultCode == Activity.RESULT_OK || it.resultCode == Activity.RESULT_CANCELED) {
-                    ActivityCompat.requestPermissions(
-                        mAct,
-                        arrayOf(
-                            Manifest.permission.READ_CONTACTS,
-                            Manifest.permission.WRITE_CONTACTS,
-                            Manifest.permission.CALL_PHONE,
-                            Manifest.permission.ACTIVITY_RECOGNITION,
-                            Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.POST_NOTIFICATIONS,
-                            Manifest.permission.BLUETOOTH_CONNECT
-                        ),
-                        CONTACTS_P
-                    )
-                }
-            }
-
-        //instructionsDialog
-
-        /* val builder = AlertDialog.Builder(this)
-         builder.setTitle("Instructions")
-         builder.setMessage(
-             "The App needs below access.." +
-                     "\n1. Admin Access - to lock screen from shortcut in the Widget" +
-                     "\n2. Device location - to display location address in the Widget" +
-                     "\n3. Physical Activity - to recognise walking state and display step count in the Widget" +
-                     "\n4. Contacts - to show your favorite contacts in the Widget, to dial easily." +
-                     "\n5. Nearby Devices - for indicating Bluetooth connection status in the Widget" +
-                     "\n6. Notifications - to notify of set Reminders" +
-                     "\n7. Dial Phone calls - to quickly dial your favorite contacts from the Widget" +
-                     "\n8. App Usage Stats - to display most used Apps in the Widget" +
-                     "\n\n Requesting you to enable each permission in the upcoming screens, for the Widget to work correctly!"
-         )
-
-         builder.setPositiveButton("OK") { dialog: DialogInterface, which: Int ->
-             // Handle positive button click
-             // For example, dismiss the dialog
-             getResult.launch(intentAdmin)
-             dialog.dismiss()
-         }
-
-         val alertDialog: AlertDialog = builder.create()
-
- */
 
         val dialogBuilder = AlertDialog.Builder(this@MainActivity)
         val inflater = LayoutInflater.from(this@MainActivity)
@@ -378,7 +312,21 @@ class MainActivity : AppCompatActivity() {
             .setPositiveButton("OK") { dialog: DialogInterface, which: Int ->
                 // Handle positive button click
                 // For example, dismiss the dialog
-                getResult.launch(intentAdmin)
+
+                ActivityCompat.requestPermissions(
+                    mAct,
+                    arrayOf(
+                        Manifest.permission.READ_CONTACTS,
+                        Manifest.permission.WRITE_CONTACTS,
+                        Manifest.permission.CALL_PHONE,
+                        Manifest.permission.ACTIVITY_RECOGNITION,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.POST_NOTIFICATIONS,
+                        Manifest.permission.BLUETOOTH_CONNECT
+                    ),
+                    CONTACTS_P
+                )
+
                 dialog.dismiss()
             }
 
@@ -1445,6 +1393,10 @@ class MainActivity : AppCompatActivity() {
                     startStepsService()
                     usageStatsPermissionDialog()
                     rawTweets(false)
+
+                    val openSettings = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                    openSettings.addFlags(FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
+                    startActivity(openSettings)
 
                     if (!isLocationEnabled(applicationContext)) {
                         val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
