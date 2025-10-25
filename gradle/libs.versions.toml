@@ -7,6 +7,7 @@ blur_tutorial = "1.0.1"
 firebaseBom = "34.2.0"
 glide = "4.16.0"
 googleMaterial = "1.2.0-alpha01"
+googleMaterialVersion = "1.13.0"
 gson = "2.13.1"
 gsonVersion = "2.8.8"
 kotlin = "2.0.0"
@@ -28,6 +29,7 @@ picassoVersion = "2.8"
 playServicesAds = "24.6.0"
 playServicesLocation = "21.3.0"
 retrofit = "2.9.0"
+viewpager2 = "1.1.0"
 volley = "1.2.1"
 workRuntimeKtx = "2.10.2"
 playServicesMaps = "19.2.0"
@@ -39,6 +41,7 @@ android-maps-utils = { module = "com.google.maps.android:android-maps-utils", ve
 androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-multidex = { module = "androidx.multidex:multidex" }
+androidx-viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "viewpager2" }
 blur_tutorial = { module = "com.cleveroad.blur_tutorial:blur_tutorial", version.ref = "blur_tutorial" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 firebase-ai = { module = "com.google.firebase:firebase-ai" }
@@ -59,6 +62,7 @@ androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navi
 androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 material-v100 = { module = "com.google.android.material:material", version.ref = "materialVersion" }
+material-v1130 = { module = "com.google.android.material:material", version.ref = "googleMaterialVersion" }
 material-v120alpha01 = { module = "com.google.android.material:material", version.ref = "googleMaterial" }
 news-api-java = { module = "com.github.KwabenBerko:News-API-Java", version.ref = "newsApiJava" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }

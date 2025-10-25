@@ -82,6 +82,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import androidx.viewpager2.widget.ViewPager2
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
@@ -117,6 +118,8 @@ import com.google.android.material.color.DynamicColors
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -144,7 +147,9 @@ import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity() {
 
-
+    private lateinit var viewPager: ViewPager2
+    private lateinit var tabLayout: TabLayout
+    private lateinit var imageList: ArrayList<Int>
     private lateinit var btnL: Button
     private lateinit var btnAR: Button
     private lateinit var btnRC: Button
@@ -311,6 +316,21 @@ class MainActivity : AppCompatActivity() {
 
         iDV = instructionsDialogBuilder.create()
 
+
+        viewPager = instructionsDialogView.findViewById<ViewPager2>(R.id.viewPager);
+        tabLayout = instructionsDialogView.findViewById(R.id.tabLayout);
+
+        imageList = ArrayList<Int>()
+        imageList.add(R.drawable.nhome_widget)
+        imageList.add(R.drawable.widget_i)
+        imageList.add(R.drawable.widget_i)
+
+        val adapter = ImageSliderAdapter(imageList)
+        viewPager.adapter = adapter
+
+        TabLayoutMediator(
+            tabLayout, viewPager
+        ) { tab: TabLayout.Tab?, position: Int -> }.attach()
 
         if (nPermissions())
             iDV.show()
