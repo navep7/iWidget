@@ -65,6 +65,7 @@ import android.widget.HorizontalScrollView
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.LinearLayout.LayoutParams
 import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
@@ -150,6 +151,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnBT: Button
     private lateinit var btnPN: Button
     private lateinit var btnCP: Button
+    private lateinit var btnAUS: Button
+    private lateinit var btnAS: Button
 
     private lateinit var iDV: AlertDialog
     private lateinit var instructionsDialogView: View
@@ -350,62 +353,31 @@ class MainActivity : AppCompatActivity() {
             "Permit CALL_PHONE Access",
             Manifest.permission.CALL_PHONE
         )
+        addPermissionCard(
+            "<b> Permission Request for App Usage Stats </b>- \n  to suggest apps to use, based on previously used App stats.. ",
+            "Grant",
+            "AUS"
+        )
+        addPermissionCard(
+            "<b> Requisition for Accessibility Service permission </b>- \n  to smoothly lock Phone screen from Widget shortcut.",
+            "Grant",
+            "AS"
+        )
 
         var btnDone = Button(applicationContext)
         btnDone.text = "Done"
 
         btnDone.setOnClickListener {
-            if (!nPermissions())
+            if (!nPermissions()) {
                 iDV.dismiss()
-            else makeToast("Ensure all Ps are Granted")
+            } else makeToast("Ensure all Ps are Granted")
         }
         llInstructions.addView(btnDone)
 
 
-        /*  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // Android 12 (API 31) and above
-              val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-              if (!alarmManager.canScheduleExactAlarms()) {
-                  // Explain to the user why the permission is needed
-                  val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
-                  startActivity(intent)
-              }
-          }*/
-
-
-        /* messageView.text =
-             "\nThe App needs access to..\n" +
-                     "\n1. Device location - to display location address in the Widget" +
-                     "\n2. Physical Activity - to recognise walking state and display step count in the Widget" +
-                     "\n3. Contacts - to show your favorite contacts in the Widget, to dial easily." +
-                     "\n4. Nearby Devices - for indicating Bluetooth connection status in the Widget" +
-                     "\n5. Notifications - to notify of set Reminders" +
-                     "\n6. Dial Phone calls - to quickly dial your favorite contacts from the Widget" +
-                     "\n7. App Usage Stats - to display most used Apps in the Widget" +
-                     "\n8. Accessibility Access - to lock screen from shortcut in the Widget" +
-                     "\n\n Requesting you to enable each permission in the upcoming screens, for the Widget to work correctly!"*/
 
         instructionsDialogBuilder.setTitle("nHome Widget Highlights ~ underlined words in the below pic, explain...!")
-            .setPositiveButton("DONE") { dialog: DialogInterface, which: Int ->
-                // Handle positive button click
-                // For example, dismiss the dialog
 
-
-                /*  ActivityCompat.requestPermissions(
-                      mAct,
-                      arrayOf(
-                          Manifest.permission.READ_CONTACTS,
-                          Manifest.permission.WRITE_CONTACTS,
-                          Manifest.permission.CALL_PHONE,
-                          Manifest.permission.ACTIVITY_RECOGNITION,
-                          Manifest.permission.ACCESS_FINE_LOCATION,
-                          Manifest.permission.POST_NOTIFICATIONS,
-                          Manifest.permission.BLUETOOTH_CONNECT
-                      ),
-                      CONTACTS_P
-                  )*/
-
-                dialog.dismiss()
-            }
 
 
 
@@ -493,13 +465,27 @@ class MainActivity : AppCompatActivity() {
         ) && sharedPreferences.getBoolean("PNP", false) && sharedPreferences.getBoolean(
             "CPP",
             false
-        )
+        ) && sharedPreferences.getBoolean("AUS", false) && sharedPreferences.getBoolean("AS", false)
                 ))
     }
 
     private fun addPermissionCard(tx: String, bTx: String, rPermission: String) {
 
-        val cardP = CardView(applicationContext)
+            val cardP = CardView(applicationContext)
+
+        val layoutParamsCard = LayoutParams(
+            LayoutParams.MATCH_PARENT,  // or WRAP_CONTENT, or specific dimension
+            LayoutParams.WRAP_CONTENT // or specific dimension
+        )
+
+        val radiusInPixels = resources.displayMetrics.density * 8 // Convert 8dp to pixels
+        cardP.radius = radiusInPixels
+        val marginInPxX: Int = dpToPx(8, appContx) // Example: 16dp margin
+        val marginInPxY: Int = dpToPx(16, appContx)
+        layoutParamsCard.setMargins(marginInPxX, marginInPxY, marginInPxX, marginInPxY)
+        cardP.layoutParams = layoutParamsCard
+
+
         val llP = LinearLayout(applicationContext)
         llP.orientation = LinearLayout.VERTICAL
 
@@ -581,6 +567,25 @@ class MainActivity : AppCompatActivity() {
                 )
             }
             llP.addView(btnCP)
+        } else if (rPermission == "AUS") {
+
+            btnAUS = Button(applicationContext)
+            btnAUS.text = bTx
+            btnAUS.setOnClickListener {
+                usageStatsPermissionDialog()
+            }
+            llP.addView(btnAUS)
+
+        } else if (rPermission == "AS") {
+
+            btnAS = Button(applicationContext)
+            btnAS.text = bTx
+            btnAS.setOnClickListener {
+                AccessibilityServicePermissionDialog()
+
+            }
+            llP.addView(btnAS)
+
         }
 
 
@@ -591,6 +596,26 @@ class MainActivity : AppCompatActivity() {
             ) != PERMISSION_GRANTED
         )
             llInstructions.addView(cardP)
+
+    }
+
+    fun dpToPx(dp: Int, context: Context): Int {
+        val density = context.resources.displayMetrics.density
+        return Math.round(dp.toFloat() * density)
+    }
+
+    fun usageStatsPermissionDialog() {
+        val alertDialog: AlertDialog = AlertDialog.Builder(mAct).create()
+        alertDialog.setTitle("Permission Request for App Usage Stats")
+        alertDialog.setMessage("App needs permission to get Usage stats to suggest apps to use, based on previously used App stats.. ")
+        alertDialog.setButton(
+            AlertDialog.BUTTON_NEUTRAL, "OK"
+        ) { dialog, which ->
+            UsageStatsChecker().requestUsageStatsPermission(appContx)
+            dialog.dismiss()
+        }
+
+        alertDialog.show()
 
     }
 
@@ -614,6 +639,21 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    fun isAccessibilityServiceEnabled(
+        context: Context,
+        service: Class<out AccessibilityService?>
+    ): Boolean {
+        val am = context.getSystemService(ACCESSIBILITY_SERVICE) as AccessibilityManager
+        val enabledServices =
+            am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
+
+        for (enabledService in enabledServices) {
+            val enabledServiceInfo = enabledService.resolveInfo.serviceInfo
+            if (enabledServiceInfo.packageName == context.packageName && enabledServiceInfo.name == service.name) return true
+        }
+
+        return false
+    }
 
     private fun addWallKey(s: String, boolSelection: Boolean) {
         val txKey = TextView(this)
@@ -1740,6 +1780,16 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
+        if (isAccessibilityServiceEnabled(applicationContext, LockAccessibilityService::class.java)) {
+            sharedPreferencesEditor.putBoolean("AS", true).apply()
+            btnAS.text = "Granted"
+        }
+
+        if (UsageStatsChecker().hasUsageStatsPermission(applicationContext)) {
+            btnAUS.text = "Granted"
+            sharedPreferencesEditor.putBoolean("AUS", true).apply()
+        }
     }
 
 
@@ -1837,20 +1887,7 @@ class MainActivity : AppCompatActivity() {
             return false
         }
 
-        fun usageStatsPermissionDialog() {
-            val alertDialog: AlertDialog = AlertDialog.Builder(mAct).create()
-            alertDialog.setTitle("Permission Request for App Usage Stats")
-            alertDialog.setMessage("App needs permission to get Usage stats to suggest apps to use, based on previously used App stats.. ")
-            alertDialog.setButton(
-                AlertDialog.BUTTON_NEUTRAL, "OK"
-            ) { dialog, which ->
-                UsageStatsChecker().requestUsageStatsPermission(appContx)
-                dialog.dismiss()
-            }
 
-            alertDialog.show()
-
-        }
 
 
         fun makeToast(s: String) {
@@ -2052,6 +2089,34 @@ class MainActivity : AppCompatActivity() {
             } catch (ex: Exception) {
                 makeToast("Ex - ${ex.message}")
             }
+        }
+
+        fun AccessibilityServicePermissionDialog() {
+
+            val builder = AlertDialog.Builder(appContx)
+            builder.setTitle("Requisition for Accessibility Service permission")
+            builder.setMessage(
+                "Please Enable Accessibility Service to smoothly lock Phone screen from Widget shortcut."
+            )
+
+            builder.setPositiveButton("OK") { dialog, id ->
+                // User clicked OK button
+                dialog.dismiss() // Dismiss the dialog
+                val openSettings = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                openSettings.addFlags(FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
+                appContx.startActivity(openSettings)
+            }
+
+            builder.setPositiveButton("OK") { dialog, id ->
+                // User clicked OK button
+                dialog.dismiss() // Dismiss the dialog
+                makeToast("Lock Screen cannot work without access to Accessibility Service!")
+            }
+
+
+            // Create the AlertDialog object and show it
+            val dialog = builder.create()
+            dialog.show()
         }
 
 
