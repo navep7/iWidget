@@ -147,6 +147,7 @@ import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var imageSliderAdapter: ImageSliderAdapter
     private lateinit var viewPager: ViewPager2
     private lateinit var tabLayout: TabLayout
     private lateinit var imageList: ArrayList<Int>
@@ -316,6 +317,8 @@ class MainActivity : AppCompatActivity() {
 
         iDV = instructionsDialogBuilder.create()
 
+        iDV.setCanceledOnTouchOutside(false) // Prevent dismissal on outside touch
+        iDV.setCancelable(false)
 
         viewPager = instructionsDialogView.findViewById<ViewPager2>(R.id.viewPager);
         tabLayout = instructionsDialogView.findViewById(R.id.tabLayout);
@@ -325,8 +328,8 @@ class MainActivity : AppCompatActivity() {
         imageList.add(R.drawable.widget_i)
         imageList.add(R.drawable.widget_i)
 
-        val adapter = ImageSliderAdapter(imageList)
-        viewPager.adapter = adapter
+        imageSliderAdapter = ImageSliderAdapter(imgUrls, applicationContext)
+        viewPager.adapter = imageSliderAdapter
 
         TabLayoutMediator(
             tabLayout, viewPager
@@ -344,7 +347,7 @@ class MainActivity : AppCompatActivity() {
         //    messageView.movementMethod = ScrollingMovementMethod()
 
         addPermissionCard(
-            " App needs access to... <br><b> Device location </b>- to display location address in the Widget",
+            " <b><u>Permissions needed...</u><b> <br><b> Device location </b>- to display location address in the Widget",
             "Permit ACCESS_FINE_LOCATION permission",
             Manifest.permission.ACCESS_FINE_LOCATION
         )
@@ -1759,6 +1762,7 @@ class MainActivity : AppCompatActivity() {
                                     imgDescs.add("$i + ${jsonObject.getString("alt")})")
                                 }
                                 rvAdapter.notifyItemRangeChanged(0, length)
+                                imageSliderAdapter.notifyItemRangeChanged(0, length)
                             } else makeSnack("doesn't match any existing set")
 
 
@@ -1824,7 +1828,12 @@ class MainActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_settings ->
+                {
+
+                    iDV.show()
+                    true
+                }
             else -> super.onOptionsItemSelected(item)
         }
     }

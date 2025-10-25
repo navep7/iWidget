@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="3dp">
 
     <LinearLayout
         android:id="@+id/ll_instructions"
@@ -14,19 +14,26 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/viewPager"
-            android:layout_gravity="center_horizontal"
-            android:layout_width="150dp"
-            android:layout_height="350dp" />
+        <TextView
+            android:text="..some Samples of how the nHome Widget looks on the Home Screen. \n Scroll down and grant the Permissions to get started!"
+            android:textSize="21sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="25dp"
             app:tabBackground="@drawable/tab_selector"
+            android:layout_margin="5dp"
             app:tabGravity="center"
-            app:tabIndicatorHeight="0dp" />
+            />
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPager"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="250dp"
+            android:layout_height="600dp" />
 
     </LinearLayout>
 </ScrollView>
