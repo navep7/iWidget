@@ -8,8 +8,9 @@
     android:padding="16dp">
 
     <LinearLayout
+        android:id="@+id/ll_instructions"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <ImageView
@@ -23,15 +24,6 @@
             android:scaleType="fitCenter"
             android:src="@drawable/nhome_widget" />
         <!-- Replace with your image resource -->
-
-        <TextView
-            android:id="@+id/dialog_message"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="8dp"
-            android:scrollbars="vertical"
-            android:text="@string/app_instructions"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
 
     </LinearLayout>
 </ScrollView>

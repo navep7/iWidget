@@ -1,0 +1,27 @@
+package com.belaku.homey
+
+import android.app.AppOpsManager
+import android.content.Context
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.os.Process
+import android.provider.Settings
+
+
+class UsageStatsChecker {
+    fun hasUsageStatsPermission(context: Context): Boolean {
+        val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+        val mode = appOps.checkOpNoThrow(
+            AppOpsManager.OPSTR_GET_USAGE_STATS,
+            Process.myUid(),
+            context.packageName
+        )
+
+        return mode == AppOpsManager.MODE_ALLOWED
+    }
+
+    fun requestUsageStatsPermission(context: Context) {
+        val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+        context.startActivity(intent.setFlags(FLAG_ACTIVITY_NEW_TASK))
+    }
+}

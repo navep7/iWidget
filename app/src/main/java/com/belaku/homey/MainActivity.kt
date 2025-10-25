@@ -1,14 +1,13 @@
 package com.belaku.homey
 
 import android.Manifest
+import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.ActivityManager
 import android.app.AlarmManager
 import android.app.AlertDialog
-import android.app.AppOpsManager
-import android.app.AppOpsManager.MODE_ALLOWED
-import android.app.AppOpsManager.OPSTR_GET_USAGE_STATS
 import android.app.Dialog
 import android.app.ProgressDialog
 import android.app.WallpaperManager
@@ -30,6 +29,7 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.content.pm.ServiceInfo
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -43,11 +43,10 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.os.Process
 import android.provider.ContactsContract
 import android.provider.Settings
 import android.speech.RecognizerIntent
-import android.text.method.ScrollingMovementMethod
+import android.text.Html
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.KeyEvent
@@ -57,6 +56,7 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
+import android.view.accessibility.AccessibilityManager
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
@@ -75,6 +75,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -142,6 +143,18 @@ import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity() {
 
+
+    private lateinit var btnL: Button
+    private lateinit var btnAR: Button
+    private lateinit var btnRC: Button
+    private lateinit var btnBT: Button
+    private lateinit var btnPN: Button
+    private lateinit var btnCP: Button
+
+    private lateinit var iDV: AlertDialog
+    private lateinit var instructionsDialogView: View
+    private lateinit var instructionsDialogBuilder: AlertDialog.Builder
+    private lateinit var llInstructions: LinearLayout
     private val arrayListKeysTxViews: ArrayList<TextView> = ArrayList()
     private val arrayListKeys: ArrayList<String> = ArrayList()
     private var selectedKey: String = "Nature"
@@ -156,8 +169,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var twitterID: String
     private lateinit var twitterPicUrl: String
     private lateinit var connectivityManager: ConnectivityManager
-    private val CONTACTS_P: Int = 1
-    private val LOC_P: Int = 4
+    private val LOC_P: Int = 1
+    private val ACTIVITY_RECOGNITION_P: Int = 2
+    private val READ_CONTACTS_P: Int = 3
+    private val BLUETOOTH_P: Int = 4
+    private val NOTIfications_P: Int = 5
+    private val CALLPHONE_P: Int = 6
+
     private val TAG: String = "MainActivity"
     private lateinit var frameMin: FrameLayout
     private lateinit var frameHour: FrameLayout
@@ -279,89 +297,115 @@ class MainActivity : AppCompatActivity() {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PERMISSION_GRANTED)
         ) {
-            getFavoriteContacts(applicationContext)
-            //   getCity()
+            getCity()
         }
 
 
-
-
-        val dialogBuilder = AlertDialog.Builder(this@MainActivity)
+        instructionsDialogBuilder = AlertDialog.Builder(this@MainActivity)
         val inflater = LayoutInflater.from(this@MainActivity)
-        val dialogView: View = inflater.inflate(R.layout.instructions_dialog, null)
-        dialogBuilder.setView(dialogView)
+        instructionsDialogView = inflater.inflate(R.layout.instructions_dialog, null)
+        instructionsDialogBuilder.setView(instructionsDialogView)
 
-        val messageView = dialogView.findViewById<TextView>(R.id.dialog_message)
-
-        messageView.movementMethod = ScrollingMovementMethod()
+        iDV = instructionsDialogBuilder.create()
 
 
-        messageView.text =
-            "\nThe App needs below access.." +
-                    "\n1. Admin Access - to lock screen from shortcut in the Widget" +
-                    "\n2. Device location - to display location address in the Widget" +
-                    "\n3. Physical Activity - to recognise walking state and display step count in the Widget" +
-                    "\n4. Contacts - to show your favorite contacts in the Widget, to dial easily." +
-                    "\n5. Nearby Devices - for indicating Bluetooth connection status in the Widget" +
-                    "\n6. Notifications - to notify of set Reminders" +
-                    "\n7. Dial Phone calls - to quickly dial your favorite contacts from the Widget" +
-                    "\n8. App Usage Stats - to display most used Apps in the Widget" +
-                    "\n\n Requesting you to enable each permission in the upcoming screens, for the Widget to work correctly!"
+        if (nPermissions())
+            iDV.show()
 
-        dialogBuilder.setTitle("nHome Widget Highlights ~ Underlined words, explain...!")
-            .setPositiveButton("OK") { dialog: DialogInterface, which: Int ->
+
+
+        rawTweets(false)
+        llInstructions = instructionsDialogView.findViewById<LinearLayout>(R.id.ll_instructions)
+        llInstructions.orientation = LinearLayout.VERTICAL
+        //    val messageView = dialogView.findViewById<TextView>(R.id.dialog_message)
+        //    messageView.movementMethod = ScrollingMovementMethod()
+
+        addPermissionCard(
+            " App needs access to... <br><b> Device location </b>- to display location address in the Widget",
+            "Permit ACCESS_FINE_LOCATION permission",
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+        addPermissionCard(
+            "<b> Physical Activity </b>- to recognise walking state and display step count in the Widget",
+            "Permit ACTIVITY_RECOGNITION permission",
+            Manifest.permission.ACTIVITY_RECOGNITION
+        )
+        addPermissionCard(
+            "<b> Contacts </b>- to show your favorite contacts in the Widget, to dial easily",
+            "Permit READ_CONTACTS permission",
+            Manifest.permission.READ_CONTACTS
+        )
+        addPermissionCard(
+            "<b> Nearby Devices </b>- for indicating Bluetooth connection status in the Widget",
+            "Permit BLUETOOTH_CONNECT permission",
+            Manifest.permission.BLUETOOTH_CONNECT
+        )
+        addPermissionCard(
+            "<b> Notifications </b>- to notify of set Reminders",
+            "Permit POST_NOTIFICATIONS Access",
+            Manifest.permission.POST_NOTIFICATIONS
+        )
+        addPermissionCard(
+            "<b> Make Phone calls </b>- to quickly dial your favorite contacts",
+            "Permit CALL_PHONE Access",
+            Manifest.permission.CALL_PHONE
+        )
+
+        var btnDone = Button(applicationContext)
+        btnDone.text = "Done"
+
+        btnDone.setOnClickListener {
+            if (!nPermissions())
+                iDV.dismiss()
+            else makeToast("Ensure all Ps are Granted")
+        }
+        llInstructions.addView(btnDone)
+
+
+        /*  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // Android 12 (API 31) and above
+              val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+              if (!alarmManager.canScheduleExactAlarms()) {
+                  // Explain to the user why the permission is needed
+                  val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+                  startActivity(intent)
+              }
+          }*/
+
+
+        /* messageView.text =
+             "\nThe App needs access to..\n" +
+                     "\n1. Device location - to display location address in the Widget" +
+                     "\n2. Physical Activity - to recognise walking state and display step count in the Widget" +
+                     "\n3. Contacts - to show your favorite contacts in the Widget, to dial easily." +
+                     "\n4. Nearby Devices - for indicating Bluetooth connection status in the Widget" +
+                     "\n5. Notifications - to notify of set Reminders" +
+                     "\n6. Dial Phone calls - to quickly dial your favorite contacts from the Widget" +
+                     "\n7. App Usage Stats - to display most used Apps in the Widget" +
+                     "\n8. Accessibility Access - to lock screen from shortcut in the Widget" +
+                     "\n\n Requesting you to enable each permission in the upcoming screens, for the Widget to work correctly!"*/
+
+        instructionsDialogBuilder.setTitle("nHome Widget Highlights ~ underlined words in the below pic, explain...!")
+            .setPositiveButton("DONE") { dialog: DialogInterface, which: Int ->
                 // Handle positive button click
                 // For example, dismiss the dialog
 
-                ActivityCompat.requestPermissions(
-                    mAct,
-                    arrayOf(
-                        Manifest.permission.READ_CONTACTS,
-                        Manifest.permission.WRITE_CONTACTS,
-                        Manifest.permission.CALL_PHONE,
-                        Manifest.permission.ACTIVITY_RECOGNITION,
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.POST_NOTIFICATIONS,
-                        Manifest.permission.BLUETOOTH_CONNECT
-                    ),
-                    CONTACTS_P
-                )
+
+                /*  ActivityCompat.requestPermissions(
+                      mAct,
+                      arrayOf(
+                          Manifest.permission.READ_CONTACTS,
+                          Manifest.permission.WRITE_CONTACTS,
+                          Manifest.permission.CALL_PHONE,
+                          Manifest.permission.ACTIVITY_RECOGNITION,
+                          Manifest.permission.ACCESS_FINE_LOCATION,
+                          Manifest.permission.POST_NOTIFICATIONS,
+                          Manifest.permission.BLUETOOTH_CONNECT
+                      ),
+                      CONTACTS_P
+                  )*/
 
                 dialog.dismiss()
             }
-
-        val alertDialog = dialogBuilder.create()
-
-
-        if (!(getAdminStatus() &&
-                    ContextCompat.checkSelfPermission(
-                        applicationContext,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ) == PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(
-                        applicationContext,
-                        Manifest.permission.ACTIVITY_RECOGNITION
-                    ) == PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(
-                        applicationContext,
-                        Manifest.permission.READ_CONTACTS
-                    ) == PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(
-                        applicationContext,
-                        Manifest.permission.BLUETOOTH_CONNECT
-                    ) == PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(
-                        applicationContext,
-                        Manifest.permission.POST_NOTIFICATIONS
-                    ) == PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(
-                        applicationContext,
-                        Manifest.permission.CALL_PHONE
-                    ) == PERMISSION_GRANTED
-                    )
-        )
-            alertDialog.show()
-
 
 
 
@@ -435,6 +479,118 @@ class MainActivity : AppCompatActivity() {
         val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
         appContx.registerReceiver(mBluetoothReceiver, filter)
 
+
+    }
+
+    private fun nPermissions(): Boolean {
+
+        return (!(sharedPreferences.getBoolean("LP", false) && sharedPreferences.getBoolean(
+            "ARP",
+            false
+        ) && sharedPreferences.getBoolean("RCP", false) && sharedPreferences.getBoolean(
+            "BP",
+            false
+        ) && sharedPreferences.getBoolean("PNP", false) && sharedPreferences.getBoolean(
+            "CPP",
+            false
+        )
+                ))
+    }
+
+    private fun addPermissionCard(tx: String, bTx: String, rPermission: String) {
+
+        val cardP = CardView(applicationContext)
+        val llP = LinearLayout(applicationContext)
+        llP.orientation = LinearLayout.VERTICAL
+
+        val txP = TextView(applicationContext)
+        txP.text = Html.fromHtml(tx)
+        llP.addView(txP)
+
+
+        var requestCode: Int = 25
+        if (rPermission == Manifest.permission.ACCESS_FINE_LOCATION) {
+            requestCode = LOC_P
+            btnL = Button(applicationContext)
+            btnL.text = bTx
+            btnL.setOnClickListener {
+                ActivityCompat.requestPermissions(
+                    mAct,
+                    arrayOf(rPermission),
+                    requestCode
+                )
+            }
+            llP.addView(btnL)
+        } else if (rPermission == Manifest.permission.ACTIVITY_RECOGNITION) {
+            requestCode = ACTIVITY_RECOGNITION_P
+            btnAR = Button(applicationContext)
+            btnAR.text = bTx
+            btnAR.setOnClickListener {
+                ActivityCompat.requestPermissions(
+                    mAct,
+                    arrayOf(rPermission),
+                    requestCode
+                )
+            }
+            llP.addView(btnAR)
+        } else if (rPermission == Manifest.permission.READ_CONTACTS) {
+            requestCode = READ_CONTACTS_P
+            btnRC = Button(applicationContext)
+            btnRC.text = bTx
+            btnRC.setOnClickListener {
+                ActivityCompat.requestPermissions(
+                    mAct,
+                    arrayOf(rPermission),
+                    requestCode
+                )
+            }
+            llP.addView(btnRC)
+        } else if (rPermission == Manifest.permission.BLUETOOTH_CONNECT) {
+            requestCode = BLUETOOTH_P
+            btnBT = Button(applicationContext)
+            btnBT.text = bTx
+            btnBT.setOnClickListener {
+                ActivityCompat.requestPermissions(
+                    mAct,
+                    arrayOf(rPermission),
+                    requestCode
+                )
+            }
+            llP.addView(btnBT)
+        } else if (rPermission == Manifest.permission.POST_NOTIFICATIONS) {
+            requestCode = NOTIfications_P
+            btnPN = Button(applicationContext)
+            btnPN.text = bTx
+            btnPN.setOnClickListener {
+                ActivityCompat.requestPermissions(
+                    mAct,
+                    arrayOf(rPermission),
+                    requestCode
+                )
+            }
+            llP.addView(btnPN)
+        } else if (rPermission == Manifest.permission.CALL_PHONE) {
+            requestCode = CALLPHONE_P
+            btnCP = Button(applicationContext)
+            btnCP.text = bTx
+            btnCP.setOnClickListener {
+                ActivityCompat.requestPermissions(
+                    mAct,
+                    arrayOf(rPermission),
+                    requestCode
+                )
+            }
+            llP.addView(btnCP)
+        }
+
+
+        cardP.addView(llP)
+        if (ContextCompat.checkSelfPermission(
+                applicationContext,
+                "$rPermission"
+            ) != PERMISSION_GRANTED
+        )
+            llInstructions.addView(cardP)
 
     }
 
@@ -959,6 +1115,12 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     private fun getCity() {
+
+        if (!isLocationEnabled(applicationContext)) {
+            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            applicationContext.startActivity(intent.setFlags(FLAG_ACTIVITY_NEW_TASK))
+        }
+
         var locationRequest = LocationRequest.create()
         locationRequest.setInterval(30000)
         locationRequest.setSmallestDisplacement(1f)
@@ -1278,7 +1440,12 @@ class MainActivity : AppCompatActivity() {
                 pD.show()
 
                 fetchWallpaper(applicationContext)
-                editTextPrompt.setCompoundDrawablesWithIntrinsicBounds(0, 0, android.R.drawable.ic_input_add, 0)
+                editTextPrompt.setCompoundDrawablesWithIntrinsicBounds(
+                    0,
+                    0,
+                    android.R.drawable.ic_input_add,
+                    0
+                )
             }
             false
         })
@@ -1288,18 +1455,18 @@ class MainActivity : AppCompatActivity() {
                 // Check if the touch event is within the bounds of the drawableRight
 
                 if (editTextPrompt.compoundDrawables.get(2) != null)
-                if (event.x > (editTextPrompt.width - editTextPrompt.paddingRight - editTextPrompt.compoundDrawables
-                        .get(2).bounds.width())
-                ) {
-                    // Change the drawable
-                    var newKey = editTextPrompt.text.toString()
-                    if (!arrayListKeys.contains(newKey)) {
-                        arrayListKeys.add(newKey)
-                        addWallKey(newKey, true)
-                        populateSelection(newKey)
+                    if (event.x > (editTextPrompt.width - editTextPrompt.paddingRight - editTextPrompt.compoundDrawables
+                            .get(2).bounds.width())
+                    ) {
+                        // Change the drawable
+                        var newKey = editTextPrompt.text.toString()
+                        if (!arrayListKeys.contains(newKey)) {
+                            arrayListKeys.add(newKey)
+                            addWallKey(newKey, true)
+                            populateSelection(newKey)
+                        }
+                        return@OnTouchListener true // Consume the event
                     }
-                    return@OnTouchListener true // Consume the event
-                }
             }
             false // Let the event propagate if not a drawable click
         })
@@ -1383,36 +1550,69 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == LOC_P) {
             if (grantResults.isNotEmpty())
                 if (grantResults[0].equals(PERMISSION_GRANTED)) {
-
+                    sharedPreferencesEditor.putBoolean("LP", true).apply()
+                    getCity()
+                    btnL.text = "Granted"
                 }
-        } else if (requestCode == CONTACTS_P) {
+
+        } else if (requestCode == ACTIVITY_RECOGNITION_P) {
             if (grantResults.isNotEmpty())
                 if (grantResults[0].equals(PERMISSION_GRANTED)) {
-                    getFavoriteContacts(applicationContext)
-                    //    getCity()
+                    sharedPreferencesEditor.putBoolean("ARP", true).apply()
                     startStepsService()
-                    usageStatsPermissionDialog()
-                    rawTweets(false)
-
-                    val openSettings = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                    openSettings.addFlags(FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
-                    startActivity(openSettings)
-
-                    if (!isLocationEnabled(applicationContext)) {
-                        val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                        applicationContext.startActivity(intent.setFlags(FLAG_ACTIVITY_NEW_TASK))
-                    }
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // Android 12 (API 31) and above
-                        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-                        if (!alarmManager.canScheduleExactAlarms()) {
-                            // Explain to the user why the permission is needed
-                            val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
-                            startActivity(intent)
-                        }
-                    }
+                    btnAR.text = "Granted"
+                }
+        } else if (requestCode == READ_CONTACTS_P) {
+            if (grantResults.isNotEmpty())
+                if (grantResults[0].equals(PERMISSION_GRANTED)) {
+                    sharedPreferencesEditor.putBoolean("RCP", true).apply()
+                    getFavoriteContacts(applicationContext)
+                    btnRC.text = "Granted"
+                }
+        } else if (requestCode == BLUETOOTH_P) {
+            if (grantResults.isNotEmpty())
+                if (grantResults[0].equals(PERMISSION_GRANTED)) {
+                    sharedPreferencesEditor.putBoolean("BP", true).apply()
+                    btnBT.text = "Granted"
+                }
+        } else if (requestCode == NOTIfications_P) {
+            if (grantResults.isNotEmpty())
+                if (grantResults[0].equals(PERMISSION_GRANTED)) {
+                    sharedPreferencesEditor.putBoolean("PNP", true).apply()
+                    btnPN.text = "Granted"
+                }
+        } else if (requestCode == CALLPHONE_P) {
+            if (grantResults.isNotEmpty())
+                if (grantResults[0].equals(PERMISSION_GRANTED)) {
+                    sharedPreferencesEditor.putBoolean("CPP", true).apply()
+                    btnCP.text = "Granted"
                 }
         }
+
+        if (nPermissions())
+            instructionsDialogBuilder.create().dismiss()
+    }
+
+    private fun AccessibilityServicePermissionDialog() {
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Requisition for Accessibility Service permission")
+        builder.setMessage(
+            "Please Enable Accessibility Service to smoothly lock Phone screen from Widget shortcut."
+        )
+
+        builder.setPositiveButton("OK") { dialog, id ->
+            // User clicked OK button
+            dialog.dismiss() // Dismiss the dialog
+            val openSettings = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+            openSettings.addFlags(FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
+            startActivity(openSettings)
+        }
+
+
+        // Create the AlertDialog object and show it
+        val dialog = builder.create()
+        dialog.show()
     }
 
 
@@ -1538,6 +1738,10 @@ class MainActivity : AppCompatActivity() {
         rv.adapter = rvAdapter
     }
 
+    override fun onResume() {
+        super.onResume()
+    }
+
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -1612,36 +1816,40 @@ class MainActivity : AppCompatActivity() {
         val imgUrls: ArrayList<String> = ArrayList()
         var imgDescs: ArrayList<String> = ArrayList()
 
+        fun isAccessibilityServiceEnabled(
+            context: Context,
+            service: Class<out AccessibilityService?>
+        ): Boolean {
+            val am: AccessibilityManager =
+                context.getSystemService(ACCESSIBILITY_SERVICE) as AccessibilityManager
+            val enabledServices: List<AccessibilityServiceInfo> =
+                am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
+
+            for (enabledService in enabledServices) {
+                val enabledServiceInfo: ServiceInfo = enabledService.resolveInfo.serviceInfo
+                if (enabledServiceInfo.packageName.equals(context.packageName) && enabledServiceInfo.name.equals(
+                        service.name
+                    )
+                )
+                    return true
+            }
+
+            return false
+        }
 
         fun usageStatsPermissionDialog() {
             val alertDialog: AlertDialog = AlertDialog.Builder(mAct).create()
-            alertDialog.setTitle("Permission Request")
-            alertDialog.setMessage("App needs permission to get Usage stats to suggest you apps to use.. Permit ?")
+            alertDialog.setTitle("Permission Request for App Usage Stats")
+            alertDialog.setMessage("App needs permission to get Usage stats to suggest apps to use, based on previously used App stats.. ")
             alertDialog.setButton(
                 AlertDialog.BUTTON_NEUTRAL, "OK"
             ) { dialog, which ->
-                val intent1 = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
-                appContx.startActivity(intent1.setFlags(FLAG_ACTIVITY_NEW_TASK))
+                UsageStatsChecker().requestUsageStatsPermission(appContx)
                 dialog.dismiss()
             }
 
-            if (!getAdminStatus())
-                alertDialog.show()
+            alertDialog.show()
 
-        }
-
-        private fun getAdminStatus(): Boolean {
-            val appOps = appContx.getSystemService(APP_OPS_SERVICE) as AppOpsManager
-            val mode = appOps.checkOpNoThrow(
-                OPSTR_GET_USAGE_STATS,
-                Process.myUid(),
-                appContx.packageName
-            )
-            return if (mode == AppOpsManager.MODE_DEFAULT) {
-                appContx.checkCallingOrSelfPermission(Manifest.permission.PACKAGE_USAGE_STATS) == PackageManager.PERMISSION_GRANTED
-            } else {
-                mode == MODE_ALLOWED
-            }
         }
 
 
