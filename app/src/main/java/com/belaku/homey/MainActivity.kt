@@ -352,19 +352,24 @@ class MainActivity : AppCompatActivity() {
         //    messageView.movementMethod = ScrollingMovementMethod()
 
         addPermissionCard(
-            " <b><u>Permissions needed...</u><b> <br><b> Device location </b>- to display location address in the Widget",
+            " <b><u>Permissions needed...</u><b> <br><b> Device location </b>- to display \"① Place Info\" in the Widget",
             "Permit ACCESS_FINE_LOCATION permission",
             Manifest.permission.ACCESS_FINE_LOCATION
         )
         addPermissionCard(
-            "<b> Physical Activity </b>- to recognise walking state and display step count in the Widget",
+            "<b> Contacts </b>- to show your \"② Favorite Contacts\" in the Widget, to dial easily",
+            "Permit READ_CONTACTS permission",
+            Manifest.permission.READ_CONTACTS
+        )
+        addPermissionCard(
+            "<b> Physical Activity </b>- to recognise walking state and display \"③ Steps Count\" in the Widget",
             "Permit ACTIVITY_RECOGNITION permission",
             Manifest.permission.ACTIVITY_RECOGNITION
         )
         addPermissionCard(
-            "<b> Contacts </b>- to show your favorite contacts in the Widget, to dial easily",
-            "Permit READ_CONTACTS permission",
-            Manifest.permission.READ_CONTACTS
+            "<b> Permission Request for App Usage Stats </b>- \n  to suggest \"④ Frequent Apps\" to use, based on previously used App stats.. ",
+            "Permit",
+            "AUS"
         )
         addPermissionCard(
             "<b> Nearby Devices </b>- for indicating Bluetooth connection status in the Widget",
@@ -377,18 +382,13 @@ class MainActivity : AppCompatActivity() {
             Manifest.permission.POST_NOTIFICATIONS
         )
         addPermissionCard(
-            "<b> Make Phone calls </b>- to quickly dial your favorite contacts",
+            "<b> Make Phone calls </b>- to quickly dial your \"Favorite Contacts\"",
             "Permit CALL_PHONE Access",
             Manifest.permission.CALL_PHONE
         )
         addPermissionCard(
-            "<b> Permission Request for App Usage Stats </b>- \n  to suggest apps to use, based on previously used App stats.. ",
-            "Grant",
-            "AUS"
-        )
-        addPermissionCard(
             "<b> Requisition for Accessibility Service permission </b>- \n  to smoothly lock Phone screen from Widget shortcut.",
-            "Grant",
+            "Permit",
             "AS"
         )
 

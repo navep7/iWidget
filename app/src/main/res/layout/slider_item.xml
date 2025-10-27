@@ -10,8 +10,7 @@
         android:layout_height="match_parent"
         android:scaleType="fitXY" />
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <RelativeLayout
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/rl_widget_layout"
         android:layout_width="match_parent"
@@ -31,81 +30,31 @@
             android:layout_centerHorizontal="true"
             android:background="@drawable/gradient_glass_flatbottom">
 
+
+            <LinearLayout
+                android:id="@+id/ll_top"
+                android:layout_alignParentTop="true"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
             <TextView
                 android:id="@+id/tx_wish"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
                 android:layout_gravity="center"
-                android:text="a Wish..."
+                android:text="..Greeting!"
+                android:layout_marginEnd="5dp"
                 android:textColor="?attr/colorPrimaryDark"
-                android:textSize="23sp"
+                android:textSize="17sp"
                 android:textStyle="bold"
-                tools:ignore="HardcodedText" />
-
-            <TextView
-                android:id="@+id/tx_ai"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
-                android:layout_margin="5dp"
-                android:background="@drawable/rounded_corner_gray"
-                android:gravity="center"
-                android:padding="5dp"
-                android:scaleType="fitXY"
-                android:text="✨"
-                tools:ignore="HardcodedText" />
-
-            <ImageButton
-                android:id="@+id/fab_blue"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_alignParentTop="true"
-                android:layout_margin="5dp"
-                android:layout_toStartOf="@+id/tx_ai"
-                android:background="@drawable/weather_rounded_corner"
-                android:gravity="center"
-                android:padding="5dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/blue_off"
-                tools:ignore="HardcodedText" />
-
-            <TextView
-                android:id="@+id/tx_reminders"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_alignParentTop="true"
-                android:layout_margin="5dp"
-                android:layout_toStartOf="@+id/fab_blue"
-                android:background="@drawable/rounded_corner_gray"
-                android:gravity="center"
-                android:padding="5dp"
-                android:scaleType="fitXY"
-                android:text="🔔"
-                tools:ignore="HardcodedText" />
-
-            <ImageButton
-                android:id="@+id/fab_wifi"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_alignParentTop="true"
-                android:layout_margin="5dp"
-                android:layout_toStartOf="@+id/tx_reminders"
-                android:background="@drawable/weather_rounded_corner"
-                android:gravity="center"
-                android:padding="5dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/wifi_off"
                 tools:ignore="HardcodedText" />
 
             <ImageButton
                 android:id="@+id/fab_torch"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
-                android:layout_alignParentTop="true"
                 android:layout_marginTop="5dp"
-                android:layout_toEndOf="@+id/tx_wish"
                 android:background="@drawable/weather_rounded_corner"
                 android:gravity="center"
                 android:padding="5dp"
@@ -113,35 +62,58 @@
                 android:src="@drawable/torch_off"
                 tools:ignore="HardcodedText" />
 
-            <!-- <ImageButton
-                 android:id="@+id/fab_camera"
-                 android:layout_width="35dp"
-                 android:layout_height="35dp"
-                 android:layout_alignParentTop="true"
-                 android:layout_marginTop="5dp"
-                 android:layout_marginStart="3dp"
-                 android:layout_toEndOf="@+id/fab_settings"
-                 android:background="@drawable/weather_rounded_corner"
-                 android:gravity="center"
-                 android:padding="5dp"
-                 android:scaleType="fitXY"
-                 android:src="@android:drawable/ic_menu_camera"
-                 tools:ignore="HardcodedText" />
+                <ImageButton
+                    android:id="@+id/fab_wifi"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/weather_rounded_corner"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wifi_off"
+                    tools:ignore="HardcodedText" />
 
-             <ImageButton
-                 android:id="@+id/fab_settings"
-                 android:layout_width="35dp"
-                 android:layout_height="35dp"
-                 android:layout_alignParentTop="true"
-                 android:layout_marginTop="5dp"
-                 android:layout_marginStart="3dp"
-                 android:layout_toEndOf="@+id/fab_torch"
-                 android:background="@drawable/weather_rounded_corner"
-                 android:gravity="center"
-                 android:padding="5dp"
-                 android:scaleType="fitXY"
-                 android:src="@drawable/settings"
-                 tools:ignore="HardcodedText" />-->
+                <TextView
+                    android:id="@+id/tx_reminders"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rounded_corner_gray"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:scaleType="fitXY"
+                    android:text="🔔"
+                    tools:ignore="HardcodedText" />
+
+                <ImageButton
+                    android:id="@+id/fab_blue"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/weather_rounded_corner"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/blue_off"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/tx_ai"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rounded_corner_gray"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:scaleType="fitXY"
+                    android:text="✨"
+                    tools:ignore="HardcodedText" />
+
+
+
+
+            </LinearLayout>
 
 
             <TextView
@@ -167,7 +139,7 @@
                 android:layout_alignStart="@+id/weather_icon"
                 android:background="@drawable/gradient_glass"
                 android:scaleType="fitXY"
-                android:text="State..,"
+                android:text="Weather..,"
                 android:textColor="?attr/colorTertiary"
                 android:textStyle="bold" />
 
@@ -176,7 +148,7 @@
                 android:id="@+id/weather_icon"
                 android:layout_width="75dp"
                 android:layout_height="75dp"
-                android:layout_below="@+id/tx_wish"
+                android:layout_below="@+id/ll_top"
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="@dimen/fab_margin"
                 android:layout_marginEnd="5dp"
@@ -188,7 +160,7 @@
                 android:id="@+id/animation_image"
                 android:layout_width="75dp"
                 android:layout_height="75dp"
-                android:layout_below="@+id/tx_wish"
+                android:layout_below="@+id/ll_top"
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="@dimen/fab_margin"
                 android:layout_marginEnd="5dp"
@@ -199,7 +171,7 @@
                 android:visibility="invisible"
                 android:layout_width="75dp"
                 android:layout_height="75dp"
-                android:layout_below="@+id/tx_wish"
+                android:layout_below="@+id/ll_top"
                 android:layout_alignParentEnd="true"
                 android:layout_marginEnd="50dp"
                 android:layout_marginTop="25dp"
@@ -215,7 +187,7 @@
                 android:id="@+id/tx_ref_weather_icon"
                 android:layout_width="75dp"
                 android:layout_height="75dp"
-                android:layout_below="@+id/tx_wish"
+                android:layout_below="@+id/ll_top"
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="@dimen/fab_margin"
                 android:layout_marginEnd="5dp"
@@ -229,8 +201,8 @@
                 android:id="@+id/a_clock"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:layout_above="@+id/tx_place"
-                android:layout_below="@+id/tx_wish"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/ll_top"
                 android:dial="@drawable/walp_icon"
                 android:hand_second="@drawable/s_hand" />
 
@@ -238,11 +210,13 @@
                 android:id="@+id/clock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/tx_wish"
-                android:layout_toEndOf="@+id/a_clock"
+                android:layout_below="@+id/ll_top"
+                android:layout_centerHorizontal="true"
                 android:format24Hour="k:mm:ss"
+                android:layout_marginTop="@dimen/fab_margin"
+                android:layout_marginStart="-10dp"
                 android:textColor="?attr/colorPrimaryDark"
-                android:textSize="35sp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -250,11 +224,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/clock"
-                android:layout_marginEnd="@dimen/fab_margin"
-                android:layout_toEndOf="@+id/a_clock"
+                android:layout_centerHorizontal="true"
                 android:text="Day│Date"
                 android:textColor="?attr/colorPrimaryDark"
-                android:textSize="25sp"
+                android:layout_marginStart="-10dp"
+                android:textSize="15sp"
                 android:textStyle="bold"
                 tools:ignore="HardcodedText" />
 
@@ -263,7 +237,7 @@
                 android:id="@+id/tx_place"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/tx_day_date"
+                android:layout_below="@+id/a_clock"
                 android:layout_marginStart="@dimen/fab_margin"
                 android:ellipsize="marquee"
                 android:focusable="true"
@@ -271,7 +245,7 @@
                 android:marqueeRepeatLimit="marquee_forever"
                 android:scrollHorizontally="true"
                 android:singleLine="true"
-                android:text="Place"
+                android:text="① Place Info..."
                 android:textColor="?attr/colorPrimaryDark"
                 android:textSize="15sp"
                 android:textStyle="bold">
@@ -281,488 +255,79 @@
 
         </RelativeLayout>
 
+
         <RelativeLayout
-            android:id="@+id/rl_news"
-            android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:layout_below="@+id/rl_clocks"
+            android:id="@+id/rl_contacts"
             android:layout_marginTop="3dp"
-            android:background="#80FFFFFF"
-            android:visibility="invisible">
-
-
-            <ImageView
-                android:id="@+id/imgv_news"
-                android:layout_width="75dp"
-                android:layout_height="50dp"
-                android:layout_alignParentStart="true"
-                android:scaleType="fitXY" />
+            android:layout_below="@+id/rl_clocks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
             <TextView
-                android:id="@+id/tx_news"
-                android:layout_width="match_parent"
-                android:layout_height="45dp"
-                android:layout_toLeftOf="@+id/imgbtn_news_prev"
-                android:layout_toRightOf="@+id/imgv_news"
-                android:ellipsize="end"
-                android:gravity="center"
-                android:maxLines="2"
+                android:text="②Favorite"
+                android:textStyle="bold"
+                android:background="@drawable/circular_tx_selected"
                 android:textSize="15sp"
-                android:textStyle="bold" />
-
-
-            <ImageButton
-                android:id="@+id/imgbtn_news_prev"
+                android:layout_toStartOf="@+id/imgv"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_toStartOf="@+id/imgbtn_news_next"
-                android:background="@android:color/transparent"
-                android:foregroundGravity="center"
-                android:src="@android:drawable/ic_media_previous" />
+                android:layout_height="wrap_content"/>
 
+            <ImageView
+                android:id="@+id/imgv"
+                android:layout_centerHorizontal="true"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:src="@drawable/contacts"/>
 
-            <ImageButton
-                android:id="@+id/imgbtn_news_next"
+            <TextView
+                android:text="Contacts"
+                android:textStyle="bold"
+                android:layout_toEndOf="@+id/imgv"
+                android:textSize="15sp"
+                android:background="@drawable/circular_tx_selected"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_alignParentEnd="true"
-                android:background="@android:color/transparent"
-                android:foregroundGravity="center"
-                android:src="@android:drawable/ic_media_next" />
+                android:layout_height="wrap_content"/>
+
+
 
         </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/rl_apps"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/rl_steps"
-            android:layout_marginStart="@dimen/fab_margin"
             android:layout_marginTop="3dp"
-            android:layout_marginEnd="@dimen/fab_margin">
-
-            <LinearLayout
-                android:id="@+id/ll_apps"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center">
-
-                <ImageView
-                    android:id="@+id/imgv_app1"
-                    android:layout_width="55dp"
-                    android:layout_height="55dp"
-                    android:layout_margin="5dp"
-                    android:background="?android:attr/selectableItemBackground" />
-
-                <ImageView
-                    android:id="@+id/imgv_app2"
-                    android:layout_width="55dp"
-                    android:layout_height="55dp"
-                    android:layout_margin="5dp"
-                    android:background="?android:attr/selectableItemBackground" />
-
-                <ImageView
-                    android:id="@+id/imgv_app3"
-                    android:layout_width="55dp"
-                    android:layout_height="55dp"
-                    android:layout_margin="5dp"
-                    android:src="@drawable/launch_e"
-                    android:background="?android:attr/selectableItemBackground" />
-
-                <ImageView
-                    android:id="@+id/imgv_app4"
-                    android:layout_width="55dp"
-                    android:layout_height="55dp"
-                    android:layout_margin="5dp"
-                    android:background="?android:attr/selectableItemBackground" />
-
-                <ImageView
-                    android:id="@+id/imgv_app5"
-                    android:layout_width="55dp"
-                    android:layout_height="55dp"
-                    android:layout_margin="5dp"
-                    android:background="?android:attr/selectableItemBackground" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/ll_apps2"
-                android:visibility="gone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/ll_apps"
-                android:gravity="center"
-                android:layout_marginTop="-10dp" >
-
-
-                <ImageView
-                    android:id="@+id/imgv_app6"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:scaleType="fitXY"
-                    android:src="@android:drawable/ic_input_add"
-                    android:background="@drawable/rounded_corner_gray" />
-
-                <ImageView
-                    android:id="@+id/imgv_app7"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:layout_marginStart="25dp"
-                    android:scaleType="fitXY"
-                    android:src="@android:drawable/ic_input_add"
-                    android:background="@drawable/rounded_corner_gray" />
-
-                <ImageView
-                    android:id="@+id/imgv_app8"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:layout_marginStart="25dp"
-                    android:scaleType="fitXY"
-                    android:src="@android:drawable/ic_input_add"
-                    android:background="@drawable/rounded_corner_gray"  />
-
-                <ImageView
-                    android:id="@+id/imgv_app9"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:layout_marginStart="25dp"
-                    android:scaleType="fitXY"
-                    android:src="@android:drawable/ic_input_add"
-                    android:background="@drawable/rounded_corner_gray"  />
-
-            </LinearLayout>
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/rl_contacts"
+            android:layout_below="@+id/rl_steps"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/rl_clocks">
+            android:layout_height="wrap_content">
 
-            <LinearLayout
-                android:id="@+id/ll_contacts"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/fab_margin"
-                android:layout_marginTop="3dp"
-                android:layout_marginEnd="@dimen/fab_margin"
-                android:gravity="center">
+            <TextView
+                android:text="Frequent"
+                android:textStyle="bold"
+                android:background="@drawable/circular_tx_selected"
+                android:textSize="15sp"
+                android:layout_toStartOf="@+id/imgv_a"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
 
+            <ImageView
+                android:id="@+id/imgv_a"
+                android:layout_centerHorizontal="true"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:src="@drawable/launch_e"/>
 
-                <RelativeLayout
-                    android:id="@+id/rl_contact1"
-                    android:visibility="invisible"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp">
-
-                    <ImageView
-                        android:id="@+id/imgv_contact1"
-                        android:layout_width="55dp"
-                        android:layout_height="55dp"
-                        android:src="@drawable/rounded_corner"
-                        android:background="?android:attr/selectableItemBackground"
-                        android:scaleType="fitXY" />
-
-                    <TextView
-                        android:id="@+id/tx_c1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignStart="@+id/imgv_contact1"
-                        android:layout_alignBottom="@+id/imgv_contact1"
-                        android:layout_margin="1dp"
-                        android:ellipsize="end"
-                        android:text=" + "
-                        android:gravity="center"
-                        android:maxWidth="55sp"
-                        android:maxLines="1"
-                        android:textColor="?attr/colorPrimaryInverse"
-                        android:textSize="25sp"
-                        android:textStyle="bold" />
+            <TextView
+                android:text="④ Apps"
+                android:textStyle="bold"
+                android:layout_toEndOf="@+id/imgv_a"
+                android:textSize="15sp"
+                android:background="@drawable/circular_tx_selected"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
 
 
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:id="@+id/rl_contact2"
-                    android:visibility="invisible"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp">
-
-                    <ImageView
-                        android:id="@+id/imgv_contact2"
-                        android:layout_width="55dp"
-                        android:layout_height="55dp"
-                        android:src="@drawable/rounded_corner"
-                        android:background="?android:attr/selectableItemBackground"
-                        android:scaleType="fitXY" />
-
-                    <TextView
-                        android:id="@+id/tx_c2"
-                        android:text=" + "
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignStart="@+id/imgv_contact2"
-                        android:layout_alignBottom="@+id/imgv_contact2"
-                        android:layout_margin="1dp"
-                        android:ellipsize="end"
-                        android:gravity="center"
-                        android:maxWidth="55sp"
-                        android:maxLines="1"
-                        android:textColor="?attr/colorPrimaryInverse"
-                        android:textSize="25sp"
-                        android:textStyle="bold" />
-
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:id="@+id/rl_contact"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp">
-
-                    <ImageView
-                        android:id="@+id/imgv_contact"
-                        android:layout_width="55dp"
-                        android:layout_height="55dp"
-                        android:src="@drawable/contacts"
-                        android:background="?android:attr/selectableItemBackground"
-                        android:scaleType="fitXY" />
-
-                    <TextView
-                        android:id="@+id/tx_c"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignStart="@+id/imgv_contact"
-                        android:layout_alignBottom="@+id/imgv_contact"
-                        android:layout_margin="1dp"
-                        android:ellipsize="end"
-                        android:gravity="center"
-                        android:maxWidth="55sp"
-                        android:maxLines="1"
-                        android:textColor="?attr/colorPrimaryInverse"
-                        android:textSize="25sp"
-                        android:textStyle="bold" />
-
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:id="@+id/rl_contact3"
-                    android:visibility="invisible"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp">
-
-                    <ImageView
-                        android:id="@+id/imgv_contact3"
-                        android:layout_width="55dp"
-                        android:layout_height="55dp"
-                        android:src="@drawable/rounded_corner"
-                        android:background="?android:attr/selectableItemBackground"
-                        android:scaleType="fitXY" />
-
-                    <TextView
-                        android:id="@+id/tx_c3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignStart="@+id/imgv_contact3"
-                        android:layout_alignBottom="@+id/imgv_contact3"
-                        android:layout_margin="1dp"
-                        android:ellipsize="end"
-                        android:text=" + "
-                        android:gravity="center"
-                        android:maxWidth="55sp"
-                        android:maxLines="1"
-                        android:textColor="?attr/colorPrimaryInverse"
-                        android:textSize="25sp"
-                        android:textStyle="bold" />
-
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:id="@+id/rl_contact4"
-                    android:visibility="invisible"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp">
-
-                    <ImageView
-                        android:id="@+id/imgv_contact4"
-                        android:layout_width="55dp"
-                        android:layout_height="55dp"
-                        android:src="@drawable/rounded_corner"
-                        android:background="?android:attr/selectableItemBackground"
-                        android:scaleType="fitXY" />
-
-                    <TextView
-                        android:id="@+id/tx_c4"
-                        android:text=" + "
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignStart="@+id/imgv_contact4"
-                        android:layout_alignBottom="@+id/imgv_contact4"
-                        android:layout_margin="1dp"
-                        android:ellipsize="end"
-                        android:gravity="center"
-                        android:maxWidth="55sp"
-                        android:maxLines="1"
-                        android:textColor="?attr/colorPrimaryInverse"
-                        android:textSize="25sp"
-                        android:textStyle="bold" />
-
-                </RelativeLayout>
-
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:id="@+id/ll_contacts2"
-                android:visibility="gone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/ll_contacts"
-                android:gravity="center"
-                android:layout_marginTop="-5dp"
-                android:layout_marginBottom="5dp" >
-
-                <RelativeLayout
-                    android:id="@+id/rl_contact5"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    >
-
-                    <ImageView
-                        android:id="@+id/imgv_contact5"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/rounded_corner_gray"
-                        android:background="?android:attr/selectableItemBackground"
-                        android:scaleType="fitXY" />
-
-                    <TextView
-                        android:id="@+id/tx_c5"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignStart="@+id/imgv_contact5"
-                        android:layout_alignBottom="@+id/imgv_contact5"
-                        android:layout_margin="1dp"
-                        android:ellipsize="end"
-                        android:text="+.."
-                        android:gravity="center"
-                        android:maxWidth="55sp"
-                        android:maxLines="1"
-                        android:textColor="?attr/colorPrimaryInverse"
-                        android:textSize="21sp"
-                        android:textStyle="bold" />
-
-                </RelativeLayout>
-
-
-
-                <RelativeLayout
-                    android:id="@+id/rl_contact6"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:layout_marginStart="25dp"
-                    >
-
-                    <ImageView
-                        android:id="@+id/imgv_contact6"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/rounded_corner_gray"
-                        android:background="?android:attr/selectableItemBackground"
-                        android:scaleType="fitXY" />
-
-                    <TextView
-                        android:id="@+id/tx_c6"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignStart="@+id/imgv_contact6"
-                        android:layout_alignBottom="@+id/imgv_contact6"
-                        android:layout_margin="1dp"
-                        android:ellipsize="end"
-                        android:text="+.."
-                        android:gravity="center"
-                        android:maxWidth="55sp"
-                        android:maxLines="1"
-                        android:textColor="?attr/colorPrimaryInverse"
-                        android:textSize="21sp"
-                        android:textStyle="bold" />
-
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:id="@+id/rl_contact7"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:layout_marginStart="25dp"
-                    >
-
-                    <ImageView
-                        android:id="@+id/imgv_contact7"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/rounded_corner_gray"
-                        android:background="?android:attr/selectableItemBackground"
-                        android:scaleType="fitXY" />
-
-                    <TextView
-                        android:id="@+id/tx_c7"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignStart="@+id/imgv_contact7"
-                        android:layout_alignBottom="@+id/imgv_contact7"
-                        android:layout_margin="1dp"
-                        android:ellipsize="end"
-                        android:text="+.."
-                        android:gravity="center"
-                        android:maxWidth="55sp"
-                        android:maxLines="1"
-                        android:textColor="?attr/colorPrimaryInverse"
-                        android:textSize="21sp"
-                        android:textStyle="bold" />
-
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:id="@+id/rl_contact8"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:layout_marginStart="25dp"
-                    >
-
-                    <ImageView
-                        android:id="@+id/imgv_contact8"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/rounded_corner_gray"
-                        android:background="?android:attr/selectableItemBackground"
-                        android:scaleType="fitXY" />
-
-                    <TextView
-                        android:id="@+id/tx_c9"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignStart="@+id/imgv_contact8"
-                        android:layout_alignBottom="@+id/imgv_contact8"
-                        android:layout_margin="1dp"
-                        android:ellipsize="end"
-                        android:text="+.."
-                        android:gravity="center"
-                        android:maxWidth="55sp"
-                        android:maxLines="1"
-                        android:textColor="?attr/colorPrimaryInverse"
-                        android:textSize="21sp"
-                        android:textStyle="bold" />
-
-                </RelativeLayout>
-
-            </LinearLayout>
 
         </RelativeLayout>
+
 
         <ProgressBar
             android:id="@+id/progressBar_cyclic"
@@ -821,8 +386,6 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/rl_apps"
             android:layout_margin="5dp"
-            android:layout_toLeftOf="@+id/fab_share"
-            android:layout_toRightOf="@+id/twSettings"
             android:background="@drawable/gradient_glass_rounded">
 
             <TextView
@@ -830,7 +393,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="25dp"
-                android:text="since..."
+                android:text="since, y'day..."
                 android:textStyle="bold|italic" />
 
             <TextView
@@ -839,9 +402,9 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/fab_margin"
                 android:background="@android:color/transparent"
-                android:text="Screen time ~ 10+ Hrs"
+                android:text="Screen time ~ 7+ Hrs"
                 android:textColor="@android:color/holo_red_light"
-                android:textSize="21sp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -934,6 +497,7 @@
                 android:ellipsize="end"
                 android:maxLines="3"
                 android:textColor="@android:color/white"
+                android:text="③ Steps count"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 tools:ignore="HardcodedText" />
@@ -1093,7 +657,7 @@
             android:background="@drawable/gradient_glass_flattop"
             android:gravity="center"
             android:linksClickable="true"
-            android:text="..."
+            android:text="..wallpaper description!"
             android:textColor="?attr/colorPrimaryDark"
             android:textStyle="bold" />
 
