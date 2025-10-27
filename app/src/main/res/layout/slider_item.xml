@@ -37,17 +37,16 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_gravity="center"
-
                 android:text="a Wish..."
                 android:textColor="?attr/colorPrimaryDark"
-                android:textSize="33sp"
+                android:textSize="23sp"
                 android:textStyle="bold"
                 tools:ignore="HardcodedText" />
 
             <TextView
                 android:id="@+id/tx_ai"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:layout_margin="5dp"
@@ -60,8 +59,8 @@
 
             <ImageButton
                 android:id="@+id/fab_blue"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
                 android:layout_alignParentTop="true"
                 android:layout_margin="5dp"
                 android:layout_toStartOf="@+id/tx_ai"
@@ -74,8 +73,8 @@
 
             <TextView
                 android:id="@+id/tx_reminders"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
                 android:layout_alignParentTop="true"
                 android:layout_margin="5dp"
                 android:layout_toStartOf="@+id/fab_blue"
@@ -88,8 +87,8 @@
 
             <ImageButton
                 android:id="@+id/fab_wifi"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
                 android:layout_alignParentTop="true"
                 android:layout_margin="5dp"
                 android:layout_toStartOf="@+id/tx_reminders"
@@ -102,8 +101,8 @@
 
             <ImageButton
                 android:id="@+id/fab_torch"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
                 android:layout_alignParentTop="true"
                 android:layout_marginTop="5dp"
                 android:layout_toEndOf="@+id/tx_wish"

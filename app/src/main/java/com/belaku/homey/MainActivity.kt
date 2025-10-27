@@ -331,6 +331,11 @@ class MainActivity : AppCompatActivity() {
         imageSliderAdapter = ImageSliderAdapter(imgUrls, applicationContext)
         viewPager.adapter = imageSliderAdapter
 
+        viewPager.offscreenPageLimit = 2
+
+        viewPager.post { viewPager.currentItem = 17 }
+
+
         TabLayoutMediator(
             tabLayout, viewPager
         ) { tab: TabLayout.Tab?, position: Int -> }.attach()
