@@ -264,7 +264,7 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:text="②Favorite"
+                android:text="②Fav..."
                 android:textStyle="bold"
                 android:background="@drawable/circular_tx_selected"
                 android:textSize="15sp"

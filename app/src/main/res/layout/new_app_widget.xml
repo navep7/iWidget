@@ -810,14 +810,61 @@
         android:padding="5dp"
         android:src="@android:drawable/ic_menu_search" />
 
+    <LinearLayout
+        android:id="@+id/ll_qr_g_np"
+        android:layout_below="@+id/rl_apps"
+        android:layout_alignStart="@+id/imgbtn_location"
+        android:layout_alignEnd="@+id/imgbtn_speech"
+        android:layout_marginTop="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/imgbtn_g_apps"
+            android:src="@drawable/g_apps"
+            android:layout_marginStart="@dimen/fab_margin"
+            android:layout_marginEnd="@dimen/fab_margin"
+            android:contentDescription="GA"
+            tools:ignore="HardcodedText"
+            android:background="@android:color/transparent"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="fitXY"/>
+
+        <ImageButton
+            android:id="@+id/imgbtn_qr"
+            android:layout_marginStart="@dimen/fab_margin"
+            android:layout_marginEnd="@dimen/fab_margin"
+            android:contentDescription="QR"
+            tools:ignore="HardcodedText"
+            android:src="@drawable/qr_code"
+            android:background="@android:color/transparent"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="fitXY"/>
+
+        <ImageButton
+            android:id="@+id/imgbtn_n_apps"
+            android:layout_marginStart="@dimen/fab_margin"
+            android:layout_marginEnd="@dimen/fab_margin"
+            android:contentDescription="NA"
+            tools:ignore="HardcodedText"
+            android:src="@android:drawable/alert_light_frame"
+            android:background="@android:color/transparent"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="fitXY" />
+
+    </LinearLayout>
+
     <RelativeLayout
         android:id="@+id/rl_screentime"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/rl_apps"
+        android:layout_below="@+id/ll_qr_g_np"
         android:layout_margin="5dp"
-        android:layout_toLeftOf="@+id/fab_share"
-        android:layout_toRightOf="@+id/twSettings"
         android:background="@drawable/gradient_glass_rounded">
 
         <TextView

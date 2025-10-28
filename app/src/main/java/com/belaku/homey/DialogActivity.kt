@@ -18,7 +18,6 @@ import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.provider.ContactsContract
@@ -72,6 +71,9 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
 import com.google.gson.Gson
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanIntentResult
+import com.journeyapps.barcodescanner.ScanOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -86,6 +88,26 @@ import kotlin.properties.Delegates
 
 class DialogActivity : AppCompatActivity() {
 
+    private val barcodeLauncher =
+        registerForActivityResult(ScanContract()) { result: ScanIntentResult? ->
+            if (result?.contents == null) {
+                makeToast("Cancelled")
+            } else {
+                // Handle the scan result
+                var scannedUrl = result.contents
+                makeToast("Scanned: ${result.contents}")
+                val upiUri = Uri.parse(scannedUrl)
+                val upiIntent = Intent(Intent.ACTION_VIEW)
+                upiIntent.setData(upiUri)
+                val chooser = Intent.createChooser(upiIntent, "Pay with")
+                if (chooser.resolveActivity(getPackageManager()) != null) {
+                    startActivity(chooser);
+                } else {
+                    // Handle the case where no UPI apps are installed
+                    makeToast("No UPI app found. Please install one to proceed.")
+                }
+            }
+        }
     private var stepsVPpos: Int = 0
     private lateinit var dotsLayout: LinearLayout
     private var muApps: ArrayList<String> = ArrayList()
@@ -114,46 +136,44 @@ class DialogActivity : AppCompatActivity() {
         setContentView(R.layout.activity_dialog)
 
 
-        rewardedInterstitialAd?.fullScreenContentCallback =
-            object : FullScreenContentCallback() {
-                override fun onAdDismissedFullScreenContent() {
-                    // Called when fullscreen content is dismissed.
-                    //   Log.d(TAG, "Ad was dismissed.")
-                    // Don't forget to set the ad reference to null so you
-                    // don't show the ad a second time.
-                    rewardedInterstitialAd = null
-                }
-
-                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                    // Called when fullscreen content failed to show.
-                    //   Log.d(TAG, "Ad failed to show.")
-                    // Don't forget to set the ad reference to null so you
-                    // don't show the ad a second time.
-                    rewardedInterstitialAd = null
-                }
-
-                override fun onAdShowedFullScreenContent() {
-                    // Called when fullscreen content is shown.
-                    //   Log.d(TAG, "Ad showed fullscreen content.")
-
-                }
-
-                override fun onAdImpression() {
-                    // Called when an impression is recorded for an ad.
-                    //    Log.d(TAG, "Ad recorded an impression.")
-                }
-
-                override fun onAdClicked() {
-                    // Called when an ad is clicked.
-                    //    Log.d(TAG, "Ad was clicked.")
-                }
+        rewardedInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+            override fun onAdDismissedFullScreenContent() {
+                // Called when fullscreen content is dismissed.
+                //   Log.d(TAG, "Ad was dismissed.")
+                // Don't forget to set the ad reference to null so you
+                // don't show the ad a second time.
+                rewardedInterstitialAd = null
             }
+
+            override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                // Called when fullscreen content failed to show.
+                //   Log.d(TAG, "Ad failed to show.")
+                // Don't forget to set the ad reference to null so you
+                // don't show the ad a second time.
+                rewardedInterstitialAd = null
+            }
+
+            override fun onAdShowedFullScreenContent() {
+                // Called when fullscreen content is shown.
+                //   Log.d(TAG, "Ad showed fullscreen content.")
+
+            }
+
+            override fun onAdImpression() {
+                // Called when an impression is recorded for an ad.
+                //    Log.d(TAG, "Ad recorded an impression.")
+            }
+
+            override fun onAdClicked() {
+                // Called when an ad is clicked.
+                //    Log.d(TAG, "Ad was clicked.")
+            }
+        }
 
         var bluetoothLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == AppCompatActivity.RESULT_OK) {
-                    if (blE)
-                        makeToast("Bluetooth ON")
+                    if (blE) makeToast("Bluetooth ON")
                     else makeToast("Bluetooth OFF")
                 } else {
                     // Bluetooth not enabled by user
@@ -203,12 +223,10 @@ class DialogActivity : AppCompatActivity() {
 
                 val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
                 intent.putExtra(
-                    RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                    RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+                    RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
                 )
                 intent.putExtra(
-                    RecognizerIntent.EXTRA_PROMPT,
-                    "Speak now..."
+                    RecognizerIntent.EXTRA_PROMPT, "Speak now..."
                 ) // Optional: prompt for the user
                 startActivityForResult(intent, REQUEST_CODE_SPEECH_INPUT)
 
@@ -273,8 +291,7 @@ class DialogActivity : AppCompatActivity() {
                     val intent = Intent(Intent.ACTION_MAIN, null)
                     intent.addCategory(Intent.CATEGORY_LAUNCHER)
                     val cn = ComponentName(
-                        "com.android.settings",
-                        "com.android.settings.wifi.WifiSettings"
+                        "com.android.settings", "com.android.settings.wifi.WifiSettings"
                     )
                     intent.setComponent(cn)
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -324,8 +341,7 @@ class DialogActivity : AppCompatActivity() {
 
                 makeToast(dayOfTheWeek)
                 window.setLayout(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
                 );
 
                 txTitle.setText("Steps...")
@@ -351,12 +367,6 @@ class DialogActivity : AppCompatActivity() {
                 vpSteps.adapter = stepsAdapter
 
 
-
-
-
-
-
-
                 // Call setupDots after setting the adapter and getting item count
                 setupDots(stepsAdapter.getItemCount())
 
@@ -368,16 +378,17 @@ class DialogActivity : AppCompatActivity() {
                     var currentOffset = 0F
 
                     override fun onPageScrolled(
-                        position: Int,
-                        positionOffset: Float,
-                        positionOffsetPixels: Int
+                        position: Int, positionOffset: Float, positionOffsetPixels: Int
                     ) {
 
-                     //   makeToast("$currentOffset VS $positionOffset")
+                        //   makeToast("$currentOffset VS $positionOffset")
 
-                        if (currentOffset == positionOffset)
-                        if (myState == ViewPager2.SCROLL_STATE_DRAGGING && currentPosition == position && currentPosition == 0) vpSteps.setCurrentItem(6)
-                         if (myState == ViewPager2.SCROLL_STATE_DRAGGING && currentPosition == position && currentPosition == 6) vpSteps.setCurrentItem(0)
+                        if (currentOffset == positionOffset) if (myState == ViewPager2.SCROLL_STATE_DRAGGING && currentPosition == position && currentPosition == 0) vpSteps.setCurrentItem(
+                            6
+                        )
+                        if (myState == ViewPager2.SCROLL_STATE_DRAGGING && currentPosition == position && currentPosition == 6) vpSteps.setCurrentItem(
+                            0
+                        )
 
                         currentOffset = positionOffset
 
@@ -409,28 +420,26 @@ class DialogActivity : AppCompatActivity() {
                 })
 
                 // Update dot appearance on page change
-              /*  vpSteps.registerOnPageChangeCallback(object : OnPageChangeCallback() {
-                    override fun onPageSelected(position: Int) {
-                        super.onPageSelected(position)
-                        for (i in 0 until dotsLayout.childCount) {
-                            val dot = dotsLayout.getChildAt(i) as ImageView
-                            dot.setImageDrawable(
-                                ContextCompat.getDrawable(
-                                    this@DialogActivity,
-                                    if (i == position) R.drawable.selected_dot else R.drawable.unselected_dot
-                                )
-                            )
-                        }
+                /*  vpSteps.registerOnPageChangeCallback(object : OnPageChangeCallback() {
+                      override fun onPageSelected(position: Int) {
+                          super.onPageSelected(position)
+                          for (i in 0 until dotsLayout.childCount) {
+                              val dot = dotsLayout.getChildAt(i) as ImageView
+                              dot.setImageDrawable(
+                                  ContextCompat.getDrawable(
+                                      this@DialogActivity,
+                                      if (i == position) R.drawable.selected_dot else R.drawable.unselected_dot
+                                  )
+                              )
+                          }
 
-                    }
-                })*/
-
+                      }
+                  })*/
 
 
             } else if (dialogIntentStr == "screenTimeInfo") {
                 window.setLayout(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
                 );
 
                 btnOk.visibility = View.INVISIBLE
@@ -446,7 +455,11 @@ class DialogActivity : AppCompatActivity() {
 
                 for (i in c) {
                     if (i.usageTime.substring(0, 2).toInt() > 10) {
-                        muApps.add("\n" + getAppNameFromPkg(appContx, i.appName) + "\t\t\t\t\t\t" + i.usageTime)
+                        muApps.add(
+                            "\n" + getAppNameFromPkg(
+                                appContx, i.appName
+                            ) + "\t\t\t\t\t\t" + i.usageTime
+                        )
                         arrayListUsageStats.remove(i)
                     }
                 }
@@ -454,19 +467,25 @@ class DialogActivity : AppCompatActivity() {
                 txContent.movementMethod = ScrollingMovementMethod()
                 txContent.append(Html.fromHtml("\n\n<b><u> Most Used Apps.. > 10 mins</u></b>"))
 
-                for (i in muApps)
-                    txContent.append(i)
+                for (i in muApps) txContent.append(i)
 
                 muApps.clear()
 
-                 b = arrayListUsageStats.distinctBy { it.usageTime }
-                 c = b.sortedBy { it.usageTime }
+                b = arrayListUsageStats.distinctBy { it.usageTime }
+                c = b.sortedBy { it.usageTime }
 
 
 
                 for (i in 0 until c.size) {
-                    if ((c[i].usageTime.substring(0, 2).toInt() > 5) && (c[i].usageTime.substring(0, 2).toInt() < 10)) {
-                        muApps.add("\n" + getAppNameFromPkg(appContx, c[i].appName) + "\t\t\t\t\t\t" + c[i].usageTime)
+                    if ((c[i].usageTime.substring(0, 2).toInt() > 5) && (c[i].usageTime.substring(
+                            0, 2
+                        ).toInt() < 10)
+                    ) {
+                        muApps.add(
+                            "\n" + getAppNameFromPkg(
+                                appContx, c[i].appName
+                            ) + "\t\t\t\t\t\t" + c[i].usageTime
+                        )
                         arrayListUsageStats.remove(c[i])
                     }
                 }
@@ -475,8 +494,7 @@ class DialogActivity : AppCompatActivity() {
                 txContent.append("\n\n")
                 txContent.append(Html.fromHtml("<u><b> Moderately Used Apps.. > 5 mins</u></b>"))
 
-                for (i in muApps)
-                    txContent.append(i)
+                for (i in muApps) txContent.append(i)
 
                 muApps.clear()
 
@@ -485,8 +503,14 @@ class DialogActivity : AppCompatActivity() {
 
 
                 for (i in c) {
-                    if ((i.usageTime.substring(0, 2).toInt() > 1) && (i.usageTime.substring(0, 2).toInt() < 5)){
-                        muApps.add("\n" + getAppNameFromPkg(appContx, i.appName) + "\t\t\t\t\t\t" + i.usageTime)
+                    if ((i.usageTime.substring(0, 2).toInt() > 1) && (i.usageTime.substring(0, 2)
+                            .toInt() < 5)
+                    ) {
+                        muApps.add(
+                            "\n" + getAppNameFromPkg(
+                                appContx, i.appName
+                            ) + "\t\t\t\t\t\t" + i.usageTime
+                        )
                         arrayListUsageStats.remove(i)
                     }
                 }
@@ -495,8 +519,7 @@ class DialogActivity : AppCompatActivity() {
                 txContent.append("\n\n")
                 txContent.append(Html.fromHtml("<u><b> Least Used Apps.. > 1 mins</u></b>"))
 
-                for (i in muApps)
-                    txContent.append(i)
+                for (i in muApps) txContent.append(i)
 
                 muApps.clear()
 
@@ -505,8 +528,12 @@ class DialogActivity : AppCompatActivity() {
 
 
                 for (i in c) {
-                    if (i.usageTime.substring(0, 2).toInt() == 0){
-                        muApps.add("\n" + getAppNameFromPkg(appContx, i.appName) + "\t\t\t\t\t\t" + i.usageTime)
+                    if (i.usageTime.substring(0, 2).toInt() == 0) {
+                        muApps.add(
+                            "\n" + getAppNameFromPkg(
+                                appContx, i.appName
+                            ) + "\t\t\t\t\t\t" + i.usageTime
+                        )
                         arrayListUsageStats.remove(i)
                     }
                 }
@@ -515,8 +542,7 @@ class DialogActivity : AppCompatActivity() {
                 txContent.append("\n\n")
                 txContent.append(Html.fromHtml("<u><b> Rarely Used Apps.. < 1 mins</u></b>"))
 
-                for (i in muApps)
-                    txContent.append(i)
+                for (i in muApps) txContent.append(i)
 
                 muApps.clear()
 
@@ -527,29 +553,31 @@ class DialogActivity : AppCompatActivity() {
                 val p: String = WallService::class.java.getPackage().getName()
                 val c: String = WallService::class.java.getCanonicalName()
 
-            //    val intentLiveWall = Intent(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER).putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT, ComponentName(p, c))
-            //    startActivity(intentLiveWall)
+                //    val intentLiveWall = Intent(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER).putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT, ComponentName(p, c))
+                //    startActivity(intentLiveWall)
 
                 val i = Intent()
                 i.setAction(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
                 i.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT, ComponentName(p, c))
                 startActivityForResult(i, 0)
+            } else if (dialogIntentStr == "qrClick") {
+
+                val options = ScanOptions().apply {
+                    setDesiredBarcodeFormats(ScanOptions.QR_CODE)
+                    setPrompt("Scan a QR code")
+                }
+
+                // Launch the scanner
+                barcodeLauncher.launch(options)
             }
 
-            if (dayOfTheWeek.equals("Monday"))
-                vpSteps.setCurrentItem(0)
-            else if (dayOfTheWeek == "Tuesday")
-                vpSteps.setCurrentItem(1)
-            else if (dayOfTheWeek == "Wednesday")
-                vpSteps.setCurrentItem(2)
-            else if (dayOfTheWeek == "Thursday")
-                vpSteps.setCurrentItem(3)
-            else if (dayOfTheWeek == "Friday")
-                vpSteps.setCurrentItem(4)
-            else if (dayOfTheWeek == "Saturday")
-                vpSteps.setCurrentItem(5)
-            else if (dayOfTheWeek == "Sunday")
-                vpSteps.setCurrentItem(6)
+            if (dayOfTheWeek.equals("Monday")) vpSteps.setCurrentItem(0)
+            else if (dayOfTheWeek == "Tuesday") vpSteps.setCurrentItem(1)
+            else if (dayOfTheWeek == "Wednesday") vpSteps.setCurrentItem(2)
+            else if (dayOfTheWeek == "Thursday") vpSteps.setCurrentItem(3)
+            else if (dayOfTheWeek == "Friday") vpSteps.setCurrentItem(4)
+            else if (dayOfTheWeek == "Saturday") vpSteps.setCurrentItem(5)
+            else if (dayOfTheWeek == "Sunday") vpSteps.setCurrentItem(6)
 
         }
     }
@@ -560,12 +588,18 @@ class DialogActivity : AppCompatActivity() {
         val dots = arrayOfNulls<ImageView>(count)
         for (i in 0 until count) {
             dots[i] = ImageView(this)
-            if (i != stepsVPpos)
-            dots[i]!!.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.unselected_dot))
-            else dots[i]!!.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.selected_dot))
+            if (i != stepsVPpos) dots[i]!!.setImageDrawable(
+                ContextCompat.getDrawable(
+                    this, R.drawable.unselected_dot
+                )
+            )
+            else dots[i]!!.setImageDrawable(
+                ContextCompat.getDrawable(
+                    this, R.drawable.selected_dot
+                )
+            )
             val params = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
             )
             params.setMargins(8, 0, 8, 0) // Adjust margin as needed
             dotsLayout.addView(dots[i], params)
@@ -591,14 +625,10 @@ class DialogActivity : AppCompatActivity() {
 
         try {
             cursor = contentResolver.query(
-                contactUri!!,
-                arrayOf(
+                contactUri!!, arrayOf(
                     ContactsContract.Contacts.DISPLAY_NAME,
                     ContactsContract.Contacts._ID,  // Add other desired columns like HAS_PHONE_NUMBER, PHOTO_URI, etc.
-                ),
-                null,
-                null,
-                null
+                ), null, null, null
             )
 
             if (cursor != null && cursor.moveToFirst()) {
@@ -654,8 +684,7 @@ class DialogActivity : AppCompatActivity() {
         val selection = ContactsContract.Contacts.STARRED + "='1'"
 
         val cursor = context.contentResolver.query(
-            queryUri,
-            projection, selection, null, null
+            queryUri, projection, selection, null, null
         )
 
         while (cursor!!.moveToNext()) {
@@ -696,8 +725,7 @@ class DialogActivity : AppCompatActivity() {
 
 
 
-        if (favContacts.size > 0)
-            saveContacts()
+        if (favContacts.size > 0) saveContacts()
         else {
             makeToast("You've got no Contacts marked as Favorute!.. Go ahead add some to dial from the widget directly.")
             val builder = AlertDialog.Builder(this)
@@ -785,25 +813,21 @@ class DialogActivity : AppCompatActivity() {
 
         val client = OkHttpClient()
 
-        val request = Request.Builder()
-            .url("https://twitter241.p.rapidapi.com/user?username=$str")
-            .get()
-            .addHeader("x-rapidapi-key", "8521aa6a65mshab927b74fff566dp175607jsn24cd6edd63a7")
-            .addHeader("x-rapidapi-host", "twitter241.p.rapidapi.com")
-            .build()
+        val request =
+            Request.Builder().url("https://twitter241.p.rapidapi.com/user?username=$str").get()
+                .addHeader("x-rapidapi-key", "8521aa6a65mshab927b74fff566dp175607jsn24cd6edd63a7")
+                .addHeader("x-rapidapi-host", "twitter241.p.rapidapi.com").build()
 
 
         pD.setTitle("Twitter")
         pD.setMessage("fetching user ID...")
-        if (b)
-            pD.show()
+        if (b) pD.show()
         lifecycleScope.launch(Dispatchers.IO) {
             var responseTweetID = client.newCall(request).execute()
 
             withContext(Dispatchers.Main) {
                 // Handle the result and hide the loading indicator
-                if (b)
-                    pD.dismiss()
+                if (b) pD.dismiss()
                 val responseBodyString = responseTweetID.peekBody(Long.MAX_VALUE).string()
 
 
@@ -811,62 +835,48 @@ class DialogActivity : AppCompatActivity() {
 
                 if (jsonObject.getJSONObject("result").getJSONObject("data").optString("user")
                         .isNotEmpty()
-                )
-                    if (jsonObject.getJSONObject("result").getJSONObject("data")
-                            .getJSONObject("user").optString("result")
-                            .isNotEmpty()
-                    )
-                        if (jsonObject.getJSONObject("result").getJSONObject("data")
-                                .getJSONObject("user").getJSONObject("result").optString("rest_id")
-                                .isNotEmpty()
-                        ) {
-                            var twitterID = jsonObject.getJSONObject("result").getJSONObject("data")
-                                .getJSONObject("user")
-                                .getJSONObject("result").getString("rest_id")
-                            var twitterPicUrl =
-                                jsonObject.getJSONObject("result").getJSONObject("data")
-                                    .getJSONObject("user")
-                                    .getJSONObject("result").getJSONObject("avatar")
-                                    .getString("image_url")
+                ) if (jsonObject.getJSONObject("result").getJSONObject("data").getJSONObject("user")
+                        .optString("result").isNotEmpty()
+                ) if (jsonObject.getJSONObject("result").getJSONObject("data").getJSONObject("user")
+                        .getJSONObject("result").optString("rest_id").isNotEmpty()
+                ) {
+                    var twitterID = jsonObject.getJSONObject("result").getJSONObject("data")
+                        .getJSONObject("user").getJSONObject("result").getString("rest_id")
+                    var twitterPicUrl = jsonObject.getJSONObject("result").getJSONObject("data")
+                        .getJSONObject("user").getJSONObject("result").getJSONObject("avatar")
+                        .getString("image_url")
 
-                            twitterProfileName =
-                                jsonObject.getJSONObject("result").getJSONObject("data")
-                                    .getJSONObject("user")
-                                    .getJSONObject("result").getJSONObject("core")
-                                    .getString("screen_name")
-                            Log.d("TwitterPicUrl - ", twitterPicUrl)
+                    twitterProfileName = jsonObject.getJSONObject("result").getJSONObject("data")
+                        .getJSONObject("user").getJSONObject("result").getJSONObject("core")
+                        .getString("screen_name")
+                    Log.d("TwitterPicUrl - ", twitterPicUrl)
 
-                            remoteViews =
-                                RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
-                            newAppWidget =
-                                ComponentName(applicationContext, NewAppWidget::class.java)
-                            remoteViews?.setImageViewUri(R.id.twSettings, Uri.parse(twitterPicUrl))
+                    remoteViews =
+                        RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
+                    newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
+                    remoteViews?.setImageViewUri(R.id.twSettings, Uri.parse(twitterPicUrl))
 
-                            appWidM = AppWidgetManager.getInstance(appContx)
-                            appWidM.updateAppWidget(newAppWidget, remoteViews)
+                    appWidM = AppWidgetManager.getInstance(appContx)
+                    appWidM.updateAppWidget(newAppWidget, remoteViews)
 
-                            //    Log.d(TAG + "responseTweetID - ", responseBodyString)
-                            //  Log.d(TAG + "Tw ID - ", twitterID + " - " + twitterProfileName)
+                    //    Log.d(TAG + "responseTweetID - ", responseBodyString)
+                    //  Log.d(TAG + "Tw ID - ", twitterID + " - " + twitterProfileName)
 
-                            if (b)
-                                pD.dismiss()
+                    if (b) pD.dismiss()
 
-                            getTweets(twitterID, false)
-                        } else {
-                            if (b)
-                                pD.dismiss()
-                            makeSnack("Twitter User doesn't Exist!")
+                    getTweets(twitterID, false)
+                } else {
+                    if (b) pD.dismiss()
+                    makeSnack("Twitter User doesn't Exist!")
 
-                        }
-                    else {
-                        if (b)
-                            pD.dismiss()
-                        makeSnack("Twitter User doesn't Exist!")
-
-                    }
+                }
                 else {
-                    if (b)
-                        pD.dismiss()
+                    if (b) pD.dismiss()
+                    makeSnack("Twitter User doesn't Exist!")
+
+                }
+                else {
+                    if (b) pD.dismiss()
                     makeSnack("Twitter User doesn't Exist!")
 
                 }
@@ -882,16 +892,13 @@ class DialogActivity : AppCompatActivity() {
         val client = OkHttpClient()
 
         val request = Request.Builder()
-            .url("https://twitter241.p.rapidapi.com/user-tweets?user=$twitterID&count=5")
-            .get()
+            .url("https://twitter241.p.rapidapi.com/user-tweets?user=$twitterID&count=5").get()
             .addHeader("x-rapidapi-key", "8521aa6a65mshab927b74fff566dp175607jsn24cd6edd63a7")
-            .addHeader("x-rapidapi-host", "twitter241.p.rapidapi.com")
-            .build()
+            .addHeader("x-rapidapi-host", "twitter241.p.rapidapi.com").build()
 
         pD.setTitle("Twitter")
         pD.setMessage("fetching Tweets...")
-        if (b)
-            pD.show()
+        if (b) pD.show()
         lifecycleScope.launch(Dispatchers.IO) {
             var responseTweets = client.newCall(request).execute()
 
@@ -900,15 +907,13 @@ class DialogActivity : AppCompatActivity() {
                 .getJSONArray("instructions"))//[2] as JSONObject).getJSONArray("entries")
 
             for (i in 0 until js.length()) {
-                if (js[i].toString().contains("entries"))
-                    js = (js[i] as JSONObject).getJSONArray("entries")
+                if (js[i].toString().contains("entries")) js =
+                    (js[i] as JSONObject).getJSONArray("entries")
             }
 
             withContext(Dispatchers.Main) {
-                if (b)
-                    pD.dismiss()
-                if (js.length() > 0)
-                    listTweets.clear()
+                if (b) pD.dismiss()
+                if (js.length() > 0) listTweets.clear()
                 for (i in 0 until js.length()) {
                     val tw =
                         JSONObject(js[i].toString()).getJSONObject("content")//.getJSONObject("itemContent").getJSONObject("tweet_results").getJSONObject("result")
@@ -916,8 +921,7 @@ class DialogActivity : AppCompatActivity() {
 
                     if (tw.optString("itemContent").isNotEmpty()) {
                         val actTw = tw.getJSONObject("itemContent").getJSONObject("tweet_results")
-                            .getJSONObject("result")
-                            .getJSONObject("legacy").get("full_text")
+                            .getJSONObject("result").getJSONObject("legacy").get("full_text")
 
                         Log.d("Twwtt $i", actTw.toString())
                         listTweets.add(actTw.toString())
@@ -929,8 +933,7 @@ class DialogActivity : AppCompatActivity() {
                 remoteViews = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
                 newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
                 remoteViews?.setTextViewText(
-                    R.id.tx_tweets,
-                    "@" + twitterProfileName + "\t ~ \t" + listTweets[1]
+                    R.id.tx_tweets, "@" + twitterProfileName + "\t ~ \t" + listTweets[1]
                 )
 
                 appWidM = AppWidgetManager.getInstance(appContx)
@@ -983,8 +986,7 @@ class DialogActivity : AppCompatActivity() {
                 //     makeToast("TwiPic")
                 try {
                     remoteViews?.setTextViewText(
-                        R.id.tx_tweets,
-                        "@" + twitterProfileName + "\t ~ \t" + listTweets[1]
+                        R.id.tx_tweets, "@" + twitterProfileName + "\t ~ \t" + listTweets[1]
                     )
                     remoteViews?.setImageViewBitmap(R.id.twSettings, bitmap)
                 } catch (ex: Exception) {

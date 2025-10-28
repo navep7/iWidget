@@ -67,6 +67,7 @@ dependencies {
   //  implementation(libs.androidx.activity.ktx)
 
 
+    implementation(libs.zxing.android.embedded)
     implementation(libs.androidx.viewpager2)
     implementation(libs.material.v1130) // Or the latest version
     implementation(platform(libs.firebase.bom))

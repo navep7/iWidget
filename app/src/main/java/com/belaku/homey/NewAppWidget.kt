@@ -294,6 +294,42 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
             remoteViews?.setOnClickPendingIntent(
+                R.id.imgbtn_g_apps,
+                PendingIntent.getActivity(
+                    context, 11,
+                    Intent(context, DialogActivity::class.java).putExtra(
+                        "DialogIntent",
+                        "gApps"
+                    ),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgbtn_qr,
+                PendingIntent.getActivity(
+                    context, 10,
+                    Intent(context, DialogActivity::class.java).putExtra(
+                        "DialogIntent",
+                        "qrClick"
+                    ),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgbtn_n_apps,
+                PendingIntent.getActivity(
+                    context, 12,
+                    Intent(context, DialogActivity::class.java).putExtra(
+                        "DialogIntent",
+                        "gApps"
+                    ),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+
+            remoteViews?.setOnClickPendingIntent(
                 R.id.tx_screentime_info,
                 PendingIntent.getActivity(
                     context, 8,
@@ -737,6 +773,42 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setOnClickPendingIntent(
             R.id.tx_now_steps,
             getPendingSelfIntent(context, STEPS_NOW)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_g_apps,
+            PendingIntent.getActivity(
+                context, 11,
+                Intent(context, DialogActivity::class.java).putExtra(
+                    "DialogIntent",
+                    "gApps"
+                ),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_qr,
+            PendingIntent.getActivity(
+                context, 10,
+                Intent(context, DialogActivity::class.java).putExtra(
+                    "DialogIntent",
+                    "qrClick"
+                ),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_n_apps,
+            PendingIntent.getActivity(
+                context, 12,
+                Intent(context, DialogActivity::class.java).putExtra(
+                    "DialogIntent",
+                    "gApps"
+                ),
+                PendingIntent.FLAG_IMMUTABLE
+            )
         )
 
         remoteViews?.setOnClickPendingIntent(
