@@ -909,13 +909,13 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         var timeOfDay = if (currentHour >= 6 && currentHour < 12) {
-            "Morni.."
+            "Morni!"
         } else if (currentHour >= 12 && currentHour < 17) {
-            "Noon.."
+            "Noon!"
         } else if (currentHour >= 17 && currentHour < 21) {
-            "Eve..,"
+            "Eve!"
         } else {
-            "Night.."
+            "Night!"
         }
 
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS)
@@ -1912,13 +1912,13 @@ class NewAppWidget : AppWidgetProvider() {
         gpName = c!!.getString(c.getColumnIndex("display_name"))
         c.close()
 
-        if (timeOfDay == "Morni..")
+        if (timeOfDay == "Morni!")
             timelyWish = "\uD83C\uDF3B$timeOfDay "//, ${gpName.split(" ").get(0)}!"
-        else if (timeOfDay == "Noon..")
+        else if (timeOfDay == "Noon!")
             timelyWish = "☀\uFE0F$timeOfDay "//, ${gpName.split(" ").get(0)}!"
-        else if (timeOfDay == "Eve..,")
+        else if (timeOfDay == "Eve!")
             timelyWish = "\uD83C\uDF41$timeOfDay "//, ${gpName.split(" ").get(0)}!"
-        else if (timeOfDay == "Night..")
+        else if (timeOfDay == "Night!")
             timelyWish = "\uD83D\uDCA4$timeOfDay "//, ${gpName.split(" ").get(0)}!"
 
     }

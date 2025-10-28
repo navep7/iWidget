@@ -20,88 +20,93 @@
         android:layout_centerHorizontal="true"
         android:background="@drawable/gradient_glass_flatbottom">
 
+        <LinearLayout
+            android:id="@+id/ll_top"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
         <TextView
             android:id="@+id/tx_wish"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
             android:layout_gravity="center"
-
-            android:text="a Wish..."
+            android:text="a Wish.."
             android:textColor="?attr/colorPrimaryDark"
             android:textSize="33sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
 
-        <TextView
-            android:id="@+id/tx_ai"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_margin="5dp"
-            android:background="@drawable/rounded_corner_gray"
-            android:gravity="center"
-            android:padding="5dp"
-            android:scaleType="fitXY"
-            android:text="✨"
-            tools:ignore="HardcodedText" />
+            <ImageButton
+                android:id="@+id/fab_torch"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="3dp"
+                android:background="@drawable/weather_rounded_corner"
+                android:gravity="center"
+                android:padding="5dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/torch_off"
+                tools:ignore="HardcodedText" />
 
-        <ImageButton
-            android:id="@+id/fab_blue"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_alignParentTop="true"
-            android:layout_margin="5dp"
-            android:layout_toStartOf="@+id/tx_ai"
-            android:background="@drawable/weather_rounded_corner"
-            android:gravity="center"
-            android:padding="5dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/blue_off"
-            tools:ignore="HardcodedText" />
+            <ImageButton
+                android:id="@+id/fab_wifi"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="3dp"
+                android:background="@drawable/weather_rounded_corner"
+                android:gravity="center"
+                android:padding="5dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/wifi_off"
+                tools:ignore="HardcodedText" />
 
-        <TextView
-            android:id="@+id/tx_reminders"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_alignParentTop="true"
-            android:layout_margin="5dp"
-            android:layout_toStartOf="@+id/fab_blue"
-            android:background="@drawable/rounded_corner_gray"
-            android:gravity="center"
-            android:padding="5dp"
-            android:scaleType="fitXY"
-            android:text="🔔"
-            tools:ignore="HardcodedText" />
+            <TextView
+                android:id="@+id/tx_reminders"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="3dp"
+                android:background="@drawable/rounded_corner_gray"
+                android:gravity="center"
+                android:padding="5dp"
+                android:scaleType="fitXY"
+                android:text="🔔"
+                tools:ignore="HardcodedText" />
 
-        <ImageButton
-            android:id="@+id/fab_wifi"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_alignParentTop="true"
-            android:layout_margin="5dp"
-            android:layout_toStartOf="@+id/tx_reminders"
-            android:background="@drawable/weather_rounded_corner"
-            android:gravity="center"
-            android:padding="5dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/wifi_off"
-            tools:ignore="HardcodedText" />
+            <ImageButton
+                android:id="@+id/fab_blue"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="3dp"
+                android:background="@drawable/weather_rounded_corner"
+                android:gravity="center"
+                android:padding="5dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/blue_off"
+                tools:ignore="HardcodedText" />
 
-        <ImageButton
-            android:id="@+id/fab_torch"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="5dp"
-            android:layout_toEndOf="@+id/tx_wish"
-            android:background="@drawable/weather_rounded_corner"
-            android:gravity="center"
-            android:padding="5dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/torch_off"
-            tools:ignore="HardcodedText" />
+            <TextView
+                android:id="@+id/tx_ai"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="3dp"
+                android:background="@drawable/rounded_corner_gray"
+                android:gravity="center"
+                android:padding="5dp"
+                android:scaleType="fitXY"
+                android:text="✨"
+                tools:ignore="HardcodedText" />
+
+        </LinearLayout>
+
+
+
+
+
 
        <!-- <ImageButton
             android:id="@+id/fab_camera"
@@ -166,7 +171,7 @@
             android:id="@+id/weather_icon"
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:layout_below="@+id/tx_wish"
+            android:layout_below="@+id/ll_top"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="@dimen/fab_margin"
             android:layout_marginEnd="5dp"
@@ -178,7 +183,7 @@
             android:id="@+id/animation_image"
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:layout_below="@+id/tx_wish"
+            android:layout_below="@+id/ll_top"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="@dimen/fab_margin"
             android:layout_marginEnd="5dp"
@@ -189,7 +194,7 @@
             android:visibility="invisible"
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:layout_below="@+id/tx_wish"
+            android:layout_below="@+id/ll_top"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="50dp"
             android:layout_marginTop="25dp"
@@ -205,7 +210,7 @@
             android:id="@+id/tx_ref_weather_icon"
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:layout_below="@+id/tx_wish"
+            android:layout_below="@+id/ll_top"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="@dimen/fab_margin"
             android:layout_marginEnd="5dp"
@@ -220,7 +225,7 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_above="@+id/tx_place"
-            android:layout_below="@+id/tx_wish"
+            android:layout_below="@+id/ll_top"
             android:dial="@drawable/walp_icon"
             android:hand_second="@drawable/s_hand" />
 
@@ -228,7 +233,7 @@
             android:id="@+id/clock"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/tx_wish"
+            android:layout_below="@+id/ll_top"
             android:layout_toEndOf="@+id/a_clock"
             android:format24Hour="k:mm:ss"
             android:textColor="?attr/colorPrimaryDark"
