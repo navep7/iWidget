@@ -48,6 +48,9 @@ import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
 import android.text.Html
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -151,6 +154,35 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
+        val textG = "Google"
+        val spannableStringG = SpannableString(textG)
+        for (i in 0 until textG.length) {
+            // Assign a different color based on character index or other logic
+            val color = if (i == 0) {
+                Color.BLUE
+            } else if (i == 1) {
+                Color.RED
+            } else if (i == 2) {
+                Color.YELLOW
+            } else if (i == 3) {
+                Color.BLUE
+            } else if (i == 4) {
+                Color.GREEN
+            } else  {
+                Color.RED
+            }
+
+            spannableStringG.setSpan(
+                ForegroundColorSpan(color),
+                i,
+                i + 1,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+
+        }
+        remoteViews?.setTextViewText(R.id.tx_google, spannableStringG)
+
+
         if (!MainActivity.isLocationEnabled(context)) {
             remoteViews?.setTextViewText(R.id.tx_place, "Please Enable Location services!")
 
@@ -191,6 +223,8 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.tx_ai,
                 aiPendingIntent
             )
+
+
 
 
 
@@ -326,6 +360,13 @@ class NewAppWidget : AppWidgetProvider() {
                     PendingIntent.FLAG_IMMUTABLE
                 )
             )
+
+            remoteViews?.setOnClickPendingIntent(R.id.tx_upi,
+                PendingIntent.getActivity(
+                    context, 10,
+                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "UPI"),
+                    PendingIntent.FLAG_IMMUTABLE
+                ))
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.weather_icon,
@@ -491,6 +532,35 @@ class NewAppWidget : AppWidgetProvider() {
             intArrayOf( /* ... */)
 
         checkMusicStatus(context)
+
+        val textG = "G o o g l e"
+        val spannableStringG = SpannableString(textG)
+        for (i in 0 until textG.length) {
+            // Assign a different color based on character index or other logic
+            val color = if (i == 0) {
+                Color.BLUE
+            } else if (i == 2) {
+                Color.RED
+            } else if (i == 4) {
+                Color.YELLOW
+            } else if (i == 6) {
+                Color.BLUE
+            } else if (i == 8) {
+                Color.GREEN
+            } else  {
+                Color.RED
+            }
+
+            spannableStringG.setSpan(
+                ForegroundColorSpan(color),
+                i,
+                i + 1,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+
+        }
+        remoteViews?.setTextViewText(R.id.tx_google, spannableStringG)
+
 
         if (!MainActivity.isLocationEnabled(context)) {
             remoteViews?.setTextViewText(R.id.tx_place, "Please Enable Location services!")
@@ -772,6 +842,13 @@ class NewAppWidget : AppWidgetProvider() {
                 PendingIntent.FLAG_IMMUTABLE
             )
         )
+
+        remoteViews?.setOnClickPendingIntent(R.id.tx_upi,
+            PendingIntent.getActivity(
+                context, 10,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "UPI"),
+                PendingIntent.FLAG_IMMUTABLE
+            ))
 
         remoteViews?.setOnClickPendingIntent(
             R.id.weather_icon,

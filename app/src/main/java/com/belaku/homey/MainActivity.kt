@@ -627,10 +627,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    fun dpToPx(dp: Int, context: Context): Int {
-        val density = context.resources.displayMetrics.density
-        return Math.round(dp.toFloat() * density)
-    }
 
     fun usageStatsPermissionDialog() {
         val alertDialog: AlertDialog = AlertDialog.Builder(mAct).create()
@@ -2151,6 +2147,11 @@ class MainActivity : AppCompatActivity() {
             // Create the AlertDialog object and show it
             val dialog = builder.create()
             dialog.show()
+        }
+
+        fun dpToPx(dp: Int, context: Context): Int {
+            val density = context.resources.displayMetrics.density
+            return Math.round(dp.toFloat() * density)
         }
 
 

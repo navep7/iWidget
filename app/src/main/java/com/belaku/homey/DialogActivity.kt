@@ -17,6 +17,7 @@ import android.content.pm.PackageManager.NameNotFoundException
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -534,23 +535,106 @@ class DialogActivity : AppCompatActivity() {
                 i.setAction(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
                 i.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT, ComponentName(p, c))
                 startActivityForResult(i, 0)
+            } else if (dialogIntentStr == "UPI") {
+                val pkgNamesUPI: ArrayList<String> = ArrayList()
+                val appNamesUPI: ArrayList<String> = ArrayList()
+                val appIconsUPI: ArrayList<Drawable> = ArrayList()
+
+                val intentUpi = Intent(Intent.ACTION_MAIN, null)
+                intentUpi.addCategory(Intent.CATEGORY_DEFAULT)
+                intentUpi.addCategory(Intent.CATEGORY_BROWSABLE)
+                intentUpi.setAction(Intent.ACTION_VIEW)
+                var uriUPI = Uri.Builder().scheme("upi").authority("pay").build()
+                intentUpi.setData(uriUPI)
+                val pkgListUPI = packageManager.queryIntentActivities(intentUpi, 0)
+
+                for (i in 0 until pkgListUPI.size) {
+                    var resolveInfo = pkgListUPI.get(i)
+                    pkgNamesUPI.add(resolveInfo.activityInfo.packageName)
+                    appNamesUPI.add(resolveInfo.loadLabel(packageManager).toString())
+                    appIconsUPI.add(resolveInfo.loadIcon(packageManager))
+                }
+
+                val linearLayoutUPI = LinearLayout(applicationContext)
+                linearLayoutUPI.orientation = LinearLayout.HORIZONTAL // Or HORIZONTAL
+                var linearLayoutUPIlayoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+
+                linearLayoutUPI.layoutParams = linearLayoutUPIlayoutParams
+
+                for (i in 0 until appIconsUPI.size) {
+                    val imgvUPI = ImageView(applicationContext)
+                    imgvUPI.setImageDrawable(appIconsUPI[i])
+
+                    val params = LinearLayout.LayoutParams(
+                        100,
+                        100
+                    )
+                    val marginInDp = 16 // Example margin in DP
+                    val marginInPx = MainActivity.dpToPx(marginInDp, applicationContext)
+
+                    params.setMargins(marginInPx, marginInPx, marginInPx, marginInPx)
+                    imgvUPI.layoutParams = params
+
+                    imgvUPI.setOnClickListener {
+                        launchAppByPackageName(applicationContext, pkgNamesUPI[i])
+                    }
+                    linearLayoutUPI.addView(imgvUPI)
+                }
+
+                val builder = AlertDialog.Builder(this@DialogActivity)
+                builder.setTitle("UPI apps")
+                builder.setView(linearLayoutUPI)
+
+                val dialog = builder.create()
+                dialog.show()
+
             }
 
-            if (dayOfTheWeek.equals("Monday"))
-                vpSteps.setCurrentItem(0)
+            if (dayOfTheWeek == "Monday")
+                vpSteps.currentItem = 0
             else if (dayOfTheWeek == "Tuesday")
-                vpSteps.setCurrentItem(1)
+                vpSteps.currentItem = 1
             else if (dayOfTheWeek == "Wednesday")
-                vpSteps.setCurrentItem(2)
+                vpSteps.currentItem = 2
             else if (dayOfTheWeek == "Thursday")
-                vpSteps.setCurrentItem(3)
+                vpSteps.currentItem = 3
             else if (dayOfTheWeek == "Friday")
-                vpSteps.setCurrentItem(4)
+                vpSteps.currentItem = 4
             else if (dayOfTheWeek == "Saturday")
-                vpSteps.setCurrentItem(5)
+                vpSteps.currentItem = 5
             else if (dayOfTheWeek == "Sunday")
-                vpSteps.setCurrentItem(6)
+                vpSteps.currentItem = 6
 
+        }
+    }
+
+    fun launchAppByPackageName(context: Context, packageName: String) {
+        val packageManager = context.packageManager
+        val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
+
+        if (launchIntent != null) {
+            // Add flags for a new task to prevent issues with launching from different contexts
+            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+            // Fix for Android 13 (API 33) and above:
+            // Explicitly add the LAUNCHER category if the intent doesn't already have it
+            // This can help ensure proper launching behavior for apps targeting newer Android versions.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                !launchIntent.hasCategory(Intent.CATEGORY_LAUNCHER)
+            ) {
+                launchIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+            }
+
+            context.startActivity(launchIntent)
+        } else {
+            // If the app is not installed, you can optionally direct the user to the Play Store
+            val marketIntent = Intent(Intent.ACTION_VIEW)
+            marketIntent.setData(Uri.parse("market://details?id=$packageName"))
+            marketIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) // Ensure it opens in a new task
+            context.startActivity(marketIntent)
         }
     }
 

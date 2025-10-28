@@ -5,9 +5,9 @@
     android:id="@+id/rl_widget_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
     android:layout_gravity="center"
     android:background="@drawable/gradient_glass"
+    android:gravity="center"
     android:orientation="vertical"
     android:theme="@style/Theme.Material3.DynamicColors.Light">
 
@@ -25,16 +25,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/tx_wish"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="a Wish.."
-            android:textColor="?attr/colorPrimaryDark"
-            android:textSize="33sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            <TextView
+                android:id="@+id/tx_wish"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="a Wish.."
+                android:textColor="?attr/colorPrimaryDark"
+                android:textSize="33sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
 
             <ImageButton
                 android:id="@+id/fab_torch"
@@ -104,39 +104,35 @@
         </LinearLayout>
 
 
+        <!-- <ImageButton
+             android:id="@+id/fab_camera"
+             android:layout_width="35dp"
+             android:layout_height="35dp"
+             android:layout_alignParentTop="true"
+             android:layout_marginTop="5dp"
+             android:layout_marginStart="3dp"
+             android:layout_toEndOf="@+id/fab_settings"
+             android:background="@drawable/weather_rounded_corner"
+             android:gravity="center"
+             android:padding="5dp"
+             android:scaleType="fitXY"
+             android:src="@android:drawable/ic_menu_camera"
+             tools:ignore="HardcodedText" />
 
-
-
-
-       <!-- <ImageButton
-            android:id="@+id/fab_camera"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="5dp"
-            android:layout_marginStart="3dp"
-            android:layout_toEndOf="@+id/fab_settings"
-            android:background="@drawable/weather_rounded_corner"
-            android:gravity="center"
-            android:padding="5dp"
-            android:scaleType="fitXY"
-            android:src="@android:drawable/ic_menu_camera"
-            tools:ignore="HardcodedText" />
-
-        <ImageButton
-            android:id="@+id/fab_settings"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="5dp"
-            android:layout_marginStart="3dp"
-            android:layout_toEndOf="@+id/fab_torch"
-            android:background="@drawable/weather_rounded_corner"
-            android:gravity="center"
-            android:padding="5dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/settings"
-            tools:ignore="HardcodedText" />-->
+         <ImageButton
+             android:id="@+id/fab_settings"
+             android:layout_width="35dp"
+             android:layout_height="35dp"
+             android:layout_alignParentTop="true"
+             android:layout_marginTop="5dp"
+             android:layout_marginStart="3dp"
+             android:layout_toEndOf="@+id/fab_torch"
+             android:background="@drawable/weather_rounded_corner"
+             android:gravity="center"
+             android:padding="5dp"
+             android:scaleType="fitXY"
+             android:src="@drawable/settings"
+             tools:ignore="HardcodedText" />-->
 
 
         <TextView
@@ -144,8 +140,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/weather_icon"
-            android:layout_marginBottom="-45dp"
             android:layout_alignEnd="@+id/weather_icon"
+            android:layout_marginBottom="-45dp"
             android:background="@drawable/gradient_glass"
             android:scaleType="fitXY"
             android:text="25°C"
@@ -158,8 +154,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/weather_icon"
-            android:layout_marginBottom="-20dp"
             android:layout_alignStart="@+id/weather_icon"
+            android:layout_marginBottom="-20dp"
             android:background="@drawable/gradient_glass"
             android:scaleType="fitXY"
             android:text="State..,"
@@ -191,19 +187,17 @@
 
         <TextView
             android:id="@+id/tx_live_weather_effects"
-            android:visibility="invisible"
             android:layout_width="75dp"
             android:layout_height="75dp"
             android:layout_below="@+id/ll_top"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="50dp"
             android:layout_marginTop="25dp"
-            android:scaleType="fitXY"
+            android:layout_marginEnd="50dp"
             android:gravity="center"
+            android:scaleType="fitXY"
+            android:text="☄"
             android:textSize="35sp"
-            android:text="☄" />
-
-
+            android:visibility="invisible" />
 
 
         <TextView
@@ -214,10 +208,10 @@
             android:layout_alignParentEnd="true"
             android:layout_marginTop="@dimen/fab_margin"
             android:layout_marginEnd="5dp"
-            android:scaleType="fitXY"
             android:gravity="center"
-            android:textSize="50sp"
-            android:text="↻" />
+            android:scaleType="fitXY"
+            android:text="↻"
+            android:textSize="50sp" />
 
 
         <AnalogClock
@@ -361,8 +355,8 @@
                 android:layout_width="55dp"
                 android:layout_height="55dp"
                 android:layout_margin="5dp"
-                android:src="@drawable/launch_e"
-                android:background="?android:attr/selectableItemBackground" />
+                android:background="?android:attr/selectableItemBackground"
+                android:src="@drawable/launch_e" />
 
             <ImageView
                 android:id="@+id/imgv_app4"
@@ -382,48 +376,48 @@
 
         <LinearLayout
             android:id="@+id/ll_apps2"
-            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/ll_apps"
+            android:layout_marginTop="-10dp"
             android:gravity="center"
-            android:layout_marginTop="-10dp" >
+            android:visibility="gone">
 
 
             <ImageView
                 android:id="@+id/imgv_app6"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
+                android:background="@drawable/rounded_corner_gray"
                 android:scaleType="fitXY"
-                android:src="@android:drawable/ic_input_add"
-                android:background="@drawable/rounded_corner_gray" />
+                android:src="@android:drawable/ic_input_add" />
 
             <ImageView
                 android:id="@+id/imgv_app7"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_marginStart="25dp"
+                android:background="@drawable/rounded_corner_gray"
                 android:scaleType="fitXY"
-                android:src="@android:drawable/ic_input_add"
-                android:background="@drawable/rounded_corner_gray" />
+                android:src="@android:drawable/ic_input_add" />
 
             <ImageView
                 android:id="@+id/imgv_app8"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_marginStart="25dp"
+                android:background="@drawable/rounded_corner_gray"
                 android:scaleType="fitXY"
-                android:src="@android:drawable/ic_input_add"
-                android:background="@drawable/rounded_corner_gray"  />
+                android:src="@android:drawable/ic_input_add" />
 
             <ImageView
                 android:id="@+id/imgv_app9"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_marginStart="25dp"
+                android:background="@drawable/rounded_corner_gray"
                 android:scaleType="fitXY"
-                android:src="@android:drawable/ic_input_add"
-                android:background="@drawable/rounded_corner_gray"  />
+                android:src="@android:drawable/ic_input_add" />
 
         </LinearLayout>
 
@@ -447,18 +441,18 @@
 
             <RelativeLayout
                 android:id="@+id/rl_contact1"
-                android:visibility="invisible"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp">
+                android:layout_margin="5dp"
+                android:visibility="invisible">
 
                 <ImageView
                     android:id="@+id/imgv_contact1"
                     android:layout_width="55dp"
                     android:layout_height="55dp"
-                    android:src="@drawable/rounded_corner"
                     android:background="?android:attr/selectableItemBackground"
-                    android:scaleType="fitXY" />
+                    android:scaleType="fitXY"
+                    android:src="@drawable/rounded_corner" />
 
                 <TextView
                     android:id="@+id/tx_c1"
@@ -468,10 +462,10 @@
                     android:layout_alignBottom="@+id/imgv_contact1"
                     android:layout_margin="1dp"
                     android:ellipsize="end"
-                    android:text=" + "
                     android:gravity="center"
                     android:maxWidth="55sp"
                     android:maxLines="1"
+                    android:text=" + "
                     android:textColor="?attr/colorPrimaryInverse"
                     android:textSize="25sp"
                     android:textStyle="bold" />
@@ -481,22 +475,21 @@
 
             <RelativeLayout
                 android:id="@+id/rl_contact2"
-                android:visibility="invisible"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp">
+                android:layout_margin="5dp"
+                android:visibility="invisible">
 
                 <ImageView
                     android:id="@+id/imgv_contact2"
                     android:layout_width="55dp"
                     android:layout_height="55dp"
-                    android:src="@drawable/rounded_corner"
                     android:background="?android:attr/selectableItemBackground"
-                    android:scaleType="fitXY" />
+                    android:scaleType="fitXY"
+                    android:src="@drawable/rounded_corner" />
 
                 <TextView
                     android:id="@+id/tx_c2"
-                    android:text=" + "
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignStart="@+id/imgv_contact2"
@@ -506,6 +499,7 @@
                     android:gravity="center"
                     android:maxWidth="55sp"
                     android:maxLines="1"
+                    android:text=" + "
                     android:textColor="?attr/colorPrimaryInverse"
                     android:textSize="25sp"
                     android:textStyle="bold" />
@@ -522,9 +516,9 @@
                     android:id="@+id/imgv_contact"
                     android:layout_width="55dp"
                     android:layout_height="55dp"
-                    android:src="@drawable/contacts"
                     android:background="?android:attr/selectableItemBackground"
-                    android:scaleType="fitXY" />
+                    android:scaleType="fitXY"
+                    android:src="@drawable/contacts" />
 
                 <TextView
                     android:id="@+id/tx_c"
@@ -545,18 +539,18 @@
 
             <RelativeLayout
                 android:id="@+id/rl_contact3"
-                android:visibility="invisible"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp">
+                android:layout_margin="5dp"
+                android:visibility="invisible">
 
                 <ImageView
                     android:id="@+id/imgv_contact3"
                     android:layout_width="55dp"
                     android:layout_height="55dp"
-                    android:src="@drawable/rounded_corner"
                     android:background="?android:attr/selectableItemBackground"
-                    android:scaleType="fitXY" />
+                    android:scaleType="fitXY"
+                    android:src="@drawable/rounded_corner" />
 
                 <TextView
                     android:id="@+id/tx_c3"
@@ -566,10 +560,10 @@
                     android:layout_alignBottom="@+id/imgv_contact3"
                     android:layout_margin="1dp"
                     android:ellipsize="end"
-                    android:text=" + "
                     android:gravity="center"
                     android:maxWidth="55sp"
                     android:maxLines="1"
+                    android:text=" + "
                     android:textColor="?attr/colorPrimaryInverse"
                     android:textSize="25sp"
                     android:textStyle="bold" />
@@ -578,22 +572,21 @@
 
             <RelativeLayout
                 android:id="@+id/rl_contact4"
-                android:visibility="invisible"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp">
+                android:layout_margin="5dp"
+                android:visibility="invisible">
 
                 <ImageView
                     android:id="@+id/imgv_contact4"
                     android:layout_width="55dp"
                     android:layout_height="55dp"
-                    android:src="@drawable/rounded_corner"
                     android:background="?android:attr/selectableItemBackground"
-                    android:scaleType="fitXY" />
+                    android:scaleType="fitXY"
+                    android:src="@drawable/rounded_corner" />
 
                 <TextView
                     android:id="@+id/tx_c4"
-                    android:text=" + "
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignStart="@+id/imgv_contact4"
@@ -603,6 +596,7 @@
                     android:gravity="center"
                     android:maxWidth="55sp"
                     android:maxLines="1"
+                    android:text=" + "
                     android:textColor="?attr/colorPrimaryInverse"
                     android:textSize="25sp"
                     android:textStyle="bold" />
@@ -614,27 +608,26 @@
 
         <LinearLayout
             android:id="@+id/ll_contacts2"
-            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/ll_contacts"
-            android:gravity="center"
             android:layout_marginTop="-5dp"
-            android:layout_marginBottom="5dp" >
+            android:layout_marginBottom="5dp"
+            android:gravity="center"
+            android:visibility="gone">
 
             <RelativeLayout
                 android:id="@+id/rl_contact5"
                 android:layout_width="35dp"
-                android:layout_height="35dp"
-                >
+                android:layout_height="35dp">
 
                 <ImageView
                     android:id="@+id/imgv_contact5"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/rounded_corner_gray"
                     android:background="?android:attr/selectableItemBackground"
-                    android:scaleType="fitXY" />
+                    android:scaleType="fitXY"
+                    android:src="@drawable/rounded_corner_gray" />
 
                 <TextView
                     android:id="@+id/tx_c5"
@@ -644,10 +637,10 @@
                     android:layout_alignBottom="@+id/imgv_contact5"
                     android:layout_margin="1dp"
                     android:ellipsize="end"
-                    android:text="+.."
                     android:gravity="center"
                     android:maxWidth="55sp"
                     android:maxLines="1"
+                    android:text="+.."
                     android:textColor="?attr/colorPrimaryInverse"
                     android:textSize="21sp"
                     android:textStyle="bold" />
@@ -655,21 +648,19 @@
             </RelativeLayout>
 
 
-
             <RelativeLayout
                 android:id="@+id/rl_contact6"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_marginStart="25dp"
-                >
+                android:layout_marginStart="25dp">
 
                 <ImageView
                     android:id="@+id/imgv_contact6"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/rounded_corner_gray"
                     android:background="?android:attr/selectableItemBackground"
-                    android:scaleType="fitXY" />
+                    android:scaleType="fitXY"
+                    android:src="@drawable/rounded_corner_gray" />
 
                 <TextView
                     android:id="@+id/tx_c6"
@@ -679,10 +670,10 @@
                     android:layout_alignBottom="@+id/imgv_contact6"
                     android:layout_margin="1dp"
                     android:ellipsize="end"
-                    android:text="+.."
                     android:gravity="center"
                     android:maxWidth="55sp"
                     android:maxLines="1"
+                    android:text="+.."
                     android:textColor="?attr/colorPrimaryInverse"
                     android:textSize="21sp"
                     android:textStyle="bold" />
@@ -693,16 +684,15 @@
                 android:id="@+id/rl_contact7"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_marginStart="25dp"
-                >
+                android:layout_marginStart="25dp">
 
                 <ImageView
                     android:id="@+id/imgv_contact7"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/rounded_corner_gray"
                     android:background="?android:attr/selectableItemBackground"
-                    android:scaleType="fitXY" />
+                    android:scaleType="fitXY"
+                    android:src="@drawable/rounded_corner_gray" />
 
                 <TextView
                     android:id="@+id/tx_c7"
@@ -712,10 +702,10 @@
                     android:layout_alignBottom="@+id/imgv_contact7"
                     android:layout_margin="1dp"
                     android:ellipsize="end"
-                    android:text="+.."
                     android:gravity="center"
                     android:maxWidth="55sp"
                     android:maxLines="1"
+                    android:text="+.."
                     android:textColor="?attr/colorPrimaryInverse"
                     android:textSize="21sp"
                     android:textStyle="bold" />
@@ -726,16 +716,15 @@
                 android:id="@+id/rl_contact8"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_marginStart="25dp"
-                >
+                android:layout_marginStart="25dp">
 
                 <ImageView
                     android:id="@+id/imgv_contact8"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/rounded_corner_gray"
                     android:background="?android:attr/selectableItemBackground"
-                    android:scaleType="fitXY" />
+                    android:scaleType="fitXY"
+                    android:src="@drawable/rounded_corner_gray" />
 
                 <TextView
                     android:id="@+id/tx_c9"
@@ -745,10 +734,10 @@
                     android:layout_alignBottom="@+id/imgv_contact8"
                     android:layout_margin="1dp"
                     android:ellipsize="end"
-                    android:text="+.."
                     android:gravity="center"
                     android:maxWidth="55sp"
                     android:maxLines="1"
+                    android:text="+.."
                     android:textColor="?attr/colorPrimaryInverse"
                     android:textSize="21sp"
                     android:textStyle="bold" />
@@ -855,8 +844,6 @@
     </RelativeLayout>
 
 
-
-
     <ImageButton
         android:id="@+id/imgbtn_set"
         android:layout_width="wrap_content"
@@ -871,14 +858,14 @@
 
     <TextView
         android:id="@+id/tx_rewards_count"
-        android:text="5"
-        android:background="@drawable/gradient_glass_flatbottom"
-        android:textStyle="bold"
-        android:textColor="@android:color/holo_red_light"
-        android:layout_alignTop="@+id/imgbtn_set"
-        android:layout_alignStart="@+id/imgbtn_set"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/imgbtn_set"
+        android:layout_alignTop="@+id/imgbtn_set"
+        android:background="@drawable/gradient_glass_flatbottom"
+        android:text="5"
+        android:textColor="@android:color/holo_red_light"
+        android:textStyle="bold" />
 
     <ImageButton
         android:id="@+id/imgbtn_speech"
@@ -892,6 +879,53 @@
         android:padding="5dp"
         android:scaleType="fitXY"
         android:src="@android:drawable/ic_btn_speak_now" />
+
+    <LinearLayout
+        android:id="@+id/ll_grouped_apps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imgbtn_set"
+        android:gravity="center_horizontal"
+        android:layout_alignStart="@+id/imgbtn_location"
+        android:layout_alignEnd="@+id/imgbtn_speech">
+
+        <TextView
+            android:id="@+id/tx_upi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/fab_margin"
+            android:background="@drawable/gradient_glass_rounded"
+            android:padding="10dp"
+            android:text="🂾 UPI"
+            android:textStyle="bold|italic"
+            android:textColor="?attr/colorPrimaryDark" />
+
+        <TextView
+            android:id="@+id/tx_google"
+            android:textStyle="bold"
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/fab_margin"
+            android:layout_marginTop="@dimen/fab_margin"
+            android:background="@drawable/gradient_glass_rounded"
+             />
+
+<!--
+        <TextView
+            android:id="@+id/tx_others"
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/fab_margin"
+            android:layout_marginTop="@dimen/fab_margin"
+            android:background="@drawable/gradient_glass_rounded"
+            android:text="Others"
+            android:textStyle="bold"
+            android:textColor="?attr/colorPrimaryDark" />
+-->
+
+    </LinearLayout>
 
     <RelativeLayout
         android:id="@+id/rl_steps"
@@ -969,8 +1003,8 @@
             android:id="@+id/tx_steps_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="3dp"
             android:layout_alignParentEnd="true"
+            android:layout_marginStart="3dp"
             android:layout_marginEnd="5dp"
             android:text="ⓘ"
             android:textColor="@color/white"
@@ -983,54 +1017,52 @@
 
 
     <RelativeLayout
-        android:background="@drawable/gradient_glass_rounded"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_above="@+id/tx_tweets"
         android:layout_margin="5dp"
-        android:visibility="gone"
-        android:layout_toRightOf="@+id/twSettings"
         android:layout_toLeftOf="@+id/fab_share"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_toRightOf="@+id/twSettings"
+        android:background="@drawable/gradient_glass_rounded"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/tx_sname"
-            android:layout_alignParentStart="true"
-            android:layout_marginStart="5dp"
-            android:layout_centerVertical="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Song name.."/>
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="5dp"
+            android:text="Song name.." />
 
         <ImageButton
             android:id="@+id/imgbtn_media_prev"
-            android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/tx_sname"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/tx_sname"
             android:background="@android:color/transparent"
-            android:src="@android:drawable/ic_media_previous"/>
+            android:src="@android:drawable/ic_media_previous" />
 
 
         <ImageButton
             android:id="@+id/imgbtn_media_play_pause"
-            android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/imgbtn_media_prev"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/imgbtn_media_prev"
             android:background="@drawable/gradient_glass_rounded"
-            android:src="@android:drawable/ic_media_play"/>
+            android:src="@android:drawable/ic_media_play" />
 
 
         <ImageButton
             android:id="@+id/imgbtn_media_next"
-            android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/imgbtn_media_play_pause"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/imgbtn_media_play_pause"
             android:background="@android:color/transparent"
-            android:src="@android:drawable/ic_media_next"/>
-
-
+            android:src="@android:drawable/ic_media_next" />
 
 
     </RelativeLayout>
@@ -1057,7 +1089,6 @@
         android:gravity="center"
         android:src="@android:drawable/ic_menu_share"
         tools:ignore="HardcodedText" />
-
 
 
     <TextView
