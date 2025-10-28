@@ -1525,6 +1525,7 @@ class NewAppWidget : AppWidgetProvider() {
             SimpleDateFormat("EEE", Locale.getDefault()).format(Calendar.getInstance().time) +
                     "│" + formattedDate
         )
+        appWidgetView.findViewById<TextView>(R.id.tx_steps).setText("$dayOfTheWeek ~ " + stepsToday.toString())
 
         readApps()
 
