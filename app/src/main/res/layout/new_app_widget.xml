@@ -812,8 +812,11 @@
 
     <LinearLayout
         android:id="@+id/ll_qr_g_np"
+        android:weightSum="3"
         android:layout_below="@+id/imgbtn_speech"
         android:layout_above="@+id/tx_tweets"
+        android:layout_alignStart="@id/imgbtn_location"
+        android:layout_alignEnd="@+id/imgbtn_speech"
         android:layout_marginTop="5dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -822,16 +825,16 @@
 
         <ImageButton
             android:id="@+id/imgbtn_g_apps"
-            android:visibility="invisible"
-            android:src="@drawable/g_apps"
-            android:layout_marginStart="@dimen/fab_margin"
-            android:layout_marginEnd="@dimen/fab_margin"
-            android:contentDescription="GA"
+            android:layout_gravity="center_horizontal"
+            android:contentDescription="QR"
             tools:ignore="HardcodedText"
+            android:src="@drawable/gapps_logo_bnw"
             android:background="@android:color/transparent"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:scaleType="fitXY"/>
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:scaleType="fitCenter"/>
+
 
 
         <ImageButton
@@ -839,26 +842,27 @@
             android:layout_gravity="center_horizontal"
             android:contentDescription="QR"
             tools:ignore="HardcodedText"
-            android:src="@drawable/qr_logo"
+            android:src="@drawable/qr_logo_bnw"
             android:background="@android:color/transparent"
-            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:scaleType="fitCenter"/>
 
 
-
         <ImageButton
             android:id="@+id/imgbtn_n_apps"
-            android:visibility="invisible"
-            android:layout_marginStart="@dimen/fab_margin"
-            android:layout_marginEnd="@dimen/fab_margin"
-            android:contentDescription="NA"
+            android:weightSum="3"
+            android:layout_gravity="center_horizontal"
+            android:contentDescription="QR"
             tools:ignore="HardcodedText"
-            android:src="@android:drawable/alert_light_frame"
+            android:src="@drawable/my_space_bnw"
             android:background="@android:color/transparent"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:scaleType="fitXY" />
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:scaleType="fitCenter"/>
+
 
     </LinearLayout>
 
