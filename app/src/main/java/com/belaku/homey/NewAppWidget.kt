@@ -89,6 +89,7 @@ import kotlin.properties.Delegates
 
 class NewAppWidget : AppWidgetProvider() {
 
+    private var totalScreenTimeInMinutes by Delegates.notNull<Long>()
     private lateinit var calendar: Calendar
     private lateinit var nowCalendar: Calendar
     private lateinit var ampm: String
@@ -1562,10 +1563,14 @@ class NewAppWidget : AppWidgetProvider() {
     @SuppressLint("SetTextI18n")
     private fun loadWidgetToShare(appWidgetView: View) {
 
-        val backgroundDrawable: BitmapDrawable = BitmapDrawable(appContx.getResources(), wallBitmap)
+        val backgroundDrawable = BitmapDrawable(appContx.getResources(), wallBitmap)
         appWidgetView.findViewById<RelativeLayout>(R.id.rl_widget_layout)
             .setBackground(backgroundDrawable)
 
+        appWidgetView.findViewById<TextView>(
+            R.id.btn_screentime).setText(
+            "Screen time ~ ${totalScreenTimeInMinutes.toString()}+ Hrs"
+        )
         appWidgetView.findViewById<TextView>(R.id.tx_wish).setText(timelyWish)
 
         appWidgetView.findViewById<TextView>(R.id.tx_st_since)
@@ -1756,7 +1761,7 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
         // Convert to desired units (e.g., minutes, hours)
-        val totalScreenTimeInMinutes = totalScreenTimeInMillis / (1000 * 60 * 60)
+         totalScreenTimeInMinutes = totalScreenTimeInMillis / (1000 * 60 * 60)
 
 
         remoteViews?.setTextViewText(R.id.tx_st_since, "since ${currentHour % 12} $ampm, yday...")
