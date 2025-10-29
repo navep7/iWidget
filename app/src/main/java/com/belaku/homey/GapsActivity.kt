@@ -35,6 +35,7 @@ import com.belaku.homey.databinding.ActivityGapsBinding
 class GapsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
 
+    private var gapps: ArrayList<InstalledApp> = ArrayList()
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityGapsBinding
 
@@ -51,7 +52,7 @@ class GapsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
         makeToast("GoogleApps - ${googleLaunchableAppsResolveInfo.size}")
 
-        val gapps: ArrayList<InstalledApp> = ArrayList()
+        gapps = ArrayList()
 
         for (i in googleLaunchableAppsResolveInfo) {
             if (i.activityInfo != null) {
@@ -133,7 +134,7 @@ class GapsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
     }
 
     override fun onItemClick(pos: Int) {
-        val launchIntent = packageManager.getLaunchIntentForPackage(apps[pos].pName)
+        val launchIntent = packageManager.getLaunchIntentForPackage(gapps[pos].pName)
         startActivity(launchIntent)
     }
 
