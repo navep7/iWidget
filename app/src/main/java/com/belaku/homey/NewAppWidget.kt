@@ -294,16 +294,20 @@ class NewAppWidget : AppWidgetProvider() {
                 getPendingSelfIntent(context, STEPS_NOW)
             )
 
+            val launcherIntentGaps = Intent(context, GapsActivity::class.java)
+            launcherIntentGaps.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+            launcherIntentGaps.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+            val launcherPendingIntentGaps = PendingIntent.getActivity(
+                context,
+                0,
+                launcherIntentGaps,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgbtn_g_apps,
-                PendingIntent.getActivity(
-                    context, 11,
-                    Intent(context, DialogActivity::class.java).putExtra(
-                        "DialogIntent",
-                        "gApps"
-                    ),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
+                launcherPendingIntentGaps
             )
 
             remoteViews?.setOnClickPendingIntent(
@@ -776,16 +780,20 @@ class NewAppWidget : AppWidgetProvider() {
             getPendingSelfIntent(context, STEPS_NOW)
         )
 
+        val launcherIntentGaps = Intent(context, GapsActivity::class.java)
+        launcherIntentGaps.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+        launcherIntentGaps.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        val launcherPendingIntentGaps = PendingIntent.getActivity(
+            context,
+            0,
+            launcherIntentGaps,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         remoteViews?.setOnClickPendingIntent(
             R.id.imgbtn_g_apps,
-            PendingIntent.getActivity(
-                context, 11,
-                Intent(context, DialogActivity::class.java).putExtra(
-                    "DialogIntent",
-                    "gApps"
-                ),
-                PendingIntent.FLAG_IMMUTABLE
-            )
+            launcherPendingIntentGaps
         )
 
         remoteViews?.setOnClickPendingIntent(
