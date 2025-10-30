@@ -310,6 +310,22 @@ class NewAppWidget : AppWidgetProvider() {
                 launcherPendingIntentGaps
             )
 
+            val launcherIntentNPs = Intent(context, MySpaceActivity::class.java)
+            launcherIntentNPs.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+            launcherIntentNPs.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+            val launcherPendingIntentNPs = PendingIntent.getActivity(
+                context,
+                11,
+                launcherIntentNPs,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgbtn_n_apps,
+                launcherPendingIntentNPs
+            )
+
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgbtn_qr,
                 PendingIntent.getActivity(
@@ -322,17 +338,6 @@ class NewAppWidget : AppWidgetProvider() {
                 )
             )
 
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_n_apps,
-                PendingIntent.getActivity(
-                    context, 12,
-                    Intent(context, DialogActivity::class.java).putExtra(
-                        "DialogIntent",
-                        "gApps"
-                    ),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.tx_screentime_info,
@@ -796,6 +801,22 @@ class NewAppWidget : AppWidgetProvider() {
             launcherPendingIntentGaps
         )
 
+        val launcherIntentNPs = Intent(context, MySpaceActivity::class.java)
+        launcherIntentNPs.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+        launcherIntentNPs.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        val launcherPendingIntentNPs = PendingIntent.getActivity(
+            context,
+            11,
+            launcherIntentNPs,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_n_apps,
+            launcherPendingIntentNPs
+        )
+
         remoteViews?.setOnClickPendingIntent(
             R.id.imgbtn_qr,
             PendingIntent.getActivity(
@@ -808,17 +829,6 @@ class NewAppWidget : AppWidgetProvider() {
             )
         )
 
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgbtn_n_apps,
-            PendingIntent.getActivity(
-                context, 12,
-                Intent(context, DialogActivity::class.java).putExtra(
-                    "DialogIntent",
-                    "gApps"
-                ),
-                PendingIntent.FLAG_IMMUTABLE
-            )
-        )
 
         remoteViews?.setOnClickPendingIntent(
             R.id.tx_screentime_info,

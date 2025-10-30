@@ -39,8 +39,12 @@ class AppsAdapter(private val dataList: List<InstalledApp>,
             // Bind data to views in item_grid.xml
             itemView.findViewById<TextView>(R.id.tx_app_name).setText(item.name)
 
-            itemView.findViewById<TextView>(R.id.tx_app_name).setTextColor(NewAppWidget.tertianaryColor)
+            try {
+                itemView.findViewById<TextView>(R.id.tx_app_name)
+                    .setTextColor(NewAppWidget.tertianaryColor)
+            } catch (ex: Exception) {
 
+            }
         //    itemView.findViewById<TextView>(R.id.tx_app_name).setTextColor(tertianaryColor)
             itemView.findViewById<ImageView>(R.id.imgv_app_icon).setImageDrawable(item.icon)
         }

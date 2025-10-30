@@ -50,10 +50,18 @@ class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
 
         val rootLayout = findViewById<RelativeLayout>(R.id.apps_layout)
-        rootLayout.setBackgroundDrawable(BitmapDrawable(getResources(), blur(applicationContext, SetWallWorker.wallBitmap)))
 
-        rootLayout.findViewById<TextView>(R.id.tx_t).setTextColor(NewAppWidget.tertianaryColor)
+        try {
+            rootLayout.setBackgroundDrawable(
+                BitmapDrawable(
+                    getResources(),
+                    blur(applicationContext, SetWallWorker.wallBitmap)
+                )
+            )
+            rootLayout.findViewById<TextView>(R.id.tx_t).setTextColor(NewAppWidget.tertianaryColor)
+        } catch (ex: Exception) {
 
+        }
        /* val blurRadius = 20.0f
         val blurEffect = RenderEffect.createBlurEffect(
             blurRadius,

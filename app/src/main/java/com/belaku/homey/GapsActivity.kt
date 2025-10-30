@@ -27,6 +27,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.databinding.ActivityGapsBinding
@@ -50,6 +51,7 @@ class GapsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
         val googleLaunchableAppsResolveInfo = getGoogleLaunchableApps()
 
+        appContx = applicationContext
         makeToast("GoogleApps - ${googleLaunchableAppsResolveInfo.size}")
 
         gapps = ArrayList()
@@ -78,9 +80,19 @@ class GapsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
 
         val rootLayout = findViewById<RelativeLayout>(R.id.gapps_layout)
-        rootLayout.setBackgroundDrawable(BitmapDrawable(getResources(), blur(applicationContext, SetWallWorker.wallBitmap)))
 
-        rootLayout.findViewById<TextView>(R.id.tx_t).setTextColor(NewAppWidget.tertianaryColor)
+        try {
+            rootLayout.setBackgroundDrawable(
+                BitmapDrawable(
+                    getResources(),
+                    blur(applicationContext, SetWallWorker.wallBitmap)
+                )
+            )
+            rootLayout.findViewById<TextView>(R.id.tx_t).setTextColor(NewAppWidget.tertianaryColor)
+        } catch (ex: Exception) {
+
+        }
+
 
         /* val blurRadius = 20.0f
          val blurEffect = RenderEffect.createBlurEffect(

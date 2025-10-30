@@ -161,6 +161,13 @@
             android:theme="@style/Theme.Homey" />
 
         <activity
+            android:name=".MySpaceActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:label="My Space"
+            android:theme="@style/Theme.Homey" />
+
+        <activity
             android:name=".AiActivity"
             android:excludeFromRecents="true"
             android:exported="false"
