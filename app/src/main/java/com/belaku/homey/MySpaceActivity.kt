@@ -132,17 +132,7 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
     private fun listeners() {
 
         fabAdd.setOnClickListener {
-
-            addType = showSpinnerDialog()
-
-            if (addType == "App") {
-
-                appsShown.clear()
-                appsShown.addAll(allApps)
-                boolSelectOrLaunch = true
-
-                rvAdapter.notifyDataSetChanged()
-            }
+            showSpinnerDialog()
         }
 
         fabReset.setOnClickListener {
@@ -178,6 +168,19 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
         builder.setPositiveButton("OK") { dialog, which ->
             addType = spinner.selectedItem as String
+
+            if (addType == "App") {
+
+                appsShown.clear()
+                appsShown.addAll(allApps)
+                boolSelectOrLaunch = true
+
+                rvAdapter.notifyDataSetChanged()
+            } else if (addType == "Contact") {
+                makeToast("yet2ImplC")
+            } else if (addType == "Web link") {
+                makeToast("yet2ImplWL")
+            }
             dialog.dismiss()
         }
 
