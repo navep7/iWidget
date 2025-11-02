@@ -1598,10 +1598,7 @@ class NewAppWidget : AppWidgetProvider() {
         appWidgetView.findViewById<TextView>(R.id.tx_place).setText("⚲ " + cityname)
         appWidgetView.findViewById<TextView>(R.id.tx_steps)
             .setText("$dayOfTheWeek ~ " + stepsToday.toString())
-        appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact1).visibility = View.INVISIBLE
-        appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact2).visibility = View.INVISIBLE
-        appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact3).visibility = View.INVISIBLE
-        appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact4).visibility = View.INVISIBLE
+
         appWidgetView.findViewById<ImageView>(R.id.imgv_app3).setImageBitmap(
             drawableToBitmap(
                 appContx,
@@ -1941,21 +1938,6 @@ class NewAppWidget : AppWidgetProvider() {
         context.startActivity(launchIntent)
     }
 
-    private fun readContacts() {
-
-        val gson = Gson()
-        val response: String = sharedPreferences.getString("CTS", "").toString()
-        favContacts = gson.fromJson(
-            response,
-            object : TypeToken<List<Contact?>?>() {}.type
-        )
-
-        conIndex = 0
-
-        if (favContacts != null)
-            if (favContacts.size > 0)
-                addContactInWidget(appContx, favContacts)
-    }
 
 
     private fun readApps() {
@@ -2239,6 +2221,22 @@ class NewAppWidget : AppWidgetProvider() {
             drawable.setBounds(0, 0, canvas.width, canvas.height)
             drawable.draw(canvas)
             return bitmap
+        }
+
+        fun readContacts() {
+
+            val gson = Gson()
+            val response: String = sharedPreferences.getString("CTS", "").toString()
+            favContacts = gson.fromJson(
+                response,
+                object : TypeToken<List<Contact?>?>() {}.type
+            )
+
+            conIndex = 0
+
+            if (favContacts != null)
+                if (favContacts.size > 0)
+                    addContactInWidget(appContx, favContacts)
         }
 
         private var appIndex: Int = 0

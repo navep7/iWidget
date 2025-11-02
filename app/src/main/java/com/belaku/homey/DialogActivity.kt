@@ -639,6 +639,9 @@ class DialogActivity : AppCompatActivity() {
                     val displayName = cursor.getString(displayNameIndex)
                     val contactId = cursor.getLong(contactIdIndex)
                     getContactDetails(displayName, contactId)
+                    markAsFav(contactId)
+                    NewAppWidget.readContacts()
+                    appWidM.updateAppWidget(R.id.rl_contact, remoteViews)
 
                     // Now you have the display name and ID for the contact
                     // You can use the contactId to query for phone numbers, email addresses, etc.

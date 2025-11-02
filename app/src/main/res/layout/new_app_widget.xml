@@ -447,7 +447,7 @@
 
             <RelativeLayout
                 android:id="@+id/rl_contact1"
-                android:visibility="invisible"
+
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp">
@@ -481,7 +481,7 @@
 
             <RelativeLayout
                 android:id="@+id/rl_contact2"
-                android:visibility="invisible"
+
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp">
@@ -545,7 +545,6 @@
 
             <RelativeLayout
                 android:id="@+id/rl_contact3"
-                android:visibility="invisible"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp">
@@ -578,7 +577,6 @@
 
             <RelativeLayout
                 android:id="@+id/rl_contact4"
-                android:visibility="invisible"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp">

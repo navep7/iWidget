@@ -358,7 +358,7 @@ class MainActivity : AppCompatActivity() {
         )
         addPermissionCard(
             "<b> Contacts </b>- to show your \"② Favorite Contacts\" in the Widget, to dial easily",
-            "Permit READ_CONTACTS permission",
+            "Permit CONTACTS permission",
             Manifest.permission.READ_CONTACTS
         )
         addPermissionCard(
@@ -548,13 +548,14 @@ class MainActivity : AppCompatActivity() {
             }
             llP.addView(btnAR)
         } else if (rPermission == Manifest.permission.READ_CONTACTS) {
+            var rPs = arrayOf(rPermission, Manifest.permission.WRITE_CONTACTS)
             requestCode = READ_CONTACTS_P
             btnRC = Button(applicationContext)
             btnRC.text = bTx
             btnRC.setOnClickListener {
                 ActivityCompat.requestPermissions(
                     mAct,
-                    arrayOf(rPermission),
+                    rPs,
                     requestCode
                 )
             }
