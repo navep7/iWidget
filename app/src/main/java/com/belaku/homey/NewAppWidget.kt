@@ -49,6 +49,7 @@ import android.provider.MediaStore
 import android.provider.Settings
 import android.text.Html
 import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.accessibility.AccessibilityManager
@@ -61,13 +62,13 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.getWeatherData
 import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
-import com.belaku.homey.MainActivity.Companion.newsIndex
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
@@ -192,7 +193,6 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.tx_ai,
                 aiPendingIntent
             )
-
 
 
             val remindersIntent = Intent(context, RemindersActivity::class.java)
@@ -890,7 +890,6 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
 
-
         var timeOfDay = if (currentHour >= 6 && currentHour < 12) {
             "Morni!"
         } else if (currentHour >= 12 && currentHour < 17) {
@@ -1353,7 +1352,8 @@ class NewAppWidget : AppWidgetProvider() {
             .setBackground(backgroundDrawable)
 
         appWidgetView.findViewById<TextView>(
-            R.id.btn_screentime).setText(
+            R.id.btn_screentime
+        ).setText(
             "Screen time ~ ${totalScreenTimeInMinutes.toString()}+ Hrs"
         )
         appWidgetView.findViewById<TextView>(R.id.tx_wish).setText(timelyWish)
@@ -1384,7 +1384,8 @@ class NewAppWidget : AppWidgetProvider() {
             SimpleDateFormat("EEE", Locale.getDefault()).format(Calendar.getInstance().time) +
                     "│" + formattedDate
         )
-        appWidgetView.findViewById<TextView>(R.id.tx_steps).setText("$dayOfTheWeek ~ " + stepsToday.toString())
+        appWidgetView.findViewById<TextView>(R.id.tx_steps)
+            .setText("$dayOfTheWeek ~ " + stepsToday.toString())
 
         readApps()
 
@@ -1477,6 +1478,7 @@ class NewAppWidget : AppWidgetProvider() {
                 sharedPreferencesEditor.putInt("Saturday", 0).apply()
                 sharedPreferencesEditor.putInt("Sunday", 0).apply()
             }
+
             2 -> {
                 dayOfTheWeek = "Tuesday"
                 sharedPreferencesEditor.putInt("Tuesday", stepsToday).apply()
@@ -1487,6 +1489,7 @@ class NewAppWidget : AppWidgetProvider() {
                 sharedPreferencesEditor.putInt("Saturday", 0).apply()
                 sharedPreferencesEditor.putInt("Sunday", 0).apply()
             }
+
             3 -> {
                 dayOfTheWeek = "Wednesday"
                 sharedPreferencesEditor.putInt("Wednesday", stepsToday).apply()
@@ -1496,6 +1499,7 @@ class NewAppWidget : AppWidgetProvider() {
                 sharedPreferencesEditor.putInt("Saturday", 0).apply()
                 sharedPreferencesEditor.putInt("Sunday", 0).apply()
             }
+
             4 -> {
                 dayOfTheWeek = "Thursday"
                 sharedPreferencesEditor.putInt("Thursday", stepsToday).apply()
@@ -1504,6 +1508,7 @@ class NewAppWidget : AppWidgetProvider() {
                 sharedPreferencesEditor.putInt("Saturday", 0).apply()
                 sharedPreferencesEditor.putInt("Sunday", 0).apply()
             }
+
             5 -> {
                 dayOfTheWeek = "Friday"
                 sharedPreferencesEditor.putInt("Friday", stepsToday).apply()
@@ -1511,12 +1516,14 @@ class NewAppWidget : AppWidgetProvider() {
                 sharedPreferencesEditor.putInt("Saturday", 0).apply()
                 sharedPreferencesEditor.putInt("Sunday", 0).apply()
             }
+
             6 -> {
                 dayOfTheWeek = "Saturday"
                 sharedPreferencesEditor.putInt("Saturday", stepsToday).apply()
 
                 sharedPreferencesEditor.putInt("Sunday", 0).apply()
             }
+
             7 -> {
                 dayOfTheWeek = "Sunday"
                 sharedPreferencesEditor.putInt("Sunday", stepsToday).apply()
@@ -1539,7 +1546,7 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
         // Convert to desired units (e.g., minutes, hours)
-         totalScreenTimeInMinutes = totalScreenTimeInMillis / (1000 * 60 * 60)
+        totalScreenTimeInMinutes = totalScreenTimeInMillis / (1000 * 60 * 60)
 
 
         remoteViews?.setTextViewText(R.id.tx_st_since, "since ${currentHour % 12} $ampm, yday...")
@@ -1549,7 +1556,6 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
     }
-
 
 
     private fun shareWidget(context: Context, bitmap: Bitmap) {
@@ -1702,7 +1708,6 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
 
-
     private fun readApps() {
 
         val gson = Gson()
@@ -1795,14 +1800,23 @@ class NewAppWidget : AppWidgetProvider() {
         var favContacts: ArrayList<Contact> = ArrayList()
         var onEn: Boolean = false
         var remoteViews: RemoteViews? = null
-        var Apps: ArrayList<App> = ArrayList()
         var lapCount: Int = 0
 
 
+        @RequiresApi(Build.VERSION_CODES.S)
         fun addContactInWidget(context: Context, favC: ArrayList<Contact>) {
 
             var bm: Bitmap
-            var d: Drawable
+            var rBm: Bitmap
+
+            remoteViews?.removeAllViews(R.id.ll_contacts)
+            var childView = RemoteViews(context.packageName, R.layout.remote_view_layout)
+            childView.setImageViewBitmap(
+                R.id.new_imgv_id,
+                drawableToBitmap(appContx, appContx.resources.getDrawable(R.drawable.contacts))
+            )
+            remoteViews?.addView(R.id.ll_contacts, childView)
+            appWidM.updateAppWidget(newAppWidget, remoteViews)
 
             for (i in 0 until favC.size) {
 
@@ -1815,7 +1829,7 @@ class NewAppWidget : AppWidgetProvider() {
 
                 if (inputStream != null) {
                     bm = BitmapFactory.decodeStream(inputStream)
-                    d = BitmapDrawable(bm)
+                    bm = drawableToBitmap(appContx, RoundedBitmapDrawableFactory.create(appContx.resources, bm))
 
                     try {
                         inputStream.close()
@@ -1823,8 +1837,39 @@ class NewAppWidget : AppWidgetProvider() {
                         e.printStackTrace()
                     }
                 } else {
-                    d = appContx.resources.getDrawable(R.drawable.face_holder)
+                    bm = drawableToBitmap(
+                        appContx,
+                        appContx.resources.getDrawable(R.drawable.face_holder)
+                    )
                 }
+
+           //     rBm = drawableToBitmap(appContx, RoundedBitmapDrawableFactory.create(appContx.resources, bm))
+
+                childView = RemoteViews(context.packageName, R.layout.remote_view_layout)
+
+                childView.setViewLayoutMargin(
+                    R.id.new_imgv_id,
+                    RemoteViews.MARGIN_TOP,
+                    10f,
+                    TypedValue.COMPLEX_UNIT_DIP
+                )
+                childView.setViewLayoutMargin(
+                    R.id.new_imgv_id,
+                    RemoteViews.MARGIN_START,
+                    10f,
+                    TypedValue.COMPLEX_UNIT_DIP
+                )
+
+
+                childView.setImageViewBitmap(
+                    R.id.new_imgv_id,
+                    bm.getCircledBitmap()
+                )
+                childView.setTextViewText(R.id.new_tx_id, favC[i].name.substring(0, 1).uppercase())
+
+
+                remoteViews?.addView(R.id.ll_contacts, childView)
+                appWidM.updateAppWidget(newAppWidget, remoteViews)
 
 
             }
@@ -1945,9 +1990,8 @@ class NewAppWidget : AppWidgetProvider() {
 
             conIndex = 0
 
-            if (favContacts != null)
-                if (favContacts.size > 0)
-                    addContactInWidget(appContx, favContacts)
+            if (favContacts.size > 0)
+                addContactInWidget(appContx, favContacts)
         }
 
         private var appIndex: Int = 0

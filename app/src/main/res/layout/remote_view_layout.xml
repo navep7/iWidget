@@ -9,16 +9,15 @@
     <ImageView
         android:id="@+id/new_imgv_id"
         android:src="@drawable/launch_e"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_width="55dp"
+        android:layout_height="55dp" />
 
     <TextView
         android:id="@+id/new_tx_id"
         android:layout_marginStart="-15dp"
-        android:text="N"
         android:layout_gravity="bottom"
         android:textStyle="bold"
-        android:textColor="?attr/colorPrimaryInverse"
+        android:textColor="?attr/colorPrimary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
