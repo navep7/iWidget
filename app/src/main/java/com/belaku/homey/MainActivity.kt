@@ -1333,7 +1333,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    @SuppressLint("Range", "UseCompatLoadingForDrawables")
+    @SuppressLint("Range", "UseCompatLoadingForDrawables", "Recycle")
     fun getFavoriteContacts(context: Context) {
 
         favContacts = ArrayList()
@@ -1362,7 +1362,7 @@ class MainActivity : AppCompatActivity() {
 
             if (Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
 
-                val phones: Cursor? = context.getContentResolver().query(
+                val phones: Cursor? = context.contentResolver.query(
                     ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                     null,
                     ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactID,
@@ -1389,7 +1389,9 @@ class MainActivity : AppCompatActivity() {
 
             var c = Contact(cNme, phoneNumber, cPhUri)
 
-            favContacts.add(c)
+            if (c.number.length > 7)
+                favContacts.add(c)
+
         }
 
 

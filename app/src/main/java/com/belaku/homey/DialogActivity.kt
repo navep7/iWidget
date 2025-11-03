@@ -197,6 +197,7 @@ class DialogActivity : AppCompatActivity() {
 
         if (dialogIntentStr != null) {
             if (dialogIntentStr == "PC") {
+                getFavoriteContacts(applicationContext)
                 pickContactLauncher =
                     registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                         if (result.resultCode == Activity.RESULT_OK) {
@@ -723,7 +724,9 @@ class DialogActivity : AppCompatActivity() {
 
             var c = Contact(cNme, phoneNumber, cPhUri)
 
-            favContacts.add(c)
+            if (c.number.length > 7)
+                favContacts.add(c)
+
         }
 
 
