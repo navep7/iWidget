@@ -1683,6 +1683,7 @@ class MainActivity : AppCompatActivity() {
 
         // Create the AlertDialog object and show it
         val dialog = builder.create()
+        dialog.setCancelable(false)
         dialog.show()
     }
 

@@ -255,22 +255,6 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
 
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_news_next,
-                getPendingSelfIntent(context, NEWS_NEXT)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_news_prev,
-                getPendingSelfIntent(context, NEWS_PREV)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.tx_news,
-                getPendingSelfIntent(context, NEWS_CLICK)
-            )
-
             val intentWifi = Intent(context, DialogActivity::class.java)
             if (isWifiEnabled(context))
                 intentWifi.putExtra("DialogIntent", "WifiDisable")
@@ -465,48 +449,8 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
             remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_contact,
+                R.id.imgv_contacts,
                 getPendingSelfIntent(context, C_CLICKED)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_contact1,
-                getPendingSelfIntent(context, C1_CLICKED)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_contact2,
-                getPendingSelfIntent(context, C2_CLICKED)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_contact3,
-                getPendingSelfIntent(context, C3_CLICKED)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_contact4,
-                getPendingSelfIntent(context, C4_CLICKED)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_contact5,
-                getPendingSelfIntent(context, C5_CLICKED)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_contact6,
-                getPendingSelfIntent(context, C6_CLICKED)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_contact7,
-                getPendingSelfIntent(context, C7_CLICKED)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_contact8,
-                getPendingSelfIntent(context, C8_CLICKED)
             )
 
             appWidM = AppWidgetManager.getInstance(context)
@@ -743,20 +687,6 @@ class NewAppWidget : AppWidgetProvider() {
             getPendingSelfIntent(context, FAB_SHARE)
         )
 
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgbtn_news_next,
-            getPendingSelfIntent(context, NEWS_NEXT)
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgbtn_news_prev,
-            getPendingSelfIntent(context, NEWS_PREV)
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.tx_news,
-            getPendingSelfIntent(context, NEWS_CLICK)
-        )
 
         val intentWifi = Intent(context, DialogActivity::class.java)
         if (isWifiEnabled(context)) {
@@ -955,49 +885,11 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_contact,
+            R.id.imgv_contacts,
             getPendingSelfIntent(context, C_CLICKED)
         )
 
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_contact1,
-            getPendingSelfIntent(context, C1_CLICKED)
-        )
 
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_contact2,
-            getPendingSelfIntent(context, C2_CLICKED)
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_contact3,
-            getPendingSelfIntent(context, C3_CLICKED)
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_contact4,
-            getPendingSelfIntent(context, C4_CLICKED)
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_contact5,
-            getPendingSelfIntent(context, C5_CLICKED)
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_contact6,
-            getPendingSelfIntent(context, C6_CLICKED)
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_contact7,
-            getPendingSelfIntent(context, C7_CLICKED)
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_contact8,
-            getPendingSelfIntent(context, C8_CLICKED)
-        )
 
         var timeOfDay = if (currentHour >= 6 && currentHour < 12) {
             "Morni!"
@@ -1015,26 +907,6 @@ class NewAppWidget : AppWidgetProvider() {
             greeting(context, remoteViews!!, timeOfDay)
         }
 
-        if (newsList.size > 1) {
-            remoteViews?.setTextViewText(
-                R.id.tx_news,
-                Html.fromHtml(
-                    "<u>" + (newsIndex + 1).toString() + ". " + newsList[newsIndex] + "</u>",
-                    Html.FROM_HTML_MODE_LEGACY
-                )
-            )
-
-
-            dNews = BitmapDrawable(newsBitmaps[newsIndex])
-
-
-            remoteViews?.setImageViewBitmap(
-                R.id.imgv_news,
-                drawableToBitmap(context, dNews)
-            )
-
-
-        }
 
         remoteViews?.setTextViewText(
             R.id.tx_rewards_count,
@@ -1403,111 +1275,6 @@ class NewAppWidget : AppWidgetProvider() {
             intentContacts.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             appContx.startActivity(intentContacts)
         }
-        if (C1_CLICKED == intent.action) {
-            if (favContacts != null)
-                if (favContacts.size > 0)
-                    dialPhoneNumber(context, favContacts.get(0).number)
-                else remoteViews?.setOnClickPendingIntent(
-                    R.id.imgv_contact1, PendingIntent.getActivity(
-                        context, 111,
-                        Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
-                        PendingIntent.FLAG_IMMUTABLE
-                    )
-                )
-            else remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_contact1, PendingIntent.getActivity(
-                    context, 111,
-                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-        }
-        if (C2_CLICKED == intent.action) {
-            if (favContacts != null)
-                if (favContacts.size > 1)
-                    dialPhoneNumber(context, favContacts.get(1).number)
-                else remoteViews?.setOnClickPendingIntent(
-                    R.id.imgv_contact2, PendingIntent.getActivity(
-                        context, 111,
-                        Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
-                        PendingIntent.FLAG_IMMUTABLE
-                    )
-                )
-            else remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_contact2, PendingIntent.getActivity(
-                    context, 111,
-                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-        }
-        if (C3_CLICKED == intent.action) {
-            if (favContacts != null)
-                if (favContacts.size > 2)
-                    dialPhoneNumber(context, favContacts.get(2).number)
-                else remoteViews?.setOnClickPendingIntent(
-                    R.id.imgv_contact3, PendingIntent.getActivity(
-                        context, 111,
-                        Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
-                        PendingIntent.FLAG_IMMUTABLE
-                    )
-                )
-            else remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_contact3, PendingIntent.getActivity(
-                    context, 111,
-                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-        }
-        if (C4_CLICKED == intent.action) {
-            if (favContacts != null)
-                if (favContacts.size > 3)
-                    dialPhoneNumber(context, favContacts.get(3).number)
-                else remoteViews?.setOnClickPendingIntent(
-                    R.id.imgv_contact4, PendingIntent.getActivity(
-                        context, 111,
-                        Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
-                        PendingIntent.FLAG_IMMUTABLE
-                    )
-                )
-            else remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_contact4, PendingIntent.getActivity(
-                    context, 111,
-                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-        }
-        if (C5_CLICKED == intent.action) {
-            if (favContacts.size > 4)
-                dialPhoneNumber(context, favContacts.get(4).number)
-            else selectContact()
-        }
-        if (C6_CLICKED == intent.action) {
-            if (favContacts.size > 5)
-                dialPhoneNumber(context, favContacts.get(5).number)
-            else selectContact()
-        }
-        if (C7_CLICKED == intent.action) {
-            if (favContacts.size > 6)
-                dialPhoneNumber(context, favContacts.get(6).number)
-            else selectContact()
-        }
-        if (C8_CLICKED == intent.action) {
-            if (favContacts.size > 7)
-                dialPhoneNumber(context, favContacts.get(8).number)
-            else selectContact()
-        }
-
-
-        /*{
-                context.startActivity(Intent(context, AppChooserDialog::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-            }*/
 
         for (i in 0 until selectedApps.size) {
             if (i == 0)
@@ -1622,10 +1389,6 @@ class NewAppWidget : AppWidgetProvider() {
         readApps()
 
 
-        appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact5).visibility = View.INVISIBLE
-        appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact6).visibility = View.INVISIBLE
-        appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact7).visibility = View.INVISIBLE
-        appWidgetView.findViewById<RelativeLayout>(R.id.rl_contact8).visibility = View.INVISIBLE
 
 
         appWidgetView.findViewById<ImageView>(R.id.imgv_app6).visibility = View.INVISIBLE
@@ -2063,58 +1826,6 @@ class NewAppWidget : AppWidgetProvider() {
                     d = appContx.resources.getDrawable(R.drawable.face_holder)
                 }
 
-
-                if (i == 0) {
-                    remoteViews!!.setViewVisibility(
-                        R.id.rl_contact1,
-                        View.VISIBLE
-                    )
-                    remoteViews!!.setImageViewBitmap(
-                        R.id.imgv_contact1,
-                        drawableToBitmap(context, d).getCircledBitmap()
-                    )
-                    remoteViews!!.setTextViewText(R.id.tx_c1, favC[0].name)
-                } else if (i == 1) {
-                    remoteViews!!.setViewVisibility(
-                        R.id.rl_contact2,
-                        View.VISIBLE
-                    )
-                    remoteViews!!.setImageViewBitmap(
-                        R.id.imgv_contact2,
-                        drawableToBitmap(context, d).getCircledBitmap()
-                    )
-                    remoteViews!!.setTextViewText(R.id.tx_c2, favC[1].name)
-                } else if (i == 2) {
-                    remoteViews!!.setViewVisibility(
-                        R.id.rl_contact3,
-                        View.VISIBLE
-                    )
-                    remoteViews!!.setImageViewBitmap(
-                        R.id.imgv_contact3,
-                        drawableToBitmap(context, d).getCircledBitmap()
-                    )
-                    remoteViews!!.setTextViewText(R.id.tx_c3, favC[2].name)
-                } else if (i == 3) {
-                    remoteViews!!.setViewVisibility(
-                        R.id.rl_contact4,
-                        View.VISIBLE
-                    )
-                    remoteViews!!.setImageViewBitmap(
-                        R.id.imgv_contact4,
-                        drawableToBitmap(context, d).getCircledBitmap()
-                    )
-                    remoteViews!!.setTextViewText(R.id.tx_c4, favC[3].name)
-                } else if (i == 4) {
-                    remoteViews!!.setViewVisibility(
-                        R.id.rl_contact5,
-                        View.VISIBLE
-                    )
-                    remoteViews!!.setImageViewBitmap(
-                        R.id.imgv_contact5,
-                        drawableToBitmap(context, d).getCircledBitmap()
-                    )
-                    remoteViews!!.setTextViewText(R.id.tx_c5, favC[4].name)
-                }
 
             }
         }
