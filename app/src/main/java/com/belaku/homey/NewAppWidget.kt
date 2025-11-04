@@ -7,6 +7,7 @@ import android.Manifest
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.app.PendingIntent
 import android.app.WallpaperManager
 import android.app.usage.UsageStats
@@ -15,8 +16,10 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.ContentResolver
+import android.content.ContentValues
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
@@ -69,6 +72,7 @@ import com.belaku.homey.MainActivity.Companion.getWeatherData
 import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.MainActivity.Companion.pickContact
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
@@ -90,6 +94,7 @@ import kotlin.properties.Delegates
 
 class NewAppWidget : AppWidgetProvider() {
 
+    private var callIndex: Int = -1
     private var totalScreenTimeInMinutes by Delegates.notNull<Long>()
     private lateinit var calendar: Calendar
     private lateinit var nowCalendar: Calendar
@@ -448,10 +453,6 @@ class NewAppWidget : AppWidgetProvider() {
                 getPendingSelfIntent(context, APP9_CLICKED)
             )
 
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_contacts,
-                getPendingSelfIntent(context, C_CLICKED)
-            )
 
             appWidM = AppWidgetManager.getInstance(context)
             appWidM.updateAppWidget(appWidgetId, remoteViews)
@@ -884,10 +885,7 @@ class NewAppWidget : AppWidgetProvider() {
             getPendingSelfIntent(context, APP9_CLICKED)
         )
 
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_contacts,
-            getPendingSelfIntent(context, C_CLICKED)
-        )
+
 
 
         var timeOfDay = if (currentHour >= 6 && currentHour < 12) {
@@ -1269,11 +1267,24 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
 
-        if (C_CLICKED == intent.action) {
+        if (CLEAR_C_CLICKED == intent.action) {
+            unMarkAsFav(favContacts[0].id)
+        } else if (C_CLICKED == intent.action) {
             val intentContacts = Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI)
             intentContacts.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             appContx.startActivity(intentContacts)
-        }
+        } else if (C1_CLICK == intent.action)
+                dialPhoneNumber(context, favContacts[0].number)
+        else if (C2_CLICK == intent.action)
+            dialPhoneNumber(context, favContacts[1].number)
+        else if (C3_CLICK == intent.action)
+            dialPhoneNumber(context, favContacts[2].number)
+        else if (C4_CLICK == intent.action)
+            dialPhoneNumber(context, favContacts[3].number)
+        else if (C5_CLICK == intent.action)
+            dialPhoneNumber(context, favContacts[4].number)
+
+
 
         for (i in 0 until selectedApps.size) {
             if (i == 0)
@@ -1323,6 +1334,182 @@ class NewAppWidget : AppWidgetProvider() {
         appWidM = AppWidgetManager.getInstance(context)
         appWidM.updateAppWidget(newAppWidget, remoteViews)
 
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun unMarkAsFav(contactId: String) {
+        // Replace with the actual contact ID
+        makeToast("unMarkAsFav")
+        val values = ContentValues()
+        values.put(ContactsContract.Contacts.STARRED, 0) // 1 for favorite, 0 for not favorite
+
+        appContx.contentResolver.update(
+            ContactsContract.Contacts.CONTENT_URI,
+            values,
+            ContactsContract.Contacts._ID + " = ?",
+            arrayOf<String>(contactId.toString())
+        )
+
+        getFavoriteContacts()
+        readContacts()
+
+    }
+
+    @SuppressLint("Range")
+    private fun getFavoriteContacts() {
+
+        favContacts = ArrayList()
+
+        val queryUri = ContactsContract.Contacts.CONTENT_URI.buildUpon()
+            .appendQueryParameter(ContactsContract.Contacts.EXTRA_ADDRESS_BOOK_INDEX, "true")
+            .build()
+
+        val projection = arrayOf(
+            ContactsContract.Contacts._ID,
+            ContactsContract.Contacts.DISPLAY_NAME,
+            ContactsContract.Contacts.STARRED,
+            ContactsContract.Contacts.HAS_PHONE_NUMBER
+        )
+
+        val selection = ContactsContract.Contacts.STARRED + "='1'"
+
+        val cursor = appContx.contentResolver.query(
+            queryUri, projection, selection, null, null
+        )
+
+        while (cursor!!.moveToNext()) {
+            val contactID = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
+            var phoneNumber: String = "7"
+
+            if (Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
+
+                val phones: Cursor? = appContx.getContentResolver().query(
+                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                    null,
+                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactID,
+                    null,
+                    null
+                )
+                while (phones!!.moveToNext()) {
+                    phoneNumber =
+                        phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                    phoneNumber = phoneNumber.filter { !it.isWhitespace() }
+                }
+            }
+
+            val intent = Intent(Intent.ACTION_VIEW)
+            val uri = Uri.withAppendedPath(
+                ContactsContract.Contacts.CONTENT_URI, contactID.toString()
+            )
+            intent.data = uri
+            val cPhUri = intent.toUri(0)
+
+            val cNme = cursor.getString(
+                cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
+            )
+
+            var c = Contact(contactID, cNme, phoneNumber, cPhUri)
+
+            if (c.number.length > 7)
+                favContacts.add(c)
+
+        }
+
+        saveContacts()
+
+        cursor.close()
+
+        appWidM.updateAppWidget(newAppWidget, remoteViews)
+    }
+
+    private fun saveContacts() {
+        val key = "CTS"
+        val gson = Gson()
+        val json = gson.toJson(favContacts)
+        sharedPreferencesEditor.remove(key).commit()
+        sharedPreferencesEditor.putString(key, json).commit()
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    fun readContacts() {
+
+        favContacts?.clear()
+        val gson = Gson()
+        val response: String = sharedPreferences.getString("CTS", "").toString()
+        favContacts = gson.fromJson(
+            response,
+            object : TypeToken<List<Contact?>?>() {}.type
+        )
+
+        conIndex = 0
+
+        if (favContacts != null)
+            addContactsInWidget(appContx, favContacts)
+        else {
+            remoteViews?.removeAllViews(R.id.ll_contacts)
+            var childView = RemoteViews(appContx.packageName, R.layout.remote_view_layout)
+
+
+            childView.setImageViewBitmap(
+                R.id.new_imgv_id,
+                drawableToBitmap(appContx, appContx.resources.getDrawable(R.drawable.contacts))
+            )
+            childView.setViewVisibility(R.id.new_tx_close_id, View.INVISIBLE)
+
+            childView.setViewLayoutMargin(
+                R.id.new_imgv_id,
+                RemoteViews.MARGIN_TOP,
+                10f,
+                TypedValue.COMPLEX_UNIT_DIP
+            )
+            childView.setViewLayoutMargin(
+                R.id.new_imgv_id,
+                RemoteViews.MARGIN_START,
+                10f,
+                TypedValue.COMPLEX_UNIT_DIP
+            )
+
+
+            childView.setOnClickPendingIntent(
+                R.id.new_imgv_id,
+                getPendingSelfIntent(appContx, C_CLICKED)
+            )
+            remoteViews?.addView(R.id.ll_contacts, childView)
+
+            childView = RemoteViews(appContx.packageName, R.layout.remote_view_layout)
+
+            childView.setViewLayoutMargin(
+                R.id.new_imgv_id,
+                RemoteViews.MARGIN_TOP,
+                10f,
+                TypedValue.COMPLEX_UNIT_DIP
+            )
+            childView.setViewLayoutMargin(
+                R.id.new_imgv_id,
+                RemoteViews.MARGIN_START,
+                10f,
+                TypedValue.COMPLEX_UNIT_DIP
+            )
+
+
+            childView.setImageViewResource(
+                R.id.new_imgv_id,
+                android.R.drawable.ic_input_add
+            )
+
+            childView.setViewVisibility(R.id.new_tx_close_id, View.INVISIBLE)
+
+            childView.setOnClickPendingIntent(R.id.new_imgv_id, PendingIntent.getActivity(
+                appContx, 2,
+                Intent(appContx, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
+                PendingIntent.FLAG_IMMUTABLE
+            ))
+            //    childView.setTextViewText(R.id.new_tx_id, favC[i].name.substring(0, 1).uppercase())
+
+
+            remoteViews?.addView(R.id.ll_contacts, childView)
+        }
     }
 
     fun isWifiEnabled(context: Context): Boolean {
@@ -1723,6 +1910,147 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.S)
+    fun addContactsInWidget(context: Context, favC: ArrayList<Contact>) {
+
+        var bm: Bitmap
+
+
+        remoteViews?.removeAllViews(R.id.ll_contacts)
+        var childView = RemoteViews(context.packageName, R.layout.remote_view_layout)
+
+
+        childView.setImageViewBitmap(
+            R.id.new_imgv_id,
+            drawableToBitmap(appContx, appContx.resources.getDrawable(R.drawable.contacts))
+        )
+        childView.setViewLayoutMargin(
+            R.id.new_imgv_id,
+            RemoteViews.MARGIN_TOP,
+            10f,
+            TypedValue.COMPLEX_UNIT_DIP
+        )
+        childView.setViewLayoutMargin(
+            R.id.new_imgv_id,
+            RemoteViews.MARGIN_START,
+            10f,
+            TypedValue.COMPLEX_UNIT_DIP
+        )
+
+
+        childView.setOnClickPendingIntent(
+            R.id.new_imgv_id,
+            getPendingSelfIntent(context, C_CLICKED)
+        )
+        remoteViews?.addView(R.id.ll_contacts, childView)
+
+
+        for (i in 0 until favC.size) {
+
+            val contentResolver: ContentResolver =
+                appContx.getContentResolver() // Or getContext().getContentResolver()
+            val inputStream = ContactsContract.Contacts.openContactPhotoInputStream(
+                contentResolver,
+                Uri.parse(favC[i].image)
+            )
+
+            if (inputStream != null) {
+                bm = BitmapFactory.decodeStream(inputStream)
+                bm = drawableToBitmap(appContx, RoundedBitmapDrawableFactory.create(appContx.resources, bm))
+
+                try {
+                    inputStream.close()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            } else {
+                bm = drawableToBitmap(
+                    appContx,
+                    appContx.resources.getDrawable(R.drawable.face_holder)
+                )
+            }
+
+            //     rBm = drawableToBitmap(appContx, RoundedBitmapDrawableFactory.create(appContx.resources, bm))
+
+            childView = RemoteViews(context.packageName, R.layout.remote_view_layout)
+
+            if (i == 0)
+                CALL_CLICKED = C1_CLICK
+            else if (i == 1)
+                CALL_CLICKED = C2_CLICK
+            else if (i == 2)
+                CALL_CLICKED = C3_CLICK
+            else if (i == 3)
+                CALL_CLICKED = C4_CLICK
+            else if (i == 4)
+                CALL_CLICKED = C5_CLICK
+
+
+            childView.setOnClickPendingIntent(R.id.new_tx_close_id, getPendingSelfIntent(context, CLEAR_C_CLICKED))
+
+            childView.setOnClickPendingIntent(
+                R.id.new_imgv_id,
+                getPendingSelfIntent(context, CALL_CLICKED)
+            )
+            childView.setViewLayoutMargin(
+                R.id.new_imgv_id,
+                RemoteViews.MARGIN_TOP,
+                10f,
+                TypedValue.COMPLEX_UNIT_DIP
+            )
+            childView.setViewLayoutMargin(
+                R.id.new_imgv_id,
+                RemoteViews.MARGIN_START,
+                10f,
+                TypedValue.COMPLEX_UNIT_DIP
+            )
+
+            childView.setImageViewBitmap(
+                R.id.new_imgv_id,
+                bm.getCircledBitmap()
+            )
+            childView.setTextViewText(R.id.new_tx_id, favC[i].name.substring(0, 1).uppercase())
+
+
+            remoteViews?.addView(R.id.ll_contacts, childView)
+            appWidM.updateAppWidget(newAppWidget, remoteViews)
+
+
+        }
+
+        childView = RemoteViews(context.packageName, R.layout.remote_view_layout)
+
+        childView.setViewLayoutMargin(
+            R.id.new_imgv_id,
+            RemoteViews.MARGIN_TOP,
+            10f,
+            TypedValue.COMPLEX_UNIT_DIP
+        )
+        childView.setViewLayoutMargin(
+            R.id.new_imgv_id,
+            RemoteViews.MARGIN_START,
+            10f,
+            TypedValue.COMPLEX_UNIT_DIP
+        )
+
+
+        childView.setImageViewResource(
+            R.id.new_imgv_id,
+            android.R.drawable.ic_input_add
+        )
+
+        childView.setOnClickPendingIntent(R.id.new_imgv_id, PendingIntent.getActivity(
+            context, 2,
+            Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
+            PendingIntent.FLAG_IMMUTABLE
+        ))
+        //    childView.setTextViewText(R.id.new_tx_id, favC[i].name.substring(0, 1).uppercase())
+
+
+        remoteViews?.addView(R.id.ll_contacts, childView)
+    }
+
+
     private fun sortApps(queryUsageStats: List<UsageStats>) {
 
         Collections.sort<UsageStats>(
@@ -1779,7 +2107,6 @@ class NewAppWidget : AppWidgetProvider() {
         var arrayListUsageStats: HashSet<AppUsage> = HashSet()
         lateinit var dayOfTheWeek: String
         var noRewards: Int = 0
-        lateinit var contactActivityResultLauncher: ActivityResultLauncher<Intent>
         var tW: String = "..."
         lateinit var appWidM: AppWidgetManager
         var choosenApps: ArrayList<App> = ArrayList()
@@ -1803,77 +2130,6 @@ class NewAppWidget : AppWidgetProvider() {
         var lapCount: Int = 0
 
 
-        @RequiresApi(Build.VERSION_CODES.S)
-        fun addContactInWidget(context: Context, favC: ArrayList<Contact>) {
-
-            var bm: Bitmap
-            var rBm: Bitmap
-
-            remoteViews?.removeAllViews(R.id.ll_contacts)
-            var childView = RemoteViews(context.packageName, R.layout.remote_view_layout)
-            childView.setImageViewBitmap(
-                R.id.new_imgv_id,
-                drawableToBitmap(appContx, appContx.resources.getDrawable(R.drawable.contacts))
-            )
-            remoteViews?.addView(R.id.ll_contacts, childView)
-            appWidM.updateAppWidget(newAppWidget, remoteViews)
-
-            for (i in 0 until favC.size) {
-
-                val contentResolver: ContentResolver =
-                    appContx.getContentResolver() // Or getContext().getContentResolver()
-                val inputStream = ContactsContract.Contacts.openContactPhotoInputStream(
-                    contentResolver,
-                    Uri.parse(favC[i].image)
-                )
-
-                if (inputStream != null) {
-                    bm = BitmapFactory.decodeStream(inputStream)
-                    bm = drawableToBitmap(appContx, RoundedBitmapDrawableFactory.create(appContx.resources, bm))
-
-                    try {
-                        inputStream.close()
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                    }
-                } else {
-                    bm = drawableToBitmap(
-                        appContx,
-                        appContx.resources.getDrawable(R.drawable.face_holder)
-                    )
-                }
-
-           //     rBm = drawableToBitmap(appContx, RoundedBitmapDrawableFactory.create(appContx.resources, bm))
-
-                childView = RemoteViews(context.packageName, R.layout.remote_view_layout)
-
-                childView.setViewLayoutMargin(
-                    R.id.new_imgv_id,
-                    RemoteViews.MARGIN_TOP,
-                    10f,
-                    TypedValue.COMPLEX_UNIT_DIP
-                )
-                childView.setViewLayoutMargin(
-                    R.id.new_imgv_id,
-                    RemoteViews.MARGIN_START,
-                    10f,
-                    TypedValue.COMPLEX_UNIT_DIP
-                )
-
-
-                childView.setImageViewBitmap(
-                    R.id.new_imgv_id,
-                    bm.getCircledBitmap()
-                )
-                childView.setTextViewText(R.id.new_tx_id, favC[i].name.substring(0, 1).uppercase())
-
-
-                remoteViews?.addView(R.id.ll_contacts, childView)
-                appWidM.updateAppWidget(newAppWidget, remoteViews)
-
-
-            }
-        }
 
         private fun Bitmap.getCircledBitmap(): Bitmap {
             val output = Bitmap.createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
@@ -1979,20 +2235,7 @@ class NewAppWidget : AppWidgetProvider() {
             return bitmap
         }
 
-        fun readContacts() {
 
-            val gson = Gson()
-            val response: String = sharedPreferences.getString("CTS", "").toString()
-            favContacts = gson.fromJson(
-                response,
-                object : TypeToken<List<Contact?>?>() {}.type
-            )
-
-            conIndex = 0
-
-            if (favContacts.size > 0)
-                addContactInWidget(appContx, favContacts)
-        }
 
         private var appIndex: Int = 0
         private var conIndex: Int = 0
@@ -2022,15 +2265,15 @@ class NewAppWidget : AppWidgetProvider() {
         private const val APP8_CLICKED = "App8Clicked"
         private const val APP9_CLICKED = "App9Clicked"
 
+        private const val CLEAR_C_CLICKED = "Clear_C_Clicked"
         private const val C_CLICKED = "CClicked"
-        private const val C1_CLICKED = "C1Clicked"
-        private const val C2_CLICKED = "C2Clicked"
-        private const val C3_CLICKED = "C3Clicked"
-        private const val C4_CLICKED = "C4Clicked"
-        private const val C5_CLICKED = "C5Clicked"
-        private const val C6_CLICKED = "C6Clicked"
-        private const val C7_CLICKED = "C7Clicked"
-        private const val C8_CLICKED = "C8Clicked"
+        private var CALL_CLICKED = "CallClicked"
+        private val C1_CLICK = "C1_CLICK"
+        private val C2_CLICK = "C2_CLICK"
+        private val C3_CLICK = "C3_CLICK"
+        private val C4_CLICK = "C4_CLICK"
+        private val C5_CLICK = "C5_CLICK"
+
     }
 
 

@@ -9,6 +9,7 @@ import android.app.ActivityManager
 import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.Dialog
+import android.app.PendingIntent
 import android.app.ProgressDialog
 import android.app.WallpaperManager
 import android.app.job.JobInfo
@@ -49,6 +50,7 @@ import android.speech.RecognizerIntent
 import android.text.Html
 import android.util.DisplayMetrics
 import android.util.Log
+import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.Menu
@@ -121,6 +123,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -762,7 +765,11 @@ class MainActivity : AppCompatActivity() {
             ContactsContract.Contacts._ID + " = ?",
             arrayOf<String>(contactId.toString())
         )
+
+        getFavoriteContacts(applicationContext)
+        appWidM.updateAppWidget(newAppWidget, remoteViews)
     }
+
 
 
     fun getContactDetails(displayName: String, contactId: Long) {
@@ -1387,7 +1394,7 @@ class MainActivity : AppCompatActivity() {
                 cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
             )
 
-            var c = Contact(cNme, phoneNumber, cPhUri)
+            var c = Contact(contactID, cNme, phoneNumber, cPhUri)
 
             if (c.number.length > 7)
                 favContacts.add(c)

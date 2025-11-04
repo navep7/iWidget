@@ -64,6 +64,7 @@ import com.belaku.homey.NewAppWidget.Companion.noRewards
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
+import com.belaku.homey.SetWallWorker.Companion.setWall
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -641,7 +642,7 @@ class DialogActivity : AppCompatActivity() {
                     val contactId = cursor.getLong(contactIdIndex)
                     getContactDetails(displayName, contactId)
                     markAsFav(contactId)
-                    NewAppWidget.readContacts()
+                //    NewAppWidget.readContacts()
 
                     // Now you have the display name and ID for the contact
                     // You can use the contactId to query for phone numbers, email addresses, etc.
@@ -721,7 +722,7 @@ class DialogActivity : AppCompatActivity() {
                 cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
             )
 
-            var c = Contact(cNme, phoneNumber, cPhUri)
+            var c = Contact(contactID, cNme, phoneNumber, cPhUri)
 
             if (c.number.length > 7)
                 favContacts.add(c)
@@ -754,7 +755,8 @@ class DialogActivity : AppCompatActivity() {
 
         cursor.close()
 
-        appWidM.updateAppWidget(newAppWidget, remoteViews)
+
+        appWidM.updateAppWidget(R.id.ll_contacts, remoteViews)
     }
 
     private fun saveContacts() {
