@@ -64,7 +64,6 @@ import com.belaku.homey.NewAppWidget.Companion.noRewards
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
-import com.belaku.homey.SetWallWorker.Companion.setWall
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -85,6 +84,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.net.URL
 import kotlin.properties.Delegates
+import kotlin.system.exitProcess
 
 
 class DialogActivity : AppCompatActivity() {
@@ -198,6 +198,7 @@ class DialogActivity : AppCompatActivity() {
 
         if (dialogIntentStr != null) {
             if (dialogIntentStr == "PC") {
+                llDialog.visibility = View.INVISIBLE
                 getFavoriteContacts(applicationContext)
                 pickContactLauncher =
                     registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -642,11 +643,23 @@ class DialogActivity : AppCompatActivity() {
                     val contactId = cursor.getLong(contactIdIndex)
                     getContactDetails(displayName, contactId)
                     markAsFav(contactId)
-                //    NewAppWidget.readContacts()
+                    saveContacts()
 
-                    // Now you have the display name and ID for the contact
-                    // You can use the contactId to query for phone numbers, email addresses, etc.
-                    // using ContactsContract.CommonDataKinds.Phone or ContactsContract.CommonDataKinds.Email
+                    val appWidgetManager = AppWidgetManager.getInstance(this)
+                    val thisWidget: ComponentName =
+                        ComponentName(this, NewAppWidget::class.java)
+                    val appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
+
+                    val updateIntent = Intent(
+                        this,
+                        NewAppWidget::class.java
+                    )
+                    updateIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
+                    updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
+                    sendBroadcast(updateIntent)
+                    finish()
+                    //  appWidM.updateAppWidget(newAppWidget, remoteViews)
+
                 }
             }
         } finally {
@@ -731,27 +744,9 @@ class DialogActivity : AppCompatActivity() {
 
 
 
-        if (favContacts.size > 0) saveContacts()
-        else {
-            makeToast("You've got no Contacts marked as Favorute!.. Go ahead add some to dial from the widget directly.")
-            val builder = AlertDialog.Builder(this)
+        if (favContacts.size > 0)
+            saveContacts()
 
-            builder.setTitle("Favorites") // Set the title of the dialog
-            builder.setMessage("You've got no Contacts marked as Favorite!.. Go ahead add some to dial from the widget directly.") // Set the message of the dialog
-
-            // Set the Positive Button and its action
-            builder.setPositiveButton("Add") { dialog: DialogInterface, which: Int ->
-
-
-                pickContact()
-
-                dialog.dismiss() // Dismiss the dialog
-            }
-
-            // Create and show the AlertDialog
-            val alertDialog: AlertDialog = builder.create()
-            alertDialog.show()
-        }
 
         cursor.close()
 

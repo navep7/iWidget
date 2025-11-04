@@ -597,6 +597,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         appContx = context
         readContacts()
+        getFavoriteContacts()
         readApps()
 
         appIndex = 0
@@ -1339,7 +1340,6 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun unMarkAsFav(contactId: String) {
         // Replace with the actual contact ID
-        makeToast("unMarkAsFav")
         val values = ContentValues()
         values.put(ContactsContract.Contacts.STARRED, 0) // 1 for favorite, 0 for not favorite
 
@@ -1419,6 +1419,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         cursor.close()
 
+
         appWidM.updateAppWidget(newAppWidget, remoteViews)
     }
 
@@ -1444,7 +1445,8 @@ class NewAppWidget : AppWidgetProvider() {
 
         conIndex = 0
 
-        if (favContacts != null)
+
+        if (response.isNotEmpty())
             addContactsInWidget(appContx, favContacts)
         else {
             remoteViews?.removeAllViews(R.id.ll_contacts)
@@ -1498,13 +1500,16 @@ class NewAppWidget : AppWidgetProvider() {
                 android.R.drawable.ic_input_add
             )
 
-            childView.setViewVisibility(R.id.new_tx_close_id, View.INVISIBLE)
-
             childView.setOnClickPendingIntent(R.id.new_imgv_id, PendingIntent.getActivity(
                 appContx, 2,
                 Intent(appContx, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
                 PendingIntent.FLAG_IMMUTABLE
             ))
+
+            childView.setTextViewText(R.id.new_tx_close_id, "")
+            childView.setViewVisibility(R.id.new_tx_id, View.INVISIBLE)
+
+
             //    childView.setTextViewText(R.id.new_tx_id, favC[i].name.substring(0, 1).uppercase())
 
 
