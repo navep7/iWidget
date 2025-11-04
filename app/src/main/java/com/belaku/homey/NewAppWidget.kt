@@ -887,8 +887,6 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
 
-
-
         var timeOfDay = if (currentHour >= 6 && currentHour < 12) {
             "Morni!"
         } else if (currentHour >= 12 && currentHour < 17) {
@@ -1268,14 +1266,12 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
 
-        if (CLEAR_C_CLICKED == intent.action) {
-            unMarkAsFav(favContacts[0].id)
-        } else if (C_CLICKED == intent.action) {
+        if (C_CLICKED == intent.action) {
             val intentContacts = Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI)
             intentContacts.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             appContx.startActivity(intentContacts)
         } else if (C1_CLICK == intent.action)
-                dialPhoneNumber(context, favContacts[0].number)
+            dialPhoneNumber(context, favContacts[0].number)
         else if (C2_CLICK == intent.action)
             dialPhoneNumber(context, favContacts[1].number)
         else if (C3_CLICK == intent.action)
@@ -1284,6 +1280,16 @@ class NewAppWidget : AppWidgetProvider() {
             dialPhoneNumber(context, favContacts[3].number)
         else if (C5_CLICK == intent.action)
             dialPhoneNumber(context, favContacts[4].number)
+        else if (CL1_CLICK == intent.action)
+            unMarkAsFav(favContacts[0].id)
+        else if (CL2_CLICK == intent.action)
+            unMarkAsFav(favContacts[1].id)
+        else if (CL3_CLICK == intent.action)
+            unMarkAsFav(favContacts[2].id)
+        else if (CL4_CLICK == intent.action)
+            unMarkAsFav(favContacts[3].id)
+        else if (CL5_CLICK == intent.action)
+            unMarkAsFav(favContacts[5].id)
 
 
 
@@ -1457,7 +1463,8 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.new_imgv_id,
                 drawableToBitmap(appContx, appContx.resources.getDrawable(R.drawable.contacts))
             )
-            childView.setViewVisibility(R.id.new_tx_close_id, View.INVISIBLE)
+            childView.setTextViewText(R.id.new_tx_close_id, "")
+            childView.setTextViewText(R.id.new_tx_id, "")
 
             childView.setViewLayoutMargin(
                 R.id.new_imgv_id,
@@ -1500,17 +1507,16 @@ class NewAppWidget : AppWidgetProvider() {
                 android.R.drawable.ic_input_add
             )
 
-            childView.setOnClickPendingIntent(R.id.new_imgv_id, PendingIntent.getActivity(
-                appContx, 2,
-                Intent(appContx, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
-                PendingIntent.FLAG_IMMUTABLE
-            ))
+            childView.setOnClickPendingIntent(
+                R.id.new_imgv_id, PendingIntent.getActivity(
+                    appContx, 2,
+                    Intent(appContx, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+            )
 
             childView.setTextViewText(R.id.new_tx_close_id, "")
-            childView.setViewVisibility(R.id.new_tx_id, View.INVISIBLE)
-
-
-            //    childView.setTextViewText(R.id.new_tx_id, favC[i].name.substring(0, 1).uppercase())
+            childView.setTextViewText(R.id.new_tx_id, "")
 
 
             remoteViews?.addView(R.id.ll_contacts, childView)
@@ -1929,6 +1935,10 @@ class NewAppWidget : AppWidgetProvider() {
             R.id.new_imgv_id,
             drawableToBitmap(appContx, appContx.resources.getDrawable(R.drawable.contacts))
         )
+        childView.setTextViewText(R.id.new_tx_close_id, "")
+        childView.setTextViewText(R.id.new_tx_id, "")
+
+
         childView.setViewLayoutMargin(
             R.id.new_imgv_id,
             RemoteViews.MARGIN_TOP,
@@ -1961,7 +1971,10 @@ class NewAppWidget : AppWidgetProvider() {
 
             if (inputStream != null) {
                 bm = BitmapFactory.decodeStream(inputStream)
-                bm = drawableToBitmap(appContx, RoundedBitmapDrawableFactory.create(appContx.resources, bm))
+                bm = drawableToBitmap(
+                    appContx,
+                    RoundedBitmapDrawableFactory.create(appContx.resources, bm)
+                )
 
                 try {
                     inputStream.close()
@@ -1979,19 +1992,27 @@ class NewAppWidget : AppWidgetProvider() {
 
             childView = RemoteViews(context.packageName, R.layout.remote_view_layout)
 
-            if (i == 0)
+            if (i == 0) {
                 CALL_CLICKED = C1_CLICK
-            else if (i == 1)
+                CLEAR_C_CLICKED = CL1_CLICK
+            } else if (i == 1) {
                 CALL_CLICKED = C2_CLICK
-            else if (i == 2)
+                CLEAR_C_CLICKED = CL2_CLICK
+            } else if (i == 2) {
                 CALL_CLICKED = C3_CLICK
-            else if (i == 3)
+                CLEAR_C_CLICKED = CL3_CLICK
+            } else if (i == 3) {
                 CALL_CLICKED = C4_CLICK
-            else if (i == 4)
+                CLEAR_C_CLICKED = CL4_CLICK
+            } else if (i == 4) {
                 CALL_CLICKED = C5_CLICK
+                CLEAR_C_CLICKED = CL5_CLICK
+            }
 
-
-            childView.setOnClickPendingIntent(R.id.new_tx_close_id, getPendingSelfIntent(context, CLEAR_C_CLICKED))
+            childView.setOnClickPendingIntent(
+                R.id.new_tx_close_id,
+                getPendingSelfIntent(context, CLEAR_C_CLICKED)
+            )
 
             childView.setOnClickPendingIntent(
                 R.id.new_imgv_id,
@@ -2044,12 +2065,16 @@ class NewAppWidget : AppWidgetProvider() {
             android.R.drawable.ic_input_add
         )
 
-        childView.setOnClickPendingIntent(R.id.new_imgv_id, PendingIntent.getActivity(
-            context, 2,
-            Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
-            PendingIntent.FLAG_IMMUTABLE
-        ))
-        //    childView.setTextViewText(R.id.new_tx_id, favC[i].name.substring(0, 1).uppercase())
+        childView.setTextViewText(R.id.new_tx_close_id, "")
+        childView.setTextViewText(R.id.new_tx_id, "")
+
+        childView.setOnClickPendingIntent(
+            R.id.new_imgv_id, PendingIntent.getActivity(
+                context, 2,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
 
 
         remoteViews?.addView(R.id.ll_contacts, childView)
@@ -2133,7 +2158,6 @@ class NewAppWidget : AppWidgetProvider() {
         var onEn: Boolean = false
         var remoteViews: RemoteViews? = null
         var lapCount: Int = 0
-
 
 
         private fun Bitmap.getCircledBitmap(): Bitmap {
@@ -2241,7 +2265,6 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
 
-
         private var appIndex: Int = 0
         private var conIndex: Int = 0
 
@@ -2270,8 +2293,15 @@ class NewAppWidget : AppWidgetProvider() {
         private const val APP8_CLICKED = "App8Clicked"
         private const val APP9_CLICKED = "App9Clicked"
 
-        private const val CLEAR_C_CLICKED = "Clear_C_Clicked"
         private const val C_CLICKED = "CClicked"
+
+        private var CLEAR_C_CLICKED = "Clear_C_Clicked"
+        private val CL1_CLICK = "CL1_CLICK"
+        private val CL2_CLICK = "CL2_CLICK"
+        private val CL3_CLICK = "CL3_CLICK"
+        private val CL4_CLICK = "CL4_CLICK"
+        private val CL5_CLICK = "CL5_CLICK"
+
         private var CALL_CLICKED = "CallClicked"
         private val C1_CLICK = "C1_CLICK"
         private val C2_CLICK = "C2_CLICK"
