@@ -381,8 +381,19 @@
     </RelativeLayout>
 
 
+    <ListView
+        android:id="@+id/list_contacts"
+        android:layout_below="@+id/rl_screentime"
+        android:layout_above="@+id/tx_tweets"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@+id/imgbtn_speech"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"/>
+
+
     <LinearLayout
         android:id="@+id/ll_contacts"
+        android:visibility="invisible"
         android:orientation="horizontal"
         android:background="@drawable/gradient_glass"
         android:layout_width="match_parent"
@@ -397,20 +408,7 @@
 
     </LinearLayout>
 
-    <ProgressBar
-        android:id="@+id/progressBar_cyclic"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/rl_screentime"
-        android:layout_marginStart="@dimen/fab_margin"
-        android:layout_marginTop="5dp"
-        android:layout_toRightOf="@+id/imgbtn_conf"
-        android:indeterminate="true"
-        android:indeterminateTint="?attr/colorSecondary"
-        android:indeterminateTintMode="src_atop"
-        android:minWidth="25dp"
-        android:minHeight="25dp"
-        android:visibility="invisible" />
+
 
     <ImageButton
         android:id="@+id/imgbtn_location"
@@ -418,8 +416,8 @@
         android:layout_height="40dp"
         android:layout_below="@+id/rl_screentime"
         android:layout_marginTop="5dp"
-        android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_toStartOf="@+id/imgbtn_lock"
+        android:layout_marginEnd="10dp"
+        android:layout_alignParentStart="true"
         android:background="@drawable/rounded_corner_white"
         android:padding="5dp"
         android:scaleType="fitXY"
@@ -431,8 +429,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/rl_screentime"
         android:layout_marginTop="5dp"
-        android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_toStartOf="@+id/imgbtn_conf"
+        android:layout_marginEnd="10dp"
+        android:layout_toEndOf="@+id/imgbtn_location"
         android:background="@drawable/rounded_corner_black"
         android:padding="5dp"
         android:src="@android:drawable/ic_lock_lock" />
@@ -442,11 +440,64 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/rl_screentime"
-        android:layout_centerHorizontal="true"
+        android:layout_toEndOf="@+id/imgbtn_lock"
         android:layout_marginTop="5dp"
+        android:layout_marginEnd="10dp"
         android:background="@drawable/rounded_corner_white"
         android:padding="5dp"
         android:src="@android:drawable/ic_menu_search" />
+
+    <ImageButton
+        android:id="@+id/imgbtn_set"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rl_screentime"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_toEndOf="@+id/imgbtn_conf"
+        android:background="@drawable/rounded_corner_black"
+        android:padding="5dp"
+        android:src="@android:drawable/ic_popup_sync" />
+
+    <ProgressBar
+        android:id="@+id/progressBar_cyclic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rl_screentime"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_toEndOf="@+id/imgbtn_conf"
+        android:indeterminate="true"
+        android:indeterminateTint="?attr/colorSecondary"
+        android:indeterminateTintMode="src_atop"
+        android:minWidth="25dp"
+        android:minHeight="25dp"
+        android:visibility="invisible" />
+
+
+    <TextView
+        android:id="@+id/tx_rewards_count"
+        android:text="5"
+        android:background="@drawable/gradient_glass_flatbottom"
+        android:textStyle="bold"
+        android:textColor="@android:color/holo_red_light"
+        android:layout_alignTop="@+id/imgbtn_set"
+        android:layout_alignStart="@+id/imgbtn_set"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <ImageButton
+        android:id="@+id/imgbtn_speech"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_below="@+id/rl_screentime"
+        android:layout_toEndOf="@+id/imgbtn_set"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/rounded_corner_white"
+        android:padding="5dp"
+        android:scaleType="fitXY"
+        android:src="@android:drawable/ic_btn_speak_now" />
 
     <LinearLayout
         android:id="@+id/ll_qr_g_np"
@@ -560,50 +611,11 @@
 
     </RelativeLayout>
 
-
-
-
-    <ImageButton
-        android:id="@+id/imgbtn_set"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/rl_screentime"
-        android:layout_marginStart="@dimen/fab_margin"
-        android:layout_marginTop="5dp"
-        android:layout_toEndOf="@+id/imgbtn_conf"
-        android:background="@drawable/rounded_corner_black"
-        android:padding="5dp"
-        android:src="@android:drawable/ic_popup_sync" />
-
-    <TextView
-        android:id="@+id/tx_rewards_count"
-        android:text="5"
-        android:background="@drawable/gradient_glass_flatbottom"
-        android:textStyle="bold"
-        android:textColor="@android:color/holo_red_light"
-        android:layout_alignTop="@+id/imgbtn_set"
-        android:layout_alignStart="@+id/imgbtn_set"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <ImageButton
-        android:id="@+id/imgbtn_speech"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_below="@+id/rl_screentime"
-        android:layout_marginStart="@dimen/fab_margin"
-        android:layout_marginTop="5dp"
-        android:layout_toEndOf="@+id/imgbtn_set"
-        android:background="@drawable/rounded_corner_white"
-        android:padding="5dp"
-        android:scaleType="fitXY"
-        android:src="@android:drawable/ic_btn_speak_now" />
-
     <RelativeLayout
         android:id="@+id/rl_steps"
         android:layout_width="match_parent"
         android:layout_height="25dp"
-        android:layout_below="@+id/ll_contacts"
+        android:layout_below="@+id/rl_clocks"
         android:background="@drawable/rounded_corner_gray">
 
         <TextView
@@ -758,7 +770,7 @@
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:layout_above="@+id/tx_tweets"
-        android:layout_alignParentEnd="true"
+        android:layout_toStartOf="@+id/list_contacts"
         android:background="@drawable/weather_rounded_corner"
         android:gravity="center"
         android:src="@android:drawable/ic_menu_share"

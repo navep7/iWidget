@@ -196,6 +196,8 @@ class DialogActivity : AppCompatActivity() {
 
         var dialogIntentStr = intent.getStringExtra("DialogIntent")
 
+        makeToast("dialogIntentStr -" + dialogIntentStr)
+
         if (dialogIntentStr != null) {
             if (dialogIntentStr == "PC") {
                 llDialog.visibility = View.INVISIBLE

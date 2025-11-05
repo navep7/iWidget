@@ -7,7 +7,6 @@ import android.Manifest
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.app.PendingIntent
 import android.app.WallpaperManager
 import android.app.usage.UsageStats
@@ -19,7 +18,6 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
@@ -56,11 +54,11 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.accessibility.AccessibilityManager
+import android.widget.AdapterView
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
-import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
@@ -72,7 +70,6 @@ import com.belaku.homey.MainActivity.Companion.getWeatherData
 import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
-import com.belaku.homey.MainActivity.Companion.pickContact
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
@@ -186,6 +183,28 @@ class NewAppWidget : AppWidgetProvider() {
         for (appWidgetId in appWidgetIds) {
             remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
             newAppWidget = ComponentName(context, NewAppWidget::class.java)
+
+
+            // Set up the intent that starts the RemoteViewsService
+            val serviceIntent = Intent(context, MyRemoteViewsService::class.java)
+            serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            serviceIntent.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
+
+
+            // Set the RemoteViewsService as the adapter for the ListView
+            remoteViews?.setRemoteAdapter(R.id.list_contacts, serviceIntent)
+
+
+            // Set the PendingIntent template for the list items
+            val clickIntent = Intent(context, NewAppWidget::class.java)
+            clickIntent.setAction(ACTION_LIST_ITEM_CLICK)
+            val clickPendingIntentTemplate = PendingIntent.getBroadcast(
+                context,
+                0,
+                clickIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE // Use FLAG_MUTABLE for security
+            )
+            remoteViews?.setPendingIntentTemplate(R.id.list_contacts, clickPendingIntentTemplate)
 
 
             val aiIntent = Intent(context, AiActivity::class.java)
@@ -465,7 +484,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
 
-        appWidM.updateAppWidget(newAppWidget, remoteViews)
+        super.onUpdate(context, appWidgetManager, appWidgetIds)
 
     }
 
@@ -476,6 +495,31 @@ class NewAppWidget : AppWidgetProvider() {
         // TODO Auto-generated method stub
 
         super.onReceive(context, intent)
+
+
+        if (ACTION_LIST_ITEM_CLICK.equals(intent.action)) {
+            // Extract the item position or ID from the intent extras
+            val position = intent.getIntExtra(
+                EXTRA_ITEM_POSITION,
+                AdapterView.INVALID_POSITION
+            )
+            val viewID = intent.getIntExtra(
+                EXTRA_VIEW_ID,
+                7
+            )
+
+            makeToast("viewId - $viewID")
+
+            // Handle the click event (e.g., launch an Activity with details)
+            if (position != AdapterView.INVALID_POSITION) {
+                // Example: Launch an activity
+                makeToast("CONITEMPOS - $position")
+                if (viewID == 0)
+                    dialPhoneNumber(appContx, favContacts[position].number)
+                else if (viewID == 1)
+                    unMarkAsFav(favContacts[position].id)
+            } else makeToast("INvalid Pos - $position")
+        }
         remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
 
         Log.d(TAG, "onReceive ${intent.action}")
@@ -617,6 +661,26 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         getScreenTime()
+
+        val serviceIntent = Intent(context, MyRemoteViewsService::class.java)
+        serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, newAppWidget)
+        serviceIntent.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
+
+
+        // Set the RemoteViewsService as the adapter for the ListView
+        remoteViews?.setRemoteAdapter(R.id.list_contacts, serviceIntent)
+
+
+        // Set the PendingIntent template for the list items
+        val clickIntent = Intent(context, NewAppWidget::class.java)
+        clickIntent.setAction(ACTION_LIST_ITEM_CLICK)
+        val clickPendingIntentTemplate = PendingIntent.getBroadcast(
+            context,
+            0,
+            clickIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE // Use FLAG_MUTABLE for security
+        )
+        remoteViews?.setPendingIntentTemplate(R.id.list_contacts, clickPendingIntentTemplate)
 
         val aiIntent = Intent(context, AiActivity::class.java)
         aiIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
@@ -1997,7 +2061,10 @@ class NewAppWidget : AppWidgetProvider() {
 
             childView = RemoteViews(context.packageName, R.layout.remote_view_layout)
 
-            childView.setTextViewText(R.id.new_tx_id, favC[i].name.substring(0, 1).uppercase() + favC[i].name.substring(1, 2) + ".,")
+            childView.setTextViewText(
+                R.id.new_tx_id,
+                favC[i].name.substring(0, 1).uppercase() + favC[i].name.substring(1, 2) + ".,"
+            )
 
             if (i == 0) {
                 CALL_CLICKED = C1_CLICK
@@ -2299,6 +2366,9 @@ class NewAppWidget : AppWidgetProvider() {
         private const val APP9_CLICKED = "App9Clicked"
 
         private const val C_CLICKED = "CClicked"
+        private const val ACTION_LIST_ITEM_CLICK = "Contact_Item_Click"
+        const val EXTRA_ITEM_POSITION = "Contact_Item_Pos"
+        const val EXTRA_VIEW_ID = "ID"
 
         private var CLEAR_C_CLICKED = "Clear_C_Clicked"
         private val CL1_CLICK = "CL1_CLICK"
