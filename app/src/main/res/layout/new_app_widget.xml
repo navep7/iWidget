@@ -279,6 +279,7 @@
 
     <RelativeLayout
         android:id="@+id/rl_apps"
+        android:background="@drawable/gradient_glass"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/rl_steps"
@@ -383,6 +384,7 @@
     <LinearLayout
         android:id="@+id/ll_contacts"
         android:orientation="horizontal"
+        android:background="@drawable/gradient_glass"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/rl_clocks">
@@ -505,39 +507,53 @@
     <RelativeLayout
         android:id="@+id/rl_screentime"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="25dp"
+        android:background="@drawable/rounded_corner_gray"
         android:layout_below="@+id/rl_apps"
-        android:layout_margin="5dp"
-        android:background="@drawable/gradient_glass_rounded">
+        android:layout_margin="5dp" >
 
         <TextView
             android:id="@+id/tx_st_since"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:text="since..."
+            android:layout_centerVertical="true"
+            android:text=".Since 12 pm yday.,"
+            android:textColor="@color/white"
             android:textStyle="bold|italic" />
+
+        <ImageButton
+            android:id="@+id/imgv_screentime"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_toEndOf="@+id/tx_st_since"
+            android:background="@android:color/transparent"
+            android:scaleType="fitXY"
+            android:src="@drawable/screen_time" />
+
 
         <TextView
             android:id="@+id/btn_screentime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/fab_margin"
+            android:layout_toEndOf="@+id/imgv_screentime"
+            android:layout_marginStart="5dp"
             android:background="@android:color/transparent"
             android:text="Screen time ~ 10+ Hrs"
-            android:textColor="@android:color/holo_red_light"
-            android:textSize="21sp"
+            android:layout_centerVertical="true"
+            android:textColor="@color/white"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tx_screentime_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
+            android:layout_marginStart="3dp"
             android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
             android:layout_marginEnd="5dp"
             android:text="ⓘ"
-            android:textSize="25sp"
+            android:textColor="@color/white"
+            android:textSize="15sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
 

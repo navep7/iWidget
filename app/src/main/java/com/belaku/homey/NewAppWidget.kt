@@ -1752,7 +1752,7 @@ class NewAppWidget : AppWidgetProvider() {
         totalScreenTimeInMinutes = totalScreenTimeInMillis / (1000 * 60 * 60)
 
 
-        remoteViews?.setTextViewText(R.id.tx_st_since, "since ${currentHour % 12} $ampm, yday...")
+        remoteViews?.setTextViewText(R.id.tx_st_since, ".Since ${currentHour % 12} $ampm yday.,")
         remoteViews?.setTextViewText(
             R.id.btn_screentime,
             "Screen time ~ ${totalScreenTimeInMinutes.toString()}+ Hrs"
