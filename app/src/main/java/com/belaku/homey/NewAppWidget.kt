@@ -145,6 +145,11 @@ class NewAppWidget : AppWidgetProvider() {
         val wallpaperManager = WallpaperManager.getInstance(context)
         val wallpaperColors = wallpaperManager.getWallpaperColors(WallpaperManager.FLAG_SYSTEM)
 
+        primaryColor = appContx.resources.getColor(android.R.color.holo_green_light)
+        secondaryColor = appContx.resources.getColor(android.R.color.darker_gray)
+        tertianaryColor = appContx.resources.getColor(android.R.color.system_surface_bright_dark)
+
+
         if (wallpaperColors != null) {
             primaryColor = wallpaperColors.primaryColor.toArgb()
 
@@ -1992,6 +1997,8 @@ class NewAppWidget : AppWidgetProvider() {
 
             childView = RemoteViews(context.packageName, R.layout.remote_view_layout)
 
+            childView.setTextViewText(R.id.new_tx_id, favC[i].name.substring(0, 1).uppercase() + favC[i].name.substring(1, 2) + ".,")
+
             if (i == 0) {
                 CALL_CLICKED = C1_CLICK
                 CLEAR_C_CLICKED = CL1_CLICK
@@ -2035,8 +2042,6 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.new_imgv_id,
                 bm.getCircledBitmap()
             )
-            childView.setTextViewText(R.id.new_tx_id, favC[i].name.substring(0, 1).uppercase())
-
 
             remoteViews?.addView(R.id.ll_contacts, childView)
             appWidM.updateAppWidget(newAppWidget, remoteViews)

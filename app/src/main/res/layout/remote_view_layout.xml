@@ -1,45 +1,36 @@
-<!-- res/layout/custom_textview_layout.xml -->
 
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_gravity="center"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal">
-
-    <TextView
-        android:id="@+id/new_tx_id"
-        android:text="S"
-        android:background="@drawable/rounded_corner"
-        android:textSize="25sp"
-        android:textColor="?attr/colorPrimaryInverse"
-        android:layout_gravity="bottom"
-        android:textStyle="bold"
-        android:layout_marginEnd="-10sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
+    android:layout_height="wrap_content">
 
     <ImageView
         android:id="@+id/new_imgv_id"
-        android:src="@drawable/launch_e"
-        android:scaleType="fitXY"
         android:layout_width="55dp"
-        android:layout_height="55dp" />
+        android:layout_height="55dp"
+        android:src="@drawable/contacts" />
+
+    <TextView
+        android:id="@+id/new_tx_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Na.,"
+        android:textColor="@android:color/holo_green_light"
+        android:textStyle="bold"
+        android:layout_marginStart="15dp"
+        android:layout_gravity="start|bottom"
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/new_tx_close_id"
-        android:layout_gravity="top"
-        android:text="Ⓧ"
-        android:layout_marginStart="-10sp"
-        android:textSize="25sp"
-        android:textStyle="bold"
-        android:textColor="?attr/colorPrimary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:ignore="HardcodedText" />
+        android:text="Ⓧ"
+        android:textColor="@android:color/holo_red_light"
+        android:textStyle="bold"
+        android:layout_marginEnd="7dp"
+        android:layout_gravity="end|top"
+        android:textSize="20sp" />
 
-
-
-</LinearLayout>
+</FrameLayout>
