@@ -15,7 +15,7 @@ import com.belaku.homey.NewAppWidget.Companion.favContacts
 import java.io.IOException
 
 
-class MyRemoteViewsFactory(private val mContext: Context, intent: Intent?) :
+class RemoteViewsContactsFactory(private val mContext: Context, intent: Intent?) :
     RemoteViewsFactory {
 
     override fun onCreate() {
@@ -37,8 +37,6 @@ class MyRemoteViewsFactory(private val mContext: Context, intent: Intent?) :
 
     override fun getViewAt(position: Int): RemoteViews {
         val rv = RemoteViews(mContext.packageName, R.layout.remote_view_layout)
-
-
 
         val inputStream = ContactsContract.Contacts.openContactPhotoInputStream(
             appContx.contentResolver,
@@ -84,11 +82,11 @@ class MyRemoteViewsFactory(private val mContext: Context, intent: Intent?) :
         // Create the fill-in intent
         val fillInIntentDial = Intent()
         fillInIntentDial.putExtra(
-            NewAppWidget.EXTRA_ITEM_POSITION,
+            NewAppWidget.EXTRA_CONTACTITEM_POSITION,
             position
         ) // Add item-specific data
         fillInIntentDial.putExtra(
-            NewAppWidget.EXTRA_VIEW_ID,
+            NewAppWidget.EXTRA_CONTACTVIEW_ID,
             0
         )
         // setOnClickFillInIntent is called on the root view of the list item layout
@@ -96,11 +94,11 @@ class MyRemoteViewsFactory(private val mContext: Context, intent: Intent?) :
 
         val fillInIntentRemove = Intent()
         fillInIntentRemove.putExtra(
-            NewAppWidget.EXTRA_ITEM_POSITION,
+            NewAppWidget.EXTRA_CONTACTITEM_POSITION,
             position
         ) // Add item-specific data
         fillInIntentRemove.putExtra(
-            NewAppWidget.EXTRA_VIEW_ID,
+            NewAppWidget.EXTRA_CONTACTVIEW_ID,
             1
         )
         // setOnClickFillInIntent is called on the root view of the list item layout

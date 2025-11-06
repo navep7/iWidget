@@ -1,0 +1,92 @@
+package com.belaku.homey
+
+import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.provider.ContactsContract
+import android.widget.RemoteViews
+import android.widget.RemoteViewsService.RemoteViewsFactory
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
+import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.MainActivity.Companion.apps
+import com.belaku.homey.NewAppWidget.Companion.choosenApps
+import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
+import java.io.IOException
+
+
+class RemoteViewsAppsFactory(private val mContext: Context, intent: Intent?) :
+    RemoteViewsFactory {
+
+    override fun onCreate() {
+        // Initialize your data source here
+
+    }
+
+    override fun onDataSetChanged() {
+        // Called when the data needs to be updated (e.g., after notifyAppWidgetViewDataChanged)
+    }
+
+    override fun onDestroy() {
+
+    }
+
+    override fun getCount(): Int {
+        return choosenApps.size
+    }
+
+    override fun getViewAt(position: Int): RemoteViews {
+        val rv = RemoteViews(mContext.packageName, R.layout.remote_view_layout)
+
+
+        rv.setTextViewText(
+            R.id.new_tx_id,
+            choosenApps[position].name.substring(0, 1)
+        )
+        rv.setTextViewText(
+            R.id.new_tx_close_id,
+           ""
+        )
+        rv.setImageViewBitmap(R.id.new_imgv_id, drawableToBitmap(appContx, appContx.packageManager.getApplicationIcon(
+            choosenApps[position].pName)))
+
+
+        // Create the fill-in intent
+        val fillInIntentApp = Intent()
+        fillInIntentApp.putExtra(
+            NewAppWidget.EXTRA_APPITEM_POSITION,
+            position
+        ) // Add item-specific data
+        fillInIntentApp.putExtra(
+            NewAppWidget.EXTRA_APPVIEW_ID,
+            0
+        )
+        // setOnClickFillInIntent is called on the root view of the list item layout
+        rv.setOnClickFillInIntent(R.id.new_imgv_id, fillInIntentApp)
+
+        val fillInIntentRemove = Intent()
+        fillInIntentRemove.putExtra(
+            NewAppWidget.EXTRA_APPITEM_POSITION,
+            position
+        ) // Add item-specific data
+
+        return rv
+    }
+
+    override fun getLoadingView(): RemoteViews? {
+        return null // You can provide a custom loading view
+    }
+
+    override fun getViewTypeCount(): Int {
+        return 1 // Number of different layout types in your list
+    }
+
+    override fun getItemId(position: Int): Long {
+        return position.toLong()
+    }
+
+    override fun hasStableIds(): Boolean {
+        return true
+    }
+}

@@ -280,20 +280,33 @@
         android:layout_toStartOf="@+id/ll_controls"
         android:src="@drawable/launch_e" />
 
+    <TextView
+        android:id="@+id/tx_f_apps"
+        android:layout_below="@+id/imgv_apps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/list_apps"
+        android:text="...apps,"
+        android:background="@drawable/gradient_glass_flatbottom"
+        android:textStyle="bold|italic"
+        android:textSize="20sp"
+        tools:ignore="HardcodedText" />
+
 
     <ListView
         android:id="@+id/list_apps"
         android:background="@drawable/gradient_glass"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/imgv_add_contacts"
-        android:layout_below="@+id/imgv_contacts"
+        android:layout_above="@+id/tx_tweets"
+        android:layout_below="@+id/tx_f_apps"
         android:layout_alignParentStart="true"
         android:layout_toStartOf="@+id/ll_controls" />
 
 
     <ImageView
         android:id="@+id/imgv_add_apps"
+        android:visibility="invisible"
         android:layout_width="55dp"
         android:layout_height="55dp"
         android:layout_above="@+id/tx_tweets"
@@ -310,6 +323,18 @@
         android:layout_toEndOf="@+id/ll_controls"
         android:src="@drawable/contacts" />
 
+    <TextView
+        android:id="@+id/tx_f_contacts"
+        android:layout_below="@+id/imgv_apps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/list_contacts"
+        android:text=" ...whiz, "
+        android:background="@drawable/gradient_glass_flatbottom"
+        android:textStyle="bold|italic"
+        android:textSize="20sp"
+        tools:ignore="HardcodedText" />
+
 
     <ListView
         android:id="@+id/list_contacts"
@@ -317,7 +342,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/imgv_add_contacts"
-        android:layout_below="@+id/imgv_contacts"
+        android:layout_below="@+id/tx_f_contacts"
         android:layout_alignParentEnd="true"
         android:layout_toEndOf="@+id/ll_controls" />
 

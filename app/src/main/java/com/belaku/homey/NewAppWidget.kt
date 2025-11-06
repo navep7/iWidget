@@ -14,7 +14,6 @@ import android.app.usage.UsageStatsManager
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
-import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
@@ -24,7 +23,6 @@ import android.content.pm.PackageManager.NameNotFoundException
 import android.content.pm.ServiceInfo
 import android.database.Cursor
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -50,21 +48,20 @@ import android.provider.MediaStore
 import android.provider.Settings
 import android.text.Html
 import android.util.Log
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.accessibility.AccessibilityManager
 import android.widget.AdapterView
-import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.FileProvider
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.getWeatherData
 import com.belaku.homey.MainActivity.Companion.listTweets
@@ -185,26 +182,25 @@ class NewAppWidget : AppWidgetProvider() {
             newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
 
-            // Set up the intent that starts the RemoteViewsService
-            val serviceIntent = Intent(context, MyRemoteViewsService::class.java)
-            serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-            serviceIntent.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
+            val serviceIntentContact = Intent(context, RemoteViewsContactsService::class.java)
+            serviceIntentContact.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            serviceIntentContact.setData(Uri.parse(serviceIntentContact.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
 
 
             // Set the RemoteViewsService as the adapter for the ListView
-            remoteViews?.setRemoteAdapter(R.id.list_contacts, serviceIntent)
+            remoteViews?.setRemoteAdapter(R.id.list_contacts, serviceIntentContact)
 
 
             // Set the PendingIntent template for the list items
-            val clickIntent = Intent(context, NewAppWidget::class.java)
-            clickIntent.setAction(ACTION_LIST_ITEM_CLICK)
-            val clickPendingIntentTemplate = PendingIntent.getBroadcast(
+            val clickIntentContact = Intent(context, NewAppWidget::class.java)
+            clickIntentContact.setAction(ACTION_LIST_CONTACTITEM_CLICK)
+            val clickPendingIntentTemplateContact = PendingIntent.getBroadcast(
                 context,
                 0,
-                clickIntent,
+                clickIntentContact,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE // Use FLAG_MUTABLE for security
             )
-            remoteViews?.setPendingIntentTemplate(R.id.list_contacts, clickPendingIntentTemplate)
+            remoteViews?.setPendingIntentTemplate(R.id.list_contacts, clickPendingIntentTemplateContact)
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgv_contacts,
@@ -218,6 +214,41 @@ class NewAppWidget : AppWidgetProvider() {
                     PendingIntent.FLAG_IMMUTABLE
                 )
             )
+
+            val serviceIntentApp = Intent(context, RemoteViewsAppsService::class.java)
+            serviceIntentApp.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            serviceIntentApp.setData(Uri.parse(serviceIntentApp.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
+
+
+            // Set the RemoteViewsService as the adapter for the ListView
+            remoteViews?.setRemoteAdapter(R.id.list_apps, serviceIntentApp)
+
+
+            // Set the PendingIntent template for the list items
+            val clickIntentApp = Intent(context, NewAppWidget::class.java)
+            clickIntentApp.setAction(ACTION_LIST_APPITEM_CLICK)
+            val clickPendingIntentTemplateApp = PendingIntent.getBroadcast(
+                context,
+                1,
+                clickIntentApp,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE // Use FLAG_MUTABLE for security
+            )
+            remoteViews?.setPendingIntentTemplate(R.id.list_apps, clickPendingIntentTemplateApp)
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgv_apps,
+                getPendingSelfIntent(context, A_CLICKED)
+            )
+
+          /*  remoteViews?.setOnClickPendingIntent(
+                R.id.imgv_add_apps, PendingIntent.getActivity(
+                    context, 12,
+                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PA"),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+            )*/
+
+
 
             val aiIntent = Intent(context, AiActivity::class.java)
             aiIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
@@ -490,14 +521,14 @@ class NewAppWidget : AppWidgetProvider() {
         super.onReceive(context, intent)
 
 
-        if (ACTION_LIST_ITEM_CLICK.equals(intent.action)) {
+        if (ACTION_LIST_CONTACTITEM_CLICK == intent.action) {
             // Extract the item position or ID from the intent extras
             val position = intent.getIntExtra(
-                EXTRA_ITEM_POSITION,
+                EXTRA_CONTACTITEM_POSITION,
                 AdapterView.INVALID_POSITION
             )
             val viewID = intent.getIntExtra(
-                EXTRA_VIEW_ID,
+                EXTRA_CONTACTVIEW_ID,
                 7
             )
 
@@ -510,6 +541,35 @@ class NewAppWidget : AppWidgetProvider() {
                     unMarkAsFav(favContacts[position].id)
             } else makeToast("INvalid Pos - $position")
         }
+
+        if (ACTION_LIST_APPITEM_CLICK == intent.action) {
+            // Extract the item position or ID from the intent extras
+            val position = intent.getIntExtra(
+                EXTRA_APPITEM_POSITION,
+                AdapterView.INVALID_POSITION
+            )
+            val viewID = intent.getIntExtra(
+                EXTRA_APPVIEW_ID,
+                7
+            )
+
+
+
+            if (position != AdapterView.INVALID_POSITION) {
+
+                if (viewID == 0) {
+                    makeToast(choosenApps[position].name)
+                    val launchIntent: Intent = appContx.packageManager.getLaunchIntentForPackage(
+                        choosenApps[position].pName)!!
+
+                    // Optional: Add flags for desired behavior (e.g., to ensure a new task is created)
+                    launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    MainActivity.Companion.appContx.startActivity(launchIntent)
+                } else if (viewID == 1)
+                    makeToast("Remove App - ${apps[position].name}")
+            } else makeToast("INvalid Pos - $position")
+        }
+
         remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
 
         Log.d(TAG, "onReceive ${intent.action}")
@@ -652,7 +712,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         getScreenTime()
 
-        val serviceIntent = Intent(context, MyRemoteViewsService::class.java)
+        val serviceIntent = Intent(context, RemoteViewsContactsService::class.java)
         serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, newAppWidget)
         serviceIntent.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
 
@@ -662,15 +722,27 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         // Set the PendingIntent template for the list items
-        val clickIntent = Intent(context, NewAppWidget::class.java)
-        clickIntent.setAction(ACTION_LIST_ITEM_CLICK)
-        val clickPendingIntentTemplate = PendingIntent.getBroadcast(
+        val clickIntentContact = Intent(context, NewAppWidget::class.java)
+        clickIntentContact.setAction(ACTION_LIST_CONTACTITEM_CLICK)
+        val clickPendingIntentTemplateContact = PendingIntent.getBroadcast(
             context,
             0,
-            clickIntent,
+            clickIntentContact,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE // Use FLAG_MUTABLE for security
         )
-        remoteViews?.setPendingIntentTemplate(R.id.list_contacts, clickPendingIntentTemplate)
+        remoteViews?.setPendingIntentTemplate(R.id.list_contacts, clickPendingIntentTemplateContact)
+
+        val clickIntentApp = Intent(context, NewAppWidget::class.java)
+        clickIntentApp.setAction(ACTION_LIST_APPITEM_CLICK)
+        val clickPendingIntentTemplateApp = PendingIntent.getBroadcast(
+            context,
+            1,
+            clickIntentApp,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE // Use FLAG_MUTABLE for security
+        )
+        remoteViews?.setPendingIntentTemplate(R.id.list_apps, clickPendingIntentTemplateApp)
+
+
 
 
         remoteViews?.setOnClickPendingIntent(
@@ -1296,8 +1368,11 @@ class NewAppWidget : AppWidgetProvider() {
             }
         }
 
-
-        if (C_CLICKED == intent.action) {
+        if (A_CLICKED == intent.action) {
+            val intentApps = Intent(appContx, AppsActivity::class.java)
+            intentApps.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            appContx.startActivity(intentApps)
+        } else if (C_CLICKED == intent.action) {
             val intentContacts = Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI)
             intentContacts.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             appContx.startActivity(intentContacts)
@@ -2018,9 +2093,13 @@ class NewAppWidget : AppWidgetProvider() {
         private const val APP9_CLICKED = "App9Clicked"
 
         private const val C_CLICKED = "CClicked"
-        private const val ACTION_LIST_ITEM_CLICK = "Contact_Item_Click"
-        const val EXTRA_ITEM_POSITION = "Contact_Item_Pos"
-        const val EXTRA_VIEW_ID = "ID"
+        private const val A_CLICKED = "AClicked"
+        private const val ACTION_LIST_CONTACTITEM_CLICK = "Contact_Item_Click"
+        private const val ACTION_LIST_APPITEM_CLICK = "App_Item_Click"
+        const val EXTRA_CONTACTITEM_POSITION = "Contact_Item_Pos"
+        const val EXTRA_APPITEM_POSITION = "App_Item_Pos"
+        const val EXTRA_CONTACTVIEW_ID = "CID"
+        const val EXTRA_APPVIEW_ID = "AID"
 
         private var CLEAR_C_CLICKED = "Clear_C_Clicked"
         private val CL1_CLICK = "CL1_CLICK"
