@@ -36,7 +36,7 @@ class RemoteViewsContactsFactory(private val mContext: Context, intent: Intent?)
     }
 
     override fun getViewAt(position: Int): RemoteViews {
-        val rv = RemoteViews(mContext.packageName, R.layout.remote_view_layout)
+        val rv = RemoteViews(mContext.packageName, R.layout.remote_view_layout_contact)
 
         val inputStream = ContactsContract.Contacts.openContactPhotoInputStream(
             appContx.contentResolver,
@@ -72,11 +72,11 @@ class RemoteViewsContactsFactory(private val mContext: Context, intent: Intent?)
 
 
         rv.setTextViewText(
-            R.id.new_tx_id,
+            R.id.contact_tx_name,
             favContacts[position].name.substring(0, 1)
                 .uppercase() + favContacts[position].name.substring(1, 2).lowercase()
         )
-        rv.setImageViewBitmap(R.id.new_imgv_id, rBm)
+        rv.setImageViewBitmap(R.id.contact_imgv, rBm)
 
 
         // Create the fill-in intent
@@ -90,7 +90,7 @@ class RemoteViewsContactsFactory(private val mContext: Context, intent: Intent?)
             0
         )
         // setOnClickFillInIntent is called on the root view of the list item layout
-        rv.setOnClickFillInIntent(R.id.new_imgv_id, fillInIntentDial)
+        rv.setOnClickFillInIntent(R.id.contact_imgv, fillInIntentDial)
 
         val fillInIntentRemove = Intent()
         fillInIntentRemove.putExtra(
@@ -102,7 +102,7 @@ class RemoteViewsContactsFactory(private val mContext: Context, intent: Intent?)
             1
         )
         // setOnClickFillInIntent is called on the root view of the list item layout
-        rv.setOnClickFillInIntent(R.id.new_tx_close_id, fillInIntentRemove)
+        rv.setOnClickFillInIntent(R.id.contact_tx_close, fillInIntentRemove)
 
 
         return rv

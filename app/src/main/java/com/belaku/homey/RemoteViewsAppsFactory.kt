@@ -37,18 +37,15 @@ class RemoteViewsAppsFactory(private val mContext: Context, intent: Intent?) :
     }
 
     override fun getViewAt(position: Int): RemoteViews {
-        val rv = RemoteViews(mContext.packageName, R.layout.remote_view_layout)
+        val rv = RemoteViews(mContext.packageName, R.layout.remote_view_layout_app)
 
 
         rv.setTextViewText(
-            R.id.new_tx_id,
+            R.id.app_tx_name,
             choosenApps[position].name.substring(0, 1)
         )
-        rv.setTextViewText(
-            R.id.new_tx_close_id,
-           ""
-        )
-        rv.setImageViewBitmap(R.id.new_imgv_id, drawableToBitmap(appContx, appContx.packageManager.getApplicationIcon(
+
+        rv.setImageViewBitmap(R.id.app_imgv, drawableToBitmap(appContx, appContx.packageManager.getApplicationIcon(
             choosenApps[position].pName)))
 
 
@@ -63,7 +60,7 @@ class RemoteViewsAppsFactory(private val mContext: Context, intent: Intent?) :
             0
         )
         // setOnClickFillInIntent is called on the root view of the list item layout
-        rv.setOnClickFillInIntent(R.id.new_imgv_id, fillInIntentApp)
+        rv.setOnClickFillInIntent(R.id.app_imgv, fillInIntentApp)
 
         val fillInIntentRemove = Intent()
         fillInIntentRemove.putExtra(

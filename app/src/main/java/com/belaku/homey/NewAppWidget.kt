@@ -712,35 +712,26 @@ class NewAppWidget : AppWidgetProvider() {
 
         getScreenTime()
 
-        val serviceIntent = Intent(context, RemoteViewsContactsService::class.java)
-        serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, newAppWidget)
-        serviceIntent.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
+        val serviceIntentContactR = Intent(context, RemoteViewsContactsService::class.java)
+        serviceIntentContactR.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, newAppWidget)
+        serviceIntentContactR.setData(Uri.parse(serviceIntentContactR.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
 
 
         // Set the RemoteViewsService as the adapter for the ListView
-        remoteViews?.setRemoteAdapter(R.id.list_contacts, serviceIntent)
+        remoteViews?.setRemoteAdapter(R.id.list_contacts, serviceIntentContactR)
 
 
         // Set the PendingIntent template for the list items
-        val clickIntentContact = Intent(context, NewAppWidget::class.java)
-        clickIntentContact.setAction(ACTION_LIST_CONTACTITEM_CLICK)
-        val clickPendingIntentTemplateContact = PendingIntent.getBroadcast(
+        val clickIntentContactR = Intent(context, NewAppWidget::class.java)
+        clickIntentContactR.setAction(ACTION_LIST_CONTACTITEM_CLICK)
+        val clickPendingIntentTemplateContactR = PendingIntent.getBroadcast(
             context,
             0,
-            clickIntentContact,
+            clickIntentContactR,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE // Use FLAG_MUTABLE for security
         )
-        remoteViews?.setPendingIntentTemplate(R.id.list_contacts, clickPendingIntentTemplateContact)
+        remoteViews?.setPendingIntentTemplate(R.id.list_contacts, clickPendingIntentTemplateContactR)
 
-        val clickIntentApp = Intent(context, NewAppWidget::class.java)
-        clickIntentApp.setAction(ACTION_LIST_APPITEM_CLICK)
-        val clickPendingIntentTemplateApp = PendingIntent.getBroadcast(
-            context,
-            1,
-            clickIntentApp,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE // Use FLAG_MUTABLE for security
-        )
-        remoteViews?.setPendingIntentTemplate(R.id.list_apps, clickPendingIntentTemplateApp)
 
 
 
@@ -757,6 +748,31 @@ class NewAppWidget : AppWidgetProvider() {
                 PendingIntent.FLAG_IMMUTABLE
             )
         )
+
+
+        val serviceIntentAppR = Intent(context, RemoteViewsAppsService::class.java)
+        serviceIntentAppR.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, newAppWidget)
+        serviceIntentAppR.setData(Uri.parse(serviceIntentAppR.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
+
+
+        // Set the RemoteViewsService as the adapter for the ListView
+        remoteViews?.setRemoteAdapter(R.id.list_apps, serviceIntentAppR)
+
+
+        // Set the PendingIntent template for the list items
+        val clickIntentAppR = Intent(context, NewAppWidget::class.java)
+        clickIntentAppR.setAction(ACTION_LIST_CONTACTITEM_CLICK)
+        val clickPendingIntentTemplateAppR = PendingIntent.getBroadcast(
+            context,
+            1,
+            clickIntentAppR,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE // Use FLAG_MUTABLE for security
+        )
+        remoteViews?.setPendingIntentTemplate(R.id.list_contacts, clickPendingIntentTemplateAppR)
+
+
+
+
 
         val aiIntent = Intent(context, AiActivity::class.java)
         aiIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
