@@ -271,103 +271,73 @@
     </RelativeLayout>
 
 
-    <RelativeLayout
-        android:id="@+id/rl_apps"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <ImageView
+        android:id="@+id/imgv_apps"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
         android:layout_below="@+id/rl_steps"
-        android:layout_marginStart="@dimen/fab_margin"
-        android:layout_marginTop="3dp"
-        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/ll_controls"
+        android:src="@drawable/launch_e" />
+
+
+    <ListView
+        android:id="@+id/list_apps"
         android:background="@drawable/gradient_glass"
-        android:visibility="invisible">
-
-        <LinearLayout
-            android:id="@+id/ll_apps"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center">
-
-            <ImageView
-                android:id="@+id/imgv_app1"
-                android:layout_width="55dp"
-                android:layout_height="55dp"
-                android:layout_margin="5dp"
-                android:background="?android:attr/selectableItemBackground" />
-
-            <ImageView
-                android:id="@+id/imgv_app2"
-                android:layout_width="55dp"
-                android:layout_height="55dp"
-                android:layout_margin="5dp"
-                android:background="?android:attr/selectableItemBackground" />
-
-            <ImageView
-                android:id="@+id/imgv_app3"
-                android:layout_width="55dp"
-                android:layout_height="55dp"
-                android:layout_margin="5dp"
-                android:background="?android:attr/selectableItemBackground"
-                android:src="@drawable/launch_e" />
-
-            <ImageView
-                android:id="@+id/imgv_app4"
-                android:layout_width="55dp"
-                android:layout_height="55dp"
-                android:layout_margin="5dp"
-                android:background="?android:attr/selectableItemBackground" />
-
-            <ImageView
-                android:id="@+id/imgv_app5"
-                android:layout_width="55dp"
-                android:layout_height="55dp"
-                android:layout_margin="5dp"
-                android:background="?android:attr/selectableItemBackground" />
-
-        </LinearLayout>
-
-
-    </RelativeLayout>
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/imgv_add_contacts"
+        android:layout_below="@+id/imgv_contacts"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/ll_controls" />
 
 
     <ImageView
-        android:id="@+id/imgv_contacts"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@+id/rl_steps"
-        android:layout_toEndOf="@+id/ll_controls"
+        android:id="@+id/imgv_add_apps"
         android:layout_width="55dp"
         android:layout_height="55dp"
+        android:layout_above="@+id/tx_tweets"
+        android:layout_alignStart="@+id/imgv_apps"
+        android:layout_toStartOf="@+id/ll_controls"
+        android:src="@android:drawable/ic_input_add" />
+
+    <ImageView
+        android:id="@+id/imgv_contacts"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:layout_below="@+id/rl_steps"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@+id/ll_controls"
         android:src="@drawable/contacts" />
 
 
     <ListView
         android:id="@+id/list_contacts"
+        android:background="@drawable/gradient_glass"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_toEndOf="@+id/ll_controls"
-        android:layout_below="@+id/imgv_contacts"
         android:layout_above="@+id/imgv_add_contacts"
-        android:layout_alignParentEnd="true" />
+        android:layout_below="@+id/imgv_contacts"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@+id/ll_controls" />
 
 
     <ImageView
         android:id="@+id/imgv_add_contacts"
-        android:layout_alignParentEnd="true"
-        android:layout_above="@+id/tx_tweets"
-        android:layout_alignStart="@+id/imgv_contacts"
         android:layout_width="55dp"
         android:layout_height="55dp"
-        android:src="@drawable/contacts" />
-
-
-
+        android:layout_above="@+id/tx_tweets"
+        android:layout_alignStart="@+id/imgv_contacts"
+        android:layout_alignParentEnd="true"
+        android:src="@android:drawable/ic_input_add" />
 
 
     <LinearLayout
         android:id="@+id/ll_controls"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
-        android:layout_below="@+id/rl_steps">
+        android:layout_below="@+id/rl_steps"
+        android:layout_centerHorizontal="true">
 
         <ImageButton
             android:id="@+id/imgbtn_location"
@@ -381,16 +351,6 @@
             android:src="@drawable/location" />
 
         <ImageButton
-            android:id="@+id/imgbtn_lock"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="10dp"
-            android:background="@drawable/rounded_corner_black"
-            android:padding="5dp"
-            android:src="@android:drawable/ic_lock_lock" />
-
-        <ImageButton
             android:id="@+id/imgbtn_conf"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -399,6 +359,38 @@
             android:background="@drawable/rounded_corner_white"
             android:padding="5dp"
             android:src="@android:drawable/ic_menu_search" />
+
+
+        <ImageButton
+            android:id="@+id/imgbtn_speech"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/rounded_corner_white"
+            android:padding="5dp"
+            android:scaleType="fitXY"
+            android:src="@android:drawable/ic_btn_speak_now" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_controls2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ll_controls"
+        android:layout_centerHorizontal="true">
+
+
+        <ImageButton
+            android:id="@+id/imgbtn_lock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/rounded_corner_black"
+            android:padding="5dp"
+            android:src="@android:drawable/ic_lock_lock" />
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -440,50 +432,63 @@
 
         </RelativeLayout>
 
-        <ImageButton
-            android:id="@+id/imgbtn_speech"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="5dp"
-            android:background="@drawable/rounded_corner_white"
-            android:padding="5dp"
-            android:scaleType="fitXY"
-            android:src="@android:drawable/ic_btn_speak_now" />
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/ll_qr_g_np"
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/tx_tweets"
-        android:layout_below="@+id/ll_controls"
-        android:layout_marginTop="5dp"
-        android:layout_toStartOf="@+id/list_contacts"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal"
-        android:weightSum="3">
+        android:layout_above="@+id/fab_share"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="-55dp"
+        android:layout_alignStart="@+id/rl_screentime"
+        android:layout_below="@+id/rl_screentime"
+        android:layout_toStartOf="@+id/list_contacts">
 
-        <ImageButton
-            android:id="@+id/imgbtn_g_apps"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:id="@+id/ll_gapps_napps"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:contentDescription="QR"
-            android:scaleType="fitCenter"
-            android:src="@drawable/gapps_logo_bnw"
-            tools:ignore="HardcodedText" />
+            android:gravity="center_horizontal"
+            android:layout_alignParentTop="true"
+            android:orientation="horizontal"
+            android:weightSum="2">
 
+            <ImageButton
+                android:id="@+id/imgbtn_g_apps"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:contentDescription="G"
+                android:scaleType="fitCenter"
+                android:src="@drawable/gapps_logo_bnw"
+                tools:ignore="HardcodedText" />
+
+
+            <ImageButton
+                android:id="@+id/imgbtn_n_apps"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:contentDescription="N"
+                android:scaleType="fitCenter"
+                android:src="@drawable/my_space_bnw"
+                android:weightSum="3"
+                tools:ignore="HardcodedText" />
+
+
+        </LinearLayout>
 
         <ImageButton
             android:id="@+id/imgbtn_qr"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_weight="1"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
             android:background="@android:color/transparent"
             android:contentDescription="QR"
             android:scaleType="fitCenter"
@@ -491,52 +496,39 @@
             tools:ignore="HardcodedText" />
 
 
-        <ImageButton
-            android:id="@+id/imgbtn_n_apps"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:contentDescription="QR"
-            android:scaleType="fitCenter"
-            android:src="@drawable/my_space_bnw"
-            android:weightSum="3"
-            tools:ignore="HardcodedText" />
+    </RelativeLayout>
 
-
-    </LinearLayout>
 
     <RelativeLayout
         android:id="@+id/rl_screentime"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/rl_apps"
+        android:layout_below="@+id/ll_controls2"
+        android:layout_centerHorizontal="true"
         android:layout_margin="5dp"
-        android:layout_toStartOf="@+id/fab_share"
-        android:layout_toRightOf="@+id/twSettings"
         android:background="@drawable/gradient_glass_rounded">
 
         <TextView
             android:id="@+id/tx_st_since"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
+            android:layout_centerHorizontal="true"
             android:text="since..."
             android:textStyle="bold|italic" />
 
         <TextView
             android:id="@+id/btn_screentime"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/fab_margin"
             android:background="@android:color/transparent"
-            android:text="Screen ON ~ 10+ Hrs"
+            android:text="ON ~ 10+ H"
             android:textColor="@android:color/holo_red_light"
             android:textSize="21sp"
             android:textStyle="bold" />
 
     </RelativeLayout>
+
     <RelativeLayout
         android:id="@+id/rl_steps"
         android:layout_width="match_parent"
@@ -682,7 +674,7 @@
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:layout_above="@+id/tx_tweets"
-        android:layout_alignParentStart="true"
+        android:layout_toRightOf="@+id/list_apps"
         android:background="@drawable/gradient_glass"
         android:padding="5dp"
         android:scaleType="fitXY"

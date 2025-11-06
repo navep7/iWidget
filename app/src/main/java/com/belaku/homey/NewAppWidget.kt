@@ -206,6 +206,18 @@ class NewAppWidget : AppWidgetProvider() {
             )
             remoteViews?.setPendingIntentTemplate(R.id.list_contacts, clickPendingIntentTemplate)
 
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgv_contacts,
+                getPendingSelfIntent(context, C_CLICKED)
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgv_add_contacts, PendingIntent.getActivity(
+                    context, 11,
+                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+            )
 
             val aiIntent = Intent(context, AiActivity::class.java)
             aiIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
@@ -432,7 +444,7 @@ class NewAppWidget : AppWidgetProvider() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
-            remoteViews?.setOnClickPendingIntent(
+        /*    remoteViews?.setOnClickPendingIntent(
                 R.id.imgv_app3,
                 launcherPendingIntent
             )
@@ -456,7 +468,7 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.imgv_app5,
                 getPendingSelfIntent(context, APP5_CLICKED)
             )
-
+*/
 
 
             appWidM = AppWidgetManager.getInstance(context)
@@ -489,12 +501,9 @@ class NewAppWidget : AppWidgetProvider() {
                 7
             )
 
-            makeToast("viewId - $viewID")
 
-            // Handle the click event (e.g., launch an Activity with details)
             if (position != AdapterView.INVALID_POSITION) {
-                // Example: Launch an activity
-                makeToast("CONITEMPOS - $position")
+
                 if (viewID == 0)
                     dialPhoneNumber(appContx, favContacts[position].number)
                 else if (viewID == 1)
@@ -662,6 +671,20 @@ class NewAppWidget : AppWidgetProvider() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE // Use FLAG_MUTABLE for security
         )
         remoteViews?.setPendingIntentTemplate(R.id.list_contacts, clickPendingIntentTemplate)
+
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_contacts,
+            getPendingSelfIntent(context, C_CLICKED)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_add_contacts, PendingIntent.getActivity(
+                context, 11,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
 
         val aiIntent = Intent(context, AiActivity::class.java)
         aiIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
@@ -866,15 +889,7 @@ class NewAppWidget : AppWidgetProvider() {
             getPendingSelfIntent(context, SET_CLICKED)
         )
 
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_app1,
-            getPendingSelfIntent(context, APP1_CLICKED)
-        )
 
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_app2,
-            getPendingSelfIntent(context, APP2_CLICKED)
-        )
 
         val mapsIntent = Intent(context, MapsActivity::class.java)
         val mapsPendingIntent = PendingIntent.getActivity(
@@ -901,20 +916,7 @@ class NewAppWidget : AppWidgetProvider() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_app3,
-            launcherPendingIntent
-        )
 
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_app4,
-            getPendingSelfIntent(context, APP4_CLICKED)
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_app5,
-            getPendingSelfIntent(context, APP5_CLICKED)
-        )
 
         var timeOfDay = if (currentHour >= 6 && currentHour < 12) {
             "Morni!"
@@ -1489,24 +1491,19 @@ class NewAppWidget : AppWidgetProvider() {
         appWidgetView.findViewById<TextView>(
             R.id.btn_screentime
         ).setText(
-            "Screen time ~ ${totalScreenTimeInMinutes.toString()}+ Hrs"
+            "ON ~ ${totalScreenTimeInMinutes.toString()}+ H"
         )
         appWidgetView.findViewById<TextView>(R.id.tx_wish).setText(timelyWish)
 
         appWidgetView.findViewById<TextView>(R.id.tx_st_since)
-            .setText("since ${currentHour % 12} $ampm, yday...")
+            .setText(".Since ${currentHour % 12} $ampm yday.,")
         appWidgetView.findViewById<TextView>(R.id.clock)
             .setText("${nowCalendar.get(Calendar.HOUR)}:$currentMin $ampm")
         appWidgetView.findViewById<TextView>(R.id.tx_place).setText("⚲ " + cityname)
         appWidgetView.findViewById<TextView>(R.id.tx_steps)
             .setText("$dayOfTheWeek ~ " + stepsToday.toString())
 
-        appWidgetView.findViewById<ImageView>(R.id.imgv_app3).setImageBitmap(
-            drawableToBitmap(
-                appContx,
-                appContx.resources.getDrawable(R.drawable.launch_e)
-            )
-        )
+
         appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_temp).setText(
             MainActivity.tempC.substring(
                 0,
@@ -1681,7 +1678,7 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setTextViewText(R.id.tx_st_since, ".Since ${currentHour % 12} $ampm yday.,")
         remoteViews?.setTextViewText(
             R.id.btn_screentime,
-            "Screen time ~ ${totalScreenTimeInMinutes.toString()}+ Hrs"
+            "ON ~ ${totalScreenTimeInMinutes.toString()}+ H"
         )
 
     }
@@ -1848,166 +1845,9 @@ class NewAppWidget : AppWidgetProvider() {
 
         appIndex = 0
 
-        addAppInWidget(appContx, choosenApps)
     }
 
 
-    @RequiresApi(Build.VERSION_CODES.S)
-    fun addContactsInWidget(context: Context, favC: ArrayList<Contact>) {
-
-        var bm: Bitmap
-
-
-        var childView = RemoteViews(context.packageName, R.layout.remote_view_layout)
-
-
-        childView.setImageViewBitmap(
-            R.id.new_imgv_id,
-            drawableToBitmap(appContx, appContx.resources.getDrawable(R.drawable.contacts))
-        )
-        childView.setTextViewText(R.id.new_tx_close_id, "")
-        childView.setTextViewText(R.id.new_tx_id, "")
-
-
-        childView.setViewLayoutMargin(
-            R.id.new_imgv_id,
-            RemoteViews.MARGIN_TOP,
-            10f,
-            TypedValue.COMPLEX_UNIT_DIP
-        )
-        childView.setViewLayoutMargin(
-            R.id.new_imgv_id,
-            RemoteViews.MARGIN_START,
-            10f,
-            TypedValue.COMPLEX_UNIT_DIP
-        )
-
-
-        childView.setOnClickPendingIntent(
-            R.id.new_imgv_id,
-            getPendingSelfIntent(context, C_CLICKED)
-        )
-
-
-        for (i in 0 until favC.size) {
-
-            val contentResolver: ContentResolver =
-                appContx.getContentResolver() // Or getContext().getContentResolver()
-            val inputStream = ContactsContract.Contacts.openContactPhotoInputStream(
-                contentResolver,
-                Uri.parse(favC[i].image)
-            )
-
-            if (inputStream != null) {
-                bm = BitmapFactory.decodeStream(inputStream)
-                bm = drawableToBitmap(
-                    appContx,
-                    RoundedBitmapDrawableFactory.create(appContx.resources, bm)
-                )
-
-                try {
-                    inputStream.close()
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
-            } else {
-                bm = drawableToBitmap(
-                    appContx,
-                    appContx.resources.getDrawable(R.drawable.face_holder)
-                )
-            }
-
-            //     rBm = drawableToBitmap(appContx, RoundedBitmapDrawableFactory.create(appContx.resources, bm))
-
-            childView = RemoteViews(context.packageName, R.layout.remote_view_layout)
-
-            childView.setTextViewText(
-                R.id.new_tx_id,
-                favC[i].name.substring(0, 1).uppercase() + favC[i].name.substring(1, 2) + ".,"
-            )
-
-            if (i == 0) {
-                CALL_CLICKED = C1_CLICK
-                CLEAR_C_CLICKED = CL1_CLICK
-            } else if (i == 1) {
-                CALL_CLICKED = C2_CLICK
-                CLEAR_C_CLICKED = CL2_CLICK
-            } else if (i == 2) {
-                CALL_CLICKED = C3_CLICK
-                CLEAR_C_CLICKED = CL3_CLICK
-            } else if (i == 3) {
-                CALL_CLICKED = C4_CLICK
-                CLEAR_C_CLICKED = CL4_CLICK
-            } else if (i == 4) {
-                CALL_CLICKED = C5_CLICK
-                CLEAR_C_CLICKED = CL5_CLICK
-            }
-
-            childView.setOnClickPendingIntent(
-                R.id.new_tx_close_id,
-                getPendingSelfIntent(context, CLEAR_C_CLICKED)
-            )
-
-            childView.setOnClickPendingIntent(
-                R.id.new_imgv_id,
-                getPendingSelfIntent(context, CALL_CLICKED)
-            )
-            childView.setViewLayoutMargin(
-                R.id.new_imgv_id,
-                RemoteViews.MARGIN_TOP,
-                10f,
-                TypedValue.COMPLEX_UNIT_DIP
-            )
-            childView.setViewLayoutMargin(
-                R.id.new_imgv_id,
-                RemoteViews.MARGIN_START,
-                10f,
-                TypedValue.COMPLEX_UNIT_DIP
-            )
-
-            childView.setImageViewBitmap(
-                R.id.new_imgv_id,
-                bm.getCircledBitmap()
-            )
-
-
-
-        }
-
-        childView = RemoteViews(context.packageName, R.layout.remote_view_layout)
-
-        childView.setViewLayoutMargin(
-            R.id.new_imgv_id,
-            RemoteViews.MARGIN_TOP,
-            10f,
-            TypedValue.COMPLEX_UNIT_DIP
-        )
-        childView.setViewLayoutMargin(
-            R.id.new_imgv_id,
-            RemoteViews.MARGIN_START,
-            10f,
-            TypedValue.COMPLEX_UNIT_DIP
-        )
-
-
-        childView.setImageViewResource(
-            R.id.new_imgv_id,
-            android.R.drawable.ic_input_add
-        )
-
-        childView.setTextViewText(R.id.new_tx_close_id, "")
-        childView.setTextViewText(R.id.new_tx_id, "")
-
-        childView.setOnClickPendingIntent(
-            R.id.new_imgv_id, PendingIntent.getActivity(
-                context, 2,
-                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
-                PendingIntent.FLAG_IMMUTABLE
-            )
-        )
-
-
-    }
 
 
     private fun sortApps(queryUsageStats: List<UsageStats>) {
@@ -2114,51 +1954,6 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
 
-        @SuppressLint("UseCompatLoadingForDrawables")
-        fun addAppInWidget(context: Context, fApps: ArrayList<App>) {
-
-            for (i in 0 until fApps.size) {
-
-                val d: Drawable = getAppIconFromPkg(context, fApps[i].pName)
-
-                if (i == 0) {
-                    remoteViews!!.setImageViewBitmap(
-                        R.id.imgv_app1,
-                        drawableToBitmap(context, d).getCircledBitmap()
-                    )
-                } else if (i == 1) {
-                    remoteViews!!.setImageViewBitmap(
-                        R.id.imgv_app2,
-                        drawableToBitmap(context, d).getCircledBitmap()
-                    )
-                    //   remoteViews!!.setTextViewText(R.id.tx_c2, fApps[1].name)
-                } else if (i == 2) {
-                    remoteViews!!.setImageViewBitmap(
-                        R.id.imgv_app3,
-                        drawableToBitmap(
-                            context,
-                            appContx.resources.getDrawable(R.drawable.launch_e)
-                        )
-                    )
-                    //     remoteViews!!.setTextViewText(R.id.tx_c3, fApps[2].name)
-                } else if (i == 3) {
-                    remoteViews!!.setImageViewBitmap(
-                        R.id.imgv_app4,
-                        drawableToBitmap(context, d).getCircledBitmap()
-                    )
-
-                    //   remoteViews!!.setTextViewText(R.id.tx_c4, fApps[3].name)
-                } else if (i == 4) {
-                    remoteViews!!.setImageViewBitmap(
-                        R.id.imgv_app5,
-                        drawableToBitmap(context, d).getCircledBitmap()
-                    )
-
-                    //   remoteViews!!.setTextViewText(R.id.tx_c4, fApps[3].name)
-                }
-
-            }
-        }
 
 
         fun drawableToBitmap(context: Context, drawable: Drawable): Bitmap {
