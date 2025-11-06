@@ -753,7 +753,6 @@ class DialogActivity : AppCompatActivity() {
         cursor.close()
 
 
-        appWidM.updateAppWidget(R.id.ll_contacts, remoteViews)
     }
 
     private fun saveContacts() {

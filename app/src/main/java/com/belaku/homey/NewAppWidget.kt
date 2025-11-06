@@ -457,25 +457,6 @@ class NewAppWidget : AppWidgetProvider() {
                 getPendingSelfIntent(context, APP5_CLICKED)
             )
 
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_app6,
-                getPendingSelfIntent(context, APP6_CLICKED)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_app7,
-                getPendingSelfIntent(context, APP7_CLICKED)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_app8,
-                getPendingSelfIntent(context, APP8_CLICKED)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_app9,
-                getPendingSelfIntent(context, APP9_CLICKED)
-            )
 
 
             appWidM = AppWidgetManager.getInstance(context)
@@ -935,27 +916,6 @@ class NewAppWidget : AppWidgetProvider() {
             getPendingSelfIntent(context, APP5_CLICKED)
         )
 
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_app6,
-            getPendingSelfIntent(context, APP6_CLICKED)
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_app7,
-            getPendingSelfIntent(context, APP7_CLICKED)
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_app8,
-            getPendingSelfIntent(context, APP8_CLICKED)
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_app9,
-            getPendingSelfIntent(context, APP9_CLICKED)
-        )
-
-
         var timeOfDay = if (currentHour >= 6 && currentHour < 12) {
             "Morni!"
         } else if (currentHour >= 12 && currentHour < 17) {
@@ -1362,28 +1322,6 @@ class NewAppWidget : AppWidgetProvider() {
 
 
 
-        for (i in 0 until selectedApps.size) {
-            if (i == 0)
-                remoteViews?.setImageViewBitmap(
-                    R.id.imgv_app6,
-                    selectedApps[i].icon.getCircledBitmap()
-                )
-            else if (i == 1)
-                remoteViews?.setImageViewBitmap(
-                    R.id.imgv_app7,
-                    selectedApps[i].icon.getCircledBitmap()
-                )
-            else if (i == 2)
-                remoteViews?.setImageViewBitmap(
-                    R.id.imgv_app8,
-                    selectedApps[i].icon.getCircledBitmap()
-                )
-            else if (i == 3)
-                remoteViews?.setImageViewBitmap(
-                    R.id.imgv_app9,
-                    selectedApps[i].icon.getCircledBitmap()
-                )
-        }
 
         try {
             if (sharedPreferences.getBoolean("Blue", false))
@@ -1518,78 +1456,8 @@ class NewAppWidget : AppWidgetProvider() {
             object : TypeToken<List<Contact?>?>() {}.type
         )
 
-        conIndex = 0
 
 
-        if (response.isNotEmpty())
-            addContactsInWidget(appContx, favContacts)
-        else {
-            remoteViews?.removeAllViews(R.id.ll_contacts)
-            var childView = RemoteViews(appContx.packageName, R.layout.remote_view_layout)
-
-
-            childView.setImageViewBitmap(
-                R.id.new_imgv_id,
-                drawableToBitmap(appContx, appContx.resources.getDrawable(R.drawable.contacts))
-            )
-            childView.setTextViewText(R.id.new_tx_close_id, "")
-            childView.setTextViewText(R.id.new_tx_id, "")
-
-            childView.setViewLayoutMargin(
-                R.id.new_imgv_id,
-                RemoteViews.MARGIN_TOP,
-                10f,
-                TypedValue.COMPLEX_UNIT_DIP
-            )
-            childView.setViewLayoutMargin(
-                R.id.new_imgv_id,
-                RemoteViews.MARGIN_START,
-                10f,
-                TypedValue.COMPLEX_UNIT_DIP
-            )
-
-
-            childView.setOnClickPendingIntent(
-                R.id.new_imgv_id,
-                getPendingSelfIntent(appContx, C_CLICKED)
-            )
-            remoteViews?.addView(R.id.ll_contacts, childView)
-
-            childView = RemoteViews(appContx.packageName, R.layout.remote_view_layout)
-
-            childView.setViewLayoutMargin(
-                R.id.new_imgv_id,
-                RemoteViews.MARGIN_TOP,
-                10f,
-                TypedValue.COMPLEX_UNIT_DIP
-            )
-            childView.setViewLayoutMargin(
-                R.id.new_imgv_id,
-                RemoteViews.MARGIN_START,
-                10f,
-                TypedValue.COMPLEX_UNIT_DIP
-            )
-
-
-            childView.setImageViewResource(
-                R.id.new_imgv_id,
-                android.R.drawable.ic_input_add
-            )
-
-            childView.setOnClickPendingIntent(
-                R.id.new_imgv_id, PendingIntent.getActivity(
-                    appContx, 2,
-                    Intent(appContx, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-            childView.setTextViewText(R.id.new_tx_close_id, "")
-            childView.setTextViewText(R.id.new_tx_id, "")
-
-
-            remoteViews?.addView(R.id.ll_contacts, childView)
-        }
     }
 
     fun isWifiEnabled(context: Context): Boolean {
@@ -1657,12 +1525,6 @@ class NewAppWidget : AppWidgetProvider() {
         readApps()
 
 
-
-
-        appWidgetView.findViewById<ImageView>(R.id.imgv_app6).visibility = View.INVISIBLE
-        appWidgetView.findViewById<ImageView>(R.id.imgv_app7).visibility = View.INVISIBLE
-        appWidgetView.findViewById<ImageView>(R.id.imgv_app8).visibility = View.INVISIBLE
-        appWidgetView.findViewById<ImageView>(R.id.imgv_app9).visibility = View.INVISIBLE
 
 
         appWidgetView.findViewById<TextView>(R.id.tx_desc_walltype).setText(
@@ -1996,7 +1858,6 @@ class NewAppWidget : AppWidgetProvider() {
         var bm: Bitmap
 
 
-        remoteViews?.removeAllViews(R.id.ll_contacts)
         var childView = RemoteViews(context.packageName, R.layout.remote_view_layout)
 
 
@@ -2026,7 +1887,6 @@ class NewAppWidget : AppWidgetProvider() {
             R.id.new_imgv_id,
             getPendingSelfIntent(context, C_CLICKED)
         )
-        remoteViews?.addView(R.id.ll_contacts, childView)
 
 
         for (i in 0 until favC.size) {
@@ -2110,8 +1970,6 @@ class NewAppWidget : AppWidgetProvider() {
                 bm.getCircledBitmap()
             )
 
-            remoteViews?.addView(R.id.ll_contacts, childView)
-            appWidM.updateAppWidget(newAppWidget, remoteViews)
 
 
         }
@@ -2149,7 +2007,6 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
 
-        remoteViews?.addView(R.id.ll_contacts, childView)
     }
 
 
@@ -2338,7 +2195,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         private var appIndex: Int = 0
-        private var conIndex: Int = 0
+
 
         lateinit var newAppWidget: ComponentName
 

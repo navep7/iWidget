@@ -46,12 +46,7 @@ class AppChooserDialog : Activity() {
             appID = intent.extras!!.getInt("id")
 
 
-        when (appID) {
-            6 -> appViewID = R.id.imgv_app6
-            7 -> appViewID = R.id.imgv_app7
-            8 -> appViewID = R.id.imgv_app8
-            9 -> appViewID = R.id.imgv_app9
-        }
+
 
         getApps(applicationContext)
 

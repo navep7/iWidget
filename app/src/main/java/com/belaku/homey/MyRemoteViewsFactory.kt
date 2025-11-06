@@ -37,8 +37,8 @@ class MyRemoteViewsFactory(private val mContext: Context, intent: Intent?) :
 
     override fun getViewAt(position: Int): RemoteViews {
         val rv = RemoteViews(mContext.packageName, R.layout.remote_view_layout)
-        rv.setTextViewText(R.id.new_tx_id, favContacts[position].name.substring(0, 1).uppercase() + favContacts[position].name.substring(1, 2).lowercase())
-        // Set up pending intents for individual item clicks if needed
+
+
 
         val inputStream = ContactsContract.Contacts.openContactPhotoInputStream(
             appContx.contentResolver,
@@ -51,7 +51,10 @@ class MyRemoteViewsFactory(private val mContext: Context, intent: Intent?) :
             bm = BitmapFactory.decodeStream(inputStream)
 
             rBm =
-                drawableToBitmap(appContx, RoundedBitmapDrawableFactory.create(appContx.resources, bm))
+                drawableToBitmap(
+                    appContx,
+                    RoundedBitmapDrawableFactory.create(appContx.resources, bm)
+                )
             try {
                 inputStream.close()
             } catch (e: IOException) {
@@ -63,11 +66,18 @@ class MyRemoteViewsFactory(private val mContext: Context, intent: Intent?) :
                 appContx.resources.getDrawable(R.drawable.face_holder)
             )
             rBm =
-                drawableToBitmap(appContx, RoundedBitmapDrawableFactory.create(appContx.resources, bm))
+                drawableToBitmap(
+                    appContx,
+                    RoundedBitmapDrawableFactory.create(appContx.resources, bm)
+                )
         }
 
 
-
+        rv.setTextViewText(
+            R.id.new_tx_id,
+            favContacts[position].name.substring(0, 1)
+                .uppercase() + favContacts[position].name.substring(1, 2).lowercase()
+        )
         rv.setImageViewBitmap(R.id.new_imgv_id, rBm)
 
 
