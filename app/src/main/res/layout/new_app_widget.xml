@@ -365,7 +365,6 @@
             android:id="@+id/imgbtn_speech"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginStart="10dp"
             android:layout_marginTop="5dp"
             android:background="@drawable/rounded_corner_white"
             android:padding="5dp"
@@ -520,12 +519,23 @@
             android:id="@+id/btn_screentime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/fab_margin"
+            android:layout_marginTop="@dimen/fab_margin"
             android:background="@android:color/transparent"
             android:text="ON ~ 10+ H"
             android:textColor="@android:color/holo_red_light"
             android:textSize="21sp"
             android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tx_screentime_info"
+            android:layout_below="@+id/btn_screentime"
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ⓘ"
+            android:textSize="35sp"
+            android:textStyle="bold"/>
+
 
     </RelativeLayout>
 

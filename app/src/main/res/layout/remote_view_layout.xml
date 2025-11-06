@@ -13,7 +13,7 @@
         android:text="Na.,"
         android:textColor="@android:color/holo_green_light"
         android:textStyle="bold"
-        android:layout_marginEnd="-10dp"
+        android:layout_marginEnd="-5dp"
         android:layout_gravity="start|bottom"
         android:textSize="20sp" />
 
