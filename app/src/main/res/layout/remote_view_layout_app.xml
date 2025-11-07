@@ -8,6 +8,8 @@
 
     <TextView
         android:id="@+id/app_tx_name"
+        android:maxLength="5"
+        android:ellipsize="end"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Nav.,"

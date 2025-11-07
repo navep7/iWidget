@@ -106,6 +106,9 @@ class StepsService : Service() {
 
     private fun BluetoothState() {
 
+        sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        sharedPreferencesEditor = sharedPreferences.edit()
+
         if (!sharedPreferences.getBoolean("BRd", false)) {
             Log.d(TAG, "BlBrRd")
             sharedPreferencesEditor.putBoolean("BRd", true).apply()

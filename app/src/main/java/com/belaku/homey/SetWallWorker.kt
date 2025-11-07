@@ -107,8 +107,9 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
     private fun DayChanges() {
 
+        NewAppWidget.getScreenTime()
         if (sharedPreferences.getString("day", "someday").equals(dayOfTheWeek))
-          //    makeToast("same Day")
+        //    makeToast("same Day")
         else {
             //    makeToast("diff Day")
             sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
@@ -230,6 +231,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         lateinit var wm: WallpaperManager
 
 
+        @SuppressLint("SetTextI18n")
         fun setWall(b: Boolean) {
 
             wm = WallpaperManager.getInstance(appContx)
@@ -281,7 +283,10 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     sharedPreferencesEditor.putString("uT", updateTime).apply()
                 }
                 Log.d(TAG, "Set successfully")
-                pD.dismiss()
+
+                if (MainActivity.mainWindow.decorView.rootView.isShown)
+                    if (pD.isShowing)
+                        pD.dismiss()
                 remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.INVISIBLE)
                 remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
 
@@ -304,11 +309,18 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 //   intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, newAppWidget)
                 appContx.sendBroadcast(intent)
 
-                Handler(Looper.getMainLooper()).postDelayed({
-                    txStatus.setText("\"$queryType\" wallpapers Set, updates every $wallDelay mins. \n Add the HomeScreen Widget to see more of the Magic!")
-                    rlStatus.visibility = View.VISIBLE
-                    fabMain.setText("How to ?")
-                }, 1000)
+                // Source - https://stackoverflow.com/a
+// Posted by GaRRaPeTa, modified by community. See post 'Timeline' for change history
+// Retrieved 2025-11-08, License - CC BY-SA 3.0
+
+
+                if (MainActivity.mainWindow.decorView.rootView.isShown)
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        txStatus.text =
+                            "\"$queryType\" wallpapers Set, updates every $wallDelay mins. \n Add the HomeScreen Widget to see more of the Magic!"
+                        rlStatus.visibility = View.VISIBLE
+                        fabMain.text = "How to ?"
+                    }, 1000)
 
 
             } catch (e: IOException) {

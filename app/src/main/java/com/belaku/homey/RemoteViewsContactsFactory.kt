@@ -36,8 +36,9 @@ class RemoteViewsContactsFactory(private val mContext: Context, intent: Intent?)
     }
 
     override fun getViewAt(position: Int): RemoteViews {
-        val rv = RemoteViews(mContext.packageName, R.layout.remote_view_layout_contact)
+        val rvContacts = RemoteViews(mContext.packageName, R.layout.remote_view_layout_contact)
 
+        try {
         val inputStream = ContactsContract.Contacts.openContactPhotoInputStream(
             appContx.contentResolver,
             Uri.parse(favContacts[position].image)
@@ -71,12 +72,17 @@ class RemoteViewsContactsFactory(private val mContext: Context, intent: Intent?)
         }
 
 
-        rv.setTextViewText(
-            R.id.contact_tx_name,
-            favContacts[position].name.substring(0, 1)
-                .uppercase() + favContacts[position].name.substring(1, 2).lowercase()
-        )
-        rv.setImageViewBitmap(R.id.contact_imgv, rBm)
+
+            rvContacts.setTextViewText(
+                R.id.contact_tx_name,
+                favContacts[position].name.substring(0, 1)
+                    .uppercase() + favContacts[position].name.substring(1, 2).lowercase()
+            )
+            rvContacts.setImageViewBitmap(R.id.contact_imgv, rBm)
+        } catch (ex: Exception) {
+
+        }
+
 
 
         // Create the fill-in intent
@@ -90,7 +96,7 @@ class RemoteViewsContactsFactory(private val mContext: Context, intent: Intent?)
             0
         )
         // setOnClickFillInIntent is called on the root view of the list item layout
-        rv.setOnClickFillInIntent(R.id.contact_imgv, fillInIntentDial)
+        rvContacts.setOnClickFillInIntent(R.id.contact_imgv, fillInIntentDial)
 
         val fillInIntentRemove = Intent()
         fillInIntentRemove.putExtra(
@@ -102,10 +108,10 @@ class RemoteViewsContactsFactory(private val mContext: Context, intent: Intent?)
             1
         )
         // setOnClickFillInIntent is called on the root view of the list item layout
-        rv.setOnClickFillInIntent(R.id.contact_tx_close, fillInIntentRemove)
+        rvContacts.setOnClickFillInIntent(R.id.contact_tx_close, fillInIntentRemove)
 
 
-        return rv
+        return rvContacts
     }
 
     override fun getLoadingView(): RemoteViews? {
