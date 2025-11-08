@@ -63,6 +63,7 @@ import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
+import com.belaku.homey.NewAppWidget.Companion.timelyWish
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
@@ -196,7 +197,6 @@ class DialogActivity : AppCompatActivity() {
 
         var dialogIntentStr = intent.getStringExtra("DialogIntent")
 
-        makeToast("dialogIntentStr -" + dialogIntentStr)
 
         if (dialogIntentStr != null) {
             if (dialogIntentStr == "PC") {
@@ -938,6 +938,7 @@ class DialogActivity : AppCompatActivity() {
                 remoteViews?.setTextViewText(
                     R.id.tx_tweets, "@" + twitterProfileName + "\t ~ \t" + listTweets[1]
                 )
+
 
                 appWidM = AppWidgetManager.getInstance(appContx)
                 appWidM.updateAppWidget(newAppWidget, remoteViews)

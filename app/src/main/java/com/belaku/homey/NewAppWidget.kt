@@ -83,6 +83,7 @@ import java.util.Collections
 import java.util.Date
 import java.util.Locale
 import kotlin.properties.Delegates
+import kotlin.random.Random
 
 
 class NewAppWidget : AppWidgetProvider() {
@@ -98,8 +99,7 @@ class NewAppWidget : AppWidgetProvider() {
     private lateinit var calendar: Calendar
     private lateinit var nowCalendar: Calendar
     private lateinit var ampm: String
-    private lateinit var formattedDate: String
-    private var timelyWish: String = ""
+
     private val TAG: String = "NewAppWidget LOG7"
     private lateinit var wD: String
     private lateinit var qT: String
@@ -720,19 +720,9 @@ class NewAppWidget : AppWidgetProvider() {
             }
             sharedPreferencesEditor.putInt("noRewards", noRewards).apply()
 
-            if (noRewards != 0) {
+            if (noRewards > 0) {
 
-                remoteViews?.setTextViewText(
-                    R.id.tx_tweets,
-                    "@" + twitterProfileName + "\t ~ \t" + tW
-                )
-                //🖍
-
-                remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
-
-                //     appWidM.updateAppWidget(newAppWidget, remoteViews)
-
+                makeToast("Changing Wall, please wait...")
                 Thread {
                     SetWallWorker.setWall(true)
                 }.start()
@@ -868,9 +858,6 @@ class NewAppWidget : AppWidgetProvider() {
             object : TypeToken<List<Contact?>?>() {}.type
         )
 
-        if (favContacts != null)
-            makeToast("favCts - ${favContacts.size}")
-
 
     }
 
@@ -994,108 +981,6 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
 
-    private fun getScreenTime() {
-
-        val usageStatsManager =
-            appContx.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        calendar = Calendar.getInstance()
-        val endTime = calendar.timeInMillis
-        calendar.add(Calendar.DAY_OF_YEAR, -1) // Query for the last 24 hours
-        val startTime = calendar.timeInMillis
-
-
-
-        when (calendar.get(Calendar.DAY_OF_WEEK)) {
-            1 -> {
-                dayOfTheWeek = "Monday"
-                sharedPreferencesEditor.putInt("Monday", stepsToday).apply()
-                sharedPreferencesEditor.putInt("Tuesday", 0).apply()
-                sharedPreferencesEditor.putInt("Wednesday", 0).apply()
-                sharedPreferencesEditor.putInt("Thursday", 0).apply()
-                sharedPreferencesEditor.putInt("Friday", 0).apply()
-                sharedPreferencesEditor.putInt("Saturday", 0).apply()
-                sharedPreferencesEditor.putInt("Sunday", 0).apply()
-            }
-
-            2 -> {
-                dayOfTheWeek = "Tuesday"
-                sharedPreferencesEditor.putInt("Tuesday", stepsToday).apply()
-
-                sharedPreferencesEditor.putInt("Wednesday", 0).apply()
-                sharedPreferencesEditor.putInt("Thursday", 0).apply()
-                sharedPreferencesEditor.putInt("Friday", 0).apply()
-                sharedPreferencesEditor.putInt("Saturday", 0).apply()
-                sharedPreferencesEditor.putInt("Sunday", 0).apply()
-            }
-
-            3 -> {
-                dayOfTheWeek = "Wednesday"
-                sharedPreferencesEditor.putInt("Wednesday", stepsToday).apply()
-
-                sharedPreferencesEditor.putInt("Thursday", 0).apply()
-                sharedPreferencesEditor.putInt("Friday", 0).apply()
-                sharedPreferencesEditor.putInt("Saturday", 0).apply()
-                sharedPreferencesEditor.putInt("Sunday", 0).apply()
-            }
-
-            4 -> {
-                dayOfTheWeek = "Thursday"
-                sharedPreferencesEditor.putInt("Thursday", stepsToday).apply()
-
-                sharedPreferencesEditor.putInt("Friday", 0).apply()
-                sharedPreferencesEditor.putInt("Saturday", 0).apply()
-                sharedPreferencesEditor.putInt("Sunday", 0).apply()
-            }
-
-            5 -> {
-                dayOfTheWeek = "Friday"
-                sharedPreferencesEditor.putInt("Friday", stepsToday).apply()
-
-                sharedPreferencesEditor.putInt("Saturday", 0).apply()
-                sharedPreferencesEditor.putInt("Sunday", 0).apply()
-            }
-
-            6 -> {
-                dayOfTheWeek = "Saturday"
-                sharedPreferencesEditor.putInt("Saturday", stepsToday).apply()
-
-                sharedPreferencesEditor.putInt("Sunday", 0).apply()
-            }
-
-            7 -> {
-                dayOfTheWeek = "Sunday"
-                sharedPreferencesEditor.putInt("Sunday", stepsToday).apply()
-            }
-        }
-
-
-
-        if (sharedPreferences.getString("day", "someday") != dayOfTheWeek) {
-            stepsToday = 0
-            sharedPreferencesEditor.putString("day", dayOfTheWeek).apply()
-        }
-
-        // Get a map of package names to UsageStats objects
-        val usageStatsMap = usageStatsManager.queryAndAggregateUsageStats(startTime, endTime)
-
-        var totalScreenTimeInMillis: Long = 0
-        for (usageStats in usageStatsMap.values) {
-            totalScreenTimeInMillis += usageStats.totalTimeInForeground
-        }
-
-        // Convert to desired units (e.g., minutes, hours)
-        totalScreenTimeInMinutes = totalScreenTimeInMillis / (1000 * 60 * 60)
-
-        val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
-        val ampm = Calendar.getInstance()[Calendar.AM_PM]
-
-        remoteViews?.setTextViewText(R.id.tx_st_since, ".Since ${currentHour % 12} $ampm yday.,")
-        remoteViews?.setTextViewText(
-            R.id.btn_screentime,
-            "ON ~ ${totalScreenTimeInMinutes.toString()}+ H"
-        )
-
-    }
 
 
     private fun shareWidget(context: Context, bitmap: Bitmap) {
@@ -1152,95 +1037,6 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
 
-    private fun todaysDate(context: Context) {
-
-        val c: Date = Calendar.getInstance().time
-        val dfDate = SimpleDateFormat("dd", Locale.getDefault())
-        val dfMonth = SimpleDateFormat("MMM", Locale.getDefault())
-
-        var postFixDate = ""
-
-
-
-        if (dfDate.format(c).length == 1) {
-            when (dfDate.format(c).toInt()) {
-                1 -> postFixDate = "ˢᵗ"
-                2 -> postFixDate = "ⁿᵈ"
-                3 -> postFixDate = "ʳᵈ"
-                in 4..9 -> postFixDate = "ᵗʰ"
-
-            }
-        } else {
-            when (dfDate.format(c).toInt()) {
-                in 11..20 -> postFixDate = "ᵗʰ"
-                21, 31 -> postFixDate = "ˢᵗ"
-                22 -> postFixDate = "ⁿᵈ"
-                23 -> postFixDate = "ʳᵈ"
-                in 24..30 -> postFixDate = "ᵗʰ"
-
-            }
-        }
-
-
-        formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
-
-
-        if (MainActivity.tempC.length > 3) {
-            remoteViews?.setTextViewText(
-                R.id.tx_weather_icon_temp,
-                MainActivity.tempC.substring(
-                    0,
-                    2
-                ) + "°C"
-            )
-            remoteViews?.setTextViewText(
-                R.id.tx_weather_icon_state,
-                MainActivity.weatherIconState + "..,"
-            )
-
-            if (weatherIconID.startsWith("5"))
-                remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.rain)
-            if (weatherIconID.equals("800"))
-                remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clear_sky)
-            if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals("803") || weatherIconID.equals(
-                    "804"
-                )
-            )
-                remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clouds)
-        } else {
-            getWeatherData(false)
-            if (MainActivity.tempC.length > 3) {
-                remoteViews?.setTextViewText(
-                    R.id.tx_weather_icon_temp,
-                    MainActivity.tempC.substring(
-                        0,
-                        2
-                    ) + "°C"
-                )
-                remoteViews?.setTextViewText(
-                    R.id.tx_weather_icon_state,
-                    MainActivity.weatherIconState + "..,"
-                )
-
-                if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals(
-                        "803"
-                    ) || weatherIconID.equals("804")
-                )
-                    remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clouds)
-            }
-        }
-        // remoteViews?.setTextViewText(R.id.tx_date, formattedDate)
-        sharedPreferencesEditor.putBoolean("DateSet", true).apply()
-        sharedPreferencesEditor.putString("fD", formattedDate).apply()
-        remoteViews?.setTextViewText(R.id.tx_steps, "$dayOfTheWeek ~ " + stepsToday.toString())
-        remoteViews?.setTextViewText(
-            R.id.tx_day_date,
-            SimpleDateFormat("EEE", Locale.getDefault()).format(c) +
-                    "│" + formattedDate
-        )
-
-        remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
-    }
 
     private fun launchApp(context: Context, pkgName: String) {
         val launchIntent: Intent = context.packageManager.getLaunchIntentForPackage(pkgName)!!
@@ -1285,27 +1081,6 @@ class NewAppWidget : AppWidgetProvider() {
 
     }
 
-    @SuppressLint("Range")
-    private fun greeting(context: Context, remoteViews: RemoteViews, timeOfDay: String) {
-
-        timelyWish = timeOfDay
-
-        val c: Cursor? = context.getContentResolver()
-            .query(ContactsContract.Profile.CONTENT_URI, null, null, null, null)
-        c?.moveToFirst()
-        gpName = c!!.getString(c.getColumnIndex("display_name"))
-        c.close()
-
-        if (timeOfDay == "Morni!")
-            timelyWish = "\uD83C\uDF3B$timeOfDay "//, ${gpName.split(" ").get(0)}!"
-        else if (timeOfDay == "Noon!")
-            timelyWish = "☀\uFE0F$timeOfDay "//, ${gpName.split(" ").get(0)}!"
-        else if (timeOfDay == "Eve!")
-            timelyWish = "\uD83C\uDF41$timeOfDay "//, ${gpName.split(" ").get(0)}!"
-        else if (timeOfDay == "Night!")
-            timelyWish = "\uD83D\uDCA4$timeOfDay "//, ${gpName.split(" ").get(0)}!"
-
-    }
 
 
     protected fun getPendingSelfIntent(context: Context?, action: String?): PendingIntent {
@@ -1315,6 +1090,9 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     companion object {
+        lateinit var formattedDate: String
+        lateinit var timeOfDay: String
+        var timelyWish: String = ""
         var arrayListUsageStats: HashSet<AppUsage> = HashSet()
         lateinit var dayOfTheWeek: String
         var noRewards: Int = 0
@@ -1398,6 +1176,221 @@ class NewAppWidget : AppWidgetProvider() {
             return bitmap
         }
 
+        @SuppressLint("Range")
+        fun greeting() {
+
+            timelyWish = timeOfDay
+
+            val c: Cursor? = appContx.getContentResolver()
+                .query(ContactsContract.Profile.CONTENT_URI, null, null, null, null)
+            c?.moveToFirst()
+            var gpName = c!!.getString(c.getColumnIndex("display_name"))
+            c.close()
+
+            if (timeOfDay == "Morni!")
+                timelyWish = "\uD83C\uDF3B$timeOfDay "//, ${gpName.split(" ").get(0)}!"
+            else if (timeOfDay == "Noon!")
+                timelyWish = "☀\uFE0F$timeOfDay "//, ${gpName.split(" ").get(0)}!"
+            else if (timeOfDay == "Eve!")
+                timelyWish = "\uD83C\uDF41$timeOfDay "//, ${gpName.split(" ").get(0)}!"
+            else if (timeOfDay == "Night!")
+                timelyWish = "\uD83D\uDCA4$timeOfDay "//, ${gpName.split(" ").get(0)}!"
+
+        }
+
+        fun getScreenTime() {
+
+            val usageStatsManager =
+                appContx.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+            var calendar = Calendar.getInstance()
+            val endTime = calendar.timeInMillis
+            calendar.add(Calendar.DAY_OF_YEAR, -1) // Query for the last 24 hours
+            val startTime = calendar.timeInMillis
+
+
+
+            when (calendar.get(Calendar.DAY_OF_WEEK)) {
+                1 -> {
+                    dayOfTheWeek = "Monday"
+                    sharedPreferencesEditor.putInt("Monday", stepsToday).apply()
+                    sharedPreferencesEditor.putInt("Tuesday", 0).apply()
+                    sharedPreferencesEditor.putInt("Wednesday", 0).apply()
+                    sharedPreferencesEditor.putInt("Thursday", 0).apply()
+                    sharedPreferencesEditor.putInt("Friday", 0).apply()
+                    sharedPreferencesEditor.putInt("Saturday", 0).apply()
+                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
+                }
+
+                2 -> {
+                    dayOfTheWeek = "Tuesday"
+                    sharedPreferencesEditor.putInt("Tuesday", stepsToday).apply()
+
+                    sharedPreferencesEditor.putInt("Wednesday", 0).apply()
+                    sharedPreferencesEditor.putInt("Thursday", 0).apply()
+                    sharedPreferencesEditor.putInt("Friday", 0).apply()
+                    sharedPreferencesEditor.putInt("Saturday", 0).apply()
+                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
+                }
+
+                3 -> {
+                    dayOfTheWeek = "Wednesday"
+                    sharedPreferencesEditor.putInt("Wednesday", stepsToday).apply()
+
+                    sharedPreferencesEditor.putInt("Thursday", 0).apply()
+                    sharedPreferencesEditor.putInt("Friday", 0).apply()
+                    sharedPreferencesEditor.putInt("Saturday", 0).apply()
+                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
+                }
+
+                4 -> {
+                    dayOfTheWeek = "Thursday"
+                    sharedPreferencesEditor.putInt("Thursday", stepsToday).apply()
+
+                    sharedPreferencesEditor.putInt("Friday", 0).apply()
+                    sharedPreferencesEditor.putInt("Saturday", 0).apply()
+                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
+                }
+
+                5 -> {
+                    dayOfTheWeek = "Friday"
+                    sharedPreferencesEditor.putInt("Friday", stepsToday).apply()
+
+                    sharedPreferencesEditor.putInt("Saturday", 0).apply()
+                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
+                }
+
+                6 -> {
+                    dayOfTheWeek = "Saturday"
+                    sharedPreferencesEditor.putInt("Saturday", stepsToday).apply()
+
+                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
+                }
+
+                7 -> {
+                    dayOfTheWeek = "Sunday"
+                    sharedPreferencesEditor.putInt("Sunday", stepsToday).apply()
+                }
+            }
+
+
+
+            if (sharedPreferences.getString("day", "someday") != dayOfTheWeek) {
+                stepsToday = 0
+                sharedPreferencesEditor.putString("day", dayOfTheWeek).apply()
+            }
+
+            // Get a map of package names to UsageStats objects
+            val usageStatsMap = usageStatsManager.queryAndAggregateUsageStats(startTime, endTime)
+
+            var totalScreenTimeInMillis: Long = 0
+            for (usageStats in usageStatsMap.values) {
+                totalScreenTimeInMillis += usageStats.totalTimeInForeground
+            }
+
+            // Convert to desired units (e.g., minutes, hours)
+            var totalScreenTimeInMinutes = totalScreenTimeInMillis / (1000 * 60 * 60)
+
+            val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
+            val ampm = Calendar.getInstance()[Calendar.AM_PM]
+
+            remoteViews?.setTextViewText(R.id.tx_st_since, ".Since ${currentHour % 12} $ampm yday.,")
+            remoteViews?.setTextViewText(
+                R.id.btn_screentime,
+                "ON ~ ${totalScreenTimeInMinutes.toString()}+ H"
+            )
+
+        }
+
+        fun todaysDate() {
+
+            val c: Date = Calendar.getInstance().time
+            val dfDate = SimpleDateFormat("dd", Locale.getDefault())
+            val dfMonth = SimpleDateFormat("MMM", Locale.getDefault())
+
+            var postFixDate = ""
+
+
+
+            if (dfDate.format(c).length == 1) {
+                when (dfDate.format(c).toInt()) {
+                    1 -> postFixDate = "ˢᵗ"
+                    2 -> postFixDate = "ⁿᵈ"
+                    3 -> postFixDate = "ʳᵈ"
+                    in 4..9 -> postFixDate = "ᵗʰ"
+
+                }
+            } else {
+                when (dfDate.format(c).toInt()) {
+                    in 11..20 -> postFixDate = "ᵗʰ"
+                    21, 31 -> postFixDate = "ˢᵗ"
+                    22 -> postFixDate = "ⁿᵈ"
+                    23 -> postFixDate = "ʳᵈ"
+                    in 24..30 -> postFixDate = "ᵗʰ"
+
+                }
+            }
+
+
+            formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
+
+
+            if (MainActivity.tempC.length > 3) {
+                remoteViews?.setTextViewText(
+                    R.id.tx_weather_icon_temp,
+                    MainActivity.tempC.substring(
+                        0,
+                        2
+                    ) + "°C"
+                )
+                remoteViews?.setTextViewText(
+                    R.id.tx_weather_icon_state,
+                    MainActivity.weatherIconState + "..,"
+                )
+
+                if (weatherIconID.startsWith("5"))
+                    remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.rain)
+                if (weatherIconID.equals("800"))
+                    remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clear_sky)
+                if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals("803") || weatherIconID.equals(
+                        "804"
+                    )
+                )
+                    remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clouds)
+            } else {
+                getWeatherData(false)
+                if (MainActivity.tempC.length > 3) {
+                    remoteViews?.setTextViewText(
+                        R.id.tx_weather_icon_temp,
+                        MainActivity.tempC.substring(
+                            0,
+                            2
+                        ) + "°C"
+                    )
+                    remoteViews?.setTextViewText(
+                        R.id.tx_weather_icon_state,
+                        MainActivity.weatherIconState + "..,"
+                    )
+
+                    if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals(
+                            "803"
+                        ) || weatherIconID.equals("804")
+                    )
+                        remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clouds)
+                }
+            }
+            // remoteViews?.setTextViewText(R.id.tx_date, formattedDate)
+            sharedPreferencesEditor.putBoolean("DateSet", true).apply()
+            sharedPreferencesEditor.putString("fD", formattedDate).apply()
+            remoteViews?.setTextViewText(R.id.tx_steps, "$dayOfTheWeek ~ " + stepsToday.toString())
+            remoteViews?.setTextViewText(
+                R.id.tx_day_date,
+                SimpleDateFormat("EEE", Locale.getDefault()).format(c) +
+                        "│" + formattedDate
+            )
+
+            remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
+        }
+
 
         private var appIndex: Int = 0
 
@@ -1406,9 +1399,6 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         private const val FAB_SHARE = "fabShare"
-        private const val NEWS_CLICK = "newsClick"
-        private const val NEWS_NEXT = "newsNext"
-        private const val NEWS_PREV = "newsPrev"
         private const val WIFI_AUTO = "wifiAuto"
         private const val TORCH_STATE = "torch"
 

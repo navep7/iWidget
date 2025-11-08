@@ -16,6 +16,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.location.Geocoder
 import android.net.ConnectivityManager
@@ -29,6 +30,7 @@ import android.text.Html
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
+import android.widget.TextView
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -41,6 +43,7 @@ import com.belaku.homey.MainActivity.Companion.cYear
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.delayUnit
 import com.belaku.homey.MainActivity.Companion.fabMain
+import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.mAct
 import com.belaku.homey.MainActivity.Companion.makeSnack
 import com.belaku.homey.MainActivity.Companion.makeToast
@@ -51,6 +54,7 @@ import com.belaku.homey.MainActivity.Companion.rlStatus
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.tempKind
+import com.belaku.homey.MainActivity.Companion.twitterProfileName
 import com.belaku.homey.MainActivity.Companion.txStatus
 import com.belaku.homey.MainActivity.Companion.updateTime
 import com.belaku.homey.MainActivity.Companion.wallDelay
@@ -58,10 +62,12 @@ import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
 import com.belaku.homey.NewAppWidget.Companion.choosenApps
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
+import com.belaku.homey.NewAppWidget.Companion.formattedDate
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.screenHeight
 import com.belaku.homey.NewAppWidget.Companion.screenWidth
+import com.belaku.homey.NewAppWidget.Companion.timelyWish
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -294,6 +300,20 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 var qT = queryType
                 var dU = delayUnit
                 var uT = updateTime
+                var tW = listTweets[Random.nextInt(0, listTweets.size)]
+               remoteViews?.setTextViewText(
+                   R.id.tx_tweets,
+                     "@" + twitterProfileName + "\t ~ \t" + tW
+               )
+                //🖍
+                remoteViews?.setTextViewText(R.id.tx_tweets, tW)
+                NewAppWidget.greeting()
+                remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
+                NewAppWidget.todaysDate()
+                remoteViews?.setTextViewText(R.id.tx_day_date,
+                    SimpleDateFormat("EEE", Locale.getDefault()).format(Calendar.getInstance().time) +
+                            "│" + formattedDate
+                )
                 remoteViews?.setTextViewText(
                     R.id.tx_desc_walltype,
                     Html.fromHtml(
@@ -302,6 +322,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                         Html.FROM_HTML_MODE_LEGACY
                     )
                 )
+                remoteViews?.setTextViewText(R.id.tx_place, "⚲ " + cityname)
 
                 val intent = Intent(appContx, NewAppWidget::class.java)
                 intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)

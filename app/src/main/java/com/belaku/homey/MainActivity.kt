@@ -1267,7 +1267,7 @@ class MainActivity : AppCompatActivity() {
         val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
 
 
-        val timeOfDay = if (currentHour < 6) {
+        NewAppWidget.timeOfDay = if (currentHour < 6) {
             "Night"
         } else if (currentHour >= 6 && currentHour < 12) {
             "Morning"
