@@ -10,6 +10,8 @@ import android.widget.RemoteViews
 import android.widget.RemoteViewsService.RemoteViewsFactory
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.NewAppWidget.Companion.choosenApps
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
 import java.io.IOException
@@ -20,6 +22,7 @@ class RemoteViewsContactsFactory(private val mContext: Context, intent: Intent?)
 
     override fun onCreate() {
         // Initialize your data source here
+
 
     }
 
@@ -32,11 +35,12 @@ class RemoteViewsContactsFactory(private val mContext: Context, intent: Intent?)
     }
 
     override fun getCount(): Int {
+
         return favContacts.size
     }
 
     override fun getViewAt(position: Int): RemoteViews {
-        val rv = RemoteViews(mContext.packageName, R.layout.remote_view_layout)
+        val rvContacts = RemoteViews(mContext.packageName, R.layout.remote_view_layout_contact)
 
         val inputStream = ContactsContract.Contacts.openContactPhotoInputStream(
             appContx.contentResolver,
@@ -71,12 +75,11 @@ class RemoteViewsContactsFactory(private val mContext: Context, intent: Intent?)
         }
 
 
-        rv.setTextViewText(
-            R.id.new_tx_id,
-            favContacts[position].name.substring(0, 1)
-                .uppercase() + favContacts[position].name.substring(1, 2).lowercase()
+        rvContacts.setTextViewText(
+            R.id.contact_tx_name,
+            favContacts[position].name
         )
-        rv.setImageViewBitmap(R.id.new_imgv_id, rBm)
+        rvContacts.setImageViewBitmap(R.id.contact_imgv, rBm)
 
 
         // Create the fill-in intent
@@ -90,7 +93,7 @@ class RemoteViewsContactsFactory(private val mContext: Context, intent: Intent?)
             0
         )
         // setOnClickFillInIntent is called on the root view of the list item layout
-        rv.setOnClickFillInIntent(R.id.new_imgv_id, fillInIntentDial)
+        rvContacts.setOnClickFillInIntent(R.id.contact_imgv, fillInIntentDial)
 
         val fillInIntentRemove = Intent()
         fillInIntentRemove.putExtra(
@@ -102,10 +105,10 @@ class RemoteViewsContactsFactory(private val mContext: Context, intent: Intent?)
             1
         )
         // setOnClickFillInIntent is called on the root view of the list item layout
-        rv.setOnClickFillInIntent(R.id.new_tx_close_id, fillInIntentRemove)
+        rvContacts.setOnClickFillInIntent(R.id.contact_tx_close, fillInIntentRemove)
 
 
-        return rv
+        return rvContacts
     }
 
     override fun getLoadingView(): RemoteViews? {

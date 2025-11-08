@@ -11,6 +11,7 @@ import android.widget.RemoteViewsService.RemoteViewsFactory
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.apps
+import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.NewAppWidget.Companion.choosenApps
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import java.io.IOException
@@ -37,18 +38,15 @@ class RemoteViewsAppsFactory(private val mContext: Context, intent: Intent?) :
     }
 
     override fun getViewAt(position: Int): RemoteViews {
-        val rv = RemoteViews(mContext.packageName, R.layout.remote_view_layout)
+        val rvApps = RemoteViews(mContext.packageName, R.layout.remote_view_layout_app)
 
 
-        rv.setTextViewText(
-            R.id.new_tx_id,
-            choosenApps[position].name.substring(0, 1)
+        rvApps.setTextViewText(
+            R.id.app_tx_name,
+            choosenApps[position].name
         )
-        rv.setTextViewText(
-            R.id.new_tx_close_id,
-           ""
-        )
-        rv.setImageViewBitmap(R.id.new_imgv_id, drawableToBitmap(appContx, appContx.packageManager.getApplicationIcon(
+
+        rvApps.setImageViewBitmap(R.id.app_imgv, drawableToBitmap(appContx, appContx.packageManager.getApplicationIcon(
             choosenApps[position].pName)))
 
 
@@ -63,7 +61,7 @@ class RemoteViewsAppsFactory(private val mContext: Context, intent: Intent?) :
             0
         )
         // setOnClickFillInIntent is called on the root view of the list item layout
-        rv.setOnClickFillInIntent(R.id.new_imgv_id, fillInIntentApp)
+        rvApps.setOnClickFillInIntent(R.id.app_imgv, fillInIntentApp)
 
         val fillInIntentRemove = Intent()
         fillInIntentRemove.putExtra(
@@ -71,7 +69,7 @@ class RemoteViewsAppsFactory(private val mContext: Context, intent: Intent?) :
             position
         ) // Add item-specific data
 
-        return rv
+        return rvApps
     }
 
     override fun getLoadingView(): RemoteViews? {

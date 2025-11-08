@@ -335,26 +335,27 @@
         android:textSize="20sp"
         tools:ignore="HardcodedText" />
 
+    <ImageButton
+        android:id="@+id/imgv_add_contacts"
+        android:layout_toStartOf="@+id/tx_f_contacts"
+        android:layout_below="@+id/tx_f_contacts"
+        android:layout_marginTop="-15dp"
+        android:layout_marginEnd="-15dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:src="@android:drawable/ic_input_add"
+        tools:ignore="ContentDescription" />
 
     <ListView
         android:id="@+id/list_contacts"
         android:background="@drawable/gradient_glass"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/imgv_add_contacts"
+        android:layout_above="@+id/tx_tweets"
         android:layout_below="@+id/tx_f_contacts"
         android:layout_alignParentEnd="true"
         android:layout_toEndOf="@+id/ll_controls" />
-
-
-    <ImageView
-        android:id="@+id/imgv_add_contacts"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
-        android:layout_above="@+id/tx_tweets"
-        android:layout_alignStart="@+id/imgv_contacts"
-        android:layout_alignParentEnd="true"
-        android:src="@android:drawable/ic_input_add" />
 
 
     <LinearLayout
@@ -512,6 +513,7 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_alignParentBottom="true"
+            android:layout_marginBottom="-15dp"
             android:layout_centerHorizontal="true"
             android:background="@android:color/transparent"
             android:contentDescription="QR"

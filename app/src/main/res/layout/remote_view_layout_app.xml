@@ -1,0 +1,31 @@
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_gravity="center"
+    android:layout_margin="@dimen/fab_margin"
+    android:layout_width="75dp"
+    android:layout_height="75dp">
+
+    <TextView
+        android:id="@+id/app_tx_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxEms="3"
+        android:maxLines="1"
+        android:layout_alignParentBottom="true"
+        android:textStyle="bold"
+        android:text="Application"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+
+    <ImageView
+        android:id="@+id/app_imgv"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_centerInParent="true"
+        android:src="@drawable/contacts" />
+
+
+
+</RelativeLayout>
