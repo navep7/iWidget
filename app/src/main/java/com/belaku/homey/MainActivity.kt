@@ -58,6 +58,7 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
+import android.view.Window
 import android.view.accessibility.AccessibilityManager
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
@@ -213,6 +214,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         enableEdgeToEdge()
+
+        mainWindow = this.window
 
         mAct = this@MainActivity
         appContx = applicationContext
@@ -1610,6 +1613,10 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
 
+        if (pD.isShowing()) {
+            pD.dismiss()
+        }
+
         sharedPreferencesEditor.putStringSet("wallKeys", HashSet(arrayListKeys)).apply()
         sharedPreferencesEditor.putStringSet("walls", HashSet(imgUrls)).apply()
         sharedPreferencesEditor.putStringSet("wallDescs", HashSet(imgDescs)).apply()
@@ -1857,6 +1864,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
 
+        lateinit var mainWindow: Window
         lateinit var fabMain: ExtendedFloatingActionButton
         lateinit var TxAutoUpdate: TextView
         lateinit var txStatus: TextView
