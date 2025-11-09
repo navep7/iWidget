@@ -280,15 +280,6 @@
         android:layout_alignEnd="@+id/list_apps"
         android:background="@drawable/gradient_glass_flatbottom">
 
-        <TextView
-            android:id="@+id/tx_f_apps"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="...apps"
-            android:textSize="20sp"
-            android:textStyle="bold|italic"
-            tools:ignore="HardcodedText" />
-
         <ImageView
             android:id="@+id/imgv_apps"
             android:layout_width="35dp"
@@ -323,32 +314,30 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/rl_steps"
-        android:gravity="center"
         android:layout_toEndOf="@+id/ll_controls"
         android:background="@drawable/gradient_glass_flatbottom">
 
-        <ImageButton
+        <ImageView
+            android:id="@+id/imgv_contacts"
+            android:layout_marginStart="@dimen/fab_margin"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/contacts" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <ImageView
             android:id="@+id/imgv_add_contacts"
+            android:layout_marginEnd="@dimen/fab_margin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/rounded_corner"
             android:src="@android:drawable/ic_input_add"
             tools:ignore="ContentDescription" />
 
-        <TextView
-            android:id="@+id/tx_f_contacts"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="...calls"
-            android:textSize="20sp"
-            android:textStyle="bold|italic"
-            tools:ignore="HardcodedText" />
-
-        <ImageView
-            android:id="@+id/imgv_contacts"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:src="@drawable/contacts" />
 
     </LinearLayout>
 

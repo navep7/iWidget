@@ -130,7 +130,7 @@ class NewAppWidget : AppWidgetProvider() {
         appWidgetIds: IntArray
     ) {
 
-        makeToast("!onUpdate")
+     //   makeToast("!onUpdate")
 
         readApps()
         readContacts()
@@ -488,7 +488,7 @@ class NewAppWidget : AppWidgetProvider() {
         serviceIntentApp.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, newAppWidget)
         serviceIntentApp.setData(Uri.parse(serviceIntentApp.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
         remoteViews?.setRemoteAdapter(R.id.list_apps, serviceIntentApp)
-        remoteViews?.setEmptyView(R.id.list_apps, R.id.tx_f_apps)
+        remoteViews?.setEmptyView(R.id.list_apps, R.id.widget_empty_view)
     }
 
     private fun setContactsAdapter() {
@@ -533,7 +533,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         super.onReceive(context, intent)
 
-        makeToast("!onReceive")
+ //       makeToast("!onReceive")
         setUI()
 
         handleIntentActions(intent)

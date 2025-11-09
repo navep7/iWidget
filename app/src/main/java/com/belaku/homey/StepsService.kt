@@ -93,7 +93,7 @@ class StepsService : Service() {
                         )
                         initialSteps++
                     }
-              //      appWidM.updateAppWidget(newAppWidget, remoteViews)
+                    appWidM.updateAppWidget(newAppWidget, remoteViews)
                 }
 
             }
