@@ -23,6 +23,7 @@
 
     <ImageView
         android:id="@+id/contact_imgv"
+        android:tag="CONTACT"
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:layout_centerInParent="true"

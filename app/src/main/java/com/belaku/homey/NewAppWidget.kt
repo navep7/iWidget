@@ -3,7 +3,6 @@ package com.belaku.homey
 
 // Weather Key - 9fa8e101240ab18615e3133b051e767e
 
-import android.Manifest
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
@@ -35,19 +34,15 @@ import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
-import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
 import android.text.Html
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.accessibility.AccessibilityManager
@@ -57,13 +52,11 @@ import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.getWeatherData
-import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
@@ -83,7 +76,6 @@ import java.util.Collections
 import java.util.Date
 import java.util.Locale
 import kotlin.properties.Delegates
-import kotlin.random.Random
 
 
 class NewAppWidget : AppWidgetProvider() {
@@ -140,7 +132,6 @@ class NewAppWidget : AppWidgetProvider() {
         appWidgetIds: IntArray
     ) {
 
-        Log.d(TAG, "onUpdate")
 
         remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
@@ -500,6 +491,7 @@ class NewAppWidget : AppWidgetProvider() {
         serviceIntentApp.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, newAppWidget)
         serviceIntentApp.setData(Uri.parse(serviceIntentApp.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
         remoteViews?.setRemoteAdapter(R.id.list_apps, serviceIntentApp)
+        remoteViews?.setEmptyView(R.id.list_apps, R.id.app_tx_name)
     }
 
     private fun setContactsAdapter() {
@@ -508,6 +500,7 @@ class NewAppWidget : AppWidgetProvider() {
         serviceIntentContact.setData(Uri.parse(serviceIntentContact.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
 
         remoteViews?.setRemoteAdapter(R.id.list_contacts, serviceIntentContact)
+        remoteViews?.setEmptyView(R.id.list_contacts, R.id.contact_tx_name)
     }
 
     private fun setAppsClick() {
@@ -546,7 +539,6 @@ class NewAppWidget : AppWidgetProvider() {
 
         getScreenTime()
 
-        Log.d(TAG, "onReceive ${intent.action}")
         handleIntentActions(intent)
 
     }

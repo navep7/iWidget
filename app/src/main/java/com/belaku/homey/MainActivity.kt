@@ -464,6 +464,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun addPermissionCards() {
         addPermissionCard(
             " <b><u>Permissions needed...</u><b> <br><b> Device location </b>- to display \"① Place Info\" in the Widget",
@@ -500,6 +501,7 @@ class MainActivity : AppCompatActivity() {
         val permissions = arrayOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.READ_CONTACTS,
+            Manifest.permission.WRITE_CONTACTS,
             Manifest.permission.ACTIVITY_RECOGNITION,
             Manifest.permission.BLUETOOTH_CONNECT,
             Manifest.permission.POST_NOTIFICATIONS,

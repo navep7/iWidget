@@ -79,6 +79,7 @@ class RemoteViewsContactsFactory(private val mContext: Context, intent: Intent?)
             R.id.contact_tx_name,
             favContacts[position].name
         )
+
         rvContacts.setImageViewBitmap(R.id.contact_imgv, rBm)
 
 

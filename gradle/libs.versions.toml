@@ -5,6 +5,7 @@ androidGifDrawable = "1.2.29"
 androidMapsUtils = "3.8.2"
 blur_tutorial = "1.0.1"
 firebaseBom = "34.2.0"
+flexbox = "3.0.0"
 glide = "4.16.0"
 googleMaterial = "1.2.0-alpha01"
 googleMaterialVersion = "1.13.0"
@@ -49,6 +50,7 @@ firebase-ai = { module = "com.google.firebase:firebase-ai" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-crashlytics-ndk = { module = "com.google.firebase:firebase-crashlytics-ndk" }
+flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 gms-play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }

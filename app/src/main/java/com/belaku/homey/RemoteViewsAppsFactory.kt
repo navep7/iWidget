@@ -2,19 +2,11 @@ package com.belaku.homey
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.net.Uri
-import android.provider.ContactsContract
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService.RemoteViewsFactory
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.belaku.homey.MainActivity.Companion.appContx
-import com.belaku.homey.MainActivity.Companion.apps
-import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.NewAppWidget.Companion.choosenApps
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
-import java.io.IOException
 
 
 class RemoteViewsAppsFactory(private val mContext: Context, intent: Intent?) :
@@ -37,7 +29,7 @@ class RemoteViewsAppsFactory(private val mContext: Context, intent: Intent?) :
         return choosenApps.size
     }
 
-    override fun getViewAt(position: Int): RemoteViews {
+    override fun getViewAt(position: Int): RemoteViews  {
         val rvApps = RemoteViews(mContext.packageName, R.layout.remote_view_layout_app)
 
 
