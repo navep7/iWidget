@@ -705,6 +705,8 @@ class MainActivity : AppCompatActivity() {
             addWallKey("iPhone Wallpapers", false)
             arrayListKeys.add("CountrySide")
             addWallKey("CountrySide", false)
+            arrayListKeys.add("Cherry Blossoms")
+            addWallKey("Cherry Blossoms", false)
             arrayListKeys.add("Colorful Bokeh Lights")
             addWallKey("Colorful Bokeh Lights", false)
         }

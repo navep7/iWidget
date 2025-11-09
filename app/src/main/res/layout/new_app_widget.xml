@@ -271,91 +271,97 @@
     </RelativeLayout>
 
 
-    <ImageView
-        android:id="@+id/imgv_apps"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
-        android:layout_below="@+id/rl_steps"
-        android:layout_alignParentStart="true"
-        android:layout_toStartOf="@+id/ll_controls"
-        android:src="@drawable/launch_e" />
-
-    <TextView
-        android:id="@+id/tx_f_apps"
-        android:layout_below="@+id/imgv_apps"
+    <LinearLayout
+        android:id="@+id/ll_apps_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/rl_steps"
+        android:gravity="center"
         android:layout_alignEnd="@+id/list_apps"
-        android:text="...apps,"
-        android:background="@drawable/gradient_glass_flatbottom"
-        android:textStyle="bold|italic"
-        android:textSize="20sp"
-        tools:ignore="HardcodedText" />
+        android:background="@drawable/gradient_glass_flatbottom">
 
+        <TextView
+            android:id="@+id/tx_f_apps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="...apps"
+            android:textSize="20sp"
+            android:textStyle="bold|italic"
+            tools:ignore="HardcodedText" />
+
+        <ImageView
+            android:id="@+id/imgv_apps"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/launch_e" />
+
+    </LinearLayout>
 
     <ListView
         android:id="@+id/list_apps"
-        android:background="@drawable/gradient_glass"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/tx_tweets"
-        android:layout_below="@+id/tx_f_apps"
+        android:layout_below="@+id/ll_apps_header"
         android:layout_alignParentStart="true"
-        android:layout_toStartOf="@+id/ll_controls" />
+        android:layout_toStartOf="@+id/ll_controls"
+        android:background="@drawable/gradient_glass" />
 
 
     <ImageView
         android:id="@+id/imgv_add_apps"
-        android:visibility="invisible"
         android:layout_width="55dp"
         android:layout_height="55dp"
         android:layout_above="@+id/tx_tweets"
-        android:layout_alignStart="@+id/imgv_apps"
+        android:layout_alignStart="@+id/ll_apps_header"
         android:layout_toStartOf="@+id/ll_controls"
-        android:src="@android:drawable/ic_input_add" />
+        android:src="@android:drawable/ic_input_add"
+        android:visibility="invisible" />
 
-    <ImageView
-        android:id="@+id/imgv_contacts"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
-        android:layout_below="@+id/rl_steps"
-        android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/ll_controls"
-        android:src="@drawable/contacts" />
-
-    <TextView
-        android:id="@+id/tx_f_contacts"
-        android:layout_below="@+id/imgv_apps"
+    <LinearLayout
+        android:id="@+id/ll_contacts_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/rl_steps"
+        android:gravity="center"
         android:layout_alignStart="@+id/list_contacts"
-        android:text=" ...whiz, "
-        android:background="@drawable/gradient_glass_flatbottom"
-        android:textStyle="bold|italic"
-        android:textSize="20sp"
-        tools:ignore="HardcodedText" />
+        android:background="@drawable/gradient_glass_flatbottom">
 
-    <ImageButton
-        android:id="@+id/imgv_add_contacts"
-        android:layout_toStartOf="@+id/tx_f_contacts"
-        android:layout_below="@+id/tx_f_contacts"
-        android:layout_marginTop="-15dp"
-        android:layout_marginEnd="-15dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/rounded_corner"
-        android:src="@android:drawable/ic_input_add"
-        tools:ignore="ContentDescription" />
+        <ImageButton
+            android:id="@+id/imgv_add_contacts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_corner"
+            android:src="@android:drawable/ic_input_add"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/tx_f_contacts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="...Ph"
+            android:textSize="20sp"
+            android:textStyle="bold|italic"
+            tools:ignore="HardcodedText" />
+
+        <ImageView
+            android:id="@+id/imgv_contacts"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/contacts" />
+
+    </LinearLayout>
+
 
     <ListView
         android:id="@+id/list_contacts"
-        android:background="@drawable/gradient_glass"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/tx_tweets"
-        android:layout_below="@+id/tx_f_contacts"
+        android:layout_below="@+id/ll_contacts_header"
         android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/ll_controls" />
+        android:layout_toEndOf="@+id/ll_controls"
+        android:background="@drawable/gradient_glass" />
 
 
     <LinearLayout
@@ -460,22 +466,23 @@
 
     </LinearLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/fab_share"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="-55dp"
-        android:layout_alignStart="@+id/rl_screentime"
+        android:layout_above="@+id/tx_tweets"
         android:layout_below="@+id/rl_screentime"
-        android:layout_toStartOf="@+id/list_contacts">
+        android:layout_alignStart="@+id/rl_screentime"
+        android:layout_centerHorizontal="true"
+        android:layout_toStartOf="@+id/list_contacts"
+        android:orientation="vertical"
+        android:weightSum="2">
 
         <LinearLayout
             android:id="@+id/ll_gapps_napps"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:layout_alignParentTop="true"
             android:orientation="horizontal"
             android:weightSum="2">
 
@@ -499,10 +506,9 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
-                android:contentDescription="N"
+                android:contentDescription="G"
                 android:scaleType="fitCenter"
                 android:src="@drawable/my_space_bnw"
-                android:weightSum="3"
                 tools:ignore="HardcodedText" />
 
 
@@ -510,11 +516,9 @@
 
         <ImageButton
             android:id="@+id/imgbtn_qr"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="-15dp"
-            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:background="@android:color/transparent"
             android:contentDescription="QR"
             android:scaleType="fitCenter"
@@ -522,7 +526,7 @@
             tools:ignore="HardcodedText" />
 
 
-    </RelativeLayout>
+    </LinearLayout>
 
 
     <RelativeLayout
@@ -555,13 +559,13 @@
 
         <TextView
             android:id="@+id/tx_screentime_info"
-            android:layout_below="@+id/btn_screentime"
-            android:layout_centerHorizontal="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/btn_screentime"
+            android:layout_centerHorizontal="true"
             android:text="ⓘ"
             android:textSize="35sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
 
     </RelativeLayout>
@@ -741,7 +745,7 @@
         android:ellipsize="end"
         android:gravity="center"
         android:linksClickable="true"
-        android:maxLines="3"
+        android:maxLines="2"
         android:text="Tweets"
         android:textColor="?attr/colorPrimaryDark"
         android:textSize="15sp"

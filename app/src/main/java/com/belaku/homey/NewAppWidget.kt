@@ -198,11 +198,10 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
             newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
-
             setContactsAdapter()
+            setContactsClick()
             setAppsAdapter()
             setAppsClick()
-            setContactsClick()
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgv_contacts,
@@ -1291,7 +1290,12 @@ class NewAppWidget : AppWidgetProvider() {
             var totalScreenTimeInMinutes = totalScreenTimeInMillis / (1000 * 60 * 60)
 
             val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
-            val ampm = Calendar.getInstance()[Calendar.AM_PM]
+            var ampm = Calendar.getInstance()[Calendar.AM_PM].toString()
+
+            when(ampm) {
+                "0" -> ampm = "AM"
+                "1" -> ampm = "PM"
+            }
 
             remoteViews?.setTextViewText(R.id.tx_st_since, ".Since ${currentHour % 12} $ampm yday.,")
             remoteViews?.setTextViewText(
