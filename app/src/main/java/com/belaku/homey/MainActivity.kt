@@ -9,7 +9,6 @@ import android.app.ActivityManager
 import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.Dialog
-import android.app.PendingIntent
 import android.app.ProgressDialog
 import android.app.WallpaperManager
 import android.app.job.JobInfo
@@ -50,7 +49,6 @@ import android.speech.RecognizerIntent
 import android.text.Html
 import android.util.DisplayMetrics
 import android.util.Log
-import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.Menu
@@ -124,7 +122,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -151,6 +148,8 @@ import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity() {
 
+
+    private val ALL_PERMISSIONS_REQUEST_CODE: Int = 100
     private lateinit var imageSliderAdapter: ImageSliderAdapter
     private lateinit var viewPager: ViewPager2
     private lateinit var tabLayout: TabLayout
@@ -357,40 +356,17 @@ class MainActivity : AppCompatActivity() {
         //    val messageView = dialogView.findViewById<TextView>(R.id.dialog_message)
         //    messageView.movementMethod = ScrollingMovementMethod()
 
-        addPermissionCard(
-            " <b><u>Permissions needed...</u><b> <br><b> Device location </b>- to display \"① Place Info\" in the Widget",
-            "Permit ACCESS_FINE_LOCATION permission",
-            Manifest.permission.ACCESS_FINE_LOCATION
-        )
-        addPermissionCard(
-            "<b> Contacts </b>- to show your \"② Favorite Contacts\" in the Widget, to dial easily",
-            "Permit CONTACTS permission",
-            Manifest.permission.READ_CONTACTS
-        )
-        addPermissionCard(
-            "<b> Physical Activity </b>- to recognise walking state and display \"③ Steps Count\" in the Widget",
-            "Permit ACTIVITY_RECOGNITION permission",
-            Manifest.permission.ACTIVITY_RECOGNITION
-        )
+        //all Ps at once
+
+
+
+        addPermissionCards()
+
+
         addPermissionCard(
             "<b> Permission Request for App Usage Stats </b>- \n  to suggest \"④ Frequent Apps\" to use, based on previously used App stats.. ",
             "Permit",
             "AUS"
-        )
-        addPermissionCard(
-            "<b> Nearby Devices </b>- for indicating Bluetooth connection status in the Widget",
-            "Permit BLUETOOTH_CONNECT permission",
-            Manifest.permission.BLUETOOTH_CONNECT
-        )
-        addPermissionCard(
-            "<b> Notifications </b>- to notify of set Reminders",
-            "Permit POST_NOTIFICATIONS Access",
-            Manifest.permission.POST_NOTIFICATIONS
-        )
-        addPermissionCard(
-            "<b> Make Phone calls </b>- to quickly dial your \"Favorite Contacts\"",
-            "Permit CALL_PHONE Access",
-            Manifest.permission.CALL_PHONE
         )
         addPermissionCard(
             "<b> Requisition for Accessibility Service permission </b>- \n  to smoothly lock Phone screen from Widget shortcut.",
@@ -486,6 +462,68 @@ class MainActivity : AppCompatActivity() {
         appContx.registerReceiver(mBluetoothReceiver, filter)
 
 
+    }
+
+    private fun addPermissionCards() {
+        addPermissionCard(
+            " <b><u>Permissions needed...</u><b> <br><b> Device location </b>- to display \"① Place Info\" in the Widget",
+            "Permit ACCESS_FINE_LOCATION permission",
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+        addPermissionCard(
+            "<b> Contacts </b>- to show your \"② Favorite Contacts\" in the Widget, to dial easily",
+            "Permit CONTACTS permission",
+            Manifest.permission.READ_CONTACTS
+        )
+        addPermissionCard(
+            "<b> Physical Activity </b>- to recognise walking state and display \"③ Steps Count\" in the Widget",
+            "Permit ACTIVITY_RECOGNITION permission",
+            Manifest.permission.ACTIVITY_RECOGNITION
+        )
+
+        addPermissionCard(
+            "<b> Nearby Devices </b>- for indicating Bluetooth connection status in the Widget",
+            "Permit BLUETOOTH_CONNECT permission",
+            Manifest.permission.BLUETOOTH_CONNECT
+        )
+        addPermissionCard(
+            "<b> Notifications </b>- to notify of set Reminders",
+            "Permit POST_NOTIFICATIONS Access",
+            Manifest.permission.POST_NOTIFICATIONS
+        )
+        addPermissionCard(
+            "<b> Make Phone calls </b>- to quickly dial your \"Favorite Contacts\"",
+            "Permit CALL_PHONE Access",
+            Manifest.permission.CALL_PHONE
+        )
+
+        val permissions = arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.READ_CONTACTS,
+            Manifest.permission.ACTIVITY_RECOGNITION,
+            Manifest.permission.BLUETOOTH_CONNECT,
+            Manifest.permission.POST_NOTIFICATIONS,
+            Manifest.permission.CALL_PHONE
+        )
+        var buttonAll = Button(applicationContext)
+        buttonAll.text = "Allow ALL"
+        buttonAll.setOnClickListener {
+            if (!hasPermissions(permissions)) {
+                ActivityCompat.requestPermissions(this, permissions, ALL_PERMISSIONS_REQUEST_CODE);
+            } else {
+                // Permissions already granted, proceed with functionality
+            }
+        }
+        llInstructions.addView(buttonAll)
+    }
+
+    private fun hasPermissions(permissions: Array<String>): Boolean {
+        for (permission in permissions) {
+            if (ActivityCompat.checkSelfPermission(this, permission) != PERMISSION_GRANTED) {
+                return false
+            }
+        }
+        return true
     }
 
     private fun nPermissions(): Boolean {
@@ -1632,7 +1670,49 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
 
-        if (requestCode == LOC_P) {
+        if (requestCode == ALL_PERMISSIONS_REQUEST_CODE) {
+            var allGranted = true
+            for (result in grantResults) {
+                if (result != PERMISSION_GRANTED) {
+                    allGranted = false
+                    break
+                }
+            }
+            if (allGranted) {
+                makeToast("All permissions granted");
+
+                    sharedPreferencesEditor.putBoolean("LP", true).apply()
+                    getCity()
+                    btnL.text = "Granted"
+
+
+                    sharedPreferencesEditor.putBoolean("ARP", true).apply()
+                    startStepsService()
+                    btnAR.text = "Granted"
+
+
+                    sharedPreferencesEditor.putBoolean("RCP", true).apply()
+                    getFavoriteContacts(applicationContext)
+                    btnRC.text = "Granted"
+
+
+                    sharedPreferencesEditor.putBoolean("BP", true).apply()
+                    btnBT.text = "Granted"
+
+
+                    sharedPreferencesEditor.putBoolean("PNP", true).apply()
+                    btnPN.text = "Granted"
+
+
+                    sharedPreferencesEditor.putBoolean("CPP", true).apply()
+                    btnCP.text = "Granted"
+
+
+
+            } else {
+                makeToast("Some permissions denied")
+            }
+        } else if (requestCode == LOC_P) {
             if (grantResults.isNotEmpty())
                 if (grantResults[0].equals(PERMISSION_GRANTED)) {
                     sharedPreferencesEditor.putBoolean("LP", true).apply()
