@@ -332,7 +332,7 @@ class DialogActivity : AppCompatActivity() {
                                 noRewards = 7
                                 remoteViews?.setTextViewText(R.id.tx_rewards_count, "" + 7)
                                 txTitle.setText("swipe outside to continue changing walls.")
-                                appWidM.updateAppWidget(newAppWidget, remoteViews)
+                            //    appWidM.updateAppWidget(newAppWidget, remoteViews)
                             }
                         }
 
@@ -859,8 +859,8 @@ class DialogActivity : AppCompatActivity() {
                     newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
                     remoteViews?.setImageViewUri(R.id.twSettings, Uri.parse(twitterPicUrl))
 
-                    appWidM = AppWidgetManager.getInstance(appContx)
-                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                //    appWidM = AppWidgetManager.getInstance(appContx)
+                //    appWidM.updateAppWidget(newAppWidget, remoteViews)
 
                     //    Log.d(TAG + "responseTweetID - ", responseBodyString)
                     //  Log.d(TAG + "Tw ID - ", twitterID + " - " + twitterProfileName)
@@ -940,8 +940,8 @@ class DialogActivity : AppCompatActivity() {
                 )
 
 
-                appWidM = AppWidgetManager.getInstance(appContx)
-                appWidM.updateAppWidget(newAppWidget, remoteViews)
+            //    appWidM = AppWidgetManager.getInstance(appContx)
+            //    appWidM.updateAppWidget(newAppWidget, remoteViews)
 
             }
         }
@@ -1002,8 +1002,8 @@ class DialogActivity : AppCompatActivity() {
         newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
 
 
-        appWidM = AppWidgetManager.getInstance(appContx)
-        appWidM.updateAppWidget(newAppWidget, remoteViews)
+    //    appWidM = AppWidgetManager.getInstance(appContx)
+    //    appWidM.updateAppWidget(newAppWidget, remoteViews)
 
     }
 

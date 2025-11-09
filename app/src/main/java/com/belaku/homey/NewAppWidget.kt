@@ -43,6 +43,7 @@ import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
 import android.text.Html
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.accessibility.AccessibilityManager
@@ -93,10 +94,7 @@ class NewAppWidget : AppWidgetProvider() {
     private lateinit var ampm: String
 
     private val TAG: String = "NewAppWidget LOG7"
-    private lateinit var wD: String
-    private lateinit var qT: String
-    private lateinit var uT: String
-    private lateinit var dU: String
+
 
     private lateinit var mp: MediaPlayer
 
@@ -132,67 +130,19 @@ class NewAppWidget : AppWidgetProvider() {
         appWidgetIds: IntArray
     ) {
 
-
-        remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
-        newAppWidget = ComponentName(context, NewAppWidget::class.java)
+        makeToast("!onUpdate")
 
         readApps()
         readContacts()
         getFavoriteContacts()
 
 
-
-        getScreenTime()
-
-        val wallpaperManager = WallpaperManager.getInstance(context)
-        val wallpaperColors = wallpaperManager.getWallpaperColors(WallpaperManager.FLAG_SYSTEM)
-
-        primaryColor = appContx.resources.getColor(android.R.color.holo_green_light)
-        secondaryColor = appContx.resources.getColor(android.R.color.darker_gray)
-        tertianaryColor = appContx.resources.getColor(android.R.color.system_surface_bright_dark)
-
-
-        if (wallpaperColors != null) {
-            primaryColor = wallpaperColors.primaryColor.toArgb()
-
-            if (wallpaperColors.secondaryColor != null)
-                secondaryColor = wallpaperColors.secondaryColor!!.toArgb()
-            else secondaryColor = Color.LTGRAY
-
-            if (wallpaperColors.tertiaryColor != null)
-                tertianaryColor = wallpaperColors.tertiaryColor!!.toArgb()
-            else tertianaryColor = Color.DKGRAY
-
-        }
-
-        if (!MainActivity.isLocationEnabled(context)) {
-            remoteViews?.setTextViewText(R.id.tx_place, "Please Enable Location services!")
-
-            val locIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-            val locPendingIntent = PendingIntent.getActivity(
-                context,
-                21,
-                locIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            remoteViews?.setOnClickPendingIntent(
-                R.id.tx_place,
-                locPendingIntent
-            )
-        } else remoteViews?.setTextViewText(
-            R.id.tx_place,
-            "⚲ " + cityname
-        )
-
-
         for (appWidgetId in appWidgetIds) {
             remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
             newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
-            setContactsAdapter()
-            setContactsClick()
-            setAppsAdapter()
-            setAppsClick()
+
+            setUI()
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgv_contacts,
@@ -437,51 +387,98 @@ class NewAppWidget : AppWidgetProvider() {
                 mapsPendingIntent
             )
 
-
-            val launcherIntent = Intent(context, AppsActivity::class.java)
-            launcherIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-            launcherIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            val launcherPendingIntent = PendingIntent.getActivity(
-                context,
-                0,
-                launcherIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-            /*    remoteViews?.setOnClickPendingIntent(
-                    R.id.imgv_app3,
-                    launcherPendingIntent
-                )
-
-                remoteViews?.setOnClickPendingIntent(
-                    R.id.imgv_app1,
-                    getPendingSelfIntent(context, APP1_CLICKED)
-                )
-
-                remoteViews?.setOnClickPendingIntent(
-                    R.id.imgv_app2,
-                    getPendingSelfIntent(context, APP2_CLICKED)
-                )
-
-                remoteViews?.setOnClickPendingIntent(
-                    R.id.imgv_app4,
-                    getPendingSelfIntent(context, APP4_CLICKED)
-                )
-
-                remoteViews?.setOnClickPendingIntent(
-                    R.id.imgv_app5,
-                    getPendingSelfIntent(context, APP5_CLICKED)
-                )
-    */
-
-
             appWidM = AppWidgetManager.getInstance(context)
-            appWidM.updateAppWidget(appWidgetId, remoteViews)
+            appWidM.updateAppWidget(newAppWidget, remoteViews)
         }
 
 
 
         super.onUpdate(context, appWidgetManager, appWidgetIds)
+
+    }
+
+    private fun locationTxUpdate(context: Context) {
+        if (!MainActivity.isLocationEnabled(context)) {
+            remoteViews?.setTextViewText(R.id.tx_place, "Please Enable Location services!")
+
+            val locIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            val locPendingIntent = PendingIntent.getActivity(
+                context,
+                21,
+                locIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            remoteViews?.setOnClickPendingIntent(
+                R.id.tx_place,
+                locPendingIntent
+            )
+        } else remoteViews?.setTextViewText(
+            R.id.tx_place,
+            "⚲ " + cityname
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun setUI() {
+
+        getScreenTime()
+        todaysDate()
+        locationTxUpdate(appContx)
+        wallColors()
+        setSomeTwAndWallDescUI()
+
+        setContactsAdapter()
+        setContactsClick()
+        setAppsAdapter()
+        setAppsClick()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun wallColors() {
+
+        val wallpaperManager = WallpaperManager.getInstance(appContx)
+        val wallpaperColors = wallpaperManager.getWallpaperColors(WallpaperManager.FLAG_SYSTEM)
+
+
+        if (wallpaperColors != null) {
+            Log.d("wallColors", "notNULL")
+
+            primaryColor = wallpaperColors.primaryColor.toArgb()
+
+            if (wallpaperColors.secondaryColor != null)
+                secondaryColor = wallpaperColors.secondaryColor!!.toArgb()
+            else secondaryColor = Color.GREEN
+
+            if (wallpaperColors.tertiaryColor != null)
+                tertianaryColor = wallpaperColors.tertiaryColor!!.toArgb()
+            else tertianaryColor = Color.BLUE
+
+            remoteViews?.setColorInt(R.id.imgbtn_location, "setColorFilter", primaryColor, primaryColor)
+            remoteViews?.setColorInt(R.id.imgbtn_conf, "setColorFilter", tertianaryColor, tertianaryColor)
+            remoteViews?.setColorInt(R.id.imgbtn_speech, "setColorFilter", secondaryColor, secondaryColor)
+            remoteViews?.setColorInt(R.id.imgbtn_lock, "setColorFilter", secondaryColor, secondaryColor)
+            remoteViews?.setColorInt(R.id.imgbtn_set, "setColorFilter", primaryColor, primaryColor)
+
+        } else  Log.d("wallColors", "NULL")
+
+
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun setSomeTwAndWallDescUI() {
+        remoteViews?.setTextViewText(
+            R.id.tx_desc_walltype,
+            Html.fromHtml(
+                wD + "<br>" + qT.split(" ")[0].substring(0, 1)
+                    .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
+                Html.FROM_HTML_MODE_LEGACY
+            )
+        )
+
+        remoteViews?.setTextViewText(
+            R.id.tx_tweets,
+            "@" + twitterProfileName + "\t ~ \t" + tW
+        )
 
     }
 
@@ -491,16 +488,15 @@ class NewAppWidget : AppWidgetProvider() {
         serviceIntentApp.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, newAppWidget)
         serviceIntentApp.setData(Uri.parse(serviceIntentApp.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
         remoteViews?.setRemoteAdapter(R.id.list_apps, serviceIntentApp)
-        remoteViews?.setEmptyView(R.id.list_apps, R.id.app_tx_name)
+        remoteViews?.setEmptyView(R.id.list_apps, R.id.tx_f_apps)
     }
 
     private fun setContactsAdapter() {
         serviceIntentContact = Intent(appContx, RemoteViewsContactsService::class.java)
         serviceIntentContact.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, newAppWidget)
         serviceIntentContact.setData(Uri.parse(serviceIntentContact.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
-
         remoteViews?.setRemoteAdapter(R.id.list_contacts, serviceIntentContact)
-        remoteViews?.setEmptyView(R.id.list_contacts, R.id.contact_tx_name)
+        remoteViews?.setEmptyView(R.id.list_contacts, R.id.widget_empty_view)
     }
 
     private fun setAppsClick() {
@@ -537,9 +533,13 @@ class NewAppWidget : AppWidgetProvider() {
 
         super.onReceive(context, intent)
 
-        getScreenTime()
+        makeToast("!onReceive")
+        setUI()
 
         handleIntentActions(intent)
+
+        appWidM = AppWidgetManager.getInstance(context)
+        appWidM.updateAppWidget(newAppWidget, remoteViews)
 
     }
 
@@ -718,6 +718,7 @@ class NewAppWidget : AppWidgetProvider() {
                     SetWallWorker.setWall(true)
                 }.start()
 
+
             } else {
                 makeToast("Watch an AD to auto change Walls for next 7 times!")
                 remoteViews?.setTextViewText(R.id.tx_rewards_count, "\uD83D\uDC41\uFE0FAD!")
@@ -730,7 +731,7 @@ class NewAppWidget : AppWidgetProvider() {
                     )
                 )
 
-                appWidM.updateAppWidget(newAppWidget, remoteViews)
+             //   appWidM.updateAppWidget(newAppWidget, remoteViews)
             }
         } else if (A_CLICKED == intent.action) {
             val intentApps = Intent(appContx, AppsActivity::class.java)
@@ -826,7 +827,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         cursor.close()
 
-        appWidM.updateAppWidget(newAppWidget, remoteViews)
+  //      appWidM.updateAppWidget(newAppWidget, remoteViews)
     }
 
     private fun saveContacts() {
@@ -972,8 +973,6 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
 
-
-
     private fun shareWidget(context: Context, bitmap: Bitmap) {
         val bitmapPath = MediaStore.Images.Media.insertImage(
             appContx.getContentResolver(), bitmap, "title", ""
@@ -1028,7 +1027,6 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
 
-
     private fun launchApp(context: Context, pkgName: String) {
         val launchIntent: Intent = context.packageManager.getLaunchIntentForPackage(pkgName)!!
         context.startActivity(launchIntent)
@@ -1073,7 +1071,6 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
 
-
     protected fun getPendingSelfIntent(context: Context?, action: String?): PendingIntent {
         val intent = Intent(context, javaClass)
         intent.setAction(action)
@@ -1081,6 +1078,10 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     companion object {
+        lateinit var wD: String
+        lateinit var qT: String
+        lateinit var uT: String
+        lateinit var dU: String
         lateinit var formattedDate: String
         lateinit var timeOfDay: String
         var timelyWish: String = ""
@@ -1099,9 +1100,9 @@ class NewAppWidget : AppWidgetProvider() {
 
         var newsBitmaps: ArrayList<Bitmap> =
             ArrayList()
-        var primaryColor by Delegates.notNull<Int>()
-        var secondaryColor by Delegates.notNull<Int>()
-        var tertianaryColor by Delegates.notNull<Int>()
+        var primaryColor = appContx.resources.getColor(android.R.color.holo_red_light)
+        var secondaryColor = appContx.resources.getColor(android.R.color.holo_green_light)
+        var tertianaryColor = appContx.resources.getColor(android.R.color.holo_blue_bright)
         var screenWidth by Delegates.notNull<Int>()
         var screenHeight by Delegates.notNull<Int>()
         var favContacts: ArrayList<Contact> = ArrayList()
@@ -1284,12 +1285,15 @@ class NewAppWidget : AppWidgetProvider() {
             val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
             var ampm = Calendar.getInstance()[Calendar.AM_PM].toString()
 
-            when(ampm) {
+            when (ampm) {
                 "0" -> ampm = "AM"
                 "1" -> ampm = "PM"
             }
 
-            remoteViews?.setTextViewText(R.id.tx_st_since, ".Since ${currentHour % 12} $ampm yday.,")
+            remoteViews?.setTextViewText(
+                R.id.tx_st_since,
+                ".Since ${currentHour % 12} $ampm yday.,"
+            )
             remoteViews?.setTextViewText(
                 R.id.btn_screentime,
                 "ON ~ ${totalScreenTimeInMinutes.toString()}+ H"
@@ -1347,7 +1351,9 @@ class NewAppWidget : AppWidgetProvider() {
                     remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.rain)
                 if (weatherIconID.equals("800"))
                     remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clear_sky)
-                if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals("803") || weatherIconID.equals(
+                if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals(
+                        "803"
+                    ) || weatherIconID.equals(
                         "804"
                     )
                 )

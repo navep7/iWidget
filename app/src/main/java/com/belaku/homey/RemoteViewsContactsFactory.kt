@@ -42,89 +42,88 @@ class RemoteViewsContactsFactory(private val mContext: Context, intent: Intent?)
     override fun getViewAt(position: Int): RemoteViews {
         val rvContacts = RemoteViews(mContext.packageName, R.layout.remote_view_layout_contact)
 
-        val inputStream = ContactsContract.Contacts.openContactPhotoInputStream(
-            appContx.contentResolver,
-            Uri.parse(favContacts[position].image)
-        )
-
-        val bm: Bitmap
-        var rBm: Bitmap
-        if (inputStream != null) {
-            bm = BitmapFactory.decodeStream(inputStream)
-
-            rBm =
-                drawableToBitmap(
-                    appContx,
-                    RoundedBitmapDrawableFactory.create(appContx.resources, bm)
-                )
-            try {
-                inputStream.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        } else {
-            bm = drawableToBitmap(
-                appContx,
-                appContx.resources.getDrawable(R.drawable.face_holder)
+        if (favContacts.size > position) {
+            val inputStream = ContactsContract.Contacts.openContactPhotoInputStream(
+                appContx.contentResolver,
+                Uri.parse(favContacts[position].image)
             )
-            rBm =
-                drawableToBitmap(
+
+            val bm: Bitmap
+            var rBm: Bitmap
+            if (inputStream != null) {
+                bm = BitmapFactory.decodeStream(inputStream)
+
+                rBm =
+                    drawableToBitmap(
+                        appContx,
+                        RoundedBitmapDrawableFactory.create(appContx.resources, bm)
+                    )
+                try {
+                    inputStream.close()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            } else {
+                bm = drawableToBitmap(
                     appContx,
-                    RoundedBitmapDrawableFactory.create(appContx.resources, bm)
+                    appContx.resources.getDrawable(R.drawable.face_holder)
                 )
+                rBm =
+                    drawableToBitmap(
+                        appContx,
+                        RoundedBitmapDrawableFactory.create(appContx.resources, bm)
+                    )
+            }
+
+            rvContacts.setTextViewText(
+                R.id.contact_tx_name,
+                favContacts[position].name
+            )
+            rvContacts.setImageViewBitmap(R.id.contact_imgv, rBm)
+
+
+            // Create the fill-in intent
+            val fillInIntentDial = Intent()
+            fillInIntentDial.putExtra(
+                NewAppWidget.EXTRA_CONTACTITEM_POSITION,
+                position
+            ) // Add item-specific data
+            fillInIntentDial.putExtra(
+                NewAppWidget.EXTRA_CONTACTVIEW_ID,
+                0
+            )
+            // setOnClickFillInIntent is called on the root view of the list item layout
+            rvContacts.setOnClickFillInIntent(R.id.contact_imgv, fillInIntentDial)
+
+            val fillInIntentRemove = Intent()
+            fillInIntentRemove.putExtra(
+                NewAppWidget.EXTRA_CONTACTITEM_POSITION,
+                position
+            ) // Add item-specific data
+            fillInIntentRemove.putExtra(
+                NewAppWidget.EXTRA_CONTACTVIEW_ID,
+                1
+            )
+            // setOnClickFillInIntent is called on the root view of the list item layout
+            rvContacts.setOnClickFillInIntent(R.id.contact_tx_close, fillInIntentRemove)
         }
 
+            return rvContacts
+        }
 
-        rvContacts.setTextViewText(
-            R.id.contact_tx_name,
-            favContacts[position].name
-        )
+        override fun getLoadingView(): RemoteViews? {
+            return null // You can provide a custom loading view
+        }
 
-        rvContacts.setImageViewBitmap(R.id.contact_imgv, rBm)
+        override fun getViewTypeCount(): Int {
+            return 1 // Number of different layout types in your list
+        }
 
+        override fun getItemId(position: Int): Long {
+            return position.toLong()
+        }
 
-        // Create the fill-in intent
-        val fillInIntentDial = Intent()
-        fillInIntentDial.putExtra(
-            NewAppWidget.EXTRA_CONTACTITEM_POSITION,
-            position
-        ) // Add item-specific data
-        fillInIntentDial.putExtra(
-            NewAppWidget.EXTRA_CONTACTVIEW_ID,
-            0
-        )
-        // setOnClickFillInIntent is called on the root view of the list item layout
-        rvContacts.setOnClickFillInIntent(R.id.contact_imgv, fillInIntentDial)
-
-        val fillInIntentRemove = Intent()
-        fillInIntentRemove.putExtra(
-            NewAppWidget.EXTRA_CONTACTITEM_POSITION,
-            position
-        ) // Add item-specific data
-        fillInIntentRemove.putExtra(
-            NewAppWidget.EXTRA_CONTACTVIEW_ID,
-            1
-        )
-        // setOnClickFillInIntent is called on the root view of the list item layout
-        rvContacts.setOnClickFillInIntent(R.id.contact_tx_close, fillInIntentRemove)
-
-
-        return rvContacts
+        override fun hasStableIds(): Boolean {
+            return true
+        }
     }
-
-    override fun getLoadingView(): RemoteViews? {
-        return null // You can provide a custom loading view
-    }
-
-    override fun getViewTypeCount(): Int {
-        return 1 // Number of different layout types in your list
-    }
-
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
-
-    override fun hasStableIds(): Boolean {
-        return true
-    }
-}

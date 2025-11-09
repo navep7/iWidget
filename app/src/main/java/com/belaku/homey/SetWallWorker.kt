@@ -13,9 +13,7 @@ import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.location.Geocoder
@@ -30,10 +28,8 @@ import android.text.Html
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
-import android.widget.TextView
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.belaku.homey.MainActivity.Companion.appContx
@@ -45,7 +41,6 @@ import com.belaku.homey.MainActivity.Companion.delayUnit
 import com.belaku.homey.MainActivity.Companion.fabMain
 import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.mAct
-import com.belaku.homey.MainActivity.Companion.makeSnack
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.queryType
@@ -53,7 +48,6 @@ import com.belaku.homey.MainActivity.Companion.randomWallIndex
 import com.belaku.homey.MainActivity.Companion.rlStatus
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
-import com.belaku.homey.MainActivity.Companion.tempKind
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
 import com.belaku.homey.MainActivity.Companion.txStatus
 import com.belaku.homey.MainActivity.Companion.updateTime
@@ -61,20 +55,24 @@ import com.belaku.homey.MainActivity.Companion.wallDelay
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
 import com.belaku.homey.NewAppWidget.Companion.choosenApps
+import com.belaku.homey.NewAppWidget.Companion.dU
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.formattedDate
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
+import com.belaku.homey.NewAppWidget.Companion.qT
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.screenHeight
 import com.belaku.homey.NewAppWidget.Companion.screenWidth
+import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.NewAppWidget.Companion.timelyWish
+import com.belaku.homey.NewAppWidget.Companion.uT
+import com.belaku.homey.NewAppWidget.Companion.wD
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.Marker
-import com.google.android.material.snackbar.Snackbar
 import java.io.IOException
 import java.net.URL
 import java.util.Collections
@@ -88,6 +86,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
     private val appWidM: AppWidgetManager = AppWidgetManager.getInstance(appContx)
 
+    @RequiresApi(Build.VERSION_CODES.S)
     @NonNull
     override fun doWork(): Result {
 
@@ -182,7 +181,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             @RequiresApi(Build.VERSION_CODES.S)
             override fun onLost(network: Network) {
                 remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_off)
-                appWidM.updateAppWidget(newAppWidget, remoteViews)
+        //        appWidM.updateAppWidget(newAppWidget, remoteViews)
                 Log.d(TAG, "WifiState called from onLost")
             }
 
@@ -194,21 +193,21 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     Color.YELLOW,
                     Color.YELLOW
                 )
-                appWidM.updateAppWidget(newAppWidget, remoteViews)
+         //       appWidM.updateAppWidget(newAppWidget, remoteViews)
                 Log.d(wTAG, "WifiState OFF")
             }
 
             @RequiresApi(Build.VERSION_CODES.S)
             override fun onLosing(network: Network, maxMsToLive: Int) {
                 remoteViews?.setColorInt(R.id.fab_wifi, "setColorFilter", Color.RED, Color.RED)
-                appWidM.updateAppWidget(newAppWidget, remoteViews)
+         //       appWidM.updateAppWidget(newAppWidget, remoteViews)
                 Log.d(wTAG, "WifiState called from onLosing")
             }
 
             override fun onAvailable(network: Network) {
                 Log.d(wTAG, "WifiState ON")
                 remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_on)
-                appWidM.updateAppWidget(newAppWidget, remoteViews)
+           //     appWidM.updateAppWidget(newAppWidget, remoteViews)
                 //record wi-fi connect event
             }
         }
@@ -237,6 +236,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         lateinit var wm: WallpaperManager
 
 
+        @RequiresApi(Build.VERSION_CODES.S)
         @SuppressLint("SetTextI18n")
         fun setWall(b: Boolean) {
 
@@ -290,17 +290,25 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 }
                 Log.d(TAG, "Set successfully")
 
-                if (MainActivity.mainWindow.decorView.rootView.isShown)
-                    if (pD.isShowing)
-                        pD.dismiss()
-                remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
+                 wD = wallDesc.split("+")[1]
+                 qT = queryType
+                 dU = delayUnit
+                 uT = updateTime
+                 tW = listTweets[Random.nextInt(0, listTweets.size)]
 
-                var wD = wallDesc.split("+")[1]
-                var qT = queryType
-                var dU = delayUnit
-                var uT = updateTime
-                var tW = listTweets[Random.nextInt(0, listTweets.size)]
+                if (MainActivity.mainWindow.decorView.rootView.isShown)
+                    if (pD.isShowing) {
+                        pD.dismiss()
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                txStatus.text =
+                                    "\"$queryType\" wallpapers Set, updates every $wallDelay mins. \n Add the HomeScreen Widget to see more of the Magic!"
+                                rlStatus.visibility = View.VISIBLE
+                                fabMain.text = "How to ?"
+                            }, 1000)
+                    }
+
+
+
                remoteViews?.setTextViewText(
                    R.id.tx_tweets,
                      "@" + twitterProfileName + "\t ~ \t" + tW
@@ -324,24 +332,14 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 )
                 remoteViews?.setTextViewText(R.id.tx_place, "⚲ " + cityname)
 
+
                 val intent = Intent(appContx, NewAppWidget::class.java)
                 intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
                 newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
                 //   intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, newAppWidget)
+
                 appContx.sendBroadcast(intent)
 
-                // Source - https://stackoverflow.com/a
-// Posted by GaRRaPeTa, modified by community. See post 'Timeline' for change history
-// Retrieved 2025-11-08, License - CC BY-SA 3.0
-
-
-                if (MainActivity.mainWindow.decorView.rootView.isShown)
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        txStatus.text =
-                            "\"$queryType\" wallpapers Set, updates every $wallDelay mins. \n Add the HomeScreen Widget to see more of the Magic!"
-                        rlStatus.visibility = View.VISIBLE
-                        fabMain.text = "How to ?"
-                    }, 1000)
 
 
             } catch (e: IOException) {
@@ -350,9 +348,11 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 Log.d(TAG, "setWallEx2 - $e")
             }
             //   newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
-            appWidM.updateAppWidget(newAppWidget, remoteViews)
+      //      appWidM.updateAppWidget(newAppWidget, remoteViews)
 
         }
+
+
 
         fun appUsageStats(applicationContext: Context?) {
 

@@ -69,7 +69,7 @@ class AppChooserDialog : Activity() {
                 )
             )
             remoteViews?.setImageViewBitmap(appViewID, selectedApp.getCircledBitmap())
-            appWidM.updateAppWidget(newAppWidget, remoteViews)
+      //      appWidM.updateAppWidget(newAppWidget, remoteViews)
             goHome()
         }
 

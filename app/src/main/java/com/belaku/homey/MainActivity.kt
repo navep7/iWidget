@@ -812,7 +812,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         getFavoriteContacts(applicationContext)
-        appWidM.updateAppWidget(newAppWidget, remoteViews)
+    //    appWidM.updateAppWidget(newAppWidget, remoteViews)
     }
 
 
@@ -1046,8 +1046,8 @@ class MainActivity : AppCompatActivity() {
                                 ComponentName(applicationContext, NewAppWidget::class.java)
                             remoteViews?.setImageViewUri(R.id.twSettings, Uri.parse(twitterPicUrl))
 
-                            appWidM = AppWidgetManager.getInstance(appContx)
-                            appWidM.updateAppWidget(newAppWidget, remoteViews)
+                       //     appWidM = AppWidgetManager.getInstance(appContx)
+                       //     appWidM.updateAppWidget(newAppWidget, remoteViews)
 
                             Log.d(TAG + "responseTweetID - ", responseBodyString)
                             Log.d(TAG + "Tw ID - ", twitterID + " - " + twitterProfileName)
@@ -1137,8 +1137,8 @@ class MainActivity : AppCompatActivity() {
                     "@" + twitterProfileName + "\t ~ \t" + listTweets[1]
                 )
 
-                appWidM = AppWidgetManager.getInstance(appContx)
-                appWidM.updateAppWidget(newAppWidget, remoteViews)
+           //     appWidM = AppWidgetManager.getInstance(appContx)
+           //     appWidM.updateAppWidget(newAppWidget, remoteViews)
 
             }
         }
@@ -1218,8 +1218,8 @@ class MainActivity : AppCompatActivity() {
         newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
 
 
-        appWidM = AppWidgetManager.getInstance(appContx)
-        appWidM.updateAppWidget(newAppWidget, remoteViews)
+    //    appWidM = AppWidgetManager.getInstance(appContx)
+    //    appWidM.updateAppWidget(newAppWidget, remoteViews)
 
     }
 
@@ -1515,6 +1515,7 @@ class MainActivity : AppCompatActivity() {
         return applicationName
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     private fun setWalls(delay: Long) {
 
         appUsageStats(applicationContext)
@@ -1525,8 +1526,8 @@ class MainActivity : AppCompatActivity() {
         pD.setTitle("Wallpaper...")
         pD.setMessage("Setting \"${queryType}\" wallpaper...")
         pD.show()
-        startWallWork(delay)
 
+        startWallWork(delay)
 
     }
 
@@ -1548,6 +1549,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.S)
     @SuppressLint("ClickableViewAccessibility")
     private fun listeners() {
 
@@ -1803,13 +1805,13 @@ class MainActivity : AppCompatActivity() {
                     when (state) {
                         BluetoothAdapter.STATE_OFF -> {
                             remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_off)
-                            appWidM.updateAppWidget(newAppWidget, remoteViews)
+                   //         appWidM.updateAppWidget(newAppWidget, remoteViews)
                         }
 
                         BluetoothAdapter.STATE_TURNING_OFF -> {}
                         BluetoothAdapter.STATE_ON -> {
                             remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_on)
-                            appWidM.updateAppWidget(newAppWidget, remoteViews)
+                    //        appWidM.updateAppWidget(newAppWidget, remoteViews)
                         }
 
                         BluetoothAdapter.STATE_TURNING_ON -> {}
@@ -2129,7 +2131,7 @@ class MainActivity : AppCompatActivity() {
                         )
                             remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clouds)
 
-                        appWidM.updateAppWidget(newAppWidget, remoteViews)
+                   //     appWidM.updateAppWidget(newAppWidget, remoteViews)
 
                         sharedPreferencesEditor.putString(
                             "weatherTemp",

@@ -13,6 +13,7 @@
         android:ellipsize="end"
         android:maxEms="3"
         android:maxLines="1"
+        android:textColor="?attr/colorSecondary"
         android:layout_alignParentBottom="true"
         android:textStyle="bold"
         android:text="Application"

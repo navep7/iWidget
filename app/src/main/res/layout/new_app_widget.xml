@@ -324,7 +324,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/rl_steps"
         android:gravity="center"
-        android:layout_alignStart="@+id/list_contacts"
+        android:layout_toEndOf="@+id/ll_controls"
         android:background="@drawable/gradient_glass_flatbottom">
 
         <ImageButton
@@ -339,7 +339,7 @@
             android:id="@+id/tx_f_contacts"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="...Ph"
+            android:text="...calls"
             android:textSize="20sp"
             android:textStyle="bold|italic"
             tools:ignore="HardcodedText" />
@@ -357,6 +357,17 @@
         android:id="@+id/list_contacts"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_contacts_header"
+        android:layout_above="@+id/tx_tweets"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@+id/ll_controls"
+        android:background="@drawable/gradient_glass" />
+
+    <TextView
+        android:id="@+id/widget_empty_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
         android:layout_below="@+id/ll_contacts_header"
         android:layout_above="@+id/tx_tweets"
         android:layout_alignParentEnd="true"
@@ -473,7 +484,7 @@
         android:layout_below="@+id/rl_screentime"
         android:layout_alignStart="@+id/rl_screentime"
         android:layout_centerHorizontal="true"
-        android:layout_toStartOf="@+id/list_contacts"
+        android:layout_toStartOf="@+id/ll_contacts_header"
         android:orientation="vertical"
         android:weightSum="2">
 
@@ -727,7 +738,7 @@
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:layout_above="@+id/tx_tweets"
-        android:layout_toStartOf="@+id/list_contacts"
+        android:layout_toStartOf="@+id/ll_contacts_header"
         android:background="@drawable/weather_rounded_corner"
         android:gravity="center"
         android:src="@android:drawable/ic_menu_share"
