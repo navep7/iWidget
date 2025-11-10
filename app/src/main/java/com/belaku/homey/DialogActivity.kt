@@ -332,7 +332,7 @@ class DialogActivity : AppCompatActivity() {
                                 noRewards = 7
                                 remoteViews?.setTextViewText(R.id.tx_rewards_count, "" + 7)
                                 txTitle.setText("swipe outside to continue changing walls.")
-                            //    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                                updateWidget()
                             }
                         }
 
@@ -587,6 +587,18 @@ class DialogActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateWidget() {
+        val intent = Intent(
+            applicationContext,
+            NewAppWidget::class.java
+        )
+        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
+        val ids: IntArray = AppWidgetManager.getInstance(application)
+            .getAppWidgetIds(ComponentName(getApplication(), NewAppWidget::class.java))
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+        sendBroadcast(intent)
+    }
+
     // Function to add dots
     private fun setupDots(count: Int) {
         dotsLayout.removeAllViews()
@@ -660,7 +672,7 @@ class DialogActivity : AppCompatActivity() {
                     updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
                     sendBroadcast(updateIntent)
                     finish()
-                    //  appWidM.updateAppWidget(newAppWidget, remoteViews)
+                    updateWidget()
 
                 }
             }
@@ -859,11 +871,7 @@ class DialogActivity : AppCompatActivity() {
                     newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
                     remoteViews?.setImageViewUri(R.id.twSettings, Uri.parse(twitterPicUrl))
 
-                //    appWidM = AppWidgetManager.getInstance(appContx)
-                //    appWidM.updateAppWidget(newAppWidget, remoteViews)
-
-                    //    Log.d(TAG + "responseTweetID - ", responseBodyString)
-                    //  Log.d(TAG + "Tw ID - ", twitterID + " - " + twitterProfileName)
+                    updateWidget()
 
                     if (b) pD.dismiss()
 
@@ -940,8 +948,7 @@ class DialogActivity : AppCompatActivity() {
                 )
 
 
-            //    appWidM = AppWidgetManager.getInstance(appContx)
-            //    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                updateWidget()
 
             }
         }
@@ -1002,8 +1009,7 @@ class DialogActivity : AppCompatActivity() {
         newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
 
 
-    //    appWidM = AppWidgetManager.getInstance(appContx)
-    //    appWidM.updateAppWidget(newAppWidget, remoteViews)
+        updateWidget()
 
     }
 

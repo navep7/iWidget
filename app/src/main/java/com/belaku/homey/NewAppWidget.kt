@@ -466,6 +466,7 @@ class NewAppWidget : AppWidgetProvider() {
 
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setSomeTwAndWallDescUI() {
+        /*if (NewAppWidget.Companion::wD.isInitialized)
         remoteViews?.setTextViewText(
             R.id.tx_desc_walltype,
             Html.fromHtml(
@@ -473,7 +474,7 @@ class NewAppWidget : AppWidgetProvider() {
                     .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
                 Html.FROM_HTML_MODE_LEGACY
             )
-        )
+        )*/
 
         remoteViews?.setTextViewText(
             R.id.tx_tweets,

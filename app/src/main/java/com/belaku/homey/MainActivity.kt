@@ -812,9 +812,20 @@ class MainActivity : AppCompatActivity() {
         )
 
         getFavoriteContacts(applicationContext)
-    //    appWidM.updateAppWidget(newAppWidget, remoteViews)
+    updateWidget()
     }
 
+    private fun updateWidget() {
+        val intent = Intent(
+            applicationContext,
+            NewAppWidget::class.java
+        )
+        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
+        val ids: IntArray = AppWidgetManager.getInstance(application)
+            .getAppWidgetIds(ComponentName(getApplication(), NewAppWidget::class.java))
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+        sendBroadcast(intent)
+    }
 
 
     fun getContactDetails(displayName: String, contactId: Long) {
@@ -1046,8 +1057,7 @@ class MainActivity : AppCompatActivity() {
                                 ComponentName(applicationContext, NewAppWidget::class.java)
                             remoteViews?.setImageViewUri(R.id.twSettings, Uri.parse(twitterPicUrl))
 
-                       //     appWidM = AppWidgetManager.getInstance(appContx)
-                       //     appWidM.updateAppWidget(newAppWidget, remoteViews)
+                       updateWidget()
 
                             Log.d(TAG + "responseTweetID - ", responseBodyString)
                             Log.d(TAG + "Tw ID - ", twitterID + " - " + twitterProfileName)
@@ -1137,8 +1147,7 @@ class MainActivity : AppCompatActivity() {
                     "@" + twitterProfileName + "\t ~ \t" + listTweets[1]
                 )
 
-           //     appWidM = AppWidgetManager.getInstance(appContx)
-           //     appWidM.updateAppWidget(newAppWidget, remoteViews)
+           updateWidget()
 
             }
         }
@@ -1218,8 +1227,7 @@ class MainActivity : AppCompatActivity() {
         newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
 
 
-    //    appWidM = AppWidgetManager.getInstance(appContx)
-    //    appWidM.updateAppWidget(newAppWidget, remoteViews)
+   updateWidget()
 
     }
 
@@ -1805,13 +1813,13 @@ class MainActivity : AppCompatActivity() {
                     when (state) {
                         BluetoothAdapter.STATE_OFF -> {
                             remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_off)
-                   //         appWidM.updateAppWidget(newAppWidget, remoteViews)
+                  updateWidget()
                         }
 
                         BluetoothAdapter.STATE_TURNING_OFF -> {}
                         BluetoothAdapter.STATE_ON -> {
                             remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_on)
-                    //        appWidM.updateAppWidget(newAppWidget, remoteViews)
+                   updateWidget()
                         }
 
                         BluetoothAdapter.STATE_TURNING_ON -> {}
@@ -2131,7 +2139,7 @@ class MainActivity : AppCompatActivity() {
                         )
                             remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clouds)
 
-                   //     appWidM.updateAppWidget(newAppWidget, remoteViews)
+                   updateWidget()
 
                         sharedPreferencesEditor.putString(
                             "weatherTemp",
@@ -2145,6 +2153,18 @@ class MainActivity : AppCompatActivity() {
 
             //   makeToast(tempC)
 
+        }
+
+        private fun updateWidget() {
+            val intent = Intent(
+                appContx,
+                NewAppWidget::class.java
+            )
+            intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
+            val ids: IntArray = AppWidgetManager.getInstance(appContx)
+                .getAppWidgetIds(ComponentName(Companion.appContx, NewAppWidget::class.java))
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+            appContx.sendBroadcast(intent)
         }
 
 

@@ -7,6 +7,7 @@ import android.app.Service
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -21,12 +22,9 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.belaku.homey.MainActivity.Companion.appContx
-import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
-import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
-import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.TAG
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
@@ -93,7 +91,9 @@ class StepsService : Service() {
                         )
                         initialSteps++
                     }
-                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+
+                    updateWidget()
+
                 }
 
             }
@@ -102,6 +102,18 @@ class StepsService : Service() {
                 Log.d("MY_APP", "$sensor - $accuracy")
             }
         }
+    }
+
+    private fun updateWidget() {
+        val intent = Intent(
+            applicationContext,
+            NewAppWidget::class.java
+        )
+        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
+        val ids: IntArray = AppWidgetManager.getInstance(application)
+            .getAppWidgetIds(ComponentName(getApplication(), NewAppWidget::class.java))
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+        sendBroadcast(intent)
     }
 
     private fun BluetoothState() {

@@ -181,7 +181,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             @RequiresApi(Build.VERSION_CODES.S)
             override fun onLost(network: Network) {
                 remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_off)
-        //        appWidM.updateAppWidget(newAppWidget, remoteViews)
+        updateWidget()
                 Log.d(TAG, "WifiState called from onLost")
             }
 
@@ -193,21 +193,21 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     Color.YELLOW,
                     Color.YELLOW
                 )
-         //       appWidM.updateAppWidget(newAppWidget, remoteViews)
+         updateWidget()
                 Log.d(wTAG, "WifiState OFF")
             }
 
             @RequiresApi(Build.VERSION_CODES.S)
             override fun onLosing(network: Network, maxMsToLive: Int) {
                 remoteViews?.setColorInt(R.id.fab_wifi, "setColorFilter", Color.RED, Color.RED)
-         //       appWidM.updateAppWidget(newAppWidget, remoteViews)
+         updateWidget()
                 Log.d(wTAG, "WifiState called from onLosing")
             }
 
             override fun onAvailable(network: Network) {
                 Log.d(wTAG, "WifiState ON")
                 remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_on)
-           //     appWidM.updateAppWidget(newAppWidget, remoteViews)
+           updateWidget()
                 //record wi-fi connect event
             }
         }
@@ -218,6 +218,18 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
             .build()
         connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
+    }
+
+    private fun updateWidget() {
+        val intent = Intent(
+            applicationContext,
+            NewAppWidget::class.java
+        )
+        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
+        val ids: IntArray = AppWidgetManager.getInstance(applicationContext)
+            .getAppWidgetIds(ComponentName(applicationContext, NewAppWidget::class.java))
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+        applicationContext.sendBroadcast(intent)
     }
 
 
@@ -347,11 +359,21 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
                 Log.d(TAG, "setWallEx2 - $e")
             }
-            //   newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
-      //      appWidM.updateAppWidget(newAppWidget, remoteViews)
+            updateWidget()
 
         }
 
+        private fun updateWidget() {
+            val intent = Intent(
+                appContx,
+                NewAppWidget::class.java
+            )
+            intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
+            val ids: IntArray = AppWidgetManager.getInstance(appContx)
+                .getAppWidgetIds(ComponentName(MainActivity.Companion.appContx, NewAppWidget::class.java))
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+            appContx.sendBroadcast(intent)
+        }
 
 
         fun appUsageStats(applicationContext: Context?) {
