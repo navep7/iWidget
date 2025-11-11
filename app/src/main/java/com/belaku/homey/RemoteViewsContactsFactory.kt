@@ -75,12 +75,15 @@ class RemoteViewsContactsFactory(private val mContext: Context, intent: Intent?)
                     )
             }
 
-            rvContacts.setTextViewText(
-                R.id.contact_tx_name,
-                favContacts[position].name
-            )
-            rvContacts.setImageViewBitmap(R.id.contact_imgv, rBm)
+            try {
+                rvContacts.setTextViewText(
+                    R.id.contact_tx_name,
+                    favContacts[position].name
+                )
+                rvContacts.setImageViewBitmap(R.id.contact_imgv, rBm)
+            } catch (_:Exception) {
 
+            }
 
             // Create the fill-in intent
             val fillInIntentDial = Intent()
