@@ -139,6 +139,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
             setUI()
+            setACAdapter()
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgv_contacts,
@@ -422,7 +423,9 @@ class NewAppWidget : AppWidgetProvider() {
         locationTxUpdate(appContx)
         wallColors()
         setSomeTwAndWallDescUI()
+    }
 
+    private fun setACAdapter() {
         setContactsAdapter()
         setContactsClick()
         setAppsAdapter()

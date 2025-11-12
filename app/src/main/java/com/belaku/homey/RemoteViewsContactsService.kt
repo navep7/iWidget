@@ -6,6 +6,6 @@ import android.widget.RemoteViewsService
 
 class RemoteViewsContactsService : RemoteViewsService() {
     override fun onGetViewFactory(intent: Intent): RemoteViewsFactory {
-        return RemoteViewsContactsFactory(this.applicationContext, intent)
+        return RemoteViewsContactsFactory(this.applicationContext)
     }
 }

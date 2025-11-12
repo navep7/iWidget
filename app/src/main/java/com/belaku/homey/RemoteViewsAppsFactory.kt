@@ -9,7 +9,7 @@ import com.belaku.homey.NewAppWidget.Companion.choosenApps
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 
 
-class RemoteViewsAppsFactory(private val mContext: Context, intent: Intent?) :
+class RemoteViewsAppsFactory(private val mContext: Context) :
     RemoteViewsFactory {
 
     override fun onCreate() {
@@ -32,12 +32,8 @@ class RemoteViewsAppsFactory(private val mContext: Context, intent: Intent?) :
     override fun getViewAt(position: Int): RemoteViews  {
         val rvApps = RemoteViews(mContext.packageName, R.layout.remote_view_layout_app)
 
-
-
-
-        rvApps.setImageViewBitmap(R.id.app_imgv, drawableToBitmap(appContx, appContx.packageManager.getApplicationIcon(
-            choosenApps[position].pName)))
-
+        rvApps.setImageViewBitmap(R.id.app_imgv, drawableToBitmap(appContx, appContx.packageManager.getApplicationIcon(choosenApps[position].pName)))
+        rvApps.setTextViewText(R.id.app_tx, choosenApps[position].name)
 
         // Create the fill-in intent
         val fillInIntentApp = Intent()
@@ -52,11 +48,6 @@ class RemoteViewsAppsFactory(private val mContext: Context, intent: Intent?) :
         // setOnClickFillInIntent is called on the root view of the list item layout
         rvApps.setOnClickFillInIntent(R.id.app_imgv, fillInIntentApp)
 
-        val fillInIntentRemove = Intent()
-        fillInIntentRemove.putExtra(
-            NewAppWidget.EXTRA_APPITEM_POSITION,
-            position
-        ) // Add item-specific data
 
         return rvApps
     }

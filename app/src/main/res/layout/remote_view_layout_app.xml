@@ -1,8 +1,30 @@
-<ImageView
-    android:id="@+id/app_imgv"
-    android:tag="APP"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="90dp"
-    android:layout_height="90dp"
-    android:layout_centerInParent="true"
-    android:src="@drawable/contacts"
-    xmlns:android="http://schemas.android.com/apk/res/android" />
+    android:layout_height="90dp">
+
+    <ImageView
+        android:id="@+id/app_imgv"
+        android:src="@drawable/launch_e"
+        android:layout_above="@+id/app_tx"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/app_tx"
+        android:tag="APP"
+        android:text="App"
+        android:textStyle="bold"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/contacts"
+        tools:ignore="HardcodedText" />
+
+</RelativeLayout>
