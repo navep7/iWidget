@@ -546,7 +546,7 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleIntentActions(intent: Intent) {
 
-      /*  if (ACTION_LIST_CONTACTITEM_CLICK == intent.action) {
+        if (ACTION_LIST_CONTACTITEM_CLICK == intent.action) {
             // Extract the item position or ID from the intent extras
             val position = intent.getIntExtra(
                 EXTRA_CONTACTITEM_POSITION,
@@ -592,7 +592,7 @@ class NewAppWidget : AppWidgetProvider() {
                 } else if (viewID == 1)
                     makeToast("Remove App - ${apps[position].name}")
             } else makeToast("INvalid Pos - $position")
-        } else*/ if (FAB_SHARE == intent.action) {
+        } else if (FAB_SHARE == intent.action) {
 
             val inflater =
                 appContx.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater

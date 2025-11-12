@@ -67,7 +67,7 @@ class RemoteViewsContactsFactory(private val mContext: Context) :
                 0
             )
             // setOnClickFillInIntent is called on the root view of the list item layout
-            //       rvContacts.setOnClickFillInIntent(R.id.contact_imgv, fillInIntentDial)
+                   rvContacts.setOnClickFillInIntent(R.id.contact_imgv, fillInIntentDial)
 
             val fillInIntentRemove = Intent()
             fillInIntentRemove.putExtra(
@@ -80,7 +80,7 @@ class RemoteViewsContactsFactory(private val mContext: Context) :
             )
 
             // setOnClickFillInIntent is called on the root view of the list item layout
-            //  rvContacts.setOnClickFillInIntent(R.id.contact_tx_close, fillInIntentRemove)
+              rvContacts.setOnClickFillInIntent(R.id.contact_tx_close, fillInIntentRemove)
         }
 
         return rvContacts
