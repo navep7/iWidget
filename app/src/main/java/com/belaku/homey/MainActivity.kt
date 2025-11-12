@@ -1694,7 +1694,6 @@ class MainActivity : AppCompatActivity() {
             }
             if (allGranted) {
                 makeToast("All permissions granted");
-
                 getFavoriteContacts(appContx)
 
                     sharedPreferencesEditor.putBoolean("LP", true).apply()

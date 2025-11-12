@@ -75,15 +75,7 @@ class RemoteViewsContactsFactory(private val mContext: Context, intent: Intent?)
                     )
             }
 
-            try {
-                rvContacts.setTextViewText(
-                    R.id.contact_tx_name,
-                    favContacts[position].name
-                )
-                rvContacts.setImageViewBitmap(R.id.contact_imgv, rBm)
-            } catch (_:Exception) {
-
-            }
+            rvContacts.setImageViewBitmap(R.id.contact_imgv, rBm)
 
             // Create the fill-in intent
             val fillInIntentDial = Intent()
@@ -107,8 +99,9 @@ class RemoteViewsContactsFactory(private val mContext: Context, intent: Intent?)
                 NewAppWidget.EXTRA_CONTACTVIEW_ID,
                 1
             )
+
             // setOnClickFillInIntent is called on the root view of the list item layout
-            rvContacts.setOnClickFillInIntent(R.id.contact_tx_close, fillInIntentRemove)
+          //  rvContacts.setOnClickFillInIntent(R.id.contact_tx_close, fillInIntentRemove)
         }
 
             return rvContacts

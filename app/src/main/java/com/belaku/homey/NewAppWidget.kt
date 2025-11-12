@@ -132,10 +132,6 @@ class NewAppWidget : AppWidgetProvider() {
 
      //   makeToast("!onUpdate")
 
-        readApps()
-        readContacts()
-        getFavoriteContacts()
-
 
         for (appWidgetId in appWidgetIds) {
             remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
@@ -535,8 +531,8 @@ class NewAppWidget : AppWidgetProvider() {
         super.onReceive(context, intent)
 
  //       makeToast("!onReceive")
-        setUI()
 
+        setUI()
         handleIntentActions(intent)
 
         appWidM = AppWidgetManager.getInstance(context)
@@ -547,7 +543,7 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleIntentActions(intent: Intent) {
 
-        if (ACTION_LIST_CONTACTITEM_CLICK == intent.action) {
+      /*  if (ACTION_LIST_CONTACTITEM_CLICK == intent.action) {
             // Extract the item position or ID from the intent extras
             val position = intent.getIntExtra(
                 EXTRA_CONTACTITEM_POSITION,
@@ -593,7 +589,7 @@ class NewAppWidget : AppWidgetProvider() {
                 } else if (viewID == 1)
                     makeToast("Remove App - ${apps[position].name}")
             } else makeToast("INvalid Pos - $position")
-        } else if (FAB_SHARE == intent.action) {
+        } else*/ if (FAB_SHARE == intent.action) {
 
             val inflater =
                 appContx.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -760,7 +756,7 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         getFavoriteContacts()
-        readContacts()
+
 
     }
 
@@ -839,20 +835,6 @@ class NewAppWidget : AppWidgetProvider() {
         sharedPreferencesEditor.putString(key, json).commit()
     }
 
-
-    @RequiresApi(Build.VERSION_CODES.S)
-    fun readContacts() {
-
-        favContacts?.clear()
-        val gson = Gson()
-        val response: String = sharedPreferences.getString("CTS", "").toString()
-        favContacts = gson.fromJson(
-            response,
-            object : TypeToken<List<Contact?>?>() {}.type
-        )
-
-
-    }
 
     fun isWifiEnabled(context: Context): Boolean {
         val wifiManager =

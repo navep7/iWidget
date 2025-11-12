@@ -33,10 +33,7 @@ class RemoteViewsAppsFactory(private val mContext: Context, intent: Intent?) :
         val rvApps = RemoteViews(mContext.packageName, R.layout.remote_view_layout_app)
 
 
-        rvApps.setTextViewText(
-            R.id.app_tx_name,
-            choosenApps[position].name
-        )
+
 
         rvApps.setImageViewBitmap(R.id.app_imgv, drawableToBitmap(appContx, appContx.packageManager.getApplicationIcon(
             choosenApps[position].pName)))
