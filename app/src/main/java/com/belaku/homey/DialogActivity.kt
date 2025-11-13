@@ -17,6 +17,7 @@ import android.content.pm.PackageManager.NameNotFoundException
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -85,6 +86,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.net.URL
 import kotlin.properties.Delegates
+import kotlin.random.Random
 import kotlin.system.exitProcess
 
 
@@ -738,18 +740,24 @@ class DialogActivity : AppCompatActivity() {
                 }
             }
 
-            val intent = Intent(Intent.ACTION_VIEW)
-            val uri = Uri.withAppendedPath(
-                ContactsContract.Contacts.CONTENT_URI, contactID.toString()
-            )
-            intent.data = uri
-            val cPhUri = intent.toUri(0)
 
+            val color = Color.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
+            var contactBitmap: Bitmap?
+
+            contactBitmap = ContactPhotoHelper.retrieveContactPhoto(appContx, contactID.toLong())
             val cNme = cursor.getString(
                 cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
             )
 
-            var c = Contact(contactID, cNme, phoneNumber, cPhUri)
+            if (contactBitmap == null)
+                contactBitmap = CharacterToBitmapConverter.getBitmapFromCharacter(
+                    cNme[0], 100, 100, 70, color)
+
+            val c = Contact(contactID, cNme, phoneNumber, contactBitmap)
+
+
+
+       //     var c = Contact(contactID, cNme, phoneNumber, cPhUri)
 
             if (c.number.length > 7)
                 favContacts.add(c)

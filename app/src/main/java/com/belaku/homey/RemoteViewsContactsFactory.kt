@@ -3,25 +3,17 @@ package com.belaku.homey
 import android.R.attr.height
 import android.R.attr.width
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
-import android.provider.ContactsContract
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService.RemoteViewsFactory
-import com.belaku.homey.MainActivity.Companion.appContx
-import com.belaku.homey.MainActivity.Companion.mAct
-import com.belaku.homey.MainActivity.Companion.makeToast
-import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
-import java.io.InputStream
+import kotlin.random.Random
 
 
 class RemoteViewsContactsFactory(private val mContext: Context) :
@@ -52,8 +44,7 @@ class RemoteViewsContactsFactory(private val mContext: Context) :
 
         if (favContacts.size > position) {
 
-
-            rvContacts.setImageViewBitmap(R.id.contact_imgv, drawableToBitmap(appContx, appContx.resources.getDrawable(R.drawable.face_holder)))
+            rvContacts.setImageViewBitmap(R.id.contact_imgv, favContacts[position].contactBitmap)
             rvContacts.setTextViewText(R.id.contact_tx_name, favContacts[position].name)
 
             // Create the fill-in intent
