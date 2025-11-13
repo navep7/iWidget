@@ -1089,9 +1089,9 @@ class NewAppWidget : AppWidgetProvider() {
 
         var newsBitmaps: ArrayList<Bitmap> =
             ArrayList()
-        var primaryColor = appContx.resources.getColor(android.R.color.holo_red_light)
-        var secondaryColor = appContx.resources.getColor(android.R.color.holo_green_light)
-        var tertianaryColor = appContx.resources.getColor(android.R.color.holo_blue_bright)
+        var primaryColor = R.color.light_blue_900
+        var secondaryColor = R.color.bg_light
+        var tertianaryColor = R.color.bg_dark
         var screenWidth by Delegates.notNull<Int>()
         var screenHeight by Delegates.notNull<Int>()
         var favContacts: ArrayList<Contact> = ArrayList()
