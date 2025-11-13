@@ -1322,13 +1322,13 @@ class MainActivity : AppCompatActivity() {
         NewAppWidget.timeOfDay = if (currentHour < 6) {
             "Night"
         } else if (currentHour >= 6 && currentHour < 12) {
-            "Morning"
+            "Morni!"
         } else if (currentHour >= 12 && currentHour < 17) {
-            "Afternoon"
+            "Noon!"
         } else if (currentHour >= 17 && currentHour < 21) {
-            "Evening"
+            "Eve!"
         } else {
-            "Night"
+            "Night!"
         }
 
 

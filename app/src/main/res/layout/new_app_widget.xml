@@ -22,6 +22,8 @@
 
         <LinearLayout
             android:id="@+id/ll_top"
+            android:layout_margin="5dp"
+            android:background="@drawable/circular_tx_border"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -44,7 +46,7 @@
                 android:layout_marginEnd="3dp"
                 android:background="@drawable/weather_rounded_corner"
                 android:gravity="center"
-                android:padding="5dp"
+                android:padding="@dimen/padding_5"
                 android:scaleType="fitXY"
                 android:src="@drawable/torch_off"
                 tools:ignore="HardcodedText" />
@@ -57,7 +59,7 @@
                 android:layout_marginEnd="3dp"
                 android:background="@drawable/weather_rounded_corner"
                 android:gravity="center"
-                android:padding="5dp"
+                android:padding="@dimen/padding_5"
                 android:scaleType="fitXY"
                 android:src="@drawable/wifi_off"
                 tools:ignore="HardcodedText" />
@@ -70,7 +72,7 @@
                 android:layout_marginEnd="3dp"
                 android:background="@drawable/rounded_corner_gray"
                 android:gravity="center"
-                android:padding="5dp"
+                android:padding="@dimen/padding_5"
                 android:scaleType="fitXY"
                 android:text="🔔"
                 tools:ignore="HardcodedText" />
@@ -83,7 +85,7 @@
                 android:layout_marginEnd="3dp"
                 android:background="@drawable/weather_rounded_corner"
                 android:gravity="center"
-                android:padding="5dp"
+                android:padding="@dimen/padding_5"
                 android:scaleType="fitXY"
                 android:src="@drawable/blue_off"
                 tools:ignore="HardcodedText" />
@@ -96,7 +98,7 @@
                 android:layout_marginEnd="3dp"
                 android:background="@drawable/rounded_corner_gray"
                 android:gravity="center"
-                android:padding="5dp"
+                android:padding="@dimen/padding_5"
                 android:scaleType="fitXY"
                 android:text="✨"
                 tools:ignore="HardcodedText" />
@@ -223,36 +225,47 @@
             android:dial="@drawable/walp_icon"
             android:hand_second="@drawable/s_hand" />
 
-        <android.widget.TextClock
-            android:id="@+id/clock"
+        <LinearLayout
+            android:id="@+id/ll_time_day"
+            android:background="@drawable/weather_rounded_corner"
+            android:padding="@dimen/padding_5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:layout_below="@+id/ll_top"
-            android:layout_toEndOf="@+id/a_clock"
-            android:format24Hour="k:mm:ss"
-            android:textColor="?attr/colorPrimaryDark"
-            android:textSize="35sp"
-            android:textStyle="bold" />
+            android:layout_toEndOf="@+id/a_clock">
 
-        <TextView
-            android:id="@+id/tx_day_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/clock"
-            android:layout_marginEnd="@dimen/fab_margin"
-            android:layout_toEndOf="@+id/a_clock"
-            android:text="Day│Date"
-            android:textColor="?attr/colorPrimaryDark"
-            android:textSize="25sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            <android.widget.TextClock
+                android:id="@+id/clock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:format24Hour="k:mm:ss"
+                android:textColor="?attr/colorPrimaryDark"
+                android:textSize="35sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tx_day_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/fab_margin"
+                android:text="Day│Date"
+                android:textColor="?attr/colorPrimaryDark"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
+
+
+
+        </LinearLayout>
+
 
 
         <TextView
             android:id="@+id/tx_place"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/tx_day_date"
+            android:layout_below="@+id/ll_time_day"
             android:layout_marginStart="@dimen/fab_margin"
             android:ellipsize="marquee"
             android:focusable="true"
@@ -363,13 +376,23 @@
         android:layout_toEndOf="@+id/ll_controls"
         android:background="@drawable/gradient_glass" />
 
-
     <LinearLayout
         android:id="@+id/ll_controls"
+        android:orientation="vertical"
+        android:background="@drawable/rounded_corner_gray"
+        android:padding="@dimen/padding_5"
+        android:layout_margin="5dp"
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/rl_steps"
         android:layout_centerHorizontal="true">
+
+
+
+    <LinearLayout
+        android:id="@+id/ll_controls1"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp">
 
         <ImageButton
             android:id="@+id/imgbtn_location"
@@ -378,7 +401,7 @@
             android:layout_marginTop="5dp"
             android:layout_marginEnd="10dp"
             android:background="@drawable/rounded_corner_white"
-            android:padding="5dp"
+            android:padding="@dimen/padding_5"
             android:scaleType="fitXY"
             android:src="@drawable/location" />
 
@@ -389,7 +412,7 @@
             android:layout_marginTop="5dp"
             android:layout_marginEnd="10dp"
             android:background="@drawable/rounded_corner_white"
-            android:padding="5dp"
+            android:padding="@dimen/padding_5"
             android:src="@android:drawable/ic_menu_search" />
 
 
@@ -399,7 +422,7 @@
             android:layout_height="40dp"
             android:layout_marginTop="5dp"
             android:background="@drawable/rounded_corner_white"
-            android:padding="5dp"
+            android:padding="@dimen/padding_5"
             android:scaleType="fitXY"
             android:src="@android:drawable/ic_btn_speak_now" />
 
@@ -407,10 +430,9 @@
 
     <LinearLayout
         android:id="@+id/ll_controls2"
+        android:layout_gravity="center"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/ll_controls"
-        android:layout_centerHorizontal="true">
+        android:layout_height="wrap_content">
 
 
         <ImageButton
@@ -420,7 +442,7 @@
             android:layout_marginTop="5dp"
             android:layout_marginEnd="10dp"
             android:background="@drawable/rounded_corner_black"
-            android:padding="5dp"
+            android:padding="@dimen/padding_5"
             android:src="@android:drawable/ic_lock_lock" />
 
         <RelativeLayout
@@ -434,7 +456,7 @@
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="5dp"
                 android:background="@drawable/rounded_corner_black"
-                android:padding="5dp"
+                android:padding="@dimen/padding_5"
                 android:src="@android:drawable/ic_popup_sync" />
 
             <ProgressBar
@@ -466,22 +488,21 @@
 
     </LinearLayout>
 
+    </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/tx_tweets"
         android:layout_below="@+id/rl_screentime"
-        android:layout_alignStart="@+id/rl_screentime"
+        android:layout_alignStart="@+id/ll_controls"
+        android:layout_alignEnd="@+id/ll_controls"
         android:layout_centerHorizontal="true"
-        android:layout_toStartOf="@+id/ll_contacts_header"
-        android:orientation="vertical"
-        android:weightSum="2">
+        android:orientation="vertical">
 
         <LinearLayout
             android:id="@+id/ll_gapps_napps"
             android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="75dp"
             android:gravity="center_horizontal"
             android:orientation="horizontal"
             android:weightSum="2">
@@ -495,7 +516,7 @@
                 android:background="@android:color/transparent"
                 android:contentDescription="G"
                 android:scaleType="fitCenter"
-                android:src="@drawable/gapps_logo_bnw"
+                android:src="@drawable/g1"
                 tools:ignore="HardcodedText" />
 
 
@@ -508,7 +529,7 @@
                 android:background="@android:color/transparent"
                 android:contentDescription="G"
                 android:scaleType="fitCenter"
-                android:src="@drawable/my_space_bnw"
+                android:src="@drawable/s1"
                 tools:ignore="HardcodedText" />
 
 
@@ -516,13 +537,13 @@
 
         <ImageButton
             android:id="@+id/imgbtn_qr"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
             android:background="@android:color/transparent"
             android:contentDescription="QR"
             android:scaleType="fitCenter"
-            android:src="@drawable/qr_logo_bnw"
+            android:src="@drawable/scan"
             tools:ignore="HardcodedText" />
 
 
@@ -533,9 +554,8 @@
         android:id="@+id/rl_screentime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/ll_controls2"
+        android:layout_below="@+id/ll_controls"
         android:layout_centerHorizontal="true"
-        android:layout_margin="5dp"
         android:background="@drawable/gradient_glass_rounded">
 
         <TextView
@@ -717,7 +737,7 @@
         android:layout_above="@+id/tx_tweets"
         android:layout_toRightOf="@+id/list_apps"
         android:background="@drawable/gradient_glass"
-        android:padding="5dp"
+        android:padding="@dimen/padding_5"
         android:scaleType="fitXY"
         android:src="@drawable/tw" />
 
