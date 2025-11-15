@@ -30,6 +30,7 @@ import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.icu.text.SimpleDateFormat
@@ -43,6 +44,8 @@ import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
 import android.text.Html
+import android.text.SpannableString
+import android.text.style.UnderlineSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -53,6 +56,7 @@ import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.apps
@@ -138,6 +142,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
             newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
+            appContx = context
 
             setUI()
             setACAdapter()
@@ -453,11 +458,37 @@ class NewAppWidget : AppWidgetProvider() {
                 tertianaryColor = wallpaperColors.tertiaryColor!!.toArgb()
             else tertianaryColor = Color.BLUE
 
-            remoteViews?.setColorInt(R.id.imgbtn_location, "setColorFilter", primaryColor, primaryColor)
-            remoteViews?.setColorInt(R.id.imgbtn_conf, "setColorFilter", tertianaryColor, tertianaryColor)
-            remoteViews?.setColorInt(R.id.imgbtn_speech, "setColorFilter", secondaryColor, secondaryColor)
-            remoteViews?.setColorInt(R.id.imgbtn_lock, "setColorFilter", secondaryColor, secondaryColor)
-            remoteViews?.setColorInt(R.id.imgbtn_set, "setColorFilter", primaryColor, primaryColor)
+            remoteViews?.setColorInt(
+                R.id.imgbtn_location,
+                "setColorFilter",
+                Color.BLACK,
+                Color.BLACK
+            )
+            remoteViews?.setColorInt(
+                R.id.imgbtn_conf,
+                "setColorFilter",
+                Color.BLACK,
+                Color.BLACK
+            )
+            remoteViews?.setColorInt(
+                R.id.imgbtn_speech,
+                "setColorFilter",
+                Color.BLACK,
+                Color.BLACK
+            )
+
+            remoteViews?.setColorInt(
+                R.id.imgbtn_lock,
+                "setColorFilter",
+                Color.RED,
+                Color.RED
+            )
+            remoteViews?.setColorInt(
+                R.id.imgbtn_set,
+                "setColorFilter",
+                Color.WHITE,
+                Color.WHITE
+            )
 
         } else  Log.d("wallColors", "NULL")
 
@@ -535,6 +566,8 @@ class NewAppWidget : AppWidgetProvider() {
         super.onReceive(context, intent)
 
  //       makeToast("!onReceive")
+
+        appContx = context
 
         setUI()
         handleIntentActions(intent)
@@ -879,6 +912,8 @@ class NewAppWidget : AppWidgetProvider() {
             .setText(".Since ${currentHour % 12} $ampm yday.,")
         appWidgetView.findViewById<TextView>(R.id.clock)
             .setText("${nowCalendar.get(Calendar.HOUR)}:$currentMin $ampm")
+        /*val mSpannableStringLoc = SpannableString(cityname)
+        mSpannableStringLoc.setSpan(UnderlineSpan(), 0, mSpannableStringLoc.length, 0)*/
         appWidgetView.findViewById<TextView>(R.id.tx_place).setText("⚲ " + cityname)
         appWidgetView.findViewById<TextView>(R.id.tx_steps)
             .setText("$dayOfTheWeek ~ " + stepsToday.toString())
@@ -1180,6 +1215,7 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
         fun getScreenTime() {
+
 
             val usageStatsManager =
                 appContx.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager

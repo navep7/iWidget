@@ -25,9 +25,12 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.text.Html
+import android.text.SpannableString
+import android.text.style.UnderlineSpan
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
+import android.widget.TextView
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.work.Worker
@@ -342,6 +345,9 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                         Html.FROM_HTML_MODE_LEGACY
                     )
                 )
+
+                /*val mSpannableStringLoc = SpannableString(cityname)
+                mSpannableStringLoc.setSpan(UnderlineSpan(), 0, mSpannableStringLoc.length, 0)*/
                 remoteViews?.setTextViewText(R.id.tx_place, "⚲ " + cityname)
 
 
