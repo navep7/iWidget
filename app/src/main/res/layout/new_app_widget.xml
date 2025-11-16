@@ -534,9 +534,9 @@
 
     <ImageView
         android:id="@+id/imgbtn_qr"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:background="@drawable/gradient_glass_rounded"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:background="@drawable/circular_tx_border"
         android:layout_below="@+id/ll_gapps_napps"
         android:layout_centerHorizontal="true"
         android:src="@drawable/scan"/>
@@ -551,7 +551,7 @@
         android:paddingStart="@dimen/padding_5"
         android:paddingEnd="@dimen/padding_5"
         android:layout_below="@+id/ll_gapps_napps"
-        android:layout_marginTop="@dimen/fab_margin"
+        android:layout_marginTop="30dp"
         android:layout_toStartOf="@+id/imgbtn_qr"/>
 
     <TextView
@@ -564,7 +564,7 @@
         android:background="@drawable/gradient_glass_dark"
         android:textStyle="bold"
         android:layout_below="@+id/ll_gapps_napps"
-        android:layout_marginTop="@dimen/fab_margin"
+        android:layout_marginTop="30dp"
         android:layout_toEndOf="@+id/imgbtn_qr"/>
 
 
