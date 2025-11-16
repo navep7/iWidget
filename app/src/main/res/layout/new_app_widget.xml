@@ -306,7 +306,6 @@
         android:id="@+id/imgv_add_apps"
         android:layout_width="55dp"
         android:layout_height="55dp"
-        android:layout_above="@+id/tx_tweets"
         android:layout_alignStart="@+id/ll_apps_header"
         android:layout_toStartOf="@+id/ll_controls"
         android:src="@android:drawable/ic_input_add"
@@ -518,9 +517,6 @@
             android:src="@android:drawable/ic_menu_share"
             tools:ignore="HardcodedText" />
 
-
-
-
         <ImageButton
             android:id="@+id/imgbtn_n_apps"
             android:layout_width="0dp"
@@ -533,55 +529,43 @@
             android:src="@drawable/s1"
             tools:ignore="HardcodedText" />
 
-
     </LinearLayout>
 
 
-    <LinearLayout
-        android:id="@+id/ll_qr"
-        android:layout_width="wrap_content"
+    <ImageView
+        android:id="@+id/imgbtn_qr"
+        android:layout_width="50dp"
         android:layout_height="50dp"
+        android:background="@drawable/gradient_glass_rounded"
         android:layout_below="@+id/ll_gapps_napps"
-        android:layout_alignStart="@+id/ll_controls"
-        android:layout_alignEnd="@+id/ll_controls"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal"
-        android:weightSum="4">
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/scan"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SCAN"
+        android:textColor="@android:color/white"
+        android:background="@drawable/gradient_glass_dark"
+        android:textStyle="bold"
+        android:paddingStart="@dimen/padding_5"
+        android:paddingEnd="@dimen/padding_5"
+        android:layout_below="@+id/ll_gapps_napps"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:layout_toStartOf="@+id/imgbtn_qr"/>
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="SCAN"
-            android:textStyle="bold"
-            android:textSize="21sp"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1.5"/>
-
-        <ImageButton
-            android:id="@+id/imgbtn_qr"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_weight="1.5"
-            android:background="@android:color/transparent"
-            android:contentDescription="G"
-            android:scaleType="fitCenter"
-            android:src="@drawable/scan"
-            tools:ignore="HardcodedText" />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="PAY"
-            android:textStyle="bold"
-            android:textSize="21sp"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"/>
-
-
-
-    </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="PAY"
+        android:textColor="@android:color/white"
+        android:paddingStart="@dimen/padding_5"
+        android:paddingEnd="@dimen/padding_5"
+        android:background="@drawable/gradient_glass_dark"
+        android:textStyle="bold"
+        android:layout_below="@+id/ll_gapps_napps"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:layout_toEndOf="@+id/imgbtn_qr"/>
 
 
 
@@ -732,10 +716,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/tx_tweets"
         android:layout_margin="5dp"
-        android:layout_toLeftOf="@+id/fab_share"
-        android:layout_toRightOf="@+id/twSettings"
         android:background="@drawable/gradient_glass_rounded"
         android:visibility="gone">
 
