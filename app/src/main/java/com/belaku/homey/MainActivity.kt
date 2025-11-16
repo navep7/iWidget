@@ -2101,6 +2101,7 @@ class MainActivity : AppCompatActivity() {
                     .build()
                     .create(WeatherService::class.java)
 
+
                 GlobalScope.launch(Dispatchers.IO) {
                     val openWeatherApiKey = "9fa8e101240ab18615e3133b051e767e"
                     weatherData = weatherService.getWeather(
@@ -2159,11 +2160,13 @@ class MainActivity : AppCompatActivity() {
                 }
             } catch (ex: Exception) {
                 Log.d("WD Excep7 - ", ex.toString())
+                makeToast("Weather EXP - ${ex.message}")
             }
 
             //   makeToast(tempC)
 
         }
+
 
         private fun updateWidget() {
             val intent = Intent(

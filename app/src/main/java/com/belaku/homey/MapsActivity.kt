@@ -16,6 +16,8 @@ import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import androidx.appcompat.app.AppCompatActivity
+import com.belaku.homey.MainActivity.Companion.cityLat
+import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.databinding.ActivityMapsBinding
@@ -108,7 +110,12 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
             override fun onLocationResult(locationResult: LocationResult) {
                 val location = locationResult.lastLocation
                 if (location != null) {
+
+                    cityLat = location.latitude
+                    cityLng = location.longitude
+
                     getAddress(location.latitude, location.longitude)
+                //    makeToast("Location update - $cAddrs")
                     if (boolstreetViewPanorama) {
 
                         if (!boolStreetMarkerClicked)
@@ -210,6 +217,8 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
     fun getAddress(lat: Double, lng: Double) {
         val gcd = Geocoder(applicationContext)
         Locale.getDefault()
+        cityLat = lat
+        cityLng = lng
         try {
             cAddrs = gcd.getFromLocation(lat, lng, 1)!!
             //   makeToast(cAddrs?.get(0)!!.subLocality)

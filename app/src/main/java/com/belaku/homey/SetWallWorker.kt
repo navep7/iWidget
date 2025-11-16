@@ -16,6 +16,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
+import android.location.Address
 import android.location.Geocoder
 import android.net.ConnectivityManager
 import android.net.Network
@@ -30,6 +31,8 @@ import android.text.style.UnderlineSpan
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.widget.TextView
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
@@ -39,6 +42,8 @@ import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.cDate
 import com.belaku.homey.MainActivity.Companion.cMonth
 import com.belaku.homey.MainActivity.Companion.cYear
+import com.belaku.homey.MainActivity.Companion.cityLat
+import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.delayUnit
 import com.belaku.homey.MainActivity.Companion.fabMain
@@ -75,7 +80,9 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.StreetViewPanoramaCamera
 import java.io.IOException
 import java.net.URL
 import java.util.Collections
@@ -85,7 +92,6 @@ import kotlin.random.Random
 
 class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
     Worker(context!!, workerParams!!) {
-
 
     private val appWidM: AppWidgetManager = AppWidgetManager.getInstance(appContx)
 
@@ -143,7 +149,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             }
 
             override fun onMarkerClick(p0: Marker): Boolean {
-                makeToast("nothin")
+            //    makeToast("nothin")
                 return true
             }
         }
@@ -161,7 +167,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         val gcd = Geocoder(applicationContext)
         Locale.getDefault()
         try {
-            var cAddrs = gcd.getFromLocation(latitude, longitude, 1)!!
+            cAddrs = gcd.getFromLocation(latitude, longitude, 1)!!
             //   makeToast(cAddrs?.get(0)!!.subLocality)
 
             cityname = cAddrs?.get(0)!!.getAddressLine(0)
@@ -184,7 +190,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             @RequiresApi(Build.VERSION_CODES.S)
             override fun onLost(network: Network) {
                 remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_off)
-        updateWidget()
+                updateWidget()
                 Log.d(TAG, "WifiState called from onLost")
             }
 
@@ -196,21 +202,21 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     Color.YELLOW,
                     Color.YELLOW
                 )
-         updateWidget()
+                updateWidget()
                 Log.d(wTAG, "WifiState OFF")
             }
 
             @RequiresApi(Build.VERSION_CODES.S)
             override fun onLosing(network: Network, maxMsToLive: Int) {
                 remoteViews?.setColorInt(R.id.fab_wifi, "setColorFilter", Color.RED, Color.RED)
-         updateWidget()
+                updateWidget()
                 Log.d(wTAG, "WifiState called from onLosing")
             }
 
             override fun onAvailable(network: Network) {
                 Log.d(wTAG, "WifiState ON")
                 remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_on)
-           updateWidget()
+                updateWidget()
                 //record wi-fi connect event
             }
         }
@@ -238,6 +244,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
     companion object {
 
+        lateinit var cAddrs: List<Address>
         lateinit var wallBitmap: Bitmap
         var boolNewLap: Boolean = false
 
@@ -305,36 +312,40 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 }
                 Log.d(TAG, "Set successfully")
 
-                 wD = wallDesc.split("+")[1]
-                 qT = queryType
-                 dU = delayUnit
-                 uT = updateTime
-                 tW = listTweets[Random.nextInt(0, listTweets.size)]
+                wD = wallDesc.split("+")[1]
+                qT = queryType
+                dU = delayUnit
+                uT = updateTime
+                tW = listTweets[Random.nextInt(0, listTweets.size)]
 
                 if (MainActivity.mainWindow.decorView.rootView.isShown)
                     if (pD.isShowing) {
                         pD.dismiss()
-                            Handler(Looper.getMainLooper()).postDelayed({
-                                txStatus.text =
-                                    "\"$queryType\" wallpapers Set, updates every $wallDelay mins. \n Add the HomeScreen Widget to see more of the Magic!"
-                                rlStatus.visibility = View.VISIBLE
-                                fabMain.text = "How to ?"
-                            }, 1000)
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            txStatus.text =
+                                "\"$queryType\" wallpapers Set, updates every $wallDelay mins. \n Add the HomeScreen Widget to see more of the Magic!"
+                            rlStatus.visibility = View.VISIBLE
+                            fabMain.text = "How to ?"
+                        }, 1000)
                     }
 
 
 
-               remoteViews?.setTextViewText(
-                   R.id.tx_tweets,
-                     "@" + twitterProfileName + "\t ~ \t" + tW
-               )
+                remoteViews?.setTextViewText(
+                    R.id.tx_tweets,
+                    "@" + twitterProfileName + "\t ~ \t" + tW
+                )
                 //🖍
                 remoteViews?.setTextViewText(R.id.tx_tweets, tW)
                 NewAppWidget.greeting()
                 remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
                 NewAppWidget.todaysDate()
-                remoteViews?.setTextViewText(R.id.tx_day_date,
-                    SimpleDateFormat("EEE", Locale.getDefault()).format(Calendar.getInstance().time) +
+                remoteViews?.setTextViewText(
+                    R.id.tx_day_date,
+                    SimpleDateFormat(
+                        "EEE",
+                        Locale.getDefault()
+                    ).format(Calendar.getInstance().time) +
                             "│" + formattedDate
                 )
                 remoteViews?.setTextViewText(
@@ -359,7 +370,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 appContx.sendBroadcast(intent)
 
 
-
             } catch (e: IOException) {
                 remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.INVISIBLE)
                 remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
@@ -376,7 +386,12 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             )
             intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
             val ids: IntArray = AppWidgetManager.getInstance(appContx)
-                .getAppWidgetIds(ComponentName(MainActivity.Companion.appContx, NewAppWidget::class.java))
+                .getAppWidgetIds(
+                    ComponentName(
+                        MainActivity.Companion.appContx,
+                        NewAppWidget::class.java
+                    )
+                )
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
             appContx.sendBroadcast(intent)
         }

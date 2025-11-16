@@ -35,11 +35,13 @@ import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
+import android.location.Geocoder
 import android.media.MediaPlayer
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
+import android.os.Looper
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
@@ -60,8 +62,11 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.apps
+import com.belaku.homey.MainActivity.Companion.cityLat
+import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.getWeatherData
+import com.belaku.homey.MainActivity.Companion.mAct
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
@@ -69,9 +74,14 @@ import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
 import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
+import com.belaku.homey.SetWallWorker.Companion.cAddrs
 import com.belaku.homey.SetWallWorker.Companion.initialSteps
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
@@ -119,8 +129,64 @@ class NewAppWidget : AppWidgetProvider() {
 
 //        Log.d("onEnabled! - ", favContacts.size.toString())
         getWeatherData(false)
+        getLocationUpdates()
 
         remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getLocationUpdates() {
+        var locationRequest = LocationRequest.create()
+        locationRequest.setInterval(30000)
+        locationRequest.setSmallestDisplacement(1f)
+        locationRequest.setFastestInterval(10000)
+        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
+
+        //instantiating the LocationCallBack
+        val locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                val location = locationResult.lastLocation
+                if (location != null) {
+
+                    cityLat = location.latitude
+                    cityLng = location.longitude
+
+                    getAddress(location.latitude, location.longitude)
+               //     makeToast("Location update - $cAddrs")
+
+                    remoteViews?.setTextViewText(R.id.tx_place, cAddrs.get(0).subLocality)
+
+                }
+            }
+
+            fun getAddress(lat: Double, lng: Double) {
+                val gcd = Geocoder(appContx)
+                Locale.getDefault()
+                cityLat = lat
+                cityLng = lng
+                try {
+                    cAddrs = gcd.getFromLocation(lat, lng, 1)!!
+                    //   makeToast(cAddrs?.get(0)!!.subLocality)
+
+                    cityname = cAddrs?.get(0)!!.getAddressLine(0)
+
+                } catch (e: IOException) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace()
+                    makeToast("GCD - IOException \n $e")
+                }
+
+            }
+
+        }
+
+        var fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
+
+        fusedLocationProviderClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
     }
 
     override fun onDisabled(context: Context?) {
