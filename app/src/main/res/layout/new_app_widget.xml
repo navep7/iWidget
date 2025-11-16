@@ -536,9 +536,8 @@
     <ImageButton
         android:id="@+id/fab_share"
         android:layout_width="75dp"
-        android:layout_height="wrap_content"
+        android:layout_height="75dp"
         android:layout_below="@+id/ll_gapps_napps"
-        android:layout_above="@+id/tx_tweets"
         android:layout_centerHorizontal="true"
         android:background="@drawable/dial_c"
         android:padding="@dimen/fab_margin"
@@ -758,9 +757,8 @@
     <TextView
         android:id="@+id/tx_tweets"
         android:layout_width="match_parent"
-        android:layout_height="75dp"
+        android:layout_height="wrap_content"
         android:layout_above="@+id/tx_desc_walltype"
-        android:layout_marginBottom="3dp"
         android:autoLink="all"
         android:background="#80FFFFFF"
         android:ellipsize="end"
