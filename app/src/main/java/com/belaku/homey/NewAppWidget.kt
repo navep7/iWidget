@@ -576,7 +576,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         remoteViews?.setTextViewText(
             R.id.tx_tweets,
-            "@" + twitterProfileName + "\t ~ \t" + tW
+            "\t\t\t\t\t @" + twitterProfileName + "\t ~ \t" + tW
         )
 
     }
@@ -1008,13 +1008,18 @@ class NewAppWidget : AppWidgetProvider() {
 
         appWidgetView.findViewById<TextView>(R.id.tx_desc_walltype).setText(
             Html.fromHtml(
-                wD + "<br>" + qT.split(" ")[0].substring(0, 1)
-                    .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
+                wD,
                 Html.FROM_HTML_MODE_LEGACY
             )
         )
+
+        remoteViews?.setTextViewText(
+            R.id.tx_frequency,
+            qT.split(" ")[0].substring(0, 1)
+                .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT"
+        )
         appWidgetView.findViewById<TextView>(R.id.tx_tweets)
-            .setText("@" + twitterProfileName + "\t ~ \t" + tW)
+            .setText("\t\t\t\t\t @" + twitterProfileName + "\t ~ \t" + tW)
 
 
     }

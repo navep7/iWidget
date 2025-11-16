@@ -351,10 +351,14 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 remoteViews?.setTextViewText(
                     R.id.tx_desc_walltype,
                     Html.fromHtml(
-                        wD + "<br>" + qT.split(" ")[0].substring(0, 1)
-                            .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
+                        wD ,
                         Html.FROM_HTML_MODE_LEGACY
                     )
+                )
+                remoteViews?.setTextViewText(
+                    R.id.tx_frequency,
+                    qT.split(" ")[0].substring(0, 1)
+                        .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT"
                 )
 
                 /*val mSpannableStringLoc = SpannableString(cityname)

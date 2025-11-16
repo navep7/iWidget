@@ -50,8 +50,10 @@ import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.makeSnack
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
+import com.belaku.homey.MainActivity.Companion.parentLayout
 import com.belaku.homey.MainActivity.Companion.pickContact
 import com.belaku.homey.MainActivity.Companion.pickContactLauncher
+import com.belaku.homey.MainActivity.Companion.sN
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
@@ -72,6 +74,7 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
@@ -268,6 +271,7 @@ class DialogActivity : AppCompatActivity() {
                     )
                 })
             } else if (dialogIntentStr == "STH") {
+                makeToast("Paid Feature!")
                 txTitle.setText("Twitter")
                 txContent.visibility = View.INVISIBLE
                 edtxDialog.visibility = View.VISIBLE
