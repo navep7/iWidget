@@ -15,6 +15,8 @@
     <TextView
         android:id="@+id/contact_tx_name"
         android:tag="CONTACT"
+        android:background="@drawable/gradient_glass_dark"
+        android:textColor="@color/white"
         android:text="Contact"
         android:maxLines="1"
         android:ellipsize="end"

@@ -23,7 +23,7 @@
             android:id="@+id/ll_top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/circular_primary_border"
+            android:background="@drawable/circular_tx_border"
             android:layout_margin="@dimen/padding_5">
 
             <TextView
@@ -32,10 +32,12 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="a Wish.."
-                android:textColor="?attr/colorPrimaryDark"
+                android:textColor="@android:color/holo_red_light"
                 android:textSize="33sp"
                 android:textStyle="bold"
                 tools:ignore="HardcodedText" />
+
+
 
             <ImageButton
                 android:id="@+id/fab_torch"
@@ -43,7 +45,7 @@
                 android:layout_height="35dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="3dp"
-                android:background="@drawable/weather_rounded_corner"
+                android:background="@drawable/circular_secondary_container"
                 android:padding="@dimen/padding_5"
                 android:scaleType="fitXY"
                 android:src="@drawable/torch_off"
@@ -55,11 +57,25 @@
                 android:layout_height="35dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="3dp"
-                android:background="@drawable/weather_rounded_corner"
+                android:background="@drawable/circular_secondary_container"
                 android:gravity="center"
                 android:padding="@dimen/padding_5"
                 android:scaleType="fitXY"
                 android:src="@drawable/wifi_off"
+                tools:ignore="HardcodedText" />
+
+
+            <ImageButton
+                android:id="@+id/fab_blue"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="3dp"
+                android:background="@drawable/circular_secondary_container"
+                android:gravity="center"
+                android:padding="@dimen/padding_5"
+                android:scaleType="fitXY"
+                android:src="@drawable/blue_off"
                 tools:ignore="HardcodedText" />
 
             <TextView
@@ -73,19 +89,6 @@
                 android:padding="@dimen/padding_5"
                 android:scaleType="fitXY"
                 android:text="🔔"
-                tools:ignore="HardcodedText" />
-
-            <ImageButton
-                android:id="@+id/fab_blue"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="3dp"
-                android:background="@drawable/weather_rounded_corner"
-                android:gravity="center"
-                android:padding="@dimen/padding_5"
-                android:scaleType="fitXY"
-                android:src="@drawable/blue_off"
                 tools:ignore="HardcodedText" />
 
             <TextView
@@ -139,6 +142,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
+            android:layout_marginStart="@dimen/fab_margin"
             android:background="@drawable/circular_primary_container"
             android:layout_toRightOf="@+id/ll_time_day"
             android:layout_alignBottom="@+id/ll_time_day"
@@ -151,13 +155,13 @@
                 android:scaleType="fitXY"
                 android:text="25°C"
                 android:textColor="@color/white"
-                android:textSize="25dp"
+                android:textSize="21dp"
                 android:textStyle="bold" />
 
             <ImageButton
                 android:id="@+id/weather_icon"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="37dp"
+                android:layout_height="39dp"
                 android:layout_centerInParent="true"
                 android:background="@android:color/transparent"
                 android:scaleType="fitXY"
@@ -173,6 +177,7 @@
                 android:scaleType="fitXY"
                 android:layout_marginTop="-5dp"
                 android:text="State..,"
+                android:textSize="10sp"
                 android:textColor="@color/white"
                 android:textStyle="bold" />
 
@@ -206,8 +211,12 @@
             android:layout_height="100dp"
             android:layout_above="@+id/tx_place"
             android:layout_below="@+id/ll_top"
-            android:dial="@drawable/walp_icon"
-            android:hand_second="@drawable/s_hand" />
+            android:dial="@drawable/dg"
+            android:hand_hourTint="@android:color/white"
+            android:hand_minuteTint="@android:color/black"
+            android:hand_secondTint="@android:color/holo_red_light"
+            android:hand_second="@drawable/s_hand"
+            tools:ignore="UnusedAttribute" />
 
         <LinearLayout
             android:id="@+id/ll_time_day"
@@ -255,9 +264,9 @@
             android:scrollHorizontally="true"
             android:singleLine="true"
             android:text="Place"
-            android:textColor="?attr/colorPrimaryDark"
+            android:textColor="@android:color/holo_red_dark"
             android:textSize="15sp"
-            android:textStyle="bold">
+            android:textStyle="bold|italic">
 
             <requestFocus />
         </TextView>
@@ -365,7 +374,6 @@
         android:layout_centerHorizontal="true"
         android:layout_marginStart="@dimen/padding_5"
         android:layout_marginEnd="@dimen/padding_5"
-        android:background="@drawable/circular_primary_border"
         android:paddingStart="@dimen/fab_margin"
         android:paddingEnd="@dimen/fab_margin"
         android:orientation="vertical"
@@ -383,7 +391,7 @@
                 android:layout_height="40dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="10dp"
-                android:background="@drawable/gradient_glass_rounded"
+                android:background="@drawable/rounded_corner_white"
                 android:padding="@dimen/padding_5"
                 android:scaleType="fitXY"
                 android:src="@drawable/location" />
@@ -394,7 +402,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="10dp"
-                android:background="@drawable/gradient_glass_rounded"
+                android:background="@drawable/rounded_corner_white"
                 android:padding="@dimen/padding_5"
                 android:src="@android:drawable/ic_menu_search" />
 
@@ -404,7 +412,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="5dp"
-                android:background="@drawable/gradient_glass_rounded"
+                android:background="@drawable/rounded_corner_white"
                 android:padding="@dimen/padding_5"
                 android:scaleType="fitXY"
                 android:src="@android:drawable/ic_btn_speak_now" />
@@ -424,7 +432,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="10dp"
-                android:background="@drawable/gradient_glass_rounded"
+                android:background="@drawable/rounded_corner_white"
                 android:padding="@dimen/padding_5"
                 android:src="@android:drawable/ic_lock_lock" />
 
@@ -438,7 +446,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginTop="5dp"
-                    android:background="@drawable/gradient_glass_rounded"
+                    android:background="@drawable/rounded_corner_white"
                     android:padding="@dimen/padding_5"
                     android:src="@android:drawable/ic_popup_sync" />
 
@@ -477,7 +485,7 @@
     <LinearLayout
         android:id="@+id/ll_gapps_napps"
         android:layout_width="wrap_content"
-        android:layout_height="75dp"
+        android:layout_height="50dp"
         android:layout_below="@+id/rl_screentime"
         android:layout_alignStart="@+id/ll_controls"
         android:layout_alignEnd="@+id/ll_controls"
@@ -525,6 +533,19 @@
 
     </LinearLayout>
 
+    <ImageButton
+        android:id="@+id/fab_share"
+        android:layout_width="75dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_gapps_napps"
+        android:layout_above="@+id/tx_tweets"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/dial_c"
+        android:padding="@dimen/fab_margin"
+        android:src="@android:drawable/ic_menu_share"
+        tools:ignore="HardcodedText" />
+
+
 
     <RelativeLayout
         android:id="@+id/rl_screentime"
@@ -534,21 +555,24 @@
         android:layout_centerHorizontal="true"
         android:background="@drawable/gradient_glass_rounded">
 
+
         <TextView
             android:id="@+id/tx_st_since"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:text="since..."
+            android:layout_alignParentStart="true"
+            android:text="since 12 PM yday"
+            android:layout_marginStart="@dimen/padding_5"
             android:textStyle="bold|italic" />
 
         <TextView
             android:id="@+id/btn_screentime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/fab_margin"
+            android:layout_below="@+id/tx_st_since"
             android:background="@android:color/transparent"
             android:text="ON ~ 10+ H"
+            android:layout_marginStart="@dimen/padding_5"
             android:textColor="@android:color/holo_red_light"
             android:textSize="21sp"
             android:textStyle="bold" />
@@ -557,8 +581,11 @@
             android:id="@+id/tx_screentime_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/btn_screentime"
-            android:layout_centerHorizontal="true"
+            android:textColor="?attr/colorPrimaryDark"
+            android:layout_alignBottom="@+id/btn_screentime"
+            android:layout_toRightOf="@+id/btn_screentime"
+            android:layout_marginStart="@dimen/fab_margin"
+            android:layout_marginEnd="@dimen/padding_5"
             android:text="ⓘ"
             android:textSize="35sp"
             android:textStyle="bold" />
@@ -572,7 +599,7 @@
         android:layout_height="50dp"
         android:layout_below="@+id/rl_clocks"
         android:layout_margin="5dp"
-        android:background="@drawable/rounded_corner_black">
+        android:background="@drawable/gradient_glass_rounded">
 
         <TextView
             android:id="@+id/txx_steps"
@@ -605,7 +632,7 @@
             android:layout_toEndOf="@+id/imgv_steps"
             android:ellipsize="end"
             android:maxLines="3"
-            android:textColor="@color/black"
+            android:textColor="@android:color/holo_red_light"
             android:textSize="15sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
@@ -713,37 +740,25 @@
 
     </RelativeLayout>
 
+
+
+
     <ImageButton
         android:id="@+id/twSettings"
         android:layout_width="35dp"
         android:layout_height="35dp"
-        android:layout_above="@+id/tx_desc_walltype"
-        android:layout_marginBottom="3dp"
-        android:layout_toStartOf="@+id/tx_tweets"
-        android:layout_toRightOf="@+id/list_apps"
+        android:layout_alignTop="@+id/tx_tweets"
+        android:layout_alignStart="@+id/tx_tweets"
         android:background="@drawable/gradient_glass"
         android:padding="@dimen/padding_5"
         android:scaleType="fitXY"
         android:src="@drawable/tw" />
 
 
-    <ImageButton
-        android:id="@+id/fab_share"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:layout_above="@+id/tx_tweets"
-        android:layout_toStartOf="@+id/ll_contacts_header"
-        android:background="@drawable/weather_rounded_corner"
-        android:gravity="center"
-        android:src="@android:drawable/ic_menu_share"
-        android:visibility="invisible"
-        tools:ignore="HardcodedText" />
-
-
     <TextView
         android:id="@+id/tx_tweets"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="75dp"
         android:layout_above="@+id/tx_desc_walltype"
         android:layout_marginBottom="3dp"
         android:autoLink="all"

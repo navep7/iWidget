@@ -34,6 +34,7 @@ class RemoteViewsAppsFactory(private val mContext: Context) :
 
         rvApps.setImageViewBitmap(R.id.app_imgv, drawableToBitmap(appContx, appContx.packageManager.getApplicationIcon(choosenApps[position].pName)))
         rvApps.setTextViewText(R.id.app_tx, choosenApps[position].name)
+    //    rvApps.setTextColor(R.id.app_tx, NewAppWidget.primaryColor)
 
         // Create the fill-in intent
         val fillInIntentApp = Intent()

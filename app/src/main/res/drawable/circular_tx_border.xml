@@ -7,8 +7,8 @@
         android:color="@android:color/darker_gray" /> <!-- Border color and width -->
     <corners android:radius="999dp" /> <!-- Large radius for circular effect -->
     <padding
-        android:bottom="8dp"
+        android:bottom="3dp"
         android:left="16dp"
         android:right="16dp"
-        android:top="8dp" /> <!-- Optional padding for text inside the border -->
+        android:top="3dp" /> <!-- Optional padding for text inside the border -->
 </shape>

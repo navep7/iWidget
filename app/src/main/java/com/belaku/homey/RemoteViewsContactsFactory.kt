@@ -46,7 +46,7 @@ class RemoteViewsContactsFactory(private val mContext: Context) :
 
             rvContacts.setImageViewBitmap(R.id.contact_imgv, favContacts[position].contactBitmap)
             rvContacts.setTextViewText(R.id.contact_tx_name, favContacts[position].name)
-
+        //    rvContacts.setTextColor(R.id.contact_tx_name, NewAppWidget.primaryColor)
             // Create the fill-in intent
             val fillInIntentDial = Intent()
             fillInIntentDial.putExtra(

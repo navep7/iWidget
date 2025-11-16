@@ -487,8 +487,9 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.imgbtn_set,
                 "setColorFilter",
                 Color.WHITE,
-                Color.WHITE
+                Color.BLACK
             )
+
 
         } else  Log.d("wallColors", "NULL")
 
@@ -909,7 +910,7 @@ class NewAppWidget : AppWidgetProvider() {
         appWidgetView.findViewById<TextView>(R.id.tx_wish).setText(timelyWish)
 
         appWidgetView.findViewById<TextView>(R.id.tx_st_since)
-            .setText(".Since ${currentHour % 12} $ampm yday.,")
+            .setText("since ${currentHour % 12} $ampm yday.,")
         appWidgetView.findViewById<TextView>(R.id.clock)
             .setText("${nowCalendar.get(Calendar.HOUR)}:$currentMin $ampm")
         /*val mSpannableStringLoc = SpannableString(cityname)
@@ -1317,7 +1318,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             remoteViews?.setTextViewText(
                 R.id.tx_st_since,
-                ".Since ${currentHour % 12} $ampm yday.,"
+                "since ${currentHour % 12} $ampm yday"
             )
             remoteViews?.setTextViewText(
                 R.id.btn_screentime,
