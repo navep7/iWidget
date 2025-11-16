@@ -1320,7 +1320,7 @@ class MainActivity : AppCompatActivity() {
 
 
         NewAppWidget.timeOfDay = if (currentHour < 6) {
-            "Night"
+            "Night!"
         } else if (currentHour >= 6 && currentHour < 12) {
             "Morni!"
         } else if (currentHour >= 12 && currentHour < 17) {
@@ -1563,6 +1563,7 @@ class MainActivity : AppCompatActivity() {
             ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
             periodicWorkRequest
         )
+
     }
 
 

@@ -103,7 +103,6 @@ class NewAppWidget : AppWidgetProvider() {
     private lateinit var serviceIntentContact: Intent
     private lateinit var serviceIntentApp: Intent
     private var callIndex: Int = -1
-    private var totalScreenTimeInMinutes by Delegates.notNull<Long>()
     private lateinit var calendar: Calendar
     private lateinit var nowCalendar: Calendar
     private lateinit var ampm: String
@@ -128,7 +127,6 @@ class NewAppWidget : AppWidgetProvider() {
         sharedPreferencesEditor = sharedPreferences.edit()
 
 //        Log.d("onEnabled! - ", favContacts.size.toString())
-        getWeatherData(false)
         getLocationUpdates()
 
         remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
@@ -155,6 +153,7 @@ class NewAppWidget : AppWidgetProvider() {
                //     makeToast("Location update - $cAddrs")
 
                     remoteViews?.setTextViewText(R.id.tx_place, cAddrs.get(0).subLocality)
+                    getWeatherData(false)
 
                 }
             }
@@ -564,7 +563,8 @@ class NewAppWidget : AppWidgetProvider() {
 
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setSomeTwAndWallDescUI() {
-        /*if (NewAppWidget.Companion::wD.isInitialized)
+
+        if (NewAppWidget.checkCompanionVariable())
         remoteViews?.setTextViewText(
             R.id.tx_desc_walltype,
             Html.fromHtml(
@@ -572,7 +572,7 @@ class NewAppWidget : AppWidgetProvider() {
                     .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
                 Html.FROM_HTML_MODE_LEGACY
             )
-        )*/
+        )
 
         remoteViews?.setTextViewText(
             R.id.tx_tweets,
@@ -580,6 +580,8 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
     }
+
+
 
 
     private fun setAppsAdapter() {
@@ -699,6 +701,7 @@ class NewAppWidget : AppWidgetProvider() {
                 appContx.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             val appWidgetView: View = inflater.inflate(R.layout.new_app_widget, null)
 
+            makeToast("Yet2IMPL")
             loadWidgetToShare(appWidgetView)
             appWidgetView.measure(
                 View.MeasureSpec.makeMeasureSpec(screenWidth, View.MeasureSpec.EXACTLY),
@@ -970,20 +973,22 @@ class NewAppWidget : AppWidgetProvider() {
 
         appWidgetView.findViewById<TextView>(
             R.id.btn_screentime
-        ).setText(
-            "ON ~ ${totalScreenTimeInMinutes.toString()}+ H"
-        )
-        appWidgetView.findViewById<TextView>(R.id.tx_wish).setText(timelyWish)
+        ).text = "ON ~ ${totalScreenTimeInMinutes}+ H"
+        greeting()
+        appWidgetView.findViewById<TextView>(R.id.tx_wish).text = timelyWish
+        var ampm = Calendar.getInstance()[Calendar.AM_PM].toString()
 
-        appWidgetView.findViewById<TextView>(R.id.tx_st_since)
-            .setText("since ${currentHour % 12} $ampm yday.,")
-        appWidgetView.findViewById<TextView>(R.id.clock)
-            .setText("${nowCalendar.get(Calendar.HOUR)}:$currentMin $ampm")
-        /*val mSpannableStringLoc = SpannableString(cityname)
-        mSpannableStringLoc.setSpan(UnderlineSpan(), 0, mSpannableStringLoc.length, 0)*/
-        appWidgetView.findViewById<TextView>(R.id.tx_place).setText("⚲ " + cityname)
+        when (ampm) {
+            "0" -> ampm = "AM"
+            "1" -> ampm = "PM"
+        }
+        appWidgetView.findViewById<TextView>(R.id.clock).text = "${java.util.Calendar.getInstance().get(Calendar.HOUR)}:${java.util.Calendar.getInstance().get(Calendar.MINUTE)} $ampm"
+        val mSpannableStringLoc = SpannableString(cityname)
+        mSpannableStringLoc.setSpan(UnderlineSpan(), 0, mSpannableStringLoc.length, 0)
+                appWidgetView.findViewById<TextView>(R.id.tx_place).setText("⚲ " + cityname)
         appWidgetView.findViewById<TextView>(R.id.tx_steps)
             .setText("$dayOfTheWeek ~ " + stepsToday.toString())
+
 
 
         appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_temp).setText(
@@ -1008,16 +1013,13 @@ class NewAppWidget : AppWidgetProvider() {
 
         appWidgetView.findViewById<TextView>(R.id.tx_desc_walltype).setText(
             Html.fromHtml(
-                wD,
+                wD + "<br>" + qT.split(" ")[0].substring(0, 1)
+                    .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
                 Html.FROM_HTML_MODE_LEGACY
             )
         )
 
-        remoteViews?.setTextViewText(
-            R.id.tx_frequency,
-            qT.split(" ")[0].substring(0, 1)
-                .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT"
-        )
+
         appWidgetView.findViewById<TextView>(R.id.tx_tweets)
             .setText("\t\t\t\t\t @" + twitterProfileName + "\t ~ \t" + tW)
 
@@ -1174,10 +1176,12 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     companion object {
+        var totalScreenTimeInMinutes: Long = 0
         lateinit var wD: String
         lateinit var qT: String
         lateinit var uT: String
         lateinit var dU: String
+
         lateinit var formattedDate: String
         lateinit var timeOfDay: String
         var timelyWish: String = ""
@@ -1377,7 +1381,7 @@ class NewAppWidget : AppWidgetProvider() {
             }
 
             // Convert to desired units (e.g., minutes, hours)
-            var totalScreenTimeInMinutes = totalScreenTimeInMillis / (1000 * 60 * 60)
+            totalScreenTimeInMinutes = totalScreenTimeInMillis / (1000 * 60 * 60)
 
             val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
             var ampm = Calendar.getInstance()[Calendar.AM_PM].toString()
@@ -1488,6 +1492,14 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
             remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
+        }
+
+        fun checkCompanionVariable(): Boolean {
+            if (::wD.isInitialized && ::qT.isInitialized && ::uT.isInitialized && ::dU.isInitialized) {
+                return true
+            } else {
+                return false
+            }
         }
 
 
