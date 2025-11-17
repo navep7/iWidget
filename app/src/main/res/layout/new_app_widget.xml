@@ -276,91 +276,123 @@
 
 
     <LinearLayout
-        android:id="@+id/ll_apps_header"
+        android:id="@+id/ll_apps"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/rl_steps"
-        android:layout_alignEnd="@+id/list_apps"
+        android:layout_above="@+id/frame_l_tweets"
+        android:layout_toStartOf="@+id/ll_controls"
+        android:orientation="vertical"
         android:background="@drawable/gradient_glass_flatbottom"
         android:gravity="center">
 
-        <ImageView
-            android:id="@+id/imgv_apps"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:src="@drawable/launch_e" />
+        <LinearLayout
+            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/imgv_apps"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginStart="@dimen/padding_5"
+                android:src="@drawable/launch_e" />
 
-    </LinearLayout>
-
-    <ListView
-        android:id="@+id/list_apps"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/frame_l_tweets"
-        android:layout_below="@+id/ll_apps_header"
-        android:layout_alignParentStart="true"
-        android:layout_toStartOf="@+id/ll_controls"
-        android:background="@drawable/weather_rounded_corner" />
+            <TextView
+                android:text="Apps"
+                android:layout_width="wrap_content"
+                android:layout_marginStart="@dimen/padding_5"
+                android:layout_marginEnd="@dimen/padding_5"
+                android:layout_gravity="center"
+                android:layout_height="wrap_content" />
 
 
-    <ImageView
-        android:id="@+id/imgv_add_apps"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
-        android:layout_alignStart="@+id/ll_apps_header"
-        android:layout_toStartOf="@+id/ll_controls"
-        android:src="@android:drawable/ic_input_add"
-        android:visibility="invisible" />
-
-    <LinearLayout
-        android:id="@+id/ll_contacts_header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/rl_steps"
-        android:layout_toEndOf="@+id/ll_controls"
-        android:background="@drawable/gradient_glass_flatbottom">
-
-        <ImageView
-            android:id="@+id/imgv_contacts"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_marginStart="@dimen/fab_margin"
-            android:src="@drawable/contacts" />
+        </LinearLayout>
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:background="@android:color/black"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"/>
 
-        <ImageView
-            android:id="@+id/imgv_add_contacts"
-            android:layout_width="wrap_content"
+        <ListView
+            android:id="@+id/list_apps"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/fab_margin"
-            android:background="@drawable/rounded_corner"
-            android:src="@android:drawable/ic_input_add"
-            tools:ignore="ContentDescription" />
+            android:background="@drawable/gradient_glass_list" />
 
 
     </LinearLayout>
 
 
-    <ListView
-        android:id="@+id/list_contacts"
-        android:layout_width="match_parent"
+
+
+
+    <LinearLayout
+        android:id="@+id/ll_contacts"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/rl_steps"
         android:layout_above="@+id/frame_l_tweets"
-        android:layout_below="@+id/ll_contacts_header"
-        android:layout_alignParentEnd="true"
         android:layout_toEndOf="@+id/ll_controls"
-        android:background="@drawable/weather_rounded_corner" />
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical"
+        android:background="@drawable/gradient_glass_flatbottom">
+
+        <LinearLayout
+            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/imgv_contacts"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginStart="@dimen/padding_5"
+                android:src="@drawable/contacts" />
+
+            <TextView
+                android:text="Buzz"
+                android:layout_width="wrap_content"
+                android:layout_marginStart="@dimen/padding_5"
+                android:layout_marginEnd="@dimen/padding_5"
+                android:layout_gravity="center"
+                android:layout_height="wrap_content" />
+
+            <ImageView
+                android:id="@+id/imgv_add_contacts"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginEnd="@dimen/fab_margin"
+                android:background="@drawable/rounded_corner"
+                android:src="@android:drawable/ic_input_add"
+                tools:ignore="ContentDescription" />
+
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/_line"
+            android:background="@android:color/black"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"/>
+
+
+        <ListView
+            android:id="@+id/list_contacts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/gradient_glass_list" />
+
+
+
+    </LinearLayout>
+
+
 
     <TextView
         android:id="@+id/widget_empty_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/frame_l_tweets"
-        android:layout_below="@+id/ll_contacts_header"
+        android:layout_below="@+id/ll_contacts"
         android:layout_alignParentEnd="true"
         android:layout_toEndOf="@+id/ll_controls"
         android:background="@drawable/gradient_glass"
