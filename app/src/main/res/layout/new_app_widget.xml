@@ -160,9 +160,10 @@
 
             <ImageButton
                 android:id="@+id/weather_icon"
-                android:layout_width="37dp"
-                android:layout_height="39dp"
-                android:layout_centerInParent="true"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="-10dp"
+                android:layout_below="@+id/tx_weather_icon_temp"
                 android:background="@android:color/transparent"
                 android:scaleType="fitXY"
                 android:src="@drawable/clouds" />
@@ -211,7 +212,7 @@
             android:layout_height="100dp"
             android:layout_above="@+id/tx_place"
             android:layout_below="@+id/ll_top"
-            android:dial="@drawable/dg"
+            android:dial="@drawable/dialcircle"
             android:hand_hourTint="@android:color/white"
             android:hand_minuteTint="@android:color/black"
             android:hand_secondTint="@android:color/holo_red_light"
@@ -390,7 +391,7 @@
                 android:layout_height="40dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="10dp"
-                android:background="@drawable/circular_tertianary_border"
+                android:background="@drawable/circular_border"
                 android:padding="@dimen/padding_5"
                 android:scaleType="fitXY"
                 android:src="@drawable/location" />
@@ -401,7 +402,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="10dp"
-                android:background="@drawable/circular_tertianary_border"
+                android:background="@drawable/circular_border"
                 android:padding="@dimen/padding_5"
                 android:src="@android:drawable/ic_menu_search" />
 
@@ -411,7 +412,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="5dp"
-                android:background="@drawable/circular_tertianary_border"
+                android:background="@drawable/circular_border"
                 android:padding="@dimen/padding_5"
                 android:scaleType="fitXY"
                 android:src="@android:drawable/ic_btn_speak_now" />
@@ -431,7 +432,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="10dp"
-                android:background="@drawable/circular_secondary_border"
+                android:background="@drawable/circular_border"
                 android:padding="@dimen/padding_5"
                 android:src="@android:drawable/ic_lock_lock" />
 
@@ -445,7 +446,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginTop="5dp"
-                    android:background="@drawable/circular_tertianary_border"
+                    android:background="@drawable/circular_border"
                     android:padding="@dimen/padding_5"
                     android:src="@android:drawable/ic_popup_sync" />
 

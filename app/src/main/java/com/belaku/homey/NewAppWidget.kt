@@ -1452,6 +1452,7 @@ class NewAppWidget : AppWidgetProvider() {
                     MainActivity.weatherIconState + "..,"
                 )
 
+
                 if (weatherIconID.startsWith("5"))
                     remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.rain)
                 if (weatherIconID.equals("800"))
@@ -1477,6 +1478,7 @@ class NewAppWidget : AppWidgetProvider() {
                         R.id.tx_weather_icon_state,
                         MainActivity.weatherIconState + "..,"
                     )
+
 
                     if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals(
                             "803"

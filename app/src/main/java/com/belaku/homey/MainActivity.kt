@@ -1999,6 +1999,7 @@ class MainActivity : AppCompatActivity() {
         var cityLng: Double = 0.0
 
         var weatherIconState: String = ""
+        var weatherIconSubState: String = ""
         var tempC: String = ""
         var tempKind: String = ""
         var weatherIconID: String = ""
@@ -2113,6 +2114,7 @@ class MainActivity : AppCompatActivity() {
                         //  updateUI(weatherData)
                         tempC = "${weatherData.main.temp - 273}°C"
                         weatherIconState = weatherData.weather.get(0).main
+                        Log.d("weatherIconSubState",  weatherData.weather.toString())
                         tempKind = weatherData.weather.get(0).description
                         weatherIconID = weatherData.weather.get(0).id
                         weatherIconUrl =
