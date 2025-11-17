@@ -283,7 +283,7 @@
         android:layout_above="@+id/frame_l_tweets"
         android:layout_toStartOf="@+id/ll_controls"
         android:orientation="vertical"
-        android:background="@drawable/gradient_glass_flatbottom"
+        android:background="@drawable/gradient_glass_list"
         android:gravity="center">
 
         <LinearLayout
@@ -316,8 +316,7 @@
         <ListView
             android:id="@+id/list_apps"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/gradient_glass_list" />
+            android:layout_height="wrap_content" />
 
 
     </LinearLayout>
@@ -332,10 +331,10 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/rl_steps"
         android:layout_above="@+id/frame_l_tweets"
+        android:layout_alignParentEnd="true"
         android:layout_toEndOf="@+id/ll_controls"
-        android:layout_gravity="center_horizontal"
         android:orientation="vertical"
-        android:background="@drawable/gradient_glass_flatbottom">
+        android:background="@drawable/gradient_glass_list">
 
         <LinearLayout
             android:layout_gravity="center_horizontal"
@@ -349,10 +348,10 @@
                 android:src="@drawable/contacts" />
 
             <TextView
-                android:text="Buzz"
+                android:text="Calls"
                 android:layout_width="wrap_content"
-                android:layout_marginStart="@dimen/padding_5"
-                android:layout_marginEnd="@dimen/padding_5"
+                android:layout_marginStart="@dimen/padding_3"
+                android:layout_marginEnd="@dimen/padding_3"
                 android:layout_gravity="center"
                 android:layout_height="wrap_content" />
 
@@ -360,11 +359,9 @@
                 android:id="@+id/imgv_add_contacts"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
-                android:layout_marginEnd="@dimen/fab_margin"
                 android:background="@drawable/rounded_corner"
                 android:src="@android:drawable/ic_input_add"
                 tools:ignore="ContentDescription" />
-
 
         </LinearLayout>
 
@@ -378,8 +375,7 @@
         <ListView
             android:id="@+id/list_contacts"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/gradient_glass_list" />
+            android:layout_height="wrap_content" />
 
 
 
