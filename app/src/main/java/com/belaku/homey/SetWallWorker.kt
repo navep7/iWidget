@@ -66,6 +66,8 @@ import com.belaku.homey.NewAppWidget.Companion.choosenApps
 import com.belaku.homey.NewAppWidget.Companion.dU
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.formattedDate
+import com.belaku.homey.NewAppWidget.Companion.getScreenTime
+import com.belaku.homey.NewAppWidget.Companion.greeting
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.qT
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
@@ -266,6 +268,8 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             wm.setWallpaperOffsetSteps(1F, 1F)
 
 
+            getScreenTime()
+            greeting()
             val metrics = DisplayMetrics()
             mAct.windowManager.getDefaultDisplay().getMetrics(metrics)
             screenHeight = metrics.heightPixels

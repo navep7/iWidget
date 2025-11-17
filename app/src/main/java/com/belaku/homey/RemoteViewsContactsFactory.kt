@@ -80,18 +80,6 @@ class RemoteViewsContactsFactory(private val mContext: Context) :
 
 
 
-    private fun getBitmapFromName(substring: String): Bitmap {
-
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val canvas: Canvas = Canvas(bitmap)
-        val paint: Paint = Paint()
-        paint.setColor(Color.BLACK) // Set text color
-        paint.setTextSize(50F) // Set text size
-        paint.setTypeface(Typeface.DEFAULT_BOLD) // Optional: set typeface
-        paint.setAntiAlias(true) // For smoother text rendering
-
-        return bitmap
-    }
 
     override fun getLoadingView(): RemoteViews? {
         return null // You can provide a custom loading view

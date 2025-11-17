@@ -53,6 +53,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.accessibility.AccessibilityManager
 import android.widget.AdapterView
+import android.widget.AnalogClock
 import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
@@ -556,6 +557,9 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
 
+
+
+
         } else  Log.d("wallColors", "NULL")
 
 
@@ -1023,7 +1027,7 @@ class NewAppWidget : AppWidgetProvider() {
         appWidgetView.findViewById<TextView>(R.id.tx_tweets)
             .setText("\t\t\t\t\t @" + twitterProfileName + "\t ~ \t" + tW)
 
-
+        appWidgetView.findViewById<AnalogClock>(R.id.a_clock).visibility = View.INVISIBLE
     }
 
     private fun shareBitmap(bitmapWidget: Bitmap) {

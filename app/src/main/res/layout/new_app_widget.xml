@@ -32,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="a Wish.."
-                android:textColor="@android:color/holo_red_light"
+                android:textColor="?attr/colorTertiary"
                 android:textSize="33sp"
                 android:textStyle="bold"
                 tools:ignore="HardcodedText" />
@@ -264,7 +264,7 @@
             android:scrollHorizontally="true"
             android:singleLine="true"
             android:text="Place"
-            android:textColor="@android:color/holo_red_dark"
+            android:textColor="?attr/colorTertiary"
             android:textSize="15sp"
             android:textStyle="bold|italic">
 
@@ -390,7 +390,7 @@
                 android:layout_height="40dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="10dp"
-                android:background="@drawable/rounded_corner_white"
+                android:background="@drawable/circular_tertianary_border"
                 android:padding="@dimen/padding_5"
                 android:scaleType="fitXY"
                 android:src="@drawable/location" />
@@ -401,7 +401,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="10dp"
-                android:background="@drawable/rounded_corner_white"
+                android:background="@drawable/circular_tertianary_border"
                 android:padding="@dimen/padding_5"
                 android:src="@android:drawable/ic_menu_search" />
 
@@ -411,7 +411,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="5dp"
-                android:background="@drawable/rounded_corner_white"
+                android:background="@drawable/circular_tertianary_border"
                 android:padding="@dimen/padding_5"
                 android:scaleType="fitXY"
                 android:src="@android:drawable/ic_btn_speak_now" />
@@ -431,7 +431,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="10dp"
-                android:background="@drawable/rounded_corner_white"
+                android:background="@drawable/circular_secondary_border"
                 android:padding="@dimen/padding_5"
                 android:src="@android:drawable/ic_lock_lock" />
 
@@ -445,7 +445,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginTop="5dp"
-                    android:background="@drawable/rounded_corner_white"
+                    android:background="@drawable/circular_tertianary_border"
                     android:padding="@dimen/padding_5"
                     android:src="@android:drawable/ic_popup_sync" />
 
@@ -536,7 +536,7 @@
         android:id="@+id/imgbtn_qr"
         android:layout_width="75dp"
         android:layout_height="75dp"
-        android:background="@drawable/circular_tx_border"
+        android:background="@drawable/circular_primary_border"
         android:layout_below="@+id/ll_gapps_napps"
         android:layout_centerHorizontal="true"
         android:src="@drawable/scan"/>
@@ -597,7 +597,7 @@
             android:background="@android:color/transparent"
             android:text="ON ~ 10+ H"
             android:layout_marginStart="@dimen/padding_5"
-            android:textColor="@android:color/holo_red_light"
+            android:textColor="?attr/colorTertiary"
             android:textSize="21sp"
             android:textStyle="bold" />
 
@@ -656,7 +656,7 @@
             android:layout_toEndOf="@+id/imgv_steps"
             android:ellipsize="end"
             android:maxLines="3"
-            android:textColor="@android:color/holo_red_light"
+            android:textColor="?attr/colorTertiary"
             android:textSize="15sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
