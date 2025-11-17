@@ -1,19 +1,15 @@
 package com.belaku.homey
 
-import android.R.attr.height
-import android.R.attr.width
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Typeface
+import android.graphics.BitmapFactory
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService.RemoteViewsFactory
+import androidx.core.graphics.drawable.RoundedBitmapDrawable
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
+import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
-import kotlin.random.Random
 
 
 class RemoteViewsContactsFactory(private val mContext: Context) :
@@ -44,9 +40,15 @@ class RemoteViewsContactsFactory(private val mContext: Context) :
 
         if (favContacts.size > position) {
 
-            rvContacts.setImageViewBitmap(R.id.contact_imgv, favContacts[position].contactBitmap)
+
+            val roundedBitmapDrawable: RoundedBitmapDrawable =
+                RoundedBitmapDrawableFactory.create(mContext.resources, favContacts[position].contactBitmap)
+            val cornerRadius = (favContacts[position].contactBitmap.width / 0.5) // Example radius in pixels
+            roundedBitmapDrawable.cornerRadius = cornerRadius.toFloat()
+            rvContacts.setImageViewBitmap(R.id.contact_imgv, drawableToBitmap(mContext, roundedBitmapDrawable))
+
             rvContacts.setTextViewText(R.id.contact_tx_name, favContacts[position].name)
-        //    rvContacts.setTextColor(R.id.contact_tx_name, NewAppWidget.primaryColor)
+
             // Create the fill-in intent
             val fillInIntentDial = Intent()
             fillInIntentDial.putExtra(
