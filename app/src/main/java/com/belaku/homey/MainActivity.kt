@@ -198,7 +198,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var fabHour: FloatingActionButton
     private lateinit var fabDay: FloatingActionButton
     private lateinit var rvAdapter: RvAdapter
-    private lateinit var rv: RecyclerView
+    private lateinit var rvImages: RecyclerView
     private lateinit var editTextPrompt: EditText
     private var pexelUrl: String =
         "https://api.pexels.com/v1/search?query=$queryType&per_page=10"
@@ -1659,7 +1659,7 @@ class MainActivity : AppCompatActivity() {
         fabMin = findViewById(R.id.fab_option_1)
         fabHour = findViewById(R.id.fab_option_2)
         fabDay = findViewById(R.id.fab_option_3)
-        rv = findViewById(R.id.rv_images)
+        rvImages = findViewById(R.id.rv_images)
 
     }
 
@@ -1855,7 +1855,7 @@ class MainActivity : AppCompatActivity() {
 
         imgUrls.clear()
         imgDescs.clear()
-        rv.recycledViewPool.clear()
+        rvImages.recycledViewPool.clear()
         rvAdapter.notifyItemRangeChanged(0, imgUrls.size)
 
 
@@ -1924,10 +1924,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun setRV(imgUrls: java.util.ArrayList<String>, imgDescs: ArrayList<String>) {
 
-        rv.layoutManager = StaggeredGridLayoutManager(2, 1)
+        rvImages.layoutManager = StaggeredGridLayoutManager(2, 1)
 
         rvAdapter = RvAdapter(applicationContext, imgUrls, imgDescs)
-        rv.adapter = rvAdapter
+        rvImages.adapter = rvAdapter
     }
 
     override fun onResume() {
@@ -2171,7 +2171,7 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        private fun updateWidget() {
+        fun updateWidget() {
             val intent = Intent(
                 appContx,
                 NewAppWidget::class.java

@@ -16,20 +16,21 @@ import kotlin.random.Random
 
 class ImageSliderAdapter(private val imageList: List<String>, private val context: Context) :
     RecyclerView.Adapter<ImageSliderAdapter.ViewHolder>() {
-    @NonNull
-    override fun onCreateViewHolder(@NonNull parent: ViewGroup, viewType: Int): ViewHolder {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view: View =
             LayoutInflater.from(parent.context).inflate(R.layout.slider_item, parent, false)
      //   makeToast("SZ - ${imageList.size}")
         return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(@NonNull holder: ViewHolder, position: Int) {
-      //  holder.imageView.setImageResource(imageList[position])
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+
         var imgUrl = imageList[Random.Default.nextInt(imageList.size)]
         imgUrl = imgUrl.split("+ ")[1]
         Glide.with(context)
             .load(imgUrl)
+            .error(R.drawable.transparent_bg)
             .into(holder.imageView)
     }
 
@@ -37,7 +38,7 @@ class ImageSliderAdapter(private val imageList: List<String>, private val contex
         return imageList.size
     }
 
-    class ViewHolder(@NonNull itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var imageView: ImageView = itemView.findViewById<ImageView>(R.id.image_view_bg)
     }
 }

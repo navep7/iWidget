@@ -88,7 +88,8 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.picasso.v28)
     implementation(libs.gson)
-    implementation(libs.glide)
+    implementation(libs.glide) // Use the latest version
+    annotationProcessor(libs.compiler) // Use the same version
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

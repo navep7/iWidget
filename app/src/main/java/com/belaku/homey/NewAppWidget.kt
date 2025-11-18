@@ -73,6 +73,7 @@ import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
+import com.belaku.homey.MainActivity.Companion.updateWidget
 import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.cAddrs
@@ -821,6 +822,10 @@ class NewAppWidget : AppWidgetProvider() {
 
             if (noRewards > 0) {
 
+                remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
+                updateWidget()
+
                 makeToast("Changing Wall, please wait...")
                 Thread {
                     SetWallWorker.setWall(true)
@@ -1304,7 +1309,8 @@ class NewAppWidget : AppWidgetProvider() {
             calendar.add(Calendar.DAY_OF_YEAR, -1) // Query for the last 24 hours
             val startTime = calendar.timeInMillis
 
-
+            sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+            sharedPreferencesEditor = sharedPreferences.edit()
 
             when (calendar.get(Calendar.DAY_OF_WEEK)) {
                 1 -> {
@@ -1321,7 +1327,6 @@ class NewAppWidget : AppWidgetProvider() {
                 2 -> {
                     dayOfTheWeek = "Tuesday"
                     sharedPreferencesEditor.putInt("Tuesday", stepsToday).apply()
-
                     sharedPreferencesEditor.putInt("Wednesday", 0).apply()
                     sharedPreferencesEditor.putInt("Thursday", 0).apply()
                     sharedPreferencesEditor.putInt("Friday", 0).apply()

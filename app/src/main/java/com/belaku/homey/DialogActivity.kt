@@ -2,7 +2,6 @@ package com.belaku.homey
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
@@ -10,7 +9,6 @@ import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.ContentValues
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
@@ -33,31 +31,27 @@ import android.view.Window
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.MainActivity.Companion.cityLat
+import com.belaku.homey.MainActivity.Companion.cityLng
+import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.makeSnack
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
-import com.belaku.homey.MainActivity.Companion.parentLayout
-import com.belaku.homey.MainActivity.Companion.pickContact
 import com.belaku.homey.MainActivity.Companion.pickContactLauncher
-import com.belaku.homey.MainActivity.Companion.sN
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
-import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
@@ -66,7 +60,6 @@ import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
-import com.belaku.homey.NewAppWidget.Companion.timelyWish
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
@@ -74,7 +67,12 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
-import com.google.android.material.snackbar.Snackbar
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
@@ -92,10 +90,9 @@ import org.json.JSONObject
 import java.net.URL
 import kotlin.properties.Delegates
 import kotlin.random.Random
-import kotlin.system.exitProcess
 
 
-class DialogActivity : AppCompatActivity() {
+class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private val barcodeLauncher =
         registerForActivityResult(ScanContract()) { result: ScanIntentResult? ->
@@ -127,6 +124,7 @@ class DialogActivity : AppCompatActivity() {
     private lateinit var txTitle: TextView
     private lateinit var txContent: TextView
     private lateinit var vpSteps: ViewPager2
+    private lateinit var stepsMapsFragment: SupportMapFragment
 
     private lateinit var edtxDialog: EditText
 
@@ -198,6 +196,10 @@ class DialogActivity : AppCompatActivity() {
         btnCancel = findViewById<Button>(R.id.btn_dialog_cancel)
         imgbtnShare = findViewById<ImageButton>(R.id.imgbtn_dialog_share)
         vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
+        stepsMapsFragment = supportFragmentManager.findFragmentById(R.id.steps_map) as SupportMapFragment
+
+        stepsMapsFragment.getMapAsync(this)
+
 
 
         var dialogIntentStr = intent.getStringExtra("DialogIntent")
@@ -373,8 +375,18 @@ class DialogActivity : AppCompatActivity() {
                 stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
                 stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
 
+                val stepsLocInfo: ArrayList<LatLng> = ArrayList()
+                stepsLocInfo.add(LatLng(-34.0, 151.0))
+                stepsLocInfo.add(LatLng(35.69, 139.69))
+                        stepsLocInfo.add(LatLng(19.08, 72.88))
+                        stepsLocInfo.add(LatLng(19.43, -99.13))
+                        stepsLocInfo.add(LatLng(52.30, 13.40))
+                        stepsLocInfo.add(LatLng(23.55, 46.63))
+                        stepsLocInfo.add(LatLng(40.71, -74.00))
 
-                val stepsAdapter = StepsAdapter(stepsData)
+
+
+                val stepsAdapter = StepsAdapter(stepsData, stepsLocInfo)
                 vpSteps.adapter = stepsAdapter
 
                 val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
@@ -1008,6 +1020,38 @@ class DialogActivity : AppCompatActivity() {
                     txContent.setText(recognizedText)
                 }
             }
+        }
+    }
+
+    override fun onMapReady(p0: GoogleMap) {
+
+        stepsMaps = p0
+
+        // Example: Setting a location for Sydney, Australia
+        val presentLoc = LatLng(cityLat, cityLng)
+
+
+        // Add a marker at the specified location
+        stepsMaps.addMarker(MarkerOptions().position(presentLoc).title(cityname))
+
+
+        // Move the camera to the specified location with a zoom level
+        stepsMaps.moveCamera(
+            CameraUpdateFactory.newLatLngZoom(
+                presentLoc,
+                21f
+            )
+        ) // Zoom level 10 is a good starting point
+
+
+
+    }
+
+    companion object {
+        lateinit var stepsMaps: GoogleMap
+
+        fun isStepsMapsInitialized(): Boolean {
+            return this::stepsMaps.isInitialized
         }
     }
 

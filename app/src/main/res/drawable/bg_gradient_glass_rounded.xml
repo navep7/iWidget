@@ -5,8 +5,8 @@
     <stroke
         android:width="3dp"
         android:color="@color/white" />
-    <solid android:color="#55FFFFFF"/> <!-- Border color and width -->
-    <corners android:radius="999dp" /> <!-- Large radius for circular effect -->
+    <solid android:color="@color/alpha_primary_color"/> <!-- Border color and width -->
+    <corners android:radius="@dimen/fab_margin" /> <!-- Large radius for circular effect -->
     <padding
         android:bottom="8dp"
         android:left="16dp"

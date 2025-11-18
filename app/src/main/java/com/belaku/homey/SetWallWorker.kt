@@ -38,6 +38,7 @@ import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.belaku.homey.MainActivity.Companion
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.cDate
 import com.belaku.homey.MainActivity.Companion.cMonth
@@ -69,6 +70,7 @@ import com.belaku.homey.NewAppWidget.Companion.formattedDate
 import com.belaku.homey.NewAppWidget.Companion.getScreenTime
 import com.belaku.homey.NewAppWidget.Companion.greeting
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
+import com.belaku.homey.NewAppWidget.Companion.noRewards
 import com.belaku.homey.NewAppWidget.Companion.qT
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.screenHeight
@@ -314,7 +316,13 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     sharedPreferencesEditor.putString("wD", wallDesc.split("+")[1]).apply()
                     sharedPreferencesEditor.putString("uT", updateTime).apply()
                 }
-                Log.d(TAG, "Set successfully")
+                Log.d(TAG, "Set successfully $noRewards")
+
+                remoteViews?.setTextViewText(R.id.tx_rewards_count, "" + noRewards)
+
+                remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.INVISIBLE)
+                remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
+            //    MainActivity.updateWidget()
 
                 wD = wallDesc.split("+")[1]
                 qT = queryType

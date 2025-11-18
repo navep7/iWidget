@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The item below applies 50% opacity (alpha 0.5) to ?attr/colorPrimary -->
+    <item
+        android:alpha="0.25"
+        android:color="?attr/colorPrimaryInverse" />
+</selector>

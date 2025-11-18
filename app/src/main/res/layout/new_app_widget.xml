@@ -6,9 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center"
-    android:background="@drawable/gradient_glass_rounded"
     android:gravity="center"
     android:orientation="vertical"
+    android:background="@drawable/bg_gradient_glass_rounded"
     android:theme="@style/Theme.Material3.DynamicColors.Light">
 
 
@@ -265,7 +265,8 @@
             android:scrollHorizontally="true"
             android:singleLine="true"
             android:text="Place"
-            android:textColor="?attr/colorTertiary"
+            android:textColor="@color/white"
+            android:background="@drawable/gradient_glass_dark"
             android:textSize="15sp"
             android:textStyle="bold|italic">
 
@@ -283,13 +284,14 @@
         android:layout_above="@+id/frame_l_tweets"
         android:layout_toStartOf="@+id/ll_controls"
         android:orientation="vertical"
-        android:background="@drawable/gradient_glass_list"
         android:gravity="center">
 
         <LinearLayout
             android:layout_gravity="center_horizontal"
-            android:layout_width="wrap_content"
+            android:background="@drawable/gradient_glass_list"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <ImageView
                 android:id="@+id/imgv_apps"
                 android:layout_width="25dp"
@@ -333,12 +335,12 @@
         android:layout_above="@+id/frame_l_tweets"
         android:layout_alignParentEnd="true"
         android:layout_toEndOf="@+id/ll_controls"
-        android:orientation="vertical"
-        android:background="@drawable/gradient_glass_list">
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_gravity="center_horizontal"
-            android:layout_width="wrap_content"
+            android:background="@drawable/gradient_glass_list"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <ImageView
                 android:id="@+id/imgv_contacts"

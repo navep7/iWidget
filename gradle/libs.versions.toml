@@ -4,6 +4,7 @@ agp = "8.6.0"
 androidGifDrawable = "1.2.29"
 androidMapsUtils = "3.8.2"
 blur_tutorial = "1.0.1"
+compiler = "4.16.0"
 firebaseBom = "34.2.0"
 flexbox = "3.0.0"
 glide = "4.16.0"
@@ -45,6 +46,7 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-multidex = { module = "androidx.multidex:multidex" }
 androidx-viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "viewpager2" }
 blur_tutorial = { module = "com.cleveroad.blur_tutorial:blur_tutorial", version.ref = "blur_tutorial" }
+compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "compiler" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 firebase-ai = { module = "com.google.firebase:firebase-ai" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
