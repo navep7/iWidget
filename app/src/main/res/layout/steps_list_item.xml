@@ -8,7 +8,7 @@
         android:id="@+id/progress_steps"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="500dp"
         android:background="@drawable/circular_shape"
         android:indeterminate="false"
         android:progressDrawable="@drawable/circular_progress_bar"
@@ -18,9 +18,19 @@
         android:id="@+id/txsteps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="150dp"
         android:text="Steps..,"
         android:textSize="50sp"/>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_below="@+id/progress_steps"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
 
 
 </RelativeLayout>

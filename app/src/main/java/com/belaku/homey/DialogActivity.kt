@@ -75,6 +75,8 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
@@ -116,7 +118,6 @@ class DialogActivity : AppCompatActivity() {
             }
         }
     private var stepsVPpos: Int = 0
-    private lateinit var dotsLayout: LinearLayout
     private var muApps: ArrayList<String> = ArrayList()
     private val REQUEST_CODE_SPEECH_INPUT: Int = 100
     private var rewardedInterstitialAd: RewardedInterstitialAd? = null
@@ -197,7 +198,6 @@ class DialogActivity : AppCompatActivity() {
         btnCancel = findViewById<Button>(R.id.btn_dialog_cancel)
         imgbtnShare = findViewById<ImageButton>(R.id.imgbtn_dialog_share)
         vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
-        dotsLayout = findViewById<LinearLayout>(R.id.dotsLayout)
 
 
         var dialogIntentStr = intent.getStringExtra("DialogIntent")
@@ -364,7 +364,7 @@ class DialogActivity : AppCompatActivity() {
                 vpSteps.visibility = View.GONE
                 vpSteps.visibility = View.VISIBLE
 
-                var stepsData: ArrayList<String> = ArrayList()
+                val stepsData: ArrayList<String> = ArrayList()
                 stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
                 stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
                 stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
@@ -374,12 +374,16 @@ class DialogActivity : AppCompatActivity() {
                 stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
 
 
-                var stepsAdapter = StepsAdapter(stepsData)
+                val stepsAdapter = StepsAdapter(stepsData)
                 vpSteps.adapter = stepsAdapter
 
+                val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
 
-                // Call setupDots after setting the adapter and getting item count
-                setupDots(stepsAdapter.getItemCount())
+
+                TabLayoutMediator(tabLayout, vpSteps) { tab, position ->
+                    // You can set text or icons for tabs here if needed,
+                    // but for dot indicators, this part might be empty or use a placeholder.
+                }.attach()
 
 
                 vpSteps.registerOnPageChangeCallback(object : OnPageChangeCallback(
@@ -412,15 +416,6 @@ class DialogActivity : AppCompatActivity() {
 
                         super.onPageSelected(position)
 
-                        for (i in 0 until dotsLayout.childCount) {
-                            val dot = dotsLayout.getChildAt(i) as ImageView
-                            dot.setImageDrawable(
-                                ContextCompat.getDrawable(
-                                    this@DialogActivity,
-                                    if (i == position) R.drawable.selected_dot else R.drawable.unselected_dot
-                                )
-                            )
-                        }
                     }
 
                     override fun onPageScrollStateChanged(state: Int) {
@@ -429,23 +424,6 @@ class DialogActivity : AppCompatActivity() {
                         super.onPageScrollStateChanged(state)
                     }
                 })
-
-                // Update dot appearance on page change
-                /*  vpSteps.registerOnPageChangeCallback(object : OnPageChangeCallback() {
-                      override fun onPageSelected(position: Int) {
-                          super.onPageSelected(position)
-                          for (i in 0 until dotsLayout.childCount) {
-                              val dot = dotsLayout.getChildAt(i) as ImageView
-                              dot.setImageDrawable(
-                                  ContextCompat.getDrawable(
-                                      this@DialogActivity,
-                                      if (i == position) R.drawable.selected_dot else R.drawable.unselected_dot
-                                  )
-                              )
-                          }
-
-                      }
-                  })*/
 
 
             } else if (dialogIntentStr == "screenTimeInfo") {
@@ -605,29 +583,6 @@ class DialogActivity : AppCompatActivity() {
         sendBroadcast(intent)
     }
 
-    // Function to add dots
-    private fun setupDots(count: Int) {
-        dotsLayout.removeAllViews()
-        val dots = arrayOfNulls<ImageView>(count)
-        for (i in 0 until count) {
-            dots[i] = ImageView(this)
-            if (i != stepsVPpos) dots[i]!!.setImageDrawable(
-                ContextCompat.getDrawable(
-                    this, R.drawable.unselected_dot
-                )
-            )
-            else dots[i]!!.setImageDrawable(
-                ContextCompat.getDrawable(
-                    this, R.drawable.selected_dot
-                )
-            )
-            val params = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            params.setMargins(8, 0, 8, 0) // Adjust margin as needed
-            dotsLayout.addView(dots[i], params)
-        }
-    }
 
     private fun getAppNameFromPkg(context: Context, packageName: String?): String {
         val pm: PackageManager = context.getPackageManager()
