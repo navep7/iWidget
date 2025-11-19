@@ -97,7 +97,6 @@ import kotlin.random.Random
 class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
     Worker(context!!, workerParams!!) {
 
-    private val appWidM: AppWidgetManager = AppWidgetManager.getInstance(appContx)
 
     @RequiresApi(Build.VERSION_CODES.S)
     @NonNull
@@ -116,7 +115,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         setWall(true)
         getCity()
         DayChanges()
-
+        greeting()
 
         return Result.success()
     }

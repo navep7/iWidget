@@ -1321,11 +1321,11 @@ class MainActivity : AppCompatActivity() {
 
         NewAppWidget.timeOfDay = if (currentHour < 6) {
             "Night!"
-        } else if (currentHour >= 6 && currentHour < 12) {
+        } else if (currentHour < 12) {
             "Morni!"
-        } else if (currentHour >= 12 && currentHour < 17) {
+        } else if (currentHour < 17) {
             "Noon!"
-        } else if (currentHour >= 17 && currentHour < 21) {
+        } else if (currentHour < 21) {
             "Eve!"
         } else {
             "Night!"

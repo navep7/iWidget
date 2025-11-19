@@ -500,14 +500,10 @@ class NewAppWidget : AppWidgetProvider() {
 
     private fun _seekWifiState() {
 
-        val wifiManager: WifiManager = appContx.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        if (wifiManager.isWifiEnabled) {
-            // Wi-Fi is enabled
+        val wifiState = sharedPreferences.getBoolean("WifiState", false)
+        if (wifiState)
             remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_on)
-        } else {
-            // Wi-Fi is disabled
-            remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_off)
-        }
+        else remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_off)
     }
 
     private fun _seekBluetoothState() {
@@ -1299,6 +1295,21 @@ class NewAppWidget : AppWidgetProvider() {
 
         @SuppressLint("Range")
         fun greeting() {
+
+            val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
+
+
+            timeOfDay = if (currentHour < 6) {
+                "Night!"
+            } else if (currentHour < 12) {
+                "Morni!"
+            } else if (currentHour < 17) {
+                "Noon!"
+            } else if (currentHour < 21) {
+                "Eve!"
+            } else {
+                "Night!"
+            }
 
             timelyWish = timeOfDay
 
