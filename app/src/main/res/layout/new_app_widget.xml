@@ -74,9 +74,8 @@
                 android:background="@drawable/circular_secondary_container"
                 android:gravity="center"
                 android:padding="@dimen/padding_5"
-                android:scaleType="fitXY"
                 android:src="@drawable/blue_off"
-                tools:ignore="HardcodedText" />
+                android:scaleType="fitXY" />
 
             <TextView
                 android:id="@+id/tx_reminders"
@@ -353,7 +352,6 @@
                 android:text="Calls"
                 android:layout_width="wrap_content"
                 android:layout_marginStart="@dimen/padding_3"
-                android:layout_marginEnd="@dimen/padding_3"
                 android:layout_gravity="center"
                 android:layout_height="wrap_content" />
 
@@ -361,7 +359,6 @@
                 android:id="@+id/imgv_add_contacts"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
-                android:background="@drawable/rounded_corner"
                 android:src="@android:drawable/ic_input_add"
                 tools:ignore="ContentDescription" />
 
@@ -628,7 +625,7 @@
             android:background="@android:color/transparent"
             android:text="ON ~ 10+ H"
             android:layout_marginStart="@dimen/padding_5"
-            android:textColor="?attr/colorTertiary"
+            android:textColor="@android:color/holo_red_light"
             android:textSize="21sp"
             android:textStyle="bold" />
 
@@ -651,7 +648,7 @@
     <RelativeLayout
         android:id="@+id/rl_steps"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="35dp"
         android:layout_below="@+id/rl_clocks"
         android:layout_margin="5dp"
         android:background="@drawable/gradient_glass_rounded">
@@ -685,9 +682,7 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="5dp"
             android:layout_toEndOf="@+id/imgv_steps"
-            android:ellipsize="end"
-            android:maxLines="3"
-            android:textColor="?attr/colorTertiary"
+            android:textColor="@android:color/holo_red_light"
             android:textSize="15sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
@@ -722,7 +717,7 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="5dp"
             android:layout_toEndOf="@+id/vertical_divider"
-            android:textColor="@android:color/white"
+            android:textColor="@android:color/holo_red_dark"
             android:textSize="15sp"
             android:textStyle="bold" />
 
