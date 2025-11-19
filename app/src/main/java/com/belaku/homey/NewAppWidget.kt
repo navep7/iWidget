@@ -30,7 +30,6 @@ import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.GradientDrawable
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.icu.text.SimpleDateFormat
@@ -59,7 +58,6 @@ import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.apps
@@ -491,11 +489,33 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setUI() {
 
+        _seekWifiState()
+        _seekBluetoothState()
         getScreenTime()
         todaysDate()
         locationTxUpdate(appContx)
         wallColors()
         setSomeTwAndWallDescUI()
+    }
+
+    private fun _seekWifiState() {
+
+        val wifiManager: WifiManager = appContx.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        if (wifiManager.isWifiEnabled) {
+            // Wi-Fi is enabled
+            remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_on)
+        } else {
+            // Wi-Fi is disabled
+            remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_off)
+        }
+    }
+
+    private fun _seekBluetoothState() {
+
+        val blState = sharedPreferences.getBoolean("Blue", false)
+        if (blState)
+            remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_on)
+        else remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_off)
     }
 
     private fun setACAdapter() {

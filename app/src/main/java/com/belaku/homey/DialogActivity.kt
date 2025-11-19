@@ -17,6 +17,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.net.Uri
+import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.os.Handler
 import android.provider.ContactsContract
@@ -299,7 +300,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 llDialog.visibility = View.GONE
                 val disableintent = Intent("android.bluetooth.adapter.action.REQUEST_DISABLE")
                 bluetoothLauncher.launch(disableintent)
-            } else if (dialogIntentStr == "WifiEnable" || dialogIntentStr == "WifiDisable") {
+            }  else if (dialogIntentStr == "WifiEnable" || dialogIntentStr == "WifiDisable") {
                 try {
                     val intent = Intent(Intent.ACTION_MAIN, null)
                     intent.addCategory(Intent.CATEGORY_LAUNCHER)

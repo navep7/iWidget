@@ -11,15 +11,21 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Color
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
@@ -116,6 +122,7 @@ class StepsService : Service() {
         sendBroadcast(intent)
     }
 
+
     private fun BluetoothState() {
 
         sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
@@ -127,6 +134,7 @@ class StepsService : Service() {
             sharedPreferencesEditor.putBoolean("BRd", true).apply()
 
             val mBluetoothReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+                @RequiresApi(Build.VERSION_CODES.S)
                 @SuppressLint("UnsafeIntentLaunch")
                 override fun onReceive(context: Context, intent: Intent) {
 

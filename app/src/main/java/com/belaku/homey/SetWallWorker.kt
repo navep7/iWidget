@@ -117,8 +117,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         getCity()
         DayChanges()
 
-        WifiState()
-        //     BluetoothState()
 
         return Result.success()
     }
@@ -187,51 +185,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
     }
 
 
-    private fun WifiState() {
-        var wTAG = "WifiState ~"
 
-        var networkCallback = object : ConnectivityManager.NetworkCallback() {
-            @RequiresApi(Build.VERSION_CODES.S)
-            override fun onLost(network: Network) {
-                remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_off)
-                updateWidget()
-                Log.d(TAG, "WifiState called from onLost")
-            }
-
-            @RequiresApi(Build.VERSION_CODES.S)
-            override fun onUnavailable() {
-                remoteViews?.setColorInt(
-                    R.id.fab_wifi,
-                    "setColorFilter",
-                    Color.YELLOW,
-                    Color.YELLOW
-                )
-                updateWidget()
-                Log.d(wTAG, "WifiState OFF")
-            }
-
-            @RequiresApi(Build.VERSION_CODES.S)
-            override fun onLosing(network: Network, maxMsToLive: Int) {
-                remoteViews?.setColorInt(R.id.fab_wifi, "setColorFilter", Color.RED, Color.RED)
-                updateWidget()
-                Log.d(wTAG, "WifiState called from onLosing")
-            }
-
-            override fun onAvailable(network: Network) {
-                Log.d(wTAG, "WifiState ON")
-                remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_on)
-                updateWidget()
-                //record wi-fi connect event
-            }
-        }
-
-        val connectivityManager =
-            appContx.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val networkRequest = NetworkRequest.Builder()
-            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-            .build()
-        connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
-    }
 
     private fun updateWidget() {
         val intent = Intent(
