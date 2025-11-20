@@ -38,6 +38,7 @@ import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
@@ -353,6 +354,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 )
             } else if (dialogIntentStr == "stepsInfo") {
 
+                findViewById<CardView>(R.id.card_map).visibility = View.VISIBLE
                 makeToast(dayOfTheWeek)
                 window.setLayout(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
