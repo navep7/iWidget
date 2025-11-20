@@ -151,7 +151,7 @@ class NewAppWidget : AppWidgetProvider() {
                     cityLng = location.longitude
 
                     getAddress(location.latitude, location.longitude)
-               //     makeToast("Location update - $cAddrs")
+                    //     makeToast("Location update - $cAddrs")
 
                     remoteViews?.setTextViewText(R.id.tx_place, cAddrs.get(0).subLocality)
                     getWeatherData(false)
@@ -201,7 +201,7 @@ class NewAppWidget : AppWidgetProvider() {
         appWidgetIds: IntArray
     ) {
 
-     //   makeToast("!onUpdate")
+        //   makeToast("!onUpdate")
 
 
         for (appWidgetId in appWidgetIds) {
@@ -581,10 +581,7 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
 
-
-
-
-        } else  Log.d("wallColors", "NULL")
+        } else Log.d("wallColors", "NULL")
 
 
     }
@@ -592,24 +589,39 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setSomeTwAndWallDescUI() {
 
-        if (NewAppWidget.checkCompanionVariable())
-        remoteViews?.setTextViewText(
-            R.id.tx_desc_walltype,
-            Html.fromHtml(
-                wD + "<br>" + qT.split(" ")[0].substring(0, 1)
-                    .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
-                Html.FROM_HTML_MODE_LEGACY
+        if (checkCompanionVariable()) {
+            remoteViews?.setTextViewText(
+                R.id.tx_desc_walltype,
+                Html.fromHtml(
+                    wD + "<br>" + qT.split(" ")[0].substring(0, 1)
+                        .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
+                    Html.FROM_HTML_MODE_LEGACY
+                )
             )
-        )
+            noRewards = sharedPreferences.getInt("noRewards", 5)
 
-        remoteViews?.setTextViewText(
-            R.id.tx_tweets,
-            "\t\t\t\t\t @" + twitterProfileName + "\t ~ \t" + tW
-        )
+            if (noRewards > 1)
+            remoteViews?.setTextViewText(R.id.tx_rewards_count, "$noRewards")
+            else {
+                remoteViews?.setTextViewText(R.id.tx_rewards_count, "\uD83D\uDC41\uFE0FAD!")
+                remoteViews?.setOnClickPendingIntent(
+                    R.id.tx_rewards_count, PendingIntent.getActivity(
+                        appContx,
+                        5,
+                        Intent(appContx, DialogActivity::class.java).putExtra("DialogIntent", "AD"),
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    )
+                )
+            }
+
+            remoteViews?.setTextViewText(
+                R.id.tx_tweets,
+                "\t\t\t\t\t @" + twitterProfileName + "\t ~ \t" + tW
+            )
+        }
+
 
     }
-
-
 
 
     private fun setAppsAdapter() {
@@ -662,7 +674,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         super.onReceive(context, intent)
 
- //       makeToast("!onReceive")
+        //       makeToast("!onReceive")
 
         appContx = context
 
@@ -838,39 +850,21 @@ class NewAppWidget : AppWidgetProvider() {
 
             noRewards = sharedPreferences.getInt("noRewards", 5)
 
-            if (noRewards > 0) {
-                noRewards--
-                remoteViews?.setTextViewText(R.id.tx_rewards_count, "$noRewards")
-            } else {
-                remoteViews?.setTextViewText(R.id.tx_rewards_count, "$noRewards AD!")
-            }
+            noRewards--
+
             sharedPreferencesEditor.putInt("noRewards", noRewards).apply()
 
             if (noRewards > 0) {
 
-                remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
-                updateWidget()
 
                 makeToast("Changing Wall, please wait...")
                 Thread {
                     SetWallWorker.setWall(true)
                 }.start()
 
-
             } else {
                 makeToast("Watch an AD to auto change Walls for next 7 times!")
-                remoteViews?.setTextViewText(R.id.tx_rewards_count, "\uD83D\uDC41\uFE0FAD!")
-                remoteViews?.setOnClickPendingIntent(
-                    R.id.tx_rewards_count, PendingIntent.getActivity(
-                        appContx,
-                        5,
-                        Intent(appContx, DialogActivity::class.java).putExtra("DialogIntent", "AD"),
-                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                    )
-                )
 
-             //   appWidM.updateAppWidget(newAppWidget, remoteViews)
             }
         } else if (A_CLICKED == intent.action) {
             val intentApps = Intent(appContx, AppsActivity::class.java)
@@ -944,7 +938,8 @@ class NewAppWidget : AppWidgetProvider() {
                 }
             }
 
-            val color = Color.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
+            val color =
+                Color.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
             var contactBitmap: Bitmap?
 
             contactBitmap = ContactPhotoHelper.retrieveContactPhoto(appContx, contactID.toLong())
@@ -954,7 +949,8 @@ class NewAppWidget : AppWidgetProvider() {
 
             if (contactBitmap == null)
                 contactBitmap = CharacterToBitmapConverter.getBitmapFromCharacter(
-                    cNme[0], 100, 100, 70, color)
+                    cNme[0], 100, 100, 70, color
+                )
 
             val c = Contact(contactID, cNme, phoneNumber, contactBitmap)
 
@@ -968,7 +964,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         cursor.close()
 
-  //      appWidM.updateAppWidget(newAppWidget, remoteViews)
+        //      appWidM.updateAppWidget(newAppWidget, remoteViews)
     }
 
     private fun saveContacts() {
@@ -1017,10 +1013,12 @@ class NewAppWidget : AppWidgetProvider() {
             "0" -> ampm = "AM"
             "1" -> ampm = "PM"
         }
-        appWidgetView.findViewById<TextView>(R.id.clock).text = "${java.util.Calendar.getInstance().get(Calendar.HOUR)}:${java.util.Calendar.getInstance().get(Calendar.MINUTE)} $ampm"
+        appWidgetView.findViewById<TextView>(R.id.clock).text = "${
+            java.util.Calendar.getInstance().get(Calendar.HOUR)
+        }:${java.util.Calendar.getInstance().get(Calendar.MINUTE)} $ampm"
         val mSpannableStringLoc = SpannableString(cityname)
         mSpannableStringLoc.setSpan(UnderlineSpan(), 0, mSpannableStringLoc.length, 0)
-                appWidgetView.findViewById<TextView>(R.id.tx_place).setText("⚲ " + cityname)
+        appWidgetView.findViewById<TextView>(R.id.tx_place).setText("⚲ " + cityname)
         appWidgetView.findViewById<TextView>(R.id.tx_steps)
             .setText("$dayOfTheWeek ~ " + stepsToday.toString())
 
@@ -1054,7 +1052,8 @@ class NewAppWidget : AppWidgetProvider() {
             )
         )
 
-        appWidgetView.findViewById<TextView>(R.id.tx_tweets).setMovementMethod(ScrollingMovementMethod())
+        appWidgetView.findViewById<TextView>(R.id.tx_tweets)
+            .setMovementMethod(ScrollingMovementMethod())
 
         appWidgetView.findViewById<TextView>(R.id.tx_tweets)
             .setText("\t\t\t\t\t @" + twitterProfileName + "\t ~ \t" + tW)

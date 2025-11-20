@@ -271,11 +271,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 }
                 Log.d(TAG, "Set successfully $noRewards")
 
-                remoteViews?.setTextViewText(R.id.tx_rewards_count, "" + noRewards)
-
-                remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
-            //    MainActivity.updateWidget()
 
                 wD = wallDesc.split("+")[1]
                 qT = queryType
