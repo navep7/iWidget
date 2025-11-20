@@ -79,7 +79,7 @@ class StepsService : Service() {
 
         mSensorEventListener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent) {
-                Log.d("onSensorChanged",  stepsToday.toString())
+                Log.d("onSensorChanged", stepsToday.toString())
                 stepsToday++
 
                 if (stepsToday > 1)
@@ -87,7 +87,10 @@ class StepsService : Service() {
 
 
                 if (stepsToday % 10 == 0) {
-                    remoteViews?.setTextViewText(R.id.tx_steps, "$dayOfTheWeek, " + stepsToday.toString())
+                    remoteViews?.setTextViewText(
+                        R.id.tx_steps,
+                        "$dayOfTheWeek, " + stepsToday.toString()
+                    )
                     sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
                     if (boolNewLap) {
                         remoteViews?.setTextViewText(
@@ -131,13 +134,17 @@ class StepsService : Service() {
                 val action = intent?.action
 
                 if (action == WifiManager.WIFI_STATE_CHANGED_ACTION) {
-                    val wifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN)
+                    val wifiState = intent.getIntExtra(
+                        WifiManager.EXTRA_WIFI_STATE,
+                        WifiManager.WIFI_STATE_UNKNOWN
+                    )
                     when (wifiState) {
                         WifiManager.WIFI_STATE_ENABLED -> {
                             sharedPreferencesEditor.putBoolean("WifiState", true).apply()
                             Log.d(TAG, "Wi-Fi is enabled")
                             // You can perform actions here when Wi-Fi becomes enabled
                         }
+
                         WifiManager.WIFI_STATE_DISABLED -> {
                             sharedPreferencesEditor.putBoolean("WifiState", false).apply()
                             Log.d(TAG, "Wi-Fi is disabled")
@@ -145,14 +152,17 @@ class StepsService : Service() {
                         }
                     }
                 } else if (action == ConnectivityManager.CONNECTIVITY_ACTION) {
-                    val cm = appContx.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                    val cm =
+                        appContx.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
                     val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
                     val isConnected = activeNetwork?.isConnectedOrConnecting == true
 
                     if (isConnected && activeNetwork?.type == ConnectivityManager.TYPE_WIFI) {
                         // Connected to Wi-Fi
+                        sharedPreferencesEditor.putBoolean("WifiConnectionState", true).apply()
                         // You can perform actions here when connected to a Wi-Fi network
                     } else {
+                        sharedPreferencesEditor.putBoolean("WifiConnectionState", false).apply()
                         // Not connected to Wi-Fi or connected to a different network type
                         // You can perform actions here when Wi-Fi connection is lost or changed
                     }
@@ -191,21 +201,24 @@ class StepsService : Service() {
 
                     when (state) {
 
-                        BluetoothAdapter.STATE_CONNECTED ->
+                        BluetoothAdapter.STATE_CONNECTED -> {
                             Log.d(TAG, "STATE_CONNECTED")
+                            sharedPreferencesEditor.putBoolean("BluetoothConnectionState", true).apply()
+                        }
 
-                        BluetoothAdapter.STATE_DISCONNECTED ->
+                        BluetoothAdapter.STATE_DISCONNECTED -> {
                             Log.d(TAG, "STATE_DISCONNECTED")
-
+                            sharedPreferencesEditor.putBoolean("BluetoothConnectionState", false).apply()
+                        }
 
                         BluetoothAdapter.STATE_OFF -> {
                             Log.d(TAG, "STATE_OFF")
-                            sharedPreferencesEditor.putBoolean("Blue", false).apply()
+                            sharedPreferencesEditor.putBoolean("BluetoothState", false).apply()
                         }
 
                         BluetoothAdapter.STATE_ON -> {
                             Log.d(TAG, "STATE_ON")
-                            sharedPreferencesEditor.putBoolean("Blue", true).apply()
+                            sharedPreferencesEditor.putBoolean("BluetoothState", true).apply()
                         }
 
                     }
@@ -224,19 +237,23 @@ class StepsService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        Log.d("Service Status","Starting Service")
+        Log.d("Service Status", "Starting Service")
 
         stepsToday = 0
-       sensorManager.registerListener(mSensorEventListener, stepCounterSensor, SensorManager.SENSOR_DELAY_NORMAL)
-      //    makeToast("step UP!")
+        sensorManager.registerListener(
+            mSensorEventListener,
+            stepCounterSensor,
+            SensorManager.SENSOR_DELAY_NORMAL
+        )
+        //    makeToast("step UP!")
 
 
-    //    stopSelf()
+        //    stopSelf()
         return START_STICKY
     }
 
     override fun stopService(name: Intent?): Boolean {
-        Log.d("Stopping","Stopping Service")
+        Log.d("Stopping", "Stopping Service")
 
         return super.stopService(name)
     }
@@ -246,7 +263,7 @@ class StepsService : Service() {
             applicationContext, "Service execution completed",
             Toast.LENGTH_SHORT
         ).show()
-        Log.d("Stopped","Service Stopped")
+        Log.d("Stopped", "Service Stopped")
         super.onDestroy()
     }
 }

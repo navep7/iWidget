@@ -501,16 +501,22 @@ class NewAppWidget : AppWidgetProvider() {
     private fun _seekWifiState() {
 
         val wifiState = sharedPreferences.getBoolean("WifiState", false)
-        if (wifiState)
+        val wifiConnectionState = sharedPreferences.getBoolean("WifiConnectionState", false)
+        if (wifiState && wifiConnectionState)
             remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_on)
+        else if (wifiState)
+            remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_on_but_not_connected)
         else remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_off)
     }
 
     private fun _seekBluetoothState() {
 
-        val blState = sharedPreferences.getBoolean("Blue", false)
-        if (blState)
+        val blState = sharedPreferences.getBoolean("BluetoothState", false)
+        val blConnectionState = sharedPreferences.getBoolean("BluetoothConnectionState", false)
+        if (blState && blConnectionState)
             remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_on)
+        else if (blState)
+            remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.wifi_on_but_not_connected)
         else remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_off)
     }
 
