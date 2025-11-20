@@ -46,6 +46,7 @@ import android.provider.MediaStore
 import android.provider.Settings
 import android.text.Html
 import android.text.SpannableString
+import android.text.method.ScrollingMovementMethod
 import android.text.style.UnderlineSpan
 import android.util.Log
 import android.view.LayoutInflater
@@ -668,6 +669,9 @@ class NewAppWidget : AppWidgetProvider() {
         setUI()
         handleIntentActions(intent)
 
+        remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
+        newAppWidget = ComponentName(context, NewAppWidget::class.java)
+
         appWidM = AppWidgetManager.getInstance(context)
         appWidM.updateAppWidget(newAppWidget, remoteViews)
 
@@ -1050,6 +1054,7 @@ class NewAppWidget : AppWidgetProvider() {
             )
         )
 
+        appWidgetView.findViewById<TextView>(R.id.tx_tweets).setMovementMethod(ScrollingMovementMethod())
 
         appWidgetView.findViewById<TextView>(R.id.tx_tweets)
             .setText("\t\t\t\t\t @" + twitterProfileName + "\t ~ \t" + tW)

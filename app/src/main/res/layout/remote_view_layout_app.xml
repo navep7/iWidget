@@ -16,7 +16,7 @@
         android:id="@+id/app_tx"
         android:tag="APP"
         android:text="App"
-        android:background="@drawable/gradient_glass_rounded"
+        android:background="@drawable/gradient_glass_flat"
         android:textStyle="bold"
         android:maxLines="1"
         android:textColor="@color/black"

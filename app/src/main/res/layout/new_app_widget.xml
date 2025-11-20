@@ -23,7 +23,8 @@
             android:id="@+id/ll_top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/circular_tx_border"
+            android:paddingBottom="@dimen/padding_5"
+            android:background="@drawable/thick_underline"
             android:layout_margin="@dimen/padding_5">
 
             <TextView
@@ -255,6 +256,8 @@
             android:id="@+id/tx_place"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="3dp"
+            android:layout_marginEnd="3dp"
             android:layout_below="@+id/ll_time_day"
             android:ellipsize="marquee"
             android:focusable="true"
@@ -272,6 +275,26 @@
         </TextView>
 
     </RelativeLayout>
+
+
+    <TextView
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/rl_steps"
+        android:layout_toEndOf="@+id/ll_apps"
+        android:layout_marginTop="25dp"
+        android:layout_above="@+id/frame_l_tweets"
+        android:background="@android:color/black"/>
+
+
+    <TextView
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/rl_steps"
+        android:layout_marginTop="25dp"
+        android:layout_toStartOf="@+id/ll_contacts"
+        android:layout_above="@+id/frame_l_tweets"
+        android:background="@android:color/black"/>
 
 
     <LinearLayout
@@ -800,13 +823,14 @@
 
         <TextView
             android:id="@+id/tx_tweets"
+            android:scrollbars="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="This is some text below the image."
             android:autoLink="all"
             android:background="#80FFFFFF"
-            android:ellipsize="end"
             android:linksClickable="true"
+            android:ellipsize="end"
             android:maxLines="2"
             android:textColor="?attr/colorPrimaryDark"
             android:textSize="15sp"

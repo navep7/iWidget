@@ -350,9 +350,6 @@ class MainActivity : AppCompatActivity() {
         if (nPermissions())
             iDV.show()
 
-
-
-        rawTweets(false)
         llInstructions = instructionsDialogView.findViewById<LinearLayout>(R.id.ll_instructions)
         llInstructions.orientation = LinearLayout.VERTICAL
         //    val messageView = dialogView.findViewById<TextView>(R.id.dialog_message)
@@ -381,6 +378,8 @@ class MainActivity : AppCompatActivity() {
 
         btnDone.setOnClickListener {
             if (!nPermissions()) {
+                rawTweets(false)
+                getFavoriteContacts(appContx)
                 iDV.dismiss()
             } else makeToast("Ensure all Ps are Granted")
         }
@@ -1703,8 +1702,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             if (allGranted) {
-                makeToast("All permissions granted");
-                getFavoriteContacts(appContx)
+                makeToast("All permissions granted")
 
                     sharedPreferencesEditor.putBoolean("LP", true).apply()
                     getCity()
