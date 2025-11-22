@@ -604,7 +604,7 @@ class NewAppWidget : AppWidgetProvider() {
                     Html.FROM_HTML_MODE_LEGACY
                 )
             )
-            noRewards = sharedPreferences.getInt("noRewards", 5)
+            noRewards = sharedPreferences.getInt("noRewards", 7)
 
             if (noRewards > 1)
             remoteViews?.setTextViewText(R.id.tx_rewards_count, "$noRewards")

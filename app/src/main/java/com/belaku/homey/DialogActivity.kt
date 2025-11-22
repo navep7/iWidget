@@ -16,6 +16,7 @@ import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.icu.util.Calendar
 import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
@@ -68,6 +69,7 @@ import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.boolWallSet
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
+import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -220,8 +222,10 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
             if (dialogIntentStr =="WCh") {
 
+                sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+
                 llDialog.visibility = View.GONE
-                noRewards = sharedPreferences.getInt("noRewards", 5)
+                noRewards = sharedPreferences.getInt("noRewards", 7)
                 noRewards--
                 sharedPreferencesEditor.putInt("noRewards", noRewards).apply()
 
@@ -611,7 +615,70 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 barcodeLauncher.launch(options)
             }
 
-            if (dayOfTheWeek.equals("Monday")) vpSteps.setCurrentItem(0)
+            when (Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
+                1 -> {
+                    dayOfTheWeek = "Monday"
+                    sharedPreferencesEditor.putInt("Monday", stepsToday).apply()
+                    sharedPreferencesEditor.putInt("Tuesday", 0).apply()
+                    sharedPreferencesEditor.putInt("Wednesday", 0).apply()
+                    sharedPreferencesEditor.putInt("Thursday", 0).apply()
+                    sharedPreferencesEditor.putInt("Friday", 0).apply()
+                    sharedPreferencesEditor.putInt("Saturday", 0).apply()
+                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
+                }
+
+                2 -> {
+                    dayOfTheWeek = "Tuesday"
+                    sharedPreferencesEditor.putInt("Tuesday", stepsToday).apply()
+                    sharedPreferencesEditor.putInt("Wednesday", 0).apply()
+                    sharedPreferencesEditor.putInt("Thursday", 0).apply()
+                    sharedPreferencesEditor.putInt("Friday", 0).apply()
+                    sharedPreferencesEditor.putInt("Saturday", 0).apply()
+                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
+                }
+
+                3 -> {
+                    dayOfTheWeek = "Wednesday"
+                    sharedPreferencesEditor.putInt("Wednesday", stepsToday).apply()
+
+                    sharedPreferencesEditor.putInt("Thursday", 0).apply()
+                    sharedPreferencesEditor.putInt("Friday", 0).apply()
+                    sharedPreferencesEditor.putInt("Saturday", 0).apply()
+                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
+                }
+
+                4 -> {
+                    dayOfTheWeek = "Thursday"
+                    sharedPreferencesEditor.putInt("Thursday", stepsToday).apply()
+
+                    sharedPreferencesEditor.putInt("Friday", 0).apply()
+                    sharedPreferencesEditor.putInt("Saturday", 0).apply()
+                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
+                }
+
+                5 -> {
+                    dayOfTheWeek = "Friday"
+                    sharedPreferencesEditor.putInt("Friday", stepsToday).apply()
+
+                    sharedPreferencesEditor.putInt("Saturday", 0).apply()
+                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
+                }
+
+                6 -> {
+                    dayOfTheWeek = "Saturday"
+                    sharedPreferencesEditor.putInt("Saturday", stepsToday).apply()
+
+                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
+                }
+
+                7 -> {
+                    dayOfTheWeek = "Sunday"
+                    sharedPreferencesEditor.putInt("Sunday", stepsToday).apply()
+                }
+            }
+
+
+            if (dayOfTheWeek == "Monday") vpSteps.setCurrentItem(0)
             else if (dayOfTheWeek == "Tuesday") vpSteps.setCurrentItem(1)
             else if (dayOfTheWeek == "Wednesday") vpSteps.setCurrentItem(2)
             else if (dayOfTheWeek == "Thursday") vpSteps.setCurrentItem(3)

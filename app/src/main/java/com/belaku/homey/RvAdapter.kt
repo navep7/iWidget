@@ -41,7 +41,7 @@ class RvAdapter internal constructor(
 
         Glide.with(context!!)
             .load(url)
-            .placeholder(android.R.drawable.progress_horizontal)
+            .placeholder(R.drawable.img_loading)
             .into(holder.rvImgv)
 
     }

@@ -44,7 +44,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="..Greeting!"
-                    android:textColor="?attr/colorTertiary"
+                    android:textColor="?attr/colorPrimaryInverse"
                     android:textSize="25sp"
                     android:textStyle="bold"
                     tools:ignore="HardcodedText" />
