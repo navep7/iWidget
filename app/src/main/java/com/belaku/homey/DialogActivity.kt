@@ -18,8 +18,10 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.net.Uri
 import android.net.wifi.WifiManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.provider.ContactsContract
 import android.provider.Settings
 import android.speech.RecognizerIntent
@@ -37,6 +39,7 @@ import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
@@ -47,10 +50,11 @@ import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.listTweets
-import com.belaku.homey.MainActivity.Companion.makeSnack
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
+import com.belaku.homey.MainActivity.Companion.parentLayout
 import com.belaku.homey.MainActivity.Companion.pickContactLauncher
+import com.belaku.homey.MainActivity.Companion.sN
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
@@ -63,6 +67,7 @@ import com.belaku.homey.NewAppWidget.Companion.noRewards
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
+import com.belaku.homey.SetWallWorker.Companion.boolWallSet
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -75,6 +80,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
@@ -90,6 +96,8 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.net.URL
+import java.util.Timer
+import java.util.TimerTask
 import kotlin.properties.Delegates
 import kotlin.random.Random
 
@@ -135,6 +143,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var imgbtnShare: ImageButton
 
+    @RequiresApi(Build.VERSION_CODES.S)
     @SuppressLint("ResourceAsColor", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -208,8 +217,38 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
         if (dialogIntentStr != null) {
-            if (dialogIntentStr == "PC") {
-                llDialog.visibility = View.INVISIBLE
+
+            if (dialogIntentStr =="WCh") {
+
+             //   llDialog.visibility = View.GONE
+
+
+                noRewards = sharedPreferences.getInt("noRewards", 5)
+                noRewards--
+                sharedPreferencesEditor.putInt("noRewards", noRewards).apply()
+
+                if (noRewards > 0) {
+                    makeSnack("Changing Wall, please wait...")
+                    Thread {
+                        SetWallWorker.setWall(true)
+                    }.start()
+                } else {
+                    makeSnack("Watch an AD to auto change Walls for next 7 times!")
+                }
+
+                val timer = Timer()
+                timer.schedule(object : TimerTask() {
+                    override fun run() {
+                        // Check your condition here
+                        if (boolWallSet) {
+                            timer.cancel()
+                            finish()
+                        }
+                    }
+                }, 0, 1000)
+
+            } else if (dialogIntentStr == "PC") {
+                llDialog.visibility = View.GONE
                 getFavoriteContacts(applicationContext)
                 pickContactLauncher =
                     registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -228,7 +267,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     makeToast("Ex - ${ex.message}")
                 }
             } else if (dialogIntentStr == "StT") {
-                edtxDialog.visibility = View.INVISIBLE
+                edtxDialog.visibility = View.GONE
                 btnOk.visibility = View.INVISIBLE
                 btnCancel.visibility = View.INVISIBLE
                 vpSteps.visibility = View.GONE
@@ -586,6 +625,12 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    fun makeSnack(s: String) {
+        var parentLayout: View = findViewById(android.R.id.content);
+        sN = Snackbar.make(parentLayout, s, Snackbar.LENGTH_LONG)
+        sN.show()
+    }
+
     private fun updateWidget() {
         val intent = Intent(
             applicationContext,
@@ -920,8 +965,6 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                         listTweets.add(actTw.toString())
                     }
                 }
-
-                makeSnack("Tweets - ${listTweets.size}")
 
                 remoteViews = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
                 newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)

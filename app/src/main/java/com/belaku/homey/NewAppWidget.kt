@@ -77,6 +77,7 @@ import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.cAddrs
 import com.belaku.homey.SetWallWorker.Companion.initialSteps
+import com.belaku.homey.SetWallWorker.Companion.newLapSteps
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.google.android.gms.location.LocationCallback
@@ -130,7 +131,6 @@ class NewAppWidget : AppWidgetProvider() {
 //        Log.d("onEnabled! - ", favContacts.size.toString())
         getLocationUpdates()
 
-        remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
     }
 
     @SuppressLint("MissingPermission")
@@ -202,16 +202,37 @@ class NewAppWidget : AppWidgetProvider() {
     ) {
 
         //   makeToast("!onUpdate")
+        remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
+        newAppWidget = ComponentName(context, NewAppWidget::class.java)
+
 
 
         for (appWidgetId in appWidgetIds) {
-            remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
-            newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
             appContx = context
 
             setUI()
             setACAdapter()
+
+            boolNewLap = sharedPreferences.getBoolean("newLap", false)
+
+            if (boolNewLap)  {
+                remoteViews?.setViewVisibility(R.id.rl_n_steps, View.VISIBLE)
+                remoteViews?.setTextViewText(
+                    R.id.n_tx_steps,
+                    newLapSteps
+                )
+                remoteViews?.setImageViewResource(
+                    R.id.imgbtn_steps_newlap,
+                    android.R.drawable.ic_menu_close_clear_cancel
+                )
+            } else {
+                remoteViews?.setViewVisibility(R.id.rl_n_steps, View.INVISIBLE)
+                remoteViews?.setImageViewResource(
+                    R.id.imgbtn_steps_newlap,
+                    android.R.drawable.ic_input_add
+                )
+            }
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgv_contacts,
@@ -338,7 +359,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
             remoteViews?.setOnClickPendingIntent(
-                R.id.tx_now_steps,
+                R.id.imgbtn_steps_newlap,
                 getPendingSelfIntent(context, STEPS_NOW)
             )
 
@@ -432,10 +453,19 @@ class NewAppWidget : AppWidgetProvider() {
                 getPendingSelfIntent(context, LOCK_PHONE)
             )
 
-            remoteViews?.setOnClickPendingIntent(
+            /*remoteViews?.setOnClickPendingIntent(
                 R.id.imgbtn_set,
                 getPendingSelfIntent(context, WALL_CHANGE)
+            )*/
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgbtn_set, PendingIntent.getActivity(
+                    context, 12,
+                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "WCh"),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
             )
+
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgbtn_conf,
@@ -675,14 +705,15 @@ class NewAppWidget : AppWidgetProvider() {
         super.onReceive(context, intent)
 
         //       makeToast("!onReceive")
+        remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
+        newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
         appContx = context
 
         setUI()
         handleIntentActions(intent)
 
-        remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
-        newAppWidget = ComponentName(context, NewAppWidget::class.java)
+
 
         appWidM = AppWidgetManager.getInstance(context)
         appWidM.updateAppWidget(newAppWidget, remoteViews)
@@ -825,48 +856,33 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         } else if (STEPS_NOW == intent.action) {
-            if (boolNewLap) {
-                remoteViews?.setTextViewText(R.id.tx_now_steps, " + ")
-                remoteViews?.setTextViewText(R.id.tx_n_steps, "")
-                remoteViews?.setViewVisibility(R.id.vertical_divider, View.INVISIBLE)
-                //  remoteViews?.setTextViewText(R.id.tx_add_remove_newlap, "+")
-            } else {
-                remoteViews?.setTextViewText(R.id.tx_now_steps, " x ")
-                remoteViews?.setTextViewText(R.id.tx_n_steps, "Now, " + "0")
-                remoteViews?.setViewVisibility(R.id.vertical_divider, View.VISIBLE)
-                //  remoteViews?.setTextViewText(R.id.tx_add_remove_newlap, "x")
-            }
             boolNewLap = !boolNewLap
             if (initialSteps == 0)
                 initialSteps = stepsToday
             else initialSteps = 0
+
+            sharedPreferencesEditor.putBoolean("newLap", boolNewLap).apply()
+
+            if (boolNewLap) {
+                remoteViews?.setViewVisibility(R.id.rl_n_steps, View.VISIBLE)
+                remoteViews?.setImageViewResource(
+                    R.id.imgbtn_steps_newlap,
+                    android.R.drawable.ic_menu_close_clear_cancel
+                )
+            } else {
+                remoteViews?.setViewVisibility(R.id.rl_n_steps, View.INVISIBLE)
+                remoteViews?.setImageViewResource(
+                    R.id.imgbtn_steps_newlap,
+                    android.R.drawable.ic_input_add
+                )
+            }
         } else if (LOCK_PHONE == intent.action) {
             LockAccessibilityService.lockScreenAccessibility(appContx)
         } else if (SET_CLICKED == intent.action) {
             val launchIntent: Intent =
                 appContx.packageManager.getLaunchIntentForPackage("com.belaku.homey")!!
             appContx.startActivity(launchIntent)
-        } else if (WALL_CHANGE == intent.action) {
-
-            noRewards = sharedPreferences.getInt("noRewards", 5)
-
-            noRewards--
-
-            sharedPreferencesEditor.putInt("noRewards", noRewards).apply()
-
-            if (noRewards > 0) {
-
-
-                makeToast("Changing Wall, please wait...")
-                Thread {
-                    SetWallWorker.setWall(true)
-                }.start()
-
-            } else {
-                makeToast("Watch an AD to auto change Walls for next 7 times!")
-
-            }
-        } else if (A_CLICKED == intent.action) {
+        }  else if (A_CLICKED == intent.action) {
             val intentApps = Intent(appContx, AppsActivity::class.java)
             intentApps.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             appContx.startActivity(intentApps)

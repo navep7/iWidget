@@ -37,6 +37,7 @@ workRuntimeKtx = "2.10.2"
 playServicesMaps = "19.2.0"
 material3Android = "1.3.2"
 zxingAndroidEmbedded = "4.3.0"
+firebasePerfKtx = "22.0.4"
 
 [libraries]
 android-gif-drawable = { module = "pl.droidsonroids.gif:android-gif-drawable", version.ref = "androidGifDrawable" }

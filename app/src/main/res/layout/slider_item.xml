@@ -503,7 +503,7 @@
                 tools:ignore="HardcodedText" />
 
             <TextView
-                android:id="@+id/tx_now_steps"
+                android:id="@+id/tx_steps_newlap"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="5dp"

@@ -201,6 +201,8 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
     companion object {
 
+        var boolWallSet: Boolean = false
+        lateinit var newLapSteps: String
         lateinit var cAddrs: List<Address>
         lateinit var wallBitmap: Bitmap
         var boolNewLap: Boolean = false
@@ -270,6 +272,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     sharedPreferencesEditor.putString("uT", updateTime).apply()
                 }
                 Log.d(TAG, "Set successfully $noRewards")
+                boolWallSet = true
 
 
                 wD = wallDesc.split("+")[1]

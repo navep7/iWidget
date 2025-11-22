@@ -26,13 +26,17 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.sharedPreferences
 import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
+import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
+import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.TAG
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.initialSteps
+import com.belaku.homey.SetWallWorker.Companion.newLapSteps
 import com.belaku.homey.SetWallWorker.Companion.setWall
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
 
@@ -82,16 +86,14 @@ class StepsService : Service() {
                 Log.d("onSensorChanged", stepsToday.toString())
                 stepsToday++
 
-                if (stepsToday > 1)
-                    remoteViews?.setViewVisibility(R.id.tx_n_steps, View.VISIBLE)
-
-
                 if (stepsToday % 10 == 0) {
                     remoteViews?.setTextViewText(
                         R.id.tx_steps,
                         "$dayOfTheWeek, " + stepsToday.toString()
                     )
                     sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
+                    boolNewLap = sharedPreferences.getBoolean("newLap", false)
+                    Log.d("boolNewLap?", boolNewLap.toString())
                     if (boolNewLap) {
                         remoteViews?.setTextViewText(
                             R.id.tx_n_steps,
@@ -100,7 +102,7 @@ class StepsService : Service() {
                         initialSteps++
                     }
 
-                    updateWidget()
+                    appWidM.updateAppWidget(newAppWidget, remoteViews)
 
                 }
 
