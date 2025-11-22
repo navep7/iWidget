@@ -220,6 +220,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
             if (dialogIntentStr =="WCh") {
 
+                llDialog.visibility = View.GONE
                 noRewards = sharedPreferences.getInt("noRewards", 5)
                 noRewards--
                 sharedPreferencesEditor.putInt("noRewards", noRewards).apply()

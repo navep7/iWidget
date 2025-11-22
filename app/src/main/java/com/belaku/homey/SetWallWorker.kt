@@ -202,13 +202,13 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         lateinit var sharedPreferencesEditor: SharedPreferences.Editor
 
         var boolWallSet: Boolean = false
-        lateinit var newLapSteps: String
         lateinit var cAddrs: List<Address>
         lateinit var wallBitmap: Bitmap
         var boolNewLap: Boolean = false
 
         @kotlin.jvm.JvmField
         var stepsToday = 0
+        var newLapSteps = 0
         var initialSteps = 0
         val TAG: String = "SetWallWorkerLOG7"
         var wallDesc: String = ""

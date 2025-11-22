@@ -32,7 +32,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="a Wish.."
+                android:text="..Greeting!"
                 android:textColor="?attr/colorTertiary"
                 android:textSize="33sp"
                 android:textStyle="bold"
@@ -674,6 +674,7 @@
         android:layout_width="wrap_content"
         android:layout_height="35dp"
         android:orientation="horizontal"
+        android:gravity="center_horizontal"
         android:layout_below="@+id/rl_clocks">
 
     <RelativeLayout
@@ -733,8 +734,9 @@
 
     </RelativeLayout>
 
-        <ImageButton
+       <!-- <ImageButton
             android:id="@+id/imgbtn_steps_newlap"
+            android:visibility="gone"
             android:src="@android:drawable/ic_input_add"
             android:layout_marginStart="@dimen/padding_3"
             android:background="@android:color/transparent"
@@ -745,7 +747,7 @@
             android:id="@+id/rl_n_steps"
             android:layout_width="wrap_content"
             android:layout_height="35dp"
-            android:visibility="invisible"
+            android:visibility="gone"
             android:layout_marginStart="@dimen/padding_3"
             android:background="@drawable/gradient_glass_rounded">
 
@@ -786,7 +788,7 @@
                 android:textStyle="bold"
                 tools:ignore="HardcodedText" />
 
-        </RelativeLayout>
+        </RelativeLayout>-->
 
 
     </LinearLayout>

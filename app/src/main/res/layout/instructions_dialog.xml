@@ -15,10 +15,11 @@
         android:orientation="vertical">
 
         <TextView
-            android:text="..some Samples of how the nHome Widget looks on the Home Screen. \n Scroll down and grant the Permissions to get started!"
+            android:text="..some Samples of how the nHome Widget looks on the Home Screen."
             android:textSize="21sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
+
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
@@ -32,8 +33,15 @@
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager"
             android:layout_gravity="center_horizontal"
-            android:layout_width="250dp"
-            android:layout_height="500dp" />
+            android:layout_width="350dp"
+            android:layout_height="550dp" />
+
+        <TextView
+            android:text="Prerequisites, \n 1. Scroll down and grant the Permissions to get started. \n 2. Add the nHome widget to Home screen. \n 3. Enjoy!"
+            android:textSize="21sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
 
     </LinearLayout>
 </ScrollView>

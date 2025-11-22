@@ -475,15 +475,16 @@ class MainActivity : AppCompatActivity() {
             Manifest.permission.ACCESS_FINE_LOCATION
         )
         addPermissionCard(
-            "<b> Contacts </b>- to show your \"② Favorite Contacts\" in the Widget, to dial easily",
-            "Permit CONTACTS permission",
-            Manifest.permission.READ_CONTACTS
-        )
-        addPermissionCard(
-            "<b> Physical Activity </b>- to recognise walking state and display \"③ Steps Count\" in the Widget",
+            "<b> Physical Activity </b>- to recognise walking state and display \"② Steps Count\" in the Widget",
             "Permit ACTIVITY_RECOGNITION permission",
             Manifest.permission.ACTIVITY_RECOGNITION
         )
+        addPermissionCard(
+            "<b> Contacts </b>- to show your \"③ Favorite Contacts\" in the Widget, to dial easily",
+            "Permit CONTACTS permission",
+            Manifest.permission.READ_CONTACTS
+        )
+
 
         addPermissionCard(
             "<b> Nearby Devices </b>- for indicating Bluetooth connection status in the Widget",

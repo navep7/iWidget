@@ -92,14 +92,7 @@ class StepsService : Service() {
                     )
                     sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
                     boolNewLap = sharedPreferences.getBoolean("newLap", false)
-                    Log.d("boolNewLap?", boolNewLap.toString())
-                    if (boolNewLap) {
-                        remoteViews?.setTextViewText(
-                            R.id.tx_n_steps,
-                            (stepsToday - initialSteps).toString()
-                        )
-                        initialSteps++
-                    }
+
 
                     appWidM.updateAppWidget(newAppWidget, remoteViews)
 

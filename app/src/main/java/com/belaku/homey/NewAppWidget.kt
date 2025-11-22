@@ -214,25 +214,6 @@ class NewAppWidget : AppWidgetProvider() {
             setUI()
             setACAdapter()
 
-            boolNewLap = sharedPreferences.getBoolean("newLap", false)
-
-            if (boolNewLap)  {
-                remoteViews?.setViewVisibility(R.id.rl_n_steps, View.VISIBLE)
-                remoteViews?.setTextViewText(
-                    R.id.n_tx_steps,
-                    newLapSteps
-                )
-                remoteViews?.setImageViewResource(
-                    R.id.imgbtn_steps_newlap,
-                    android.R.drawable.ic_menu_close_clear_cancel
-                )
-            } else {
-                remoteViews?.setViewVisibility(R.id.rl_n_steps, View.INVISIBLE)
-                remoteViews?.setImageViewResource(
-                    R.id.imgbtn_steps_newlap,
-                    android.R.drawable.ic_input_add
-                )
-            }
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgv_contacts,
@@ -357,11 +338,6 @@ class NewAppWidget : AppWidgetProvider() {
                 getPendingSelfIntent(context, TORCH_STATE)
             )
 
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_steps_newlap,
-                getPendingSelfIntent(context, STEPS_NOW)
-            )
 
             val launcherIntentGaps = Intent(context, GapsActivity::class.java)
             launcherIntentGaps.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
@@ -863,19 +839,6 @@ class NewAppWidget : AppWidgetProvider() {
 
             sharedPreferencesEditor.putBoolean("newLap", boolNewLap).apply()
 
-            if (boolNewLap) {
-                remoteViews?.setViewVisibility(R.id.rl_n_steps, View.VISIBLE)
-                remoteViews?.setImageViewResource(
-                    R.id.imgbtn_steps_newlap,
-                    android.R.drawable.ic_menu_close_clear_cancel
-                )
-            } else {
-                remoteViews?.setViewVisibility(R.id.rl_n_steps, View.INVISIBLE)
-                remoteViews?.setImageViewResource(
-                    R.id.imgbtn_steps_newlap,
-                    android.R.drawable.ic_input_add
-                )
-            }
         } else if (LOCK_PHONE == intent.action) {
             LockAccessibilityService.lockScreenAccessibility(appContx)
         } else if (SET_CLICKED == intent.action) {
@@ -1052,8 +1015,6 @@ class NewAppWidget : AppWidgetProvider() {
             SimpleDateFormat("EEE", Locale.getDefault()).format(Calendar.getInstance().time) +
                     "│" + formattedDate
         )
-        appWidgetView.findViewById<TextView>(R.id.tx_steps)
-            .setText("$dayOfTheWeek ~ " + stepsToday.toString())
 
         readApps()
 
@@ -1549,7 +1510,8 @@ class NewAppWidget : AppWidgetProvider() {
             // remoteViews?.setTextViewText(R.id.tx_date, formattedDate)
             sharedPreferencesEditor.putBoolean("DateSet", true).apply()
             sharedPreferencesEditor.putString("fD", formattedDate).apply()
-            remoteViews?.setTextViewText(R.id.tx_steps, "$dayOfTheWeek ~ " + stepsToday.toString())
+            remoteViews?.setTextViewText(R.id.tx_steps, "$dayOfTheWeek ~ $stepsToday")
+         //   remoteViews?.setTextViewText(R.id.n_tx_steps, "Now, $newLapSteps")
             remoteViews?.setTextViewText(
                 R.id.tx_day_date,
                 SimpleDateFormat("EEE", Locale.getDefault()).format(c) +
