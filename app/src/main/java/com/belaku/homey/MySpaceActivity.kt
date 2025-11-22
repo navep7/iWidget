@@ -27,8 +27,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.makeToast
-import com.belaku.homey.MainActivity.Companion.sharedPreferences
-import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
+import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
+import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.databinding.ActivityMySpaceBinding
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlin.properties.Delegates

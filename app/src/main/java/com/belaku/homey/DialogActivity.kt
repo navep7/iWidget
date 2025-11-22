@@ -55,8 +55,6 @@ import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.parentLayout
 import com.belaku.homey.MainActivity.Companion.pickContactLauncher
 import com.belaku.homey.MainActivity.Companion.sN
-import com.belaku.homey.MainActivity.Companion.sharedPreferences
-import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
 import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
@@ -68,6 +66,8 @@ import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.boolWallSet
+import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
+import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -220,9 +220,6 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
             if (dialogIntentStr =="WCh") {
 
-             //   llDialog.visibility = View.GONE
-
-
                 noRewards = sharedPreferences.getInt("noRewards", 5)
                 noRewards--
                 sharedPreferencesEditor.putInt("noRewards", noRewards).apply()
@@ -242,7 +239,6 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                         // Check your condition here
                         if (boolWallSet) {
                             timer.cancel()
-                            finish()
                         }
                     }
                 }, 0, 1000)

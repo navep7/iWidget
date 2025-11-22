@@ -107,6 +107,8 @@ import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.screenHeight
 import com.belaku.homey.NewAppWidget.Companion.screenWidth
 import com.belaku.homey.NewAppWidget.Companion.tW
+import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
+import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.databinding.ActivityMainBinding
 import com.bumptech.glide.Glide
 import com.google.android.gms.ads.MobileAds
@@ -2017,8 +2019,7 @@ class MainActivity : AppCompatActivity() {
         var queryType: String = "Material Design"
         var updateTime: String = "00:00"
         var updateInterval: String? = null
-        lateinit var sharedPreferences: SharedPreferences
-        lateinit var sharedPreferencesEditor: SharedPreferences.Editor
+
         var randomWallIndex: Int = 0
         val imgUrls: ArrayList<String> = ArrayList()
         var imgDescs: ArrayList<String> = ArrayList()

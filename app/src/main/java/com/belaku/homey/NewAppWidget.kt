@@ -69,8 +69,6 @@ import com.belaku.homey.MainActivity.Companion.getWeatherData
 import com.belaku.homey.MainActivity.Companion.mAct
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
-import com.belaku.homey.MainActivity.Companion.sharedPreferences
-import com.belaku.homey.MainActivity.Companion.sharedPreferencesEditor
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
 import com.belaku.homey.MainActivity.Companion.updateWidget
 import com.belaku.homey.MainActivity.Companion.weatherIconID
@@ -78,6 +76,8 @@ import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.cAddrs
 import com.belaku.homey.SetWallWorker.Companion.initialSteps
 import com.belaku.homey.SetWallWorker.Companion.newLapSteps
+import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
+import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.google.android.gms.location.LocationCallback
@@ -1365,9 +1365,6 @@ class NewAppWidget : AppWidgetProvider() {
             val endTime = calendar.timeInMillis
             calendar.add(Calendar.DAY_OF_YEAR, -1) // Query for the last 24 hours
             val startTime = calendar.timeInMillis
-
-            sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
-            sharedPreferencesEditor = sharedPreferences.edit()
 
             when (calendar.get(Calendar.DAY_OF_WEEK)) {
                 1 -> {
