@@ -106,6 +106,7 @@ import kotlin.random.Random
 
 class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    private lateinit var parentLayoutDialog: View
     private val barcodeLauncher =
         registerForActivityResult(ScanContract()) { result: ScanIntentResult? ->
             if (result?.contents == null) {
@@ -153,6 +154,8 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_dialog)
+
+        parentLayoutDialog = findViewById(android.R.id.content)
 
 
         rewardedInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
@@ -315,8 +318,13 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     )
                 })
             } else if (dialogIntentStr == "STH") {
-                makeToast("Paid Feature!")
-                txTitle.setText("Twitter")
+                llDialog.visibility = View.GONE
+                Snackbar.make(parentLayoutDialog, "Paid Feature!", Snackbar.LENGTH_LONG)
+                    .setAction("Pay") {
+
+                    }
+                    .show()
+               /* txTitle.setText("Twitter")
                 txContent.visibility = View.INVISIBLE
                 edtxDialog.visibility = View.VISIBLE
                 vpSteps.visibility = View.GONE
@@ -330,7 +338,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     } else {
                         getTweetID(edtxDialog.text.toString(), false)
                     }
-                })
+                })*/
             } else if (dialogIntentStr == "BLUEEnable") {
                 blE = true
                 llDialog.visibility = View.GONE
@@ -690,8 +698,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     fun makeSnack(s: String) {
-        var parentLayout: View = findViewById(android.R.id.content);
-        sN = Snackbar.make(parentLayout, s, Snackbar.LENGTH_LONG)
+        sN = Snackbar.make(parentLayoutDialog, s, Snackbar.LENGTH_LONG)
         sN.show()
     }
 

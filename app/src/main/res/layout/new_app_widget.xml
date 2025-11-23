@@ -299,10 +299,11 @@
 
     <TextView
         android:id="@+id/tx_apps"
+        android:visibility="invisible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="↑\n|\n|\n|\nA\nP\nP\nS\n|\n|\n|\n↓"
+        android:text="↑\nA\nP\nP\nS\n↓"
         android:textSize="35sp"
         android:textStyle="bold"
         android:textColor="@android:color/holo_red_dark"
@@ -313,10 +314,11 @@
 
     <TextView
         android:id="@+id/tx_calls"
+        android:visibility="invisible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="↑\n|\n|\n|\nC\nA\nL\nL\nS\n|\n|\n|\n↓"
+        android:text="↑\nC\nA\nL\nL\nS\n↓"
         android:textStyle="bold"
         android:textSize="35sp"
         android:textColor="@android:color/holo_red_dark"

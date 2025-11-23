@@ -1359,13 +1359,14 @@ class MainActivity : AppCompatActivity() {
 
             var appName = getAppNameFromPkg(applicationContext, queryUsageStats.get(i).packageName)
             var appPname = queryUsageStats.get(i).packageName
+            var appUsage = formatMilliseconds(queryUsageStats[i].totalTimeInForeground).substring(0, 2)
 
             Log.d(
                 "queryUsageStats",
-                "$appName ... - $i : " + queryUsageStats.get(i).totalTimeInForeground
+                "$appName ... - $i : " + queryUsageStats[i].totalTimeInForeground
             )
 
-            if (queryUsageStats.get(i).totalTimeInForeground > 0)
+            if (queryUsageStats[i].totalTimeInForeground > 0)
                 if (!appName.contains("Launcher") || !appName.equals("Home"))
                     if (applicationContext.packageManager.getLaunchIntentForPackage(queryUsageStats[i].packageName) != null)
                         if (appNames.add(appName)) {
@@ -1375,13 +1376,13 @@ class MainActivity : AppCompatActivity() {
                                     formatMilliseconds(queryUsageStats[i].totalTimeInForeground)
                                 )
                             )
-                            if (choosenApps.size < 5) {
+                         //   if (choosenApps.size < 10) {
                                 choosenApps.add(
                                     App(
-                                        appName, appPname
+                                        appName, appPname, appUsage
                                     )
                                 )
-                            }
+                         //   }
                         }
         }
 

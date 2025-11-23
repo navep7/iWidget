@@ -390,6 +390,8 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 var appName =
                     getAppNameFromPkg(applicationContext, queryUsageStats.get(i).packageName)
                 var appPname = queryUsageStats.get(i).packageName
+                var appUsage = formatMilliseconds(queryUsageStats[i].totalTimeInForeground).substring(0, 2)
+            //    var appUsage = arrayListUsageStats.elementAt(i).usageTime
 
                 Log.d(
                     "queryUsageStats",
@@ -409,14 +411,14 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                                         formatMilliseconds(queryUsageStats[i].totalTimeInForeground)
                                     )
                                 )
-                                if (choosenApps.size < 5) {
+                            //    if (choosenApps.size < 5) {
                                     choosenApps.add(
                                         App(
-                                            appName, appPname
+                                            appName, appPname, appUsage
                                         )
                                     )
                                 }
-                            }
+                          //  }
             }
 
             //   saveApps(choosenApps)

@@ -77,6 +77,7 @@ import com.belaku.homey.MainActivity.Companion.mAct
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
+import com.belaku.homey.MainActivity.Companion.updateWidget
 import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.cAddrs
@@ -720,8 +721,9 @@ class NewAppWidget : AppWidgetProvider() {
 
                 if (viewID == 0)
                     dialPhoneNumber(appContx, favContacts[position].number)
-                else if (viewID == 1)
+                else if (viewID == 1) {
                     unMarkAsFav(favContacts[position].id)
+                }
             } else makeToast("INvalid Pos - $position")
         } else if (ACTION_LIST_APPITEM_CLICK == intent.action) {
             // Extract the item position or ID from the intent extras
@@ -877,7 +879,6 @@ class NewAppWidget : AppWidgetProvider() {
 
         getFavoriteContacts()
 
-
     }
 
     @SuppressLint("Range")
@@ -947,8 +948,7 @@ class NewAppWidget : AppWidgetProvider() {
         saveContacts()
 
         cursor.close()
-
-        //      appWidM.updateAppWidget(newAppWidget, remoteViews)
+        updateWidget()
     }
 
     private fun saveContacts() {
