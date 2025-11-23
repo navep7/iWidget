@@ -371,6 +371,10 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             val beginCal = Calendar.getInstance()
             val endCal = Calendar.getInstance()
 
+            cYear = Calendar.getInstance().get(Calendar.YEAR)
+            cMonth = Calendar.getInstance().get(Calendar.MONTH) + 1
+            cDate = Calendar.getInstance().get(Calendar.DATE)
+
             beginCal.set(cYear, cMonth - 1, cDate, 0, 0)
             endCal.set(cYear, cMonth, cDate, 0, 0)
 
