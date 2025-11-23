@@ -7,7 +7,7 @@
     <ImageView
         android:id="@+id/contact_imgv"
         android:src="@drawable/launch_e"
-        android:layout_above="@+id/contact_tx"
+        android:layout_above="@+id/contact_tx_name"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:ignore="ContentDescription" />
