@@ -211,6 +211,7 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
+        sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
 
 
         for (appWidgetId in appWidgetIds) {
@@ -689,6 +690,7 @@ class NewAppWidget : AppWidgetProvider() {
         //       makeToast("!onReceive")
         remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
+        sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
 
         appContx = context
 
@@ -1223,6 +1225,7 @@ class NewAppWidget : AppWidgetProvider() {
         var timelyWish: String = ""
         var arrayListUsageStats: HashSet<AppUsage> = HashSet()
         lateinit var dayOfTheWeek: String
+        var vpStepsPos: Int = 0
         var noRewards: Int = 0
         var tW: String = "..."
         lateinit var appWidM: AppWidgetManager
@@ -1343,7 +1346,6 @@ class NewAppWidget : AppWidgetProvider() {
 
         fun getScreenTime() {
 
-
             val usageStatsManager =
                 appContx.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
             var calendar = Calendar.getInstance()
@@ -1354,6 +1356,7 @@ class NewAppWidget : AppWidgetProvider() {
             when (calendar.get(Calendar.DAY_OF_WEEK)) {
                 1 -> {
                     dayOfTheWeek = "Monday"
+                    vpStepsPos = 0
                     sharedPreferencesEditor.putInt("Monday", stepsToday).apply()
                     sharedPreferencesEditor.putInt("Tuesday", 0).apply()
                     sharedPreferencesEditor.putInt("Wednesday", 0).apply()
@@ -1364,6 +1367,7 @@ class NewAppWidget : AppWidgetProvider() {
                 }
 
                 2 -> {
+                    vpStepsPos = 1
                     dayOfTheWeek = "Tuesday"
                     sharedPreferencesEditor.putInt("Tuesday", stepsToday).apply()
                     sharedPreferencesEditor.putInt("Wednesday", 0).apply()
@@ -1374,6 +1378,7 @@ class NewAppWidget : AppWidgetProvider() {
                 }
 
                 3 -> {
+                    vpStepsPos = 2
                     dayOfTheWeek = "Wednesday"
                     sharedPreferencesEditor.putInt("Wednesday", stepsToday).apply()
 
@@ -1384,6 +1389,7 @@ class NewAppWidget : AppWidgetProvider() {
                 }
 
                 4 -> {
+                    vpStepsPos = 3
                     dayOfTheWeek = "Thursday"
                     sharedPreferencesEditor.putInt("Thursday", stepsToday).apply()
 
@@ -1393,6 +1399,7 @@ class NewAppWidget : AppWidgetProvider() {
                 }
 
                 5 -> {
+                    vpStepsPos = 4
                     dayOfTheWeek = "Friday"
                     sharedPreferencesEditor.putInt("Friday", stepsToday).apply()
 
@@ -1401,6 +1408,7 @@ class NewAppWidget : AppWidgetProvider() {
                 }
 
                 6 -> {
+                    vpStepsPos = 5
                     dayOfTheWeek = "Saturday"
                     sharedPreferencesEditor.putInt("Saturday", stepsToday).apply()
 
@@ -1408,6 +1416,7 @@ class NewAppWidget : AppWidgetProvider() {
                 }
 
                 7 -> {
+                    vpStepsPos = 6
                     dayOfTheWeek = "Sunday"
                     sharedPreferencesEditor.putInt("Sunday", stepsToday).apply()
                 }

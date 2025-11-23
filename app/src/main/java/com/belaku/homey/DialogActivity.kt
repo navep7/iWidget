@@ -17,6 +17,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.icu.util.Calendar
+import android.location.Geocoder
 import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
@@ -61,10 +62,12 @@ import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
+import com.belaku.homey.NewAppWidget.Companion.getScreenTime
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
+import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.boolWallSet
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
@@ -97,7 +100,9 @@ import okhttp3.Request
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import java.io.IOException
 import java.net.URL
+import java.util.Locale
 import java.util.Timer
 import java.util.TimerTask
 import kotlin.properties.Delegates
@@ -214,7 +219,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
         stepsMapsFragment = supportFragmentManager.findFragmentById(R.id.steps_map) as SupportMapFragment
 
-        stepsMapsFragment.getMapAsync(this)
+
 
 
 
@@ -402,6 +407,8 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 )
             } else if (dialogIntentStr == "stepsInfo") {
 
+                stepsMapsFragment.getMapAsync(this)
+                getScreenTime()
                 findViewById<CardView>(R.id.card_map).visibility = View.VISIBLE
                 makeToast(dayOfTheWeek)
                 window.setLayout(
@@ -414,79 +421,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 btnOk.visibility = View.INVISIBLE
                 btnCancel.visibility = View.INVISIBLE
                 imgbtnShare.visibility = View.INVISIBLE
-                vpSteps.visibility = View.GONE
                 vpSteps.visibility = View.VISIBLE
-
-                val stepsData: ArrayList<String> = ArrayList()
-                stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
-                stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
-                stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
-                stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
-                stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
-                stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
-                stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
-
-                val stepsLocInfo: ArrayList<LatLng> = ArrayList()
-                stepsLocInfo.add(LatLng(-34.0, 151.0))
-                stepsLocInfo.add(LatLng(35.69, 139.69))
-                        stepsLocInfo.add(LatLng(19.08, 72.88))
-                        stepsLocInfo.add(LatLng(19.43, -99.13))
-                        stepsLocInfo.add(LatLng(52.30, 13.40))
-                        stepsLocInfo.add(LatLng(23.55, 46.63))
-                        stepsLocInfo.add(LatLng(40.71, -74.00))
-
-
-
-                val stepsAdapter = StepsAdapter(stepsData, stepsLocInfo)
-                vpSteps.adapter = stepsAdapter
-
-                val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
-
-
-                TabLayoutMediator(tabLayout, vpSteps) { tab, position ->
-                    // You can set text or icons for tabs here if needed,
-                    // but for dot indicators, this part might be empty or use a placeholder.
-                }.attach()
-
-
-                vpSteps.registerOnPageChangeCallback(object : OnPageChangeCallback(
-                ) {
-                    private var myState = 0
-                    private var currentPosition = 0
-                    var currentOffset = 0F
-
-                    override fun onPageScrolled(
-                        position: Int, positionOffset: Float, positionOffsetPixels: Int
-                    ) {
-
-                        //   makeToast("$currentOffset VS $positionOffset")
-
-                        if (currentOffset == positionOffset) if (myState == ViewPager2.SCROLL_STATE_DRAGGING && currentPosition == position && currentPosition == 0) vpSteps.setCurrentItem(
-                            6
-                        )
-                        if (myState == ViewPager2.SCROLL_STATE_DRAGGING && currentPosition == position && currentPosition == 6) vpSteps.setCurrentItem(
-                            0
-                        )
-
-                        currentOffset = positionOffset
-
-                        super.onPageScrolled(position, positionOffset, positionOffsetPixels)
-                    }
-
-                    override fun onPageSelected(position: Int) {
-
-                        currentPosition = position
-
-                        super.onPageSelected(position)
-
-                    }
-
-                    override fun onPageScrollStateChanged(state: Int) {
-                        myState = state
-
-                        super.onPageScrollStateChanged(state)
-                    }
-                })
 
 
             } else if (dialogIntentStr == "screenTimeInfo") {
@@ -623,78 +558,117 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 barcodeLauncher.launch(options)
             }
 
-            when (Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
-                1 -> {
-                    dayOfTheWeek = "Monday"
-                    sharedPreferencesEditor.putInt("Monday", stepsToday).apply()
-                    sharedPreferencesEditor.putInt("Tuesday", 0).apply()
-                    sharedPreferencesEditor.putInt("Wednesday", 0).apply()
-                    sharedPreferencesEditor.putInt("Thursday", 0).apply()
-                    sharedPreferencesEditor.putInt("Friday", 0).apply()
-                    sharedPreferencesEditor.putInt("Saturday", 0).apply()
-                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
-                }
-
-                2 -> {
-                    dayOfTheWeek = "Tuesday"
-                    sharedPreferencesEditor.putInt("Tuesday", stepsToday).apply()
-                    sharedPreferencesEditor.putInt("Wednesday", 0).apply()
-                    sharedPreferencesEditor.putInt("Thursday", 0).apply()
-                    sharedPreferencesEditor.putInt("Friday", 0).apply()
-                    sharedPreferencesEditor.putInt("Saturday", 0).apply()
-                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
-                }
-
-                3 -> {
-                    dayOfTheWeek = "Wednesday"
-                    sharedPreferencesEditor.putInt("Wednesday", stepsToday).apply()
-
-                    sharedPreferencesEditor.putInt("Thursday", 0).apply()
-                    sharedPreferencesEditor.putInt("Friday", 0).apply()
-                    sharedPreferencesEditor.putInt("Saturday", 0).apply()
-                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
-                }
-
-                4 -> {
-                    dayOfTheWeek = "Thursday"
-                    sharedPreferencesEditor.putInt("Thursday", stepsToday).apply()
-
-                    sharedPreferencesEditor.putInt("Friday", 0).apply()
-                    sharedPreferencesEditor.putInt("Saturday", 0).apply()
-                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
-                }
-
-                5 -> {
-                    dayOfTheWeek = "Friday"
-                    sharedPreferencesEditor.putInt("Friday", stepsToday).apply()
-
-                    sharedPreferencesEditor.putInt("Saturday", 0).apply()
-                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
-                }
-
-                6 -> {
-                    dayOfTheWeek = "Saturday"
-                    sharedPreferencesEditor.putInt("Saturday", stepsToday).apply()
-
-                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
-                }
-
-                7 -> {
-                    dayOfTheWeek = "Sunday"
-                    sharedPreferencesEditor.putInt("Sunday", stepsToday).apply()
-                }
-            }
-
-
-            if (dayOfTheWeek == "Monday") vpSteps.setCurrentItem(0)
-            else if (dayOfTheWeek == "Tuesday") vpSteps.setCurrentItem(1)
-            else if (dayOfTheWeek == "Wednesday") vpSteps.setCurrentItem(2)
-            else if (dayOfTheWeek == "Thursday") vpSteps.setCurrentItem(3)
-            else if (dayOfTheWeek == "Friday") vpSteps.setCurrentItem(4)
-            else if (dayOfTheWeek == "Saturday") vpSteps.setCurrentItem(5)
-            else if (dayOfTheWeek == "Sunday") vpSteps.setCurrentItem(6)
 
         }
+    }
+
+    private fun stepsMapsAdapter(
+        stepsData: ArrayList<String>,
+        stepsLocInfo: ArrayList<LatLng>
+    ) {
+
+        val stepsAdapter = StepsAdapter(stepsData, stepsLocInfo)
+        vpSteps.adapter = stepsAdapter
+        vpSteps.currentItem = vpStepsPos
+
+
+
+
+        val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
+
+
+        TabLayoutMediator(tabLayout, vpSteps) { tab, position ->
+            // You can set text or icons for tabs here if needed,
+            // but for dot indicators, this part might be empty or use a placeholder.
+        }.attach()
+
+
+        vpSteps.registerOnPageChangeCallback(object : OnPageChangeCallback(
+        ) {
+            val days: ArrayList<String> = arrayListOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+            private var myState = 0
+            private var currentPosition = 0
+            var currentOffset = 0F
+
+            override fun onPageScrolled(
+                position: Int, positionOffset: Float, positionOffsetPixels: Int
+            ) {
+
+                //   makeToast("$currentOffset VS $positionOffset")
+                addMarker(stepsLocInfo[position], days[position] + " - " + stepsData[position] + " steps", getAddress(stepsLocInfo[position]))
+
+                if (currentOffset == positionOffset) if (myState == ViewPager2.SCROLL_STATE_DRAGGING && currentPosition == position && currentPosition == 0) vpSteps.setCurrentItem(
+                    6
+                )
+                if (myState == ViewPager2.SCROLL_STATE_DRAGGING && currentPosition == position && currentPosition == 6) vpSteps.setCurrentItem(
+                    0
+                )
+
+                currentOffset = positionOffset
+
+                super.onPageScrolled(position, positionOffset, positionOffsetPixels)
+            }
+
+            private fun getAddress(latLng: LatLng): String {
+                val gcd = Geocoder(applicationContext)
+                Locale.getDefault()
+                var lat = latLng.latitude
+                var lng = latLng.longitude
+                var cityname = "unKnown"
+                try {
+                    var cAddrs = gcd.getFromLocation(lat, lng, 1)!!
+                    //   makeToast(cAddrs?.get(0)!!.subLocality)
+
+                    cityname = cAddrs?.get(0)!!.getAddressLine(0)
+
+
+
+                } catch (e: IOException) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace()
+                    makeToast("GCD - IOException \n $e")
+                }
+
+                return  cityname
+
+            }
+
+            override fun onPageSelected(position: Int) {
+
+                currentPosition = position
+
+                super.onPageSelected(position)
+
+            }
+
+            override fun onPageScrollStateChanged(state: Int) {
+                myState = state
+
+                super.onPageScrollStateChanged(state)
+            }
+        })
+    }
+
+    private fun addMarker(markerLocationn: LatLng, mTitle: String, mDesc: String) {
+
+        stepsMaps.clear()
+        val markerLocation = markerLocationn//LatLng(37.7749, -122.4194)
+        val marker = stepsMaps.addMarker(
+            MarkerOptions()
+                .position(markerLocation)
+                .title(mTitle)
+                .snippet(mDesc)
+        )
+
+        // Show the info window for the marker immediately
+        marker?.showInfoWindow()
+
+        stepsMaps.moveCamera(
+            CameraUpdateFactory.newLatLngZoom(
+                markerLocation,
+                19f
+            )
+        )
     }
 
     fun makeSnack(s: String) {
@@ -1144,21 +1118,41 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
         stepsMaps = p0
 
+        val stepsData: ArrayList<String> = ArrayList()
+        stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
+        stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
+        stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
+        stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
+        stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
+        stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
+        stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
+
+        val stepsLocInfo: ArrayList<LatLng> = ArrayList()
+        stepsLocInfo.add(LatLng(-34.0, 151.0))
+        stepsLocInfo.add(LatLng(35.69, 139.69))
+        stepsLocInfo.add(LatLng(19.08, 72.88))
+        stepsLocInfo.add(LatLng(19.43, -99.13))
+        stepsLocInfo.add(LatLng(52.30, 13.40))
+        stepsLocInfo.add(LatLng(23.55, 46.63))
+        stepsLocInfo.add(LatLng(40.71, -74.00))
+
+        stepsMapsAdapter(stepsData, stepsLocInfo)
+
         // Example: Setting a location for Sydney, Australia
         val presentLoc = LatLng(cityLat, cityLng)
 
 
         // Add a marker at the specified location
-        stepsMaps.addMarker(MarkerOptions().position(presentLoc).title(cityname))
+    //    stepsMaps.addMarker(MarkerOptions().position(presentLoc).title(cityname))
 
 
         // Move the camera to the specified location with a zoom level
-        stepsMaps.moveCamera(
+        /*stepsMaps.moveCamera(
             CameraUpdateFactory.newLatLngZoom(
                 presentLoc,
                 21f
             )
-        ) // Zoom level 10 is a good starting point
+        )*/ // Zoom level 10 is a good starting point
 
 
 
