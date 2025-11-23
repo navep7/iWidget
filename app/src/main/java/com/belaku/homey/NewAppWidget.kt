@@ -3,6 +3,7 @@ package com.belaku.homey
 
 // Weather Key - 9fa8e101240ab18615e3133b051e767e
 
+import android.R.attr.bitmap
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
@@ -44,6 +45,10 @@ import android.os.Looper
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
+import android.renderscript.Allocation
+import android.renderscript.Element
+import android.renderscript.RenderScript
+import android.renderscript.ScriptIntrinsicBlur
 import android.text.Html
 import android.text.SpannableString
 import android.text.method.ScrollingMovementMethod
@@ -54,6 +59,8 @@ import android.view.View
 import android.view.accessibility.AccessibilityManager
 import android.widget.AdapterView
 import android.widget.AnalogClock
+import android.widget.LinearLayout
+import android.widget.ListView
 import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
@@ -70,12 +77,10 @@ import com.belaku.homey.MainActivity.Companion.mAct
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
-import com.belaku.homey.MainActivity.Companion.updateWidget
 import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.cAddrs
 import com.belaku.homey.SetWallWorker.Companion.initialSteps
-import com.belaku.homey.SetWallWorker.Companion.newLapSteps
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
@@ -635,7 +640,7 @@ class NewAppWidget : AppWidgetProvider() {
         serviceIntentApp.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, newAppWidget)
         serviceIntentApp.setData(Uri.parse(serviceIntentApp.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
         remoteViews?.setRemoteAdapter(R.id.list_apps, serviceIntentApp)
-        remoteViews?.setEmptyView(R.id.list_apps, R.id.widget_empty_view)
+        remoteViews?.setEmptyView(R.id.list_apps, R.id.widget_empty_view_apps)
     }
 
     private fun setContactsAdapter() {
@@ -643,7 +648,7 @@ class NewAppWidget : AppWidgetProvider() {
         serviceIntentContact.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, newAppWidget)
         serviceIntentContact.setData(Uri.parse(serviceIntentContact.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
         remoteViews?.setRemoteAdapter(R.id.list_contacts, serviceIntentContact)
-        remoteViews?.setEmptyView(R.id.list_contacts, R.id.widget_empty_view)
+        remoteViews?.setEmptyView(R.id.list_contacts, R.id.widget_empty_view_contacts)
     }
 
     private fun setAppsClick() {
@@ -978,8 +983,8 @@ class NewAppWidget : AppWidgetProvider() {
     private fun loadWidgetToShare(appWidgetView: View) {
 
         val backgroundDrawable = BitmapDrawable(appContx.getResources(), wallBitmap)
-        appWidgetView.findViewById<RelativeLayout>(R.id.rl_widget_layout)
-            .setBackground(backgroundDrawable)
+        appWidgetView.findViewById<RelativeLayout>(R.id.rl_widget_layout).background =
+            backgroundDrawable
 
         appWidgetView.findViewById<TextView>(
             R.id.btn_screentime
@@ -997,11 +1002,13 @@ class NewAppWidget : AppWidgetProvider() {
         }:${java.util.Calendar.getInstance().get(Calendar.MINUTE)} $ampm"
         val mSpannableStringLoc = SpannableString(cityname)
         mSpannableStringLoc.setSpan(UnderlineSpan(), 0, mSpannableStringLoc.length, 0)
-        appWidgetView.findViewById<TextView>(R.id.tx_place).setText("⚲ " + cityname)
-        appWidgetView.findViewById<TextView>(R.id.tx_steps)
-            .setText("$dayOfTheWeek ~ " + stepsToday.toString())
+        appWidgetView.findViewById<TextView>(R.id.tx_place).text = "⚲ " + cityname
+        appWidgetView.findViewById<TextView>(R.id.tx_steps).text = "$dayOfTheWeek ~ $stepsToday"
 
-
+        appWidgetView.findViewById<LinearLayout>(R.id.ll_apps).visibility = View.INVISIBLE
+        appWidgetView.findViewById<LinearLayout>(R.id.ll_contacts).visibility = View.INVISIBLE
+        appWidgetView.findViewById<TextView>(R.id.tx_apps).visibility = View.VISIBLE
+        appWidgetView.findViewById<TextView>(R.id.tx_calls).visibility = View.VISIBLE
 
         appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_temp).setText(
             MainActivity.tempC.substring(
@@ -1009,12 +1016,9 @@ class NewAppWidget : AppWidgetProvider() {
                 2
             ) + "°C"
         )
-        appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_state)
-            .setText(MainActivity.weatherIconState + "..,")
-        appWidgetView.findViewById<TextView>(R.id.tx_day_date).setText(
-            SimpleDateFormat("EEE", Locale.getDefault()).format(Calendar.getInstance().time) +
-                    "│" + formattedDate
-        )
+        appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_state).text = MainActivity.weatherIconState + "..,"
+        appWidgetView.findViewById<TextView>(R.id.tx_day_date).text = SimpleDateFormat("EEE", Locale.getDefault()).format(Calendar.getInstance().time) +
+                "│" + formattedDate
 
         readApps()
 
@@ -1023,20 +1027,40 @@ class NewAppWidget : AppWidgetProvider() {
 
         appWidgetView.findViewById<TextView>(R.id.tx_desc_walltype).setText(
             Html.fromHtml(
-                wD + "<br>" + qT.split(" ")[0].substring(0, 1)
+                "$wD<br>" + qT.split(" ")[0].substring(0, 1)
                     .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
                 Html.FROM_HTML_MODE_LEGACY
             )
         )
 
-        appWidgetView.findViewById<TextView>(R.id.tx_tweets)
-            .setMovementMethod(ScrollingMovementMethod())
+        appWidgetView.findViewById<TextView>(R.id.tx_tweets).movementMethod =
+            ScrollingMovementMethod()
 
-        appWidgetView.findViewById<TextView>(R.id.tx_tweets)
-            .setText("\t\t\t\t\t @" + twitterProfileName + "\t ~ \t" + tW)
+        appWidgetView.findViewById<TextView>(R.id.tx_tweets).text = "\t\t\t\t\t @" + twitterProfileName + "\t ~ \t" + tW
 
         appWidgetView.findViewById<AnalogClock>(R.id.a_clock).visibility = View.INVISIBLE
     }
+
+    fun blurBitmap(context: Context, bitmap: Bitmap, radius: Float): Bitmap {
+        val rs = RenderScript.create(context)
+        val input = Allocation.createFromBitmap(rs, bitmap)
+        val output = Allocation.createTyped(rs, input.type)
+        val script = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
+        script.setRadius(radius) // Set the blur radius (0 < radius <= 25)
+        script.setInput(input)
+        script.forEach(output)
+        output.copyTo(bitmap)
+        rs.destroy() // Release RenderScript resources
+        return bitmap
+    }
+
+    fun getBitmapFromView(view: View): Bitmap {
+        val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        view.draw(canvas)
+        return bitmap
+    }
+
 
     private fun shareBitmap(bitmapWidget: Bitmap) {
 

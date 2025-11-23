@@ -297,12 +297,41 @@
         android:background="@android:color/black"/>
 
 
+    <TextView
+        android:id="@+id/tx_apps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="↑\n|\n|\n|\nA\nP\nP\nS\n|\n|\n|\n↓"
+        android:textSize="35sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/holo_red_dark"
+        android:layout_below="@+id/rl_steps"
+        android:layout_above="@+id/frame_l_tweets"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/ll_controls"/>
+
+    <TextView
+        android:id="@+id/tx_calls"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="↑\n|\n|\n|\nC\nA\nL\nL\nS\n|\n|\n|\n↓"
+        android:textStyle="bold"
+        android:textSize="35sp"
+        android:textColor="@android:color/holo_red_dark"
+        android:layout_below="@+id/rl_steps"
+        android:layout_above="@+id/frame_l_tweets"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@+id/ll_controls" />
+
     <LinearLayout
         android:id="@+id/ll_apps"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/rl_steps"
         android:layout_above="@+id/frame_l_tweets"
+        android:layout_alignParentStart="true"
         android:layout_toStartOf="@+id/ll_controls"
         android:orientation="vertical"
         android:gravity="center">
@@ -322,8 +351,8 @@
 
             <TextView
                 android:text="Apps"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:textSize="25sp"
                 android:layout_width="wrap_content"
                 android:layout_marginStart="@dimen/padding_5"
                 android:layout_marginEnd="@dimen/padding_5"
@@ -374,8 +403,8 @@
 
             <TextView
                 android:text="Calls"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:textSize="25sp"
                 android:layout_width="wrap_content"
                 android:layout_marginStart="@dimen/padding_3"
                 android:layout_gravity="center"
@@ -391,7 +420,6 @@
         </LinearLayout>
 
         <TextView
-            android:id="@+id/_line"
             android:background="@android:color/black"
             android:layout_width="match_parent"
             android:layout_height="1dp"/>
@@ -409,7 +437,7 @@
 
 
     <TextView
-        android:id="@+id/widget_empty_view"
+        android:id="@+id/widget_empty_view_contacts"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/frame_l_tweets"
@@ -418,6 +446,18 @@
         android:layout_toEndOf="@+id/ll_controls"
         android:background="@drawable/gradient_glass"
         android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/widget_empty_view_apps"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/frame_l_tweets"
+        android:layout_below="@+id/ll_apps"
+        android:layout_alignParentEnd="true"
+        android:layout_toStartOf="@+id/ll_controls"
+        android:background="@drawable/gradient_glass"
+        android:visibility="gone" />
+
 
     <LinearLayout
         android:id="@+id/ll_controls"
