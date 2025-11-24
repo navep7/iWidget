@@ -3,7 +3,6 @@ package com.belaku.homey
 
 // Weather Key - 9fa8e101240ab18615e3133b051e767e
 
-import android.R.attr.bitmap
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
@@ -60,7 +59,6 @@ import android.view.accessibility.AccessibilityManager
 import android.widget.AdapterView
 import android.widget.AnalogClock
 import android.widget.LinearLayout
-import android.widget.ListView
 import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
@@ -505,7 +503,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         _seekWifiState()
         _seekBluetoothState()
-        getScreenTime()
+        getScreenTime(appContx)
         todaysDate()
         locationTxUpdate(appContx)
         wallColors()
@@ -1344,11 +1342,11 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
-        fun getScreenTime() {
+        fun getScreenTime(applicationContext: Context) {
 
             val usageStatsManager =
-                appContx.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-            var calendar = Calendar.getInstance()
+                applicationContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+            val calendar = Calendar.getInstance()
             val endTime = calendar.timeInMillis
             calendar.add(Calendar.DAY_OF_YEAR, -1) // Query for the last 24 hours
             val startTime = calendar.timeInMillis

@@ -14,38 +14,25 @@ import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.location.Address
 import android.location.Geocoder
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.text.Html
-import android.text.SpannableString
-import android.text.style.UnderlineSpan
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
-import android.view.animation.AlphaAnimation
-import android.view.animation.Animation
-import android.widget.TextView
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.belaku.homey.MainActivity.Companion
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.cDate
 import com.belaku.homey.MainActivity.Companion.cMonth
 import com.belaku.homey.MainActivity.Companion.cYear
-import com.belaku.homey.MainActivity.Companion.cityLat
-import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.delayUnit
 import com.belaku.homey.MainActivity.Companion.fabMain
@@ -82,9 +69,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.StreetViewPanoramaCamera
 import java.io.IOException
 import java.net.URL
 import java.util.Collections
@@ -120,7 +105,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
     private fun DayChanges() {
 
-        NewAppWidget.getScreenTime()
+        getScreenTime(applicationContext)
         if (sharedPreferences.getString("day", "someday").equals(dayOfTheWeek))
         //    makeToast("same Day")
         else {
@@ -225,7 +210,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             wm.setWallpaperOffsetSteps(1F, 1F)
 
 
-            getScreenTime()
+            getScreenTime(appContx)
             greeting()
             val metrics = DisplayMetrics()
             mAct.windowManager.getDefaultDisplay().getMetrics(metrics)

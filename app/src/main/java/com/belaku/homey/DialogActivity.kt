@@ -16,14 +16,11 @@ import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.icu.util.Calendar
 import android.location.Geocoder
 import android.net.Uri
-import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.os.Looper
 import android.provider.ContactsContract
 import android.provider.Settings
 import android.speech.RecognizerIntent
@@ -50,11 +47,9 @@ import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
-import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
-import com.belaku.homey.MainActivity.Companion.parentLayout
 import com.belaku.homey.MainActivity.Companion.pickContactLauncher
 import com.belaku.homey.MainActivity.Companion.sN
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
@@ -72,7 +67,6 @@ import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.boolWallSet
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
-import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -408,7 +402,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
             } else if (dialogIntentStr == "stepsInfo") {
 
                 stepsMapsFragment.getMapAsync(this)
-                getScreenTime()
+                getScreenTime(applicationContext)
                 findViewById<CardView>(R.id.card_map).visibility = View.VISIBLE
                 makeToast(dayOfTheWeek)
                 window.setLayout(
