@@ -137,57 +137,46 @@
              android:src="@drawable/settings"
              tools:ignore="HardcodedText" />-->
 
-        <RelativeLayout
+        <FrameLayout
             android:id="@+id/rl_weather"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
             android:layout_marginStart="@dimen/fab_margin"
-            android:background="@drawable/circular_primary_container"
             android:layout_toRightOf="@+id/ll_time_day"
+            android:layout_alignParentEnd="true"
             android:layout_alignBottom="@+id/ll_time_day"
             android:layout_below="@+id/ll_top">
+
+            <ImageView
+                android:id="@+id/weather_icon"
+                android:src="@drawable/clouds"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                 />
 
             <TextView
                 android:id="@+id/tx_weather_icon_temp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:scaleType="fitXY"
+                android:layout_gravity="start|top"
                 android:text="X°C"
-                android:textColor="@color/white"
-                android:textSize="15sp"
+                android:textColor="?attr/colorSecondary"
+                android:textSize="24sp"
                 android:textStyle="bold" />
-
-            <ImageButton
-                android:id="@+id/weather_icon"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_marginTop="-10dp"
-                android:layout_below="@+id/tx_weather_icon_temp"
-                android:background="@android:color/transparent"
-                android:scaleType="fitXY"
-                android:src="@drawable/clouds" />
 
 
             <TextView
                 android:id="@+id/tx_weather_icon_state"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/weather_icon"
-                android:layout_alignStart="@+id/tx_weather_icon_temp"
-                android:scaleType="fitXY"
-                android:layout_marginTop="-5dp"
-                android:text="State..,"
-                android:textSize="10sp"
-                android:textColor="@color/white"
+                android:layout_gravity="center|bottom"
+                android:text="State"
+                android:textColor="?attr/colorTertiary"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
-
-
-        </RelativeLayout>
-
-
-
+        </FrameLayout>
 
 
 
@@ -210,9 +199,11 @@
             android:id="@+id/a_clock"
             android:layout_width="100dp"
             android:layout_height="100dp"
+            android:layout_margin="-25dp"
             android:layout_above="@+id/tx_place"
             android:layout_below="@+id/ll_top"
             android:dial="@drawable/dialcircle"
+            android:dialTint="?attr/colorPrimaryInverse"
             android:hand_hourTint="@android:color/white"
             android:hand_minuteTint="@android:color/black"
             android:hand_secondTint="@android:color/holo_red_light"

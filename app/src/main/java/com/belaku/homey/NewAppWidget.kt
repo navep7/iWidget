@@ -1016,7 +1016,7 @@ class NewAppWidget : AppWidgetProvider() {
                 2
             ) + "°C"
         )
-        appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_state).text = MainActivity.weatherIconState + "..,"
+        appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_state).text = MainActivity.weatherIconState
         appWidgetView.findViewById<TextView>(R.id.tx_day_date).text = SimpleDateFormat("EEE", Locale.getDefault()).format(Calendar.getInstance().time) +
                 "│" + formattedDate
 
@@ -1500,7 +1500,7 @@ class NewAppWidget : AppWidgetProvider() {
                 )
                 remoteViews?.setTextViewText(
                     R.id.tx_weather_icon_state,
-                    MainActivity.weatherIconState + "..,"
+                    MainActivity.weatherIconState
                 )
 
 
@@ -1527,7 +1527,7 @@ class NewAppWidget : AppWidgetProvider() {
                     )
                     remoteViews?.setTextViewText(
                         R.id.tx_weather_icon_state,
-                        MainActivity.weatherIconState + "..,"
+                        MainActivity.weatherIconState
                     )
 
 

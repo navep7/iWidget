@@ -2139,7 +2139,7 @@ class MainActivity : AppCompatActivity() {
                         )
                         remoteViews?.setTextViewText(
                             R.id.tx_weather_icon_state,
-                            weatherIconState + "..,"
+                            weatherIconState
                         )
                         if (weatherIconID.startsWith("5"))
                             remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.rain)
