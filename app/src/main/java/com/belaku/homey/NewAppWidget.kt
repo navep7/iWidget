@@ -1018,7 +1018,7 @@ class NewAppWidget : AppWidgetProvider() {
         )
         appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_state).text = MainActivity.weatherIconState
         appWidgetView.findViewById<TextView>(R.id.tx_day_date).text = SimpleDateFormat("EEE", Locale.getDefault()).format(Calendar.getInstance().time) +
-                "│" + formattedDate
+                "\n" + formattedDate
 
         readApps()
 
@@ -1546,7 +1546,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setTextViewText(
                 R.id.tx_day_date,
                 SimpleDateFormat("EEE", Locale.getDefault()).format(c) +
-                        "│" + formattedDate
+                        "\n" + formattedDate
             )
 
             remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)

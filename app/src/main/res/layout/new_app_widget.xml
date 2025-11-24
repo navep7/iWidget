@@ -6,9 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center"
+    android:background="@drawable/gradient_glass_rounded_ss"
     android:gravity="center"
     android:orientation="vertical"
-    android:background="@drawable/bg_gradient_glass_rounded"
     android:theme="@style/Theme.Material3.DynamicColors.Light">
 
 
@@ -23,9 +23,9 @@
             android:id="@+id/ll_top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="@dimen/padding_5"
+            android:layout_margin="@dimen/padding_5"
             android:background="@drawable/thick_underline"
-            android:layout_margin="@dimen/padding_5">
+            android:paddingBottom="@dimen/padding_5">
 
             <TextView
                 android:id="@+id/tx_wish"
@@ -37,7 +37,6 @@
                 android:textSize="33sp"
                 android:textStyle="bold"
                 tools:ignore="HardcodedText" />
-
 
 
             <ImageButton
@@ -75,8 +74,8 @@
                 android:background="@drawable/circular_secondary_container"
                 android:gravity="center"
                 android:padding="@dimen/padding_5"
-                android:src="@drawable/blue_off"
-                android:scaleType="fitXY" />
+                android:scaleType="fitXY"
+                android:src="@drawable/blue_off" />
 
             <TextView
                 android:id="@+id/tx_reminders"
@@ -137,48 +136,6 @@
              android:src="@drawable/settings"
              tools:ignore="HardcodedText" />-->
 
-        <FrameLayout
-            android:id="@+id/rl_weather"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/fab_margin"
-            android:layout_toRightOf="@+id/ll_time_day"
-            android:layout_alignParentEnd="true"
-            android:layout_alignBottom="@+id/ll_time_day"
-            android:layout_below="@+id/ll_top">
-
-            <ImageView
-                android:id="@+id/weather_icon"
-                android:src="@drawable/clouds"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                 />
-
-            <TextView
-                android:id="@+id/tx_weather_icon_temp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start|top"
-                android:text="X°C"
-                android:textColor="?attr/colorSecondary"
-                android:textSize="24sp"
-                android:textStyle="bold" />
-
-
-            <TextView
-                android:id="@+id/tx_weather_icon_state"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center|bottom"
-                android:text="State"
-                android:textColor="?attr/colorTertiary"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-        </FrameLayout>
-
-
 
         <TextView
             android:id="@+id/tx_live_weather_effects"
@@ -194,50 +151,99 @@
             android:textSize="35sp"
             android:visibility="invisible" />
 
-
-        <AnalogClock
-            android:id="@+id/a_clock"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_margin="-25dp"
-            android:layout_above="@+id/tx_place"
-            android:layout_below="@+id/ll_top"
-            android:dial="@drawable/dialcircle"
-            android:dialTint="?attr/colorPrimaryInverse"
-            android:hand_hourTint="@android:color/white"
-            android:hand_minuteTint="@android:color/black"
-            android:hand_secondTint="@android:color/holo_red_light"
-            android:hand_second="@drawable/s_hand"
-            tools:ignore="UnusedAttribute" />
-
         <LinearLayout
-            android:id="@+id/ll_time_day"
-            android:layout_width="wrap_content"
+            android:id="@+id/ll_clocks_weather"
+            android:gravity="center"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/ll_top"
-            android:layout_toEndOf="@+id/a_clock"
-            android:background="@drawable/gradient_glass_rounded"
-            android:orientation="vertical">
+            android:layout_below="@id/ll_top">
 
-            <android.widget.TextClock
-                android:id="@+id/clock"
+            <AnalogClock
+                android:id="@+id/a_clock"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_marginStart="10dp"
+                android:background="@drawable/weather_rounded_corner"
+                android:dial="@drawable/dialcircle"
+                android:dialTint="?attr/colorPrimaryInverse"
+                android:hand_hourTint="@android:color/white"
+                android:hand_minuteTint="@android:color/black"
+                android:hand_second="@drawable/s_hand"
+                android:hand_secondTint="@android:color/holo_red_light"
+                tools:ignore="UnusedAttribute" />
+
+            <LinearLayout
+                android:id="@+id/ll_time_day"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:format24Hour="k:mm:ss"
-                android:textColor="?attr/colorPrimaryDark"
-                android:textSize="35sp"
-                android:textStyle="bold" />
+                android:layout_gravity="center"
+                android:layout_marginStart="@dimen/padding_5"
+                android:paddingStart="@dimen/fab_margin"
+                android:paddingEnd="@dimen/fab_margin"
+                android:layout_marginEnd="@dimen/padding_5"
+                android:background="@drawable/bg_gradient_glass_rounded"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tx_day_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/fab_margin"
-                android:text="Day│Date"
-                android:textColor="?attr/colorPrimaryDark"
-                android:textSize="25sp"
-                android:textStyle="bold"
-                tools:ignore="HardcodedText" />
+                <android.widget.TextClock
+                    android:id="@+id/clock"
+                    android:format12Hour="h:mm"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"
+                    android:textSize="35sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tx_day_date"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mon\n25th Nov"
+                    android:textColor="@android:color/black"
+                    android:textSize="25sp"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
+
+
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/rl_weather"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:background="@drawable/weather_rounded_corner">
+
+                <ImageView
+                    android:id="@+id/weather_icon"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/clouds" />
+
+                <TextView
+                    android:id="@+id/tx_weather_icon_temp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start|top"
+                    android:text="X°C"
+                    android:textColor="@android:color/white"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+
+                <TextView
+                    android:id="@+id/tx_weather_icon_state"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center|bottom"
+                    android:text="State"
+                    android:textColor="@android:color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+            </FrameLayout>
 
 
         </LinearLayout>
@@ -247,9 +253,9 @@
             android:id="@+id/tx_place"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="3dp"
-            android:layout_marginEnd="3dp"
-            android:layout_below="@+id/ll_time_day"
+            android:layout_below="@+id/ll_clocks_weather"
+            android:layout_margin="@dimen/padding_3"
+            android:background="@drawable/gradient_glass_flat"
             android:ellipsize="marquee"
             android:focusable="true"
             android:focusableInTouchMode="true"
@@ -257,8 +263,7 @@
             android:scrollHorizontally="true"
             android:singleLine="true"
             android:text="Place"
-            android:textColor="@color/white"
-            android:background="@drawable/gradient_glass_dark_flat"
+            android:textColor="@color/black"
             android:textSize="15sp"
             android:textStyle="bold|italic">
 
@@ -271,69 +276,69 @@
     <TextView
         android:layout_width="1dp"
         android:layout_height="match_parent"
-        android:layout_below="@+id/rl_steps"
-        android:layout_toEndOf="@+id/ll_apps"
-        android:layout_marginTop="25dp"
         android:layout_above="@+id/frame_l_tweets"
-        android:background="@android:color/black"/>
+        android:layout_below="@+id/rl_steps"
+        android:layout_marginTop="25dp"
+        android:layout_toEndOf="@+id/ll_apps"
+        android:background="@android:color/black" />
 
 
     <TextView
         android:layout_width="1dp"
         android:layout_height="match_parent"
+        android:layout_above="@+id/frame_l_tweets"
         android:layout_below="@+id/rl_steps"
         android:layout_marginTop="25dp"
         android:layout_toStartOf="@+id/ll_contacts"
-        android:layout_above="@+id/frame_l_tweets"
-        android:background="@android:color/black"/>
+        android:background="@android:color/black" />
 
 
     <TextView
         android:id="@+id/tx_apps"
-        android:visibility="invisible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/frame_l_tweets"
+        android:layout_below="@+id/rl_steps"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/ll_controls"
         android:gravity="center"
         android:text="↑\nA\nP\nP\nS\n↓"
+        android:textColor="@android:color/holo_red_dark"
         android:textSize="35sp"
         android:textStyle="bold"
-        android:textColor="@android:color/holo_red_dark"
-        android:layout_below="@+id/rl_steps"
-        android:layout_above="@+id/frame_l_tweets"
-        android:layout_alignParentStart="true"
-        android:layout_toStartOf="@+id/ll_controls"/>
+        android:visibility="invisible" />
 
     <TextView
         android:id="@+id/tx_calls"
-        android:visibility="invisible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/frame_l_tweets"
+        android:layout_below="@+id/rl_steps"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@+id/ll_controls"
         android:gravity="center"
         android:text="↑\nC\nA\nL\nL\nS\n↓"
-        android:textStyle="bold"
-        android:textSize="35sp"
         android:textColor="@android:color/holo_red_dark"
-        android:layout_below="@+id/rl_steps"
-        android:layout_above="@+id/frame_l_tweets"
-        android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/ll_controls" />
+        android:textSize="35sp"
+        android:textStyle="bold"
+        android:visibility="invisible" />
 
     <LinearLayout
         android:id="@+id/ll_apps"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/rl_steps"
         android:layout_above="@+id/frame_l_tweets"
+        android:layout_below="@+id/rl_steps"
         android:layout_alignParentStart="true"
         android:layout_toStartOf="@+id/ll_controls"
-        android:orientation="vertical"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="vertical">
 
         <LinearLayout
-            android:layout_gravity="center_horizontal"
-            android:background="@drawable/gradient_glass_list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/gradient_glass_list">
 
             <ImageView
                 android:id="@+id/imgv_apps"
@@ -343,22 +348,22 @@
                 android:src="@drawable/launch_e" />
 
             <TextView
-                android:text="Apps"
-                android:textSize="16sp"
-                android:textStyle="bold"
                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_marginStart="@dimen/padding_5"
                 android:layout_marginEnd="@dimen/padding_5"
-                android:layout_gravity="center"
-                android:layout_height="wrap_content" />
+                android:text="Apps"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
 
         </LinearLayout>
 
         <TextView
-            android:background="@android:color/black"
             android:layout_width="match_parent"
-            android:layout_height="1dp"/>
+            android:layout_height="1dp"
+            android:background="@android:color/black" />
 
         <ListView
             android:id="@+id/list_apps"
@@ -369,24 +374,22 @@
     </LinearLayout>
 
 
-
-
-
     <LinearLayout
         android:id="@+id/ll_contacts"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/rl_steps"
         android:layout_above="@+id/frame_l_tweets"
+        android:layout_below="@+id/rl_steps"
         android:layout_alignParentEnd="true"
         android:layout_toEndOf="@+id/ll_controls"
         android:orientation="vertical">
 
         <LinearLayout
-            android:layout_gravity="center_horizontal"
-            android:background="@drawable/gradient_glass_list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/gradient_glass_list">
+
             <ImageView
                 android:id="@+id/imgv_contacts"
                 android:layout_width="25dp"
@@ -395,13 +398,13 @@
                 android:src="@drawable/contacts" />
 
             <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="@dimen/padding_3"
                 android:text="Calls"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_marginStart="@dimen/padding_3"
-                android:layout_gravity="center"
-                android:layout_height="wrap_content" />
+                android:textStyle="bold" />
 
             <ImageView
                 android:id="@+id/imgv_add_contacts"
@@ -413,9 +416,9 @@
         </LinearLayout>
 
         <TextView
-            android:background="@android:color/black"
             android:layout_width="match_parent"
-            android:layout_height="1dp"/>
+            android:layout_height="1dp"
+            android:background="@android:color/black" />
 
 
         <ListView
@@ -424,9 +427,7 @@
             android:layout_height="wrap_content" />
 
 
-
     </LinearLayout>
-
 
 
     <TextView
@@ -460,10 +461,10 @@
         android:layout_centerHorizontal="true"
         android:layout_marginStart="@dimen/padding_5"
         android:layout_marginEnd="@dimen/padding_5"
-        android:paddingStart="@dimen/fab_margin"
-        android:paddingEnd="@dimen/fab_margin"
         android:orientation="vertical"
-        android:padding="@dimen/padding_5">
+        android:padding="@dimen/padding_5"
+        android:paddingStart="@dimen/fab_margin"
+        android:paddingEnd="@dimen/fab_margin">
 
 
         <LinearLayout
@@ -598,8 +599,8 @@
             android:layout_gravity="center_horizontal"
             android:layout_weight="1"
             android:background="@drawable/dial_c"
-            android:padding="@dimen/fab_margin"
             android:contentDescription="G"
+            android:padding="@dimen/fab_margin"
             android:scaleType="fitCenter"
             android:src="@android:drawable/ic_menu_share"
             tools:ignore="HardcodedText" />
@@ -623,39 +624,36 @@
         android:id="@+id/imgbtn_qr"
         android:layout_width="75dp"
         android:layout_height="75dp"
-        android:background="@drawable/circular_primary_border"
         android:layout_below="@+id/ll_gapps_napps"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/scan"/>
+        android:background="@drawable/circular_primary_border"
+        android:src="@drawable/scan" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_gapps_napps"
+        android:layout_marginTop="30dp"
+        android:layout_toStartOf="@+id/imgbtn_qr"
+        android:background="@drawable/gradient_glass_dark"
+        android:paddingStart="@dimen/padding_5"
+        android:paddingEnd="@dimen/padding_5"
         android:text="SCAN"
         android:textColor="@android:color/white"
-        android:background="@drawable/gradient_glass_dark"
-        android:textStyle="bold"
-        android:paddingStart="@dimen/padding_5"
-        android:paddingEnd="@dimen/padding_5"
-        android:layout_below="@+id/ll_gapps_napps"
-        android:layout_marginTop="30dp"
-        android:layout_toStartOf="@+id/imgbtn_qr"/>
+        android:textStyle="bold" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="PAY"
-        android:textColor="@android:color/white"
-        android:paddingStart="@dimen/padding_5"
-        android:paddingEnd="@dimen/padding_5"
-        android:background="@drawable/gradient_glass_dark"
-        android:textStyle="bold"
         android:layout_below="@+id/ll_gapps_napps"
         android:layout_marginTop="30dp"
-        android:layout_toEndOf="@+id/imgbtn_qr"/>
-
-
-
+        android:layout_toEndOf="@+id/imgbtn_qr"
+        android:background="@drawable/gradient_glass_dark"
+        android:paddingStart="@dimen/padding_5"
+        android:paddingEnd="@dimen/padding_5"
+        android:text="PAY"
+        android:textColor="@android:color/white"
+        android:textStyle="bold" />
 
 
     <RelativeLayout
@@ -672,8 +670,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
-            android:text="since 12 PM yday"
             android:layout_marginStart="@dimen/padding_5"
+            android:text="since 12 PM yday"
             android:textStyle="bold|italic" />
 
         <TextView
@@ -681,9 +679,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/tx_st_since"
+            android:layout_marginStart="@dimen/padding_5"
             android:background="@android:color/transparent"
             android:text="ON ~ 10+ H"
-            android:layout_marginStart="@dimen/padding_5"
             android:textColor="@android:color/holo_red_light"
             android:textSize="21sp"
             android:textStyle="bold" />
@@ -692,12 +690,12 @@
             android:id="@+id/tx_screentime_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="?attr/colorPrimaryDark"
             android:layout_alignBottom="@+id/btn_screentime"
-            android:layout_toRightOf="@+id/btn_screentime"
             android:layout_marginStart="@dimen/fab_margin"
             android:layout_marginEnd="@dimen/padding_5"
+            android:layout_toRightOf="@+id/btn_screentime"
             android:text="ⓘ"
+            android:textColor="?attr/colorPrimaryDark"
             android:textSize="35sp"
             android:textStyle="bold" />
 
@@ -707,106 +705,47 @@
 
     <LinearLayout
         android:id="@+id/rl_steps"
-        android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
         android:layout_height="35dp"
-        android:orientation="horizontal"
+        android:layout_below="@+id/rl_clocks"
+        android:layout_centerHorizontal="true"
         android:gravity="center_horizontal"
-        android:layout_below="@+id/rl_clocks">
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/gradient_glass_rounded">
-
-        <TextView
-            android:id="@+id/txx_steps"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="3dp"
-            android:layout_marginEnd="3dp"
-            android:text="Steps,"
-            android:textColor="@color/black"
-            android:textStyle="bold|italic" />
-
-        <ImageButton
-            android:id="@+id/imgv_steps"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_centerVertical="true"
-            android:layout_toEndOf="@+id/txx_steps"
-            android:background="@android:color/transparent"
-            android:scaleType="fitXY"
-            android:src="@drawable/steps" />
-
-        <TextView
-            android:id="@+id/tx_steps"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="5dp"
-            android:layout_toEndOf="@+id/imgv_steps"
-            android:textColor="@android:color/holo_red_light"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
-
-
-        <TextView
-            android:id="@+id/tx_steps_info"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@+id/tx_steps"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="3dp"
-            android:layout_marginEnd="5dp"
-            android:text="ⓘ"
-            android:textColor="@color/black"
-            android:textSize="25sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
-
-
-    </RelativeLayout>
-
-       <!-- <ImageButton
-            android:id="@+id/imgbtn_steps_newlap"
-            android:visibility="gone"
-            android:src="@android:drawable/ic_input_add"
-            android:layout_marginStart="@dimen/padding_3"
-            android:background="@android:color/transparent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        android:orientation="horizontal">
 
         <RelativeLayout
-            android:id="@+id/rl_n_steps"
             android:layout_width="wrap_content"
-            android:layout_height="35dp"
-            android:visibility="gone"
-            android:layout_marginStart="@dimen/padding_3"
-            android:background="@drawable/gradient_glass_rounded">
+            android:layout_height="wrap_content"
+            android:background="@drawable/weather_rounded_corner">
 
+            <TextView
+                android:id="@+id/txx_steps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="3dp"
+                android:layout_marginEnd="3dp"
+                android:text="Steps,"
+                android:textColor="@color/black"
+                android:textStyle="bold|italic" />
 
             <ImageButton
-                android:id="@+id/n_imgv_steps"
+                android:id="@+id/imgv_steps"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:layout_centerVertical="true"
-                android:layout_alignParentStart="true"
+                android:layout_toEndOf="@+id/txx_steps"
                 android:background="@android:color/transparent"
                 android:scaleType="fitXY"
                 android:src="@drawable/steps" />
 
             <TextView
-                android:id="@+id/n_tx_steps_now"
-                android:text="Now ~ "
+                android:id="@+id/tx_steps"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="5dp"
-                android:layout_toEndOf="@+id/n_imgv_steps"
+                android:layout_toEndOf="@+id/imgv_steps"
                 android:textColor="@android:color/holo_red_light"
                 android:textSize="15sp"
                 android:textStyle="bold"
@@ -814,18 +753,77 @@
 
 
             <TextView
-                android:id="@+id/n_tx_steps"
+                android:id="@+id/tx_steps_info"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_marginStart="5dp"
-                android:layout_toEndOf="@+id/n_tx_steps_now"
-                android:textColor="@android:color/holo_red_light"
-                android:textSize="15sp"
+                android:layout_marginStart="3dp"
+                android:layout_marginEnd="5dp"
+                android:layout_toEndOf="@+id/tx_steps"
+                android:text="ⓘ"
+                android:textColor="@color/black"
+                android:textSize="25sp"
                 android:textStyle="bold"
                 tools:ignore="HardcodedText" />
 
-        </RelativeLayout>-->
+
+        </RelativeLayout>
+
+        <!-- <ImageButton
+             android:id="@+id/imgbtn_steps_newlap"
+             android:visibility="gone"
+             android:src="@android:drawable/ic_input_add"
+             android:layout_marginStart="@dimen/padding_3"
+             android:background="@android:color/transparent"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"/>
+
+         <RelativeLayout
+             android:id="@+id/rl_n_steps"
+             android:layout_width="wrap_content"
+             android:layout_height="35dp"
+             android:visibility="gone"
+             android:layout_marginStart="@dimen/padding_3"
+             android:background="@drawable/gradient_glass_rounded">
+
+
+             <ImageButton
+                 android:id="@+id/n_imgv_steps"
+                 android:layout_width="25dp"
+                 android:layout_height="25dp"
+                 android:layout_centerVertical="true"
+                 android:layout_alignParentStart="true"
+                 android:background="@android:color/transparent"
+                 android:scaleType="fitXY"
+                 android:src="@drawable/steps" />
+
+             <TextView
+                 android:id="@+id/n_tx_steps_now"
+                 android:text="Now ~ "
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_centerVertical="true"
+                 android:layout_marginStart="5dp"
+                 android:layout_toEndOf="@+id/n_imgv_steps"
+                 android:textColor="@android:color/holo_red_light"
+                 android:textSize="15sp"
+                 android:textStyle="bold"
+                 tools:ignore="HardcodedText" />
+
+
+             <TextView
+                 android:id="@+id/n_tx_steps"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_centerVertical="true"
+                 android:layout_marginStart="5dp"
+                 android:layout_toEndOf="@+id/n_tx_steps_now"
+                 android:textColor="@android:color/holo_red_light"
+                 android:textSize="15sp"
+                 android:textStyle="bold"
+                 tools:ignore="HardcodedText" />
+
+         </RelativeLayout>-->
 
 
     </LinearLayout>
@@ -881,35 +879,35 @@
 
     <FrameLayout
         android:id="@+id/frame_l_tweets"
-        android:layout_above="@+id/tx_desc_walltype"
-        android:foregroundGravity="center"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/tx_desc_walltype"
+        android:foregroundGravity="center">
 
 
         <TextView
             android:id="@+id/tx_tweets"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tweets"
+            android:layout_gravity="center"
             android:autoLink="all"
             android:background="#80FFFFFF"
-            android:linksClickable="true"
             android:ellipsize="end"
+            android:gravity="center"
+            android:linksClickable="true"
             android:maxLines="2"
+            android:text="Tweets"
             android:textColor="?attr/colorPrimaryDark"
             android:textSize="15sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_gravity="center" />
+            android:textStyle="bold" />
 
 
         <ImageButton
             android:id="@+id/twSettings"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:layout_marginTop="-7dp"
             android:layout_marginStart="-7dp"
+            android:layout_marginTop="-7dp"
             android:background="@android:color/transparent"
             android:scaleType="fitXY"
             android:src="@drawable/tw" />
@@ -918,10 +916,10 @@
 
 
     <TextView
-        android:layout_below="@+id/frame_l_tweets"
-        android:background="@android:color/black"
         android:layout_width="match_parent"
-        android:layout_height="1dp"/>
+        android:layout_height="1dp"
+        android:layout_below="@+id/frame_l_tweets"
+        android:background="@android:color/black" />
 
     <TextView
         android:id="@+id/tx_desc_walltype"
@@ -938,11 +936,10 @@
         android:textStyle="bold" />
 
     <TextView
-        android:layout_below="@+id/tx_desc_walltype"
-        android:background="@android:color/black"
         android:layout_width="match_parent"
-        android:layout_height="1dp"/>
-
+        android:layout_height="1dp"
+        android:layout_below="@+id/tx_desc_walltype"
+        android:background="@android:color/black" />
 
 
 </RelativeLayout>

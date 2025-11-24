@@ -294,7 +294,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                         "EEE",
                         Locale.getDefault()
                     ).format(Calendar.getInstance().time) +
-                            "│" + formattedDate
+                            "\n" + formattedDate
                 )
                 remoteViews?.setTextViewText(
                     R.id.tx_desc_walltype,
