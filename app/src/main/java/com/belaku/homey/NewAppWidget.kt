@@ -219,6 +219,12 @@ class NewAppWidget : AppWidgetProvider() {
             setUI()
             setACAdapter()
 
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgv_dialler,
+                getPendingSelfIntent(context, DIAL_CLICK)
+            )
+
             remoteViews?.setOnClickPendingIntent(
                 R.id.clock,
                 getPendingSelfIntent(context, TIME_CLICKED)
@@ -882,6 +888,11 @@ class NewAppWidget : AppWidgetProvider() {
                 remoteViews?.setViewVisibility(R.id.a_clock, View.VISIBLE)
                 remoteViews?.setViewVisibility(R.id.clock, View.INVISIBLE)
             }
+
+        } else if (DIAL_CLICK == intent.action) {
+            val intentDial = Intent(Intent.ACTION_DIAL)
+            intentDial.data = Uri.parse("tel:") // Replace with the desired number
+            appContx.startActivity(intentDial.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 
         }
     }
@@ -1602,6 +1613,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val SET_CLICKED = "setButtonClick"
 
 
+        private const val DIAL_CLICK = "dialClick"
         private const val TIME_CLICKED = "timeClick"
         private const val C_CLICKED = "CClicked"
         private const val A_CLICKED = "AClicked"
