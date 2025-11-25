@@ -65,6 +65,7 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.FileProvider
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.cityLat
@@ -74,12 +75,15 @@ import com.belaku.homey.MainActivity.Companion.getWeatherData
 import com.belaku.homey.MainActivity.Companion.mAct
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.MainActivity.Companion.tempC
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
 import com.belaku.homey.MainActivity.Companion.updateWidget
 import com.belaku.homey.MainActivity.Companion.weatherIconID
+import com.belaku.homey.MainActivity.Companion.weatherIconState
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.cAddrs
 import com.belaku.homey.SetWallWorker.Companion.initialSteps
+import com.belaku.homey.SetWallWorker.Companion.isWallBitmapInitialized
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
@@ -172,7 +176,10 @@ class NewAppWidget : AppWidgetProvider() {
                     cAddrs = gcd.getFromLocation(lat, lng, 1)!!
                     //   makeToast(cAddrs?.get(0)!!.subLocality)
 
-                    cityname = cAddrs?.get(0)!!.getAddressLine(0)
+                    cityname = cAddrs?.get(0)!!.subLocality
+
+                    if (cityname.length > 15)
+                        cityname = cityname.substring(0, 15)
 
                 } catch (e: IOException) {
                     // TODO Auto-generated catch block
@@ -516,6 +523,7 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setUI() {
 
+     //   _liquidGlassEffects()
         _seekWifiState()
         _seekBluetoothState()
         getScreenTime(appContx)
@@ -524,6 +532,14 @@ class NewAppWidget : AppWidgetProvider() {
         wallColors()
         setSomeTwAndWallDescUI()
     }
+
+  /*  private fun _liquidGlassEffects() {
+
+        if (isWallBitmapInitialized())
+        remoteViews?.setImageViewBitmap(R.id.imgv_texts, drawableToBitmap(appContx, RoundedBitmapDrawableFactory.create(
+            appContx.resources, BitmapBlurHelper.blurBitmap(appContx, Bitmap.createBitmap(
+            wallBitmap, 10, 100, screenWidth, screenHeight)))))
+    }*/
 
     private fun _seekWifiState() {
 
@@ -543,7 +559,7 @@ class NewAppWidget : AppWidgetProvider() {
         if (blState && blConnectionState)
             remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_on)
         else if (blState)
-            remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.wifi_on_but_not_connected)
+            remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_red)
         else remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_off)
     }
 
@@ -1054,7 +1070,7 @@ class NewAppWidget : AppWidgetProvider() {
             MainActivity.weatherIconState
         appWidgetView.findViewById<TextView>(R.id.tx_day_date).text =
             SimpleDateFormat("EEE", Locale.getDefault()).format(Calendar.getInstance().time) +
-                    "\n" + formattedDate
+                    "   |   " + formattedDate
 
         readApps()
 
@@ -1532,6 +1548,8 @@ class NewAppWidget : AppWidgetProvider() {
                         2
                     ) + "°C"
                 )
+
+                remoteViews?.setTextViewText(R.id.tx_place_weather, cityname + "\n" + tempC.substring(0, 2) + "° C" + " , " + weatherIconState)
                 remoteViews?.setTextViewText(
                     R.id.tx_weather_icon_state,
                     MainActivity.weatherIconState
@@ -1580,7 +1598,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setTextViewText(
                 R.id.tx_day_date,
                 SimpleDateFormat("EEE", Locale.getDefault()).format(c) +
-                        "\n" + formattedDate
+                        "   |   " + formattedDate
             )
 
             remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)

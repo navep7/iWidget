@@ -1291,7 +1291,9 @@ class MainActivity : AppCompatActivity() {
             var cAddrs = gcd.getFromLocation(lat, lng, 1)!!
             //   makeToast(cAddrs?.get(0)!!.subLocality)
 
-            cityname = cAddrs?.get(0)!!.getAddressLine(0)
+            cityname = cAddrs?.get(0)!!.subLocality
+            if (cityname.length > 15)
+                cityname = cityname.substring(0, 15)
             //   makeToast("cityname - " + cityname)
 
         } catch (e: IOException) {

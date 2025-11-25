@@ -154,7 +154,9 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             cAddrs = gcd.getFromLocation(latitude, longitude, 1)!!
             //   makeToast(cAddrs?.get(0)!!.subLocality)
 
-            cityname = cAddrs?.get(0)!!.getAddressLine(0)
+            cityname = cAddrs?.get(0)!!.subLocality
+            if (cityname.length > 15)
+                cityname = cityname.substring(0, 15)
             //   makeToast("cityname - " + cityname)
 
 
@@ -189,6 +191,9 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         var boolWallSet: Boolean = false
         lateinit var cAddrs: List<Address>
         lateinit var wallBitmap: Bitmap
+        fun isWallBitmapInitialized(): Boolean {
+            return this::wallBitmap.isInitialized
+        }
         var boolNewLap: Boolean = false
 
         @kotlin.jvm.JvmField
@@ -294,7 +299,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                         "EEE",
                         Locale.getDefault()
                     ).format(Calendar.getInstance().time) +
-                            "\n" + formattedDate
+                            "   |   " + formattedDate
                 )
                 remoteViews?.setTextViewText(
                     R.id.tx_desc_walltype,

@@ -44,6 +44,7 @@ import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import com.belaku.homey.MainActivity.Companion
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
@@ -613,7 +614,9 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     var cAddrs = gcd.getFromLocation(lat, lng, 1)!!
                     //   makeToast(cAddrs?.get(0)!!.subLocality)
 
-                    cityname = cAddrs?.get(0)!!.getAddressLine(0)
+                    cityname = cAddrs?.get(0)!!.subLocality
+                    if (MainActivity.cityname.length > 15)
+                        MainActivity.cityname = cityname.substring(0, 15)
 
 
 
