@@ -158,29 +158,193 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/ll_top">
 
-            <AnalogClock
-                android:id="@+id/a_clock"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_marginStart="10dp"
-                android:background="@drawable/weather_rounded_corner"
-                android:dial="@drawable/dialcircle"
-                android:dialTint="?attr/colorPrimaryInverse"
-                android:hand_hourTint="@android:color/white"
-                android:hand_minuteTint="@android:color/black"
-                android:hand_second="@drawable/s_hand"
-                android:hand_secondTint="@android:color/holo_red_light"
-                tools:ignore="UnusedAttribute" />
-
             <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/weather_rounded_corner">
+
+                    <ImageButton
+                        android:id="@+id/imgv_steps"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentStart="true"
+                        android:background="@android:color/transparent"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/steps" />
+
+                    <TextView
+                        android:id="@+id/tx_steps"
+                        android:text="Xx"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="5dp"
+                        android:layout_toEndOf="@+id/imgv_steps"
+                        android:textColor="@android:color/holo_red_light"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+
+                    <TextView
+                        android:id="@+id/tx_steps_info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_toEndOf="@+id/tx_steps"
+                        android:text="ⓘ"
+                        android:textColor="@color/black"
+                        android:textSize="25sp"
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText" />
+
+
+                </RelativeLayout>
+
+
+                <RelativeLayout
+                    android:id="@+id/rl_screentime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/gradient_glass_rounded">
+
+
+                    <ImageButton
+                        android:id="@+id/imgv_scr_time"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentStart="true"
+                        android:background="@android:color/transparent"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/scr_time" />
+
+
+
+                    <TextView
+                        android:id="@+id/btn_screentime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/imgv_scr_time"
+                        android:layout_marginStart="@dimen/padding_5"
+                        android:background="@android:color/transparent"
+                        android:text="10+ H"
+                        android:textColor="@android:color/holo_red_light"
+                        android:textSize="21sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tx_screentime_info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_toEndOf="@+id/btn_screentime"
+                        android:text="ⓘ"
+                        android:textColor="@color/black"
+                        android:textSize="25sp"
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText" />
+
+
+                </RelativeLayout>
+
+            </LinearLayout>
+                <!-- <ImageButton
+                     android:id="@+id/imgbtn_steps_newlap"
+                     android:visibility="gone"
+                     android:src="@android:drawable/ic_input_add"
+                     android:layout_marginStart="@dimen/padding_3"
+                     android:background="@android:color/transparent"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"/>
+
+                 <RelativeLayout
+                     android:id="@+id/rl_n_steps"
+                     android:layout_width="wrap_content"
+                     android:layout_height="35dp"
+                     android:visibility="gone"
+                     android:layout_marginStart="@dimen/padding_3"
+                     android:background="@drawable/gradient_glass_rounded">
+
+
+                     <ImageButton
+                         android:id="@+id/n_imgv_steps"
+                         android:layout_width="25dp"
+                         android:layout_height="25dp"
+                         android:layout_centerVertical="true"
+                         android:layout_alignParentStart="true"
+                         android:background="@android:color/transparent"
+                         android:scaleType="fitXY"
+                         android:src="@drawable/steps" />
+
+                     <TextView
+                         android:id="@+id/n_tx_steps_now"
+                         android:text="Now ~ "
+                         android:layout_width="wrap_content"
+                         android:layout_height="wrap_content"
+                         android:layout_centerVertical="true"
+                         android:layout_marginStart="5dp"
+                         android:layout_toEndOf="@+id/n_imgv_steps"
+                         android:textColor="@android:color/holo_red_light"
+                         android:textSize="15sp"
+                         android:textStyle="bold"
+                         tools:ignore="HardcodedText" />
+
+
+                     <TextView
+                         android:id="@+id/n_tx_steps"
+                         android:layout_width="wrap_content"
+                         android:layout_height="wrap_content"
+                         android:layout_centerVertical="true"
+                         android:layout_marginStart="5dp"
+                         android:layout_toEndOf="@+id/n_tx_steps_now"
+                         android:textColor="@android:color/holo_red_light"
+                         android:textSize="15sp"
+                         android:textStyle="bold"
+                         tools:ignore="HardcodedText" />
+
+                 </RelativeLayout>-->
+
+
+
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/fab_margin"
+                android:layout_marginEnd="@dimen/fab_margin">
+
+
+                <AnalogClock
+                    android:id="@+id/a_clock"
+                    android:visibility="invisible"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginTop="-24dp"
+                    android:layout_gravity="top|center_horizontal"
+                    android:dial="@drawable/dialcircle"
+                    android:dialTint="@android:color/transparent"
+                    android:hand_hourTint="@android:color/white"
+                    android:hand_minuteTint="@android:color/black"
+                    android:hand_second="@drawable/s_hand"
+                    android:hand_secondTint="@android:color/holo_red_light"
+                    tools:ignore="UnusedAttribute" />
+
+
+
+                <LinearLayout
                 android:id="@+id/ll_time_day"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginStart="@dimen/padding_5"
-                android:paddingStart="@dimen/fab_margin"
-                android:paddingEnd="@dimen/fab_margin"
-                android:layout_marginEnd="@dimen/padding_5"
                 android:background="@drawable/bg_gradient_glass_rounded"
                 android:orientation="vertical">
 
@@ -208,6 +372,8 @@
 
 
             </LinearLayout>
+
+            </FrameLayout>
 
             <FrameLayout
                 android:id="@+id/rl_weather"
@@ -277,7 +443,7 @@
         android:layout_width="1dp"
         android:layout_height="match_parent"
         android:layout_above="@+id/frame_l_tweets"
-        android:layout_below="@+id/rl_steps"
+        android:layout_below="@+id/rl_clocks"
         android:layout_marginTop="25dp"
         android:layout_toEndOf="@+id/ll_apps"
         android:background="@android:color/black" />
@@ -287,7 +453,7 @@
         android:layout_width="1dp"
         android:layout_height="match_parent"
         android:layout_above="@+id/frame_l_tweets"
-        android:layout_below="@+id/rl_steps"
+        android:layout_below="@+id/rl_clocks"
         android:layout_marginTop="25dp"
         android:layout_toStartOf="@+id/ll_contacts"
         android:background="@android:color/black" />
@@ -298,7 +464,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/frame_l_tweets"
-        android:layout_below="@+id/rl_steps"
+        android:layout_below="@+id/rl_clocks"
         android:layout_alignParentStart="true"
         android:layout_toStartOf="@+id/ll_controls"
         android:gravity="center"
@@ -313,7 +479,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/frame_l_tweets"
-        android:layout_below="@+id/rl_steps"
+        android:layout_below="@+id/rl_clocks"
         android:layout_alignParentEnd="true"
         android:layout_toEndOf="@+id/ll_controls"
         android:gravity="center"
@@ -328,7 +494,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/frame_l_tweets"
-        android:layout_below="@+id/rl_steps"
+        android:layout_below="@+id/rl_clocks"
         android:layout_alignParentStart="true"
         android:layout_toStartOf="@+id/ll_controls"
         android:gravity="center"
@@ -379,7 +545,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/frame_l_tweets"
-        android:layout_below="@+id/rl_steps"
+        android:layout_below="@+id/rl_clocks"
         android:layout_alignParentEnd="true"
         android:layout_toEndOf="@+id/ll_controls"
         android:orientation="vertical">
@@ -457,7 +623,7 @@
         android:id="@+id/ll_controls"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/rl_steps"
+        android:layout_below="@+id/rl_clocks"
         android:layout_centerHorizontal="true"
         android:layout_marginStart="@dimen/padding_5"
         android:layout_marginEnd="@dimen/padding_5"
@@ -573,7 +739,7 @@
         android:id="@+id/ll_gapps_napps"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
-        android:layout_below="@+id/rl_screentime"
+        android:layout_below="@+id/ll_controls"
         android:layout_alignStart="@+id/ll_controls"
         android:layout_alignEnd="@+id/ll_controls"
         android:gravity="center_horizontal"
@@ -656,177 +822,6 @@
         android:textStyle="bold" />
 
 
-    <RelativeLayout
-        android:id="@+id/rl_screentime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/ll_controls"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/gradient_glass_rounded">
-
-
-        <TextView
-            android:id="@+id/tx_st_since"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_marginStart="@dimen/padding_5"
-            android:text="since 12 PM yday"
-            android:textStyle="bold|italic" />
-
-        <TextView
-            android:id="@+id/btn_screentime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tx_st_since"
-            android:layout_marginStart="@dimen/padding_5"
-            android:background="@android:color/transparent"
-            android:text="ON ~ 10+ H"
-            android:textColor="@android:color/holo_red_light"
-            android:textSize="21sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tx_screentime_info"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/btn_screentime"
-            android:layout_marginStart="@dimen/fab_margin"
-            android:layout_marginEnd="@dimen/padding_5"
-            android:layout_toRightOf="@+id/btn_screentime"
-            android:text="ⓘ"
-            android:textColor="?attr/colorPrimaryDark"
-            android:textSize="35sp"
-            android:textStyle="bold" />
-
-
-    </RelativeLayout>
-
-
-    <LinearLayout
-        android:id="@+id/rl_steps"
-        android:layout_width="wrap_content"
-        android:layout_height="35dp"
-        android:layout_below="@+id/rl_clocks"
-        android:layout_centerHorizontal="true"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal">
-
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/weather_rounded_corner">
-
-            <TextView
-                android:id="@+id/txx_steps"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="3dp"
-                android:layout_marginEnd="3dp"
-                android:text="Steps,"
-                android:textColor="@color/black"
-                android:textStyle="bold|italic" />
-
-            <ImageButton
-                android:id="@+id/imgv_steps"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_centerVertical="true"
-                android:layout_toEndOf="@+id/txx_steps"
-                android:background="@android:color/transparent"
-                android:scaleType="fitXY"
-                android:src="@drawable/steps" />
-
-            <TextView
-                android:id="@+id/tx_steps"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="5dp"
-                android:layout_toEndOf="@+id/imgv_steps"
-                android:textColor="@android:color/holo_red_light"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                tools:ignore="HardcodedText" />
-
-
-            <TextView
-                android:id="@+id/tx_steps_info"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="3dp"
-                android:layout_marginEnd="5dp"
-                android:layout_toEndOf="@+id/tx_steps"
-                android:text="ⓘ"
-                android:textColor="@color/black"
-                android:textSize="25sp"
-                android:textStyle="bold"
-                tools:ignore="HardcodedText" />
-
-
-        </RelativeLayout>
-
-        <!-- <ImageButton
-             android:id="@+id/imgbtn_steps_newlap"
-             android:visibility="gone"
-             android:src="@android:drawable/ic_input_add"
-             android:layout_marginStart="@dimen/padding_3"
-             android:background="@android:color/transparent"
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content"/>
-
-         <RelativeLayout
-             android:id="@+id/rl_n_steps"
-             android:layout_width="wrap_content"
-             android:layout_height="35dp"
-             android:visibility="gone"
-             android:layout_marginStart="@dimen/padding_3"
-             android:background="@drawable/gradient_glass_rounded">
-
-
-             <ImageButton
-                 android:id="@+id/n_imgv_steps"
-                 android:layout_width="25dp"
-                 android:layout_height="25dp"
-                 android:layout_centerVertical="true"
-                 android:layout_alignParentStart="true"
-                 android:background="@android:color/transparent"
-                 android:scaleType="fitXY"
-                 android:src="@drawable/steps" />
-
-             <TextView
-                 android:id="@+id/n_tx_steps_now"
-                 android:text="Now ~ "
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_centerVertical="true"
-                 android:layout_marginStart="5dp"
-                 android:layout_toEndOf="@+id/n_imgv_steps"
-                 android:textColor="@android:color/holo_red_light"
-                 android:textSize="15sp"
-                 android:textStyle="bold"
-                 tools:ignore="HardcodedText" />
-
-
-             <TextView
-                 android:id="@+id/n_tx_steps"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_centerVertical="true"
-                 android:layout_marginStart="5dp"
-                 android:layout_toEndOf="@+id/n_tx_steps_now"
-                 android:textColor="@android:color/holo_red_light"
-                 android:textSize="15sp"
-                 android:textStyle="bold"
-                 tools:ignore="HardcodedText" />
-
-         </RelativeLayout>-->
-
-
-    </LinearLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"

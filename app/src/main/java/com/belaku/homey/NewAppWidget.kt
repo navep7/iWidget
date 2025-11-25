@@ -219,6 +219,15 @@ class NewAppWidget : AppWidgetProvider() {
             setUI()
             setACAdapter()
 
+            remoteViews?.setOnClickPendingIntent(
+                R.id.clock,
+                getPendingSelfIntent(context, TIME_CLICKED)
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.a_clock,
+                getPendingSelfIntent(context, TIME_CLICKED)
+            )
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgv_contacts,
@@ -612,7 +621,7 @@ class NewAppWidget : AppWidgetProvider() {
             noRewards = sharedPreferences.getInt("noRewards", 7)
 
             if (noRewards > 1)
-            remoteViews?.setTextViewText(R.id.tx_rewards_count, "$noRewards")
+                remoteViews?.setTextViewText(R.id.tx_rewards_count, "$noRewards")
             else {
                 remoteViews?.setTextViewText(R.id.tx_rewards_count, "\uD83D\uDC41\uFE0FAD!")
                 remoteViews?.setOnClickPendingIntent(
@@ -852,7 +861,7 @@ class NewAppWidget : AppWidgetProvider() {
             val launchIntent: Intent =
                 appContx.packageManager.getLaunchIntentForPackage("com.belaku.homey")!!
             appContx.startActivity(launchIntent)
-        }  else if (A_CLICKED == intent.action) {
+        } else if (A_CLICKED == intent.action) {
             val intentApps = Intent(appContx, AppsActivity::class.java)
             intentApps.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             appContx.startActivity(intentApps)
@@ -860,6 +869,20 @@ class NewAppWidget : AppWidgetProvider() {
             val intentContacts = Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI)
             intentContacts.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             appContx.startActivity(intentContacts)
+        } else if (TIME_CLICKED == intent.action) {
+
+            if (sharedPreferences.getBoolean("AnalogV", true)) {
+                sharedPreferencesEditor.putBoolean("AnalogV", false).apply()
+
+                remoteViews?.setViewVisibility(R.id.a_clock, View.INVISIBLE)
+                remoteViews?.setViewVisibility(R.id.clock, View.VISIBLE)
+            } else {
+                sharedPreferencesEditor.putBoolean("AnalogV", true).apply()
+
+                remoteViews?.setViewVisibility(R.id.a_clock, View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.clock, View.INVISIBLE)
+            }
+
         }
     }
 
@@ -988,7 +1011,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         appWidgetView.findViewById<TextView>(
             R.id.btn_screentime
-        ).text = "ON ~ ${totalScreenTimeInMinutes}+ H"
+        ).text = "${totalScreenTimeInMinutes}+ H"
         greeting()
         appWidgetView.findViewById<TextView>(R.id.tx_wish).text = timelyWish
         var ampm = Calendar.getInstance()[Calendar.AM_PM].toString()
@@ -1003,7 +1026,7 @@ class NewAppWidget : AppWidgetProvider() {
         val mSpannableStringLoc = SpannableString(cityname)
         mSpannableStringLoc.setSpan(UnderlineSpan(), 0, mSpannableStringLoc.length, 0)
         appWidgetView.findViewById<TextView>(R.id.tx_place).text = "⚲ " + cityname
-        appWidgetView.findViewById<TextView>(R.id.tx_steps).text = "$dayOfTheWeek ~ $stepsToday"
+        appWidgetView.findViewById<TextView>(R.id.tx_steps).text = "$stepsToday"
 
         appWidgetView.findViewById<LinearLayout>(R.id.ll_apps).visibility = View.INVISIBLE
         appWidgetView.findViewById<LinearLayout>(R.id.ll_contacts).visibility = View.INVISIBLE
@@ -1016,9 +1039,11 @@ class NewAppWidget : AppWidgetProvider() {
                 2
             ) + "°C"
         )
-        appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_state).text = MainActivity.weatherIconState
-        appWidgetView.findViewById<TextView>(R.id.tx_day_date).text = SimpleDateFormat("EEE", Locale.getDefault()).format(Calendar.getInstance().time) +
-                "\n" + formattedDate
+        appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_state).text =
+            MainActivity.weatherIconState
+        appWidgetView.findViewById<TextView>(R.id.tx_day_date).text =
+            SimpleDateFormat("EEE", Locale.getDefault()).format(Calendar.getInstance().time) +
+                    "\n" + formattedDate
 
         readApps()
 
@@ -1036,7 +1061,8 @@ class NewAppWidget : AppWidgetProvider() {
         appWidgetView.findViewById<TextView>(R.id.tx_tweets).movementMethod =
             ScrollingMovementMethod()
 
-        appWidgetView.findViewById<TextView>(R.id.tx_tweets).text = "\t\t\t\t\t @" + twitterProfileName + "\t ~ \t" + tW
+        appWidgetView.findViewById<TextView>(R.id.tx_tweets).text =
+            "\t\t\t\t\t @" + twitterProfileName + "\t ~ \t" + tW
 
         appWidgetView.findViewById<AnalogClock>(R.id.a_clock).visibility = View.INVISIBLE
     }
@@ -1446,13 +1472,10 @@ class NewAppWidget : AppWidgetProvider() {
                 "1" -> ampm = "PM"
             }
 
-            remoteViews?.setTextViewText(
-                R.id.tx_st_since,
-                "since ${currentHour % 12} $ampm yday"
-            )
+
             remoteViews?.setTextViewText(
                 R.id.btn_screentime,
-                "ON ~ ${totalScreenTimeInMinutes.toString()}+ H"
+                "${totalScreenTimeInMinutes.toString()}+ H"
             )
 
         }
@@ -1541,8 +1564,8 @@ class NewAppWidget : AppWidgetProvider() {
             // remoteViews?.setTextViewText(R.id.tx_date, formattedDate)
             sharedPreferencesEditor.putBoolean("DateSet", true).apply()
             sharedPreferencesEditor.putString("fD", formattedDate).apply()
-            remoteViews?.setTextViewText(R.id.tx_steps, "$dayOfTheWeek ~ $stepsToday")
-         //   remoteViews?.setTextViewText(R.id.n_tx_steps, "Now, $newLapSteps")
+            remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday")
+            //   remoteViews?.setTextViewText(R.id.n_tx_steps, "Now, $newLapSteps")
             remoteViews?.setTextViewText(
                 R.id.tx_day_date,
                 SimpleDateFormat("EEE", Locale.getDefault()).format(c) +
@@ -1579,6 +1602,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val SET_CLICKED = "setButtonClick"
 
 
+        private const val TIME_CLICKED = "timeClick"
         private const val C_CLICKED = "CClicked"
         private const val A_CLICKED = "AClicked"
         private const val ACTION_LIST_CONTACTITEM_CLICK = "Contact_Item_Click"
