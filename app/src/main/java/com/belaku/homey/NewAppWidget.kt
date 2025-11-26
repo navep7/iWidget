@@ -537,8 +537,8 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (isWallBitmapInitialized())
             remoteViews?.setImageViewBitmap(
-                R.id.imgv_texts, applyThinFilmOverlay(drawableToBitmap(appContx, RoundedBitmapDrawableFactory.create(appContx.resources, BitmapBlurHelper.blurBitmap(
-                    appContx, Bitmap.createBitmap(wallBitmap, screenWidth/7, screenHeight/5, wallBitmap.width/2, wallBitmap.height/6)
+                R.id.imgv_widget_layout, applyThinFilmOverlay(drawableToBitmap(appContx, RoundedBitmapDrawableFactory.create(appContx.resources, BitmapBlurHelper.blurBitmap(
+                    appContx, wallBitmap
                 ))
                 ), Color.WHITE, 50))
 

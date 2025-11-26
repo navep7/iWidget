@@ -11,6 +11,11 @@
     android:orientation="vertical"
     android:theme="@style/Theme.Material3.DynamicColors.Light">
 
+    <ImageView
+        android:id="@+id/imgv_widget_layout"
+        android:scaleType="fitXY"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
     <RelativeLayout
         android:id="@+id/rl_clocks"
