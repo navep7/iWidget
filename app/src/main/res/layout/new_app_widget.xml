@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center"
-    android:background="@drawable/gradient_glass_rounded_ss"
+    android:background="@drawable/rounded_ss"
     android:gravity="center"
     android:orientation="vertical"
     android:theme="@style/Theme.Material3.DynamicColors.Light">
@@ -215,6 +215,17 @@
 
              </RelativeLayout>-->
 
+            <ImageView
+                android:id="@+id/imgv_texts"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"
+                android:layout_margin="3dp"
+                android:layout_alignStart="@+id/frame_texts"
+                android:layout_alignTop="@+id/frame_texts"
+                android:layout_alignEnd="@+id/frame_texts"
+                android:layout_alignBottom="@+id/frame_texts"/>
+
 
             <FrameLayout
                 android:id="@+id/frame_texts"
@@ -225,7 +236,6 @@
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="@dimen/fab_margin"
                 android:layout_marginEnd="@dimen/fab_margin">
-
 
                 <AnalogClock
                     android:id="@+id/a_clock"

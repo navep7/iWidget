@@ -179,7 +179,7 @@ class NewAppWidget : AppWidgetProvider() {
                     cityname = cAddrs?.get(0)!!.subLocality
 
                     if (cityname.length > 15)
-                        cityname = cityname.substring(0, 15)
+                        cityname = cityname.substring(0, 12) + "..,"
 
                 } catch (e: IOException) {
                     // TODO Auto-generated catch block
@@ -523,7 +523,7 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setUI() {
 
-     //   _liquidGlassEffects()
+        _liquidGlassEffects()
         _seekWifiState()
         _seekBluetoothState()
         getScreenTime(appContx)
@@ -533,13 +533,51 @@ class NewAppWidget : AppWidgetProvider() {
         setSomeTwAndWallDescUI()
     }
 
-  /*  private fun _liquidGlassEffects() {
+    private fun _liquidGlassEffects() {
 
         if (isWallBitmapInitialized())
-        remoteViews?.setImageViewBitmap(R.id.imgv_texts, drawableToBitmap(appContx, RoundedBitmapDrawableFactory.create(
-            appContx.resources, BitmapBlurHelper.blurBitmap(appContx, Bitmap.createBitmap(
-            wallBitmap, 10, 100, screenWidth, screenHeight)))))
-    }*/
+            remoteViews?.setImageViewBitmap(
+                R.id.imgv_texts, applyThinFilmOverlay(drawableToBitmap(appContx, RoundedBitmapDrawableFactory.create(appContx.resources, BitmapBlurHelper.blurBitmap(
+                    appContx, Bitmap.createBitmap(wallBitmap, screenWidth/7, screenHeight/5, wallBitmap.width/2, wallBitmap.height/6)
+                ))
+                ), Color.WHITE, 50))
+
+    }
+
+    fun applyThinFilmOverlay(originalBitmap: Bitmap, filmColor: Int, filmAlpha: Int): Bitmap {
+        // Create a mutable bitmap for drawing
+        val resultBitmap = Bitmap.createBitmap(
+            originalBitmap.width,
+            originalBitmap.height,
+            Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(resultBitmap)
+
+        // Draw the original bitmap
+        canvas.drawBitmap(originalBitmap, 0f, 0f, null)
+
+        // Create a paint object for the "film" effect
+        val paint = Paint()
+        paint.color = filmColor
+        // Set the transparency (0 = fully transparent, 255 = fully opaque)
+        paint.alpha = filmAlpha
+
+
+        // You can also experiment with blend modes for different effects
+        // paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.OVERLAY));
+
+        // Draw the semi-transparent color over the entire canvas
+        canvas.drawRect(
+            0f,
+            0f,
+            originalBitmap.width.toFloat(),
+            originalBitmap.height.toFloat(),
+            paint
+        )
+
+        return resultBitmap
+    }
+
 
     private fun _seekWifiState() {
 
@@ -1549,7 +1587,10 @@ class NewAppWidget : AppWidgetProvider() {
                     ) + "°C"
                 )
 
-                remoteViews?.setTextViewText(R.id.tx_place_weather, cityname + "\n" + tempC.substring(0, 2) + "° C" + " , " + weatherIconState)
+                remoteViews?.setTextViewText(
+                    R.id.tx_place_weather,
+                    cityname + "\n" + tempC.substring(0, 2) + "° C" + " , " + weatherIconState
+                )
                 remoteViews?.setTextViewText(
                     R.id.tx_weather_icon_state,
                     MainActivity.weatherIconState

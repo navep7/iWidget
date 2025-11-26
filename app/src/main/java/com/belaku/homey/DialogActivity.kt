@@ -616,7 +616,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
                     cityname = cAddrs?.get(0)!!.subLocality
                     if (MainActivity.cityname.length > 15)
-                        MainActivity.cityname = cityname.substring(0, 15)
+                        MainActivity.cityname = cityname.substring(0, 12) + "..,"
 
 
 

@@ -156,7 +156,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
             cityname = cAddrs?.get(0)!!.subLocality
             if (cityname.length > 15)
-                cityname = cityname.substring(0, 15)
+                cityname = cityname.substring(0, 12) + "..,"
             //   makeToast("cityname - " + cityname)
 
 
