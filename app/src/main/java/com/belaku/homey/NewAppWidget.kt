@@ -58,6 +58,7 @@ import android.view.View
 import android.view.accessibility.AccessibilityManager
 import android.widget.AdapterView
 import android.widget.AnalogClock
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.RemoteViews
@@ -766,17 +767,15 @@ class NewAppWidget : AppWidgetProvider() {
 
         super.onReceive(context, intent)
 
+        appContx = context
+
         //       makeToast("!onReceive")
         remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
         sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
 
-        appContx = context
-
         setUI()
         handleIntentActions(intent)
-
-
 
         appWidM = AppWidgetManager.getInstance(context)
         appWidM.updateAppWidget(newAppWidget, remoteViews)
@@ -1082,9 +1081,11 @@ class NewAppWidget : AppWidgetProvider() {
     @SuppressLint("SetTextI18n")
     private fun loadWidgetToShare(appWidgetView: View) {
 
-        val backgroundDrawable = BitmapDrawable(appContx.getResources(), wallBitmap)
-        appWidgetView.findViewById<RelativeLayout>(R.id.rl_widget_layout).background =
-            backgroundDrawable
+
+        appWidgetView.findViewById<ImageView>(R.id.imgv_widget_layout).setImageBitmap(applyThinFilmOverlay(drawableToBitmap(appContx, RoundedBitmapDrawableFactory.create(appContx.resources, BitmapBlurHelper.blurBitmap(
+            appContx, Bitmap.createBitmap(scaledBitmap, 10, 25, screenWidth - 20, screenHeight - 150)
+        ))
+        ), Color.WHITE, 50))
 
         appWidgetView.findViewById<TextView>(
             R.id.btn_screentime
