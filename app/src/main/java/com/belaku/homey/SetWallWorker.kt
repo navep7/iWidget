@@ -191,6 +191,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         var boolWallSet: Boolean = false
         lateinit var cAddrs: List<Address>
         lateinit var wallBitmap: Bitmap
+        lateinit var scaledBitmap: Bitmap
         fun isWallBitmapInitialized(): Boolean {
             return this::wallBitmap.isInitialized
         }
@@ -245,7 +246,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     ).openConnection().getInputStream()
                 )
 
-                val scaledBitmap =
+                scaledBitmap =
                     Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
 
                 if (b)

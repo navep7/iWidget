@@ -39,7 +39,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="..Greeting!"
-                android:textColor="?attr/colorTertiary"
+                android:textColor="@android:color/holo_red_light"
                 android:textSize="33sp"
                 android:textStyle="bold"
                 tools:ignore="HardcodedText" />
@@ -237,7 +237,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/fab_margin"
-                android:background="@drawable/gradient_glass_rounded_ss"
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="@dimen/fab_margin"
                 android:layout_marginEnd="@dimen/fab_margin">
@@ -307,10 +306,19 @@
                         tools:ignore="HardcodedText" />
 
                     <TextView
-                        android:id="@+id/tx_place_weather"
+                        android:id="@+id/tx_place"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Place, 25° C, Cloudy"
+                        android:text="Place.."
+                        android:textColor="@android:color/black"
+                        android:textSize="15sp"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:id="@+id/tx_weather"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="25° C, Cloudy"
                         android:textColor="@android:color/black"
                         android:textSize="15sp"
                         android:textStyle="bold"/>
@@ -425,49 +433,9 @@
         </RelativeLayout>
 
 
-        <TextView
-            android:id="@+id/tx_place"
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/ll_clocks_weather"
-            android:layout_margin="@dimen/padding_3"
-            android:background="@drawable/gradient_glass_flat"
-            android:ellipsize="marquee"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:scrollHorizontally="true"
-            android:singleLine="true"
-            android:text="Place"
-            android:textColor="@color/black"
-            android:textSize="15sp"
-            android:textStyle="bold|italic">
-
-            <requestFocus />
-        </TextView>
 
     </RelativeLayout>
 
-
-    <TextView
-        android:layout_width="1dp"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/frame_l_tweets"
-        android:layout_below="@+id/rl_clocks"
-        android:layout_marginTop="25dp"
-        android:layout_toEndOf="@+id/ll_apps"
-        android:background="@android:color/black" />
-
-
-    <TextView
-        android:layout_width="1dp"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/frame_l_tweets"
-        android:layout_below="@+id/rl_clocks"
-        android:layout_marginTop="25dp"
-        android:layout_toStartOf="@+id/ll_contacts"
-        android:background="@android:color/black" />
 
 
     <TextView
@@ -537,13 +505,10 @@
 
         </LinearLayout>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/black" />
 
         <ListView
             android:id="@+id/list_apps"
+            android:fadeScrollbars="false"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
@@ -592,14 +557,12 @@
 
         </LinearLayout>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/black" />
 
 
         <ListView
             android:id="@+id/list_contacts"
+            android:fadeScrollbars="false"
+            android:verticalScrollbarPosition="left"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

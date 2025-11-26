@@ -84,6 +84,7 @@ import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.cAddrs
 import com.belaku.homey.SetWallWorker.Companion.initialSteps
 import com.belaku.homey.SetWallWorker.Companion.isWallBitmapInitialized
+import com.belaku.homey.SetWallWorker.Companion.scaledBitmap
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
@@ -538,7 +539,7 @@ class NewAppWidget : AppWidgetProvider() {
         if (isWallBitmapInitialized())
             remoteViews?.setImageViewBitmap(
                 R.id.imgv_widget_layout, applyThinFilmOverlay(drawableToBitmap(appContx, RoundedBitmapDrawableFactory.create(appContx.resources, BitmapBlurHelper.blurBitmap(
-                    appContx, wallBitmap
+                    appContx, Bitmap.createBitmap(scaledBitmap, 10, 25, screenWidth - 20, screenHeight - 150)
                 ))
                 ), Color.WHITE, 50))
 
@@ -608,6 +609,12 @@ class NewAppWidget : AppWidgetProvider() {
         setAppsClick()
     }
 
+    fun getInvertedColor(color: Int): Int {
+        // 0x00FFFFFF represents a mask for the RGB components (ignoring alpha).
+        // XORing with this value inverts the bits of the R, G, and B components.
+        return color xor 0x00FFFFFF
+    }
+
     @RequiresApi(Build.VERSION_CODES.S)
     private fun wallColors() {
 
@@ -627,6 +634,11 @@ class NewAppWidget : AppWidgetProvider() {
             if (wallpaperColors.tertiaryColor != null)
                 tertianaryColor = wallpaperColors.tertiaryColor!!.toArgb()
             else tertianaryColor = Color.BLUE
+
+            /*remoteViews?.setTextColor(R.id.clock, primaryColor xor 0x00FFFFFF)
+            remoteViews?.setTextColor(R.id.tx_day_date, secondaryColor xor 0x00FFFFFF)
+            remoteViews?.setTextColor(R.id.tx_place, tertianaryColor xor 0x00FFFFFF)
+            remoteViews?.setTextColor(R.id.tx_weather, tertianaryColor)*/
 
             remoteViews?.setColorInt(
                 R.id.imgbtn_location,
@@ -1092,20 +1104,21 @@ class NewAppWidget : AppWidgetProvider() {
         mSpannableStringLoc.setSpan(UnderlineSpan(), 0, mSpannableStringLoc.length, 0)
         appWidgetView.findViewById<TextView>(R.id.tx_place).text = "⚲ " + cityname
         appWidgetView.findViewById<TextView>(R.id.tx_steps).text = "$stepsToday"
+        appWidgetView.findViewById<TextView>(R.id.tx_weather).text = tempC.substring(0, 2) + "°C , " + weatherIconState
 
         appWidgetView.findViewById<LinearLayout>(R.id.ll_apps).visibility = View.INVISIBLE
         appWidgetView.findViewById<LinearLayout>(R.id.ll_contacts).visibility = View.INVISIBLE
         appWidgetView.findViewById<TextView>(R.id.tx_apps).visibility = View.VISIBLE
         appWidgetView.findViewById<TextView>(R.id.tx_calls).visibility = View.VISIBLE
 
-        appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_temp).setText(
+       /* appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_temp).setText(
             MainActivity.tempC.substring(
                 0,
                 2
             ) + "°C"
         )
         appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_state).text =
-            MainActivity.weatherIconState
+            MainActivity.weatherIconState */
         appWidgetView.findViewById<TextView>(R.id.tx_day_date).text =
             SimpleDateFormat("EEE", Locale.getDefault()).format(Calendar.getInstance().time) +
                     "   |   " + formattedDate
@@ -1588,12 +1601,14 @@ class NewAppWidget : AppWidgetProvider() {
                 )
 
                 remoteViews?.setTextViewText(
-                    R.id.tx_place_weather,
-                    cityname + "\n" + tempC.substring(0, 2) + "° C" + " , " + weatherIconState
+                    R.id.tx_place,
+                    cityname
                 )
+                remoteViews?.setTextViewText(R.id.tx_weather,
+                     tempC.substring(0, 2) + "° C" + " , " + weatherIconState)
                 remoteViews?.setTextViewText(
                     R.id.tx_weather_icon_state,
-                    MainActivity.weatherIconState
+                    weatherIconState
                 )
 
 
