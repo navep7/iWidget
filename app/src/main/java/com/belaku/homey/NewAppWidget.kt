@@ -161,7 +161,10 @@ class NewAppWidget : AppWidgetProvider() {
                     getAddress(location.latitude, location.longitude)
                     //     makeToast("Location update - $cAddrs")
 
-                    remoteViews?.setTextViewText(R.id.tx_place, cAddrs.get(0).subLocality)
+                    remoteViews?.setTextViewText(
+                        R.id.tx_place,
+                         cityname
+                    )
                     getWeatherData(false)
 
                 }
@@ -178,8 +181,8 @@ class NewAppWidget : AppWidgetProvider() {
 
                     cityname = cAddrs?.get(0)!!.subLocality
 
-                    if (cityname.length > 15)
-                        cityname = cityname.substring(0, 12) + "..,"
+               //     if (cityname.length > 15)
+                 //       cityname = cityname.substring(0, 12) + "..,"
 
                 } catch (e: IOException) {
                     // TODO Auto-generated catch block
@@ -439,7 +442,7 @@ class NewAppWidget : AppWidgetProvider() {
                 )
             )
 
-            remoteViews?.setOnClickPendingIntent(
+            /*remoteViews?.setOnClickPendingIntent(
                 R.id.tx_live_weather_effects, PendingIntent.getActivity(
                     context, 9,
                     Intent(context, DialogActivity::class.java).putExtra(
@@ -448,7 +451,7 @@ class NewAppWidget : AppWidgetProvider() {
                     ),
                     PendingIntent.FLAG_IMMUTABLE
                 )
-            )
+            )*/
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.weather_icon,
@@ -490,7 +493,7 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
             remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_location,
+                R.id.tx_get_place,
                 mapsPendingIntent
             )
 
@@ -521,7 +524,7 @@ class NewAppWidget : AppWidgetProvider() {
             )
         } else remoteViews?.setTextViewText(
             R.id.tx_place,
-            "⚲ " + cityname
+            cityname
         )
     }
 
@@ -644,12 +647,6 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setTextColor(R.id.tx_place, tertianaryColor xor 0x00FFFFFF)
             remoteViews?.setTextColor(R.id.tx_weather, tertianaryColor)*/
 
-            remoteViews?.setColorInt(
-                R.id.imgbtn_location,
-                "setColorFilter",
-                Color.BLACK,
-                Color.BLACK
-            )
             remoteViews?.setColorInt(
                 R.id.imgbtn_conf,
                 "setColorFilter",
@@ -1133,7 +1130,7 @@ class NewAppWidget : AppWidgetProvider() {
             MainActivity.weatherIconState */
         appWidgetView.findViewById<TextView>(R.id.tx_day_date).text =
             SimpleDateFormat("EEE", Locale.getDefault()).format(Calendar.getInstance().time) +
-                    "   |   " + formattedDate
+                    ", " + formattedDate
 
         readApps()
 
@@ -1625,16 +1622,16 @@ class NewAppWidget : AppWidgetProvider() {
 
 
                 if (weatherIconID.startsWith("5"))
-                    remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.rain)
+                    remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.rain)
                 if (weatherIconID.equals("800"))
-                    remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clear_sky)
+                    remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.clear_sky)
                 if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals(
                         "803"
                     ) || weatherIconID.equals(
                         "804"
                     )
                 )
-                    remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clouds)
+                    remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.clouds)
             } else {
                 getWeatherData(false)
                 if (MainActivity.tempC.length > 3) {
@@ -1666,7 +1663,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setTextViewText(
                 R.id.tx_day_date,
                 SimpleDateFormat("EEE", Locale.getDefault()).format(c) +
-                        "   |   " + formattedDate
+                        ", " + formattedDate
             )
 
             remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)

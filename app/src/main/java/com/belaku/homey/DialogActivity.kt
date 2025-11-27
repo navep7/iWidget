@@ -114,7 +114,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
             } else {
                 // Handle the scan result
                 var scannedUrl = result.contents
-                makeToast("Scanned: ${result.contents}")
+                makeToast("Scanned: ${result}")
                 val upiUri = Uri.parse(scannedUrl)
                 val upiIntent = Intent(Intent.ACTION_VIEW)
                 upiIntent.setData(upiUri)
@@ -615,8 +615,8 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     //   makeToast(cAddrs?.get(0)!!.subLocality)
 
                     cityname = cAddrs?.get(0)!!.subLocality
-                    if (MainActivity.cityname.length > 15)
-                        MainActivity.cityname = cityname.substring(0, 12) + "..,"
+            //        if (MainActivity.cityname.length > 15)
+              //          MainActivity.cityname = cityname.substring(0, 12) + "..,"
 
 
 

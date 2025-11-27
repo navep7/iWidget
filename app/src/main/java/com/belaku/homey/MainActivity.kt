@@ -1292,8 +1292,8 @@ class MainActivity : AppCompatActivity() {
             //   makeToast(cAddrs?.get(0)!!.subLocality)
 
             cityname = cAddrs?.get(0)!!.subLocality
-            if (cityname.length > 15)
-                cityname = cityname.substring(0, 12) + "..,"
+      //      if (cityname.length > 15)
+        //        cityname = cityname.substring(0, 12) + "..,"
             //   makeToast("cityname - " + cityname)
 
         } catch (e: IOException) {

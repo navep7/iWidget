@@ -155,8 +155,8 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             //   makeToast(cAddrs?.get(0)!!.subLocality)
 
             cityname = cAddrs?.get(0)!!.subLocality
-            if (cityname.length > 15)
-                cityname = cityname.substring(0, 12) + "..,"
+         //   if (cityname.length > 15)
+           //     cityname = cityname.substring(0, 12) + "..,"
             //   makeToast("cityname - " + cityname)
 
 
@@ -300,7 +300,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                         "EEE",
                         Locale.getDefault()
                     ).format(Calendar.getInstance().time) +
-                            "   |   " + formattedDate
+                            ", " + formattedDate
                 )
                 remoteViews?.setTextViewText(
                     R.id.tx_desc_walltype,
@@ -314,7 +314,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
                 /*val mSpannableStringLoc = SpannableString(cityname)
                 mSpannableStringLoc.setSpan(UnderlineSpan(), 0, mSpannableStringLoc.length, 0)*/
-                remoteViews?.setTextViewText(R.id.tx_place, "⚲ " + cityname)
+                remoteViews?.setTextViewText(R.id.tx_place, cityname)
 
 
                 val intent = Intent(appContx, NewAppWidget::class.java)
