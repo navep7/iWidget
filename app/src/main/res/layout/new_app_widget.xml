@@ -391,12 +391,11 @@
 
     <LinearLayout
         android:id="@+id/ll_apps"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="100dp"
+        android:layout_height="match_parent"
         android:layout_above="@+id/frame_l_tweets"
         android:layout_below="@+id/rl_clocks"
         android:layout_alignParentStart="true"
-        android:layout_toStartOf="@+id/ll_controls"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -448,14 +447,13 @@
         android:src="@drawable/dial" />
 
     <ImageButton
-        android:id="@+id/imgbtn_speech"
+        android:id="@+id/imgbtn_g_apps1"
         android:layout_width="25dp"
         android:layout_height="25dp"
-        android:layout_above="@+id/ll_contacts"
-        android:layout_toStartOf="@+id/imgv_dialler"
-        android:layout_marginEnd="35dp"
-        android:background="@drawable/circular_tx_border"
-        android:padding="@dimen/padding_5"
+        android:padding="@dimen/padding_3"
+        android:layout_above="@+id/ll_apps"
+        android:layout_alignStart="@+id/ll_contacts"
+        android:background="@drawable/rounded_ss"
         android:scaleType="fitXY"
         android:src="@android:drawable/ic_btn_speak_now" />
 
@@ -471,14 +469,27 @@
         android:src="@android:drawable/ic_media_play" />
 
 
+
+
+    <ImageButton
+        android:id="@+id/imgbtn_g_apps"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_above="@+id/ll_contacts"
+        android:layout_alignEnd="@+id/ll_apps"
+        android:background="@drawable/gradient_glass_rounded"
+        android:scaleType="fitXY"
+        android:src="@drawable/g1" />
+
+
+
     <LinearLayout
         android:id="@+id/ll_contacts"
-        android:layout_width="wrap_content"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_above="@+id/frame_l_tweets"
         android:layout_below="@+id/rl_clocks"
         android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/ll_controls"
         android:orientation="vertical">
 
         <LinearLayout
@@ -567,6 +578,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginStart="@dimen/padding_5"
         android:layout_marginEnd="@dimen/padding_5"
+        android:gravity="center_horizontal"
         android:orientation="vertical"
         android:padding="@dimen/padding_5"
         android:paddingStart="@dimen/fab_margin"
@@ -611,87 +623,31 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/ll_controls2"
+        <ImageButton
+            android:id="@+id/imgbtn_lock"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal">
-
-
-            <ImageButton
-                android:id="@+id/imgbtn_lock"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="10dp"
-                android:background="@drawable/circular_border"
-                android:padding="@dimen/padding_5"
-                android:src="@android:drawable/ic_lock_lock" />
-
-            <ImageButton
-                android:id="@+id/imgbtn_conf"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:background="@drawable/circular_border"
-                android:padding="@dimen/padding_5"
-                android:src="@android:drawable/ic_menu_search" />
-
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:id="@+id/ll_gapps_napps"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_below="@+id/ll_controls"
-        android:layout_alignStart="@+id/ll_controls"
-        android:layout_alignEnd="@+id/ll_controls"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal"
-        android:weightSum="3">
-
-        <ImageButton
-            android:id="@+id/imgbtn_g_apps"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:contentDescription="G"
-            android:scaleType="fitCenter"
-            android:src="@drawable/g1"
-            tools:ignore="HardcodedText" />
-
-        <ImageButton
-            android:id="@+id/fab_share"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_weight="1"
-            android:background="@drawable/dial_c"
-            android:contentDescription="G"
-            android:padding="@dimen/fab_margin"
-            android:scaleType="fitCenter"
-            android:src="@android:drawable/ic_menu_share"
-            tools:ignore="HardcodedText" />
+            android:layout_marginTop="5dp"
+            android:background="@drawable/rounded_ss"
+            android:padding="@dimen/padding_5"
+            android:src="@android:drawable/ic_lock_lock"
+            app:tint="@android:color/holo_red_dark" />
 
         <ImageButton
             android:id="@+id/imgbtn_n_apps"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:contentDescription="G"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/s1"
-            tools:ignore="HardcodedText" />
+            android:layout_marginTop="5dp"
+            android:background="@drawable/rounded_ss"
+            android:padding="@dimen/padding_5"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/me" />
+
 
     </LinearLayout>
+
+
 
 
     <ImageView
