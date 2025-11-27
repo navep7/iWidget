@@ -60,7 +60,6 @@ import android.widget.AdapterView
 import android.widget.AnalogClock
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.annotation.RequiresApi
@@ -89,7 +88,6 @@ import com.belaku.homey.SetWallWorker.Companion.scaledBitmap
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
-import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -232,6 +230,11 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgv_dialler,
                 getPendingSelfIntent(context, DIAL_CLICK)
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgv_ps,
+                getPendingSelfIntent(context, PS_CLICK)
             )
 
             remoteViews?.setOnClickPendingIntent(
@@ -959,6 +962,14 @@ class NewAppWidget : AppWidgetProvider() {
             intentDial.data = Uri.parse("tel:") // Replace with the desired number
             appContx.startActivity(intentDial.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 
+        } else if (PS_CLICK == intent.action) {
+
+            val pm: PackageManager = appContx.getPackageManager()
+            val intent = pm.getLaunchIntentForPackage("com.android.vending")
+            intent?.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            appContx.startActivity(intent);
+
         }
     }
 
@@ -1089,7 +1100,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         appWidgetView.findViewById<TextView>(
             R.id.btn_screentime
-        ).text = "${totalScreenTimeInMinutes}+ H"
+        ).text = "${totalScreenTimeInMinutes}+"
         greeting()
         appWidgetView.findViewById<TextView>(R.id.tx_wish).text = timelyWish
         var ampm = Calendar.getInstance()[Calendar.AM_PM].toString()
@@ -1554,7 +1565,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             remoteViews?.setTextViewText(
                 R.id.btn_screentime,
-                "${totalScreenTimeInMinutes.toString()}+ H"
+                "${totalScreenTimeInMinutes.toString()}+"
             )
 
         }
@@ -1688,6 +1699,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val SET_CLICKED = "setButtonClick"
 
 
+        private const val PS_CLICK = "psClick"
         private const val DIAL_CLICK = "dialClick"
         private const val TIME_CLICKED = "timeClick"
         private const val C_CLICKED = "CClicked"

@@ -408,7 +408,7 @@
                         android:layout_marginStart="@dimen/padding_5"
                         android:layout_toEndOf="@+id/imgv_scr_time"
                         android:background="@android:color/transparent"
-                        android:text="10+ H"
+                        android:text="10+"
                         android:textColor="@android:color/holo_red_light"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -485,26 +485,27 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:gravity="end"
             android:background="@drawable/gradient_glass_list">
 
-            <ImageView
-                android:id="@+id/imgv_apps"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_marginStart="@dimen/padding_5"
-                android:src="@drawable/launch_e" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_gravity="center_vertical"
                 android:layout_marginStart="@dimen/padding_5"
                 android:layout_marginEnd="@dimen/padding_5"
                 android:text="Apps"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
+            <ImageView
+                android:id="@+id/imgv_apps"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginEnd="@dimen/padding_3"
+                android:layout_marginStart="@dimen/padding_5"
+                android:src="@drawable/launch_e" />
 
         </LinearLayout>
 
@@ -522,11 +523,22 @@
         android:id="@+id/imgv_dialler"
         android:layout_width="25dp"
         android:layout_height="25dp"
-        android:layout_toStartOf="@+id/ll_contacts"
+        android:layout_alignParentEnd="true"
         android:layout_above="@+id/ll_contacts"
         android:background="@drawable/gradient_glass_rounded"
         android:scaleType="fitXY"
         android:src="@drawable/dial" />
+
+    <ImageView
+        android:id="@+id/imgv_ps"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/ll_contacts"
+        android:background="@drawable/gradient_glass_rounded"
+        android:scaleType="fitXY"
+        android:src="@android:drawable/ic_media_play" />
+
 
 
     <LinearLayout
@@ -605,6 +617,19 @@
         android:background="@drawable/gradient_glass"
         android:visibility="gone" />
 
+    <TextView
+        android:id="@+id/tx_rewards_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/ll_controls"
+        android:layout_marginBottom="-15dp"
+        android:text="5"
+        android:textColor="@android:color/holo_red_light"
+        android:textStyle="bold"
+        tools:ignore="HardcodedText" />
+
+
 
     <LinearLayout
         android:id="@+id/ll_controls"
@@ -662,15 +687,6 @@
                     android:minHeight="25dp"
                     android:visibility="invisible" />
 
-                <TextView
-                    android:id="@+id/tx_rewards_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:text="5"
-                    android:textColor="@android:color/holo_red_light"
-                    android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
 
             </RelativeLayout>
 
