@@ -5,6 +5,7 @@ package com.belaku.homey
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
+import android.accounts.AccountManager
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.WallpaperManager
@@ -65,6 +66,7 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.FileProvider
+import androidx.core.graphics.drawable.RoundedBitmapDrawable
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.apps
@@ -97,6 +99,7 @@ import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.util.Arrays
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
@@ -220,7 +223,7 @@ class NewAppWidget : AppWidgetProvider() {
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
         sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
-
+        sharedPreferencesEditor = sharedPreferences.edit()
 
         for (appWidgetId in appWidgetIds) {
 
@@ -402,7 +405,7 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
             remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_n_apps,
+                R.id.tx_myspace,
                 launcherPendingIntentNPs
             )
 
@@ -454,7 +457,7 @@ class NewAppWidget : AppWidgetProvider() {
             )*/
 
             remoteViews?.setOnClickPendingIntent(
-                R.id.weather_icon,
+                R.id.imgv_weather_icon,
                 getPendingSelfIntent(context, GET_WEATHER)
             )
 
@@ -531,6 +534,7 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setUI() {
 
+        googleAccountInfo()
         _liquidGlassEffects()
         _seekWifiState()
         _seekBluetoothState()
@@ -539,6 +543,21 @@ class NewAppWidget : AppWidgetProvider() {
         locationTxUpdate(appContx)
         wallColors()
         setSomeTwAndWallDescUI()
+    }
+
+    private fun googleAccountInfo() {
+
+        val accountManager = AccountManager.get(appContx)
+
+        // To get all Google accounts
+        val googleAccounts = accountManager.getAccountsByType("com.google")
+        // To get all accounts of any type
+        val allAccounts = accountManager.accounts
+        for (account in googleAccounts) {
+            val accountName = account.name
+         //   makeToast(accountName)
+        }
+
     }
 
     private fun _liquidGlassEffects() {
@@ -642,17 +661,13 @@ class NewAppWidget : AppWidgetProvider() {
                 tertianaryColor = wallpaperColors.tertiaryColor!!.toArgb()
             else tertianaryColor = Color.BLUE
 
-            /*remoteViews?.setTextColor(R.id.clock, primaryColor xor 0x00FFFFFF)
-            remoteViews?.setTextColor(R.id.tx_day_date, secondaryColor xor 0x00FFFFFF)
-            remoteViews?.setTextColor(R.id.tx_place, tertianaryColor xor 0x00FFFFFF)
-            remoteViews?.setTextColor(R.id.tx_weather, tertianaryColor)*/
-
             remoteViews?.setColorInt(
-                R.id.imgbtn_conf,
+                R.id.imgbtn_lock,
                 "setColorFilter",
-                Color.BLACK,
-                Color.BLACK
+                Color.RED,
+                Color.RED
             )
+
             remoteViews?.setColorInt(
                 R.id.imgbtn_speech,
                 "setColorFilter",
@@ -660,19 +675,10 @@ class NewAppWidget : AppWidgetProvider() {
                 Color.BLACK
             )
 
-            remoteViews?.setColorInt(
-                R.id.imgbtn_lock,
-                "setColorFilter",
-                Color.RED,
-                Color.RED
-            )
-            remoteViews?.setColorInt(
-                R.id.imgbtn_set,
-                "setColorFilter",
-                Color.WHITE,
-                Color.BLACK
-            )
-
+            remoteViews?.setTextColor(R.id.clock, tertianaryColor)
+            remoteViews?.setTextColor(R.id.tx_day_date, tertianaryColor)
+            remoteViews?.setTextColor(R.id.tx_place, tertianaryColor)
+            remoteViews?.setTextColor(R.id.tx_weather, tertianaryColor)
 
         } else Log.d("wallColors", "NULL")
 
@@ -773,6 +779,7 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
         sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        sharedPreferencesEditor = sharedPreferences.edit()
 
         setUI()
         handleIntentActions(intent)
@@ -875,11 +882,11 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setTextViewText(R.id.tx_weather_icon_temp, "")
             getWeatherData(true)
             remoteViews?.setTextViewText(
-                R.id.tx_weather_icon_temp,
-                MainActivity.tempC.substring(
+                R.id.tx_weather,
+                tempC.substring(
                     0,
                     2
-                ) + "°C"
+                ) + "°C " + weatherIconState
             )
         } else if (WIFI_AUTO == intent.action) {
             var wifiIntent = Intent(Settings.ACTION_WIFI_SETTINGS)
@@ -1113,7 +1120,7 @@ class NewAppWidget : AppWidgetProvider() {
         mSpannableStringLoc.setSpan(UnderlineSpan(), 0, mSpannableStringLoc.length, 0)
         appWidgetView.findViewById<TextView>(R.id.tx_place).text = "⚲ " + cityname
         appWidgetView.findViewById<TextView>(R.id.tx_steps).text = "$stepsToday"
-        appWidgetView.findViewById<TextView>(R.id.tx_weather).text = tempC.substring(0, 2) + "°C , " + weatherIconState
+        appWidgetView.findViewById<TextView>(R.id.tx_weather).text = tempC.substring(0, 2) + "°C, " + weatherIconState
 
         appWidgetView.findViewById<LinearLayout>(R.id.ll_apps).visibility = View.INVISIBLE
         appWidgetView.findViewById<LinearLayout>(R.id.ll_contacts).visibility = View.INVISIBLE
@@ -1325,6 +1332,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     companion object {
+        lateinit var gpBitmap: Bitmap
         var totalScreenTimeInMinutes: Long = 0
         lateinit var wD: String
         lateinit var qT: String
@@ -1334,6 +1342,7 @@ class NewAppWidget : AppWidgetProvider() {
         lateinit var formattedDate: String
         lateinit var timeOfDay: String
         var timelyWish: String = ""
+        var gpName: String = ""
         var arrayListUsageStats: HashSet<AppUsage> = HashSet()
         lateinit var dayOfTheWeek: String
         var vpStepsPos: Int = 0
@@ -1438,10 +1447,18 @@ class NewAppWidget : AppWidgetProvider() {
 
             timelyWish = timeOfDay
 
-            val c: Cursor? = appContx.getContentResolver()
+            val c: Cursor? = appContx.contentResolver
                 .query(ContactsContract.Profile.CONTENT_URI, null, null, null, null)
             c?.moveToFirst()
-            var gpName = c!!.getString(c.getColumnIndex("display_name"))
+
+            Log.d("gpColNAmes", c?.columnNames.contentToString())
+
+            gpName = c!!.getString(c.getColumnIndex("display_name"))
+
+
+        //    remoteViews?.setImageViewBitmap(R.id.imgbtn_n_apps, gpBitmap)
+
+            Log.d("gpName - ", gpName)
             c.close()
 
             if (timeOfDay == "Morni!")
@@ -1667,6 +1684,9 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
             remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
+            if (gpName.length > 0)
+            remoteViews?.setTextViewText(R.id.tx_myspace, gpName.split(" ")[0].substring(0, 1) + gpName.split(" ")[1].substring(0, 1))
+
         }
 
         fun checkCompanionVariable(): Boolean {

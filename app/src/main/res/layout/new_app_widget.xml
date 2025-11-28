@@ -30,13 +30,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/padding_5"
+            android:weightSum="10"
             android:background="@drawable/thick_underline"
             android:paddingBottom="@dimen/padding_5">
 
             <TextView
                 android:id="@+id/tx_wish"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="5"
                 android:layout_gravity="center"
                 android:text="..Greeting!"
                 android:textColor="@android:color/holo_red_light"
@@ -47,8 +49,9 @@
 
             <ImageButton
                 android:id="@+id/fab_torch"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="0dp"
+                android:layout_height="33dp"
+                android:layout_weight="1"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="3dp"
                 android:background="@drawable/circular_secondary_container"
@@ -59,8 +62,9 @@
 
             <ImageButton
                 android:id="@+id/fab_wifi"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="33dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="3dp"
                 android:background="@drawable/circular_secondary_container"
@@ -73,8 +77,9 @@
 
             <ImageButton
                 android:id="@+id/fab_blue"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="33dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="3dp"
                 android:background="@drawable/circular_secondary_container"
@@ -85,8 +90,9 @@
 
             <TextView
                 android:id="@+id/tx_reminders"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="33dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="3dp"
                 android:background="@drawable/rounded_corner_gray"
@@ -98,8 +104,9 @@
 
             <TextView
                 android:id="@+id/tx_ai"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="33dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="3dp"
                 android:background="@drawable/rounded_corner_gray"
@@ -134,9 +141,9 @@
                 android:id="@+id/frame_texts"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toLeftOf="@+id/ll_steps_screentime"
+                android:layout_toStartOf="@+id/ll_steps_screentime"
                 android:layout_alignParentStart="true"
-                android:padding="@dimen/fab_margin">
+                android:paddingBottom="21dp">
 
                 <AnalogClock
                     android:id="@+id/a_clock"
@@ -184,10 +191,11 @@
                         android:textStyle="bold"
                         tools:ignore="HardcodedText" />
 
-                    <LinearLayout
+                    <RelativeLayout
+                        android:layout_marginTop="@dimen/padding_5"
+                        android:layout_marginStart="@dimen/fab_margin"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:layout_height="wrap_content">
 
                         <TextView
                             android:id="@+id/tx_get_place"
@@ -195,9 +203,8 @@
                             android:layout_height="wrap_content"
                             android:text="⚲ "
                             android:textStyle="bold"
-                            android:textColor="@android:color/holo_red_dark"
-                            android:layout_gravity="center_vertical"
-                            android:background="@android:color/transparent"
+                            android:textColor="@android:color/holo_red_light"
+                            android:layout_gravity="center"
                             android:scaleType="fitXY"
                             android:src="@drawable/clouds" />
 
@@ -206,7 +213,9 @@
                             android:id="@+id/tx_place"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_toEndOf="@+id/tx_get_place"
                             android:text="Place Information.."
+                            android:layout_centerVertical="true"
                             android:maxLines="1"
                             android:ellipsize="end"
                             android:textColor="@android:color/black"
@@ -214,35 +223,40 @@
                             android:textStyle="bold" />
 
 
-                    </LinearLayout>
+                    </RelativeLayout>
 
 
 
-                    <LinearLayout
+                    <RelativeLayout
+                        android:layout_marginStart="@dimen/fab_margin"
+                        android:layout_marginBottom="@dimen/fab_margin"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:layout_height="wrap_content">
 
                         <ImageButton
                             android:id="@+id/imgv_weather_icon"
+                            android:background="@android:color/transparent"
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:layout_gravity="center_vertical"
-                            android:background="@android:color/transparent"
-                            android:scaleType="fitXY" />
-
+                            android:scaleType="fitXY"
+                            android:src="@drawable/clouds"/>
 
                         <TextView
                             android:id="@+id/tx_weather"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
                             android:text="25° C, Cloudy"
+                            android:layout_toRightOf="@+id/imgv_weather_icon"
                             android:textColor="@android:color/black"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
 
-                    </LinearLayout>
+                    </RelativeLayout>
+
+
 
 
                 </LinearLayout>
@@ -256,7 +270,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:padding="@dimen/fab_margin"
-                android:background="@drawable/rounded_go"
+                android:background="@drawable/rounded_ss"
                 android:orientation="vertical">
 
                 <RelativeLayout
@@ -295,7 +309,7 @@
                         android:layout_marginEnd="5dp"
                         android:layout_toEndOf="@+id/tx_steps"
                         android:text="ⓘ"
-                        android:textColor="#B76E79"
+                        android:textColor="@color/white"
                         android:textSize="25sp"
                         android:textStyle="bold"
                         tools:ignore="HardcodedText" />
@@ -342,7 +356,7 @@
                         android:layout_marginEnd="5dp"
                         android:layout_toEndOf="@+id/btn_screentime"
                         android:text="ⓘ"
-                        android:textColor="#B76E79"
+                        android:textColor="@color/white"
                         android:textSize="25sp"
                         android:textStyle="bold"
                         tools:ignore="HardcodedText" />
@@ -447,14 +461,15 @@
         android:src="@drawable/dial" />
 
     <ImageButton
-        android:id="@+id/imgbtn_g_apps1"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
+        android:id="@+id/imgbtn_speech"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
         android:padding="@dimen/padding_3"
         android:layout_above="@+id/ll_apps"
         android:layout_alignStart="@+id/ll_contacts"
-        android:background="@drawable/rounded_ss"
+        android:background="@drawable/gradient_glass_rounded"
         android:scaleType="fitXY"
+        app:tint="@android:color/black"
         android:src="@android:drawable/ic_btn_speak_now" />
 
 
@@ -473,12 +488,12 @@
 
     <ImageButton
         android:id="@+id/imgbtn_g_apps"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
         android:layout_above="@+id/ll_contacts"
         android:layout_alignEnd="@+id/ll_apps"
         android:background="@drawable/gradient_glass_rounded"
-        android:scaleType="fitXY"
+        android:scaleType="centerCrop"
         android:src="@drawable/g1" />
 
 
@@ -563,8 +578,9 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/ll_controls"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="-15dp"
+        android:layout_marginBottom="-13dp"
         android:text="5"
+        android:background="@drawable/gradient_glass_flatbottom"
         android:textColor="@android:color/holo_red_light"
         android:textStyle="bold"
         tools:ignore="HardcodedText" />
@@ -576,8 +592,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/rl_clocks"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="@dimen/padding_5"
-        android:layout_marginEnd="@dimen/padding_5"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         android:padding="@dimen/padding_5"
@@ -587,22 +601,21 @@
 
         <LinearLayout
             android:id="@+id/ll_controls1"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="center"
             android:layout_width="wrap_content"
-            android:layout_height="50dp">
+            android:layout_height="wrap_content">
 
 
             <RelativeLayout
+                android:visibility="gone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
                 <ImageButton
-                    android:id="@+id/imgbtn_set"
+                    android:id="@+id/imgbtn_setd"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:background="@drawable/rounded_go"
-                    android:padding="@dimen/padding_5"
+                    android:background="@drawable/circular_red"
                     android:src="@android:drawable/ic_popup_sync" />
 
                 <ProgressBar
@@ -624,25 +637,38 @@
         </LinearLayout>
 
         <ImageButton
-            android:id="@+id/imgbtn_lock"
+            android:id="@+id/imgbtn_set"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
+            android:padding="@dimen/padding_3"
+            android:background="@drawable/rounded_ss"
+            android:src="@android:drawable/ic_popup_sync"
+            app:tint="@android:color/white" />
+
+
+        <ImageButton
+            android:id="@+id/imgbtn_lock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/fab_margin"
             android:background="@drawable/rounded_ss"
             android:padding="@dimen/padding_5"
             android:src="@android:drawable/ic_lock_lock"
             app:tint="@android:color/holo_red_dark" />
 
-        <ImageButton
-            android:id="@+id/imgbtn_n_apps"
+        <TextView
+            android:id="@+id/tx_myspace"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:scaleType="fitCenter"
+            android:textStyle="bold"
+            android:text="NP"
+            android:textSize="25sp"
+            android:gravity="center"
             android:layout_marginTop="5dp"
             android:background="@drawable/rounded_ss"
-            android:padding="@dimen/padding_5"
             android:layout_gravity="center_horizontal"
-            android:src="@drawable/me" />
+           />
 
 
     </LinearLayout>
