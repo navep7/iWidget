@@ -332,17 +332,14 @@ class MainActivity : AppCompatActivity() {
         viewPager = instructionsDialogView.findViewById<ViewPager2>(R.id.viewPager);
         tabLayout = instructionsDialogView.findViewById(R.id.tabLayout);
 
-        imageList = ArrayList<Int>()
-        imageList.add(R.drawable.nhome_widget)
-        imageList.add(R.drawable.widget_i)
-        imageList.add(R.drawable.widget_i)
+
 
         imageSliderAdapter = ImageSliderAdapter(imgUrls, applicationContext)
         viewPager.adapter = imageSliderAdapter
 
         viewPager.offscreenPageLimit = 2
 
-        viewPager.post { viewPager.currentItem = 17 }
+   //     viewPager.post { viewPager.currentItem = 17 }
 
 
         TabLayoutMediator(
@@ -2137,28 +2134,19 @@ class MainActivity : AppCompatActivity() {
                                 ) + "°C" + " - " + tempKind
                             )
 
-                        remoteViews?.setTextViewText(
-                            R.id.tx_weather_icon_temp, tempC.substring(
-                                0,
-                                2
-                            ) + "°C"
-                        )
-                        remoteViews?.setTextViewText(
-                            R.id.tx_weather_icon_state,
-                            weatherIconState
-                        )
+
                         if (weatherIconID.startsWith("5"))
-                            remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.rain)
+                            remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.rain)
                         if (weatherIconID.equals("800"))
                             remoteViews?.setImageViewResource(
-                                R.id.weather_icon,
+                                R.id.imgv_weather_icon,
                                 R.drawable.clear_sky
                             )
                         if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals(
                                 "803"
                             ) || weatherIconID.equals("804")
                         )
-                            remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clouds)
+                            remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.clouds)
 
                    updateWidget()
 

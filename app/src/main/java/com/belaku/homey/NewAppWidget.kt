@@ -354,10 +354,10 @@ class NewAppWidget : AppWidgetProvider() {
             )
             remoteViews?.setOnClickPendingIntent(R.id.fab_blue, pendingIntentBluetooth)
 
-            remoteViews?.setOnClickPendingIntent(
+            /*remoteViews?.setOnClickPendingIntent(
                 R.id.fab_share,
                 getPendingSelfIntent(context, FAB_SHARE)
-            )
+            )*/
 
 
             val intentWifi = Intent(context, DialogActivity::class.java)
@@ -482,10 +482,10 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
 
-            remoteViews?.setOnClickPendingIntent(
+            /*remoteViews?.setOnClickPendingIntent(
                 R.id.imgbtn_conf,
                 getPendingSelfIntent(context, SET_CLICKED)
-            )
+            )*/
 
 
             val mapsIntent = Intent(context, MapsActivity::class.java)
@@ -903,7 +903,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         } else if (GET_WEATHER == intent.action) {
-            remoteViews?.setTextViewText(R.id.tx_weather_icon_temp, "")
+            remoteViews?.setTextViewText(R.id.tx_weather, "")
             getWeatherData(true)
             remoteViews?.setTextViewText(
                 R.id.tx_weather,
@@ -1641,14 +1641,8 @@ class NewAppWidget : AppWidgetProvider() {
             formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
 
 
-            if (MainActivity.tempC.length > 3) {
-                remoteViews?.setTextViewText(
-                    R.id.tx_weather_icon_temp,
-                    MainActivity.tempC.substring(
-                        0,
-                        2
-                    ) + "°C"
-                )
+            if (tempC.length > 3) {
+
 
                 remoteViews?.setTextViewText(
                     R.id.tx_place,
@@ -1656,10 +1650,7 @@ class NewAppWidget : AppWidgetProvider() {
                 )
                 remoteViews?.setTextViewText(R.id.tx_weather,
                      tempC.substring(0, 2) + "° C" + " , " + weatherIconState)
-                remoteViews?.setTextViewText(
-                    R.id.tx_weather_icon_state,
-                    weatherIconState
-                )
+
 
 
                 if (weatherIconID.startsWith("5"))
@@ -1675,25 +1666,22 @@ class NewAppWidget : AppWidgetProvider() {
                     remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.clouds)
             } else {
                 getWeatherData(false)
-                if (MainActivity.tempC.length > 3) {
+                if (tempC.length > 3) {
                     remoteViews?.setTextViewText(
-                        R.id.tx_weather_icon_temp,
-                        MainActivity.tempC.substring(
+                        R.id.tx_weather,
+                        tempC.substring(
                             0,
                             2
-                        ) + "°C"
+                        ) + "°C, " + weatherIconState
                     )
-                    remoteViews?.setTextViewText(
-                        R.id.tx_weather_icon_state,
-                        MainActivity.weatherIconState
-                    )
+
 
 
                     if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals(
                             "803"
                         ) || weatherIconID.equals("804")
                     )
-                        remoteViews?.setImageViewResource(R.id.weather_icon, R.drawable.clouds)
+                        remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.clouds)
                 }
             }
             // remoteViews?.setTextViewText(R.id.tx_date, formattedDate)
