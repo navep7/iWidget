@@ -32,6 +32,7 @@ class ImageSliderAdapter(private val imageList: List<String>, private val contex
         Glide.with(context)
             .load(imgUrl)
             .override(holder.imageView.width, holder.imageView.height)
+            .thumbnail(Glide.with(context).load(R.drawable.loading_gif))
             .error(R.drawable.transparent_bg)
             .into(holder.imageView)
     }

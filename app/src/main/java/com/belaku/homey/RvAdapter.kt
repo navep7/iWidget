@@ -41,7 +41,7 @@ class RvAdapter internal constructor(
 
         Glide.with(context!!)
             .load(url)
-            .placeholder(R.drawable.img_loading)
+            .thumbnail(Glide.with(context).load(R.drawable.loading_gif))
             .into(holder.rvImgv)
 
     }

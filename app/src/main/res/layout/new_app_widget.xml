@@ -166,6 +166,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
+                    android:background="@drawable/gradient_glass_rounded"
                     android:paddingStart="@dimen/padding_5"
                     android:paddingEnd="@dimen/padding_5">
 
@@ -270,7 +271,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:padding="@dimen/fab_margin"
-                android:background="@drawable/rounded_ss"
+                android:background="@drawable/gradient_glass_rounded"
                 android:orientation="vertical">
 
                 <RelativeLayout

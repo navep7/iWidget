@@ -784,7 +784,7 @@ class NewAppWidget : AppWidgetProvider() {
         setUI()
         handleIntentActions(intent)
 
-        appWidM = AppWidgetManager.getInstance(context)
+        appWidM = AppWidgetManager.getInstance(appContx)
         appWidM.updateAppWidget(newAppWidget, remoteViews)
 
     }
