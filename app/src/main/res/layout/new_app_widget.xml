@@ -679,8 +679,8 @@
 
     <ImageView
         android:id="@+id/imgbtn_qr"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_above="@+id/frame_l_tweets"
         android:layout_marginBottom="@dimen/padding_5"
         android:layout_centerHorizontal="true"
