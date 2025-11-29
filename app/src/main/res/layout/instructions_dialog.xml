@@ -15,7 +15,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:text="..some Samples of how the nHome Widget looks on the Home Screen."
+            android:text="Welcome! \n nHome is a App ~ primarily a Home screen widget, which can serve as a Phone launcher, allowing User to access everything from One place, \n ..some Samples of how the nHome Widget looks on the Home Screen."
             android:textSize="21sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
@@ -37,7 +37,7 @@
             android:layout_height="550dp" />
 
         <TextView
-            android:text="Prerequisites, \n 1. Scroll down and grant the Permissions to get started. \n 2. Add the nHome widget to Home screen. \n 3. Enjoy!"
+            android:text="@string/prerequisites"
             android:textSize="21sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>

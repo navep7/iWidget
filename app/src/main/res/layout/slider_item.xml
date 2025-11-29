@@ -230,7 +230,7 @@
                                 android:layout_toEndOf="@+id/tx_get_place"
                                 android:ellipsize="end"
                                 android:maxLines="1"
-                                android:text="Place Info..."
+                                android:text="② Place Info..."
                                 android:textColor="@android:color/black"
                                 android:textSize="15sp"
                                 android:textStyle="bold" />
@@ -301,7 +301,7 @@
                             android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
                             android:layout_toEndOf="@+id/imgv_steps"
-                            android:text="StepsCount  "
+                            android:text="① StepsCount  "
                             android:textColor="@android:color/holo_red_light"
                             android:textSize="15sp"
                             android:textStyle="bold" />
@@ -478,7 +478,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginStart="@dimen/padding_3"
-                    android:text="Apps\nMost Used"
+                    android:text="③ Apps\nMost Used"
                     android:textSize="10sp"
                     android:textStyle="bold" />
 
@@ -576,7 +576,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginStart="@dimen/padding_3"
-                    android:text="Calls\nFav Contacts"
+                    android:text="Calls\n④ Fav Contacts"
                     android:textSize="10sp"
                     android:textStyle="bold" />
 

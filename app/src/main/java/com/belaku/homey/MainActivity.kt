@@ -361,11 +361,7 @@ class MainActivity : AppCompatActivity() {
         addPermissionCards()
 
 
-        addPermissionCard(
-            "<b> Permission Request for App Usage Stats </b>- \n  to suggest \"④ Frequent Apps\" to use, based on previously used App stats.. ",
-            "Permit",
-            "AUS"
-        )
+
         addPermissionCard(
             "<b> Requisition for Accessibility Service permission </b>- \n  to smoothly lock Phone screen from Widget shortcut.",
             "Permit",
@@ -467,17 +463,24 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun addPermissionCards() {
         addPermissionCard(
-            " <b><u>Permissions needed...</u><b> <br><b> Device location </b>- to display \"① Place Info\" in the Widget",
-            "Permit ACCESS_FINE_LOCATION permission",
-            Manifest.permission.ACCESS_FINE_LOCATION
-        )
-        addPermissionCard(
-            "<b> Physical Activity </b>- to recognise walking state and display \"② Steps Count\" in the Widget",
+            "<b> Physical Activity </b>- to recognise walking state and display \"① Steps Count\" in the Widget",
             "Permit ACTIVITY_RECOGNITION permission",
             Manifest.permission.ACTIVITY_RECOGNITION
         )
         addPermissionCard(
-            "<b> Contacts </b>- to show your \"③ Favorite Contacts\" in the Widget, to dial easily",
+            " <b><u>Device location </b>- to display \"② Place Info\" in the Widget",
+            "Permit ACCESS_FINE_LOCATION permission",
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+
+        addPermissionCard(
+            "<b> Permission Request for App Usage Stats </b>- \n  to suggest \"③ Frequent Apps\" to use, based on previously used App stats.. ",
+            "Permit",
+            "AUS"
+        )
+
+        addPermissionCard(
+            "<b> Contacts </b>- to show your \"④ Favorite Contacts\" in the Widget, to dial easily",
             "Permit CONTACTS permission",
             Manifest.permission.READ_CONTACTS
         )
