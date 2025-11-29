@@ -22,8 +22,10 @@ import java.util.Calendar
 
 class CustomDialogClass // TODO Auto-generated constructor stub
     (var c: Activity, var strHorR: String) : Dialog(c), View.OnClickListener {
+    private var arrayListHabitStatuses: ArrayList<String> = ArrayList()
     private lateinit var adapterHorRs: ArrayAdapter<String>
-    private var arrayListHorRs: ArrayList<String> = ArrayList()
+    private lateinit var adapterHabits: ArrayAdapter<Habit>
+    private var arrayListHabits: ArrayList<Habit> = ArrayList()
     private lateinit var editText: EditText
     var d: Dialog? = null
 
@@ -34,15 +36,15 @@ class CustomDialogClass // TODO Auto-generated constructor stub
 
 
         if (strHorR.equals("Habit")) {
-            arrayListHorRs = RemindersActivity.arrayListHabits
-            adapterHorRs = RemindersActivity.adapterHabits
+            arrayListHabits = RemindersActivity.arrayListHabits
+            adapterHabits = RemindersActivity.adapterHabits
             setContentView(R.layout.habit_dialog)
 
             editText = findViewById<EditText>(R.id.edtx)
             editText.setHint("Add a $strHorR")
             findViewById<Button>(R.id.btn_okd).setOnClickListener(this)
             findViewById<Button>(R.id.btn_canceld).setOnClickListener(this)
-        } else {
+        } /*else {
             arrayListHorRs = RemindersActivity.arrayListReminders
             adapterHorRs = RemindersActivity.adapterReminders
             setContentView(R.layout.reminder_dialog)
@@ -54,7 +56,7 @@ class CustomDialogClass // TODO Auto-generated constructor stub
 
             findViewById<Button>(R.id.remind_button).setOnClickListener(this)
             findViewById<Button>(R.id.cancel_button).setOnClickListener(this)
-        }
+        }*/
 
 
 
@@ -65,8 +67,10 @@ class CustomDialogClass // TODO Auto-generated constructor stub
     override fun onClick(v: View) {
         when (v.id) {
             R.id.btn_okd -> {
-                arrayListHorRs.add(editText.text.toString())
-                adapterHorRs.notifyDataSetChanged()
+                for (i in 0 until 7)
+                arrayListHabitStatuses.add("x")
+                arrayListHabits.add(Habit(editText.text.toString(), arrayListHabitStatuses))
+                adapterHabits.notifyDataSetChanged()
                 dismiss()
             }
             R.id.btn_canceld -> {
@@ -82,7 +86,7 @@ class CustomDialogClass // TODO Auto-generated constructor stub
                 var h = rTimeSplits[0]
                 var m = rTimeSplits[1].substring(0, 2)
                 var rType = findViewById<Spinner>(R.id.remindertype).selectedItem
-                arrayListHorRs.add(rSubject + "\t@\t" + rTime + "\t\t\t:\t\t\t" + rType)
+              //  arrayListHorRs.add(rSubject + "\t@\t" + rTime + "\t\t\t:\t\t\t" + rType)
                 adapterHorRs.notifyDataSetChanged()
                 addAlarm(rSubject, h.toInt(), m.toInt(), rType.toString())
             }

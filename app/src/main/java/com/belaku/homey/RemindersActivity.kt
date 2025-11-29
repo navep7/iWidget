@@ -91,11 +91,7 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         var listViewHabits = findViewById<ListView>(R.id.rv_habits)
         listViewHabits.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE)
 
-        adapterHabits = ArrayAdapter<String>(
-            this,
-            android.R.layout.simple_list_item_multiple_choice,  // Default layout for a single text item
-            arrayListHabits
-        )
+        adapterHabits = HabitsAdapter(applicationContext, arrayListHabits)
         listViewHabits.setAdapter(adapterHabits)
 
         for (i in 0 until arrayListHabits.size) {
@@ -208,9 +204,9 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
                     previewSelectedTimeTextView.setText(formattedTime)
                 }
             }
-        lateinit var adapterHabits: ArrayAdapter<String>
+        lateinit var adapterHabits: HabitsAdapter
         lateinit var adapterReminders: ArrayAdapter<String>
-        var arrayListHabits: ArrayList<String> = ArrayList()
+        var arrayListHabits: ArrayList<Habit> = ArrayList()
         var arrayListReminders: ArrayList<String> = ArrayList()
     }
 
