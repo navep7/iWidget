@@ -166,13 +166,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="@drawable/gradient_glass_rounded"
                     android:paddingStart="@dimen/padding_5"
                     android:paddingEnd="@dimen/padding_5">
 
 
                     <android.widget.TextClock
                         android:id="@+id/clock"
+                        android:layout_marginStart="@dimen/fab_margin"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:format12Hour="h:mm:ss"
@@ -183,6 +183,7 @@
 
                     <TextView
                         android:id="@+id/tx_day_date"
+                        android:layout_marginStart="@dimen/fab_margin"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center_horizontal"
@@ -237,8 +238,8 @@
                         <ImageButton
                             android:id="@+id/imgv_weather_icon"
                             android:background="@android:color/transparent"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
                             android:layout_gravity="center_vertical"
                             android:scaleType="fitXY"
                             android:src="@drawable/clouds"/>
@@ -271,7 +272,6 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:padding="@dimen/fab_margin"
-                android:background="@drawable/gradient_glass_rounded"
                 android:orientation="vertical">
 
                 <RelativeLayout

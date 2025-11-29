@@ -66,7 +66,7 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.FileProvider
-import androidx.core.graphics.drawable.RoundedBitmapDrawable
+import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.apps
@@ -99,10 +99,11 @@ import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.util.Arrays
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
+import kotlin.math.min
+import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 import kotlin.random.Random
 
@@ -675,10 +676,33 @@ class NewAppWidget : AppWidgetProvider() {
                 Color.BLACK
             )
 
-            remoteViews?.setTextColor(R.id.clock, tertianaryColor)
-            remoteViews?.setTextColor(R.id.tx_day_date, tertianaryColor)
-            remoteViews?.setTextColor(R.id.tx_place, tertianaryColor)
-            remoteViews?.setTextColor(R.id.tx_weather, tertianaryColor)
+            if (ColorUtil().isColorDark(tertianaryColor)) {
+                remoteViews?.setTextColor(R.id.clock, Color.WHITE)
+                remoteViews?.setTextColor(R.id.tx_day_date, Color.WHITE)
+                remoteViews?.setTextColor(R.id.tx_place, Color.WHITE)
+                remoteViews?.setTextColor(R.id.tx_weather, Color.WHITE)
+            } else {
+                remoteViews?.setTextColor(R.id.clock, Color.BLACK)
+                remoteViews?.setTextColor(R.id.tx_day_date, Color.BLACK)
+                remoteViews?.setTextColor(R.id.tx_place, Color.BLACK)
+                remoteViews?.setTextColor(R.id.tx_weather, Color.BLACK)
+            }
+
+
+
+            /*if (ColorUtil().isColorDark(tertianaryColor))  {
+                makeToast("DARK tertianaryColor")
+                remoteViews?.setTextColor(R.id.clock, ColorUtil().lightenColor(tertianaryColor, 0.5f))
+                remoteViews?.setTextColor(R.id.tx_day_date, ColorUtil().lightenColor(tertianaryColor, 0.4f))
+                remoteViews?.setTextColor(R.id.tx_place, ColorUtil().lightenColor(tertianaryColor, 0.3f))
+                remoteViews?.setTextColor(R.id.tx_weather, ColorUtil().lightenColor(tertianaryColor, 0.2f))
+            } else {
+                makeToast("LIGHT tertianaryColor")
+                remoteViews?.setTextColor(R.id.clock, ColorUtil().darkenColor(tertianaryColor, 0.5f))
+                remoteViews?.setTextColor(R.id.tx_day_date, ColorUtil().darkenColor(tertianaryColor, 0.4f))
+                remoteViews?.setTextColor(R.id.tx_place, ColorUtil().darkenColor(tertianaryColor, 0.3f))
+                remoteViews?.setTextColor(R.id.tx_weather, ColorUtil().darkenColor(tertianaryColor, 0.2f))
+            }*/
 
         } else Log.d("wallColors", "NULL")
 
