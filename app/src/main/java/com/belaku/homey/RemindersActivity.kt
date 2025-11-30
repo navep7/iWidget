@@ -20,6 +20,7 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemClickListener
 import android.widget.ArrayAdapter
+import android.widget.CheckBox
 import android.widget.CheckedTextView
 import android.widget.EditText
 import android.widget.ListView
@@ -30,6 +31,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.ui.AppBarConfiguration
 import com.belaku.homey.MainActivity.Companion.apps
+import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
@@ -40,10 +42,6 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
 
 
-    private lateinit var prompt: String
-    private lateinit var txAi: TextView
-    private lateinit var edtxAi: EditText
-    private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityRemindersBinding
 
     @RequiresApi(Build.VERSION_CODES.S)
@@ -53,6 +51,8 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         binding = ActivityRemindersBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
+
+
 
 
         val rootLayout = findViewById<RelativeLayout>(R.id.reminders_layout)
@@ -78,41 +78,23 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
         binding.txAddHabits.setOnClickListener(View.OnClickListener {
             val cdd = CustomDialogClass(this@RemindersActivity, "Habit")
-            cdd.getWindow()?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            cdd.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             cdd.show()
         })
 
         binding.txAddReminders.setOnClickListener(View.OnClickListener {
             val cdd = CustomDialogClass(this@RemindersActivity, "Reminder")
-            cdd.getWindow()?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            cdd.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             cdd.show()
         })
 
         var listViewHabits = findViewById<ListView>(R.id.rv_habits)
-        listViewHabits.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE)
+        listViewHabits.choiceMode = ListView.CHOICE_MODE_MULTIPLE
 
         adapterHabits = HabitsAdapter(applicationContext, arrayListHabits)
-        listViewHabits.setAdapter(adapterHabits)
+        listViewHabits.adapter = adapterHabits
 
-        for (i in 0 until arrayListHabits.size) {
-            if (sharedPreferences.getBoolean("cB$i", false))
-                listViewHabits.setItemChecked(i, true)
-            else listViewHabits.setItemChecked(i, false)
-        }
 
-        listViewHabits.onItemClickListener = OnItemClickListener { parent, view, position, id ->
-            if ((view as CheckedTextView).isChecked)
-                sharedPreferencesEditor.putBoolean("cB$position", true)
-            else sharedPreferencesEditor.putBoolean("cB$position", false)
-            sharedPreferencesEditor.apply()
-        }
-
-        listViewHabits.setOnItemLongClickListener(AdapterView.OnItemLongClickListener { parent, view, position, id -> // Remove the item from the data source
-            arrayListHabits.removeAt(position)
-            // Notify the adapter that the data has changed
-            adapterHabits.notifyDataSetChanged()
-            true
-        })
 
         var listviewReminders = findViewById<ListView>(R.id.rv_reminders)
         adapterReminders = ArrayAdapter<String>(

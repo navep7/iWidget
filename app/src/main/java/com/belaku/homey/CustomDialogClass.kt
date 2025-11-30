@@ -67,8 +67,10 @@ class CustomDialogClass // TODO Auto-generated constructor stub
     override fun onClick(v: View) {
         when (v.id) {
             R.id.btn_okd -> {
-                for (i in 0 until 7)
-                arrayListHabitStatuses.add("x")
+
+                for (x in 0 until 7)
+                    arrayListHabitStatuses.add("•")
+
                 arrayListHabits.add(Habit(editText.text.toString(), arrayListHabitStatuses))
                 adapterHabits.notifyDataSetChanged()
                 dismiss()
