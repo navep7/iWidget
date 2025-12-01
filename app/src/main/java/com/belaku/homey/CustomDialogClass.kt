@@ -71,7 +71,7 @@ class CustomDialogClass // TODO Auto-generated constructor stub
                 for (x in 0 until 7)
                     arrayListHabitStatuses.add("•")
 
-                arrayListHabits.add(Habit(editText.text.toString(), arrayListHabitStatuses))
+                arrayListHabits.add(Habit(editText.text.toString(), false))
                 adapterHabits.notifyDataSetChanged()
                 dismiss()
             }

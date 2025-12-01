@@ -20,26 +20,19 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemClickListener
 import android.widget.ArrayAdapter
-import android.widget.CheckBox
-import android.widget.CheckedTextView
-import android.widget.EditText
 import android.widget.ListView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.TimePicker
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.ui.AppBarConfiguration
 import com.belaku.homey.MainActivity.Companion.apps
-import com.belaku.homey.MainActivity.Companion.makeToast
-import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
-import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.belaku.homey.databinding.ActivityRemindersBinding
 
 
 class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
-
 
 
     private lateinit var binding: ActivityRemindersBinding
@@ -53,10 +46,8 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         setContentView(binding.root)
 
 
-
-
         val rootLayout = findViewById<RelativeLayout>(R.id.reminders_layout)
-        try {
+        /*try {
             rootLayout.setBackgroundDrawable(
                 BitmapDrawable(
                     getResources(),
@@ -73,7 +64,7 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
                     blur(applicationContext, wallBitmap)
                 )
             )
-        }
+        }*/
 
 
         binding.txAddHabits.setOnClickListener(View.OnClickListener {
@@ -88,11 +79,25 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
             cdd.show()
         })
 
-        var listViewHabits = findViewById<ListView>(R.id.rv_habits)
-        listViewHabits.choiceMode = ListView.CHOICE_MODE_MULTIPLE
 
-        adapterHabits = HabitsAdapter(applicationContext, arrayListHabits)
+        var listViewHabits = findViewById<ListView>(R.id.rv_habits)
+        adapterHabits = HabitsAdapter(this, arrayListHabits)
         listViewHabits.adapter = adapterHabits
+
+        listViewHabits.setOnItemClickListener(OnItemClickListener { parent, view, position, id ->
+            if ((parent.getItemAtPosition(position) as Habit).isChecked)
+                (parent.getItemAtPosition(position) as Habit).isChecked = false
+            else {
+                (parent.getItemAtPosition(position) as Habit).isChecked = true
+            }
+            adapterHabits.notifyDataSetChanged()
+        })
+
+        listViewHabits.setOnItemLongClickListener { adapterView, view, i, l ->
+            arrayListHabits.removeAt(i)
+            adapterHabits.notifyDataSetChanged()
+            true
+        }
 
 
 
@@ -160,6 +165,7 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
                                 "${hourOfDay + 12}:${minute} am"
                             }
                         }
+
                         hourOfDay > 12 -> {
                             if (minute < 10) {
                                 "${hourOfDay - 12}:0${minute} pm"
@@ -167,6 +173,7 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
                                 "${hourOfDay - 12}:${minute} pm"
                             }
                         }
+
                         hourOfDay == 12 -> {
                             if (minute < 10) {
                                 "${hourOfDay}:0${minute} pm"
@@ -174,6 +181,7 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
                                 "${hourOfDay}:${minute} pm"
                             }
                         }
+
                         else -> {
                             if (minute < 10) {
                                 "${hourOfDay}:${minute} am"

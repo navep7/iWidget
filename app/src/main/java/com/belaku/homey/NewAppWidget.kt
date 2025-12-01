@@ -219,6 +219,7 @@ class NewAppWidget : AppWidgetProvider() {
         appWidgetIds: IntArray
     ) {
 
+        appContx = context
         //   makeToast("!onUpdate")
         remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
