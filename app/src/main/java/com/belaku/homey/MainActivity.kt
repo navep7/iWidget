@@ -362,11 +362,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        addPermissionCard(
-            "<b> Requisition for Accessibility Service permission </b>- \n  to smoothly lock Phone screen from Widget shortcut.",
-            "Permit",
-            "AS"
-        )
+
 
         var btnDone = Button(applicationContext)
         btnDone.text = "Done"
@@ -473,11 +469,6 @@ class MainActivity : AppCompatActivity() {
             Manifest.permission.ACCESS_FINE_LOCATION
         )
 
-        addPermissionCard(
-            "<b> Permission Request for App Usage Stats </b>- \n  to suggest \"③ Frequent Apps\" to use, based on previously used App stats.. ",
-            "Permit",
-            "AUS"
-        )
 
         addPermissionCard(
             "<b> Contacts </b>- to show your \"④ Favorite Contacts\" in the Widget, to dial easily",
@@ -501,6 +492,19 @@ class MainActivity : AppCompatActivity() {
             "Permit CALL_PHONE Access",
             Manifest.permission.CALL_PHONE
         )
+
+        addPermissionCard(
+            "<b> Permission Request for App Usage Stats </b>- \n  to suggest \"③ Frequent Apps\" to use, based on previously used App stats.. ",
+            "Permit",
+            "AUS"
+        )
+
+        addPermissionCard(
+            "<b> Requisition for Accessibility Service permission </b>- \n  to smoothly lock Phone screen from Widget shortcut.",
+            "Permit",
+            "AS"
+        )
+
 
         val permissions = arrayOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -1712,7 +1716,10 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             if (allGranted) {
-                makeToast("All permissions granted")
+            //    makeToast("All permissions granted")
+            //    usageStatsPermissionDialog()
+                AccessibilityServicePermissionDialog()
+                usageStatsPermissionDialog()
 
                     sharedPreferencesEditor.putBoolean("LP", true).apply()
                     getCity()
