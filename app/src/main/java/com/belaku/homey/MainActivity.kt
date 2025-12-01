@@ -153,6 +153,7 @@ import kotlin.random.Random
 class MainActivity : AppCompatActivity() {
 
 
+    private lateinit var buttonAll: Button
     private val ALL_PERMISSIONS_REQUEST_CODE: Int = 100
     private lateinit var imageSliderAdapter: ImageSliderAdapter
     private lateinit var viewPager: ViewPager2
@@ -364,7 +365,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        var btnDone = Button(applicationContext)
+        /*var btnDone = Button(applicationContext)
         btnDone.text = "Done"
 
         btnDone.setOnClickListener {
@@ -374,7 +375,7 @@ class MainActivity : AppCompatActivity() {
                 iDV.dismiss()
             } else makeToast("Ensure all Ps are Granted")
         }
-        llInstructions.addView(btnDone)
+        llInstructions.addView(btnDone)*/
 
 
 
@@ -515,7 +516,7 @@ class MainActivity : AppCompatActivity() {
             Manifest.permission.POST_NOTIFICATIONS,
             Manifest.permission.CALL_PHONE
         )
-        var buttonAll = Button(applicationContext)
+        buttonAll = Button(applicationContext)
         buttonAll.text = "Allow ALL"
         buttonAll.setOnClickListener {
             if (!hasPermissions(permissions)) {
@@ -1716,8 +1717,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             if (allGranted) {
-            //    makeToast("All permissions granted")
-            //    usageStatsPermissionDialog()
+
                 AccessibilityServicePermissionDialog()
                 usageStatsPermissionDialog()
 
@@ -1951,6 +1951,15 @@ class MainActivity : AppCompatActivity() {
         if (isAccessibilityServiceEnabled(applicationContext, LockAccessibilityService::class.java)) {
             sharedPreferencesEditor.putBoolean("AS", true).apply()
             btnAS.text = "Granted"
+
+            buttonAll.text = "Done"
+            buttonAll.setOnClickListener {
+                if (!nPermissions()) {
+                    rawTweets(false)
+                    getFavoriteContacts(appContx)
+                    iDV.dismiss()
+                } else makeToast("Ensure all Ps are Granted")
+            }
         }
 
         if (UsageStatsChecker().hasUsageStatsPermission(applicationContext)) {

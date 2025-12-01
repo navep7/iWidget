@@ -15,7 +15,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:text="Welcome! \n nHome is a App ~ primarily a Home screen widget, which can serve as a Phone launcher, allowing User to access everything from One place, \n ..some Samples of how the nHome Widget looks on the Home Screen."
+            android:text="@string/welcome"
             android:textSize="21sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
@@ -29,6 +29,7 @@
             android:layout_margin="5dp"
             app:tabGravity="center"
             />
+
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager"
