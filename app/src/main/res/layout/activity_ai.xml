@@ -26,6 +26,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
+    <ImageView
+        android:id="@+id/imgv_mic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tx_t"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_alignBottom="@+id/edtx_ai"
+        android:src="@android:drawable/ic_btn_speak_now"/>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
@@ -40,7 +50,7 @@
         android:hint="Search AI, type in the prompt..."
         android:textStyle="bold|italic"
         android:layout_below="@+id/tx_t"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"/>
 

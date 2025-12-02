@@ -3,6 +3,7 @@ package com.belaku.homey
 
 import AppsAdapter
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.os.Build
@@ -11,14 +12,15 @@ import android.renderscript.Allocation
 import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicBlur
+import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
 import android.text.method.ScrollingMovementMethod
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -27,8 +29,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.ui.AppBarConfiguration
 import com.belaku.homey.MainActivity.Companion.apps
+import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.databinding.ActivityAiBinding
 import com.google.firebase.Firebase
+import com.google.firebase.ai.GenerativeModel
 import com.google.firebase.ai.ai
 import com.google.firebase.ai.type.GenerativeBackend
 import kotlinx.coroutines.launch
@@ -38,8 +42,11 @@ import java.util.Locale
 class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInitListener {
 
 
+    private lateinit var generativeModel: GenerativeModel
+    private val REQUEST_CODE_SPEECH_INPUT: Int = 1
     private lateinit var tts: TextToSpeech
     private lateinit var playAI: ImageButton
+    private lateinit var voiceAI: ImageView
     private lateinit var prompt: String
     private lateinit var txAi: TextView
     private lateinit var edtxAi: EditText
@@ -61,6 +68,7 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
         rootLayout.setBackgroundDrawable(BitmapDrawable(getResources(), blur(applicationContext, SetWallWorker.wallBitmap)))
 
 
+        voiceAI = findViewById<ImageView>(R.id.imgv_mic)
         playAI = findViewById<ImageButton>(R.id.play_ai)
         edtxAi = findViewById<EditText>(R.id.edtx_ai)
         txAi = findViewById<TextView>(R.id.tx_ai_response)
@@ -69,40 +77,56 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
 
 
 
-            val generativeModel = Firebase.ai(backend = GenerativeBackend.googleAI())
+        generativeModel = Firebase.ai(backend = GenerativeBackend.googleAI())
                 .generativeModel("gemini-2.5-flash")
 
 
+        voiceAI.setOnClickListener {
+
+            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+            intent.putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+            )
+            intent.putExtra(
+                RecognizerIntent.EXTRA_PROMPT, "Speak now..."
+            ) // Optional: prompt for the user
+            startActivityForResult(intent, REQUEST_CODE_SPEECH_INPUT)
+
+
+
+        }
 
 
         edtxAi.setOnEditorActionListener(TextView.OnEditorActionListener { v, actionId, event ->
             if ((event != null && (event.keyCode == KeyEvent.KEYCODE_ENTER)) || (actionId == EditorInfo.IME_ACTION_DONE)) {
                 //do what you want on the press of 'done'
-                prompt = edtxAi.text.toString()
-                txAi.setText("Generating AI response, please wait...")
-                lifecycleScope.launch {
-                    val txtResponse = generativeModel.generateContent(prompt)
-                    Toast.makeText(applicationContext, txtResponse.text, Toast.LENGTH_LONG).show()
-                    txAi.setText(txtResponse.text)
-
-                    playAI.visibility = View.VISIBLE
-
-                    playAI.setOnClickListener(View.OnClickListener {
-                        if (tts.isSpeaking) {
-                            tts.stop()
-                            playAI.setImageResource(android.R.drawable.ic_media_play)
-                        }
-                        else {
-                            speakLongText(txtResponse.text.toString())
-                            playAI.setImageResource(android.R.drawable.ic_media_pause)
-                        }
-                    })
-
-                }
+                generateAIresponse(generativeModel, edtxAi.text.toString())
             }
             false
         })
 
+    }
+
+    private fun generateAIresponse(generativeModel: GenerativeModel, prompt: String) {
+        txAi.setText("Generating AI response, please wait...")
+        lifecycleScope.launch {
+            val txtResponse = generativeModel.generateContent(prompt)
+            Toast.makeText(applicationContext, txtResponse.text, Toast.LENGTH_LONG).show()
+            txAi.setText(txtResponse.text)
+
+            playAI.visibility = View.VISIBLE
+
+            playAI.setOnClickListener(View.OnClickListener {
+                if (tts.isSpeaking) {
+                    tts.stop()
+                    playAI.setImageResource(android.R.drawable.ic_media_play)
+                } else {
+                    speakLongText(txtResponse.text.toString())
+                    playAI.setImageResource(android.R.drawable.ic_media_pause)
+                }
+            })
+
+        }
     }
 
     override fun onDestroy() {
@@ -120,6 +144,22 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
                 val chunks = longText.chunked(maxLength)
                 for (chunk in chunks) {
                     it.speak(chunk, TextToSpeech.QUEUE_ADD, null, "unique_utterance_id_part_${chunks.indexOf(chunk)}")
+                }
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQUEST_CODE_SPEECH_INPUT) {
+            if (resultCode == RESULT_OK && data != null) {
+                val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                if (result != null && !result.isEmpty()) {
+                    val recognizedText = result[0] // Get the most likely recognized phrase
+                    makeToast(recognizedText)
+                    edtxAi.setText(recognizedText)
+                    generateAIresponse(generativeModel, recognizedText)
                 }
             }
         }
