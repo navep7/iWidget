@@ -1646,7 +1646,7 @@ class NewAppWidget : AppWidgetProvider() {
                     cityname
                 )
                 remoteViews?.setTextViewText(R.id.tx_weather,
-                     tempC.substring(0, 2) + "° C" + " , " + weatherIconState)
+                     tempC.substring(0, 2) + "° C" + ", " + weatherIconState)
 
 
 
