@@ -32,9 +32,6 @@ import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.TAG
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
-import com.belaku.homey.SetWallWorker.Companion.initialSteps
-import com.belaku.homey.SetWallWorker.Companion.newLapSteps
-import com.belaku.homey.SetWallWorker.Companion.setWall
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.stepsToday

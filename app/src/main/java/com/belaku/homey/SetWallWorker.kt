@@ -185,6 +185,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
 
     companion object {
+        var arrayListHabitStatuses: ArrayList<String> = ArrayList()
         lateinit var sharedPreferences: SharedPreferences
         lateinit var sharedPreferencesEditor: SharedPreferences.Editor
 
@@ -199,8 +200,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
         @kotlin.jvm.JvmField
         var stepsToday = 0
-        var newLapSteps = 0
-        var initialSteps = 0
+
         val TAG: String = "SetWallWorkerLOG7"
         var wallDesc: String = ""
         var wallDescs: ArrayList<String> = ArrayList()

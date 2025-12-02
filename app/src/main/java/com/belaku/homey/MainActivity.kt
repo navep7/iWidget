@@ -495,13 +495,13 @@ class MainActivity : AppCompatActivity() {
         )
 
         addPermissionCard(
-            "<b> Permission Request for App Usage Stats </b>- \n  to suggest \"③ Frequent Apps\" to use, based on previously used App stats.. ",
+            "<b>Permission Request for App Usage Stats </b>- \n  to suggest \"③ Frequent Apps\" to use, based on previously used App stats.. ",
             "Permit",
             "AUS"
         )
 
         addPermissionCard(
-            "<b> Requisition for Accessibility Service permission </b>- \n  to smoothly lock Phone screen from Widget shortcut.",
+            "<b>Requisition for Accessibility Service permission </b>- \n  to smoothly lock Phone screen from Widget shortcut.",
             "Permit",
             "AS"
         )
@@ -690,7 +690,7 @@ class MainActivity : AppCompatActivity() {
 
     fun usageStatsPermissionDialog() {
         val alertDialog: AlertDialog = AlertDialog.Builder(mAct).create()
-        alertDialog.setTitle("Permission Request for App Usage Stats")
+        alertDialog.setTitle("1/2 Permission Request for App Usage Stats")
         alertDialog.setMessage("App needs permission to get Usage stats to suggest apps to use, based on previously used App stats.. ")
         alertDialog.setButton(
             AlertDialog.BUTTON_NEUTRAL, "OK"
@@ -1801,7 +1801,7 @@ class MainActivity : AppCompatActivity() {
     private fun AccessibilityServicePermissionDialog() {
 
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Requisition for Accessibility Service permission")
+        builder.setTitle("2/2 Requisition for Accessibility Service permission")
         builder.setMessage(
             "Please Enable Accessibility Service to smoothly lock Phone screen from Widget shortcut."
         )

@@ -1,3 +1,3 @@
 package com.belaku.homey
 
-data class Habit(val name: String, var isChecked: Boolean)
+data class Habit(val name: String, var isChecked: Boolean, var hStatuses: ArrayList<String>)

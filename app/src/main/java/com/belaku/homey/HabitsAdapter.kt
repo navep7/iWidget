@@ -1,12 +1,15 @@
 package com.belaku.homey
 
 import android.content.Context
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import android.widget.TextView
+import com.belaku.homey.SetWallWorker.Companion.arrayListHabitStatuses
+import java.util.Calendar
 
 class HabitsAdapter(context: Context, data: List<Habit>) :
     ArrayAdapter<Habit>(context, 0, data) {
@@ -34,6 +37,45 @@ class HabitsAdapter(context: Context, data: List<Habit>) :
         val textViewTh = listItemView!!.findViewById<TextView>(R.id.txTh)
         val textViewF = listItemView!!.findViewById<TextView>(R.id.txF)
         val textViewS = listItemView!!.findViewById<TextView>(R.id.txS)
+
+        textViewSu.text = arrayListHabitStatuses[0]
+        textViewM.text = arrayListHabitStatuses[1]
+        textViewTu.text = arrayListHabitStatuses[2]
+        textViewW.text = arrayListHabitStatuses[3]
+        textViewTh.text = arrayListHabitStatuses[4]
+        textViewF.text = arrayListHabitStatuses[5]
+        textViewS.text = arrayListHabitStatuses[6]
+
+        when(arrayListHabitStatuses.indexOf("•")) {
+            1 -> textViewM.setTextColor(Color.GREEN)
+            2 -> textViewTu.setTextColor(Color.GREEN)
+            3 -> textViewW.setTextColor(Color.GREEN)
+            4 -> textViewTh.setTextColor(Color.GREEN)
+            5 -> textViewF.setTextColor(Color.GREEN)
+            6 -> textViewS.setTextColor(Color.GREEN)
+            0 -> textViewSu.setTextColor(Color.GREEN)
+        }
+
+        when(arrayListHabitStatuses.indexOf("✓")) {
+            1 -> textViewM.setTextColor(Color.GREEN)
+            2 -> textViewTu.setTextColor(Color.GREEN)
+            3 -> textViewW.setTextColor(Color.GREEN)
+            4 -> textViewTh.setTextColor(Color.GREEN)
+            5 -> textViewF.setTextColor(Color.GREEN)
+            6 -> textViewS.setTextColor(Color.GREEN)
+            0 -> textViewSu.setTextColor(Color.GREEN)
+        }
+
+        when(arrayListHabitStatuses.indexOf("✕")) {
+            1 -> textViewM.setTextColor(Color.RED)
+            2 -> textViewTu.setTextColor(Color.RED)
+            3 -> textViewW.setTextColor(Color.RED)
+            4 -> textViewTh.setTextColor(Color.RED)
+            5 -> textViewF.setTextColor(Color.RED)
+            6 -> textViewS.setTextColor(Color.RED)
+            0 -> textViewSu.setTextColor(Color.RED)
+        }
+   //     arrayListHabitStatuses[i] = "✓"
 
 
 

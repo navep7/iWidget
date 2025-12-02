@@ -84,7 +84,6 @@ import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.MainActivity.Companion.weatherIconState
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.cAddrs
-import com.belaku.homey.SetWallWorker.Companion.initialSteps
 import com.belaku.homey.SetWallWorker.Companion.isWallBitmapInitialized
 import com.belaku.homey.SetWallWorker.Companion.scaledBitmap
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
@@ -952,9 +951,6 @@ class NewAppWidget : AppWidgetProvider() {
 
         } else if (STEPS_NOW == intent.action) {
             boolNewLap = !boolNewLap
-            if (initialSteps == 0)
-                initialSteps = stepsToday
-            else initialSteps = 0
 
             sharedPreferencesEditor.putBoolean("newLap", boolNewLap).apply()
 

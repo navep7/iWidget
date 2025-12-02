@@ -28,6 +28,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.belaku.homey.MainActivity.Companion.apps
+import com.belaku.homey.SetWallWorker.Companion.arrayListHabitStatuses
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.belaku.homey.databinding.ActivityRemindersBinding
 
@@ -47,7 +48,7 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
 
         val rootLayout = findViewById<RelativeLayout>(R.id.reminders_layout)
-        /*try {
+        try {
             rootLayout.setBackgroundDrawable(
                 BitmapDrawable(
                     getResources(),
@@ -64,7 +65,7 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
                     blur(applicationContext, wallBitmap)
                 )
             )
-        }*/
+        }
 
 
         binding.txAddHabits.setOnClickListener(View.OnClickListener {
@@ -85,10 +86,25 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         listViewHabits.adapter = adapterHabits
 
         listViewHabits.setOnItemClickListener(OnItemClickListener { parent, view, position, id ->
-            if ((parent.getItemAtPosition(position) as Habit).isChecked)
+            if ((parent.getItemAtPosition(position) as Habit).isChecked) {
                 (parent.getItemAtPosition(position) as Habit).isChecked = false
-            else {
+                when(Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
+                    1 -> arrayListHabitStatuses[0] = "✕"
+                    2 -> arrayListHabitStatuses[1] = "✕"
+                    3 -> arrayListHabitStatuses[2] = "✕"
+                    4 -> arrayListHabitStatuses[3] = "✕"
+                    5 -> arrayListHabitStatuses[4] = "✕"
+                    6 -> arrayListHabitStatuses[5] = "✕"
+                    7 -> arrayListHabitStatuses[6] = "✕"
+                }
+            } else {
                 (parent.getItemAtPosition(position) as Habit).isChecked = true
+                for (i in 0 until arrayListHabitStatuses.size) {
+                    if (arrayListHabitStatuses[i] == "•" || arrayListHabitStatuses[i] == "✕") {
+                        arrayListHabitStatuses[i] = "✓"
+                        adapterHabits.notifyDataSetChanged()
+                    }
+                }
             }
             adapterHabits.notifyDataSetChanged()
         })
