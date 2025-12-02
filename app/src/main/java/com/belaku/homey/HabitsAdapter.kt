@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import android.widget.TextView
 import com.belaku.homey.SetWallWorker.Companion.arrayListHabitStatuses
+import com.belaku.homey.SetWallWorker.Companion.dayChange
 import java.util.Calendar
 
 class HabitsAdapter(context: Context, data: List<Habit>) :
@@ -28,7 +29,11 @@ class HabitsAdapter(context: Context, data: List<Habit>) :
         textView.text = currentItem?.name
 
         val checkBox = listItemView.findViewById<CheckBox>(R.id.item_checkbox)
-        checkBox.isChecked = currentItem?.isChecked ?: false
+        if (dayChange) {
+            dayChange = false
+            checkBox.isChecked = false
+        }
+        else checkBox.isChecked = currentItem?.isChecked ?: false
 
         val textViewSu = listItemView!!.findViewById<TextView>(R.id.txSu)
         val textViewM = listItemView!!.findViewById<TextView>(R.id.txM)

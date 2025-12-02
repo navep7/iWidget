@@ -84,6 +84,7 @@ import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.MainActivity.Companion.weatherIconState
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.cAddrs
+import com.belaku.homey.SetWallWorker.Companion.dayChange
 import com.belaku.homey.SetWallWorker.Companion.isWallBitmapInitialized
 import com.belaku.homey.SetWallWorker.Companion.scaledBitmap
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
@@ -1575,6 +1576,8 @@ class NewAppWidget : AppWidgetProvider() {
 
             if (sharedPreferences.getString("day", "someday") != dayOfTheWeek) {
                 stepsToday = 0
+                remoteViews?.setTextViewText(R.id.tx_daychanges, Calendar.getInstance().get(Calendar.DAY_OF_WEEK).toString())
+                dayChange = true
                 sharedPreferencesEditor.putString("day", dayOfTheWeek).apply()
             }
 

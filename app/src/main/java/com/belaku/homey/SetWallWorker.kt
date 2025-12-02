@@ -110,6 +110,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         //    makeToast("same Day")
         else {
             //    makeToast("diff Day")
+            dayChange = true
             sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
             stepsToday = 0
         }
@@ -185,6 +186,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
 
     companion object {
+        var dayChange: Boolean = false
         var arrayListHabitStatuses: ArrayList<String> = ArrayList()
         lateinit var sharedPreferences: SharedPreferences
         lateinit var sharedPreferencesEditor: SharedPreferences.Editor
