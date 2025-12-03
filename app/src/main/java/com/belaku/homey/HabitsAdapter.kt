@@ -10,6 +10,7 @@ import android.widget.CheckBox
 import android.widget.TextView
 import com.belaku.homey.SetWallWorker.Companion.dayChange
 import com.belaku.homey.SetWallWorker.Companion.dayIndex
+import com.belaku.homey.SetWallWorker.Companion.rActOpenedFirst
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import java.util.Calendar
@@ -31,6 +32,8 @@ class HabitsAdapter(context: Context, data: List<Habit>) :
         textView.text = currentItem?.name
 
         val checkBox = listItemView.findViewById<CheckBox>(R.id.item_checkbox)
+        if (rActOpenedFirst == "yes")
+            checkBox.isChecked = false
         if (dayChange) {
             dayChange = false
             checkBox.isChecked = false

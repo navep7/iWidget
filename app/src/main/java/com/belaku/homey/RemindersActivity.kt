@@ -29,9 +29,14 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.SetWallWorker.Companion.dayIndex
+import com.belaku.homey.SetWallWorker.Companion.rActOpenedFirst
+import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.belaku.homey.databinding.ActivityRemindersBinding
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
@@ -66,6 +71,21 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
                     blur(applicationContext, wallBitmap)
                 )
             )
+        }
+
+        //first open in a DAY
+        sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        sharedPreferencesEditor = sharedPreferences.edit()
+        var lastOpenedDateString = sharedPreferences.getString("LAST_OPEN_DATE_KEY", "")
+        var sdf = SimpleDateFormat("yyyy-MM-DD", Locale.getDefault())
+        var currentDateString = sdf.format(Date())
+        if (!currentDateString.equals(lastOpenedDateString)) {
+            //first Open of Activity
+            rActOpenedFirst = "yes"
+            sharedPreferencesEditor.putString("LAST_OPEN_DATE_KEY", currentDateString).apply()
+        } else {
+            //Already Opened
+            rActOpenedFirst = "no"
         }
 
 
