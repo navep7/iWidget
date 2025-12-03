@@ -1,6 +1,7 @@
 package com.belaku.homey
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.WallpaperManager
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
@@ -37,7 +38,6 @@ import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.delayUnit
 import com.belaku.homey.MainActivity.Companion.fabMain
 import com.belaku.homey.MainActivity.Companion.listTweets
-import com.belaku.homey.MainActivity.Companion.mAct
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.queryType
@@ -186,6 +186,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
 
     companion object {
+        lateinit var mAct: Activity
         var dayIndex: Int = -1
         var dayChange: Boolean = false
         lateinit var sharedPreferences: SharedPreferences

@@ -108,6 +108,7 @@ import com.belaku.homey.NewAppWidget.Companion.screenHeight
 import com.belaku.homey.NewAppWidget.Companion.screenWidth
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.SetWallWorker.Companion.dayIndex
+import com.belaku.homey.SetWallWorker.Companion.mAct
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.databinding.ActivityMainBinding
@@ -2033,9 +2034,6 @@ class MainActivity : AppCompatActivity() {
         var weatherIconUrl: String = ""
         lateinit var weatherData: WeatherData
         lateinit var sN: Snackbar
-
-        @SuppressLint("StaticFieldLeak")
-        lateinit var mAct: Activity
 
         @SuppressLint("StaticFieldLeak")
         lateinit var parentLayout: View
