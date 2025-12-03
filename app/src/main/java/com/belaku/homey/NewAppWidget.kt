@@ -1576,7 +1576,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             if (sharedPreferences.getString("day", "someday") != dayOfTheWeek) {
                 stepsToday = 0
-                remoteViews?.setTextViewText(R.id.tx_daychanges, Calendar.getInstance().get(Calendar.DAY_OF_WEEK).toString())
+           //     remoteViews?.setTextViewText(R.id.tx_daychanges, dayIndex.toString())
                 dayChange = true
                 sharedPreferencesEditor.putString("day", dayOfTheWeek).apply()
             }

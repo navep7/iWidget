@@ -8,8 +8,10 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import android.widget.TextView
-import com.belaku.homey.SetWallWorker.Companion.arrayListHabitStatuses
 import com.belaku.homey.SetWallWorker.Companion.dayChange
+import com.belaku.homey.SetWallWorker.Companion.dayIndex
+import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
+import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import java.util.Calendar
 
 class HabitsAdapter(context: Context, data: List<Habit>) :
@@ -32,8 +34,7 @@ class HabitsAdapter(context: Context, data: List<Habit>) :
         if (dayChange) {
             dayChange = false
             checkBox.isChecked = false
-        }
-        else checkBox.isChecked = currentItem?.isChecked ?: false
+        } else checkBox.isChecked = currentItem?.isChecked ?: false
 
         val textViewSu = listItemView!!.findViewById<TextView>(R.id.txSu)
         val textViewM = listItemView!!.findViewById<TextView>(R.id.txM)
@@ -43,47 +44,81 @@ class HabitsAdapter(context: Context, data: List<Habit>) :
         val textViewF = listItemView!!.findViewById<TextView>(R.id.txF)
         val textViewS = listItemView!!.findViewById<TextView>(R.id.txS)
 
-        textViewSu.text = arrayListHabitStatuses[0]
-        textViewM.text = arrayListHabitStatuses[1]
-        textViewTu.text = arrayListHabitStatuses[2]
-        textViewW.text = arrayListHabitStatuses[3]
-        textViewTh.text = arrayListHabitStatuses[4]
-        textViewF.text = arrayListHabitStatuses[5]
-        textViewS.text = arrayListHabitStatuses[6]
+        var suState: String
+        var mState: String
+        var tuState: String
+        var wState: String
+        var thState: String
+        var fState: String
+        var sState: String
 
-        when(arrayListHabitStatuses.indexOf("•")) {
-            1 -> textViewM.setTextColor(Color.GREEN)
-            2 -> textViewTu.setTextColor(Color.GREEN)
-            3 -> textViewW.setTextColor(Color.GREEN)
-            4 -> textViewTh.setTextColor(Color.GREEN)
-            5 -> textViewF.setTextColor(Color.GREEN)
-            6 -> textViewS.setTextColor(Color.GREEN)
-            0 -> textViewSu.setTextColor(Color.GREEN)
-        }
+        suState = if (sharedPreferences.getBoolean("${currentItem?.name}StateSu", false))
+            "✓"
+        else "Su"
+        mState = if (sharedPreferences.getBoolean("${currentItem?.name}StateM", false))
+            "✓"
+        else "M"
+        tuState = if (sharedPreferences.getBoolean("${currentItem?.name}StateTu", false))
+            "✓"
+        else "Tu"
+        wState = if (sharedPreferences.getBoolean("${currentItem?.name}StateW", false))
+            "✓"
+        else "W"
+        thState = if (sharedPreferences.getBoolean("${currentItem?.name}StateTh", false))
+            "✓"
+        else "Th"
+        fState = if (sharedPreferences.getBoolean("${currentItem?.name}StateF", false))
+            "✓"
+        else "F"
+        sState = if (sharedPreferences.getBoolean("${currentItem?.name}StateS", false))
+            "✓"
+        else "S"
 
-        when(arrayListHabitStatuses.indexOf("✓")) {
-            1 -> textViewM.setTextColor(Color.GREEN)
-            2 -> textViewTu.setTextColor(Color.GREEN)
-            3 -> textViewW.setTextColor(Color.GREEN)
-            4 -> textViewTh.setTextColor(Color.GREEN)
-            5 -> textViewF.setTextColor(Color.GREEN)
-            6 -> textViewS.setTextColor(Color.GREEN)
-            0 -> textViewSu.setTextColor(Color.GREEN)
-        }
+       /* when (dayIndex) {
+            1 -> suState = if (sharedPreferences.getBoolean("${currentItem?.name}StateSu", false))
+                "•"
+            else
+                "✓"
 
-        when(arrayListHabitStatuses.indexOf("✕")) {
-            1 -> textViewM.setTextColor(Color.RED)
-            2 -> textViewTu.setTextColor(Color.RED)
-            3 -> textViewW.setTextColor(Color.RED)
-            4 -> textViewTh.setTextColor(Color.RED)
-            5 -> textViewF.setTextColor(Color.RED)
-            6 -> textViewS.setTextColor(Color.RED)
-            0 -> textViewSu.setTextColor(Color.RED)
-        }
-   //     arrayListHabitStatuses[i] = "✓"
+            2 -> mState = if (sharedPreferences.getBoolean("${currentItem?.name}StateM", false))
+                "•"
+            else
+                "✓"
+
+            3 -> tuState = if (sharedPreferences.getBoolean("${currentItem?.name}StateTu", false))
+                "•"
+            else
+                "✓"
+
+            4 -> wState = if (sharedPreferences.getBoolean("${currentItem?.name}StateW", false))
+                "•"
+            else
+                "✓"
+
+            5 -> thState = if (sharedPreferences.getBoolean("${currentItem?.name}StateTh", false))
+                "•"
+            else
+                "✓"
+
+            6 -> fState = if (sharedPreferences.getBoolean("${currentItem?.name}StateF", false))
+                "•"
+            else
+                "✓"
+
+            0 -> sState = if (sharedPreferences.getBoolean("${currentItem?.name}StateS", false))
+                "•"
+            else
+                "✓"
+        }*/
 
 
-
+        textViewSu.text = suState
+        textViewM.text = mState
+        textViewTu.text = tuState
+        textViewW.text = wState
+        textViewTh.text = thState
+        textViewF.text = fState
+        textViewS.text = sState
 
         return listItemView
     }

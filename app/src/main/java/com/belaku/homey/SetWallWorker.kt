@@ -186,8 +186,8 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
 
     companion object {
+        var dayIndex: Int = -1
         var dayChange: Boolean = false
-        var arrayListHabitStatuses: ArrayList<String> = ArrayList()
         lateinit var sharedPreferences: SharedPreferences
         lateinit var sharedPreferencesEditor: SharedPreferences.Editor
 

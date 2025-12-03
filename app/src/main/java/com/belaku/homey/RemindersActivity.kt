@@ -28,7 +28,8 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.belaku.homey.MainActivity.Companion.apps
-import com.belaku.homey.SetWallWorker.Companion.arrayListHabitStatuses
+import com.belaku.homey.SetWallWorker.Companion.dayIndex
+import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.belaku.homey.databinding.ActivityRemindersBinding
 
@@ -88,22 +89,25 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         listViewHabits.setOnItemClickListener(OnItemClickListener { parent, view, position, id ->
             if ((parent.getItemAtPosition(position) as Habit).isChecked) {
                 (parent.getItemAtPosition(position) as Habit).isChecked = false
-                when(Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
-                    1 -> arrayListHabitStatuses[0] = "✕"
-                    2 -> arrayListHabitStatuses[1] = "✕"
-                    3 -> arrayListHabitStatuses[2] = "✕"
-                    4 -> arrayListHabitStatuses[3] = "✕"
-                    5 -> arrayListHabitStatuses[4] = "✕"
-                    6 -> arrayListHabitStatuses[5] = "✕"
-                    7 -> arrayListHabitStatuses[6] = "✕"
+                when(dayIndex) {
+                    1 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateSu", false).apply()
+                    2 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateM", false).apply()
+                    3 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateTu", false).apply()
+                    4 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateW", false).apply()
+                    5 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateTh", false).apply()
+                    6 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateF", false).apply()
+                    0 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateS", false).apply()
                 }
             } else {
                 (parent.getItemAtPosition(position) as Habit).isChecked = true
-                for (i in 0 until arrayListHabitStatuses.size) {
-                    if (arrayListHabitStatuses[i] == "•" || arrayListHabitStatuses[i] == "✕") {
-                        arrayListHabitStatuses[i] = "✓"
-                        adapterHabits.notifyDataSetChanged()
-                    }
+                when(java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_WEEK)) {
+                    1 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateSu", true).apply()
+                    2 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateM", true).apply()
+                    3 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateTu", true).apply()
+                    4 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateW", true).apply()
+                    5 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateTh", true).apply()
+                    6 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateF", true).apply()
+                    0 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateS", true).apply()
                 }
             }
             adapterHabits.notifyDataSetChanged()

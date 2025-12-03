@@ -17,7 +17,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.RemindersActivity.Companion.previewSelectedTimeTextView
-import com.belaku.homey.SetWallWorker.Companion.arrayListHabitStatuses
+import com.belaku.homey.SetWallWorker.Companion.dayIndex
 import java.util.Calendar
 
 
@@ -69,32 +69,10 @@ class CustomDialogClass // TODO Auto-generated constructor stub
         when (v.id) {
             R.id.btn_okd -> {
 
-                arrayListHabitStatuses.add("Su")
-                arrayListHabitStatuses.add("M")
-                arrayListHabitStatuses.add("Tu")
-                arrayListHabitStatuses.add("W")
-                arrayListHabitStatuses.add("Th")
-                arrayListHabitStatuses.add("F")
-                arrayListHabitStatuses.add("S")
 
-                val dayIndex = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
                 makeToast("dayIndex : " + dayIndex)
 
-                when(dayIndex) {
-                    0 -> arrayListHabitStatuses[6] = "•"
-                    1 -> arrayListHabitStatuses[0] = "•"
-                    2 -> arrayListHabitStatuses[1] = "•"
-                    3 -> arrayListHabitStatuses[2] = "•"
-                    4 -> arrayListHabitStatuses[3] = "•"
-                    5 -> arrayListHabitStatuses[4] = "•"
-                    6 -> arrayListHabitStatuses[5] = "•"
-                }
-
-
-
-
-
-                arrayListHabits.add(Habit(editText.text.toString(), false, arrayListHabitStatuses))
+                arrayListHabits.add(Habit(editText.text.toString(), false))
                 adapterHabits.notifyDataSetChanged()
                 dismiss()
             }

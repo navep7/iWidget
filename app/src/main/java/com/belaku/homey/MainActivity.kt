@@ -107,6 +107,7 @@ import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.screenHeight
 import com.belaku.homey.NewAppWidget.Companion.screenWidth
 import com.belaku.homey.NewAppWidget.Companion.tW
+import com.belaku.homey.SetWallWorker.Companion.dayIndex
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.databinding.ActivityMainBinding
@@ -218,6 +219,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         enableEdgeToEdge()
+
+        dayIndex = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
 
         mainWindow = this.window
 
@@ -714,8 +717,8 @@ class MainActivity : AppCompatActivity() {
             addWallKey("Material Design", false)
             arrayListKeys.add("iPhone Wallpapers")
             addWallKey("iPhone Wallpapers", false)
-            arrayListKeys.add("Monsoon Birds")
-            addWallKey("Monsoon Birds", false)
+            arrayListKeys.add("Birds")
+            addWallKey("Birds", false)
             arrayListKeys.add("CountrySide")
             addWallKey("CountrySide", false)
             arrayListKeys.add("Low Angle Photography")
