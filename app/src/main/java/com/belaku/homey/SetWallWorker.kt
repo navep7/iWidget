@@ -64,6 +64,8 @@ import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.NewAppWidget.Companion.timelyWish
 import com.belaku.homey.NewAppWidget.Companion.uT
 import com.belaku.homey.NewAppWidget.Companion.wD
+import com.belaku.homey.RemindersActivity.Companion.adapterHabits
+import com.belaku.homey.RemindersActivity.Companion.arrayListHabits
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -106,13 +108,16 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
     private fun DayChanges() {
 
         getScreenTime(applicationContext)
-        if (sharedPreferences.getString("day", "someday").equals(dayOfTheWeek))
-        //    makeToast("same Day")
-        else {
-            //    makeToast("diff Day")
+        if (sharedPreferences.getString("day", "someday").equals(dayOfTheWeek)) {
+            Log.d("DayChange?", "same Day")
+        } else {
+            Log.d("DayChange?","diff Day")
             dayChange = true
             sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
             stepsToday = 0
+            for (i in arrayListHabits)
+                i.isChecked = false
+            adapterHabits.notifyDataSetChanged()
         }
     }
 

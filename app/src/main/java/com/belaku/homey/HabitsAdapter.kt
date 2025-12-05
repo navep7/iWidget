@@ -32,12 +32,7 @@ class HabitsAdapter(context: Context, data: List<Habit>) :
         textView.text = currentItem?.name
 
         val checkBox = listItemView.findViewById<CheckBox>(R.id.item_checkbox)
-        if (rActOpenedFirst == "yes")
-            checkBox.isChecked = false
-        if (dayChange) {
-            dayChange = false
-            checkBox.isChecked = false
-        } else checkBox.isChecked = currentItem?.isChecked ?: false
+        checkBox.isChecked = currentItem?.isChecked ?: false
 
         val textViewSu = listItemView!!.findViewById<TextView>(R.id.txSu)
         val textViewM = listItemView!!.findViewById<TextView>(R.id.txM)
@@ -76,6 +71,9 @@ class HabitsAdapter(context: Context, data: List<Habit>) :
         sState = if (sharedPreferences.getBoolean("${currentItem?.name}StateS", false))
             "✓"
         else "S"
+
+
+
 
         textViewSu.text = suState
         textViewM.text = mState
