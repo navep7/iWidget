@@ -198,7 +198,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
-        var fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
+        val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
 
         fusedLocationProviderClient.requestLocationUpdates(
             locationRequest,

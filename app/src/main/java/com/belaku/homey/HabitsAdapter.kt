@@ -77,44 +77,6 @@ class HabitsAdapter(context: Context, data: List<Habit>) :
             "✓"
         else "S"
 
-       /* when (dayIndex) {
-            1 -> suState = if (sharedPreferences.getBoolean("${currentItem?.name}StateSu", false))
-                "•"
-            else
-                "✓"
-
-            2 -> mState = if (sharedPreferences.getBoolean("${currentItem?.name}StateM", false))
-                "•"
-            else
-                "✓"
-
-            3 -> tuState = if (sharedPreferences.getBoolean("${currentItem?.name}StateTu", false))
-                "•"
-            else
-                "✓"
-
-            4 -> wState = if (sharedPreferences.getBoolean("${currentItem?.name}StateW", false))
-                "•"
-            else
-                "✓"
-
-            5 -> thState = if (sharedPreferences.getBoolean("${currentItem?.name}StateTh", false))
-                "•"
-            else
-                "✓"
-
-            6 -> fState = if (sharedPreferences.getBoolean("${currentItem?.name}StateF", false))
-                "•"
-            else
-                "✓"
-
-            0 -> sState = if (sharedPreferences.getBoolean("${currentItem?.name}StateS", false))
-                "•"
-            else
-                "✓"
-        }*/
-
-
         textViewSu.text = suState
         textViewM.text = mState
         textViewTu.text = tuState
