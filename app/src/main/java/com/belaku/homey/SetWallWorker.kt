@@ -99,27 +99,12 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
         setWall(true)
         getCity()
-        DayChanges()
         greeting()
 
         return Result.success()
     }
 
-    private fun DayChanges() {
 
-        getScreenTime(applicationContext)
-        if (sharedPreferences.getString("day", "someday").equals(dayOfTheWeek)) {
-            Log.d("DayChange?", "same Day")
-        } else {
-            Log.d("DayChange?","diff Day")
-            dayChange = true
-            sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
-            stepsToday = 0
-            for (i in arrayListHabits)
-                i.isChecked = false
-            adapterHabits.notifyDataSetChanged()
-        }
-    }
 
     @SuppressLint("MissingPermission")
     private fun getCity() {
@@ -339,8 +324,28 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
                 Log.d(TAG, "setWallEx2 - $e")
             }
+
+            DayChanges()
             updateWidget()
 
+        }
+
+        private fun DayChanges() {
+
+            getScreenTime(appContx)
+            if (sharedPreferences.getString("day", "someday").equals(dayOfTheWeek)) {
+                Log.d("DayChange?", "same Day")
+            } else {
+                Log.d("DayChange?","diff Day")
+                dayChange = true
+                sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
+                stepsToday = 0
+                if (arrayListHabits.size > 0) {
+                    for (i in arrayListHabits)
+                        i.isChecked = false
+                    adapterHabits.notifyDataSetChanged()
+                }
+            }
         }
 
         private fun updateWidget() {

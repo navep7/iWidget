@@ -60,7 +60,7 @@
         android:choiceMode="multipleChoice"
         android:layout_below="@+id/tx_habits"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="350dp"/>
 
     <TextView
         android:id="@+id/tx_reminders"

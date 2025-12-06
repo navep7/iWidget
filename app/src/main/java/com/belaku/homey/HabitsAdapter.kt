@@ -30,6 +30,7 @@ class HabitsAdapter(context: Context, data: List<Habit>) :
 
         val textView = listItemView!!.findViewById<TextView>(R.id.item_text_name)
         textView.text = currentItem?.name
+        textView.setTextColor(NewAppWidget.tertianaryColor)
 
         val checkBox = listItemView.findViewById<CheckBox>(R.id.item_checkbox)
         checkBox.isChecked = currentItem?.isChecked ?: false
@@ -82,6 +83,14 @@ class HabitsAdapter(context: Context, data: List<Habit>) :
         textViewTh.text = thState
         textViewF.text = fState
         textViewS.text = sState
+
+        textViewSu.setTextColor(NewAppWidget.tertianaryColor)
+        textViewM.setTextColor(NewAppWidget.tertianaryColor)
+        textViewTu.setTextColor(NewAppWidget.tertianaryColor)
+        textViewW.setTextColor(NewAppWidget.tertianaryColor)
+        textViewTh.setTextColor(NewAppWidget.tertianaryColor)
+        textViewF.setTextColor(NewAppWidget.tertianaryColor)
+        textViewS.setTextColor(NewAppWidget.tertianaryColor)
 
         return listItemView
     }
