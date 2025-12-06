@@ -340,11 +340,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 dayChange = true
                 sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
                 stepsToday = 0
-                if (arrayListHabits.size > 0) {
-                    for (i in arrayListHabits)
-                        i.isChecked = false
-                    adapterHabits.notifyDataSetChanged()
-                }
+
             }
         }
 

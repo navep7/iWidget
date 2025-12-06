@@ -81,9 +81,12 @@ import com.belaku.homey.MainActivity.Companion.twitterProfileName
 import com.belaku.homey.MainActivity.Companion.updateWidget
 import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.MainActivity.Companion.weatherIconState
+import com.belaku.homey.RemindersActivity.Companion.adapterHabits
+import com.belaku.homey.RemindersActivity.Companion.arrayListHabits
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.cAddrs
 import com.belaku.homey.SetWallWorker.Companion.dayChange
+import com.belaku.homey.SetWallWorker.Companion.dayIndex
 import com.belaku.homey.SetWallWorker.Companion.isWallBitmapInitialized
 import com.belaku.homey.SetWallWorker.Companion.mAct
 import com.belaku.homey.SetWallWorker.Companion.scaledBitmap
@@ -1572,11 +1575,14 @@ class NewAppWidget : AppWidgetProvider() {
                 }
             }
 
-
-
             if (sharedPreferences.getString("day", "someday") != dayOfTheWeek) {
                 stepsToday = 0
-           //     remoteViews?.setTextViewText(R.id.tx_daychanges, dayIndex.toString())
+                dayIndex = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
+                if (arrayListHabits.size > 0) {
+                    for (i in arrayListHabits)
+                        i.isChecked = false
+                    adapterHabits.notifyDataSetChanged()
+                }
                 dayChange = true
                 sharedPreferencesEditor.putString("day", dayOfTheWeek).apply()
             }
