@@ -21,6 +21,8 @@
         <TextView
             android:id="@+id/txM"
             android:text="M"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
             android:paddingEnd="@dimen/fab_margin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
@@ -28,6 +30,8 @@
         <TextView
             android:id="@+id/txT"
             android:text="Tu"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
             android:paddingEnd="@dimen/fab_margin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
@@ -35,6 +39,8 @@
         <TextView
             android:id="@+id/txW"
             android:text="W"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
             android:paddingEnd="@dimen/fab_margin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
@@ -42,6 +48,8 @@
         <TextView
             android:id="@+id/txTh"
             android:text="Th"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
             android:paddingEnd="@dimen/fab_margin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
@@ -49,6 +57,8 @@
         <TextView
             android:id="@+id/txF"
             android:text="F"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
             android:paddingEnd="@dimen/fab_margin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
@@ -56,6 +66,8 @@
         <TextView
             android:id="@+id/txS"
             android:text="S"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
             android:paddingEnd="@dimen/fab_margin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
@@ -63,6 +75,8 @@
         <TextView
             android:id="@+id/txSu"
             android:text="Su"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
@@ -96,13 +110,6 @@
             android:layout_marginStart="8dp"
             android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/item_text_x"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="X"
-            android:textStyle="bold"/>
-
     </LinearLayout>
 
 
@@ -111,6 +118,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textStyle="italic"
+        android:visibility="invisible"
         android:text="Streak ~ X"/>
 </LinearLayout>
 </androidx.cardview.widget.CardView>

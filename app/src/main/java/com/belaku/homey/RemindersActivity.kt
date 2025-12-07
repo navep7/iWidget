@@ -88,7 +88,7 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         })
 
 
-        var listViewHabits = findViewById<ListView>(R.id.rv_habits)
+        val listViewHabits = findViewById<ListView>(R.id.rv_habits)
         adapterHabits = HabitsAdapter(this, arrayListHabits)
         listViewHabits.adapter = adapterHabits
 

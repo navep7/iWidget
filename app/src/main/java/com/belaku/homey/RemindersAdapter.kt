@@ -1,5 +1,6 @@
 package com.belaku.homey
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
@@ -18,6 +19,7 @@ import java.util.Calendar
 class RemindersAdapter(context: Context, data: List<Reminder>) :
     ArrayAdapter<Reminder>(context, 0, data) {
 
+    @SuppressLint("SetTextI18n")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         var listItemView = convertView
         if (listItemView == null) {
@@ -29,7 +31,7 @@ class RemindersAdapter(context: Context, data: List<Reminder>) :
         val currentItem = getItem(position)
 
         val textViewRname = listItemView!!.findViewById<TextView>(R.id.item_text_rname)
-        textViewRname.text = (position + 1).toString() + ". " + currentItem?.name
+        textViewRname.text = "${(position + 1)}. ${currentItem?.name}"
      //   textViewRname.setTextColor(NewAppWidget.primaryColor)
 
         val textViewRtime = listItemView!!.findViewById<TextView>(R.id.item_text_rtime)

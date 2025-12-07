@@ -36,7 +36,6 @@ import android.hardware.camera2.CameraManager
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.location.Geocoder
-import android.media.MediaPlayer
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.net.wifi.WifiManager
@@ -66,7 +65,6 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.FileProvider
-import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.apps
@@ -105,8 +103,6 @@ import java.io.IOException
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
-import kotlin.math.min
-import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 import kotlin.random.Random
 
@@ -119,20 +115,7 @@ class NewAppWidget : AppWidgetProvider() {
     private lateinit var clickIntentApp: Intent
     private lateinit var serviceIntentContact: Intent
     private lateinit var serviceIntentApp: Intent
-    private var callIndex: Int = -1
-    private lateinit var calendar: Calendar
-    private lateinit var nowCalendar: Calendar
-    private lateinit var ampm: String
-
-    private val TAG: String = "NewAppWidget LOG7"
-
-
-    private lateinit var mp: MediaPlayer
-
-
-    private var currentHour by Delegates.notNull<Int>()
-    private var currentMin by Delegates.notNull<Int>()
-    lateinit var gpName: String
+    
 
 
     override fun onEnabled(context: Context?) {
@@ -150,7 +133,7 @@ class NewAppWidget : AppWidgetProvider() {
 
     @SuppressLint("MissingPermission")
     private fun getLocationUpdates() {
-        var locationRequest = LocationRequest.create()
+        val locationRequest = LocationRequest.create()
         locationRequest.setInterval(30000)
         locationRequest.setSmallestDisplacement(1f)
         locationRequest.setFastestInterval(10000)
@@ -539,10 +522,10 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setUI() {
 
-        googleAccountInfo()
-        _liquidGlassEffects()
-        _seekWifiState()
-        _seekBluetoothState()
+    //    googleAccountInfo()
+        liquidGlassEffects()
+        seekWifiState()
+        seekBluetoothState()
         getScreenTime(appContx)
         todaysDate()
         locationTxUpdate(appContx)
@@ -550,7 +533,7 @@ class NewAppWidget : AppWidgetProvider() {
         setSomeTwAndWallDescUI()
     }
 
-    private fun googleAccountInfo() {
+ /*   private fun googleAccountInfo() {
 
         val accountManager = AccountManager.get(appContx)
 
@@ -563,9 +546,9 @@ class NewAppWidget : AppWidgetProvider() {
          //   makeToast(accountName)
         }
 
-    }
+    }*/
 
-    private fun _liquidGlassEffects() {
+    private fun liquidGlassEffects() {
 
         if (isWallBitmapInitialized())
             remoteViews?.setImageViewBitmap(
@@ -576,7 +559,7 @@ class NewAppWidget : AppWidgetProvider() {
 
     }
 
-    fun applyThinFilmOverlay(originalBitmap: Bitmap, filmColor: Int, filmAlpha: Int): Bitmap {
+    private fun applyThinFilmOverlay(originalBitmap: Bitmap, filmColor: Int, filmAlpha: Int): Bitmap {
         // Create a mutable bitmap for drawing
         val resultBitmap = Bitmap.createBitmap(
             originalBitmap.width,
@@ -594,10 +577,6 @@ class NewAppWidget : AppWidgetProvider() {
         // Set the transparency (0 = fully transparent, 255 = fully opaque)
         paint.alpha = filmAlpha
 
-
-        // You can also experiment with blend modes for different effects
-        // paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.OVERLAY));
-
         // Draw the semi-transparent color over the entire canvas
         canvas.drawRect(
             0f,
@@ -611,7 +590,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
 
-    private fun _seekWifiState() {
+    private fun seekWifiState() {
 
         val wifiState = sharedPreferences.getBoolean("WifiState", false)
         val wifiConnectionState = sharedPreferences.getBoolean("WifiConnectionState", false)
@@ -622,7 +601,7 @@ class NewAppWidget : AppWidgetProvider() {
         else remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_off)
     }
 
-    private fun _seekBluetoothState() {
+    private fun seekBluetoothState() {
 
         val blState = sharedPreferences.getBoolean("BluetoothState", false)
         val blConnectionState = sharedPreferences.getBoolean("BluetoothConnectionState", false)
@@ -720,7 +699,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setTextViewText(
                 R.id.tx_desc_walltype,
                 Html.fromHtml(
-                    wD + "<br>" + qT.split(" ")[0].substring(0, 1)
+                    "$wD<br>" + qT.split(" ")[0].substring(0, 1)
                         .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
                     Html.FROM_HTML_MODE_LEGACY
                 )
@@ -743,7 +722,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             remoteViews?.setTextViewText(
                 R.id.tx_tweets,
-                "\t\t\t\t\t @" + twitterProfileName + "\t ~ \t" + tW
+                "\t\t\t\t\t @$twitterProfileName\t ~ \t$tW"
             )
         }
 
@@ -817,6 +796,7 @@ class NewAppWidget : AppWidgetProvider() {
 
     }
 
+    @SuppressLint("InflateParams")
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleIntentActions(intent: Intent) {
 
@@ -1580,6 +1560,7 @@ class NewAppWidget : AppWidgetProvider() {
             if (sharedPreferences.getString("day", "someday") != dayOfTheWeek) {
                 stepsToday = 0
                 dayIndex = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
+
                 if (arrayListHabits.size > 0) {
                     for (i in arrayListHabits)
                         i.isChecked = false

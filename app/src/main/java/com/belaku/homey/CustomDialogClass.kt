@@ -85,16 +85,18 @@ class CustomDialogClass // TODO Auto-generated constructor stub
                 dismiss()
             }
             R.id.remind_button -> {
-                var rSubject = findViewById<EditText>(R.id.etTitle).text.toString()
-                var rTime = previewSelectedTimeTextView.text
-                var rTimeSplits = rTime.split(":")
-                var h = rTimeSplits[0]
-                var m = rTimeSplits[1].split(" ")[0]
-            //    var rType = findViewById<Spinner>(R.id.remindertype).selectedItem
-              //  arrayListHorRs.add(rSubject + "\t@\t" + rTime + "\t\t\t:\t\t\t" + rType)
-                arrayListReminders.add(Reminder(rSubject, "$h::$m"))
-                adapterReminders.notifyDataSetChanged()
-                addAlarm(rSubject, h.toInt(), m.toInt())
+                val rSubject = findViewById<EditText>(R.id.etTitle).text.toString()
+                val rTime = previewSelectedTimeTextView.text.toString()
+                if (rSubject.isNotEmpty() && rTime.isNotEmpty()) {
+                    val rTimeSplits = rTime.split(":")
+                    val h = rTimeSplits[0]
+                    val m = rTimeSplits[1].split(" ")[0]
+                    //    var rType = findViewById<Spinner>(R.id.remindertype).selectedItem
+                    //  arrayListHorRs.add(rSubject + "\t@\t" + rTime + "\t\t\t:\t\t\t" + rType)
+                    arrayListReminders.add(Reminder(rSubject, "$h::$m"))
+                    adapterReminders.notifyDataSetChanged()
+                    addAlarm(rSubject, h.toInt(), m.toInt())
+                } else makeToast("Add a subject and time!")
             }
         }
         dismiss()
