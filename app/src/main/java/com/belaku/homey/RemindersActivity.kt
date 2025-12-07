@@ -28,6 +28,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.belaku.homey.MainActivity.Companion.apps
+import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.SetWallWorker.Companion.dayIndex
 import com.belaku.homey.SetWallWorker.Companion.rActOpenedFirst
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
@@ -127,9 +128,8 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
 
         var listviewReminders = findViewById<ListView>(R.id.rv_reminders)
-        adapterReminders = ArrayAdapter<String>(
+        adapterReminders = RemindersAdapter(
             this,
-            android.R.layout.simple_list_item_1,  // Default layout for a single text item
             arrayListReminders
         )
         listviewReminders.setAdapter(adapterReminders)
@@ -180,49 +180,18 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
             object : TimePickerDialog.OnTimeSetListener {
                 override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
 
+                    makeToast("onTimeSet - $hourOfDay")
                     // logic to properly handle
                     // the picked timings by user
-                    val formattedTime: String = when {
-                        hourOfDay == 0 -> {
-                            if (minute < 10) {
-                                "${hourOfDay + 12}:0${minute} am"
-                            } else {
-                                "${hourOfDay + 12}:${minute} am"
-                            }
-                        }
-
-                        hourOfDay > 12 -> {
-                            if (minute < 10) {
-                                "${hourOfDay - 12}:0${minute} pm"
-                            } else {
-                                "${hourOfDay - 12}:${minute} pm"
-                            }
-                        }
-
-                        hourOfDay == 12 -> {
-                            if (minute < 10) {
-                                "${hourOfDay}:0${minute} pm"
-                            } else {
-                                "${hourOfDay}:${minute} pm"
-                            }
-                        }
-
-                        else -> {
-                            if (minute < 10) {
-                                "${hourOfDay}:${minute} am"
-                            } else {
-                                "${hourOfDay}:${minute} am"
-                            }
-                        }
-                    }
+                    val formattedTime = "$hourOfDay:$minute"
 
                     previewSelectedTimeTextView.setText(formattedTime)
                 }
             }
         lateinit var adapterHabits: HabitsAdapter
-        lateinit var adapterReminders: ArrayAdapter<String>
+        lateinit var adapterReminders: RemindersAdapter
         var arrayListHabits: ArrayList<Habit> = ArrayList()
-        var arrayListReminders: ArrayList<String> = ArrayList()
+        var arrayListReminders: ArrayList<Reminder> = ArrayList()
     }
 
     fun timePicker(view: View) {

@@ -13,6 +13,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.RemindersActivity.Companion.adapterReminders
+import com.belaku.homey.RemindersActivity.Companion.arrayListReminders
 
 
 class AlarmBroadcastReceiver : BroadcastReceiver() {
@@ -33,7 +35,7 @@ class AlarmBroadcastReceiver : BroadcastReceiver() {
 
 
         // Set default sound
-        channel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), null)
+        channel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM), null)
 
 
         // Or set a custom sound from your raw resources
@@ -47,7 +49,7 @@ class AlarmBroadcastReceiver : BroadcastReceiver() {
         val builder: NotificationCompat.Builder = NotificationCompat.Builder(appContx, CHANNEL_ID)
             .setSmallIcon(R.drawable.walp_icon)
             .setContentTitle("Reminding you to..")
-            .setContentText("rSubject")
+            .setContentText(rSubject)
             .setPriority(NotificationCompat.PRIORITY_HIGH) // Match channel importance
 
         val notificationManagerCompat = NotificationManagerCompat.from(appContx)
@@ -66,6 +68,11 @@ class AlarmBroadcastReceiver : BroadcastReceiver() {
             return
         }
         notificationManagerCompat.notify(1, builder.build())
+        for (i in 0 until arrayListReminders.size)
+            if (arrayListReminders[i].name == rSubject) {
+                arrayListReminders.removeAt(i)
+                adapterReminders.notifyDataSetChanged()
+            }
 
     }
 }

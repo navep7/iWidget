@@ -24,9 +24,10 @@ import java.util.Calendar
 class CustomDialogClass // TODO Auto-generated constructor stub
     (var c: Activity, var strHorR: String) : Dialog(c), View.OnClickListener {
 
-    private lateinit var adapterHorRs: ArrayAdapter<String>
     private lateinit var adapterHabits: ArrayAdapter<Habit>
+    private lateinit var adapterReminders: ArrayAdapter<Reminder>
     private var arrayListHabits: ArrayList<Habit> = ArrayList()
+    private var arrayListReminders: ArrayList<Reminder> = ArrayList()
     private lateinit var editText: EditText
     var d: Dialog? = null
 
@@ -45,19 +46,20 @@ class CustomDialogClass // TODO Auto-generated constructor stub
             editText.setHint("Add a $strHorR")
             findViewById<Button>(R.id.btn_okd).setOnClickListener(this)
             findViewById<Button>(R.id.btn_canceld).setOnClickListener(this)
-        } /*else {
-            arrayListHorRs = RemindersActivity.arrayListReminders
-            adapterHorRs = RemindersActivity.adapterReminders
+        } else {
+         //   arrayListHorRs = RemindersActivity.arrayListReminders
+            arrayListReminders = RemindersActivity.arrayListReminders
+            adapterReminders = RemindersActivity.adapterReminders
             setContentView(R.layout.reminder_dialog)
 
             setContentView(R.layout.reminder_dialog)
 
             previewSelectedTimeTextView = findViewById<TextView>(R.id.tx_time)
-            findViewById<Spinner>(R.id.remindertype).adapter = ArrayAdapter(context,android.R.layout.simple_list_item_1,context.resources.getStringArray(R.array.ReminderTypes))
+       //     findViewById<Spinner>(R.id.remindertype).adapter = ArrayAdapter(context,android.R.layout.simple_list_item_1,context.resources.getStringArray(R.array.ReminderTypes))
 
             findViewById<Button>(R.id.remind_button).setOnClickListener(this)
             findViewById<Button>(R.id.cancel_button).setOnClickListener(this)
-        }*/
+        }
 
 
 
@@ -88,19 +90,20 @@ class CustomDialogClass // TODO Auto-generated constructor stub
                 var rTimeSplits = rTime.split(":")
                 var h = rTimeSplits[0]
                 var m = rTimeSplits[1].substring(0, 2)
-                var rType = findViewById<Spinner>(R.id.remindertype).selectedItem
+            //    var rType = findViewById<Spinner>(R.id.remindertype).selectedItem
               //  arrayListHorRs.add(rSubject + "\t@\t" + rTime + "\t\t\t:\t\t\t" + rType)
-                adapterHorRs.notifyDataSetChanged()
-                addAlarm(rSubject, h.toInt(), m.toInt(), rType.toString())
+                arrayListReminders.add(Reminder(rSubject, "$h::$m"))
+                adapterReminders.notifyDataSetChanged()
+                addAlarm(rSubject, h.toInt(), m.toInt())
             }
         }
         dismiss()
     }
 
     @SuppressLint("ScheduleExactAlarm")
-    private fun addAlarm(rSubject: String, hr: Int, mn: Int,  rType: String) {
+    private fun addAlarm(rSubject: String, hr: Int, mn: Int) {
 
-   //     makeToast("addAlarm - $rSubject @ $hr:$mn -  ${Calendar.getInstance().get(Calendar.HOUR_OF_DAY)}:${Calendar.getInstance().get(Calendar.MINUTE) + 3} ,  $rType" )
+        makeToast("addAlarm - $rSubject @ $hr:$mn -  ${Calendar.getInstance().get(Calendar.HOUR_OF_DAY)}:${Calendar.getInstance().get(Calendar.MINUTE) + 3}" )
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val alarmIntent: Intent = Intent(
@@ -115,12 +118,14 @@ class CustomDialogClass // TODO Auto-generated constructor stub
         // Calculate the trigger time in milliseconds (e.g., for 7:30 AM tomorrow)
         val calendar: Calendar = Calendar.getInstance()
         calendar.setTimeInMillis(System.currentTimeMillis())
+
         calendar.set(Calendar.HOUR_OF_DAY, hr)
         calendar.set(Calendar.MINUTE, mn)
         calendar.set(Calendar.SECOND, Calendar.getInstance().get(Calendar.SECOND))
         calendar.set(Calendar.MILLISECOND, 0)
 
 
+        makeToast("CMPRSoN ~ ${calendar.timeInMillis} <= ${System.currentTimeMillis()}")
         // If the target time is in the past for the current day, set it for the next day
         if (calendar.timeInMillis <= System.currentTimeMillis()) {
             calendar.add(Calendar.DAY_OF_YEAR, 1)
