@@ -80,32 +80,32 @@ class HabitsAdapter(context: Context, data: List<Habit>) :
         when (mState) {
             "✓" -> textViewM.setTextColor(Color.GREEN)
             "x" -> textViewM.setTextColor(Color.RED)
-            else -> textViewSu.setTextColor(Color.BLACK)
+            else -> textViewM.setTextColor(Color.BLACK)
         }
         when (tuState) {
             "✓" -> textViewTu.setTextColor(Color.GREEN)
             "x" -> textViewTu.setTextColor(Color.RED)
-            else -> textViewSu.setTextColor(Color.BLACK)
+            else -> textViewTu.setTextColor(Color.BLACK)
         }
         when (wState) {
             "✓" -> textViewW.setTextColor(Color.GREEN)
             "x" -> textViewW.setTextColor(Color.RED)
-            else -> textViewSu.setTextColor(Color.BLACK)
+            else -> textViewW.setTextColor(Color.BLACK)
         }
         when (thState) {
             "✓" -> textViewTh.setTextColor(Color.GREEN)
             "x" -> textViewTh.setTextColor(Color.RED)
-            else -> textViewSu.setTextColor(Color.BLACK)
+            else -> textViewTh.setTextColor(Color.BLACK)
         }
         when (fState) {
             "✓" -> textViewF.setTextColor(Color.GREEN)
             "x" -> textViewF.setTextColor(Color.RED)
-            else -> textViewSu.setTextColor(Color.BLACK)
+            else -> textViewF.setTextColor(Color.BLACK)
         }
         when (sState) {
             "✓" -> textViewS.setTextColor(Color.GREEN)
             "x" -> textViewS.setTextColor(Color.RED)
-            else -> textViewSu.setTextColor(Color.BLACK)
+            else -> textViewS.setTextColor(Color.BLACK)
         }
 
 
