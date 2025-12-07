@@ -822,6 +822,8 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (ACTION_LIST_CONTACTITEM_CLICK == intent.action) {
             // Extract the item position or ID from the intent extras
+
+            getFavoriteContacts()
             val position = intent.getIntExtra(
                 EXTRA_CONTACTITEM_POSITION,
                 AdapterView.INVALID_POSITION
