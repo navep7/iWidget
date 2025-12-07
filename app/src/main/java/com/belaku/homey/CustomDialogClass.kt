@@ -89,7 +89,7 @@ class CustomDialogClass // TODO Auto-generated constructor stub
                 var rTime = previewSelectedTimeTextView.text
                 var rTimeSplits = rTime.split(":")
                 var h = rTimeSplits[0]
-                var m = rTimeSplits[1].substring(0, 2)
+                var m = rTimeSplits[1].split(" ")[0]
             //    var rType = findViewById<Spinner>(R.id.remindertype).selectedItem
               //  arrayListHorRs.add(rSubject + "\t@\t" + rTime + "\t\t\t:\t\t\t" + rType)
                 arrayListReminders.add(Reminder(rSubject, "$h::$m"))
@@ -103,7 +103,6 @@ class CustomDialogClass // TODO Auto-generated constructor stub
     @SuppressLint("ScheduleExactAlarm")
     private fun addAlarm(rSubject: String, hr: Int, mn: Int) {
 
-        makeToast("addAlarm - $rSubject @ $hr:$mn -  ${Calendar.getInstance().get(Calendar.HOUR_OF_DAY)}:${Calendar.getInstance().get(Calendar.MINUTE) + 3}" )
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val alarmIntent: Intent = Intent(
@@ -125,7 +124,6 @@ class CustomDialogClass // TODO Auto-generated constructor stub
         calendar.set(Calendar.MILLISECOND, 0)
 
 
-        makeToast("CMPRSoN ~ ${calendar.timeInMillis} <= ${System.currentTimeMillis()}")
         // If the target time is in the past for the current day, set it for the next day
         if (calendar.timeInMillis <= System.currentTimeMillis()) {
             calendar.add(Calendar.DAY_OF_YEAR, 1)
