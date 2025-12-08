@@ -93,7 +93,7 @@ class CustomDialogClass // TODO Auto-generated constructor stub
                     val m = rTimeSplits[1].split(" ")[0]
                     //    var rType = findViewById<Spinner>(R.id.remindertype).selectedItem
                     //  arrayListHorRs.add(rSubject + "\t@\t" + rTime + "\t\t\t:\t\t\t" + rType)
-                    arrayListReminders.add(Reminder(rSubject, "$h::$m"))
+                    arrayListReminders.add(Reminder(rSubject, "$h:$m"))
                     adapterReminders.notifyDataSetChanged()
                     addAlarm(rSubject, h.toInt(), m.toInt())
                 } else makeToast("Add a subject and time!")

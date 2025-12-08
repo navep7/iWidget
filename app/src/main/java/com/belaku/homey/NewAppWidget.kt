@@ -1481,6 +1481,11 @@ class NewAppWidget : AppWidgetProvider() {
 
         fun getScreenTime(applicationContext: Context) {
 
+            if (sharedPreferences == null)
+            sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+            if (sharedPreferencesEditor == null)
+            sharedPreferencesEditor = sharedPreferences.edit()
+
             val usageStatsManager =
                 applicationContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
             val calendar = Calendar.getInstance()
