@@ -235,6 +235,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 if (noRewards > 0) {
                     makeSnack("Changing Wall, please wait...")
+                    appContx = applicationContext
                     Thread {
                         SetWallWorker.setWall(true)
                     }.start()
