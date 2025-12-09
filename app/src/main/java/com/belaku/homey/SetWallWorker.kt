@@ -176,6 +176,11 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
 
     companion object {
+
+        lateinit var pinNote: String
+        fun isPinNoteInitialized(): Boolean {
+            return this::pinNote.isInitialized
+        }
         lateinit var rActOpenedFirst: String
         lateinit var mAct: Activity
         var dayIndex: Int = -1

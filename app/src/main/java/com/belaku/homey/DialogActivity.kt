@@ -30,6 +30,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
@@ -44,7 +45,6 @@ import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
-import com.belaku.homey.MainActivity.Companion
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
@@ -62,10 +62,13 @@ import com.belaku.homey.NewAppWidget.Companion.getScreenTime
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
+import com.belaku.homey.NewAppWidget.Companion.screenHeight
+import com.belaku.homey.NewAppWidget.Companion.screenWidth
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.boolWallSet
+import com.belaku.homey.SetWallWorker.Companion.pinNote
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.google.android.gms.ads.AdError
@@ -553,6 +556,25 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 // Launch the scanner
                 barcodeLauncher.launch(options)
+            } else if (dialogIntentStr == "AddNote") {
+                llDialog.minimumWidth = screenWidth
+                llDialog.minimumHeight = screenHeight
+                txTitle.setText("Add Note")
+                edtxDialog.setHint("Enter Note to be Pinned in the Widget...")
+                edtxDialog.requestFocus()
+                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+                imgbtnShare.visibility = View.INVISIBLE
+                btnOk.setOnClickListener {
+
+                    if (edtxDialog.text.toString().isNotEmpty())
+                    pinNote = edtxDialog.text.toString()
+
+                    llDialog.visibility = View.GONE
+                    Thread {
+                        SetWallWorker.setWall(true)
+                    }.start()
+                  //  appWidM.updateAppWidget(newAppWidget, remoteViews)
+                }
             }
 
 

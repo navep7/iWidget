@@ -85,8 +85,10 @@ import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.cAddrs
 import com.belaku.homey.SetWallWorker.Companion.dayChange
 import com.belaku.homey.SetWallWorker.Companion.dayIndex
+import com.belaku.homey.SetWallWorker.Companion.isPinNoteInitialized
 import com.belaku.homey.SetWallWorker.Companion.isWallBitmapInitialized
 import com.belaku.homey.SetWallWorker.Companion.mAct
+import com.belaku.homey.SetWallWorker.Companion.pinNote
 import com.belaku.homey.SetWallWorker.Companion.scaledBitmap
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
@@ -220,6 +222,14 @@ class NewAppWidget : AppWidgetProvider() {
             setUI()
             setACAdapter()
 
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.imgv_notes, PendingIntent.getActivity(
+                    context, 13,
+                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "AddNote"),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+            )
 
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgv_dialler,
@@ -523,6 +533,8 @@ class NewAppWidget : AppWidgetProvider() {
     private fun setUI() {
 
     //    googleAccountInfo()
+        if (isPinNoteInitialized())
+            remoteViews?.setTextViewText(R.id.txrun, pinNote)
         liquidGlassEffects()
         seekWifiState()
         seekBluetoothState()
@@ -974,7 +986,6 @@ class NewAppWidget : AppWidgetProvider() {
             appContx.startActivity(intentDial.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 
         } else if (PS_CLICK == intent.action) {
-
             val pm: PackageManager = appContx.getPackageManager()
             val intent = pm.getLaunchIntentForPackage("com.android.vending")
             intent?.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

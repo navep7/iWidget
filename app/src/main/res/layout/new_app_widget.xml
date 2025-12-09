@@ -378,26 +378,51 @@
 
     </RelativeLayout>
 
-    <TextView
+    <LinearLayout
         android:id="@+id/tx_runner"
+        android:background="@drawable/gradient_glass_flat"
         android:layout_below="@+id/rl_clocks"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/fab_margin"
-        android:background="@drawable/gradient_glass_dark_flat"
-        android:text="Note"
-        android:gravity="center"/>
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true">
 
-    <ImageView
-        android:id="@+id/imgv_notes"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:padding="@dimen/padding_5"
-        android:layout_above="@+id/tx_runner"
-        android:layout_alignParentEnd="true"
-        android:background="@drawable/gradient_glass_rounded"
-        android:scaleType="fitXY"
-        android:src="@android:drawable/ic_menu_edit" />
+        <TextView
+            android:id="@+id/txrun"
+            android:textColor="@android:color/holo_red_dark"
+            android:gravity="center"
+            android:textStyle="bold|italic"
+            android:singleLine="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pin a Note!"
+            android:layout_marginEnd="@dimen/fab_margin"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit ="marquee_forever"
+            android:scrollHorizontally="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:duplicateParentState="true">
+            <requestFocus
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:duplicateParentState="true" />
+        </TextView>
+
+        <ImageView
+            android:id="@+id/imgv_notes"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginEnd="@dimen/fab_margin"
+            android:padding="@dimen/padding_5"
+            android:scaleType="fitXY"
+            android:src="@android:drawable/ic_menu_edit"
+            android:clickable="true"
+            android:focusable="true" />
+
+    </LinearLayout>
 
 
 
