@@ -5,10 +5,10 @@
     <stroke
         android:width="5dp"
         android:color="?attr/colorTertiary" /> <!-- Border color and width -->
-    <corners android:radius="999dp" /> <!-- Large radius for circular effect -->
-    <padding
-        android:bottom="8dp"
-        android:left="16dp"
-        android:right="16dp"
-        android:top="8dp" /> <!-- Optional padding for text inside the border -->
+    <!-- <corners android:radius="999dp" />  Large radius for circular effect -->
+    <!--   <padding
+          android:bottom="8dp"
+          android:left="16dp"
+          android:right="16dp"
+          android:top="8dp" /> Optional padding for text inside the border -->
 </shape>

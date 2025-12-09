@@ -64,8 +64,6 @@ import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.NewAppWidget.Companion.timelyWish
 import com.belaku.homey.NewAppWidget.Companion.uT
 import com.belaku.homey.NewAppWidget.Companion.wD
-import com.belaku.homey.RemindersActivity.Companion.adapterHabits
-import com.belaku.homey.RemindersActivity.Companion.arrayListHabits
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -269,7 +267,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 qT = queryType
                 dU = delayUnit
                 uT = updateTime
-                tW = listTweets[Random.nextInt(0, listTweets.size)]
 
                 if (MainActivity.mainWindow.decorView.rootView.isShown)
                     if (pD.isShowing) {
@@ -301,10 +298,11 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     ).format(Calendar.getInstance().time) +
                             ", " + formattedDate
                 )
+                remoteViews?.setTextViewText(R.id.tx_walldesc, wD)
                 remoteViews?.setTextViewText(
-                    R.id.tx_desc_walltype,
+                    R.id.tx_walltype_updateinfo,
                     Html.fromHtml(
-                        wD + "<br>" + qT.split(" ")[0].substring(0, 1)
+                        qT.split(" ")[0].substring(0, 1)
                             .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
                         Html.FROM_HTML_MODE_LEGACY
                     )

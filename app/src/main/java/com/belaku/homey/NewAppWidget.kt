@@ -5,7 +5,6 @@ package com.belaku.homey
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
-import android.accounts.AccountManager
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.WallpaperManager
@@ -323,7 +322,7 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
             remoteViews?.setOnClickPendingIntent(
-                R.id.tx_tweets, PendingIntent.getActivity(
+                R.id.imgbtn_twitter, PendingIntent.getActivity(
                     context, 2,
                     Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "ST"),
                     PendingIntent.FLAG_IMMUTABLE
@@ -708,10 +707,11 @@ class NewAppWidget : AppWidgetProvider() {
     private fun setSomeTwAndWallDescUI() {
 
         if (checkCompanionVariable()) {
+            remoteViews?.setTextViewText(R.id.tx_walldesc, wD)
             remoteViews?.setTextViewText(
-                R.id.tx_desc_walltype,
+                R.id.tx_walltype_updateinfo,
                 Html.fromHtml(
-                    "$wD<br>" + qT.split(" ")[0].substring(0, 1)
+                    qT.split(" ")[0].substring(0, 1)
                         .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
                     Html.FROM_HTML_MODE_LEGACY
                 )
@@ -732,10 +732,6 @@ class NewAppWidget : AppWidgetProvider() {
                 )
             }
 
-            remoteViews?.setTextViewText(
-                R.id.tx_tweets,
-                "\t\t\t\t\t @$twitterProfileName\t ~ \t$tW"
-            )
         }
 
 
@@ -1159,22 +1155,15 @@ class NewAppWidget : AppWidgetProvider() {
 
         readApps()
 
-
-
-
-        appWidgetView.findViewById<TextView>(R.id.tx_desc_walltype).setText(
+        appWidgetView.findViewById<TextView>(R.id.tx_walldesc).text = wD
+        appWidgetView.findViewById<TextView>(R.id.tx_walltype_updateinfo).setText(
             Html.fromHtml(
-                "$wD<br>" + qT.split(" ")[0].substring(0, 1)
+                qT.split(" ")[0].substring(0, 1)
                     .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
                 Html.FROM_HTML_MODE_LEGACY
             )
         )
 
-        appWidgetView.findViewById<TextView>(R.id.tx_tweets).movementMethod =
-            ScrollingMovementMethod()
-
-        appWidgetView.findViewById<TextView>(R.id.tx_tweets).text =
-            "\t\t\t\t\t @" + twitterProfileName + "\t ~ \t" + tW
 
         appWidgetView.findViewById<AnalogClock>(R.id.a_clock).visibility = View.INVISIBLE
     }

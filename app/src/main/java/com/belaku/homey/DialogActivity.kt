@@ -277,8 +277,8 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             } else if (dialogIntentStr == "StT") {
                 edtxDialog.visibility = View.GONE
-                btnOk.visibility = View.INVISIBLE
-                btnCancel.visibility = View.INVISIBLE
+                btnOk.visibility = View.GONE
+                btnCancel.visibility = View.GONE
                 vpSteps.visibility = View.GONE
                 txTitle.setText("Speech to Text")
                 txContent.setText("listening...")
@@ -306,9 +306,10 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 })
 
             } else if (dialogIntentStr == "ST") {
-                edtxDialog.visibility = View.INVISIBLE
-                btnOk.visibility = View.INVISIBLE
-                btnCancel.visibility = View.INVISIBLE
+                tW = listTweets[Random.nextInt(0, listTweets.size)]
+                edtxDialog.visibility = View.GONE
+                btnOk.visibility = View.GONE
+                btnCancel.visibility = View.GONE
                 vpSteps.visibility = View.GONE
                 txTitle.setText("Tweet")
                 txContent.setText(tW)
@@ -418,9 +419,9 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 txTitle.setText("Steps...")
                 txContent.visibility = View.GONE
                 edtxDialog.visibility = View.GONE
-                btnOk.visibility = View.INVISIBLE
-                btnCancel.visibility = View.INVISIBLE
-                imgbtnShare.visibility = View.INVISIBLE
+                btnOk.visibility = View.GONE
+                btnCancel.visibility = View.GONE
+                imgbtnShare.visibility = View.GONE
                 vpSteps.visibility = View.VISIBLE
 
 
@@ -429,9 +430,9 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
                 );
 
-                btnOk.visibility = View.INVISIBLE
-                btnCancel.visibility = View.INVISIBLE
-                imgbtnShare.visibility = View.INVISIBLE
+                btnOk.visibility = View.GONE
+                btnCancel.visibility = View.GONE
+                imgbtnShare.visibility = View.GONE
                 txTitle.setText("Screen Time Analysis... App Usage Times")
 
                 appUsageStats(applicationContext)
@@ -563,7 +564,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 edtxDialog.setHint("Enter Note to be Pinned in the Widget...")
                 edtxDialog.requestFocus()
                 getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-                imgbtnShare.visibility = View.INVISIBLE
+                imgbtnShare.visibility = View.GONE
                 btnOk.setOnClickListener {
 
                     if (edtxDialog.text.toString().isNotEmpty())

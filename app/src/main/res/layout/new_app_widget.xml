@@ -380,10 +380,12 @@
 
     <LinearLayout
         android:id="@+id/tx_runner"
-        android:background="@drawable/gradient_glass_flat"
+        android:background="@drawable/gradient_glass_light"
         android:layout_below="@+id/rl_clocks"
-        android:layout_width="match_parent"
+        android:layout_marginBottom="@dimen/padding_5"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
         android:orientation="horizontal"
         android:gravity="center"
         android:clickable="true"
@@ -430,7 +432,7 @@
         android:id="@+id/tx_apps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/frame_l_tweets"
+        android:layout_above="@+id/tx_walldesc"
         android:layout_below="@+id/tx_runner"
         android:layout_alignParentStart="true"
         android:layout_toStartOf="@+id/ll_controls"
@@ -445,7 +447,7 @@
         android:id="@+id/tx_calls"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/frame_l_tweets"
+        android:layout_above="@+id/tx_walldesc"
         android:layout_below="@+id/tx_runner"
         android:layout_alignParentEnd="true"
         android:layout_toEndOf="@+id/ll_controls"
@@ -460,8 +462,8 @@
         android:id="@+id/ll_apps"
         android:layout_width="100dp"
         android:layout_height="match_parent"
-        android:layout_above="@+id/frame_l_tweets"
-        android:layout_below="@+id/imgbtn_g_apps"
+        android:layout_above="@+id/tx_walldesc"
+        android:layout_below="@+id/tx_runner"
         android:layout_alignParentStart="true"
         android:gravity="center"
         android:orientation="vertical">
@@ -507,19 +509,20 @@
         android:id="@+id/imgv_dialler"
         android:layout_width="25dp"
         android:layout_height="25dp"
-        android:layout_above="@+id/ll_contacts"
-        android:layout_alignParentEnd="true"
+        android:layout_above="@+id/tx_walldesc"
+        android:layout_toStartOf="@+id/ll_contacts"
         android:background="@drawable/gradient_glass_rounded"
         android:scaleType="fitXY"
         android:src="@drawable/dial" />
 
     <ImageButton
         android:id="@+id/imgbtn_speech"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
         android:padding="@dimen/padding_3"
-        android:layout_above="@+id/ll_apps"
-        android:layout_alignStart="@+id/ll_contacts"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_alignTop="@+id/ll_contacts"
+        android:layout_toStartOf="@+id/ll_contacts"
         android:background="@drawable/gradient_glass_rounded"
         android:scaleType="fitXY"
         app:tint="@android:color/black"
@@ -530,21 +533,19 @@
         android:id="@+id/imgv_ps"
         android:layout_width="25dp"
         android:layout_height="25dp"
-        android:layout_above="@+id/ll_contacts"
-        android:layout_alignParentStart="true"
+        android:layout_above="@id/tx_walldesc"
+        android:layout_toEndOf="@+id/ll_apps"
         android:background="@drawable/gradient_glass_rounded"
         android:scaleType="fitXY"
         android:src="@android:drawable/ic_media_play" />
 
-
-
-
     <ImageButton
         android:id="@+id/imgbtn_g_apps"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:layout_below="@+id/tx_runner"
-        android:layout_alignEnd="@+id/ll_apps"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_toEndOf="@+id/ll_apps"
+        android:layout_alignTop="@+id/ll_apps"
+        android:layout_marginBottom="@dimen/fab_margin"
         android:background="@drawable/gradient_glass_rounded"
         android:scaleType="centerCrop"
         android:src="@drawable/g1" />
@@ -555,8 +556,8 @@
         android:id="@+id/ll_contacts"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/frame_l_tweets"
-        android:layout_below="@+id/imgbtn_g_apps"
+        android:layout_above="@+id/tx_walldesc"
+        android:layout_below="@+id/tx_runner"
         android:layout_alignParentEnd="true"
         android:orientation="vertical">
 
@@ -607,7 +608,7 @@
         android:id="@+id/widget_empty_view_contacts"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/frame_l_tweets"
+        android:layout_above="@+id/tx_walldesc"
         android:layout_below="@+id/ll_contacts"
         android:layout_alignParentEnd="true"
         android:layout_toEndOf="@+id/ll_controls"
@@ -618,7 +619,7 @@
         android:id="@+id/widget_empty_view_apps"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/frame_l_tweets"
+        android:layout_above="@+id/tx_walldesc"
         android:layout_below="@+id/ll_apps"
         android:layout_alignParentEnd="true"
         android:layout_toStartOf="@+id/ll_controls"
@@ -631,6 +632,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tx_runner"
         android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/fab_margin"
         android:layout_marginBottom="-13dp"
         android:text="5"
         android:background="@drawable/gradient_glass_flatbottom"
@@ -651,43 +653,6 @@
         android:paddingStart="@dimen/fab_margin"
         android:paddingEnd="@dimen/fab_margin">
 
-
-        <LinearLayout
-            android:id="@+id/ll_controls1"
-            android:layout_gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-
-            <RelativeLayout
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <ImageButton
-                    android:id="@+id/imgbtn_setd"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/circular_red"
-                    android:src="@android:drawable/ic_popup_sync" />
-
-                <ProgressBar
-                    android:id="@+id/progressBar_cyclic"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:indeterminate="true"
-                    android:indeterminateTint="?attr/colorSecondary"
-                    android:indeterminateTintMode="src_atop"
-                    android:minWidth="25dp"
-                    android:minHeight="25dp"
-                    android:visibility="invisible" />
-
-
-            </RelativeLayout>
-
-
-        </LinearLayout>
 
         <ImageButton
             android:id="@+id/imgbtn_set"
@@ -723,24 +688,27 @@
             android:layout_gravity="center_horizontal"
            />
 
+        <ImageButton
+            android:id="@+id/imgbtn_twitter"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_margin="@dimen/fab_margin"
+            android:background="@drawable/rounded_ss"
+            android:scaleType="fitXY"
+            android:src="@drawable/tw" />
+
 
     </LinearLayout>
-
-
-
 
     <ImageView
         android:id="@+id/imgbtn_qr"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_above="@+id/frame_l_tweets"
+        android:layout_above="@+id/tx_walldesc"
         android:layout_marginBottom="@dimen/padding_5"
         android:layout_centerHorizontal="true"
         android:background="@drawable/circular_primary_border"
         android:src="@drawable/scan" />
-
-
-
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -791,52 +759,24 @@
     </RelativeLayout>
 
 
-    <FrameLayout
-        android:id="@+id/frame_l_tweets"
+    <TextView
+        android:id="@+id/tx_walldesc"
+        android:background="@drawable/gradient_glass_dark_flat"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:layout_above="@+id/line2"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/tx_desc_walltype"
-        android:foregroundGravity="center">
-
-
-        <TextView
-            android:id="@+id/tx_tweets"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:autoLink="all"
-            android:background="#80FFFFFF"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:linksClickable="true"
-            android:maxLines="2"
-            android:text="Tweets"
-            android:textColor="?attr/colorPrimaryDark"
-            android:textSize="15sp"
-            android:textStyle="bold" />
-
-
-        <ImageButton
-            android:id="@+id/twSettings"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_marginStart="-7dp"
-            android:layout_marginTop="-7dp"
-            android:background="@android:color/transparent"
-            android:scaleType="fitXY"
-            android:src="@drawable/tw" />
-
-    </FrameLayout>
-
+        android:layout_height="wrap_content"/>
 
     <TextView
+        android:id="@+id/line2"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_below="@+id/frame_l_tweets"
+        android:layout_above="@+id/tx_walltype_updateinfo"
         android:background="@android:color/black" />
 
     <TextView
-        android:id="@+id/tx_desc_walltype"
+        android:id="@+id/tx_walltype_updateinfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -852,8 +792,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_below="@+id/tx_desc_walltype"
+        android:layout_below="@+id/tx_walltype_updateinfo"
         android:background="@android:color/black" />
-
 
 </RelativeLayout>

@@ -789,7 +789,7 @@
             android:id="@+id/frame_l_tweets"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/tx_desc_walltype"
+            android:layout_above="@+id/tx_walltype_updateinfo"
             android:foregroundGravity="center">
 
 
@@ -830,7 +830,7 @@
             android:background="@android:color/black" />
 
         <TextView
-            android:id="@+id/tx_desc_walltype"
+            android:id="@+id/tx_walltype_updateinfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
@@ -846,7 +846,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_below="@+id/tx_desc_walltype"
+            android:layout_below="@+id/tx_walltype_updateinfo"
             android:background="@android:color/black" />
 
 
