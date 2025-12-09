@@ -19,7 +19,7 @@
 
     <RelativeLayout
         android:id="@+id/rl_clocks"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
@@ -142,8 +142,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toStartOf="@+id/ll_steps_screentime"
-                android:layout_alignParentStart="true"
-                android:paddingBottom="21dp">
+                android:layout_alignParentStart="true">
 
                 <AnalogClock
                     android:id="@+id/a_clock"
@@ -238,15 +237,14 @@
 
                     <RelativeLayout
                         android:layout_marginStart="@dimen/fab_margin"
-                        android:layout_marginBottom="@dimen/fab_margin"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
 
                         <ImageButton
                             android:id="@+id/imgv_weather_icon"
                             android:background="@android:color/transparent"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
                             android:layout_gravity="center_vertical"
                             android:scaleType="fitXY"
                             android:src="@drawable/clouds"/>
@@ -380,13 +378,35 @@
 
     </RelativeLayout>
 
+    <TextView
+        android:id="@+id/tx_runner"
+        android:layout_below="@+id/rl_clocks"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:background="@drawable/gradient_glass_dark_flat"
+        android:text="Note"
+        android:gravity="center"/>
+
+    <ImageView
+        android:id="@+id/imgv_notes"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:padding="@dimen/padding_5"
+        android:layout_above="@+id/tx_runner"
+        android:layout_alignParentEnd="true"
+        android:background="@drawable/gradient_glass_rounded"
+        android:scaleType="fitXY"
+        android:src="@android:drawable/ic_menu_edit" />
+
+
 
     <TextView
         android:id="@+id/tx_apps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/frame_l_tweets"
-        android:layout_below="@+id/rl_clocks"
+        android:layout_below="@+id/tx_runner"
         android:layout_alignParentStart="true"
         android:layout_toStartOf="@+id/ll_controls"
         android:gravity="center"
@@ -401,7 +421,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/frame_l_tweets"
-        android:layout_below="@+id/rl_clocks"
+        android:layout_below="@+id/tx_runner"
         android:layout_alignParentEnd="true"
         android:layout_toEndOf="@+id/ll_controls"
         android:gravity="center"
@@ -416,7 +436,7 @@
         android:layout_width="100dp"
         android:layout_height="match_parent"
         android:layout_above="@+id/frame_l_tweets"
-        android:layout_below="@+id/rl_clocks"
+        android:layout_below="@+id/imgbtn_g_apps"
         android:layout_alignParentStart="true"
         android:gravity="center"
         android:orientation="vertical">
@@ -498,7 +518,7 @@
         android:id="@+id/imgbtn_g_apps"
         android:layout_width="35dp"
         android:layout_height="35dp"
-        android:layout_above="@+id/ll_contacts"
+        android:layout_below="@+id/tx_runner"
         android:layout_alignEnd="@+id/ll_apps"
         android:background="@drawable/gradient_glass_rounded"
         android:scaleType="centerCrop"
@@ -511,7 +531,7 @@
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_above="@+id/frame_l_tweets"
-        android:layout_below="@+id/rl_clocks"
+        android:layout_below="@+id/imgbtn_g_apps"
         android:layout_alignParentEnd="true"
         android:orientation="vertical">
 
@@ -584,7 +604,7 @@
         android:id="@+id/tx_rewards_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/ll_controls"
+        android:layout_below="@+id/tx_runner"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="-13dp"
         android:text="5"
@@ -598,7 +618,7 @@
         android:id="@+id/ll_controls"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/rl_clocks"
+        android:layout_below="@+id/tx_rewards_count"
         android:layout_centerHorizontal="true"
         android:gravity="center_horizontal"
         android:orientation="vertical"
