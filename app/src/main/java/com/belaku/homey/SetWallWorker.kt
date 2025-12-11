@@ -70,6 +70,7 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.Marker
+import com.google.gson.Gson
 import java.io.IOException
 import java.net.URL
 import java.util.Collections
@@ -215,10 +216,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
             getScreenTime(appContx)
             greeting()
-            val metrics = DisplayMetrics()
-            mAct.windowManager.getDefaultDisplay().getMetrics(metrics)
-            screenHeight = metrics.heightPixels
-            screenWidth = metrics.widthPixels
+
             wm.suggestDesiredDimensions(screenWidth, screenHeight)
 
             try {
@@ -429,8 +427,19 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                           //  }
             }
 
-            //   saveApps(choosenApps)
+               saveApps(choosenApps)
 
+        }
+
+        private fun saveApps(apps: java.util.ArrayList<App>) {
+
+            val key = "MUA"
+
+            val gson = Gson()
+            val json = gson.toJson(apps)
+
+            sharedPreferencesEditor.remove(key).commit()
+            sharedPreferencesEditor.putString(key, json).commit()
         }
 
         fun formatMilliseconds(milliseconds: Long): String {

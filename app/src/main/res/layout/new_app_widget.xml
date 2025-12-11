@@ -626,40 +626,38 @@
         android:background="@drawable/gradient_glass"
         android:visibility="gone" />
 
-    <TextView
-        android:id="@+id/tx_rewards_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tx_runner"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="@dimen/fab_margin"
-        android:layout_marginBottom="-13dp"
-        android:text="5"
-        android:background="@drawable/gradient_glass_flatbottom"
-        android:textColor="@android:color/holo_red_light"
-        android:textStyle="bold"
-        tools:ignore="HardcodedText" />
 
 
     <LinearLayout
         android:id="@+id/ll_controls"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tx_rewards_count"
+        android:layout_below="@+id/tx_runner"
+        android:layout_above="@+id/tx_walldesc"
+        android:layout_margin="@dimen/fab_margin"
         android:layout_centerHorizontal="true"
-        android:gravity="center_horizontal"
+        android:gravity="center"
         android:orientation="vertical"
-        android:padding="@dimen/padding_5"
         android:paddingStart="@dimen/fab_margin"
         android:paddingEnd="@dimen/fab_margin">
+
+        <TextView
+            android:id="@+id/tx_rewards_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="5"
+            android:background="@drawable/gradient_glass_flatbottom"
+            android:textColor="@android:color/holo_red_light"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
 
         <ImageButton
             android:id="@+id/imgbtn_set"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
             android:padding="@dimen/padding_3"
+            android:layout_marginBottom="@dimen/padding_5"
             android:background="@drawable/rounded_ss"
             android:src="@android:drawable/ic_popup_sync"
             app:tint="@android:color/white" />
@@ -669,8 +667,8 @@
             android:id="@+id/imgbtn_lock"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/fab_margin"
-            android:background="@drawable/rounded_ss"
+            android:layout_marginBottom="@dimen/padding_5"
+            android:background="@drawable/rounded_go"
             android:padding="@dimen/padding_5"
             android:src="@android:drawable/ic_lock_lock"
             app:tint="@android:color/holo_red_dark" />
@@ -679,11 +677,11 @@
             android:id="@+id/tx_myspace"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:layout_marginBottom="@dimen/padding_5"
             android:textStyle="bold"
             android:text="NP"
             android:textSize="25sp"
             android:gravity="center"
-            android:layout_marginTop="5dp"
             android:background="@drawable/rounded_ss"
             android:layout_gravity="center_horizontal"
            />
@@ -692,23 +690,22 @@
             android:id="@+id/imgbtn_twitter"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:layout_margin="@dimen/fab_margin"
+            android:layout_marginBottom="@dimen/padding_5"
             android:background="@drawable/rounded_ss"
             android:scaleType="fitXY"
             android:src="@drawable/tw" />
 
+        <ImageView
+            android:id="@+id/imgbtn_qr"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/circular_primary_border"
+            android:src="@drawable/scan" />
+
+
 
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/imgbtn_qr"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_above="@+id/tx_walldesc"
-        android:layout_marginBottom="@dimen/padding_5"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/circular_primary_border"
-        android:src="@drawable/scan" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -776,6 +773,7 @@
         android:layout_above="@+id/tx_walltype_updateinfo"
         android:background="@android:color/black" />
 
+
     <TextView
         android:id="@+id/tx_walltype_updateinfo"
         android:layout_width="match_parent"
@@ -790,10 +788,14 @@
         android:textColor="?attr/colorPrimaryDark"
         android:textStyle="bold" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_below="@+id/tx_walltype_updateinfo"
-        android:background="@android:color/black" />
+
+    <ImageView
+        android:id="@+id/imgv_conf"
+        android:layout_alignParentEnd="true"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/conf" />
+
 
 </RelativeLayout>

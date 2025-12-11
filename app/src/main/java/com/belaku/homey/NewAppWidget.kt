@@ -222,6 +222,21 @@ class NewAppWidget : AppWidgetProvider() {
             setACAdapter()
 
 
+            //  Create an intent to launch MainActivity
+            val intent = Intent(context, MainActivity::class.java)
+
+            // Create a PendingIntent
+            val pendingIntentMain = PendingIntent.getActivity(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE // Use FLAG_IMMUTABLE with modern Android
+            )
+
+            // Set the click listener on the widget button
+            remoteViews?.setOnClickPendingIntent(R.id.imgv_conf, pendingIntentMain)
+
+
             remoteViews?.setOnClickPendingIntent(
                 R.id.imgv_notes, PendingIntent.getActivity(
                     context, 13,

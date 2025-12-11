@@ -311,7 +311,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 btnOk.visibility = View.GONE
                 btnCancel.visibility = View.GONE
                 vpSteps.visibility = View.GONE
-                txTitle.setText("Tweet")
+                txTitle.setText(twitterProfileName)
                 txContent.setText(tW)
                 imgbtnShare.setOnClickListener(View.OnClickListener {
                     startActivity(

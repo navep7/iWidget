@@ -5,6 +5,7 @@
     <stroke
         android:width="3dp"
         android:color="#FFD700" />
+    <corners android:radius="@dimen/fab_margin" />
     <!-- Border color and width -->
     <!--   <corners android:radius="@dimen/fab_margin" /> Large radius for circular effect -->
 </shape>

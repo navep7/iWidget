@@ -233,6 +233,7 @@ class MainActivity : AppCompatActivity() {
 
         launchers()
 
+
         MobileAds.initialize(
             this
         ) { initializationStatus -> //Showing a simple Toast Message to the user when The Google AdMob Sdk Initialization is Completed
@@ -1329,81 +1330,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun appUsageStats(applicationContext: Context?) {
-
-        //   choosenApps.clear()
-
-        val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
-
-
-        NewAppWidget.timeOfDay = if (currentHour < 6) {
-            "Night!"
-        } else if (currentHour < 12) {
-            "Morni!"
-        } else if (currentHour < 17) {
-            "Noon!"
-        } else if (currentHour < 21) {
-            "Eve!"
-        } else {
-            "Night!"
-        }
-
-
-        val usageStatsManager =
-            applicationContext?.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager // Context.USAGE_STATS_SERVICE);
-
-
-        val beginCal = Calendar.getInstance()
-        val endCal = Calendar.getInstance()
-
-        beginCal.set(cYear, cMonth - 1, cDate, 0, 0)
-        endCal.set(cYear, cMonth, cDate, 0, 0)
-
-        val queryUsageStats = usageStatsManager.queryUsageStats(
-            UsageStatsManager.INTERVAL_BEST,
-            beginCal.timeInMillis,
-            endCal.timeInMillis
-        )
-        println("results for " + beginCal.time + " - " + endCal.time)
-        println("QUS - MA" + queryUsageStats.size)
-        sortApps(queryUsageStats)
-
-
-        var appNames = HashSet<String>()
-        for (i in 0 until queryUsageStats.size) {
-
-            var appName = getAppNameFromPkg(applicationContext, queryUsageStats.get(i).packageName)
-            var appPname = queryUsageStats.get(i).packageName
-            var appUsage = formatMilliseconds(queryUsageStats[i].totalTimeInForeground).substring(0, 2)
-
-            Log.d(
-                "queryUsageStats",
-                "$appName ... - $i : " + queryUsageStats[i].totalTimeInForeground
-            )
-
-            if (queryUsageStats[i].totalTimeInForeground > 0)
-                if (!appName.contains("Launcher") || !appName.equals("Home"))
-                    if (applicationContext.packageManager.getLaunchIntentForPackage(queryUsageStats[i].packageName) != null)
-                        if (appNames.add(appName)) {
-                            arrayListUsageStats.add(
-                                AppUsage(
-                                    queryUsageStats[i].packageName,
-                                    formatMilliseconds(queryUsageStats[i].totalTimeInForeground)
-                                )
-                            )
-                         //   if (choosenApps.size < 10) {
-                                choosenApps.add(
-                                    App(
-                                        appName, appPname, appUsage
-                                    )
-                                )
-                         //   }
-                        }
-        }
-
-        saveApps(choosenApps)
-
-    }
 
     fun formatMilliseconds(milliseconds: Long): String {
         val totalSeconds = milliseconds / 1000
@@ -1514,16 +1440,7 @@ class MainActivity : AppCompatActivity() {
         sharedPreferencesEditor.putString(key, json).commit()
     }
 
-    private fun saveApps(apps: java.util.ArrayList<App>) {
 
-        val key = "MUA"
-
-        val gson = Gson()
-        val json = gson.toJson(apps)
-
-        sharedPreferencesEditor.remove(key).commit()
-        sharedPreferencesEditor.putString(key, json).commit()
-    }
 
     private fun sortApps(queryUsageStats: List<UsageStats>) {
 
@@ -1553,7 +1470,6 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setWalls(delay: Long) {
 
-        appUsageStats(applicationContext)
         delayUnit = delay.toString()
         sharedPreferencesEditor.putString("dU", delayUnit).apply()
         sharedPreferencesEditor.putString("walltype", queryType).apply()
