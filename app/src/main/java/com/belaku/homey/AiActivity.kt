@@ -114,21 +114,27 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
     private fun generateAIresponse(generativeModel: GenerativeModel, prompt: String) {
         txAi.setText("Generating AI response, please wait...")
         lifecycleScope.launch {
-            val txtResponse = generativeModel.generateContent(prompt)
-            Toast.makeText(applicationContext, txtResponse.text, Toast.LENGTH_LONG).show()
-            txAi.setText(txtResponse.text)
+            try {
+                val txtResponse = generativeModel.generateContent(prompt)
 
-            playAI.visibility = View.VISIBLE
+                Toast.makeText(applicationContext, txtResponse.text, Toast.LENGTH_LONG).show()
+                txAi.setText(txtResponse.text)
 
-            playAI.setOnClickListener(View.OnClickListener {
-                if (tts.isSpeaking) {
-                    tts.stop()
-                    playAI.setImageResource(android.R.drawable.ic_media_play)
-                } else {
-                    speakLongText(txtResponse.text.toString())
-                    playAI.setImageResource(android.R.drawable.ic_media_pause)
-                }
-            })
+                playAI.visibility = View.VISIBLE
+
+                playAI.setOnClickListener(View.OnClickListener {
+                    if (tts.isSpeaking) {
+                        tts.stop()
+                        playAI.setImageResource(android.R.drawable.ic_media_play)
+                    } else {
+                        speakLongText(txtResponse.text.toString())
+                        playAI.setImageResource(android.R.drawable.ic_media_pause)
+                    }
+                })
+            } catch (ex: Exception) {
+                makeToast("Gemini AI exception - $ex")
+            }
+
 
         }
     }
