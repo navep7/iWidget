@@ -69,9 +69,13 @@ class AlarmBroadcastReceiver : BroadcastReceiver() {
         }
         notificationManagerCompat.notify(1, builder.build())
         for (i in 0 until arrayListReminders.size)
-            if (arrayListReminders[i].name == rSubject) {
-                arrayListReminders.removeAt(i)
-                adapterReminders.notifyDataSetChanged()
+            try {
+                if (arrayListReminders[i].name == rSubject) {
+                    arrayListReminders.removeAt(i)
+                    adapterReminders.notifyDataSetChanged()
+                }
+            } catch (ex: Exception) {
+
             }
 
     }
