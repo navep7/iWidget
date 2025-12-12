@@ -52,7 +52,17 @@ class LockAccessibilityService : AccessibilityService() {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
+        if (intent == null) {
+            // The service was likely restarted by the system.
+            // You can log this or perform necessary re-initialization.
+            // You might want to return START_STICKY or START_REDELIVER_INTENT
+            // depending on your service's behavior.
+        } else {
+            // Proceed with handling the intent data
+            performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
+        }
+
+
         return Service.START_STICKY
     }
 

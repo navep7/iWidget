@@ -100,7 +100,11 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
         edtxAi.setOnEditorActionListener(TextView.OnEditorActionListener { v, actionId, event ->
             if ((event != null && (event.keyCode == KeyEvent.KEYCODE_ENTER)) || (actionId == EditorInfo.IME_ACTION_DONE)) {
                 //do what you want on the press of 'done'
-                generateAIresponse(generativeModel, edtxAi.text.toString())
+                try {
+                    generateAIresponse(generativeModel, edtxAi.text.toString())
+                } catch (ex: Exception) {
+                    makeToast("Gemini Exception - $ex")
+                }
             }
             false
         })
@@ -159,7 +163,11 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
                     val recognizedText = result[0] // Get the most likely recognized phrase
                     makeToast(recognizedText)
                     edtxAi.setText(recognizedText)
-                    generateAIresponse(generativeModel, recognizedText)
+                    try {
+                        generateAIresponse(generativeModel, recognizedText)
+                    } catch (ex: Exception) {
+                        makeToast("Gemini Exception - $ex")
+                    }
                 }
             }
         }

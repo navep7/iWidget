@@ -965,6 +965,8 @@ class NewAppWidget : AppWidgetProvider() {
 
         } else if (LOCK_PHONE == intent.action) {
             LockAccessibilityService.lockScreenAccessibility(appContx)
+            if (appContx != null)
+            LockAccessibilityService.lockScreenAccessibility(appContx)
         } else if (SET_CLICKED == intent.action) {
             val launchIntent: Intent =
                 appContx.packageManager.getLaunchIntentForPackage("com.belaku.homey")!!
