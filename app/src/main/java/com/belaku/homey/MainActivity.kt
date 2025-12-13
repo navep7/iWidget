@@ -155,6 +155,7 @@ import kotlin.random.Random
 class MainActivity : AppCompatActivity() {
 
 
+    private var boolAccessibilityNotNow: Boolean = false
     private lateinit var buttonAll: Button
     private val ALL_PERMISSIONS_REQUEST_CODE: Int = 100
     private lateinit var imageSliderAdapter: ImageSliderAdapter
@@ -553,7 +554,7 @@ class MainActivity : AppCompatActivity() {
         ) && sharedPreferences.getBoolean("PNP", false) && sharedPreferences.getBoolean(
             "CPP",
             false
-        ) && sharedPreferences.getBoolean("AUS", false) && sharedPreferences.getBoolean("AS", false)
+        ) && sharedPreferences.getBoolean("AUS", false) && (sharedPreferences.getBoolean("AS", false) || boolAccessibilityNotNow)
                 ))
     }
 
@@ -1734,6 +1735,23 @@ class MainActivity : AppCompatActivity() {
             startActivity(openSettings)
         }
 
+        builder.setNegativeButton("Not Now") { dialog, id ->
+            // User clicked OK button
+            boolAccessibilityNotNow = true
+            btnAS.text = "Not Now"
+            if (!nPermissions()) {
+                buttonAll.text = "Proceed"
+                buttonAll.setOnClickListener {
+                    if (!nPermissions()) {
+                        rawTweets(false)
+                        getFavoriteContacts(appContx)
+                        iDV.dismiss()
+                    } else makeToast("Ensure all Ps are Granted")
+                }
+            }
+            dialog.dismiss()
+        }
+
 
         // Create the AlertDialog object and show it
         val dialog = builder.create()
@@ -1868,11 +1886,14 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        if (isAccessibilityServiceEnabled(applicationContext, LockAccessibilityService::class.java)) {
+        if (isAccessibilityServiceEnabled(applicationContext, LockAccessibilityService::class.java) || boolAccessibilityNotNow) {
             sharedPreferencesEditor.putBoolean("AS", true).apply()
-            btnAS.text = "Granted"
 
-            buttonAll.text = "Done"
+            if (!boolAccessibilityNotNow)
+            btnAS.text = "Granted"
+            else btnAS.text = "Not Now"
+
+            buttonAll.text = "Proceed"
             buttonAll.setOnClickListener {
                 if (!nPermissions()) {
                     rawTweets(false)
