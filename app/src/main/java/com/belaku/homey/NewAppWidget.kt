@@ -74,7 +74,6 @@ import com.belaku.homey.MainActivity.Companion.getWeatherData
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
-import com.belaku.homey.MainActivity.Companion.twitterProfileName
 import com.belaku.homey.MainActivity.Companion.updateWidget
 import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.MainActivity.Companion.weatherIconState
@@ -964,9 +963,10 @@ class NewAppWidget : AppWidgetProvider() {
             sharedPreferencesEditor.putBoolean("newLap", boolNewLap).apply()
 
         } else if (LOCK_PHONE == intent.action) {
-            LockAccessibilityService.lockScreenAccessibility(appContx)
             if (appContx != null)
-            LockAccessibilityService.lockScreenAccessibility(appContx)
+            if (isAccessibilityServiceEnabled(appContx, LockAccessibilityService::class.java))
+                LockAccessibilityService.lockScreenAccessibility(appContx)
+            else appContx.startActivity(Intent(appContx, DialogActivity::class.java).putExtra("DialogIntent", "AccessibilityPermDialog").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         } else if (SET_CLICKED == intent.action) {
             val launchIntent: Intent =
                 appContx.packageManager.getLaunchIntentForPackage("com.belaku.homey")!!
@@ -1735,7 +1735,6 @@ class NewAppWidget : AppWidgetProvider() {
         private const val GET_WEATHER = "getWeather"
         private const val STEPS_NOW = "newSteps"
         private const val LOCK_PHONE = "lockPhone"
-        private const val WALL_CHANGE = "wallChange"
         private const val SET_CLICKED = "setButtonClick"
 
 

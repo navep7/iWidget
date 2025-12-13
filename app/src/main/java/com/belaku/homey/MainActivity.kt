@@ -2220,7 +2220,7 @@ class MainActivity : AppCompatActivity() {
 
         fun AccessibilityServicePermissionDialog() {
 
-            val builder = AlertDialog.Builder(appContx)
+            val builder = AlertDialog.Builder(mAct)
             builder.setTitle("Requisition for Accessibility Service permission")
             builder.setMessage(
                 "Please Enable Accessibility Service to smoothly lock Phone screen from Widget shortcut."

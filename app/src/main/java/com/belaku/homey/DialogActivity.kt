@@ -2,6 +2,7 @@ package com.belaku.homey
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
@@ -10,6 +11,7 @@ import android.content.ComponentName
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.database.Cursor
@@ -45,6 +47,7 @@ import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import com.belaku.homey.MainActivity.Companion.AccessibilityServicePermissionDialog
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
@@ -68,6 +71,7 @@ import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.boolWallSet
+import com.belaku.homey.SetWallWorker.Companion.mAct
 import com.belaku.homey.SetWallWorker.Companion.pinNote
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
@@ -576,6 +580,42 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     }.start()
                   //  appWidM.updateAppWidget(newAppWidget, remoteViews)
                 }
+            } else if (dialogIntentStr == "AccessibilityPermDialog") {
+                llDialog.visibility = View.INVISIBLE
+
+                    val builder = AlertDialog.Builder(this@DialogActivity)
+                    builder.setTitle("Requisition for Accessibility Service permission")
+                    builder.setMessage(
+                        "Please Enable Accessibility Service to smoothly lock Phone screen from Widget shortcut."
+                    )
+
+                    builder.setPositiveButton("OK") { dialog, id ->
+                        // User clicked OK button
+                        dialog.dismiss() // Dismiss the dialog
+                        val openSettings = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                        openSettings.addFlags(FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
+                        appContx.startActivity(openSettings)
+                    }
+
+                    builder.setNegativeButton("Not now") { dialog, id ->
+                        // User clicked OK button
+                        dialog.dismiss() // Dismiss the dialog
+
+                        finish()
+                    }
+
+                builder.setNegativeButton("Not Now") { dialog, id ->
+                    // User clicked OK button
+                    dialog.dismiss() // Dismiss the dialog
+                    makeToast("Lock Screen cannot work without access to Accessibility Service!")
+                    finish()
+                }
+
+
+                    // Create the AlertDialog object and show it
+                    val dialog = builder.create()
+                    dialog.show()
+
             }
 
 
