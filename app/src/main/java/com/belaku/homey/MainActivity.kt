@@ -155,13 +155,21 @@ import kotlin.random.Random
 class MainActivity : AppCompatActivity() {
 
 
+    val permissions = arrayOf(
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.READ_CONTACTS,
+        Manifest.permission.WRITE_CONTACTS,
+        Manifest.permission.ACTIVITY_RECOGNITION,
+        Manifest.permission.BLUETOOTH_CONNECT,
+        Manifest.permission.POST_NOTIFICATIONS,
+        Manifest.permission.CALL_PHONE
+    )
     private var boolAccessibilityNotNow: Boolean = false
     private lateinit var buttonAll: Button
     private val ALL_PERMISSIONS_REQUEST_CODE: Int = 100
     private lateinit var imageSliderAdapter: ImageSliderAdapter
     private lateinit var viewPager: ViewPager2
     private lateinit var tabLayout: TabLayout
-    private lateinit var imageList: ArrayList<Int>
     private lateinit var btnL: Button
     private lateinit var btnAR: Button
     private lateinit var btnRC: Button
@@ -506,22 +514,14 @@ class MainActivity : AppCompatActivity() {
             "AUS"
         )
 
-        addPermissionCard(
+        /*addPermissionCard(
             "<b>Requisition for Accessibility Service permission </b>- \n  to smoothly lock Phone screen from Widget shortcut.",
             "Permit",
             "AS"
-        )
+        )*/
 
 
-        val permissions = arrayOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.READ_CONTACTS,
-            Manifest.permission.WRITE_CONTACTS,
-            Manifest.permission.ACTIVITY_RECOGNITION,
-            Manifest.permission.BLUETOOTH_CONNECT,
-            Manifest.permission.POST_NOTIFICATIONS,
-            Manifest.permission.CALL_PHONE
-        )
+
         buttonAll = Button(applicationContext)
         buttonAll.text = "Allow ALL"
         buttonAll.setOnClickListener {
@@ -554,7 +554,7 @@ class MainActivity : AppCompatActivity() {
         ) && sharedPreferences.getBoolean("PNP", false) && sharedPreferences.getBoolean(
             "CPP",
             false
-        ) && sharedPreferences.getBoolean("AUS", false) && (sharedPreferences.getBoolean("AS", false) || boolAccessibilityNotNow)
+        ) //&& sharedPreferences.getBoolean("AUS", false) && (sharedPreferences.getBoolean("AS", false) || boolAccessibilityNotNow)
                 ))
     }
 
@@ -696,7 +696,7 @@ class MainActivity : AppCompatActivity() {
 
     fun usageStatsPermissionDialog() {
         val alertDialog: AlertDialog = AlertDialog.Builder(mAct).create()
-        alertDialog.setTitle("1/2 Permission Request for App Usage Stats")
+        alertDialog.setTitle("Permission Request for App Usage Stats")
         alertDialog.setMessage("App needs permission to get Usage stats to suggest apps to use, based on previously used App stats.. ")
         alertDialog.setButton(
             AlertDialog.BUTTON_NEUTRAL, "OK"
@@ -1639,7 +1639,7 @@ class MainActivity : AppCompatActivity() {
             }
             if (allGranted) {
 
-                AccessibilityServicePermissionDialog()
+             //   AccessibilityServicePermissionDialog()
                 usageStatsPermissionDialog()
 
                     sharedPreferencesEditor.putBoolean("LP", true).apply()
@@ -1746,7 +1746,7 @@ class MainActivity : AppCompatActivity() {
                         rawTweets(false)
                         getFavoriteContacts(appContx)
                         iDV.dismiss()
-                    } else makeToast("Ensure all Ps are Granted")
+                    } else ActivityCompat.requestPermissions(this, permissions, ALL_PERMISSIONS_REQUEST_CODE);
                 }
             }
             dialog.dismiss()
@@ -1886,22 +1886,24 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        if (isAccessibilityServiceEnabled(applicationContext, LockAccessibilityService::class.java) || boolAccessibilityNotNow) {
+   //     if (isAccessibilityServiceEnabled(applicationContext, LockAccessibilityService::class.java) || boolAccessibilityNotNow) {
             sharedPreferencesEditor.putBoolean("AS", true).apply()
 
-            if (!boolAccessibilityNotNow)
+            /*if (!boolAccessibilityNotNow)
             btnAS.text = "Granted"
-            else btnAS.text = "Not Now"
+            else btnAS.text = "Not Now"*/
 
+            if (!nPermissions())
             buttonAll.text = "Proceed"
+
             buttonAll.setOnClickListener {
                 if (!nPermissions()) {
                     rawTweets(false)
                     getFavoriteContacts(appContx)
                     iDV.dismiss()
-                } else makeToast("Ensure all Ps are Granted")
+                } else ActivityCompat.requestPermissions(this, permissions, ALL_PERMISSIONS_REQUEST_CODE);
             }
-        }
+    //    }
 
         if (UsageStatsChecker().hasUsageStatsPermission(applicationContext)) {
             btnAUS.text = "Granted"
