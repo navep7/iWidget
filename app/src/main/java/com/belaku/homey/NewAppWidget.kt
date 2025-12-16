@@ -88,6 +88,8 @@ import com.belaku.homey.SetWallWorker.Companion.isWallBitmapInitialized
 import com.belaku.homey.SetWallWorker.Companion.mAct
 import com.belaku.homey.SetWallWorker.Companion.pinNote
 import com.belaku.homey.SetWallWorker.Companion.scaledBitmap
+import com.belaku.homey.SetWallWorker.Companion.screenHeight
+import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
@@ -1386,8 +1388,7 @@ class NewAppWidget : AppWidgetProvider() {
         var primaryColor = R.color.light_blue_900
         var secondaryColor = R.color.bg_light
         var tertianaryColor = R.color.bg_dark
-        var screenWidth by Delegates.notNull<Int>()
-        var screenHeight by Delegates.notNull<Int>()
+
         var favContacts: ArrayList<Contact> = ArrayList()
         var onEn: Boolean = false
         var remoteViews: RemoteViews? = null

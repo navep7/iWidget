@@ -58,8 +58,6 @@ import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
 import com.belaku.homey.NewAppWidget.Companion.qT
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
-import com.belaku.homey.NewAppWidget.Companion.screenHeight
-import com.belaku.homey.NewAppWidget.Companion.screenWidth
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.NewAppWidget.Companion.timelyWish
 import com.belaku.homey.NewAppWidget.Companion.uT
@@ -75,6 +73,7 @@ import java.io.IOException
 import java.net.URL
 import java.util.Collections
 import java.util.Locale
+import kotlin.properties.Delegates
 import kotlin.random.Random
 
 
@@ -175,6 +174,9 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
 
     companion object {
+
+        var screenWidth by Delegates.notNull<Int>()
+        var screenHeight by Delegates.notNull<Int>()
 
         lateinit var pinNote: String
         fun isPinNoteInitialized(): Boolean {

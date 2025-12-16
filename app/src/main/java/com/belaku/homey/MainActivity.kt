@@ -104,8 +104,8 @@ import com.belaku.homey.NewAppWidget.Companion.newsBitmaps
 import com.belaku.homey.NewAppWidget.Companion.newsLinks
 import com.belaku.homey.NewAppWidget.Companion.newsList
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
-import com.belaku.homey.NewAppWidget.Companion.screenHeight
-import com.belaku.homey.NewAppWidget.Companion.screenWidth
+import com.belaku.homey.SetWallWorker.Companion.screenHeight
+import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.SetWallWorker.Companion.dayIndex
 import com.belaku.homey.SetWallWorker.Companion.mAct
