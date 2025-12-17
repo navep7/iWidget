@@ -157,8 +157,11 @@ class NewAppWidget : AppWidgetProvider() {
                         R.id.tx_place,
                          cityname
                     )
-                    getWeatherData(false)
+                    try {
+                        getWeatherData(false)
+                    } catch (ex : Exception) {
 
+                    }
                 }
             }
 
@@ -914,7 +917,11 @@ class NewAppWidget : AppWidgetProvider() {
 
         } else if (GET_WEATHER == intent.action) {
             remoteViews?.setTextViewText(R.id.tx_weather, "")
-            getWeatherData(true)
+            try {
+                getWeatherData(true)
+            } catch (ex : Exception) {
+
+            }
             remoteViews?.setTextViewText(
                 R.id.tx_weather,
                 tempC.substring(
@@ -1679,7 +1686,11 @@ class NewAppWidget : AppWidgetProvider() {
                 )
                     remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.clouds)
             } else {
-                getWeatherData(false)
+                try {
+                    getWeatherData(false)
+                } catch (ex : Exception) {
+
+                }
                 if (tempC.length > 3) {
                     remoteViews?.setTextViewText(
                         R.id.tx_weather,
