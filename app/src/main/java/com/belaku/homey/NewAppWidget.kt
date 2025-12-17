@@ -965,10 +965,12 @@ class NewAppWidget : AppWidgetProvider() {
             sharedPreferencesEditor.putBoolean("newLap", boolNewLap).apply()
 
         } else if (LOCK_PHONE == intent.action) {
-            if (appContx != null)
-            if (isAccessibilityServiceEnabled(appContx, LockAccessibilityService::class.java))
-                LockAccessibilityService.lockScreenAccessibility(appContx)
-            else appContx.startActivity(Intent(appContx, DialogActivity::class.java).putExtra("DialogIntent", "AccessibilityPermDialog").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            if (appContx != null) {
+                if (isAccessibilityServiceEnabled(appContx, LockAccessibilityService::class.java))
+                    LockAccessibilityService.lockScreenAccessibility(appContx)
+                else appContx.startActivity(Intent(appContx, DialogActivity::class.java).putExtra("DialogIntent", "AccessibilityPermDialog").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }
+
         } else if (SET_CLICKED == intent.action) {
             val launchIntent: Intent =
                 appContx.packageManager.getLaunchIntentForPackage("com.belaku.homey")!!
