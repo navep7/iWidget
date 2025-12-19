@@ -229,6 +229,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 wallDescs.sort()
 
 
+                if (urls.size > 0)
                 randomWallIndex = Random.Default.nextInt(urls.size)
                 wallDesc = wallDescs.get(randomWallIndex)
 

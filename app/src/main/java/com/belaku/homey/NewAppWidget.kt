@@ -93,6 +93,7 @@ import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -111,6 +112,7 @@ import kotlin.random.Random
 
 class NewAppWidget : AppWidgetProvider() {
 
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var clickPendingIntentTemplateContact: PendingIntent
     private lateinit var clickIntentContact: Intent
     private lateinit var clickPendingIntentTemplateApp: PendingIntent
@@ -127,6 +129,8 @@ class NewAppWidget : AppWidgetProvider() {
 
         sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
 
 //        Log.d("onEnabled! - ", favContacts.size.toString())
         getLocationUpdates()
@@ -189,7 +193,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
-        val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
+
 
         fusedLocationProviderClient.requestLocationUpdates(
             locationRequest,

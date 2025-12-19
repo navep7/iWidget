@@ -164,6 +164,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
         parentLayoutDialog = findViewById(android.R.id.content)
 
+        appContx = applicationContext
 
         rewardedInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
@@ -405,6 +406,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                         }
 
                         override fun onAdFailedToLoad(adError: LoadAdError) {
+                            appContx = applicationContext
                             makeToast("onAdFailedToLoad: ${adError.message}")
                             rewardedInterstitialAd = null
                         }
