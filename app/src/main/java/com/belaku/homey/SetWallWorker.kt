@@ -420,7 +420,10 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                                         formatMilliseconds(queryUsageStats[i].totalTimeInForeground)
                                     )
                                 )
-                            //    if (choosenApps.size < 5) {
+
+                                if (choosenApps == null)
+                                    choosenApps = ArrayList()
+
                                     choosenApps.add(
                                         App(
                                             appName, appPname, appUsage

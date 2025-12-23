@@ -24,6 +24,7 @@ import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
@@ -49,7 +50,6 @@ import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicBlur
 import android.text.Html
 import android.text.SpannableString
-import android.text.method.ScrollingMovementMethod
 import android.text.style.UnderlineSpan
 import android.util.Log
 import android.view.LayoutInflater
@@ -93,6 +93,7 @@ import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
+import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -106,12 +107,14 @@ import java.io.IOException
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
-import kotlin.properties.Delegates
 import kotlin.random.Random
 
 
 class NewAppWidget : AppWidgetProvider() {
 
+    private var weatherIcons: ArrayList<Drawable> = ArrayList()
+    private var wallpColors: ArrayList<Int> = ArrayList()
+    private var runningColor: Int = 0
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var clickPendingIntentTemplateContact: PendingIntent
     private lateinit var clickIntentContact: Intent
@@ -119,7 +122,6 @@ class NewAppWidget : AppWidgetProvider() {
     private lateinit var clickIntentApp: Intent
     private lateinit var serviceIntentContact: Intent
     private lateinit var serviceIntentApp: Intent
-    
 
 
     override fun onEnabled(context: Context?) {
@@ -135,6 +137,41 @@ class NewAppWidget : AppWidgetProvider() {
 //        Log.d("onEnabled! - ", favContacts.size.toString())
         getLocationUpdates()
 
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private fun getWeatherDraws() {
+
+
+        // Declare and initialize the ArrayList with drawable resource IDs
+        val drawableIds = ArrayList<Int>()
+        // Add image resource IDs from the drawable folder (e.g., R.drawable.image1)
+        drawableIds.add(R.drawable.rain0)
+        drawableIds.add(R.drawable.rain1)
+        drawableIds.add(R.drawable.rain2)
+        drawableIds.add(R.drawable.rain3)
+        drawableIds.add(R.drawable.rain4)
+
+        val res = appContx.resources
+
+
+// Assuming you have the IDs in an ArrayList<Integer> called drawableIds
+        for (id in drawableIds) {
+            val drawable: Drawable =
+                res.getDrawable(id, null) // Use getDrawable(id) for older API levels
+            weatherIcons.add(drawable)
+        }
+    }
+
+    private fun overlay(bmp1: Bitmap, bmp2: Bitmap): Bitmap {
+        val bmOverlay = Bitmap.createBitmap(
+            bmp1.width, bmp1.height,
+            bmp1.config!!
+        )
+        val canvas = Canvas(bmOverlay)
+        canvas.drawBitmap(bmp1, Matrix(), null)
+        canvas.drawBitmap(bmp2, Matrix(), null)
+        return bmOverlay
     }
 
     @SuppressLint("MissingPermission")
@@ -159,11 +196,11 @@ class NewAppWidget : AppWidgetProvider() {
 
                     remoteViews?.setTextViewText(
                         R.id.tx_place,
-                         cityname
+                        cityname
                     )
                     try {
                         getWeatherData(false)
-                    } catch (ex : Exception) {
+                    } catch (ex: Exception) {
 
                     }
                 }
@@ -180,8 +217,8 @@ class NewAppWidget : AppWidgetProvider() {
 
                     cityname = cAddrs?.get(0)!!.subLocality
 
-               //     if (cityname.length > 15)
-                 //       cityname = cityname.substring(0, 12) + "..,"
+                    //     if (cityname.length > 15)
+                    //       cityname = cityname.substring(0, 12) + "..,"
 
                 } catch (e: IOException) {
                     // TODO Auto-generated catch block
@@ -227,6 +264,8 @@ class NewAppWidget : AppWidgetProvider() {
             appContx = context
 
             setUI()
+            readApps()
+            getFavoriteContacts()
             setACAdapter()
 
 
@@ -554,7 +593,7 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setUI() {
 
-    //    googleAccountInfo()
+        //    googleAccountInfo()
         if (isPinNoteInitialized())
             remoteViews?.setTextViewText(R.id.txrun, pinNote)
         liquidGlassEffects()
@@ -564,36 +603,62 @@ class NewAppWidget : AppWidgetProvider() {
         todaysDate()
         locationTxUpdate(appContx)
         wallColors()
+        getWeatherDraws()
         setSomeTwAndWallDescUI()
     }
 
- /*   private fun googleAccountInfo() {
+    /*   private fun googleAccountInfo() {
 
-        val accountManager = AccountManager.get(appContx)
+           val accountManager = AccountManager.get(appContx)
 
-        // To get all Google accounts
-        val googleAccounts = accountManager.getAccountsByType("com.google")
-        // To get all accounts of any type
-        val allAccounts = accountManager.accounts
-        for (account in googleAccounts) {
-            val accountName = account.name
-         //   makeToast(accountName)
-        }
+           // To get all Google accounts
+           val googleAccounts = accountManager.getAccountsByType("com.google")
+           // To get all accounts of any type
+           val allAccounts = accountManager.accounts
+           for (account in googleAccounts) {
+               val accountName = account.name
+            //   makeToast(accountName)
+           }
 
-    }*/
+       }*/
 
     private fun liquidGlassEffects() {
 
         if (isWallBitmapInitialized())
-            remoteViews?.setImageViewBitmap(
-                R.id.imgv_widget_layout, applyThinFilmOverlay(drawableToBitmap(appContx, RoundedBitmapDrawableFactory.create(appContx.resources, BitmapBlurHelper.blurBitmap(
-                    appContx, Bitmap.createBitmap(scaledBitmap, 10, 25, screenWidth - 20, screenHeight - 150)
-                ))
-                ), Color.WHITE, 50))
+           /* remoteViews?.setImageViewBitmap(
+                R.id.imgv_widget_layout, applyThinFilmOverlay(
+                    drawableToBitmap(
+                        appContx, RoundedBitmapDrawableFactory.create(
+                            appContx.resources, BitmapBlurHelper.blurBitmap(
+                                appContx,
+                                Bitmap.createBitmap(
+                                    scaledBitmap,
+                                    10,
+                                    25,
+                                    screenWidth - 20,
+                                    screenHeight - 150
+                                )
+                            )
+                        )
+                    ), Color.WHITE, 50
+                )
+            )*/
+
+            getWeatherDraws()
+            if (weatherIcons.size > 0)
+        remoteViews?.setImageViewBitmap(
+            R.id.imgv_widget_layout, overlay(applyThinFilmOverlay(
+                scaledBitmap, Color.WHITE, 50
+            ), drawableToBitmap(appContx,  weatherIcons[Random.nextInt(0, weatherIcons.size)]))
+        )
 
     }
 
-    private fun applyThinFilmOverlay(originalBitmap: Bitmap, filmColor: Int, filmAlpha: Int): Bitmap {
+    private fun applyThinFilmOverlay(
+        originalBitmap: Bitmap,
+        filmColor: Int,
+        filmAlpha: Int
+    ): Bitmap {
         // Create a mutable bitmap for drawing
         val resultBitmap = Bitmap.createBitmap(
             originalBitmap.width,
@@ -679,6 +744,10 @@ class NewAppWidget : AppWidgetProvider() {
                 tertianaryColor = wallpaperColors.tertiaryColor!!.toArgb()
             else tertianaryColor = Color.BLUE
 
+            wallpColors.add(primaryColor)
+            wallpColors.add(secondaryColor)
+            wallpColors.add(tertianaryColor)
+
             remoteViews?.setColorInt(
                 R.id.imgbtn_lock,
                 "setColorFilter",
@@ -704,7 +773,6 @@ class NewAppWidget : AppWidgetProvider() {
                 remoteViews?.setTextColor(R.id.tx_place, Color.BLACK)
                 remoteViews?.setTextColor(R.id.tx_weather, Color.BLACK)
             }
-
 
 
             /*if (ColorUtil().isColorDark(tertianaryColor))  {
@@ -887,7 +955,7 @@ class NewAppWidget : AppWidgetProvider() {
             val appWidgetView: View = inflater.inflate(R.layout.new_app_widget, null)
 
             makeToast("Yet2IMPL")
-            loadWidgetToShare(appWidgetView)
+            //     loadWidgetToShare(appWidgetView)
             appWidgetView.measure(
                 View.MeasureSpec.makeMeasureSpec(screenWidth, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(screenHeight - 725, View.MeasureSpec.EXACTLY)
@@ -923,7 +991,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setTextViewText(R.id.tx_weather, "")
             try {
                 getWeatherData(true)
-            } catch (ex : Exception) {
+            } catch (ex: Exception) {
 
             }
             remoteViews?.setTextViewText(
@@ -979,7 +1047,13 @@ class NewAppWidget : AppWidgetProvider() {
             if (appContx != null) {
                 if (isAccessibilityServiceEnabled(appContx, LockAccessibilityService::class.java))
                     LockAccessibilityService.lockScreenAccessibility(appContx)
-                else appContx.startActivity(Intent(appContx, DialogActivity::class.java).putExtra("DialogIntent", "AccessibilityPermDialog").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                else appContx.startActivity(
+                    Intent(
+                        appContx,
+                        DialogActivity::class.java
+                    ).putExtra("DialogIntent", "AccessibilityPermDialog")
+                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
             }
 
         } else if (SET_CLICKED == intent.action) {
@@ -1083,8 +1157,22 @@ class NewAppWidget : AppWidgetProvider() {
                 }
             }
 
-            val color =
-                Color.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
+            if (wallpColors.size > 0)
+            runningColor = wallpColors[Random.nextInt(0, wallpColors.size)]
+            else runningColor = Color.RED
+            //  Color.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
+
+            remoteViews?.setTextColor(R.id.tx_wish, runningColor)
+
+        /*    if (weatherIcons.size > 0 && isWallBitmapInitialized()) {
+
+                remoteViews?.setImageViewBitmap(
+                    R.id.imgv_widget_layout, overlay(applyThinFilmOverlay(
+                        scaledBitmap, Color.WHITE, 50
+                    ), drawableToBitmap(appContx,  weatherIcons[Random.nextInt(0, weatherIcons.size)]))
+                )
+
+            }*/
             var contactBitmap: Bitmap?
 
             contactBitmap = ContactPhotoHelper.retrieveContactPhoto(appContx, contactID.toLong())
@@ -1094,7 +1182,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             if (contactBitmap == null)
                 contactBitmap = CharacterToBitmapConverter.getBitmapFromCharacter(
-                    cNme[0], 100, 100, 70, color
+                    cNme[0], 100, 100, 70, Color.BLACK
                 )
 
             val c = Contact(contactID, cNme, phoneNumber, contactBitmap)
@@ -1143,10 +1231,24 @@ class NewAppWidget : AppWidgetProvider() {
     private fun loadWidgetToShare(appWidgetView: View) {
 
 
-        appWidgetView.findViewById<ImageView>(R.id.imgv_widget_layout).setImageBitmap(applyThinFilmOverlay(drawableToBitmap(appContx, RoundedBitmapDrawableFactory.create(appContx.resources, BitmapBlurHelper.blurBitmap(
-            appContx, Bitmap.createBitmap(scaledBitmap, 10, 25, screenWidth - 20, screenHeight - 150)
-        ))
-        ), Color.WHITE, 50))
+        appWidgetView.findViewById<ImageView>(R.id.imgv_widget_layout).setImageBitmap(
+            applyThinFilmOverlay(
+                drawableToBitmap(
+                    appContx, RoundedBitmapDrawableFactory.create(
+                        appContx.resources, BitmapBlurHelper.blurBitmap(
+                            appContx,
+                            Bitmap.createBitmap(
+                                scaledBitmap,
+                                10,
+                                25,
+                                screenWidth - 20,
+                                screenHeight - 150
+                            )
+                        )
+                    )
+                ), Color.WHITE, 50
+            )
+        )
 
         appWidgetView.findViewById<TextView>(
             R.id.btn_screentime
@@ -1166,21 +1268,22 @@ class NewAppWidget : AppWidgetProvider() {
         mSpannableStringLoc.setSpan(UnderlineSpan(), 0, mSpannableStringLoc.length, 0)
         appWidgetView.findViewById<TextView>(R.id.tx_place).text = "⚲ " + cityname
         appWidgetView.findViewById<TextView>(R.id.tx_steps).text = "$stepsToday"
-        appWidgetView.findViewById<TextView>(R.id.tx_weather).text = tempC.substring(0, 2) + "°C, " + weatherIconState
+        appWidgetView.findViewById<TextView>(R.id.tx_weather).text =
+            tempC.substring(0, 2) + "°C, " + weatherIconState
 
         appWidgetView.findViewById<LinearLayout>(R.id.ll_apps).visibility = View.INVISIBLE
         appWidgetView.findViewById<LinearLayout>(R.id.ll_contacts).visibility = View.INVISIBLE
         appWidgetView.findViewById<TextView>(R.id.tx_apps).visibility = View.VISIBLE
         appWidgetView.findViewById<TextView>(R.id.tx_calls).visibility = View.VISIBLE
 
-       /* appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_temp).setText(
-            MainActivity.tempC.substring(
-                0,
-                2
-            ) + "°C"
-        )
-        appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_state).text =
-            MainActivity.weatherIconState */
+        /* appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_temp).setText(
+             MainActivity.tempC.substring(
+                 0,
+                 2
+             ) + "°C"
+         )
+         appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_state).text =
+             MainActivity.weatherIconState */
         appWidgetView.findViewById<TextView>(R.id.tx_day_date).text =
             SimpleDateFormat("EEE", Locale.getDefault()).format(Calendar.getInstance().time) +
                     ", " + formattedDate
@@ -1402,6 +1505,7 @@ class NewAppWidget : AppWidgetProvider() {
         var secondaryColor = R.color.bg_light
         var tertianaryColor = R.color.bg_dark
 
+
         var favContacts: ArrayList<Contact> = ArrayList()
         var onEn: Boolean = false
         var remoteViews: RemoteViews? = null
@@ -1494,7 +1598,7 @@ class NewAppWidget : AppWidgetProvider() {
             gpName = c!!.getString(c.getColumnIndex("display_name"))
 
 
-        //    remoteViews?.setImageViewBitmap(R.id.imgbtn_n_apps, gpBitmap)
+            //    remoteViews?.setImageViewBitmap(R.id.imgbtn_n_apps, gpBitmap)
 
             Log.d("gpName - ", gpName)
             c.close()
@@ -1513,9 +1617,9 @@ class NewAppWidget : AppWidgetProvider() {
         fun getScreenTime(applicationContext: Context) {
 
             if (sharedPreferences == null)
-            sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+                sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
             if (sharedPreferencesEditor == null)
-            sharedPreferencesEditor = sharedPreferences.edit()
+                sharedPreferencesEditor = sharedPreferences.edit()
 
             val usageStatsManager =
                 applicationContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
@@ -1673,8 +1777,10 @@ class NewAppWidget : AppWidgetProvider() {
                     R.id.tx_place,
                     cityname
                 )
-                remoteViews?.setTextViewText(R.id.tx_weather,
-                     tempC.substring(0, 2) + "° C" + ", " + weatherIconState)
+                remoteViews?.setTextViewText(
+                    R.id.tx_weather,
+                    tempC.substring(0, 2) + "° C" + ", " + weatherIconState
+                )
 
 
 
@@ -1692,7 +1798,7 @@ class NewAppWidget : AppWidgetProvider() {
             } else {
                 try {
                     getWeatherData(false)
-                } catch (ex : Exception) {
+                } catch (ex: Exception) {
 
                 }
                 if (tempC.length > 3) {
@@ -1726,7 +1832,10 @@ class NewAppWidget : AppWidgetProvider() {
 
             remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
             if (gpName.length > 0)
-            remoteViews?.setTextViewText(R.id.tx_myspace, gpName.split(" ")[0].substring(0, 1) + gpName.split(" ")[1].substring(0, 1))
+                remoteViews?.setTextViewText(
+                    R.id.tx_myspace,
+                    gpName.split(" ")[0].substring(0, 1) + gpName.split(" ")[1].substring(0, 1)
+                )
 
         }
 
