@@ -1,5 +1,6 @@
 package com.belaku.homey
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.WallpaperManager
@@ -28,6 +29,7 @@ import android.util.Log
 import android.view.View
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.belaku.homey.MainActivity.Companion.appContx
@@ -103,7 +105,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
     }
 
 
-
     @SuppressLint("MissingPermission")
     private fun getCity() {
         var locationRequest = LocationRequest.create()
@@ -122,7 +123,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             }
 
             override fun onMarkerClick(p0: Marker): Boolean {
-            //    makeToast("nothin")
+                //    makeToast("nothin")
                 return true
             }
         }
@@ -144,8 +145,8 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             //   makeToast(cAddrs?.get(0)!!.subLocality)
 
             cityname = cAddrs?.get(0)!!.subLocality
-         //   if (cityname.length > 15)
-           //     cityname = cityname.substring(0, 12) + "..,"
+            //   if (cityname.length > 15)
+            //     cityname = cityname.substring(0, 12) + "..,"
             //   makeToast("cityname - " + cityname)
 
 
@@ -156,8 +157,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         }
 
     }
-
-
 
 
     private fun updateWidget() {
@@ -182,6 +181,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         fun isPinNoteInitialized(): Boolean {
             return this::pinNote.isInitialized
         }
+
         lateinit var rActOpenedFirst: String
         lateinit var mAct: Activity
         var dayIndex: Int = -1
@@ -196,6 +196,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         fun isWallBitmapInitialized(): Boolean {
             return this::wallBitmap.isInitialized
         }
+
         var boolNewLap: Boolean = false
 
         @kotlin.jvm.JvmField
@@ -217,12 +218,16 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
 
             getScreenTime(appContx)
+            if (ContextCompat.checkSelfPermission(appContx, Manifest.permission.READ_CONTACTS)
+                == PackageManager.PERMISSION_GRANTED)
             greeting()
 
             wm.suggestDesiredDimensions(screenWidth, screenHeight)
 
             try {
 
+                if (sharedPreferences == null)
+                    makeToast("sharedPreferencesNULL")
                 urls = ArrayList(sharedPreferences.getStringSet("walls", null)!!)
                 urls.sort()
                 wallDescs = ArrayList(sharedPreferences.getStringSet("wallDescs", null)!!)
@@ -230,7 +235,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
 
                 if (urls.size > 0)
-                randomWallIndex = Random.Default.nextInt(urls.size)
+                    randomWallIndex = Random.Default.nextInt(urls.size)
                 wallDesc = wallDescs.get(randomWallIndex)
 
                 Log.d("settingWD", urls[randomWallIndex])
@@ -340,7 +345,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             if (sharedPreferences.getString("day", "someday").equals(dayOfTheWeek)) {
                 Log.d("DayChange?", "same Day")
             } else {
-                Log.d("DayChange?","diff Day")
+                Log.d("DayChange?", "diff Day")
                 dayChange = true
                 sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
                 stepsToday = 0
@@ -399,8 +404,9 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 var appName =
                     getAppNameFromPkg(applicationContext, queryUsageStats.get(i).packageName)
                 var appPname = queryUsageStats.get(i).packageName
-                var appUsage = formatMilliseconds(queryUsageStats[i].totalTimeInForeground).substring(0, 2)
-            //    var appUsage = arrayListUsageStats.elementAt(i).usageTime
+                var appUsage =
+                    formatMilliseconds(queryUsageStats[i].totalTimeInForeground).substring(0, 2)
+                //    var appUsage = arrayListUsageStats.elementAt(i).usageTime
 
                 Log.d(
                     "queryUsageStats",
@@ -420,17 +426,17 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                                         formatMilliseconds(queryUsageStats[i].totalTimeInForeground)
                                     )
                                 )
-                            //    if (choosenApps.size < 5) {
-                                    choosenApps.add(
-                                        App(
-                                            appName, appPname, appUsage
-                                        )
+                                //    if (choosenApps.size < 5) {
+                                choosenApps.add(
+                                    App(
+                                        appName, appPname, appUsage
                                     )
-                                }
-                          //  }
+                                )
+                            }
+                //  }
             }
 
-               saveApps(choosenApps)
+            saveApps(choosenApps)
 
         }
 
