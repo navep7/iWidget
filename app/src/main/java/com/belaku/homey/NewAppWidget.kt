@@ -74,6 +74,7 @@ import com.belaku.homey.MainActivity.Companion.getWeatherData
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
+import com.belaku.homey.MainActivity.Companion.tempKind
 import com.belaku.homey.MainActivity.Companion.updateWidget
 import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.MainActivity.Companion.weatherIconState
@@ -93,7 +94,6 @@ import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
-import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -140,17 +140,27 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    private fun getWeatherDraws() {
+    private fun getWeatherDraws(tempKind: String) {
 
+        makeToast("Wlike - " + tempKind)
 
         // Declare and initialize the ArrayList with drawable resource IDs
         val drawableIds = ArrayList<Int>()
         // Add image resource IDs from the drawable folder (e.g., R.drawable.image1)
-        drawableIds.add(R.drawable.rain0)
-        drawableIds.add(R.drawable.rain1)
-        drawableIds.add(R.drawable.rain2)
-        drawableIds.add(R.drawable.rain3)
-        drawableIds.add(R.drawable.rain4)
+
+        if (tempKind.contains("clouds")) {
+            drawableIds.add(R.drawable.clouds0)
+            drawableIds.add(R.drawable.clouds1)
+            drawableIds.add(R.drawable.clouds2)
+            drawableIds.add(R.drawable.clouds3)
+            drawableIds.add(R.drawable.clouds4)
+        } else if (tempKind.contains("rain")) {
+            drawableIds.add(R.drawable.rain0)
+            drawableIds.add(R.drawable.rain1)
+            drawableIds.add(R.drawable.rain2)
+            drawableIds.add(R.drawable.rain3)
+            drawableIds.add(R.drawable.rain4)
+        }
 
         val res = appContx.resources
 
@@ -603,7 +613,7 @@ class NewAppWidget : AppWidgetProvider() {
         todaysDate()
         locationTxUpdate(appContx)
         wallColors()
-        getWeatherDraws()
+        getWeatherDraws(tempKind)
         setSomeTwAndWallDescUI()
     }
 
@@ -644,7 +654,7 @@ class NewAppWidget : AppWidgetProvider() {
                 )
             )*/
 
-            getWeatherDraws()
+            getWeatherDraws(tempKind)
             if (weatherIcons.size > 0)
         remoteViews?.setImageViewBitmap(
             R.id.imgv_widget_layout, overlay(applyThinFilmOverlay(
