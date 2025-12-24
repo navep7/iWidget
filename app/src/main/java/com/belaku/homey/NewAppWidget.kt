@@ -142,24 +142,30 @@ class NewAppWidget : AppWidgetProvider() {
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun getWeatherDraws(tempKind: String) {
 
-        makeToast("Wlike - " + tempKind)
+   //     makeToast("Wlike - " + tempKind)
 
         // Declare and initialize the ArrayList with drawable resource IDs
         val drawableIds = ArrayList<Int>()
         // Add image resource IDs from the drawable folder (e.g., R.drawable.image1)
 
         if (tempKind.contains("clouds")) {
-            drawableIds.add(R.drawable.clouds0)
-            drawableIds.add(R.drawable.clouds1)
-            drawableIds.add(R.drawable.clouds2)
-            drawableIds.add(R.drawable.clouds3)
-            drawableIds.add(R.drawable.clouds4)
+            drawableIds.add(R.drawable.cloudss0)
+            drawableIds.add(R.drawable.cloudss1)
+            drawableIds.add(R.drawable.cloudss2)
+            drawableIds.add(R.drawable.cloudss3)
+            drawableIds.add(R.drawable.cloudss4)
         } else if (tempKind.contains("rain")) {
             drawableIds.add(R.drawable.rain0)
             drawableIds.add(R.drawable.rain1)
             drawableIds.add(R.drawable.rain2)
             drawableIds.add(R.drawable.rain3)
             drawableIds.add(R.drawable.rain4)
+        } else if (tempKind.contains("clear")) {
+            drawableIds.add(R.drawable.clear0)
+            drawableIds.add(R.drawable.clear1)
+            drawableIds.add(R.drawable.clear2)
+            drawableIds.add(R.drawable.clear3)
+            drawableIds.add(R.drawable.clear4)
         }
 
         val res = appContx.resources
@@ -635,30 +641,12 @@ class NewAppWidget : AppWidgetProvider() {
     private fun liquidGlassEffects() {
 
         if (isWallBitmapInitialized())
-           /* remoteViews?.setImageViewBitmap(
-                R.id.imgv_widget_layout, applyThinFilmOverlay(
-                    drawableToBitmap(
-                        appContx, RoundedBitmapDrawableFactory.create(
-                            appContx.resources, BitmapBlurHelper.blurBitmap(
-                                appContx,
-                                Bitmap.createBitmap(
-                                    scaledBitmap,
-                                    10,
-                                    25,
-                                    screenWidth - 20,
-                                    screenHeight - 150
-                                )
-                            )
-                        )
-                    ), Color.WHITE, 50
-                )
-            )*/
 
             getWeatherDraws(tempKind)
             if (weatherIcons.size > 0)
         remoteViews?.setImageViewBitmap(
             R.id.imgv_widget_layout, overlay(applyThinFilmOverlay(
-                scaledBitmap, Color.WHITE, 50
+                scaledBitmap, Color.WHITE, 0
             ), drawableToBitmap(appContx,  weatherIcons[Random.nextInt(0, weatherIcons.size)]))
         )
 
@@ -1011,6 +999,7 @@ class NewAppWidget : AppWidgetProvider() {
                     2
                 ) + "°C " + weatherIconState
             )
+
         } else if (WIFI_AUTO == intent.action) {
             var wifiIntent = Intent(Settings.ACTION_WIFI_SETTINGS)
             wifiIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
