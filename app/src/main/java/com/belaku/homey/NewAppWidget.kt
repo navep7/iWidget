@@ -74,6 +74,7 @@ import com.belaku.homey.MainActivity.Companion.getWeatherData
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
+import com.belaku.homey.MainActivity.Companion.tempKind
 import com.belaku.homey.MainActivity.Companion.updateWidget
 import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.MainActivity.Companion.weatherIconState
@@ -624,34 +625,33 @@ class NewAppWidget : AppWidgetProvider() {
 
     private fun liquidGlassEffects() {
 
-        if (isWallBitmapInitialized())
-           /* remoteViews?.setImageViewBitmap(
-                R.id.imgv_widget_layout, applyThinFilmOverlay(
-                    drawableToBitmap(
-                        appContx, RoundedBitmapDrawableFactory.create(
-                            appContx.resources, BitmapBlurHelper.blurBitmap(
-                                appContx,
-                                Bitmap.createBitmap(
-                                    scaledBitmap,
-                                    10,
-                                    25,
-                                    screenWidth - 20,
-                                    screenHeight - 150
-                                )
-                            )
-                        )
-                    ), Color.WHITE, 50
-                )
-            )*/
-
             getWeatherDraws()
-            if (weatherIcons.size > 0)
-        remoteViews?.setImageViewBitmap(
-            R.id.imgv_widget_layout, overlay(applyThinFilmOverlay(
-                scaledBitmap, Color.WHITE, 50
-            ), drawableToBitmap(appContx,  weatherIcons[Random.nextInt(0, weatherIcons.size)]))
-        )
 
+        if (isWallBitmapInitialized()) {
+            scaledBitmap =
+                Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
+
+            if (weatherIcons.size > 0)
+                remoteViews?.setImageViewBitmap(
+                    R.id.imgv_widget_layout, overlay(
+                        applyThinFilmOverlay(
+                            scaledBitmap, Color.WHITE, 90
+                        ),
+                        drawableToBitmap(
+                            appContx,
+                            weatherIcons[Random.nextInt(0, weatherIcons.size)]
+                        )
+                    )
+                )
+        } else {
+            remoteViews?.setImageViewBitmap(
+                R.id.imgv_widget_layout,
+                drawableToBitmap(
+                    appContx,
+                    weatherIcons[Random.nextInt(0, weatherIcons.size)]
+                )
+            )
+        }
     }
 
     private fun applyThinFilmOverlay(
