@@ -145,7 +145,7 @@ class NewAppWidget : AppWidgetProvider() {
     private fun getWeatherDraws() {
 
 
-   //     makeToast("tempKind - " + tempKind)
+        //     makeToast("tempKind - " + tempKind)
 
         // Add image resource IDs from the drawable folder (e.g., R.drawable.image1)
         drawableIds.clear()
@@ -169,8 +169,6 @@ class NewAppWidget : AppWidgetProvider() {
             drawableIds.add(R.drawable.clear3)
             drawableIds.add(R.drawable.clear4)
         }*/
-
-
 
 
         val res = appContx.resources
@@ -561,7 +559,6 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
 
-
             val mapsIntent = Intent(context, MapsActivity::class.java)
             val mapsPendingIntent = PendingIntent.getActivity(
                 context,
@@ -619,7 +616,7 @@ class NewAppWidget : AppWidgetProvider() {
         todaysDate()
         locationTxUpdate(appContx)
         wallColors()
-     //   getWeatherDraws()
+        //   getWeatherDraws()
         setSomeTwAndWallDescUI()
     }
 
@@ -644,12 +641,12 @@ class NewAppWidget : AppWidgetProvider() {
             scaledBitmap =
                 Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
 
-                remoteViews?.setImageViewBitmap(
-                    R.id.imgv_widget_layout,
-                        applyThinFilmOverlay(
-                            scaledBitmap, Color.WHITE, 90
-                        )
+            remoteViews?.setImageViewBitmap(
+                R.id.imgv_widget_layout,
+                applyThinFilmOverlay(
+                    scaledBitmap, Color.LTGRAY, 50
                 )
+            )
         }
     }
 
@@ -1157,7 +1154,7 @@ class NewAppWidget : AppWidgetProvider() {
             }
 
             if (wallpColors.size > 0)
-            runningColor = wallpColors[Random.nextInt(0, wallpColors.size)]
+                runningColor = wallpColors[Random.nextInt(0, wallpColors.size)]
             else runningColor = Color.RED
             //  Color.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
 
