@@ -642,6 +642,15 @@
         android:paddingEnd="@dimen/fab_margin">
 
 
+        <ImageView
+            android:id="@+id/imgv_conf"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginBottom="@dimen/padding_5"
+            android:scaleType="fitXY"
+            android:src="@drawable/conf" />
+
+
 
 
         <TextView
@@ -792,13 +801,6 @@
         android:textStyle="bold" />
 
 
-    <ImageView
-        android:id="@+id/imgv_conf"
-        android:layout_alignParentEnd="true"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:scaleType="fitXY"
-        android:src="@drawable/conf" />
 
 
 </RelativeLayout>
