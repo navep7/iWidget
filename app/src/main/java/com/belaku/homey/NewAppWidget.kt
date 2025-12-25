@@ -113,6 +113,7 @@ import kotlin.random.Random
 
 class NewAppWidget : AppWidgetProvider() {
 
+    private val drawableIds: ArrayList<Int> = ArrayList()
     private var weatherIcons: ArrayList<Drawable> = ArrayList()
     private var wallpColors: ArrayList<Int> = ArrayList()
     private var runningColor: Int = 0
@@ -144,14 +145,37 @@ class NewAppWidget : AppWidgetProvider() {
     private fun getWeatherDraws() {
 
 
-        // Declare and initialize the ArrayList with drawable resource IDs
-        val drawableIds = ArrayList<Int>()
+   //     makeToast("tempKind - " + tempKind)
+
         // Add image resource IDs from the drawable folder (e.g., R.drawable.image1)
+        drawableIds.clear()
+
+        /*if (tempKind.contains("clouds")) {
+            drawableIds.add(R.drawable.cloudss0)
+            drawableIds.add(R.drawable.cloudss1)
+            drawableIds.add(R.drawable.cloudss2)
+            drawableIds.add(R.drawable.cloudss3)
+            drawableIds.add(R.drawable.cloudss4)
+        } else if(tempKind.contains("rain")) {
+            drawableIds.add(R.drawable.rain0)
+            drawableIds.add(R.drawable.rain1)
+            drawableIds.add(R.drawable.rain2)
+            drawableIds.add(R.drawable.rain3)
+            drawableIds.add(R.drawable.rain4)
+        } else if (tempKind.contains("clear")) {
+            drawableIds.add(R.drawable.clear0)
+            drawableIds.add(R.drawable.clear1)
+            drawableIds.add(R.drawable.clear2)
+            drawableIds.add(R.drawable.clear3)
+            drawableIds.add(R.drawable.clear4)
+        }*/
+
         drawableIds.add(R.drawable.rain0)
         drawableIds.add(R.drawable.rain1)
         drawableIds.add(R.drawable.rain2)
         drawableIds.add(R.drawable.rain3)
         drawableIds.add(R.drawable.rain4)
+
 
         val res = appContx.resources
 
@@ -541,11 +565,6 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
 
-            /*remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_conf,
-                getPendingSelfIntent(context, SET_CLICKED)
-            )*/
-
 
             val mapsIntent = Intent(context, MapsActivity::class.java)
             val mapsPendingIntent = PendingIntent.getActivity(
@@ -604,7 +623,7 @@ class NewAppWidget : AppWidgetProvider() {
         todaysDate()
         locationTxUpdate(appContx)
         wallColors()
-        getWeatherDraws()
+     //   getWeatherDraws()
         setSomeTwAndWallDescUI()
     }
 
@@ -625,32 +644,16 @@ class NewAppWidget : AppWidgetProvider() {
 
     private fun liquidGlassEffects() {
 
-            getWeatherDraws()
-
         if (isWallBitmapInitialized()) {
             scaledBitmap =
                 Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
 
-            if (weatherIcons.size > 0)
                 remoteViews?.setImageViewBitmap(
-                    R.id.imgv_widget_layout, overlay(
+                    R.id.imgv_widget_layout,
                         applyThinFilmOverlay(
                             scaledBitmap, Color.WHITE, 90
-                        ),
-                        drawableToBitmap(
-                            appContx,
-                            weatherIcons[Random.nextInt(0, weatherIcons.size)]
                         )
-                    )
                 )
-        } else {
-            remoteViews?.setImageViewBitmap(
-                R.id.imgv_widget_layout,
-                drawableToBitmap(
-                    appContx,
-                    weatherIcons[Random.nextInt(0, weatherIcons.size)]
-                )
-            )
         }
     }
 
@@ -1164,15 +1167,12 @@ class NewAppWidget : AppWidgetProvider() {
 
             remoteViews?.setTextColor(R.id.tx_wish, runningColor)
 
-        /*    if (weatherIcons.size > 0 && isWallBitmapInitialized()) {
-
+            /*if (weatherIcons.size > 0) {
                 remoteViews?.setImageViewBitmap(
-                    R.id.imgv_widget_layout, overlay(applyThinFilmOverlay(
-                        scaledBitmap, Color.WHITE, 50
-                    ), drawableToBitmap(appContx,  weatherIcons[Random.nextInt(0, weatherIcons.size)]))
+                    R.id.imgv_weather_icon, drawableToBitmap(appContx,  weatherIcons[Random.nextInt(0, weatherIcons.size)])
                 )
-
             }*/
+
             var contactBitmap: Bitmap?
 
             contactBitmap = ContactPhotoHelper.retrieveContactPhoto(appContx, contactID.toLong())
@@ -1847,12 +1847,9 @@ class NewAppWidget : AppWidgetProvider() {
             }
         }
 
-
         private var appIndex: Int = 0
 
-
         lateinit var newAppWidget: ComponentName
-
 
         private const val FAB_SHARE = "fabShare"
         private const val WIFI_AUTO = "wifiAuto"

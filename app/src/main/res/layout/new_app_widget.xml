@@ -641,6 +641,9 @@
         android:paddingStart="@dimen/fab_margin"
         android:paddingEnd="@dimen/fab_margin">
 
+
+
+
         <TextView
             android:id="@+id/tx_rewards_count"
             android:layout_width="wrap_content"

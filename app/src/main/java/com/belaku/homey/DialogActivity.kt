@@ -231,7 +231,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
         if (dialogIntentStr != null) {
 
-            if (dialogIntentStr =="WCh") {
+             if (dialogIntentStr =="WCh") {
 
                 sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
                 sharedPreferencesEditor = sharedPreferences.edit()
