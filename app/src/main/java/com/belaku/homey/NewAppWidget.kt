@@ -170,11 +170,7 @@ class NewAppWidget : AppWidgetProvider() {
             drawableIds.add(R.drawable.clear4)
         }*/
 
-        drawableIds.add(R.drawable.rain0)
-        drawableIds.add(R.drawable.rain1)
-        drawableIds.add(R.drawable.rain2)
-        drawableIds.add(R.drawable.rain3)
-        drawableIds.add(R.drawable.rain4)
+
 
 
         val res = appContx.resources
