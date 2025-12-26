@@ -70,6 +70,7 @@ class AlarmBroadcastReceiver : BroadcastReceiver() {
         notificationManagerCompat.notify(1, builder.build())
         for (i in 0 until arrayListReminders.size)
             try {
+                if (arrayListReminders[i].rType == "One time")
                 if (arrayListReminders[i].name == rSubject) {
                     arrayListReminders.removeAt(i)
                     adapterReminders.notifyDataSetChanged()
