@@ -20,6 +20,8 @@
         android:id="@+id/tx_t"
         android:text="Habits &amp; Reminders"
         android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:background="@android:color/white"
         android:textSize="35dp"
         android:layout_marginTop="50dp"
         android:layout_alignParentTop="true"
@@ -36,6 +38,8 @@
     <TextView
         android:id="@+id/tx_habits"
         android:text="Habits"
+        android:textColor="@android:color/white"
+        android:background="@android:color/black"
         android:textStyle="bold"
         android:textSize="35dp"
         android:layout_alignParentStart="true"
@@ -46,7 +50,9 @@
 
     <TextView
         android:id="@+id/tx_add_habits"
-        android:text="+"
+        android:text=" + "
+        android:textColor="@android:color/black"
+        android:background="@android:color/white"
         android:textStyle="bold"
         android:textSize="35dp"
         android:layout_below="@+id/tx_t"
@@ -65,6 +71,8 @@
     <TextView
         android:id="@+id/tx_reminders"
         android:text="Reminders"
+        android:textColor="@android:color/white"
+        android:background="@android:color/black"
         android:textStyle="bold"
         android:textSize="35dp"
         android:layout_alignParentStart="true"
@@ -75,7 +83,9 @@
 
     <TextView
         android:id="@+id/tx_add_reminders"
-        android:text="+"
+        android:text=" + "
+        android:textColor="@android:color/black"
+        android:background="@android:color/white"
         android:textStyle="bold"
         android:textSize="35dp"
         android:layout_below="@+id/rv_habits"

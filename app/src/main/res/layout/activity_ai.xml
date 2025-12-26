@@ -19,6 +19,8 @@
     <TextView
         android:id="@+id/tx_t"
         android:text="Ask, AI..."
+        android:textColor="@android:color/black"
+        android:background="@android:color/white"
         android:textStyle="bold"
         android:textSize="50dp"
         android:layout_marginTop="50dp"
@@ -33,6 +35,8 @@
         android:layout_below="@+id/tx_t"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="@dimen/fab_margin"
+        android:background="@drawable/gradient_glass"
+        android:layout_marginTop="@dimen/fab_margin"
         android:layout_alignBottom="@+id/edtx_ai"
         android:src="@android:drawable/ic_btn_speak_now"/>
 
@@ -48,15 +52,21 @@
         android:imeOptions="actionDone"
         android:inputType="text"
         android:hint="Search AI, type in the prompt..."
+        android:textColorHint="@android:color/white"
+        android:background="@android:color/black"
         android:textStyle="bold|italic"
         android:layout_below="@+id/tx_t"
-        android:layout_width="wrap_content"
+        android:padding="@dimen/padding_5"
+        android:layout_toStartOf="@+id/imgv_mic"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"/>
 
     <TextView
         android:id="@+id/tx_ai_response"
         android:text="AI response..."
+        android:textColor="@android:color/holo_red_dark"
+        android:background="@drawable/gradient_glass_rounded"
         android:textIsSelectable="true"
         android:textSize="35sp"
         android:textStyle="bold"

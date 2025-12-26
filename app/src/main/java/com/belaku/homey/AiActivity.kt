@@ -72,7 +72,7 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
         playAI = findViewById<ImageButton>(R.id.play_ai)
         edtxAi = findViewById<EditText>(R.id.edtx_ai)
         txAi = findViewById<TextView>(R.id.tx_ai_response)
-        txAi.setTextColor(NewAppWidget.tertianaryColor)
+     //   txAi.setTextColor(NewAppWidget.tertianaryColor)
         txAi.movementMethod = ScrollingMovementMethod()
 
 

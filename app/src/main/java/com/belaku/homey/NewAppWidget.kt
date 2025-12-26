@@ -655,7 +655,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setImageViewBitmap(
                 R.id.imgv_widget_layout,
                 applyThinFilmOverlay(
-                    scaledBitmap, Color.LTGRAY, 75
+                    scaledBitmap, Color.WHITE, 75
                 )
             )
         }

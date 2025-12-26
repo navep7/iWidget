@@ -17,7 +17,7 @@ class TimeChangedReceiver : BroadcastReceiver() {
 
 
             val calendar = Calendar.getInstance()
-            val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+            val currentHour = calendar.get(Calendar.HOUR)
             val currentMin = calendar.get(Calendar.MINUTE)
 
             Log.d("TimeChangedReceiver", "Time tick received. Current hour: $currentMin")
