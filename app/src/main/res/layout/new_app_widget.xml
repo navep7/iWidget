@@ -129,11 +129,11 @@
                 android:id="@+id/imgv_texts"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="@drawable/gradient_glass_dark"
                 android:layout_alignStart="@+id/frame_texts"
                 android:layout_alignTop="@+id/frame_texts"
                 android:layout_alignEnd="@+id/frame_texts"
                 android:layout_alignBottom="@+id/frame_texts"
-                android:layout_margin="3dp"
                 android:scaleType="fitXY" />
 
 
@@ -175,6 +175,9 @@
                     android:paddingStart="@dimen/padding_5"
                     android:paddingEnd="@dimen/padding_5">
 
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
 
                     <android.widget.TextClock
                         android:id="@+id/clock"
@@ -186,6 +189,18 @@
                         android:textSize="25sp"
                         android:textStyle="bold" />
 
+                        <TextView
+                            android:id="@+id/tx_time_announcement"
+                            android:layout_toRightOf="@+id/tx_weather"
+                            android:text="⊘"
+                            android:textSize="25sp"
+                            android:textStyle="bold"
+                            android:textColor="@android:color/holo_blue_dark"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/padding_5"/>
+
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/tx_day_date"
@@ -209,7 +224,8 @@
                             android:id="@+id/tx_get_place"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="⚲ "
+                            android:text="  ⚲  "
+                            android:background="@drawable/rounded_go_1dp"
                             android:textStyle="bold"
                             android:textColor="@android:color/holo_red_light"
                             android:layout_gravity="center"
@@ -223,6 +239,7 @@
                             android:layout_height="wrap_content"
                             android:layout_toEndOf="@+id/tx_get_place"
                             android:text="Place Information.."
+                            android:layout_marginStart="@dimen/padding_5"
                             android:layout_centerVertical="true"
                             android:maxLines="1"
                             android:ellipsize="end"
@@ -240,14 +257,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
 
-                        <ImageButton
-                            android:id="@+id/imgv_weather_icon"
-                            android:background="@android:color/transparent"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
-                            android:layout_gravity="center_vertical"
-                            android:scaleType="fitXY"
-                            android:src="@drawable/clouds"/>
 
                         <TextView
                             android:id="@+id/tx_weather"
@@ -255,10 +264,22 @@
                             android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
                             android:text="25° C, Cloudy"
-                            android:layout_toRightOf="@+id/imgv_weather_icon"
+                            android:layout_alignParentStart="true"
                             android:textColor="@android:color/black"
                             android:textSize="15sp"
                             android:textStyle="bold" />
+
+                        <ImageButton
+                            android:id="@+id/imgv_weather_icon"
+                            android:background="@drawable/rounded_ss_1dp"
+                            android:padding="@dimen/padding_3"
+                            android:layout_toRightOf="@+id/tx_weather"
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
+                            android:layout_gravity="center_vertical"
+                            android:scaleType="fitXY"
+                            android:src="@drawable/clouds"/>
+
 
 
                     </RelativeLayout>
@@ -378,53 +399,23 @@
 
     </RelativeLayout>
 
-    <LinearLayout
+
+    <TextView
         android:id="@+id/tx_runner"
-        android:background="@drawable/gradient_glass_light"
+        android:background="@drawable/circular_white"
         android:layout_below="@+id/rl_clocks"
-        android:layout_marginBottom="@dimen/padding_5"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:text="Pin a Note!"
+        android:textStyle="bold"
+        android:padding="@dimen/padding_5"
+        android:textColor="@android:color/holo_red_light"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:orientation="horizontal"
         android:gravity="center"
         android:clickable="true"
-        android:focusable="true">
-
-        <TextView
-            android:id="@+id/txrun"
-            android:textColor="@android:color/holo_red_dark"
-            android:gravity="center"
-            android:textStyle="bold|italic"
-            android:singleLine="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pin a Note!"
-            android:layout_marginEnd="@dimen/fab_margin"
-            android:ellipsize="marquee"
-            android:marqueeRepeatLimit ="marquee_forever"
-            android:scrollHorizontally="true"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:duplicateParentState="true">
-            <requestFocus
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:duplicateParentState="true" />
-        </TextView>
-
-        <ImageView
-            android:id="@+id/imgv_notes"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginEnd="@dimen/fab_margin"
-            android:padding="@dimen/padding_5"
-            android:scaleType="fitXY"
-            android:src="@android:drawable/ic_menu_edit"
-            android:clickable="true"
-            android:focusable="true" />
-
-    </LinearLayout>
+        android:focusable="true"/>
 
 
 
@@ -472,7 +463,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/gradient_glass_list"
-            android:gravity="end">
+            android:gravity="center">
 
 
             <TextView
@@ -485,13 +476,6 @@
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <ImageView
-                android:id="@+id/imgv_apps"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_marginStart="@dimen/padding_5"
-                android:layout_marginEnd="@dimen/padding_3"
-                android:src="@drawable/launch_e" />
 
         </LinearLayout>
 
@@ -515,13 +499,14 @@
         android:scaleType="fitXY"
         android:src="@drawable/dial" />
 
+
     <ImageButton
         android:id="@+id/imgbtn_speech"
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:padding="@dimen/padding_3"
         android:layout_marginBottom="@dimen/fab_margin"
-        android:layout_alignTop="@+id/ll_contacts"
+        android:layout_below="@+id/imgv_contacts"
         android:layout_toStartOf="@+id/ll_contacts"
         android:background="@drawable/gradient_glass_rounded"
         android:scaleType="fitXY"
@@ -539,12 +524,37 @@
         android:scaleType="fitXY"
         android:src="@android:drawable/ic_media_play" />
 
+
+    <ImageView
+        android:id="@+id/imgv_apps"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_toEndOf="@+id/ll_apps"
+        android:layout_alignTop="@+id/ll_apps"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_marginTop="-15dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/launch_e" />
+
+    <ImageView
+        android:id="@+id/imgv_contacts"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_toStartOf="@+id/ll_contacts"
+        android:layout_alignTop="@+id/ll_apps"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_marginTop="-15dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/contacts" />
+
+
+
     <ImageButton
         android:id="@+id/imgbtn_g_apps"
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:layout_toEndOf="@+id/ll_apps"
-        android:layout_alignTop="@+id/ll_apps"
+        android:layout_below="@+id/imgv_apps"
         android:layout_marginBottom="@dimen/fab_margin"
         android:background="@drawable/gradient_glass_rounded"
         android:scaleType="centerCrop"
@@ -561,24 +571,20 @@
         android:layout_alignParentEnd="true"
         android:orientation="vertical">
 
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:background="@drawable/gradient_glass_list">
+            android:background="@drawable/gradient_glass_list"
+            android:gravity="center">
 
-            <ImageView
-                android:id="@+id/imgv_contacts"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_marginStart="@dimen/padding_5"
-                android:src="@drawable/contacts" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginStart="@dimen/padding_3"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="@dimen/padding_5"
+                android:layout_marginEnd="@dimen/padding_5"
                 android:text="Calls"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -591,6 +597,39 @@
                 tools:ignore="ContentDescription" />
 
         </LinearLayout>
+
+        <!--
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@drawable/gradient_glass_list">
+
+                    <ImageView
+                        android:id="@+id/imgv_contacts"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:layout_marginStart="@dimen/padding_5"
+                        android:src="@drawable/contacts" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="@dimen/padding_3"
+                        android:text="Calls"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/imgv_add_contacts"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:src="@android:drawable/ic_input_add"
+                        tools:ignore="ContentDescription" />
+
+                </LinearLayout>
+        -->
 
 
         <ListView
@@ -632,7 +671,7 @@
         android:id="@+id/ll_controls"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tx_runner"
+        android:layout_alignTop="@+id/imgv_apps"
         android:layout_above="@+id/tx_walldesc"
         android:layout_margin="@dimen/fab_margin"
         android:layout_centerHorizontal="true"
@@ -646,6 +685,8 @@
             android:id="@+id/imgv_conf"
             android:layout_width="35dp"
             android:layout_height="35dp"
+            android:background="@drawable/gradient_glass_rounded_ss"
+            android:padding="@dimen/padding_5"
             android:layout_marginBottom="@dimen/padding_5"
             android:scaleType="fitXY"
             android:src="@drawable/conf" />
@@ -773,6 +814,8 @@
         android:background="@drawable/gradient_glass_dark_flat"
         android:textColor="@color/white"
         android:textStyle="bold"
+        android:maxLines="2"
+        android:ellipsize="end"
         android:gravity="center"
         android:layout_above="@+id/line2"
         android:layout_width="match_parent"

@@ -20,6 +20,7 @@ import android.net.NetworkInfo
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.IBinder
+import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -35,6 +36,7 @@ import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
+import java.util.Locale
 
 
 class StepsService : Service() {
@@ -55,7 +57,7 @@ class StepsService : Service() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 if (intent?.action == Intent.ACTION_USER_PRESENT) {
                     // Handle the screen unlock event here
-                    makeToast("Screen unlocked!")
+                    //    makeToast("Screen unlocked!")
                     // You can update UI, start a task, etc.
                 }
             }
@@ -208,12 +210,14 @@ class StepsService : Service() {
 
                         BluetoothAdapter.STATE_CONNECTED -> {
                             Log.d(TAG, "STATE_CONNECTED")
-                            sharedPreferencesEditor.putBoolean("BluetoothConnectionState", true).apply()
+                            sharedPreferencesEditor.putBoolean("BluetoothConnectionState", true)
+                                .apply()
                         }
 
                         BluetoothAdapter.STATE_DISCONNECTED -> {
                             Log.d(TAG, "STATE_DISCONNECTED")
-                            sharedPreferencesEditor.putBoolean("BluetoothConnectionState", false).apply()
+                            sharedPreferencesEditor.putBoolean("BluetoothConnectionState", false)
+                                .apply()
                         }
 
                         BluetoothAdapter.STATE_OFF -> {
@@ -244,6 +248,8 @@ class StepsService : Service() {
 
         Log.d("Service Status", "Starting Service")
 
+
+
         stepsToday = 0
         sensorManager.registerListener(
             mSensorEventListener,
@@ -271,4 +277,8 @@ class StepsService : Service() {
         Log.d("Stopped", "Service Stopped")
         super.onDestroy()
     }
+
+
+
+
 }

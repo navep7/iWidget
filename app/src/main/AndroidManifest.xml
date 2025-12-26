@@ -231,6 +231,20 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".TimeChangedReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.TIME_TICK" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".SpeakService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="false" />
+
+
         <activity
             android:name=".AppChooserDialog"
             android:exported="false" />

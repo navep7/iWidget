@@ -95,6 +95,7 @@ import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
+import com.belaku.homey.SpeakService.Companion.speakOut
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -304,11 +305,8 @@ class NewAppWidget : AppWidgetProvider() {
 
 
             remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_notes, PendingIntent.getActivity(
-                    context, 13,
-                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "AddNote"),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
+                R.id.tx_time_announcement,
+                getPendingSelfIntent(context, Time_A_CLICKED)
             )
 
             remoteViews?.setOnClickPendingIntent(
@@ -398,6 +396,14 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.imgbtn_speech, PendingIntent.getActivity(
                     context, 1,
                     Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "StT"),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+
+            remoteViews?.setOnClickPendingIntent(
+                R.id.tx_runner, PendingIntent.getActivity(
+                    context, 16,
+                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "AddNote"),
                     PendingIntent.FLAG_IMMUTABLE
                 )
             )
@@ -606,9 +612,14 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setUI() {
 
+
+        if (!sharedPreferences.getBoolean("timeAnnounce", false))
+            remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
+        else remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
+
         //    googleAccountInfo()
         if (isPinNoteInitialized())
-            remoteViews?.setTextViewText(R.id.txrun, pinNote)
+            remoteViews?.setTextViewText(R.id.tx_runner, pinNote)
         liquidGlassEffects()
         seekWifiState()
         seekBluetoothState()
@@ -644,7 +655,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setImageViewBitmap(
                 R.id.imgv_widget_layout,
                 applyThinFilmOverlay(
-                    scaledBitmap, Color.LTGRAY, 50
+                    scaledBitmap, Color.LTGRAY, 75
                 )
             )
         }
@@ -758,16 +769,16 @@ class NewAppWidget : AppWidgetProvider() {
                 Color.BLACK
             )
 
-            if (ColorUtil().isColorDark(tertianaryColor)) {
-                remoteViews?.setTextColor(R.id.clock, Color.WHITE)
-                remoteViews?.setTextColor(R.id.tx_day_date, Color.WHITE)
-                remoteViews?.setTextColor(R.id.tx_place, Color.WHITE)
-                remoteViews?.setTextColor(R.id.tx_weather, Color.WHITE)
+            if (ColorUtil().isColorDark(primaryColor)) {
+                remoteViews?.setTextColor(R.id.clock, appContx.resources.getColor(android.R.color.holo_red_light))
+                remoteViews?.setTextColor(R.id.tx_day_date, ColorUtil().lightenColor(primaryColor, 2.0f))
+                remoteViews?.setTextColor(R.id.tx_place, ColorUtil().lightenColor(primaryColor, 2.0f))
+                remoteViews?.setTextColor(R.id.tx_weather, ColorUtil().lightenColor(primaryColor, 2.0f))
             } else {
-                remoteViews?.setTextColor(R.id.clock, Color.BLACK)
-                remoteViews?.setTextColor(R.id.tx_day_date, Color.BLACK)
-                remoteViews?.setTextColor(R.id.tx_place, Color.BLACK)
-                remoteViews?.setTextColor(R.id.tx_weather, Color.BLACK)
+                remoteViews?.setTextColor(R.id.clock, appContx.resources.getColor(android.R.color.holo_red_dark))
+                remoteViews?.setTextColor(R.id.tx_day_date, ColorUtil().darkenColor(secondaryColor, 2.0f))
+                remoteViews?.setTextColor(R.id.tx_place, ColorUtil().darkenColor(secondaryColor, 2.0f))
+                remoteViews?.setTextColor(R.id.tx_weather, ColorUtil().darkenColor(secondaryColor, 2.0f))
             }
 
 
@@ -891,7 +902,7 @@ class NewAppWidget : AppWidgetProvider() {
 
     }
 
-    @SuppressLint("InflateParams")
+    @SuppressLint("InflateParams", "ResourceAsColor")
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleIntentActions(intent: Intent) {
 
@@ -1090,6 +1101,27 @@ class NewAppWidget : AppWidgetProvider() {
             intent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             appContx.startActivity(intent);
 
+        } else if (Time_A_CLICKED == intent.action) {
+
+            if (!sharedPreferences.getBoolean("firstTimeAnnouncementClick", false)) {
+                sharedPreferencesEditor.putBoolean("firstTimeAnnouncementClick", true).apply()
+                makeToast("Alerts, every Hour change by speaking out the current Hour, like it is now..")
+                appContx.startService(Intent(appContx, SpeakService::class.java))
+                speakOut(Calendar.getInstance().get(Calendar.HOUR))
+            }
+
+            if (sharedPreferences.getBoolean("timeAnnounce", false)) {
+                sharedPreferencesEditor.putBoolean("timeAnnounce", false).apply()
+                remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
+                appContx.stopService(Intent(appContx, SpeakService::class.java))
+            //    remoteViews?.setTextColor(R.id.tx_time_announcement, android.R.color.holo_red_dark)
+            } else {
+                sharedPreferencesEditor.putBoolean("timeAnnounce", true).apply()
+                appContx.startService(Intent(appContx, SpeakService::class.java))
+                makeToast("Alerts, every Hour change")
+           //     remoteViews?.setTextColor(R.id.tx_time_announcement, android.R.color.holo_green_light)
+                remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
+            }
         }
     }
 
@@ -1153,12 +1185,12 @@ class NewAppWidget : AppWidgetProvider() {
                 }
             }
 
-            if (wallpColors.size > 0)
+            /*if (wallpColors.size > 0)
                 runningColor = wallpColors[Random.nextInt(0, wallpColors.size)]
             else runningColor = Color.RED
             //  Color.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
 
-            remoteViews?.setTextColor(R.id.tx_wish, runningColor)
+            remoteViews?.setTextColor(R.id.tx_wish, runningColor)*/
 
             /*if (weatherIcons.size > 0) {
                 remoteViews?.setImageViewBitmap(
@@ -1855,6 +1887,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val SET_CLICKED = "setButtonClick"
 
 
+        private const val Time_A_CLICKED = "ta_click"
         private const val PS_CLICK = "psClick"
         private const val DIAL_CLICK = "dialClick"
         private const val TIME_CLICKED = "timeClick"

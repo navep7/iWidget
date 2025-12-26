@@ -243,6 +243,9 @@ class MainActivity : AppCompatActivity() {
         launchers()
 
 
+
+        timeR()
+
         MobileAds.initialize(
             this
         ) { initializationStatus -> //Showing a simple Toast Message to the user when The Google AdMob Sdk Initialization is Completed
@@ -469,6 +472,15 @@ class MainActivity : AppCompatActivity() {
         appContx.registerReceiver(mBluetoothReceiver, filter)
 
 
+    }
+
+    private fun timeR() {
+
+        val intentFilter = IntentFilter().apply {
+            addAction(Intent.ACTION_TIME_TICK) // Fires every minute
+        }
+        val timeChangedReceiver = TimeChangedReceiver()
+        registerReceiver(timeChangedReceiver, intentFilter)
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -1799,6 +1811,10 @@ class MainActivity : AppCompatActivity() {
         if (!isMyServiceRunning(StepsService::class.java)) {
             val intentSteps = Intent(this, StepsService::class.java)
             startForegroundService(intentSteps)
+        }
+
+        if (!isMyServiceRunning(SpeakService::class.java)) {
+            startService(Intent(this, SpeakService::class.java))
         }
     }
 
