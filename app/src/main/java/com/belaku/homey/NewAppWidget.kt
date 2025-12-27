@@ -1857,12 +1857,16 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
             remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
-            if (gpName.length > 0)
-                remoteViews?.setTextViewText(
-                    R.id.tx_myspace,
-                    gpName.split(" ")[0].substring(0, 1) + gpName.split(" ")[1].substring(0, 1)
-                )
+            try {
 
+                if (gpName.length > 0)
+                    remoteViews?.setTextViewText(
+                        R.id.tx_myspace,
+                        gpName.split(" ")[0].substring(0, 1) + gpName.split(" ")[1].substring(0, 1)
+                    )
+            } catch (ex: Exception) {
+                gpName = ""
+            }
         }
 
         fun checkCompanionVariable(): Boolean {

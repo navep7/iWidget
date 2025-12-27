@@ -53,6 +53,7 @@
         android:inputType="text"
         android:hint="Search AI, type in the prompt..."
         android:textColorHint="@android:color/white"
+        android:textColor="@android:color/white"
         android:background="@android:color/black"
         android:textStyle="bold|italic"
         android:layout_below="@+id/tx_t"
