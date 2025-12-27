@@ -4,11 +4,10 @@
     android:description="@string/app_widget_description"
     android:initialKeyguardLayout="@layout/new_app_widget"
     android:initialLayout="@layout/new_app_widget"
-    android:minWidth="250dp"
-    android:minHeight="500dp"
+
     android:previewLayout="@layout/new_app_widget"
     android:resizeMode="horizontal|vertical"
     android:targetCellWidth="5"
-    android:targetCellHeight="6"
+    android:targetCellHeight="5"
     android:widgetCategory="home_screen"
     tools:ignore="UnusedAttribute" />

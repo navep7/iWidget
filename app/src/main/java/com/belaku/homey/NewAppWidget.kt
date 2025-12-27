@@ -132,6 +132,7 @@ class NewAppWidget : AppWidgetProvider() {
         appContx = context!!
         onEn = true
 
+        makeToast("Expand the widget to full screen dimens for better visibility")
         sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
@@ -1620,13 +1621,13 @@ class NewAppWidget : AppWidgetProvider() {
 
             Log.d("gpColNAmes", c?.columnNames.contentToString())
 
-            gpName = c!!.getString(c.getColumnIndex("display_name"))
+            gpName = c?.getString(c.getColumnIndex("display_name")).toString()
 
 
             //    remoteViews?.setImageViewBitmap(R.id.imgbtn_n_apps, gpBitmap)
 
             Log.d("gpName - ", gpName)
-            c.close()
+            c!!.close()
 
             if (timeOfDay == "Morni!")
                 timelyWish = "\uD83C\uDF3B$timeOfDay "//, ${gpName.split(" ").get(0)}!"
