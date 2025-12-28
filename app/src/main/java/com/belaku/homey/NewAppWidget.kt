@@ -24,11 +24,13 @@ import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.LinearGradient
 import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
+import android.graphics.Shader
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.hardware.camera2.CameraAccessException
@@ -74,7 +76,6 @@ import com.belaku.homey.MainActivity.Companion.getWeatherData
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
-import com.belaku.homey.MainActivity.Companion.tempKind
 import com.belaku.homey.MainActivity.Companion.updateWidget
 import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.MainActivity.Companion.weatherIconState
@@ -109,7 +110,6 @@ import java.io.IOException
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
-import kotlin.random.Random
 
 
 class NewAppWidget : AppWidgetProvider() {
@@ -132,6 +132,7 @@ class NewAppWidget : AppWidgetProvider() {
         appContx = context!!
         onEn = true
 
+        makeToast("Expand the widget to full screen dimens for better visibility")
         sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
@@ -655,11 +656,77 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setImageViewBitmap(
                 R.id.imgv_widget_layout,
                 applyThinFilmOverlay(
-                    scaledBitmap, Color.WHITE, 75
+                    drawableToBitmap(
+                        appContx, RoundedBitmapDrawableFactory.create(
+                            appContx.resources, BitmapBlurHelper.blurBitmap(
+                                appContx,
+                                Bitmap.createBitmap(
+                                    scaledBitmap,
+                                    10,
+                                    25,
+                                    screenWidth - 20,
+                                    screenHeight - 150
+                                )
+                            )
+                        )
+                    ), ColorUtil().lightenColor(primaryColor, 0.5f), 75
                 )
             )
         }
     }
+
+    private fun glossyOverlay(
+        originalBitmap: Bitmap
+    ) : Bitmap {
+        val resultBitmap =
+            originalBitmap.copy(Bitmap.Config.ARGB_8888, true) // Must be ARGB_8888 and mutable
+        val canvas = Canvas(resultBitmap)
+
+
+        // Define colors: Top (semi-transparent white), Middle (more transparent), Bottom (fully transparent)
+        val colors = intArrayOf(
+            Color.parseColor("#99FFFFFF"),  // Top: ~60% white transparency
+            Color.parseColor("#44FFFFFF"),  // Middle: ~25% white transparency
+            Color.TRANSPARENT // Bottom: fully transparent
+        )
+
+
+// Define positions for the colors (optional, can be null for even distribution)
+        val positions = floatArrayOf(0.0f, 0.5f, 1.0f)
+
+        val gradient = LinearGradient(
+            0f, 0f, 0f, canvas.height.toFloat(), // Start X, Y; End X, Y (vertical gradient)
+            colors,
+            positions,
+            Shader.TileMode.CLAMP
+        )
+
+        val paint = Paint()
+        paint.setShader(gradient)
+        canvas.drawRect(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat(), paint)
+
+        return resultBitmap
+
+    }
+
+ /*   private fun blurBitmap(originalBitmap: Bitmap) : Bitmap {
+
+        val rs = RenderScript.create(appContx)
+
+        val input = Allocation.createFromBitmap(
+            rs,
+            originalBitmap
+        ) //use this constructor for best performance, because it uses USAGE_SHARED mode which reuses memory
+        val output = Allocation.createTyped(rs, input.type)
+        val script = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
+        script.setRadius(8f);
+        script.setInput(input);
+        script.forEach(output);
+        output.copyTo(originalBitmap);
+
+        return originalBitmap
+
+    }*/
 
     private fun applyThinFilmOverlay(
         originalBitmap: Bitmap,
@@ -1620,13 +1687,16 @@ class NewAppWidget : AppWidgetProvider() {
 
             Log.d("gpColNAmes", c?.columnNames.contentToString())
 
-            gpName = c!!.getString(c.getColumnIndex("display_name"))
+            try {
+                gpName = c?.getString(c.getColumnIndex("display_name")).toString()
+            } catch (ex: Exception) {
 
+            }
 
             //    remoteViews?.setImageViewBitmap(R.id.imgbtn_n_apps, gpBitmap)
 
             Log.d("gpName - ", gpName)
-            c.close()
+            c!!.close()
 
             if (timeOfDay == "Morni!")
                 timelyWish = "\uD83C\uDF3B$timeOfDay "//, ${gpName.split(" ").get(0)}!"
@@ -1856,12 +1926,16 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
             remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
-            if (gpName.length > 0)
-                remoteViews?.setTextViewText(
-                    R.id.tx_myspace,
-                    gpName.split(" ")[0].substring(0, 1) + gpName.split(" ")[1].substring(0, 1)
-                )
+            try {
 
+                if (gpName.length > 0)
+                    remoteViews?.setTextViewText(
+                        R.id.tx_myspace,
+                        gpName.split(" ")[0].substring(0, 1) + gpName.split(" ")[1].substring(0, 1)
+                    )
+            } catch (ex: Exception) {
+                gpName = ""
+            }
         }
 
         fun checkCompanionVariable(): Boolean {

@@ -102,7 +102,7 @@
         <TextView
             android:id="@+id/item_text_name"
             android:text="Hello"
-            android:textColor="@android:color/white"
+            android:textColor="@android:color/holo_red_dark"
             android:textStyle="bold"
             android:layout_width="0dp"
             android:layout_weight="1"

@@ -10,6 +10,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.Window
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -24,6 +25,8 @@ import java.util.Calendar
 class CustomDialogClass // TODO Auto-generated constructor stub
     (var c: Activity, var strHorR: String) : Dialog(c), View.OnClickListener {
 
+    private var boolRepeating: Boolean = false
+    private var spinReminderTypes: ArrayList<String> = ArrayList()
     private lateinit var adapterHabits: ArrayAdapter<Habit>
     private lateinit var adapterReminders: ArrayAdapter<Reminder>
     private var arrayListHabits: ArrayList<Habit> = ArrayList()
@@ -59,6 +62,37 @@ class CustomDialogClass // TODO Auto-generated constructor stub
 
             findViewById<Button>(R.id.remind_button).setOnClickListener(this)
             findViewById<Button>(R.id.cancel_button).setOnClickListener(this)
+
+            spinReminderTypes.add("One time")
+            spinReminderTypes.add("Repeating")
+
+            // Source - https://stackoverflow.com/a
+// Posted by Kailash Dabhi
+// Retrieved 2025-12-26, License - CC BY-SA 3.0
+            val spinReminder =
+                findViewById<View>(R.id.spinner_reminder) as Spinner //fetch the spinner from layout file
+            val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
+                context,
+                android.R.layout.simple_spinner_item, spinReminderTypes
+            ) //setting the country_array to spinner
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spinReminder.adapter = adapter
+
+//if you want to set any action you can do in this listener
+            spinReminder.setOnItemSelectedListener(object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    arg0: AdapterView<*>?, arg1: View?,
+                    position: Int, id: Long
+                ) {
+                    makeToast(spinReminderTypes[position])
+                    if (spinReminderTypes[position] == "Repeating")
+                        boolRepeating = true
+                }
+
+                override fun onNothingSelected(arg0: AdapterView<*>?) {
+                }
+            })
+
         }
 
 
@@ -93,14 +127,22 @@ class CustomDialogClass // TODO Auto-generated constructor stub
                     val m = rTimeSplits[1].split(" ")[0]
                     //    var rType = findViewById<Spinner>(R.id.remindertype).selectedItem
                     //  arrayListHorRs.add(rSubject + "\t@\t" + rTime + "\t\t\t:\t\t\t" + rType)
-                    arrayListReminders.add(Reminder(rSubject, "$h:$m"))
+                    var rType: String
+                    if (boolRepeating)
+                        rType = "Repeating"
+                    else rType = "One time"
+                    arrayListReminders.add(Reminder(rSubject, "$h:$m", rType))
                     adapterReminders.notifyDataSetChanged()
+
                     addAlarm(rSubject, h.toInt(), m.toInt())
+
                 } else makeToast("Add a subject and time!")
             }
         }
         dismiss()
     }
+
+
 
     @SuppressLint("ScheduleExactAlarm")
     private fun addAlarm(rSubject: String, hr: Int, mn: Int) {
@@ -131,6 +173,8 @@ class CustomDialogClass // TODO Auto-generated constructor stub
             calendar.add(Calendar.DAY_OF_YEAR, 1)
         }
 
+
+        if (!boolRepeating)
         try {
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,  // Wakes up the device to fire the alarm
@@ -141,6 +185,19 @@ class CustomDialogClass // TODO Auto-generated constructor stub
         } catch (ex: Exception) {
             makeToast("AlarmEx - ${ex.message}")
         }
+        else
+            try {
+                alarmManager.setInexactRepeating(
+                    AlarmManager.RTC_WAKEUP,          // Wakes the device up
+                    calendar.timeInMillis,            // First trigger time
+                    AlarmManager.INTERVAL_DAY,        // Repeat interval (built-in constant for efficiency)
+                    pendingIntent
+                )
+                makeToast("AlarmSET @ ${calendar.time}, everyday!")
+            } catch (ex: Exception) {
+                makeToast("AlarmEx - ${ex.message}")
+            }
+
 
 
     }

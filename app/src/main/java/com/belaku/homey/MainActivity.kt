@@ -1631,28 +1631,26 @@ class MainActivity : AppCompatActivity() {
         sharedPreferencesEditor.putStringSet("wallDescs", HashSet(imgDescs)).apply()
     }
 
-
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
-        grantResults: IntArray,
-        deviceId: Int
+        grantResults: IntArray
     ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        if (requestCode == ALL_PERMISSIONS_REQUEST_CODE) {
-            var allGranted = true
-            for (result in grantResults) {
-                if (result != PERMISSION_GRANTED) {
-                    allGranted = false
-                    break
+
+            if (requestCode == ALL_PERMISSIONS_REQUEST_CODE) {
+                var allGranted = true
+                for (result in grantResults) {
+                    if (result != PERMISSION_GRANTED) {
+                        allGranted = false
+                        break
+                    }
                 }
-            }
-            if (allGranted) {
+                if (allGranted) {
 
-             //   AccessibilityServicePermissionDialog()
-                usageStatsPermissionDialog()
+                    //   AccessibilityServicePermissionDialog()
+                    usageStatsPermissionDialog()
 
                     sharedPreferencesEditor.putBoolean("LP", true).apply()
                     getCity()
@@ -1682,54 +1680,56 @@ class MainActivity : AppCompatActivity() {
 
 
 
-            } else {
-                makeToast("Some permissions denied")
+                } else {
+                    makeToast("Some permissions denied")
+                }
+            } else if (requestCode == LOC_P) {
+                if (grantResults.isNotEmpty())
+                    if (grantResults[0].equals(PERMISSION_GRANTED)) {
+                        sharedPreferencesEditor.putBoolean("LP", true).apply()
+                        getCity()
+                        btnL.text = "Granted"
+                    }
+
+            } else if (requestCode == ACTIVITY_RECOGNITION_P) {
+                if (grantResults.isNotEmpty())
+                    if (grantResults[0].equals(PERMISSION_GRANTED)) {
+                        sharedPreferencesEditor.putBoolean("ARP", true).apply()
+                        startStepsService()
+                        btnAR.text = "Granted"
+                    }
+            } else if (requestCode == READ_CONTACTS_P) {
+                if (grantResults.isNotEmpty())
+                    if (grantResults[0].equals(PERMISSION_GRANTED)) {
+                        sharedPreferencesEditor.putBoolean("RCP", true).apply()
+                        getFavoriteContacts(applicationContext)
+                        btnRC.text = "Granted"
+                    }
+            } else if (requestCode == BLUETOOTH_P) {
+                if (grantResults.isNotEmpty())
+                    if (grantResults[0].equals(PERMISSION_GRANTED)) {
+                        sharedPreferencesEditor.putBoolean("BP", true).apply()
+                        btnBT.text = "Granted"
+                    }
+            } else if (requestCode == NOTIfications_P) {
+                if (grantResults.isNotEmpty())
+                    if (grantResults[0].equals(PERMISSION_GRANTED)) {
+                        sharedPreferencesEditor.putBoolean("PNP", true).apply()
+                        btnPN.text = "Granted"
+                    }
+            } else if (requestCode == CALLPHONE_P) {
+                if (grantResults.isNotEmpty())
+                    if (grantResults[0].equals(PERMISSION_GRANTED)) {
+                        sharedPreferencesEditor.putBoolean("CPP", true).apply()
+                        btnCP.text = "Granted"
+                    }
             }
-        } else if (requestCode == LOC_P) {
-            if (grantResults.isNotEmpty())
-                if (grantResults[0].equals(PERMISSION_GRANTED)) {
-                    sharedPreferencesEditor.putBoolean("LP", true).apply()
-                    getCity()
-                    btnL.text = "Granted"
-                }
 
-        } else if (requestCode == ACTIVITY_RECOGNITION_P) {
-            if (grantResults.isNotEmpty())
-                if (grantResults[0].equals(PERMISSION_GRANTED)) {
-                    sharedPreferencesEditor.putBoolean("ARP", true).apply()
-                    startStepsService()
-                    btnAR.text = "Granted"
-                }
-        } else if (requestCode == READ_CONTACTS_P) {
-            if (grantResults.isNotEmpty())
-                if (grantResults[0].equals(PERMISSION_GRANTED)) {
-                    sharedPreferencesEditor.putBoolean("RCP", true).apply()
-                    getFavoriteContacts(applicationContext)
-                    btnRC.text = "Granted"
-                }
-        } else if (requestCode == BLUETOOTH_P) {
-            if (grantResults.isNotEmpty())
-                if (grantResults[0].equals(PERMISSION_GRANTED)) {
-                    sharedPreferencesEditor.putBoolean("BP", true).apply()
-                    btnBT.text = "Granted"
-                }
-        } else if (requestCode == NOTIfications_P) {
-            if (grantResults.isNotEmpty())
-                if (grantResults[0].equals(PERMISSION_GRANTED)) {
-                    sharedPreferencesEditor.putBoolean("PNP", true).apply()
-                    btnPN.text = "Granted"
-                }
-        } else if (requestCode == CALLPHONE_P) {
-            if (grantResults.isNotEmpty())
-                if (grantResults[0].equals(PERMISSION_GRANTED)) {
-                    sharedPreferencesEditor.putBoolean("CPP", true).apply()
-                    btnCP.text = "Granted"
-                }
-        }
+            if (nPermissions())
+                instructionsDialogBuilder.create().dismiss()
 
-        if (nPermissions())
-            instructionsDialogBuilder.create().dismiss()
     }
+
 
     private fun AccessibilityServicePermissionDialog() {
 

@@ -14,8 +14,8 @@ android {
         applicationId = "com.belaku.homey"
         minSdk = 28
         targetSdk = 35
-        versionCode = 105
-        versionName = "105.0"
+        versionCode = 109
+        versionName = "109.0"
 
         renderscriptTargetApi = 18
         renderscriptSupportModeEnabled = true
@@ -106,4 +106,5 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.play.services.ads)
+
 }

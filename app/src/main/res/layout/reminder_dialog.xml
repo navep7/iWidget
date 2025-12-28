@@ -49,6 +49,12 @@
             android:layout_height="wrap_content"
             />
 
+        <Spinner
+            android:id="@+id/spinner_reminder"
+            android:layout_margin="@dimen/fab_margin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
 
         <com.google.android.material.button.MaterialButton
             android:layout_width="match_parent"
