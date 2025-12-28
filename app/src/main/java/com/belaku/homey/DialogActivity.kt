@@ -222,6 +222,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
         stepsMapsFragment = supportFragmentManager.findFragmentById(R.id.steps_map) as SupportMapFragment
 
+        stepsMapsFragment.view?.visibility = View.GONE
 
 
 

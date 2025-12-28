@@ -30,7 +30,11 @@ class StepsAdapter(
             when (position) {
                 0 -> {
                     stepsMaps.clear()
-                    holder.txSteps.text = "Monday \n ${stepsData[position]} steps..."
+                    var km: String
+                    if (stepsData[position].toInt() != 0)
+                        km = String.format("%.1f", stepsData[position].toInt()/1250)
+                    else km = "0"
+                    holder.txSteps.text = "Monday \n ${stepsData[position]} steps... \n ~ $km km!"
 
                     if (stepsData[position].toInt() > 1000)
                         holder.progressSteps.progress = stepsData[position].toInt() / 100
@@ -39,7 +43,11 @@ class StepsAdapter(
 
                 1 -> {
                     stepsMaps.clear()
-                    holder.txSteps.text = "Tuesday \n ${stepsData[position]} steps..."
+                    var km: String
+                    if (stepsData[position].toInt() != 0)
+                        km = String.format("%.1f", stepsData[position].toInt()/1250)
+                    else km = "0"
+                    holder.txSteps.text = "Tuesday \n ${stepsData[position]} steps... \n ~ $km km!"
                     if (stepsData[position].toInt() > 1000)
                         holder.progressSteps.progress = stepsData[position].toInt() / 100
                     else holder.progressSteps.progress = stepsData[position].toInt() / 10
@@ -47,7 +55,11 @@ class StepsAdapter(
 
                 2 -> {
                     stepsMaps.clear()
-                    holder.txSteps.text = "Wednesday \n ${stepsData[position]} steps..."
+                    var km: String
+                    if (stepsData[position].toInt() != 0)
+                        km = String.format("%.1f", stepsData[position].toInt()/1250)
+                    else km = "0"
+                    holder.txSteps.text = "Wednesday \n ${stepsData[position]} steps... \n ~ $km km!"
                     if (stepsData[position].toInt() > 1000)
                         holder.progressSteps.progress = stepsData[position].toInt() / 100
                     else holder.progressSteps.progress = stepsData[position].toInt() / 10
@@ -55,7 +67,11 @@ class StepsAdapter(
 
                 3 -> {
                     stepsMaps.clear()
-                    holder.txSteps.text = "Thursday \n ${stepsData[position]} steps..."
+                    var km: String
+                    if (stepsData[position].toInt() != 0)
+                        km = String.format("%.1f", stepsData[position].toInt()/1250)
+                    else km = "0"
+                    holder.txSteps.text = "Thursday \n ${stepsData[position]} steps... \n ~ $km km!"
                     if (stepsData[position].toInt() > 1000)
                         holder.progressSteps.progress = stepsData[position].toInt() / 100
                     else holder.progressSteps.progress = stepsData[position].toInt() / 10
@@ -63,7 +79,11 @@ class StepsAdapter(
 
                 4 -> {
                     stepsMaps.clear()
-                    holder.txSteps.text = "Friday \n ${stepsData[position]} steps..."
+                    var km: String
+                    if (stepsData[position].toInt() != 0)
+                        km = String.format("%.1f", stepsData[position].toInt()/1250)
+                    else km = "0"
+                    holder.txSteps.text = "Friday \n ${stepsData[position]} steps... \n ~ $km km!"
                     if (stepsData[position].toInt() > 1000)
                         holder.progressSteps.progress = stepsData[position].toInt() / 100
                     else holder.progressSteps.progress = stepsData[position].toInt() / 10
@@ -71,7 +91,11 @@ class StepsAdapter(
 
                 5 -> {
                     stepsMaps.clear()
-                    holder.txSteps.text = "Saturday \n ${stepsData[position]} steps..."
+                    var km: String
+                    if (stepsData[position].toInt() != 0)
+                        km = String.format("%.1f", stepsData[position].toInt()/1250)
+                    else km = "0"
+                    holder.txSteps.text = "Saturday \n ${stepsData[position]} steps... \n ~ $km km!"
                     if (stepsData[position].toInt() > 1000)
                         holder.progressSteps.progress = stepsData[position].toInt() / 100
                     else holder.progressSteps.progress = stepsData[position].toInt() / 10
@@ -79,7 +103,11 @@ class StepsAdapter(
 
                 6 -> {
                     stepsMaps.clear()
-                    holder.txSteps.text = "Sunday \n ${stepsData[position]} steps..."
+                    var km: String
+                    if (stepsData[position].toInt() != 0)
+                     km = String.format("%.1f", stepsData[position].toInt()/1250)
+                    else km = "0"
+                    holder.txSteps.text = "Sunday \n ${stepsData[position]} steps... \n ~ $km km!"
                     if (stepsData[position].toInt() > 1000)
                         holder.progressSteps.progress = stepsData[position].toInt() / 100
                     else holder.progressSteps.progress = stepsData[position].toInt() / 10
