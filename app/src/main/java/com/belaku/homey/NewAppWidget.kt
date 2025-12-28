@@ -1687,8 +1687,11 @@ class NewAppWidget : AppWidgetProvider() {
 
             Log.d("gpColNAmes", c?.columnNames.contentToString())
 
-            gpName = c?.getString(c.getColumnIndex("display_name")).toString()
+            try {
+                gpName = c?.getString(c.getColumnIndex("display_name")).toString()
+            } catch (ex: Exception) {
 
+            }
 
             //    remoteViews?.setImageViewBitmap(R.id.imgbtn_n_apps, gpBitmap)
 

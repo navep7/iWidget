@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import com.belaku.homey.DialogActivity.Companion.isStepsMapsInitialized
 import com.belaku.homey.DialogActivity.Companion.stepsMaps
+import com.belaku.homey.MainActivity.Companion.makeToast
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
@@ -32,7 +33,7 @@ class StepsAdapter(
                     stepsMaps.clear()
                     var km: String
                     if (stepsData[position].toInt() != 0)
-                        km = String.format("%.1f", stepsData[position].toInt()/1250)
+                        km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
                     holder.txSteps.text = "Monday \n ${stepsData[position]} steps... \n ~ $km km!"
 
@@ -45,7 +46,7 @@ class StepsAdapter(
                     stepsMaps.clear()
                     var km: String
                     if (stepsData[position].toInt() != 0)
-                        km = String.format("%.1f", stepsData[position].toInt()/1250)
+                        km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
                     holder.txSteps.text = "Tuesday \n ${stepsData[position]} steps... \n ~ $km km!"
                     if (stepsData[position].toInt() > 1000)
@@ -57,7 +58,7 @@ class StepsAdapter(
                     stepsMaps.clear()
                     var km: String
                     if (stepsData[position].toInt() != 0)
-                        km = String.format("%.1f", stepsData[position].toInt()/1250)
+                        km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
                     holder.txSteps.text = "Wednesday \n ${stepsData[position]} steps... \n ~ $km km!"
                     if (stepsData[position].toInt() > 1000)
@@ -69,7 +70,7 @@ class StepsAdapter(
                     stepsMaps.clear()
                     var km: String
                     if (stepsData[position].toInt() != 0)
-                        km = String.format("%.1f", stepsData[position].toInt()/1250)
+                        km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
                     holder.txSteps.text = "Thursday \n ${stepsData[position]} steps... \n ~ $km km!"
                     if (stepsData[position].toInt() > 1000)
@@ -81,7 +82,7 @@ class StepsAdapter(
                     stepsMaps.clear()
                     var km: String
                     if (stepsData[position].toInt() != 0)
-                        km = String.format("%.1f", stepsData[position].toInt()/1250)
+                        km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
                     holder.txSteps.text = "Friday \n ${stepsData[position]} steps... \n ~ $km km!"
                     if (stepsData[position].toInt() > 1000)
@@ -93,7 +94,7 @@ class StepsAdapter(
                     stepsMaps.clear()
                     var km: String
                     if (stepsData[position].toInt() != 0)
-                        km = String.format("%.1f", stepsData[position].toInt()/1250)
+                        km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
                     holder.txSteps.text = "Saturday \n ${stepsData[position]} steps... \n ~ $km km!"
                     if (stepsData[position].toInt() > 1000)
@@ -103,9 +104,10 @@ class StepsAdapter(
 
                 6 -> {
                     stepsMaps.clear()
-                    var km: String
-                    if (stepsData[position].toInt() != 0)
-                     km = String.format("%.1f", stepsData[position].toInt()/1250)
+                    var km: String = "km"
+                    makeToast(stepsData[position])
+                    if (Integer.parseInt(stepsData[position]) != 0)
+                     km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
                     holder.txSteps.text = "Sunday \n ${stepsData[position]} steps... \n ~ $km km!"
                     if (stepsData[position].toInt() > 1000)
