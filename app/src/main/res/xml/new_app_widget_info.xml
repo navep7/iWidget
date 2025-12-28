@@ -4,7 +4,6 @@
     android:description="@string/app_widget_description"
     android:initialKeyguardLayout="@layout/new_app_widget"
     android:initialLayout="@layout/new_app_widget"
-
     android:previewLayout="@layout/new_app_widget"
     android:resizeMode="horizontal|vertical"
     android:targetCellWidth="5"
