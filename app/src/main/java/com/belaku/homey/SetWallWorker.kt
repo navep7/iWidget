@@ -251,6 +251,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     wm.setBitmap(scaledBitmap)
 
                 val c = Calendar.getInstance()
+
                 updateTime =
                     "" + c.get(Calendar.HOUR_OF_DAY) + ":" + c.get(Calendar.MINUTE) + ":" + c.get(
                         Calendar.SECOND
