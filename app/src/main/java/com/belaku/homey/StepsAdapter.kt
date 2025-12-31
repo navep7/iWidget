@@ -17,6 +17,8 @@ class StepsAdapter(
     private val stepsData: ArrayList<String>,
     private val stepsLocInfo: ArrayList<LatLng>
 ) : RecyclerView.Adapter<StepsViewHolder>() {
+    private var km: String = ""
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StepsViewHolder {
         return StepsViewHolder(
             LayoutInflater.from(parent.context).inflate(R.layout.steps_list_item, parent, false),
@@ -31,7 +33,6 @@ class StepsAdapter(
             when (position) {
                 0 -> {
                     stepsMaps.clear()
-                    var km: String
                     if (stepsData[position].toInt() != 0)
                         km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
@@ -44,7 +45,6 @@ class StepsAdapter(
 
                 1 -> {
                     stepsMaps.clear()
-                    var km: String
                     if (stepsData[position].toInt() != 0)
                         km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
@@ -56,7 +56,6 @@ class StepsAdapter(
 
                 2 -> {
                     stepsMaps.clear()
-                    var km: String
                     if (stepsData[position].toInt() != 0)
                         km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
@@ -68,7 +67,6 @@ class StepsAdapter(
 
                 3 -> {
                     stepsMaps.clear()
-                    var km: String
                     if (stepsData[position].toInt() != 0)
                         km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
@@ -80,7 +78,6 @@ class StepsAdapter(
 
                 4 -> {
                     stepsMaps.clear()
-                    var km: String
                     if (stepsData[position].toInt() != 0)
                         km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
@@ -92,7 +89,6 @@ class StepsAdapter(
 
                 5 -> {
                     stepsMaps.clear()
-                    var km: String
                     if (stepsData[position].toInt() != 0)
                         km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
@@ -104,8 +100,6 @@ class StepsAdapter(
 
                 6 -> {
                     stepsMaps.clear()
-                    var km: String = "km"
-                    makeToast(stepsData[position])
                     if (Integer.parseInt(stepsData[position]) != 0)
                      km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
