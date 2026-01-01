@@ -111,6 +111,7 @@ import com.belaku.homey.SetWallWorker.Companion.dayIndex
 import com.belaku.homey.SetWallWorker.Companion.mAct
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
+import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.belaku.homey.databinding.ActivityMainBinding
 import com.bumptech.glide.Glide
 import com.google.android.gms.ads.MobileAds
@@ -1331,19 +1332,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-
-    private fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
-        val manager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
-        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
-            if (serviceClass.name == service.service.className) {
-                return true
-            }
-        }
-        return false
-    }
-
-
-
     fun formatMilliseconds(milliseconds: Long): String {
         val totalSeconds = milliseconds / 1000
         val minutes = totalSeconds / 60
@@ -1813,9 +1801,6 @@ class MainActivity : AppCompatActivity() {
             startForegroundService(intentSteps)
         }
 
-        if (!isMyServiceRunning(SpeakService::class.java)) {
-            startService(Intent(this, SpeakService::class.java))
-        }
     }
 
 

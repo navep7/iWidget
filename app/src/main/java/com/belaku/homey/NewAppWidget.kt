@@ -97,6 +97,7 @@ import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.belaku.homey.SpeakService.Companion.speakOut
+import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -614,9 +615,9 @@ class NewAppWidget : AppWidgetProvider() {
     private fun setUI() {
 
 
-        if (!sharedPreferences.getBoolean("timeAnnounce", false))
-            remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
-        else remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
+        if (StepsService.isMyServiceRunning(SpeakService::class.java))
+            remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
+        else remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
 
         //    googleAccountInfo()
         if (isPinNoteInitialized())
@@ -1170,25 +1171,11 @@ class NewAppWidget : AppWidgetProvider() {
 
         } else if (Time_A_CLICKED == intent.action) {
 
-            if (!sharedPreferences.getBoolean("firstTimeAnnouncementClick", false)) {
-                sharedPreferencesEditor.putBoolean("firstTimeAnnouncementClick", true).apply()
-                makeToast("Alerts, every Hour change by speaking out the current Hour, like it is now..")
-                appContx.startService(Intent(appContx, SpeakService::class.java))
-                speakOut(Calendar.getInstance().get(Calendar.HOUR))
-            }
+            var speakIntent = Intent(appContx, SpeakService::class.java)
+            if (!isMyServiceRunning(SpeakService::class.java))
+                appContx.startService(speakIntent)
+            else appContx.stopService(speakIntent)
 
-            if (sharedPreferences.getBoolean("timeAnnounce", false)) {
-                sharedPreferencesEditor.putBoolean("timeAnnounce", false).apply()
-                remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
-                appContx.stopService(Intent(appContx, SpeakService::class.java))
-            //    remoteViews?.setTextColor(R.id.tx_time_announcement, android.R.color.holo_red_dark)
-            } else {
-                sharedPreferencesEditor.putBoolean("timeAnnounce", true).apply()
-                appContx.startService(Intent(appContx, SpeakService::class.java))
-                makeToast("Alerts, every Hour change")
-           //     remoteViews?.setTextColor(R.id.tx_time_announcement, android.R.color.holo_green_light)
-                remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
-            }
         }
     }
 

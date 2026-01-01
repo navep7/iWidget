@@ -1,6 +1,7 @@
 package com.belaku.homey
 
 import android.annotation.SuppressLint
+import android.app.ActivityManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
@@ -278,7 +279,17 @@ class StepsService : Service() {
         super.onDestroy()
     }
 
-
+    companion object {
+        fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
+            val manager = appContx.getSystemService(ACTIVITY_SERVICE) as ActivityManager
+            for (service in manager.getRunningServices(Int.MAX_VALUE)) {
+                if (serviceClass.name == service.service.className) {
+                    return true
+                }
+            }
+            return false
+        }
+    }
 
 
 }
