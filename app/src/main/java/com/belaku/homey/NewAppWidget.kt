@@ -116,6 +116,7 @@ import java.util.Locale
 
 class NewAppWidget : AppWidgetProvider() {
 
+    private val TAG: String = "NewAppWidget"
     private val drawableIds: ArrayList<Int> = ArrayList()
     private var weatherIcons: ArrayList<Drawable> = ArrayList()
     private var wallpColors: ArrayList<Int> = ArrayList()
@@ -275,7 +276,7 @@ class NewAppWidget : AppWidgetProvider() {
     ) {
 
         appContx = context
-        //   makeToast("!onUpdate")
+        Log.d(TAG, "!onUpdate")
         remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
@@ -655,7 +656,7 @@ class NewAppWidget : AppWidgetProvider() {
 
     private fun glossyOverlay(
         originalBitmap: Bitmap
-    ) : Bitmap {
+    ): Bitmap {
         val resultBitmap =
             originalBitmap.copy(Bitmap.Config.ARGB_8888, true) // Must be ARGB_8888 and mutable
         val canvas = Canvas(resultBitmap)
@@ -687,24 +688,24 @@ class NewAppWidget : AppWidgetProvider() {
 
     }
 
- /*   private fun blurBitmap(originalBitmap: Bitmap) : Bitmap {
+    /*   private fun blurBitmap(originalBitmap: Bitmap) : Bitmap {
 
-        val rs = RenderScript.create(appContx)
+           val rs = RenderScript.create(appContx)
 
-        val input = Allocation.createFromBitmap(
-            rs,
-            originalBitmap
-        ) //use this constructor for best performance, because it uses USAGE_SHARED mode which reuses memory
-        val output = Allocation.createTyped(rs, input.type)
-        val script = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
-        script.setRadius(8f);
-        script.setInput(input);
-        script.forEach(output);
-        output.copyTo(originalBitmap);
+           val input = Allocation.createFromBitmap(
+               rs,
+               originalBitmap
+           ) //use this constructor for best performance, because it uses USAGE_SHARED mode which reuses memory
+           val output = Allocation.createTyped(rs, input.type)
+           val script = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
+           script.setRadius(8f);
+           script.setInput(input);
+           script.forEach(output);
+           output.copyTo(originalBitmap);
 
-        return originalBitmap
+           return originalBitmap
 
-    }*/
+       }*/
 
     private fun applyThinFilmOverlay(
         originalBitmap: Bitmap,
@@ -815,15 +816,39 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
             if (ColorUtil().isColorDark(primaryColor)) {
-                remoteViews?.setTextColor(R.id.clock, appContx.resources.getColor(android.R.color.holo_red_light))
-                remoteViews?.setTextColor(R.id.tx_day_date, ColorUtil().lightenColor(primaryColor, 2.0f))
-                remoteViews?.setTextColor(R.id.tx_place, ColorUtil().lightenColor(primaryColor, 2.0f))
-                remoteViews?.setTextColor(R.id.tx_weather, ColorUtil().lightenColor(primaryColor, 2.0f))
+                remoteViews?.setTextColor(
+                    R.id.clock,
+                    appContx.resources.getColor(android.R.color.holo_red_light)
+                )
+                remoteViews?.setTextColor(
+                    R.id.tx_day_date,
+                    ColorUtil().lightenColor(primaryColor, 2.0f)
+                )
+                remoteViews?.setTextColor(
+                    R.id.tx_place,
+                    ColorUtil().lightenColor(primaryColor, 2.0f)
+                )
+                remoteViews?.setTextColor(
+                    R.id.tx_weather,
+                    ColorUtil().lightenColor(primaryColor, 2.0f)
+                )
             } else {
-                remoteViews?.setTextColor(R.id.clock, appContx.resources.getColor(android.R.color.holo_red_dark))
-                remoteViews?.setTextColor(R.id.tx_day_date, ColorUtil().darkenColor(secondaryColor, 2.0f))
-                remoteViews?.setTextColor(R.id.tx_place, ColorUtil().darkenColor(secondaryColor, 2.0f))
-                remoteViews?.setTextColor(R.id.tx_weather, ColorUtil().darkenColor(secondaryColor, 2.0f))
+                remoteViews?.setTextColor(
+                    R.id.clock,
+                    appContx.resources.getColor(android.R.color.holo_red_dark)
+                )
+                remoteViews?.setTextColor(
+                    R.id.tx_day_date,
+                    ColorUtil().darkenColor(secondaryColor, 2.0f)
+                )
+                remoteViews?.setTextColor(
+                    R.id.tx_place,
+                    ColorUtil().darkenColor(secondaryColor, 2.0f)
+                )
+                remoteViews?.setTextColor(
+                    R.id.tx_weather,
+                    ColorUtil().darkenColor(secondaryColor, 2.0f)
+                )
             }
 
 
@@ -933,7 +958,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         appContx = context
 
-        //       makeToast("!onReceive")
+        Log.d(TAG, "!onReceive")
         remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
         sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
@@ -1490,10 +1515,10 @@ class NewAppWidget : AppWidgetProvider() {
         val gson = Gson()
         val response: String = sharedPreferences.getString("MUA", "").toString()
         if (response.length > 0)
-        choosenApps = gson.fromJson(
-            response,
-            object : TypeToken<List<App?>?>() {}.type
-        )
+            choosenApps = gson.fromJson(
+                response,
+                object : TypeToken<List<App?>?>() {}.type
+            )
 
         appIndex = 0
 
