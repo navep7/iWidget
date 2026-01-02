@@ -48,7 +48,6 @@ import com.belaku.homey.MainActivity.Companion.txStatus
 import com.belaku.homey.MainActivity.Companion.updateTime
 import com.belaku.homey.MainActivity.Companion.wallDelay
 import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
-import com.belaku.homey.NewAppWidget.Companion.choosenApps
 import com.belaku.homey.NewAppWidget.Companion.dU
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.formattedDate
@@ -62,6 +61,7 @@ import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.NewAppWidget.Companion.timelyWish
 import com.belaku.homey.NewAppWidget.Companion.uT
 import com.belaku.homey.NewAppWidget.Companion.wD
+import com.belaku.homey.StepsService.Companion.choosenApps
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -393,14 +393,15 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             println("QUS SWW - " + queryUsageStats.size)
             sortApps(queryUsageStats)
 
+            choosenApps.clear()
 
-            var appNames = HashSet<String>()
+            val appNames = HashSet<String>()
             for (i in 0 until queryUsageStats.size) {
 
-                var appName =
+                val appName =
                     getAppNameFromPkg(applicationContext, queryUsageStats.get(i).packageName)
-                var appPname = queryUsageStats.get(i).packageName
-                var appUsage = formatMilliseconds(queryUsageStats[i].totalTimeInForeground).substring(0, 2)
+                val appPname = queryUsageStats.get(i).packageName
+                val appUsage = formatMilliseconds(queryUsageStats[i].totalTimeInForeground).substring(0, 2)
             //    var appUsage = arrayListUsageStats.elementAt(i).usageTime
 
                 Log.d(
@@ -422,8 +423,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                                     )
                                 )
 
-                                if (choosenApps == null)
-                                    choosenApps = ArrayList()
+
 
                                     choosenApps.add(
                                         App(

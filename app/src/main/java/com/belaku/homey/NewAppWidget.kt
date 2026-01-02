@@ -97,6 +97,7 @@ import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.belaku.homey.SpeakService.Companion.speakOut
+import com.belaku.homey.StepsService.Companion.choosenApps
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -294,300 +295,276 @@ class NewAppWidget : AppWidgetProvider() {
             //  Create an intent to launch MainActivity
             val intent = Intent(context, MainActivity::class.java)
 
-            // Create a PendingIntent
-            val pendingIntentMain = PendingIntent.getActivity(
-                context,
-                0,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE // Use FLAG_IMMUTABLE with modern Android
-            )
-
-            // Set the click listener on the widget button
-            remoteViews?.setOnClickPendingIntent(R.id.imgv_conf, pendingIntentMain)
-
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.tx_time_announcement,
-                getPendingSelfIntent(context, Time_A_CLICKED)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_dialler,
-                getPendingSelfIntent(context, DIAL_CLICK)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_ps,
-                getPendingSelfIntent(context, PS_CLICK)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.clock,
-                getPendingSelfIntent(context, TIME_CLICKED)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.a_clock,
-                getPendingSelfIntent(context, TIME_CLICKED)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_contacts,
-                getPendingSelfIntent(context, C_CLICKED)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_add_contacts, PendingIntent.getActivity(
-                    context, 11,
-                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_apps,
-                getPendingSelfIntent(context, A_CLICKED)
-            )
-
-            /*  remoteViews?.setOnClickPendingIntent(
-                  R.id.imgv_add_apps, PendingIntent.getActivity(
-                      context, 12,
-                      Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PA"),
-                      PendingIntent.FLAG_IMMUTABLE
-                  )
-              )*/
-
-
-            val aiIntent = Intent(context, AiActivity::class.java)
-            aiIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-            aiIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-            val aiPendingIntent = PendingIntent.getActivity(
-                context,
-                0,
-                aiIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.tx_ai,
-                aiPendingIntent
-            )
-
-
-            val remindersIntent = Intent(context, RemindersActivity::class.java)
-            remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-            remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-            val remindersPendingIntent = PendingIntent.getActivity(
-                context,
-                0,
-                remindersIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.tx_reminders,
-                remindersPendingIntent
-            )
-
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_speech, PendingIntent.getActivity(
-                    context, 1,
-                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "StT"),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.tx_runner, PendingIntent.getActivity(
-                    context, 16,
-                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "AddNote"),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_twitter, PendingIntent.getActivity(
-                    context, 2,
-                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "ST"),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.twSettings, PendingIntent.getActivity(
-                    context, 3,
-                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "STH"),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-            val intentBluetooth = Intent(context, DialogActivity::class.java)
-            if (mBluetoothAdapter.isEnabled)
-                intentBluetooth.putExtra("DialogIntent", "BLUEDisable")
-            else intentBluetooth.putExtra("DialogIntent", "BLUEEnable")
-            val pendingIntentBluetooth = PendingIntent.getActivity(
-                context,
-                4,
-                intentBluetooth,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            remoteViews?.setOnClickPendingIntent(R.id.fab_blue, pendingIntentBluetooth)
-
-            /*remoteViews?.setOnClickPendingIntent(
-                R.id.fab_share,
-                getPendingSelfIntent(context, FAB_SHARE)
-            )*/
-
-
-            val intentWifi = Intent(context, DialogActivity::class.java)
-            if (isWifiEnabled(context))
-                intentWifi.putExtra("DialogIntent", "WifiDisable")
-            else intentWifi.putExtra("DialogIntent", "WifiEnable")
-            val pendingIntentWifi = PendingIntent.getActivity(
-                context,
-                6,
-                intentWifi,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            remoteViews?.setOnClickPendingIntent(R.id.fab_wifi, pendingIntentWifi)
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.fab_torch,
-                getPendingSelfIntent(context, TORCH_STATE)
-            )
-
-
-            val launcherIntentGaps = Intent(context, GapsActivity::class.java)
-            launcherIntentGaps.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-            launcherIntentGaps.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-            val launcherPendingIntentGaps = PendingIntent.getActivity(
-                context,
-                0,
-                launcherIntentGaps,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_g_apps,
-                launcherPendingIntentGaps
-            )
-
-            val launcherIntentNPs = Intent(context, MySpaceActivity::class.java)
-            launcherIntentNPs.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-            launcherIntentNPs.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-            val launcherPendingIntentNPs = PendingIntent.getActivity(
-                context,
-                11,
-                launcherIntentNPs,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.tx_myspace,
-                launcherPendingIntentNPs
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_qr,
-                PendingIntent.getActivity(
-                    context, 10,
-                    Intent(context, DialogActivity::class.java).putExtra(
-                        "DialogIntent",
-                        "qrClick"
-                    ),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.tx_screentime_info,
-                PendingIntent.getActivity(
-                    context, 8,
-                    Intent(context, DialogActivity::class.java).putExtra(
-                        "DialogIntent",
-                        "screenTimeInfo"
-                    ),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.tx_steps_info, PendingIntent.getActivity(
-                    context, 7,
-                    Intent(context, DialogActivity::class.java).putExtra(
-                        "DialogIntent",
-                        "stepsInfo"
-                    ),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-            /*remoteViews?.setOnClickPendingIntent(
-                R.id.tx_live_weather_effects, PendingIntent.getActivity(
-                    context, 9,
-                    Intent(context, DialogActivity::class.java).putExtra(
-                        "DialogIntent",
-                        "liveWall"
-                    ),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )*/
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_weather_icon,
-                getPendingSelfIntent(context, GET_WEATHER)
-            )
-
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_lock,
-                getPendingSelfIntent(context, LOCK_PHONE)
-            )
-
-            /*remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_set,
-                getPendingSelfIntent(context, WALL_CHANGE)
-            )*/
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_set, PendingIntent.getActivity(
-                    context, 12,
-                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "WCh"),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-
-            val mapsIntent = Intent(context, MapsActivity::class.java)
-            val mapsPendingIntent = PendingIntent.getActivity(
-                context,
-                0,
-                mapsIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.tx_get_place,
-                mapsPendingIntent
-            )
+            setOnClickPendingIntents(context, intent)
 
             appWidM = AppWidgetManager.getInstance(context)
-            appWidM.updateAppWidget(newAppWidget, remoteViews)
+            appWidM.updateAppWidget(appWidgetId, remoteViews)
         }
 
 
 
         super.onUpdate(context, appWidgetManager, appWidgetIds)
 
+    }
+
+    private fun setOnClickPendingIntents(context: Context, intent: Intent) {
+        // Create a PendingIntent
+        val pendingIntentMain = PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE // Use FLAG_IMMUTABLE with modern Android
+        )
+
+        // Set the click listener on the widget button
+        remoteViews?.setOnClickPendingIntent(R.id.imgv_conf, pendingIntentMain)
+
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_time_announcement,
+            getPendingSelfIntent(context, Time_A_CLICKED)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_dialler,
+            getPendingSelfIntent(context, DIAL_CLICK)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_ps,
+            getPendingSelfIntent(context, PS_CLICK)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.clock,
+            getPendingSelfIntent(context, TIME_CLICKED)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.a_clock,
+            getPendingSelfIntent(context, TIME_CLICKED)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_contacts,
+            getPendingSelfIntent(context, C_CLICKED)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_add_contacts, PendingIntent.getActivity(
+                context, 11,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_apps,
+            getPendingSelfIntent(context, A_CLICKED)
+        )
+
+        val aiIntent = Intent(context, AiActivity::class.java)
+        aiIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+        aiIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        val aiPendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            aiIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_ai,
+            aiPendingIntent
+        )
+
+
+        val remindersIntent = Intent(context, RemindersActivity::class.java)
+        remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+        remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        val remindersPendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            remindersIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_reminders,
+            remindersPendingIntent
+        )
+
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_speech, PendingIntent.getActivity(
+                context, 1,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "StT"),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_runner, PendingIntent.getActivity(
+                context, 16,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "AddNote"),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_twitter, PendingIntent.getActivity(
+                context, 2,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "ST"),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.twSettings, PendingIntent.getActivity(
+                context, 3,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "STH"),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+        val intentBluetooth = Intent(context, DialogActivity::class.java)
+        if (mBluetoothAdapter.isEnabled)
+            intentBluetooth.putExtra("DialogIntent", "BLUEDisable")
+        else intentBluetooth.putExtra("DialogIntent", "BLUEEnable")
+        val pendingIntentBluetooth = PendingIntent.getActivity(
+            context,
+            4,
+            intentBluetooth,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        remoteViews?.setOnClickPendingIntent(R.id.fab_blue, pendingIntentBluetooth)
+
+
+        val intentWifi = Intent(context, DialogActivity::class.java)
+        if (isWifiEnabled(context))
+            intentWifi.putExtra("DialogIntent", "WifiDisable")
+        else intentWifi.putExtra("DialogIntent", "WifiEnable")
+        val pendingIntentWifi = PendingIntent.getActivity(
+            context,
+            6,
+            intentWifi,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        remoteViews?.setOnClickPendingIntent(R.id.fab_wifi, pendingIntentWifi)
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.fab_torch,
+            getPendingSelfIntent(context, TORCH_STATE)
+        )
+
+
+        val launcherIntentGaps = Intent(context, GapsActivity::class.java)
+        launcherIntentGaps.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+        launcherIntentGaps.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        val launcherPendingIntentGaps = PendingIntent.getActivity(
+            context,
+            0,
+            launcherIntentGaps,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_g_apps,
+            launcherPendingIntentGaps
+        )
+
+        val launcherIntentNPs = Intent(context, MySpaceActivity::class.java)
+        launcherIntentNPs.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+        launcherIntentNPs.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        val launcherPendingIntentNPs = PendingIntent.getActivity(
+            context,
+            11,
+            launcherIntentNPs,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_myspace,
+            launcherPendingIntentNPs
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_qr,
+            PendingIntent.getActivity(
+                context, 10,
+                Intent(context, DialogActivity::class.java).putExtra(
+                    "DialogIntent",
+                    "qrClick"
+                ),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_screentime_info,
+            PendingIntent.getActivity(
+                context, 8,
+                Intent(context, DialogActivity::class.java).putExtra(
+                    "DialogIntent",
+                    "screenTimeInfo"
+                ),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_steps_info, PendingIntent.getActivity(
+                context, 7,
+                Intent(context, DialogActivity::class.java).putExtra(
+                    "DialogIntent",
+                    "stepsInfo"
+                ),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_weather_icon,
+            getPendingSelfIntent(context, GET_WEATHER)
+        )
+
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_lock,
+            getPendingSelfIntent(context, LOCK_PHONE)
+        )
+
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_set, PendingIntent.getActivity(
+                context, 12,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "WCh"),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+
+        val mapsIntent = Intent(context, MapsActivity::class.java)
+        val mapsPendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            mapsIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_get_place,
+            mapsPendingIntent
+        )
     }
 
     private fun locationTxUpdate(context: Context) {
@@ -615,7 +592,7 @@ class NewAppWidget : AppWidgetProvider() {
     private fun setUI() {
 
 
-        if (StepsService.isMyServiceRunning(SpeakService::class.java))
+        if (isMyServiceRunning(SpeakService::class.java))
             remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
         else remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
 
@@ -1512,6 +1489,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         val gson = Gson()
         val response: String = sharedPreferences.getString("MUA", "").toString()
+        if (response.length > 0)
         choosenApps = gson.fromJson(
             response,
             object : TypeToken<List<App?>?>() {}.type
@@ -1570,7 +1548,7 @@ class NewAppWidget : AppWidgetProvider() {
         var noRewards: Int = 0
         var tW: String = "..."
         lateinit var appWidM: AppWidgetManager
-        var choosenApps: ArrayList<App> = ArrayList()
+
         var selectedApps: ArrayList<SelectedApp> = ArrayList()
         lateinit var selectedApp: Bitmap
         var newsList: ArrayList<String> =

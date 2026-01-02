@@ -280,6 +280,9 @@ class StepsService : Service() {
     }
 
     companion object {
+
+        var choosenApps: ArrayList<App> = ArrayList()
+
         fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
             val manager = appContx.getSystemService(ACTIVITY_SERVICE) as ActivityManager
             for (service in manager.getRunningServices(Int.MAX_VALUE)) {
