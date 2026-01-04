@@ -31,11 +31,13 @@ import androidx.annotation.RequiresApi
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.cDate
 import com.belaku.homey.MainActivity.Companion.cMonth
 import com.belaku.homey.MainActivity.Companion.cYear
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.delayUnit
+import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.fabMain
 import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.makeToast
@@ -48,7 +50,6 @@ import com.belaku.homey.MainActivity.Companion.txStatus
 import com.belaku.homey.MainActivity.Companion.updateTime
 import com.belaku.homey.MainActivity.Companion.wallDelay
 import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
-import com.belaku.homey.NewAppWidget.Companion.choosenApps
 import com.belaku.homey.NewAppWidget.Companion.dU
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.formattedDate
@@ -62,6 +63,7 @@ import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.NewAppWidget.Companion.timelyWish
 import com.belaku.homey.NewAppWidget.Companion.uT
 import com.belaku.homey.NewAppWidget.Companion.wD
+import com.belaku.homey.StepsService.Companion.choosenApps
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -251,6 +253,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     wm.setBitmap(scaledBitmap)
 
                 val c = Calendar.getInstance()
+
                 updateTime =
                     "" + c.get(Calendar.HOUR_OF_DAY) + ":" + c.get(Calendar.MINUTE) + ":" + c.get(
                         Calendar.SECOND
@@ -373,15 +376,12 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 applicationContext?.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager // Context.USAGE_STATS_SERVICE);
 
 
-            val beginCal = Calendar.getInstance()
-            val endCal = Calendar.getInstance()
-
             cYear = Calendar.getInstance().get(Calendar.YEAR)
-            cMonth = Calendar.getInstance().get(Calendar.MONTH) + 1
+            cMonth = Calendar.getInstance().get(Calendar.MONTH)
             cDate = Calendar.getInstance().get(Calendar.DATE)
 
-            beginCal.set(cYear, cMonth - 1, cDate, 0, 0)
-            endCal.set(cYear, cMonth, cDate, 0, 0)
+            beginCal.set(cYear, cMonth, cDate - 7, 0, 0)
+            endCal.set(cYear, cMonth, cDate - 1, 0, 0)
 
             val queryUsageStats = usageStatsManager.queryUsageStats(
                 UsageStatsManager.INTERVAL_DAILY,
@@ -392,14 +392,15 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             println("QUS SWW - " + queryUsageStats.size)
             sortApps(queryUsageStats)
 
+            choosenApps.clear()
 
-            var appNames = HashSet<String>()
+            val appNames = HashSet<String>()
             for (i in 0 until queryUsageStats.size) {
 
-                var appName =
+                val appName =
                     getAppNameFromPkg(applicationContext, queryUsageStats.get(i).packageName)
-                var appPname = queryUsageStats.get(i).packageName
-                var appUsage = formatMilliseconds(queryUsageStats[i].totalTimeInForeground).substring(0, 2)
+                val appPname = queryUsageStats.get(i).packageName
+                val appUsage = formatMilliseconds(queryUsageStats[i].totalTimeInForeground).substring(0, 2)
             //    var appUsage = arrayListUsageStats.elementAt(i).usageTime
 
                 Log.d(
@@ -421,8 +422,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                                     )
                                 )
 
-                                if (choosenApps == null)
-                                    choosenApps = ArrayList()
+
 
                                     choosenApps.add(
                                         App(

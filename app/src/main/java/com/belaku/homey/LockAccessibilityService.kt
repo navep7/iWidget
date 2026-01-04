@@ -51,7 +51,7 @@ class LockAccessibilityService : AccessibilityService() {
         return builder.build()
     }
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent == null) {
             // The service was likely restarted by the system.
             // You can log this or perform necessary re-initialization.

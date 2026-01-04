@@ -1,6 +1,7 @@
 package com.belaku.homey
 
 import android.annotation.SuppressLint
+import android.app.ActivityManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
@@ -107,7 +108,7 @@ class StepsService : Service() {
                     boolNewLap = sharedPreferences.getBoolean("newLap", false)
 
 
-                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+               //     appWidM.updateAppWidget(newAppWidget, remoteViews)
 
                 }
 
@@ -158,6 +159,7 @@ class StepsService : Service() {
                             // You can perform actions here when Wi-Fi becomes disabled
                         }
                     }
+                    updateWidget()
                 } else if (action == ConnectivityManager.CONNECTIVITY_ACTION) {
                     val cm =
                         appContx.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -173,10 +175,10 @@ class StepsService : Service() {
                         // Not connected to Wi-Fi or connected to a different network type
                         // You can perform actions here when Wi-Fi connection is lost or changed
                     }
+                    updateWidget()
                 }
 
 
-                updateWidget()
 
             }
         }
@@ -212,27 +214,31 @@ class StepsService : Service() {
                             Log.d(TAG, "STATE_CONNECTED")
                             sharedPreferencesEditor.putBoolean("BluetoothConnectionState", true)
                                 .apply()
+                            updateWidget()
                         }
 
                         BluetoothAdapter.STATE_DISCONNECTED -> {
                             Log.d(TAG, "STATE_DISCONNECTED")
                             sharedPreferencesEditor.putBoolean("BluetoothConnectionState", false)
                                 .apply()
+                            updateWidget()
                         }
 
                         BluetoothAdapter.STATE_OFF -> {
                             Log.d(TAG, "STATE_OFF")
                             sharedPreferencesEditor.putBoolean("BluetoothState", false).apply()
+                            updateWidget()
                         }
 
                         BluetoothAdapter.STATE_ON -> {
                             Log.d(TAG, "STATE_ON")
                             sharedPreferencesEditor.putBoolean("BluetoothState", true).apply()
+                            updateWidget()
                         }
 
                     }
 
-                    updateWidget()
+
 
                 }
             }
@@ -278,7 +284,20 @@ class StepsService : Service() {
         super.onDestroy()
     }
 
+    companion object {
 
+        var choosenApps: ArrayList<App> = ArrayList()
+
+        fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
+            val manager = appContx.getSystemService(ACTIVITY_SERVICE) as ActivityManager
+            for (service in manager.getRunningServices(Int.MAX_VALUE)) {
+                if (serviceClass.name == service.service.className) {
+                    return true
+                }
+            }
+            return false
+        }
+    }
 
 
 }

@@ -96,7 +96,7 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
-import com.belaku.homey.NewAppWidget.Companion.choosenApps
+
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
@@ -111,6 +111,7 @@ import com.belaku.homey.SetWallWorker.Companion.dayIndex
 import com.belaku.homey.SetWallWorker.Companion.mAct
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
+import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.belaku.homey.databinding.ActivityMainBinding
 import com.bumptech.glide.Glide
 import com.google.android.gms.ads.MobileAds
@@ -1331,19 +1332,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-
-    private fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
-        val manager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
-        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
-            if (serviceClass.name == service.service.className) {
-                return true
-            }
-        }
-        return false
-    }
-
-
-
     fun formatMilliseconds(milliseconds: Long): String {
         val totalSeconds = milliseconds / 1000
         val minutes = totalSeconds / 60
@@ -1813,9 +1801,6 @@ class MainActivity : AppCompatActivity() {
             startForegroundService(intentSteps)
         }
 
-        if (!isMyServiceRunning(SpeakService::class.java)) {
-            startService(Intent(this, SpeakService::class.java))
-        }
     }
 
 
@@ -1973,6 +1958,8 @@ class MainActivity : AppCompatActivity() {
         var cDate by Delegates.notNull<Int>()
         var cMonth by Delegates.notNull<Int>()
         var cYear by Delegates.notNull<Int>()
+        val beginCal = Calendar.getInstance()
+        val endCal = Calendar.getInstance()
         private val newSAPIKEY: String = "3fa88b5851974caea39bcc59bd2e5746"
         var newsIndex: Int = 0
         private val TAG: String = "MainActTAG"

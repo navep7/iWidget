@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity.ACTIVITY_SERVICE
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.SpeakService.Companion.speakOut
+import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import java.util.Calendar
 
 class TimeChangedReceiver : BroadcastReceiver() {
@@ -20,28 +21,17 @@ class TimeChangedReceiver : BroadcastReceiver() {
             val currentHour = calendar.get(Calendar.HOUR)
             val currentMin = calendar.get(Calendar.MINUTE)
 
-            Log.d("TimeChangedReceiver", "Time tick received. Current hour: $currentMin")
+            Log.d("TimeChangedReceiver", "Time tick received. Current Min : $currentMin")
          //   makeToast("NOW - $currentMin")
 
-            if (currentMin == 0) {
-                if (!isMyServiceRunning(SpeakService::class.java)) {
-                    appContx.startService(Intent(appContx, SpeakService::class.java))
-                }
+            if (currentMin == 0)
+            if (isMyServiceRunning(SpeakService::class.java))
                 speakOut(currentHour)
-            }
+        //    }
 
             // Implement your hour change logic here
         }
     }
 
-    private fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
-        val manager = appContx.getSystemService(ACTIVITY_SERVICE) as ActivityManager
-        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
-            if (serviceClass.name == service.service.className) {
-                return true
-            }
-        }
-        return false
-    }
 }
 

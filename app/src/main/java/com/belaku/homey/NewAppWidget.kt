@@ -69,9 +69,11 @@ import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.apps
+import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
+import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.getWeatherData
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
@@ -96,7 +98,8 @@ import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
-import com.belaku.homey.SpeakService.Companion.speakOut
+import com.belaku.homey.StepsService.Companion.choosenApps
+import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -114,6 +117,7 @@ import java.util.Locale
 
 class NewAppWidget : AppWidgetProvider() {
 
+    private val TAG: String = "NewAppWidget"
     private val drawableIds: ArrayList<Int> = ArrayList()
     private var weatherIcons: ArrayList<Drawable> = ArrayList()
     private var wallpColors: ArrayList<Int> = ArrayList()
@@ -273,7 +277,7 @@ class NewAppWidget : AppWidgetProvider() {
     ) {
 
         appContx = context
-        //   makeToast("!onUpdate")
+        Log.d(TAG, "!onUpdate")
         remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
@@ -293,300 +297,276 @@ class NewAppWidget : AppWidgetProvider() {
             //  Create an intent to launch MainActivity
             val intent = Intent(context, MainActivity::class.java)
 
-            // Create a PendingIntent
-            val pendingIntentMain = PendingIntent.getActivity(
-                context,
-                0,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE // Use FLAG_IMMUTABLE with modern Android
-            )
-
-            // Set the click listener on the widget button
-            remoteViews?.setOnClickPendingIntent(R.id.imgv_conf, pendingIntentMain)
-
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.tx_time_announcement,
-                getPendingSelfIntent(context, Time_A_CLICKED)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_dialler,
-                getPendingSelfIntent(context, DIAL_CLICK)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_ps,
-                getPendingSelfIntent(context, PS_CLICK)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.clock,
-                getPendingSelfIntent(context, TIME_CLICKED)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.a_clock,
-                getPendingSelfIntent(context, TIME_CLICKED)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_contacts,
-                getPendingSelfIntent(context, C_CLICKED)
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_add_contacts, PendingIntent.getActivity(
-                    context, 11,
-                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_apps,
-                getPendingSelfIntent(context, A_CLICKED)
-            )
-
-            /*  remoteViews?.setOnClickPendingIntent(
-                  R.id.imgv_add_apps, PendingIntent.getActivity(
-                      context, 12,
-                      Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PA"),
-                      PendingIntent.FLAG_IMMUTABLE
-                  )
-              )*/
-
-
-            val aiIntent = Intent(context, AiActivity::class.java)
-            aiIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-            aiIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-            val aiPendingIntent = PendingIntent.getActivity(
-                context,
-                0,
-                aiIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.tx_ai,
-                aiPendingIntent
-            )
-
-
-            val remindersIntent = Intent(context, RemindersActivity::class.java)
-            remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-            remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-            val remindersPendingIntent = PendingIntent.getActivity(
-                context,
-                0,
-                remindersIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.tx_reminders,
-                remindersPendingIntent
-            )
-
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_speech, PendingIntent.getActivity(
-                    context, 1,
-                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "StT"),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.tx_runner, PendingIntent.getActivity(
-                    context, 16,
-                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "AddNote"),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_twitter, PendingIntent.getActivity(
-                    context, 2,
-                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "ST"),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.twSettings, PendingIntent.getActivity(
-                    context, 3,
-                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "STH"),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-            val intentBluetooth = Intent(context, DialogActivity::class.java)
-            if (mBluetoothAdapter.isEnabled)
-                intentBluetooth.putExtra("DialogIntent", "BLUEDisable")
-            else intentBluetooth.putExtra("DialogIntent", "BLUEEnable")
-            val pendingIntentBluetooth = PendingIntent.getActivity(
-                context,
-                4,
-                intentBluetooth,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            remoteViews?.setOnClickPendingIntent(R.id.fab_blue, pendingIntentBluetooth)
-
-            /*remoteViews?.setOnClickPendingIntent(
-                R.id.fab_share,
-                getPendingSelfIntent(context, FAB_SHARE)
-            )*/
-
-
-            val intentWifi = Intent(context, DialogActivity::class.java)
-            if (isWifiEnabled(context))
-                intentWifi.putExtra("DialogIntent", "WifiDisable")
-            else intentWifi.putExtra("DialogIntent", "WifiEnable")
-            val pendingIntentWifi = PendingIntent.getActivity(
-                context,
-                6,
-                intentWifi,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            remoteViews?.setOnClickPendingIntent(R.id.fab_wifi, pendingIntentWifi)
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.fab_torch,
-                getPendingSelfIntent(context, TORCH_STATE)
-            )
-
-
-            val launcherIntentGaps = Intent(context, GapsActivity::class.java)
-            launcherIntentGaps.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-            launcherIntentGaps.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-            val launcherPendingIntentGaps = PendingIntent.getActivity(
-                context,
-                0,
-                launcherIntentGaps,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_g_apps,
-                launcherPendingIntentGaps
-            )
-
-            val launcherIntentNPs = Intent(context, MySpaceActivity::class.java)
-            launcherIntentNPs.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-            launcherIntentNPs.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-            val launcherPendingIntentNPs = PendingIntent.getActivity(
-                context,
-                11,
-                launcherIntentNPs,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.tx_myspace,
-                launcherPendingIntentNPs
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_qr,
-                PendingIntent.getActivity(
-                    context, 10,
-                    Intent(context, DialogActivity::class.java).putExtra(
-                        "DialogIntent",
-                        "qrClick"
-                    ),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.tx_screentime_info,
-                PendingIntent.getActivity(
-                    context, 8,
-                    Intent(context, DialogActivity::class.java).putExtra(
-                        "DialogIntent",
-                        "screenTimeInfo"
-                    ),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.tx_steps_info, PendingIntent.getActivity(
-                    context, 7,
-                    Intent(context, DialogActivity::class.java).putExtra(
-                        "DialogIntent",
-                        "stepsInfo"
-                    ),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-            /*remoteViews?.setOnClickPendingIntent(
-                R.id.tx_live_weather_effects, PendingIntent.getActivity(
-                    context, 9,
-                    Intent(context, DialogActivity::class.java).putExtra(
-                        "DialogIntent",
-                        "liveWall"
-                    ),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )*/
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgv_weather_icon,
-                getPendingSelfIntent(context, GET_WEATHER)
-            )
-
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_lock,
-                getPendingSelfIntent(context, LOCK_PHONE)
-            )
-
-            /*remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_set,
-                getPendingSelfIntent(context, WALL_CHANGE)
-            )*/
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.imgbtn_set, PendingIntent.getActivity(
-                    context, 12,
-                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "WCh"),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-
-            val mapsIntent = Intent(context, MapsActivity::class.java)
-            val mapsPendingIntent = PendingIntent.getActivity(
-                context,
-                0,
-                mapsIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-            remoteViews?.setOnClickPendingIntent(
-                R.id.tx_get_place,
-                mapsPendingIntent
-            )
+            setOnClickPendingIntents(context, intent)
 
             appWidM = AppWidgetManager.getInstance(context)
-            appWidM.updateAppWidget(newAppWidget, remoteViews)
+            appWidM.updateAppWidget(appWidgetId, remoteViews)
         }
 
 
 
         super.onUpdate(context, appWidgetManager, appWidgetIds)
 
+    }
+
+    private fun setOnClickPendingIntents(context: Context, intent: Intent) {
+        // Create a PendingIntent
+        val pendingIntentMain = PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE // Use FLAG_IMMUTABLE with modern Android
+        )
+
+        // Set the click listener on the widget button
+        remoteViews?.setOnClickPendingIntent(R.id.imgv_conf, pendingIntentMain)
+
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_time_announcement,
+            getPendingSelfIntent(context, Time_A_CLICKED)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_dialler,
+            getPendingSelfIntent(context, DIAL_CLICK)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_ps,
+            getPendingSelfIntent(context, PS_CLICK)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.clock,
+            getPendingSelfIntent(context, TIME_CLICKED)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.a_clock,
+            getPendingSelfIntent(context, TIME_CLICKED)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_contacts,
+            getPendingSelfIntent(context, C_CLICKED)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_add_contacts, PendingIntent.getActivity(
+                context, 11,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_apps,
+            getPendingSelfIntent(context, A_CLICKED)
+        )
+
+        val aiIntent = Intent(context, AiActivity::class.java)
+        aiIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+        aiIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        val aiPendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            aiIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_ai,
+            aiPendingIntent
+        )
+
+
+        val remindersIntent = Intent(context, RemindersActivity::class.java)
+        remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+        remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        val remindersPendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            remindersIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_reminders,
+            remindersPendingIntent
+        )
+
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_speech, PendingIntent.getActivity(
+                context, 1,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "StT"),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_runner, PendingIntent.getActivity(
+                context, 16,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "AddNote"),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_twitter, PendingIntent.getActivity(
+                context, 2,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "ST"),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.twSettings, PendingIntent.getActivity(
+                context, 3,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "STH"),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+        val intentBluetooth = Intent(context, DialogActivity::class.java)
+        if (mBluetoothAdapter.isEnabled)
+            intentBluetooth.putExtra("DialogIntent", "BLUEDisable")
+        else intentBluetooth.putExtra("DialogIntent", "BLUEEnable")
+        val pendingIntentBluetooth = PendingIntent.getActivity(
+            context,
+            4,
+            intentBluetooth,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        remoteViews?.setOnClickPendingIntent(R.id.fab_blue, pendingIntentBluetooth)
+
+
+        val intentWifi = Intent(context, DialogActivity::class.java)
+        if (isWifiEnabled(context))
+            intentWifi.putExtra("DialogIntent", "WifiDisable")
+        else intentWifi.putExtra("DialogIntent", "WifiEnable")
+        val pendingIntentWifi = PendingIntent.getActivity(
+            context,
+            6,
+            intentWifi,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        remoteViews?.setOnClickPendingIntent(R.id.fab_wifi, pendingIntentWifi)
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.fab_torch,
+            getPendingSelfIntent(context, TORCH_STATE)
+        )
+
+
+        val launcherIntentGaps = Intent(context, GapsActivity::class.java)
+        launcherIntentGaps.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+        launcherIntentGaps.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        val launcherPendingIntentGaps = PendingIntent.getActivity(
+            context,
+            0,
+            launcherIntentGaps,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_g_apps,
+            launcherPendingIntentGaps
+        )
+
+        val launcherIntentNPs = Intent(context, MySpaceActivity::class.java)
+        launcherIntentNPs.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+        launcherIntentNPs.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        val launcherPendingIntentNPs = PendingIntent.getActivity(
+            context,
+            11,
+            launcherIntentNPs,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_myspace,
+            launcherPendingIntentNPs
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_qr,
+            PendingIntent.getActivity(
+                context, 10,
+                Intent(context, DialogActivity::class.java).putExtra(
+                    "DialogIntent",
+                    "qrClick"
+                ),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_screentime_info,
+            PendingIntent.getActivity(
+                context, 8,
+                Intent(context, DialogActivity::class.java).putExtra(
+                    "DialogIntent",
+                    "screenTimeInfo"
+                ),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_steps_info, PendingIntent.getActivity(
+                context, 7,
+                Intent(context, DialogActivity::class.java).putExtra(
+                    "DialogIntent",
+                    "stepsInfo"
+                ),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_weather_icon,
+            getPendingSelfIntent(context, GET_WEATHER)
+        )
+
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_lock,
+            getPendingSelfIntent(context, LOCK_PHONE)
+        )
+
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_set, PendingIntent.getActivity(
+                context, 12,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "WCh"),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+
+        val mapsIntent = Intent(context, MapsActivity::class.java)
+        val mapsPendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            mapsIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_get_place,
+            mapsPendingIntent
+        )
     }
 
     private fun locationTxUpdate(context: Context) {
@@ -614,9 +594,9 @@ class NewAppWidget : AppWidgetProvider() {
     private fun setUI() {
 
 
-        if (!sharedPreferences.getBoolean("timeAnnounce", false))
-            remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
-        else remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
+        if (isMyServiceRunning(SpeakService::class.java))
+            remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
+        else remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
 
         //    googleAccountInfo()
         if (isPinNoteInitialized())
@@ -677,7 +657,7 @@ class NewAppWidget : AppWidgetProvider() {
 
     private fun glossyOverlay(
         originalBitmap: Bitmap
-    ) : Bitmap {
+    ): Bitmap {
         val resultBitmap =
             originalBitmap.copy(Bitmap.Config.ARGB_8888, true) // Must be ARGB_8888 and mutable
         val canvas = Canvas(resultBitmap)
@@ -709,24 +689,24 @@ class NewAppWidget : AppWidgetProvider() {
 
     }
 
- /*   private fun blurBitmap(originalBitmap: Bitmap) : Bitmap {
+    /*   private fun blurBitmap(originalBitmap: Bitmap) : Bitmap {
 
-        val rs = RenderScript.create(appContx)
+           val rs = RenderScript.create(appContx)
 
-        val input = Allocation.createFromBitmap(
-            rs,
-            originalBitmap
-        ) //use this constructor for best performance, because it uses USAGE_SHARED mode which reuses memory
-        val output = Allocation.createTyped(rs, input.type)
-        val script = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
-        script.setRadius(8f);
-        script.setInput(input);
-        script.forEach(output);
-        output.copyTo(originalBitmap);
+           val input = Allocation.createFromBitmap(
+               rs,
+               originalBitmap
+           ) //use this constructor for best performance, because it uses USAGE_SHARED mode which reuses memory
+           val output = Allocation.createTyped(rs, input.type)
+           val script = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
+           script.setRadius(8f);
+           script.setInput(input);
+           script.forEach(output);
+           output.copyTo(originalBitmap);
 
-        return originalBitmap
+           return originalBitmap
 
-    }*/
+       }*/
 
     private fun applyThinFilmOverlay(
         originalBitmap: Bitmap,
@@ -837,15 +817,39 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
             if (ColorUtil().isColorDark(primaryColor)) {
-                remoteViews?.setTextColor(R.id.clock, appContx.resources.getColor(android.R.color.holo_red_light))
-                remoteViews?.setTextColor(R.id.tx_day_date, ColorUtil().lightenColor(primaryColor, 2.0f))
-                remoteViews?.setTextColor(R.id.tx_place, ColorUtil().lightenColor(primaryColor, 2.0f))
-                remoteViews?.setTextColor(R.id.tx_weather, ColorUtil().lightenColor(primaryColor, 2.0f))
+                remoteViews?.setTextColor(
+                    R.id.clock,
+                    appContx.resources.getColor(android.R.color.holo_red_light)
+                )
+                remoteViews?.setTextColor(
+                    R.id.tx_day_date,
+                    ColorUtil().lightenColor(primaryColor, 2.0f)
+                )
+                remoteViews?.setTextColor(
+                    R.id.tx_place,
+                    ColorUtil().lightenColor(primaryColor, 2.0f)
+                )
+                remoteViews?.setTextColor(
+                    R.id.tx_weather,
+                    ColorUtil().lightenColor(primaryColor, 2.0f)
+                )
             } else {
-                remoteViews?.setTextColor(R.id.clock, appContx.resources.getColor(android.R.color.holo_red_dark))
-                remoteViews?.setTextColor(R.id.tx_day_date, ColorUtil().darkenColor(secondaryColor, 2.0f))
-                remoteViews?.setTextColor(R.id.tx_place, ColorUtil().darkenColor(secondaryColor, 2.0f))
-                remoteViews?.setTextColor(R.id.tx_weather, ColorUtil().darkenColor(secondaryColor, 2.0f))
+                remoteViews?.setTextColor(
+                    R.id.clock,
+                    appContx.resources.getColor(android.R.color.holo_red_dark)
+                )
+                remoteViews?.setTextColor(
+                    R.id.tx_day_date,
+                    ColorUtil().darkenColor(secondaryColor, 2.0f)
+                )
+                remoteViews?.setTextColor(
+                    R.id.tx_place,
+                    ColorUtil().darkenColor(secondaryColor, 2.0f)
+                )
+                remoteViews?.setTextColor(
+                    R.id.tx_weather,
+                    ColorUtil().darkenColor(secondaryColor, 2.0f)
+                )
             }
 
 
@@ -955,7 +959,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         appContx = context
 
-        //       makeToast("!onReceive")
+        Log.d(TAG, "!onReceive")
         remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
         sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
@@ -1170,25 +1174,11 @@ class NewAppWidget : AppWidgetProvider() {
 
         } else if (Time_A_CLICKED == intent.action) {
 
-            if (!sharedPreferences.getBoolean("firstTimeAnnouncementClick", false)) {
-                sharedPreferencesEditor.putBoolean("firstTimeAnnouncementClick", true).apply()
-                makeToast("Alerts, every Hour change by speaking out the current Hour, like it is now..")
-                appContx.startService(Intent(appContx, SpeakService::class.java))
-                speakOut(Calendar.getInstance().get(Calendar.HOUR))
-            }
+            var speakIntent = Intent(appContx, SpeakService::class.java)
+            if (!isMyServiceRunning(SpeakService::class.java))
+                appContx.startService(speakIntent)
+            else appContx.stopService(speakIntent)
 
-            if (sharedPreferences.getBoolean("timeAnnounce", false)) {
-                sharedPreferencesEditor.putBoolean("timeAnnounce", false).apply()
-                remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
-                appContx.stopService(Intent(appContx, SpeakService::class.java))
-            //    remoteViews?.setTextColor(R.id.tx_time_announcement, android.R.color.holo_red_dark)
-            } else {
-                sharedPreferencesEditor.putBoolean("timeAnnounce", true).apply()
-                appContx.startService(Intent(appContx, SpeakService::class.java))
-                makeToast("Alerts, every Hour change")
-           //     remoteViews?.setTextColor(R.id.tx_time_announcement, android.R.color.holo_green_light)
-                remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
-            }
         }
     }
 
@@ -1344,7 +1334,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         appWidgetView.findViewById<TextView>(
             R.id.btn_screentime
-        ).text = "${totalScreenTimeInMinutes}+"
+        ).text = "${totalScreenTimeInHours}+"
         greeting()
         appWidgetView.findViewById<TextView>(R.id.tx_wish).text = timelyWish
         var ampm = Calendar.getInstance()[Calendar.AM_PM].toString()
@@ -1525,10 +1515,11 @@ class NewAppWidget : AppWidgetProvider() {
 
         val gson = Gson()
         val response: String = sharedPreferences.getString("MUA", "").toString()
-        choosenApps = gson.fromJson(
-            response,
-            object : TypeToken<List<App?>?>() {}.type
-        )
+        if (response.length > 0)
+            choosenApps = gson.fromJson(
+                response,
+                object : TypeToken<List<App?>?>() {}.type
+            )
 
         appIndex = 0
 
@@ -1567,7 +1558,7 @@ class NewAppWidget : AppWidgetProvider() {
 
     companion object {
         lateinit var gpBitmap: Bitmap
-        var totalScreenTimeInMinutes: Long = 0
+        var totalScreenTimeInHours: Long = 0
         lateinit var wD: String
         lateinit var qT: String
         lateinit var uT: String
@@ -1583,7 +1574,7 @@ class NewAppWidget : AppWidgetProvider() {
         var noRewards: Int = 0
         var tW: String = "..."
         lateinit var appWidM: AppWidgetManager
-        var choosenApps: ArrayList<App> = ArrayList()
+
         var selectedApps: ArrayList<SelectedApp> = ArrayList()
         lateinit var selectedApp: Bitmap
         var newsList: ArrayList<String> =
@@ -1806,7 +1797,7 @@ class NewAppWidget : AppWidgetProvider() {
             }
 
             // Get a map of package names to UsageStats objects
-            val usageStatsMap = usageStatsManager.queryAndAggregateUsageStats(startTime, endTime)
+            val usageStatsMap = usageStatsManager.queryAndAggregateUsageStats(beginCal.timeInMillis, endCal.timeInMillis)
 
             var totalScreenTimeInMillis: Long = 0
             for (usageStats in usageStatsMap.values) {
@@ -1814,7 +1805,7 @@ class NewAppWidget : AppWidgetProvider() {
             }
 
             // Convert to desired units (e.g., minutes, hours)
-            totalScreenTimeInMinutes = totalScreenTimeInMillis / (1000 * 60 * 60)
+            totalScreenTimeInHours = totalScreenTimeInMillis / (1000 * 60 * 60) / 6
 
             val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
             var ampm = Calendar.getInstance()[Calendar.AM_PM].toString()
@@ -1827,7 +1818,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             remoteViews?.setTextViewText(
                 R.id.btn_screentime,
-                "${totalScreenTimeInMinutes.toString()}+"
+                "${totalScreenTimeInHours.toString()}+"
             )
 
         }
