@@ -1958,6 +1958,8 @@ class MainActivity : AppCompatActivity() {
         var cDate by Delegates.notNull<Int>()
         var cMonth by Delegates.notNull<Int>()
         var cYear by Delegates.notNull<Int>()
+        val beginCal = Calendar.getInstance()
+        val endCal = Calendar.getInstance()
         private val newSAPIKEY: String = "3fa88b5851974caea39bcc59bd2e5746"
         var newsIndex: Int = 0
         private val TAG: String = "MainActTAG"

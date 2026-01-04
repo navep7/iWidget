@@ -31,11 +31,13 @@ import androidx.annotation.RequiresApi
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.cDate
 import com.belaku.homey.MainActivity.Companion.cMonth
 import com.belaku.homey.MainActivity.Companion.cYear
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.delayUnit
+import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.fabMain
 import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.makeToast
@@ -374,15 +376,12 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 applicationContext?.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager // Context.USAGE_STATS_SERVICE);
 
 
-            val beginCal = Calendar.getInstance()
-            val endCal = Calendar.getInstance()
-
             cYear = Calendar.getInstance().get(Calendar.YEAR)
-            cMonth = Calendar.getInstance().get(Calendar.MONTH) + 1
+            cMonth = Calendar.getInstance().get(Calendar.MONTH)
             cDate = Calendar.getInstance().get(Calendar.DATE)
 
-            beginCal.set(cYear, cMonth - 1, cDate, 0, 0)
-            endCal.set(cYear, cMonth, cDate, 0, 0)
+            beginCal.set(cYear, cMonth, cDate - 7, 0, 0)
+            endCal.set(cYear, cMonth, cDate - 1, 0, 0)
 
             val queryUsageStats = usageStatsManager.queryUsageStats(
                 UsageStatsManager.INTERVAL_DAILY,

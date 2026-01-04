@@ -49,8 +49,13 @@ import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.belaku.homey.MainActivity.Companion.AccessibilityServicePermissionDialog
 import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.MainActivity.Companion.beginCal
+import com.belaku.homey.MainActivity.Companion.cDate
+import com.belaku.homey.MainActivity.Companion.cMonth
+import com.belaku.homey.MainActivity.Companion.cYear
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
+import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
@@ -104,6 +109,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 import java.net.URL
+import java.util.Calendar
 import java.util.Locale
 import java.util.Timer
 import java.util.TimerTask
@@ -440,7 +446,9 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 btnOk.visibility = View.GONE
                 btnCancel.visibility = View.GONE
                 imgbtnShare.visibility = View.GONE
-                txTitle.setText("Screen Time Analysis... App Usage Times")
+                txTitle.setText("Screen Time Analysis : Based on App Usage stats from a Week(" + "${beginCal.get(Calendar.DAY_OF_MONTH)}/${beginCal.get(Calendar.MONTH) + 1}/${beginCal.get(Calendar.YEAR)} : " +
+                        "${endCal.get(Calendar.DAY_OF_MONTH)}/${endCal.get(Calendar.MONTH) + 1}/${endCal.get(Calendar.YEAR)})"  + ", below is the App data, every day..  ")
+
 
                 appUsageStats(applicationContext)
 

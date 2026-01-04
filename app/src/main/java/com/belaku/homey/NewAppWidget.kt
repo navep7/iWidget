@@ -69,9 +69,11 @@ import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.apps
+import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
+import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.getWeatherData
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
@@ -96,7 +98,6 @@ import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
-import com.belaku.homey.SpeakService.Companion.speakOut
 import com.belaku.homey.StepsService.Companion.choosenApps
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -1333,7 +1334,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         appWidgetView.findViewById<TextView>(
             R.id.btn_screentime
-        ).text = "${totalScreenTimeInMinutes}+"
+        ).text = "${totalScreenTimeInHours}+"
         greeting()
         appWidgetView.findViewById<TextView>(R.id.tx_wish).text = timelyWish
         var ampm = Calendar.getInstance()[Calendar.AM_PM].toString()
@@ -1557,7 +1558,7 @@ class NewAppWidget : AppWidgetProvider() {
 
     companion object {
         lateinit var gpBitmap: Bitmap
-        var totalScreenTimeInMinutes: Long = 0
+        var totalScreenTimeInHours: Long = 0
         lateinit var wD: String
         lateinit var qT: String
         lateinit var uT: String
@@ -1796,7 +1797,7 @@ class NewAppWidget : AppWidgetProvider() {
             }
 
             // Get a map of package names to UsageStats objects
-            val usageStatsMap = usageStatsManager.queryAndAggregateUsageStats(startTime, endTime)
+            val usageStatsMap = usageStatsManager.queryAndAggregateUsageStats(beginCal.timeInMillis, endCal.timeInMillis)
 
             var totalScreenTimeInMillis: Long = 0
             for (usageStats in usageStatsMap.values) {
@@ -1804,7 +1805,7 @@ class NewAppWidget : AppWidgetProvider() {
             }
 
             // Convert to desired units (e.g., minutes, hours)
-            totalScreenTimeInMinutes = totalScreenTimeInMillis / (1000 * 60 * 60)
+            totalScreenTimeInHours = totalScreenTimeInMillis / (1000 * 60 * 60) / 6
 
             val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
             var ampm = Calendar.getInstance()[Calendar.AM_PM].toString()
@@ -1817,7 +1818,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             remoteViews?.setTextViewText(
                 R.id.btn_screentime,
-                "${totalScreenTimeInMinutes.toString()}+"
+                "${totalScreenTimeInHours.toString()}+"
             )
 
         }
