@@ -142,6 +142,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     private var stepsVPpos: Int = 0
     private var muApps: ArrayList<String> = ArrayList()
+    private var myAppUsages: ArrayList<String> = ArrayList()
     private val REQUEST_CODE_SPEECH_INPUT: Int = 100
     private var rewardedInterstitialAd: RewardedInterstitialAd? = null
     private var blE by Delegates.notNull<Boolean>()
@@ -149,6 +150,8 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var llDialog: RelativeLayout
     private lateinit var txTitle: TextView
     private lateinit var txContent: TextView
+    private lateinit var txAppName: TextView
+    private lateinit var txAppUsageTime: TextView
     private lateinit var vpSteps: ViewPager2
     private lateinit var stepsMapsFragment: SupportMapFragment
 
@@ -221,16 +224,18 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         txTitle = findViewById<TextView>(R.id.tx_dialog_title)
         txContent = findViewById<TextView>(R.id.tx_dialog_content)
         txContent.movementMethod = ScrollingMovementMethod()
+
+        txAppName = findViewById(R.id.tx_app_left)
+        txAppUsageTime = findViewById(R.id.tx_appusage_right)
         edtxDialog = findViewById<EditText>(R.id.edtx_dialog)
         btnOk = findViewById<Button>(R.id.btn_dialog_ok)
         btnCancel = findViewById<Button>(R.id.btn_dialog_cancel)
         imgbtnShare = findViewById<ImageButton>(R.id.imgbtn_dialog_share)
         vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
-        stepsMapsFragment = supportFragmentManager.findFragmentById(R.id.steps_map) as SupportMapFragment
+        stepsMapsFragment =
+            supportFragmentManager.findFragmentById(R.id.steps_map) as SupportMapFragment
 
         stepsMapsFragment.view?.visibility = View.GONE
-
-
 
 
         var dialogIntentStr = intent.getStringExtra("DialogIntent")
@@ -238,7 +243,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
         if (dialogIntentStr != null) {
 
-             if (dialogIntentStr =="WCh") {
+            if (dialogIntentStr == "WCh") {
 
                 sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
                 sharedPreferencesEditor = sharedPreferences.edit()
@@ -342,21 +347,21 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
                     }
                     .show()
-               /* txTitle.setText("Twitter")
-                txContent.visibility = View.INVISIBLE
-                edtxDialog.visibility = View.VISIBLE
-                vpSteps.visibility = View.GONE
-                imgbtnShare.visibility = View.GONE
-                btnOk.setText("Set")
-                btnOk.setOnClickListener(View.OnClickListener {
-                    if (edtxDialog.text.toString().equals("Fact")) {
-                        twitterProfileName = "Fact"
-                        listTweets.clear()
-                        rawTweets(false)
-                    } else {
-                        getTweetID(edtxDialog.text.toString(), false)
-                    }
-                })*/
+                /* txTitle.setText("Twitter")
+                 txContent.visibility = View.INVISIBLE
+                 edtxDialog.visibility = View.VISIBLE
+                 vpSteps.visibility = View.GONE
+                 imgbtnShare.visibility = View.GONE
+                 btnOk.setText("Set")
+                 btnOk.setOnClickListener(View.OnClickListener {
+                     if (edtxDialog.text.toString().equals("Fact")) {
+                         twitterProfileName = "Fact"
+                         listTweets.clear()
+                         rawTweets(false)
+                     } else {
+                         getTweetID(edtxDialog.text.toString(), false)
+                     }
+                 })*/
             } else if (dialogIntentStr == "BLUEEnable") {
                 blE = true
                 llDialog.visibility = View.GONE
@@ -367,7 +372,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 llDialog.visibility = View.GONE
                 val disableintent = Intent("android.bluetooth.adapter.action.REQUEST_DISABLE")
                 bluetoothLauncher.launch(disableintent)
-            }  else if (dialogIntentStr == "WifiEnable" || dialogIntentStr == "WifiDisable") {
+            } else if (dialogIntentStr == "WifiEnable" || dialogIntentStr == "WifiDisable") {
                 try {
                     val intent = Intent(Intent.ACTION_MAIN, null)
                     intent.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -446,8 +451,18 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 btnOk.visibility = View.GONE
                 btnCancel.visibility = View.GONE
                 imgbtnShare.visibility = View.GONE
-                txTitle.setText("Screen Time Analysis : Based on App Usage stats from a Week(" + "${beginCal.get(Calendar.DAY_OF_MONTH)}/${beginCal.get(Calendar.MONTH) + 1}/${beginCal.get(Calendar.YEAR)} : " +
-                        "${endCal.get(Calendar.DAY_OF_MONTH)}/${endCal.get(Calendar.MONTH) + 1}/${endCal.get(Calendar.YEAR)})"  + ", below is the App data, every day..  ")
+                txTitle.setText(
+                    "Screen Time Analysis : Based on App Usage stats from a Week(" + "${
+                        beginCal.get(
+                            Calendar.DAY_OF_MONTH
+                        )
+                    }/${beginCal.get(Calendar.MONTH) + 1}/${beginCal.get(Calendar.YEAR)} : " +
+                            "${endCal.get(Calendar.DAY_OF_MONTH)}/${endCal.get(Calendar.MONTH) + 1}/${
+                                endCal.get(
+                                    Calendar.YEAR
+                                )
+                            })" + ", below is the App data, every day..  "
+                )
 
 
                 appUsageStats(applicationContext)
@@ -461,18 +476,25 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                         muApps.add(
                             "\n" + getAppNameFromPkg(
                                 appContx, i.appName
-                            ) + "\t\t\t\t\t\t" + i.usageTime
+                            )
                         )
+                        myAppUsages.add("\n" + i.usageTime)
                         arrayListUsageStats.remove(i)
                     }
                 }
 
-                txContent.movementMethod = ScrollingMovementMethod()
-                txContent.append(Html.fromHtml("\n\n<b><u> Most Used Apps.. > 10 mins</u></b>"))
+                //     txContent.movementMethod = ScrollingMovementMethod()
+                //     txContent.append(Html.fromHtml("\n\n<b><u> Most Used Apps.. > 10 mins</u></b>"))
 
-                for (i in muApps) txContent.append(i)
-
+                txAppName.append("Most Used Apps.\n")
+                txAppUsageTime.append("> 10 mins/day\n")
+                for (i in muApps) txAppName.append(i)
+                for (i in myAppUsages) txAppUsageTime.append(i)
                 muApps.clear()
+                myAppUsages.clear()
+
+                txAppName.append("\n\n")
+                txAppUsageTime.append("\n\n")
 
                 b = arrayListUsageStats.distinctBy { it.usageTime }
                 c = b.sortedBy { it.usageTime }
@@ -487,67 +509,80 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                         muApps.add(
                             "\n" + getAppNameFromPkg(
                                 appContx, c[i].appName
-                            ) + "\t\t\t\t\t\t" + c[i].usageTime
+                            )
                         )
+                        myAppUsages.add("\n" + c[i].usageTime)
                         arrayListUsageStats.remove(c[i])
                     }
                 }
 
-                txContent.movementMethod = ScrollingMovementMethod()
-                txContent.append("\n\n")
-                txContent.append(Html.fromHtml("<u><b> Moderately Used Apps.. > 5 mins</u></b>"))
-
-                for (i in muApps) txContent.append(i)
-
+                txAppName.append("Moderately Used Apps.\n")
+                txAppUsageTime.append("> 5 mins/day\n")
+                for (i in muApps) txAppName.append(i)
+                for (i in myAppUsages) txAppUsageTime.append(i)
                 muApps.clear()
+                myAppUsages.clear()
+
+                txAppName.append("\n\n")
+                txAppUsageTime.append("\n\n")
 
                 b = arrayListUsageStats.distinctBy { it.usageTime }
                 c = b.sortedBy { it.usageTime }
 
 
-                for (i in c) {
-                    if ((i.usageTime.substring(0, 2).toInt() > 1) && (i.usageTime.substring(0, 2)
-                            .toInt() < 5)
+                for (i in 0 until c.size) {
+                    if ((c[i].usageTime.substring(0, 2).toInt() > 1) && (c[i].usageTime.substring(
+                            0, 2
+                        ).toInt() < 5)
                     ) {
                         muApps.add(
                             "\n" + getAppNameFromPkg(
-                                appContx, i.appName
-                            ) + "\t\t\t\t\t\t" + i.usageTime
+                                appContx, c[i].appName
+                            )
                         )
-                        arrayListUsageStats.remove(i)
+                        myAppUsages.add("\n" + c[i].usageTime)
+                        arrayListUsageStats.remove(c[i])
                     }
                 }
 
-                txContent.movementMethod = ScrollingMovementMethod()
-                txContent.append("\n\n")
-                txContent.append(Html.fromHtml("<u><b> Least Used Apps.. > 1 mins</u></b>"))
-
-                for (i in muApps) txContent.append(i)
-
+                txAppName.append("Least Used Apps.\n")
+                txAppUsageTime.append("> 1 mins/day\n")
+                for (i in muApps) txAppName.append(i)
+                for (i in myAppUsages) txAppUsageTime.append(i)
                 muApps.clear()
+                myAppUsages.clear()
+
+                txAppName.append("\n\n")
+                txAppUsageTime.append("\n\n")
 
                 b = arrayListUsageStats.distinctBy { it.usageTime }
                 c = b.sortedBy { it.usageTime }
 
 
-                for (i in c) {
-                    if (i.usageTime.substring(0, 2).toInt() == 0) {
+                for (i in 0 until c.size) {
+                    if ((c[i].usageTime.substring(0, 2).toInt() == 0)
+                    ) {
                         muApps.add(
                             "\n" + getAppNameFromPkg(
-                                appContx, i.appName
-                            ) + "\t\t\t\t\t\t" + i.usageTime
+                                appContx, c[i].appName
+                            )
                         )
-                        arrayListUsageStats.remove(i)
+                        myAppUsages.add("\n" + c[i].usageTime)
+                        arrayListUsageStats.remove(c[i])
                     }
                 }
 
-                txContent.movementMethod = ScrollingMovementMethod()
-                txContent.append("\n\n")
-                txContent.append(Html.fromHtml("<u><b> Rarely Used Apps.. < 1 mins</u></b>"))
 
-                for (i in muApps) txContent.append(i)
 
+                txAppName.append("Rarely Used Apps.\n")
+                txAppUsageTime.append("> 0 mins/day\n")
+                for (i in muApps) txAppName.append(i)
+                for (i in myAppUsages) txAppUsageTime.append(i)
                 muApps.clear()
+                myAppUsages.clear()
+
+                txAppName.append("\n\n")
+                txAppUsageTime.append("\n\n")
 
                 edtxDialog.visibility = View.GONE
                 vpSteps.visibility = View.VISIBLE
@@ -583,37 +618,37 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 btnOk.setOnClickListener {
 
                     if (edtxDialog.text.toString().isNotEmpty())
-                    pinNote = edtxDialog.text.toString()
+                        pinNote = edtxDialog.text.toString()
 
                     llDialog.visibility = View.GONE
                     Thread {
                         SetWallWorker.setWall(true)
                     }.start()
-                  //  appWidM.updateAppWidget(newAppWidget, remoteViews)
+                    //  appWidM.updateAppWidget(newAppWidget, remoteViews)
                 }
             } else if (dialogIntentStr == "AccessibilityPermDialog") {
                 llDialog.visibility = View.INVISIBLE
 
-                    val builder = AlertDialog.Builder(this@DialogActivity)
-                    builder.setTitle("Requisition for Accessibility Service permission")
-                    builder.setMessage(
-                        "Please Enable Accessibility Service to smoothly lock Phone screen from Widget shortcut."
-                    )
+                val builder = AlertDialog.Builder(this@DialogActivity)
+                builder.setTitle("Requisition for Accessibility Service permission")
+                builder.setMessage(
+                    "Please Enable Accessibility Service to smoothly lock Phone screen from Widget shortcut."
+                )
 
-                    builder.setPositiveButton("OK") { dialog, id ->
-                        // User clicked OK button
-                        dialog.dismiss() // Dismiss the dialog
-                        val openSettings = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                        openSettings.addFlags(FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
-                        appContx.startActivity(openSettings)
-                    }
+                builder.setPositiveButton("OK") { dialog, id ->
+                    // User clicked OK button
+                    dialog.dismiss() // Dismiss the dialog
+                    val openSettings = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                    openSettings.addFlags(FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
+                    appContx.startActivity(openSettings)
+                }
 
-                    builder.setNegativeButton("Not now") { dialog, id ->
-                        // User clicked OK button
-                        dialog.dismiss() // Dismiss the dialog
+                builder.setNegativeButton("Not now") { dialog, id ->
+                    // User clicked OK button
+                    dialog.dismiss() // Dismiss the dialog
 
-                        finish()
-                    }
+                    finish()
+                }
 
                 builder.setNegativeButton("Not Now") { dialog, id ->
                     // User clicked OK button
@@ -623,9 +658,9 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
 
 
-                    // Create the AlertDialog object and show it
-                    val dialog = builder.create()
-                    dialog.show()
+                // Create the AlertDialog object and show it
+                val dialog = builder.create()
+                dialog.show()
 
             }
 
@@ -643,8 +678,6 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         vpSteps.currentItem = vpStepsPos
 
 
-
-
         val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
 
 
@@ -656,7 +689,15 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
         vpSteps.registerOnPageChangeCallback(object : OnPageChangeCallback(
         ) {
-            val days: ArrayList<String> = arrayListOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+            val days: ArrayList<String> = arrayListOf(
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            )
             private var myState = 0
             private var currentPosition = 0
             var currentOffset = 0F
@@ -666,7 +707,11 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
             ) {
 
                 //   makeToast("$currentOffset VS $positionOffset")
-                addMarker(stepsLocInfo[position], days[position] + " - " + stepsData[position] + " steps", getAddress(stepsLocInfo[position]))
+                addMarker(
+                    stepsLocInfo[position],
+                    days[position] + " - " + stepsData[position] + " steps",
+                    getAddress(stepsLocInfo[position])
+                )
 
                 if (currentOffset == positionOffset) if (myState == ViewPager2.SCROLL_STATE_DRAGGING && currentPosition == position && currentPosition == 0) vpSteps.setCurrentItem(
                     6
@@ -691,9 +736,8 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     //   makeToast(cAddrs?.get(0)!!.subLocality)
 
                     cityname = cAddrs?.get(0)!!.subLocality
-            //        if (MainActivity.cityname.length > 15)
-              //          MainActivity.cityname = cityname.substring(0, 12) + "..,"
-
+                    //        if (MainActivity.cityname.length > 15)
+                    //          MainActivity.cityname = cityname.substring(0, 12) + "..,"
 
 
                 } catch (e: IOException) {
@@ -702,7 +746,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     makeToast("GCD - IOException \n $e")
                 }
 
-                return  cityname
+                return cityname
 
             }
 
@@ -878,7 +922,8 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
 
-            val color = Color.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
+            val color =
+                Color.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
             var contactBitmap: Bitmap?
 
             contactBitmap = ContactPhotoHelper.retrieveContactPhoto(appContx, contactID.toLong())
@@ -888,13 +933,13 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
             if (contactBitmap == null)
                 contactBitmap = CharacterToBitmapConverter.getBitmapFromCharacter(
-                    cNme[0], 100, 100, 70, color)
+                    cNme[0], 100, 100, 70, color
+                )
 
             val c = Contact(contactID, cNme, phoneNumber, contactBitmap)
 
 
-
-       //     var c = Contact(contactID, cNme, phoneNumber, cPhUri)
+            //     var c = Contact(contactID, cNme, phoneNumber, cPhUri)
 
             if (c.number.length > 7)
                 favContacts.add(c)
@@ -1216,7 +1261,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
         // Add a marker at the specified location
-    //    stepsMaps.addMarker(MarkerOptions().position(presentLoc).title(cityname))
+        //    stepsMaps.addMarker(MarkerOptions().position(presentLoc).title(cityname))
 
 
         // Move the camera to the specified location with a zoom level
@@ -1226,7 +1271,6 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 21f
             )
         )*/ // Zoom level 10 is a good starting point
-
 
 
     }

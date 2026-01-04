@@ -21,10 +21,46 @@
 
     <TextView
         android:id="@+id/tx_dialog_content"
-        android:gravity="center"
+        android:gravity="center_horizontal"
         android:layout_below="@+id/edtx_dialog"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tx_dialog_content"
+        >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <!-- Left Word TextView -->
+        <TextView
+            android:id="@+id/tx_app_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_red_light"
+            android:textSize="16sp" />
+
+        <!-- A 'spacer' view or an empty textview to push the next text to the right -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Right Word TextView -->
+        <TextView
+            android:id="@+id/tx_appusage_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+    </ScrollView>
 
     <EditText
         android:id="@+id/edtx_dialog"
