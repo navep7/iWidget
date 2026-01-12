@@ -145,7 +145,12 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             cAddrs = gcd.getFromLocation(latitude, longitude, 1)!!
             //   makeToast(cAddrs?.get(0)!!.subLocality)
 
-            cityname = cAddrs?.get(0)!!.subLocality
+            if (cAddrs.get(0).subLocality != null)
+                cityname = cAddrs.get(0).subLocality.toString()
+            else if (cAddrs.get(0).locality != null)
+                cityname = cAddrs.get(0).locality
+
+
          //   if (cityname.length > 15)
            //     cityname = cityname.substring(0, 12) + "..,"
             //   makeToast("cityname - " + cityname)
