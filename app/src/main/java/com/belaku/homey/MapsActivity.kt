@@ -160,8 +160,13 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
                             }
                         else addrs = cAddrs[0].subLocality
 
+                        if (cAddrs.get(0).subLocality != null)
+                            cityname = SetWallWorker.Companion.cAddrs.get(0).subLocality.toString()
+                        else if (SetWallWorker.Companion.cAddrs.get(0).locality != null)
+                            cityname = SetWallWorker.Companion.cAddrs.get(0).locality
+
                         mGoogleMap.clear()
-                        addPresentMarker(LatLng(location.latitude, location.longitude), addrs)
+                        addPresentMarker(LatLng(location.latitude, location.longitude), cityname)
 
                         mGoogleMap.setOnMapClickListener(this@MapsActivity)
                         mGoogleMap.setOnMarkerClickListener(this)
@@ -223,9 +228,10 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
             cAddrs = gcd.getFromLocation(lat, lng, 1)!!
             //   makeToast(cAddrs?.get(0)!!.subLocality)
 
-            cityname = cAddrs?.get(0)!!.subLocality
-       //     if (cityname.length > 15)
-         //       cityname = cityname.substring(0, 12) + "..,"
+            if (SetWallWorker.Companion.cAddrs.get(0).subLocality != null)
+                cityname = SetWallWorker.Companion.cAddrs.get(0).subLocality.toString()
+            else if (SetWallWorker.Companion.cAddrs.get(0).locality != null)
+                cityname = SetWallWorker.Companion.cAddrs.get(0).locality
 
         } catch (e: IOException) {
             // TODO Auto-generated catch block
