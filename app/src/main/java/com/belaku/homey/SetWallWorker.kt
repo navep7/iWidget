@@ -151,10 +151,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 cityname = cAddrs.get(0).locality
 
 
-         //   if (cityname.length > 15)
-           //     cityname = cityname.substring(0, 12) + "..,"
-            //   makeToast("cityname - " + cityname)
-
 
         } catch (e: IOException) {
             // TODO Auto-generated catch block
