@@ -240,7 +240,10 @@ class NewAppWidget : AppWidgetProvider() {
                     cAddrs = gcd.getFromLocation(lat, lng, 1)!!
                     //   makeToast(cAddrs?.get(0)!!.subLocality)
 
-                    cityname = cAddrs?.get(0)!!.subLocality
+                    if (cAddrs.get(0).subLocality != null)
+                        cityname = cAddrs.get(0).subLocality.toString()
+                    else if (cAddrs.get(0).locality != null)
+                        cityname = cAddrs.get(0).locality
 
                     //     if (cityname.length > 15)
                     //       cityname = cityname.substring(0, 12) + "..,"
@@ -819,36 +822,36 @@ class NewAppWidget : AppWidgetProvider() {
             if (ColorUtil().isColorDark(primaryColor)) {
                 remoteViews?.setTextColor(
                     R.id.clock,
-                    appContx.resources.getColor(android.R.color.holo_red_light)
+                    ColorUtil().darkenColor(primaryColor, 0.5f)
                 )
                 remoteViews?.setTextColor(
                     R.id.tx_day_date,
-                    ColorUtil().lightenColor(primaryColor, 2.0f)
+                    ColorUtil().lightenColor(primaryColor, 0.5f)
                 )
                 remoteViews?.setTextColor(
                     R.id.tx_place,
-                    ColorUtil().lightenColor(primaryColor, 2.0f)
+                    ColorUtil().lightenColor(primaryColor, 0.5f)
                 )
                 remoteViews?.setTextColor(
                     R.id.tx_weather,
-                    ColorUtil().lightenColor(primaryColor, 2.0f)
+                    ColorUtil().lightenColor(primaryColor, 0.5f)
                 )
             } else {
                 remoteViews?.setTextColor(
                     R.id.clock,
-                    appContx.resources.getColor(android.R.color.holo_red_dark)
+                    ColorUtil().lightenColor(primaryColor, 0.5f)
                 )
                 remoteViews?.setTextColor(
                     R.id.tx_day_date,
-                    ColorUtil().darkenColor(secondaryColor, 2.0f)
+                    ColorUtil().darkenColor(primaryColor, 2.0f)
                 )
                 remoteViews?.setTextColor(
                     R.id.tx_place,
-                    ColorUtil().darkenColor(secondaryColor, 2.0f)
+                    ColorUtil().darkenColor(primaryColor, 2.0f)
                 )
                 remoteViews?.setTextColor(
                     R.id.tx_weather,
-                    ColorUtil().darkenColor(secondaryColor, 2.0f)
+                    ColorUtil().darkenColor(primaryColor, 2.0f)
                 )
             }
 
@@ -1242,43 +1245,22 @@ class NewAppWidget : AppWidgetProvider() {
                 }
             }
 
-            /*if (wallpColors.size > 0)
-                runningColor = wallpColors[Random.nextInt(0, wallpColors.size)]
-            else runningColor = Color.RED
-            //  Color.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
-
-            remoteViews?.setTextColor(R.id.tx_wish, runningColor)*/
-
-            /*if (weatherIcons.size > 0) {
-                remoteViews?.setImageViewBitmap(
-                    R.id.imgv_weather_icon, drawableToBitmap(appContx,  weatherIcons[Random.nextInt(0, weatherIcons.size)])
-                )
-            }*/
-
             var contactBitmap: Bitmap?
 
             contactBitmap = ContactPhotoHelper.retrieveContactPhoto(appContx, contactID.toLong())
             val cNme = cursor.getString(
                 cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
             )
-
             if (contactBitmap == null)
                 contactBitmap = CharacterToBitmapConverter.getBitmapFromCharacter(
                     cNme[0], 100, 100, 70, Color.BLACK
                 )
-
             val c = Contact(contactID, cNme, phoneNumber, contactBitmap)
-
-
             if (c.number.length > 7)
                 favContacts.add(c)
-
         }
-
         saveContacts()
-
         cursor.close()
-        updateWidget()
     }
 
     private fun saveContacts() {
@@ -1797,7 +1779,10 @@ class NewAppWidget : AppWidgetProvider() {
             }
 
             // Get a map of package names to UsageStats objects
-            val usageStatsMap = usageStatsManager.queryAndAggregateUsageStats(beginCal.timeInMillis, endCal.timeInMillis)
+            val usageStatsMap = usageStatsManager.queryAndAggregateUsageStats(
+                beginCal.timeInMillis,
+                endCal.timeInMillis
+            )
 
             var totalScreenTimeInMillis: Long = 0
             for (usageStats in usageStatsMap.values) {
