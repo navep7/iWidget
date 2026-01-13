@@ -822,36 +822,36 @@ class NewAppWidget : AppWidgetProvider() {
             if (ColorUtil().isColorDark(primaryColor)) {
                 remoteViews?.setTextColor(
                     R.id.clock,
-                    ColorUtil().darkenColor(tertianaryColor, 0.5f)
+                    ColorUtil().darkenColor(primaryColor, 0.5f)
                 )
                 remoteViews?.setTextColor(
                     R.id.tx_day_date,
-                    ColorUtil().lightenColor(tertianaryColor, 0.5f)
+                    ColorUtil().lightenColor(primaryColor, 0.5f)
                 )
                 remoteViews?.setTextColor(
                     R.id.tx_place,
-                    ColorUtil().lightenColor(tertianaryColor, 0.5f)
+                    ColorUtil().lightenColor(primaryColor, 0.5f)
                 )
                 remoteViews?.setTextColor(
                     R.id.tx_weather,
-                    ColorUtil().lightenColor(tertianaryColor, 0.5f)
+                    ColorUtil().lightenColor(primaryColor, 0.5f)
                 )
             } else {
                 remoteViews?.setTextColor(
                     R.id.clock,
-                    appContx.resources.getColor(android.R.color.holo_red_dark)
+                    ColorUtil().lightenColor(primaryColor, 0.5f)
                 )
                 remoteViews?.setTextColor(
                     R.id.tx_day_date,
-                    ColorUtil().darkenColor(secondaryColor, 2.0f)
+                    ColorUtil().darkenColor(primaryColor, 2.0f)
                 )
                 remoteViews?.setTextColor(
                     R.id.tx_place,
-                    ColorUtil().darkenColor(secondaryColor, 2.0f)
+                    ColorUtil().darkenColor(primaryColor, 2.0f)
                 )
                 remoteViews?.setTextColor(
                     R.id.tx_weather,
-                    ColorUtil().darkenColor(secondaryColor, 2.0f)
+                    ColorUtil().darkenColor(primaryColor, 2.0f)
                 )
             }
 
