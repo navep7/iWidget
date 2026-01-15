@@ -332,7 +332,7 @@
                         android:layout_centerVertical="true"
                         android:layout_marginStart="5dp"
                         android:layout_toEndOf="@+id/imgv_steps"
-                        android:text="Xx"
+                        android:text="0"
                         android:textColor="@android:color/holo_red_light"
                         android:textSize="15sp"
                         android:textStyle="bold" />

@@ -597,9 +597,17 @@ class NewAppWidget : AppWidgetProvider() {
     private fun setUI() {
 
 
+        /*makeToast("isMyServiceRunning - ${isMyServiceRunning(SpeakService::class.java)}")
         if (isMyServiceRunning(SpeakService::class.java))
             remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
+        else remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")*/
+
+        val spkServiceRunning = sharedPreferences.getBoolean("SPKSERVICE", false)
+     //   makeToast("spkServiceRunning : $spkServiceRunning")
+        if (spkServiceRunning)
+            remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
         else remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
+
 
         //    googleAccountInfo()
         if (isPinNoteInitialized())
@@ -1177,10 +1185,20 @@ class NewAppWidget : AppWidgetProvider() {
 
         } else if (Time_A_CLICKED == intent.action) {
 
-            var speakIntent = Intent(appContx, SpeakService::class.java)
-            if (!isMyServiceRunning(SpeakService::class.java))
+            var boolSpkService = sharedPreferences.getBoolean("SPKSERVICE", false)
+        //    makeToast("TIME_A_CLICKED, spkServiceState : $boolSpkService")
+            val speakIntent = Intent(appContx, SpeakService::class.java)
+            if (!boolSpkService) {
                 appContx.startService(speakIntent)
-            else appContx.stopService(speakIntent)
+                remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
+             //   makeToast("strtingSPKservice")
+                sharedPreferencesEditor.putBoolean("SPKSERVICE", true).apply()
+            } else {
+                appContx.stopService(speakIntent)
+                remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
+            //    makeToast("stopingSPKservice")
+                sharedPreferencesEditor.putBoolean("SPKSERVICE", false).apply()
+            }
 
         }
     }
