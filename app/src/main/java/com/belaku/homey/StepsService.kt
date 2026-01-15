@@ -108,7 +108,7 @@ class StepsService : Service() {
                     boolNewLap = sharedPreferences.getBoolean("newLap", false)
 
 
-               //     appWidM.updateAppWidget(newAppWidget, remoteViews)
+                    appWidM.updateAppWidget(newAppWidget, remoteViews)
 
                 }
 
@@ -286,6 +286,7 @@ class StepsService : Service() {
 
     companion object {
 
+        var totalUsage: String = ""
         var choosenApps: ArrayList<App> = ArrayList()
 
         fun isMyServiceRunning(serviceClass: Class<*>): Boolean {

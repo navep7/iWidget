@@ -62,6 +62,7 @@ import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.pickContactLauncher
 import com.belaku.homey.MainActivity.Companion.sN
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
+import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
@@ -80,6 +81,7 @@ import com.belaku.homey.SetWallWorker.Companion.mAct
 import com.belaku.homey.SetWallWorker.Companion.pinNote
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
+import com.belaku.homey.StepsService.Companion.totalUsage
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -113,6 +115,7 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.Timer
 import java.util.TimerTask
+import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
 import kotlin.random.Random
 
@@ -461,7 +464,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                                 endCal.get(
                                     Calendar.YEAR
                                 )
-                            })" + ", below is the App data, every day..  "
+                            })" + ", below is the App data, every day (mm:ss)..  "
                 )
 
 
@@ -470,6 +473,12 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 var b = arrayListUsageStats.distinctBy { it.usageTime }
                 var c = b.sortedBy { it.usageTime }
 
+
+                for (i in c)
+                    myAppUsages.add(i.usageTime)
+
+                totalUsage = sumTimeArray(myAppUsages)
+                myAppUsages.clear()
 
                 for (i in c) {
                     if (i.usageTime.substring(0, 2).toInt() > 10) {
@@ -490,6 +499,8 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 txAppUsageTime.append("> 10 mins/day\n")
                 for (i in muApps) txAppName.append(i)
                 for (i in myAppUsages) txAppUsageTime.append(i)
+
+             //   txAppName.append("\n\n\n ${sumTimeArray(myAppUsages)}")
                 muApps.clear()
                 myAppUsages.clear()
 
@@ -584,8 +595,13 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 txAppName.append("\n\n")
                 txAppUsageTime.append("\n\n")
 
+                var sT = totalUsage.split(":")
+                txAppName.append("Avg Usage/Day ~ ${sT[0]} Hours : ${sT[1]} Mins ")
+
                 edtxDialog.visibility = View.GONE
                 vpSteps.visibility = View.VISIBLE
+
+                appWidM.updateAppWidget(newAppWidget, remoteViews)
             } else if (dialogIntentStr == "liveWall") {
                 makeToast("LIVEWALL!")
                 val p: String = WallService::class.java.getPackage().getName()
@@ -666,6 +682,29 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
         }
+    }
+
+
+    private fun sumTimeArray(myAppUsages: ArrayList<String>): String {
+        // 1. Calculate total seconds from all "mm:ss" strings
+        var totalSeconds = 0L
+        for (time in myAppUsages) {
+            val parts = time.split(":")
+            if (parts.size == 2) {
+                val minutes = parts[0].toLong()
+                val seconds = parts[1].toLong()
+                totalSeconds += minutes * 60 + seconds
+            }
+        }
+
+        // 2. Format the total seconds to "hh:mm"
+        // TimeUnit handles the conversion to hours and minutes
+        val hours = TimeUnit.SECONDS.toHours(totalSeconds)
+        val minutes = TimeUnit.SECONDS.toMinutes(totalSeconds) % 60
+
+        // Use String.format for consistent "hh:mm" formatting, including leading zeros for minutes
+        // Note: The hour part can be > 23, which is correct for a duration
+        return String.format(Locale.getDefault(), "%02d:%02d", hours, minutes)
     }
 
     private fun stepsMapsAdapter(

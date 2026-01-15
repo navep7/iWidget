@@ -100,6 +100,7 @@ import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.belaku.homey.StepsService.Companion.choosenApps
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
+import com.belaku.homey.StepsService.Companion.totalUsage
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -603,7 +604,7 @@ class NewAppWidget : AppWidgetProvider() {
         else remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")*/
 
         val spkServiceRunning = sharedPreferences.getBoolean("SPKSERVICE", false)
-     //   makeToast("spkServiceRunning : $spkServiceRunning")
+        //   makeToast("spkServiceRunning : $spkServiceRunning")
         if (spkServiceRunning)
             remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
         else remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
@@ -1186,17 +1187,17 @@ class NewAppWidget : AppWidgetProvider() {
         } else if (Time_A_CLICKED == intent.action) {
 
             var boolSpkService = sharedPreferences.getBoolean("SPKSERVICE", false)
-        //    makeToast("TIME_A_CLICKED, spkServiceState : $boolSpkService")
+            //    makeToast("TIME_A_CLICKED, spkServiceState : $boolSpkService")
             val speakIntent = Intent(appContx, SpeakService::class.java)
             if (!boolSpkService) {
                 appContx.startService(speakIntent)
                 remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
-             //   makeToast("strtingSPKservice")
+                //   makeToast("strtingSPKservice")
                 sharedPreferencesEditor.putBoolean("SPKSERVICE", true).apply()
             } else {
                 appContx.stopService(speakIntent)
                 remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
-            //    makeToast("stopingSPKservice")
+                //    makeToast("stopingSPKservice")
                 sharedPreferencesEditor.putBoolean("SPKSERVICE", false).apply()
             }
 
@@ -1334,7 +1335,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         appWidgetView.findViewById<TextView>(
             R.id.btn_screentime
-        ).text = "${totalScreenTimeInHours}+"
+        ).text = "${totalUsage}"
         greeting()
         appWidgetView.findViewById<TextView>(R.id.tx_wish).text = timelyWish
         var ampm = Calendar.getInstance()[Calendar.AM_PM].toString()
@@ -1819,10 +1820,11 @@ class NewAppWidget : AppWidgetProvider() {
             }
 
 
-            remoteViews?.setTextViewText(
-                R.id.btn_screentime,
-                "${totalScreenTimeInHours.toString()}+"
-            )
+            if (totalUsage.split(":")[0].isNotEmpty())
+                remoteViews?.setTextViewText(
+                    R.id.btn_screentime,
+                    "${totalUsage.split(":")[0]}+ H"
+                )
 
         }
 
@@ -1911,7 +1913,8 @@ class NewAppWidget : AppWidgetProvider() {
             // remoteViews?.setTextViewText(R.id.tx_date, formattedDate)
             sharedPreferencesEditor.putBoolean("DateSet", true).apply()
             sharedPreferencesEditor.putString("fD", formattedDate).apply()
-            remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday")
+            if (stepsToday != 0)
+                remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday")
             //   remoteViews?.setTextViewText(R.id.n_tx_steps, "Now, $newLapSteps")
             remoteViews?.setTextViewText(
                 R.id.tx_day_date,

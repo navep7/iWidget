@@ -327,12 +327,12 @@
 
                     <TextView
                         android:id="@+id/tx_steps"
+                        android:text="Steps, \n today"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:layout_marginStart="5dp"
                         android:layout_toEndOf="@+id/imgv_steps"
-                        android:text="0"
                         android:textColor="@android:color/holo_red_light"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -347,7 +347,7 @@
                         android:layout_marginEnd="5dp"
                         android:layout_toEndOf="@+id/tx_steps"
                         android:text="ⓘ"
-                        android:textColor="@color/white"
+                        android:textColor="@android:color/holo_blue_dark"
                         android:textSize="25sp"
                         android:textStyle="bold"
                         tools:ignore="HardcodedText" />
@@ -374,13 +374,13 @@
 
                     <TextView
                         android:id="@+id/btn_screentime"
+                        android:text="Screen \n Time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:layout_marginStart="@dimen/padding_5"
                         android:layout_toEndOf="@+id/imgv_scr_time"
                         android:background="@android:color/transparent"
-                        android:text="10+"
                         android:textColor="@android:color/holo_red_light"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -394,7 +394,7 @@
                         android:layout_marginEnd="5dp"
                         android:layout_toEndOf="@+id/btn_screentime"
                         android:text="ⓘ"
-                        android:textColor="@color/white"
+                        android:textColor="@android:color/holo_blue_dark"
                         android:textSize="25sp"
                         android:textStyle="bold"
                         tools:ignore="HardcodedText" />
