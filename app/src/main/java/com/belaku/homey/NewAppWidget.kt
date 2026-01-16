@@ -78,6 +78,7 @@ import com.belaku.homey.MainActivity.Companion.getWeatherData
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
+import com.belaku.homey.MainActivity.Companion.tempKind
 import com.belaku.homey.MainActivity.Companion.updateWidget
 import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.MainActivity.Companion.weatherIconState
@@ -144,7 +145,7 @@ class NewAppWidget : AppWidgetProvider() {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
 
 //        Log.d("onEnabled! - ", favContacts.size.toString())
-        getLocationUpdates()
+   //     getLocationUpdates()
 
     }
 
@@ -220,11 +221,21 @@ class NewAppWidget : AppWidgetProvider() {
                     getAddress(location.latitude, location.longitude)
                     //     makeToast("Location update - $cAddrs")
 
-                    remoteViews?.setTextViewText(
-                        R.id.tx_place,
-                        cityname
-                    )
 
+                    remoteViews?.setTextViewText(R.id.tx_place, cityname)
+                    remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "°C ~ " + tempKind)
+                    if (weatherIconID.startsWith("5"))
+                        remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.rain)
+                    if (weatherIconID.equals("800"))
+                        remoteViews?.setImageViewResource(
+                            R.id.imgv_weather_icon,
+                            R.drawable.clear_sky
+                        )
+                    if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals(
+                            "803"
+                        ) || weatherIconID.equals("804")
+                    )
+                        remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.clouds)
                 }
             }
 
@@ -584,10 +595,23 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.tx_place,
                 locPendingIntent
             )
-        } else remoteViews?.setTextViewText(
-            R.id.tx_place,
-            cityname
-        )
+        } else {
+
+            remoteViews?.setTextViewText(R.id.tx_place, cityname)
+            remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "°C ~ " + tempKind)
+            if (weatherIconID.startsWith("5"))
+                remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.rain)
+            if (weatherIconID.equals("800"))
+                remoteViews?.setImageViewResource(
+                    R.id.imgv_weather_icon,
+                    R.drawable.clear_sky
+                )
+            if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals(
+                    "803"
+                ) || weatherIconID.equals("804")
+            )
+                remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.clouds)
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
@@ -1073,22 +1097,7 @@ class NewAppWidget : AppWidgetProvider() {
             shareBitmap(bitmapWidget)
 
 
-        } else if (GET_WEATHER == intent.action) {
-            remoteViews?.setTextViewText(R.id.tx_weather, "")
-            try {
-                getWeatherData(true)
-                remoteViews?.setTextViewText(
-                    R.id.tx_weather,
-                    tempC.substring(
-                        0,
-                        2
-                    ) + "°C " + weatherIconState
-                )
-            } catch (ex: Exception) {
-
-            }
-
-        } else if (WIFI_AUTO == intent.action) {
+        }  else if (WIFI_AUTO == intent.action) {
             var wifiIntent = Intent(Settings.ACTION_WIFI_SETTINGS)
             wifiIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             appContx.startActivity(wifiIntent)

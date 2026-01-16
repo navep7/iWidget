@@ -5,7 +5,6 @@ import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.ActivityManager
 import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.Dialog
@@ -14,7 +13,6 @@ import android.app.WallpaperManager
 import android.app.job.JobInfo
 import android.app.job.JobScheduler
 import android.app.usage.UsageStats
-import android.app.usage.UsageStatsManager
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
@@ -25,7 +23,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.IntentFilter
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -37,6 +34,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.icu.util.Calendar
 import android.location.Geocoder
+import android.location.Location
 import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.Uri
@@ -95,7 +93,6 @@ import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.belaku.homey.NewAppWidget.Companion.appWidM
-import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
 
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
@@ -2060,7 +2057,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         @OptIn(DelicateCoroutinesApi::class)
-        fun getWeatherData(b: Boolean) {
+        fun getWeatherData(location: Location) {
 
             try {
                 val weatherService = Retrofit.Builder()
@@ -2073,8 +2070,8 @@ class MainActivity : AppCompatActivity() {
                 GlobalScope.launch(Dispatchers.IO) {
                     val openWeatherApiKey = "9fa8e101240ab18615e3133b051e767e"
                     weatherData = weatherService.getWeather(
-                        cityLat.toString(),
-                        cityLng.toString(), openWeatherApiKey
+                        location.latitude.toString(),
+                        location.longitude.toString(), openWeatherApiKey
                     )
                     withContext(Dispatchers.Main) {
                         //  updateUI(weatherData)
@@ -2088,29 +2085,7 @@ class MainActivity : AppCompatActivity() {
 
 
                         Log.d("weatherInfo", tempC + " - " + tempKind)
-                        if (b)
-                            makeToast(
-                                "weatherInfo - " + tempC.substring(
-                                    0,
-                                    4
-                                ) + "°C" + " - " + tempKind
-                            )
 
-
-                        if (weatherIconID.startsWith("5"))
-                            remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.rain)
-                        if (weatherIconID.equals("800"))
-                            remoteViews?.setImageViewResource(
-                                R.id.imgv_weather_icon,
-                                R.drawable.clear_sky
-                            )
-                        if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals(
-                                "803"
-                            ) || weatherIconID.equals("804")
-                        )
-                            remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.clouds)
-
-                   updateWidget()
 
                         sharedPreferencesEditor.putString(
                             "weatherTemp",

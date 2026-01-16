@@ -23,7 +23,6 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.text.Html
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import androidx.annotation.NonNull
@@ -39,16 +38,19 @@ import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.delayUnit
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.fabMain
-import com.belaku.homey.MainActivity.Companion.listTweets
+import com.belaku.homey.MainActivity.Companion.getWeatherData
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.queryType
 import com.belaku.homey.MainActivity.Companion.randomWallIndex
 import com.belaku.homey.MainActivity.Companion.rlStatus
+import com.belaku.homey.MainActivity.Companion.tempC
+import com.belaku.homey.MainActivity.Companion.tempKind
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
 import com.belaku.homey.MainActivity.Companion.txStatus
 import com.belaku.homey.MainActivity.Companion.updateTime
 import com.belaku.homey.MainActivity.Companion.wallDelay
+import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
 import com.belaku.homey.NewAppWidget.Companion.dU
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
@@ -120,6 +122,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 val location = locationResult.lastLocation
                 if (location != null) {
                     getAddress(location.latitude, location.longitude)
+                    getWeatherData(location)
                 }
             }
 
@@ -312,12 +315,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                         Html.FROM_HTML_MODE_LEGACY
                     )
                 )
-
-
-                /*val mSpannableStringLoc = SpannableString(cityname)
-                mSpannableStringLoc.setSpan(UnderlineSpan(), 0, mSpannableStringLoc.length, 0)*/
-                remoteViews?.setTextViewText(R.id.tx_place, cityname)
-
 
                 val intent = Intent(appContx, NewAppWidget::class.java)
                 intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
