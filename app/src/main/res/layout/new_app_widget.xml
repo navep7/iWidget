@@ -282,7 +282,7 @@
 
                         <ImageButton
                             android:id="@+id/imgv_weather_icon"
-                            android:background="@drawable/rounded_ss_1dp"
+                            android:background="@drawable/img_loading"
                             android:padding="@dimen/padding_3"
                             android:layout_toRightOf="@+id/tx_weather"
                             android:layout_width="35dp"

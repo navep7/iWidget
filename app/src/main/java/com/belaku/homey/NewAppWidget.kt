@@ -224,11 +224,7 @@ class NewAppWidget : AppWidgetProvider() {
                         R.id.tx_place,
                         cityname
                     )
-                    try {
-                        getWeatherData(false)
-                    } catch (ex: Exception) {
 
-                    }
                 }
             }
 
@@ -1081,16 +1077,17 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setTextViewText(R.id.tx_weather, "")
             try {
                 getWeatherData(true)
+                remoteViews?.setTextViewText(
+                    R.id.tx_weather,
+                    tempC.substring(
+                        0,
+                        2
+                    ) + "°C " + weatherIconState
+                )
             } catch (ex: Exception) {
 
             }
-            remoteViews?.setTextViewText(
-                R.id.tx_weather,
-                tempC.substring(
-                    0,
-                    2
-                ) + "°C " + weatherIconState
-            )
+
         } else if (WIFI_AUTO == intent.action) {
             var wifiIntent = Intent(Settings.ACTION_WIFI_SETTINGS)
             wifiIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -1861,55 +1858,7 @@ class NewAppWidget : AppWidgetProvider() {
             formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
 
 
-            if (tempC.length > 3) {
 
-
-                remoteViews?.setTextViewText(
-                    R.id.tx_place,
-                    cityname
-                )
-                remoteViews?.setTextViewText(
-                    R.id.tx_weather,
-                    tempC.substring(0, 2) + "° C" + ", " + weatherIconState
-                )
-
-
-
-                if (weatherIconID.startsWith("5"))
-                    remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.rain)
-                if (weatherIconID.equals("800"))
-                    remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.clear_sky)
-                if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals(
-                        "803"
-                    ) || weatherIconID.equals(
-                        "804"
-                    )
-                )
-                    remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.clouds)
-            } else {
-                try {
-                    getWeatherData(false)
-                } catch (ex: Exception) {
-
-                }
-                if (tempC.length > 3) {
-                    remoteViews?.setTextViewText(
-                        R.id.tx_weather,
-                        tempC.substring(
-                            0,
-                            2
-                        ) + "°C, " + weatherIconState
-                    )
-
-
-
-                    if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals(
-                            "803"
-                        ) || weatherIconID.equals("804")
-                    )
-                        remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.clouds)
-                }
-            }
             // remoteViews?.setTextViewText(R.id.tx_date, formattedDate)
             sharedPreferencesEditor.putBoolean("DateSet", true).apply()
             sharedPreferencesEditor.putString("fD", formattedDate).apply()
