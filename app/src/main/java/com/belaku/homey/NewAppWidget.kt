@@ -545,10 +545,10 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
 
-        remoteViews?.setOnClickPendingIntent(
+       /* remoteViews?.setOnClickPendingIntent(
             R.id.imgv_weather_icon,
             getPendingSelfIntent(context, GET_WEATHER)
-        )
+        )*/
 
 
         remoteViews?.setOnClickPendingIntent(
@@ -1910,7 +1910,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val TORCH_STATE = "torch"
 
         //    private const val RL_INVERT = "rlInvert"
-        private const val GET_WEATHER = "getWeather"
+   //     private const val GET_WEATHER = "getWeather"
         private const val STEPS_NOW = "newSteps"
         private const val LOCK_PHONE = "lockPhone"
         private const val SET_CLICKED = "setButtonClick"

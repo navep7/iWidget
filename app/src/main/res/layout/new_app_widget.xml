@@ -282,8 +282,8 @@
 
                         <ImageButton
                             android:id="@+id/imgv_weather_icon"
-                            android:background="@drawable/img_loading"
                             android:padding="@dimen/padding_3"
+                            android:background="@android:color/transparent"
                             android:layout_toRightOf="@+id/tx_weather"
                             android:layout_width="35dp"
                             android:layout_height="35dp"
