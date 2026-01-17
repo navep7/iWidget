@@ -601,6 +601,11 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 edtxDialog.visibility = View.GONE
                 vpSteps.visibility = View.VISIBLE
 
+                remoteViews?.setTextViewText(
+                    R.id.btn_screentime,
+                    "${totalUsage.split(":")[0]}+ H"
+                )
+
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
             } else if (dialogIntentStr == "liveWall") {
                 makeToast("LIVEWALL!")

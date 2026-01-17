@@ -8,6 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.belaku.homey.DialogActivity.Companion.isStepsMapsInitialized
 import com.belaku.homey.DialogActivity.Companion.stepsMaps
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.NewAppWidget.Companion.appWidM
+import com.belaku.homey.NewAppWidget.Companion.newAppWidget
+import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
@@ -28,6 +31,8 @@ class StepsAdapter(
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: StepsViewHolder, position: Int) {
 
+        remoteViews?.setTextViewText(R.id.tx_steps, stepsData[position])
+        appWidM.updateAppWidget(newAppWidget, remoteViews)
 
         if (isStepsMapsInitialized())
             when (position) {

@@ -223,7 +223,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
                     remoteViews?.setTextViewText(R.id.tx_place, cityname)
-                    remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "°C ~ " + tempKind)
+                    remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "°C, " + tempKind)
                     if (weatherIconID.startsWith("5"))
                         remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.rain)
                     if (weatherIconID.equals("800"))
@@ -598,7 +598,7 @@ class NewAppWidget : AppWidgetProvider() {
         } else {
 
             remoteViews?.setTextViewText(R.id.tx_place, cityname)
-            remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "°C ~ " + tempKind)
+            remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "°C, " + tempKind)
             if (weatherIconID.startsWith("5"))
                 remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.rain)
             if (weatherIconID.equals("800"))
@@ -1357,8 +1357,7 @@ class NewAppWidget : AppWidgetProvider() {
         mSpannableStringLoc.setSpan(UnderlineSpan(), 0, mSpannableStringLoc.length, 0)
         appWidgetView.findViewById<TextView>(R.id.tx_place).text = "⚲ " + cityname
         appWidgetView.findViewById<TextView>(R.id.tx_steps).text = "$stepsToday"
-        appWidgetView.findViewById<TextView>(R.id.tx_weather).text =
-            tempC.substring(0, 2) + "°C, " + weatherIconState
+    //    appWidgetView.findViewById<TextView>(R.id.tx_weather).text = tempC.substring(0, 2) + "°C, " + weatherIconState
 
         appWidgetView.findViewById<LinearLayout>(R.id.ll_apps).visibility = View.INVISIBLE
         appWidgetView.findViewById<LinearLayout>(R.id.ll_contacts).visibility = View.INVISIBLE

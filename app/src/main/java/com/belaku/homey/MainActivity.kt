@@ -2078,7 +2078,7 @@ class MainActivity : AppCompatActivity() {
                         tempC = "${weatherData.main.temp - 273}°C"
                         weatherIconState = weatherData.weather.get(0).main
                         Log.d("weatherIconSubState",  weatherData.weather.toString())
-                        tempKind = weatherData.weather.get(0).description
+                        tempKind = weatherData.weather.get(0).main
                         weatherIconID = weatherData.weather.get(0).id
                         weatherIconUrl =
                             "http://openweathermap.org/img/wn/" + weatherIconID + "@2x.png"

@@ -311,6 +311,13 @@
                 android:padding="@dimen/fab_margin"
                 android:orientation="vertical">
 
+                <TextView
+                    android:id="@+id/tx_activity_state"
+                    android:text="State"
+                    android:layout_marginBottom="-7dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
