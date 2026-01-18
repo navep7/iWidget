@@ -596,14 +596,20 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 txAppUsageTime.append("\n\n")
 
                 var sT = totalUsage.split(":")
-                txAppName.append("Avg Usage/Day ~ ${sT[0]} Hours : ${sT[1]} Mins ")
+                var hour = ""
+
+                if (sT[0][0] == '0')
+                    hour = sT[0].drop(1)
+                else hour = sT[0]
+
+                txAppName.append("Avg Usage/Day ~ $hour Hours : ${sT[1]} Mins ")
 
                 edtxDialog.visibility = View.GONE
                 vpSteps.visibility = View.VISIBLE
 
                 remoteViews?.setTextViewText(
                     R.id.btn_screentime,
-                    "${totalUsage.split(":")[0]}+ H"
+                    "$hour + H"
                 )
 
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
