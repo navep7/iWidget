@@ -18,7 +18,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
 
-        makeToast("!onReceive ${intent.action}")
+     //   makeToast("!onReceiveAR ${intent.action}")
         if (ActivityTransitionResult.hasResult(intent)) {
             val result = ActivityTransitionResult.extractResult(intent)
             result?.let {
@@ -30,6 +30,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                                 SimpleDateFormat("HH:mm:ss", Locale.US).format(Date())
                     // notification details
 
+                    makeToast("!onReceiveAR ${toActivityString(event.activityType)}")
                     remoteViews?.setTextViewText(R.id.tx_activity_state, toActivityString(event.activityType))
                     appWidM.updateAppWidget(newAppWidget, remoteViews)
 

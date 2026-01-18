@@ -1824,12 +1824,20 @@ class NewAppWidget : AppWidgetProvider() {
                 "1" -> ampm = "PM"
             }
 
+            if (totalUsage.split(":")[0].isNotEmpty()) {
+                var sT = totalUsage.split(":")
+                var hour = ""
 
-            if (totalUsage.split(":")[0].isNotEmpty())
+                if (sT[0][0] == '0')
+                    hour = sT[0].drop(1)
+                else hour = sT[0]
+
                 remoteViews?.setTextViewText(
                     R.id.btn_screentime,
-                    "${totalUsage.split(":")[0]}+ H"
+                    "$hour+ H"
                 )
+            }
+
 
         }
 

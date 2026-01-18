@@ -39,6 +39,9 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Required for 28 and below. -->
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+    <!-- Required for 29+. -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
     <uses-permission
         android:name="android.permission.PACKAGE_USAGE_STATS"
@@ -95,7 +98,20 @@
                 android:resource="@xml/wallpaper"/>
         </service>
         -->
-        
+
+
+        <receiver
+            android:name=".ActivityTransitionReceiver"
+            android:exported="false"
+            android:enabled="true"
+            android:permission="com.google.android.gms.permission.ACTIVITY_RECOGNITION">
+            <intent-filter>
+                <action android:name="action.TRANSITIONS_DATA" />
+            </intent-filter>
+        </receiver>
+
+
+
 
         <service
             android:name=".RemoteViewsContactsService"

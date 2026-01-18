@@ -3,6 +3,7 @@ package com.belaku.homey
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.PendingIntent
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
@@ -12,6 +13,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.database.Cursor
@@ -26,7 +28,6 @@ import android.os.Handler
 import android.provider.ContactsContract
 import android.provider.Settings
 import android.speech.RecognizerIntent
-import android.text.Html
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.View
@@ -47,12 +48,8 @@ import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
-import com.belaku.homey.MainActivity.Companion.AccessibilityServicePermissionDialog
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.beginCal
-import com.belaku.homey.MainActivity.Companion.cDate
-import com.belaku.homey.MainActivity.Companion.cMonth
-import com.belaku.homey.MainActivity.Companion.cYear
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.endCal
@@ -71,14 +68,13 @@ import com.belaku.homey.NewAppWidget.Companion.getScreenTime
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
-import com.belaku.homey.SetWallWorker.Companion.screenHeight
-import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.boolWallSet
-import com.belaku.homey.SetWallWorker.Companion.mAct
 import com.belaku.homey.SetWallWorker.Companion.pinNote
+import com.belaku.homey.SetWallWorker.Companion.screenHeight
+import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.StepsService.Companion.totalUsage
@@ -88,6 +84,10 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
+import com.google.android.gms.location.ActivityRecognition
+import com.google.android.gms.location.ActivityTransition
+import com.google.android.gms.location.ActivityTransitionRequest
+import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -447,6 +447,8 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
             } else if (dialogIntentStr == "screenTimeInfo") {
+
+                recognizeActivityTransitions()
                 window.setLayout(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
                 );
@@ -693,6 +695,64 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @SuppressLint("MissingPermission")
+    private fun recognizeActivityTransitions() {
+
+
+        val receiver: ActivityTransitionReceiver = ActivityTransitionReceiver()
+        val filter = IntentFilter("com.belaku.homey.CUSTOM_ACTION") // Use a unique action string
+        registerReceiver(receiver, filter, RECEIVER_NOT_EXPORTED)
+        // Source - https://stackoverflow.com/q
+// Posted by Mehul Kanzariya, modified by community. See post 'Timeline' for change history
+// Retrieved 2026-01-18, License - CC BY-SA 4.0
+
+        val intent = Intent(applicationContext, ActivityTransitionReceiver::class.java)
+        val requestCodeAT = 57
+        val pendingIntent = PendingIntent.getBroadcast(applicationContext, requestCodeAT, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
+
+        var transitions = ArrayList<ActivityTransition>()
+        transitions.apply {
+            add(
+                ActivityTransition.Builder()
+                .setActivityType(DetectedActivity.STILL)
+                .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                .build())
+
+            add(ActivityTransition.Builder()
+                .setActivityType(DetectedActivity.STILL)
+                .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                .build())
+
+            add(
+                ActivityTransition.Builder()
+                    .setActivityType(DetectedActivity.WALKING)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                    .build())
+
+            add(ActivityTransition.Builder()
+                .setActivityType(DetectedActivity.WALKING)
+                .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                .build())
+        }
+
+        var transitionRequest = ActivityTransitionRequest(transitions)
+
+        // myPendingIntent is the instance of PendingIntent where the app receives callbacks.
+        val task = ActivityRecognition.getClient(applicationContext).requestActivityTransitionUpdates(transitionRequest, pendingIntent)
+
+        task.addOnSuccessListener {
+            // Handle success
+            makeToast("Task added successfully")
+        }
+
+        task.addOnFailureListener {
+            // Handle error
+            makeToast("Error adding task")
+        }
+
     }
 
 
