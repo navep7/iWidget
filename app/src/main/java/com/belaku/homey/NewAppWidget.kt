@@ -17,6 +17,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.pm.ServiceInfo
@@ -64,6 +65,7 @@ import android.widget.LinearLayout
 import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity.RECEIVER_NOT_EXPORTED
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
@@ -102,6 +104,10 @@ import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.belaku.homey.StepsService.Companion.choosenApps
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.belaku.homey.StepsService.Companion.totalUsage
+import com.google.android.gms.location.ActivityRecognition
+import com.google.android.gms.location.ActivityTransition
+import com.google.android.gms.location.ActivityTransitionRequest
+import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -146,6 +152,66 @@ class NewAppWidget : AppWidgetProvider() {
 
 //        Log.d("onEnabled! - ", favContacts.size.toString())
    //     getLocationUpdates()
+
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @SuppressLint("MissingPermission")
+    private fun recognizeActivityTransitions() {
+
+
+        val receiver: ActivityTransitionReceiver = ActivityTransitionReceiver()
+        val filter = IntentFilter("com.belaku.homey.CUSTOM_ACTION") // Use a unique action string
+        appContx.registerReceiver(receiver, filter, RECEIVER_NOT_EXPORTED)
+        // Source - https://stackoverflow.com/q
+// Posted by Mehul Kanzariya, modified by community. See post 'Timeline' for change history
+// Retrieved 2026-01-18, License - CC BY-SA 4.0
+
+        val intent = Intent(appContx, ActivityTransitionReceiver::class.java)
+        val requestCodeAT = 57
+        val pendingIntent = PendingIntent.getBroadcast(appContx, requestCodeAT, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
+
+        var transitions = ArrayList<ActivityTransition>()
+        transitions.apply {
+            add(
+                ActivityTransition.Builder()
+                    .setActivityType(DetectedActivity.STILL)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                    .build())
+
+            add(
+                ActivityTransition.Builder()
+                .setActivityType(DetectedActivity.STILL)
+                .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                .build())
+
+            add(
+                ActivityTransition.Builder()
+                    .setActivityType(DetectedActivity.WALKING)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                    .build())
+
+            add(
+                ActivityTransition.Builder()
+                .setActivityType(DetectedActivity.WALKING)
+                .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                .build())
+        }
+
+        var transitionRequest = ActivityTransitionRequest(transitions)
+
+        // myPendingIntent is the instance of PendingIntent where the app receives callbacks.
+        val task = ActivityRecognition.getClient(appContx).requestActivityTransitionUpdates(transitionRequest, pendingIntent)
+
+        task.addOnSuccessListener {
+            // Handle success
+        //    makeToast("Task added successfully")
+        }
+
+        task.addOnFailureListener {
+            // Handle error
+        //    makeToast("Error adding task")
+        }
 
     }
 
@@ -280,7 +346,7 @@ class NewAppWidget : AppWidgetProvider() {
         appContx = context!!
     }
 
-    @RequiresApi(Build.VERSION_CODES.S)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -294,6 +360,8 @@ class NewAppWidget : AppWidgetProvider() {
 
         sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
+
+        recognizeActivityTransitions()
 
         for (appWidgetId in appWidgetIds) {
 

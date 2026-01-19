@@ -30,7 +30,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                                 SimpleDateFormat("HH:mm:ss", Locale.US).format(Date())
                     // notification details
 
-                    makeToast("!onReceiveAR ${toActivityString(event.activityType)}")
+                //    makeToast("!onReceiveAR ${toActivityString(event.activityType)}")
                     remoteViews?.setTextViewText(R.id.tx_activity_state, toActivityString(event.activityType))
                     appWidM.updateAppWidget(newAppWidget, remoteViews)
 
