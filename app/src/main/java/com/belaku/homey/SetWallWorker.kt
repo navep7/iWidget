@@ -122,7 +122,11 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 val location = locationResult.lastLocation
                 if (location != null) {
                     getAddress(location.latitude, location.longitude)
+                    try {
                     getWeatherData(location)
+                } catch (ex: Exception) {
+                    Log.d("WeatherEXP", ex.message.toString())
+                }
                 }
             }
 
