@@ -123,7 +123,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 if (location != null) {
                     getAddress(location.latitude, location.longitude)
                     try {
-                    getWeatherData(location)
+                //    getWeatherData(location)
                 } catch (ex: Exception) {
                     Log.d("WeatherEXP", ex.message.toString())
                 }
