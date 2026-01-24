@@ -615,6 +615,10 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 if (NewAppWidget.isAppWidMInitialized())
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
+                else {
+                    appWidM = AppWidgetManager.getInstance(appContx)
+                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                }
             } else if (dialogIntentStr == "liveWall") {
                 makeToast("LIVEWALL!")
                 val p: String = WallService::class.java.getPackage().getName()
