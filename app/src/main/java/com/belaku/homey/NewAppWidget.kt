@@ -1661,15 +1661,13 @@ class NewAppWidget : AppWidgetProvider() {
         var tW: String = "..."
         lateinit var appWidM: AppWidgetManager
 
+        fun isAppWidMInitialized(): Boolean {
+            return ::appWidM.isInitialized
+        }
+
         var selectedApps: ArrayList<SelectedApp> = ArrayList()
         lateinit var selectedApp: Bitmap
-        var newsList: ArrayList<String> =
-            ArrayList()
-        var newsLinks: ArrayList<String> =
-            ArrayList()
 
-        var newsBitmaps: ArrayList<Bitmap> =
-            ArrayList()
         var primaryColor = R.color.light_blue_900
         var secondaryColor = R.color.bg_light
         var tertianaryColor = R.color.bg_dark

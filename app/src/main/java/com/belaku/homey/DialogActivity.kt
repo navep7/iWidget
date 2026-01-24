@@ -613,6 +613,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     "$hour+ H"
                 )
 
+                if (NewAppWidget.isAppWidMInitialized())
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
             } else if (dialogIntentStr == "liveWall") {
                 makeToast("LIVEWALL!")

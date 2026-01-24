@@ -97,9 +97,6 @@ import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
-import com.belaku.homey.NewAppWidget.Companion.newsBitmaps
-import com.belaku.homey.NewAppWidget.Companion.newsLinks
-import com.belaku.homey.NewAppWidget.Companion.newsList
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.screenHeight
 import com.belaku.homey.SetWallWorker.Companion.screenWidth
@@ -413,24 +410,7 @@ class MainActivity : AppCompatActivity() {
                     TxAutoUpdate.visibility = View.VISIBLE
                     // Add animation here to expand the menu
 
-                    if (newsList.size == 0) {
-                        pDNews = ProgressDialog(this@MainActivity)
-                        pDNews.setCancelable(false)
-                        //    pDNews.setTitle("fetching News...")
-                        //    pDNews.show()
-                        val jobScheduler =
-                            appContx.getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
-                        val serviceComponent = ComponentName(appContx, DailyJobService::class.java)
-                        // Optional: persist across reboots
 
-                        GlobalScope.launch(Dispatchers.IO) {
-                            val builder = JobInfo.Builder(1, serviceComponent)
-                                .setPeriodic(AlarmManager.INTERVAL_DAY) // Schedule to run daily
-                                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY) // Optional: require network
-                                .setPersisted(true)
-                            jobScheduler.schedule(builder.build())
-                        }
-                    }
                 } else {
                     fabDay.visibility = View.GONE
                     frameMin.visibility = View.GONE
@@ -2113,73 +2093,6 @@ class MainActivity : AppCompatActivity() {
                 .getAppWidgetIds(ComponentName(Companion.appContx, NewAppWidget::class.java))
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
             appContx.sendBroadcast(intent)
-        }
-
-
-        fun getNews(tDate: Int) {
-
-            //    makeToast("getNews - $cYear-$cMonth-$tDate")
-            newsList.toMutableList().clear()
-
-            ApiUtilities.getApiInterface()
-                ?.getNews("bangalore", "$cYear-$cMonth-$tDate", "publishedAt", "en", newSAPIKEY)
-                ?.enqueue(object : Callback<MainNews> {
-
-                    override fun onFailure(call: Call<MainNews>, t: Throwable) {
-                        makeToast("onFailure - " + t.message)
-                        pDNews.dismiss()
-                    }
-
-                    override fun onResponse(
-                        call: Call<MainNews>,
-                        response: retrofit2.Response<MainNews>
-                    ) {
-                        //  newsList.toMutableList().clear()
-                        if (response.isSuccessful) {
-
-                            var newsRespSize = response.body()?.articles!!.size
-                            if (newsRespSize > 3) {
-                                newsList.clear()
-                                newsBitmaps.clear()
-                                newsLinks.clear()
-                            }
-
-                            for (i in 1 until newsRespSize - 1) {
-                                newsList.add(response.body()?.articles!!.get(i).title)
-                                newsLinks.add(response.body()?.articles!!.get(i).url)
-                                try {
-                                    newsimgLink = response.body()?.articles!!.get(i).urlToImage
-                                    newsBitmaps.add(
-                                        BitmapFactory.decodeStream(
-                                            NetworkUtility().getInputStreamFromUrl(
-                                                newsimgLink
-                                            )
-                                        )
-                                    )
-                                } catch (ex: Exception) {
-                                    newsBitmaps.add(
-                                        BitmapFactory.decodeResource(
-                                            appContx.getResources(),
-                                            R.drawable.face_holder
-                                        )
-                                    )
-                                }
-                            }
-                            makeToast("News Added - " + newsList.size)
-                            pDNews.dismiss()
-                            Snackbar.make(
-                                parentLayout,
-                                "Auto Update Wallpaper, every,",
-                                Snackbar.LENGTH_SHORT
-                            )
-                                .setAction("Action", null)
-                                .setAnchorView(R.id.fab_main).show()
-                        }
-
-                    }
-                })
-
-
         }
 
 
