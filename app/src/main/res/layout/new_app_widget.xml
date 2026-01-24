@@ -17,6 +17,8 @@
         android:layout_height="match_parent"
         android:scaleType="fitXY" />
 
+
+
     <RelativeLayout
         android:id="@+id/rl_clocks"
         android:layout_width="wrap_content"
@@ -120,11 +122,24 @@
         </LinearLayout>
 
 
+
+
         <RelativeLayout
             android:id="@+id/rl_clocks_weather"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/ll_top">
+
+            <TextView
+                android:id="@+id/tx_activity_state"
+                android:text="State"
+                android:textStyle="bold|italic"
+                android:layout_marginStart="@dimen/padding_3"
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@+id/frame_texts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
 
             <ImageView
                 android:id="@+id/imgv_texts"
@@ -137,15 +152,6 @@
                 android:layout_alignBottom="@+id/frame_texts"
                 android:scaleType="fitXY" />
 
-            <ImageButton
-                android:id="@+id/imgbtn_twitter"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:background="@android:color/transparent"
-                android:layout_alignBottom="@+id/frame_texts"
-                android:layout_alignParentEnd="true"
-                android:scaleType="fitXY"
-                android:src="@drawable/tw" />
 
 
             <FrameLayout
@@ -311,12 +317,6 @@
                 android:padding="@dimen/fab_margin"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/tx_activity_state"
-                    android:text="State"
-                    android:layout_marginBottom="-7dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
 
                 <RelativeLayout
                     android:layout_width="wrap_content"
@@ -415,6 +415,18 @@
 
 
     </RelativeLayout>
+
+    <ImageButton
+        android:id="@+id/imgbtn_twitter"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginTop="@dimen/padding_3"
+        android:layout_below="@+id/rl_clocks"
+        android:layout_toStartOf="@+id/tx_runner"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:background="@android:color/transparent"
+        android:scaleType="fitXY"
+        android:src="@drawable/tw" />
 
 
     <TextView

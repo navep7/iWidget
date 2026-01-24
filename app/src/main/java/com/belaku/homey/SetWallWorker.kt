@@ -19,6 +19,7 @@ import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.location.Address
 import android.location.Geocoder
+import android.location.Location
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -118,16 +119,43 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
         //instantiating the LocationCallBack
         val locationCallback = object : LocationCallback(), GoogleMap.OnMarkerClickListener {
+
+            private var lastLocation: Location? = null
+
             override fun onLocationResult(locationResult: LocationResult) {
                 val location = locationResult.lastLocation
-                if (location != null) {
+                if (location != null)
+                if (lastLocation != null) {
+
+                    val distanceInMeters = location.distanceTo(lastLocation!!)
+                    if (distanceInMeters >= 1000f) {
+                       try {
+                           getWeatherData(location)
+                       } catch (ex: Exception) {
+
+                       }
+                    }  else if (distanceInMeters >= 100f)
+                           getAddress(location.latitude, location.longitude)
+                        else
+                        lastLocation = location
+
+                } else {
+                    getAddress(location.latitude, location.longitude)
+                    try {
+                        getWeatherData(location)
+                    } catch (ex: Exception) {
+
+                    }
+                }
+
+                /*if (location != null) {
                     getAddress(location.latitude, location.longitude)
                     try {
                 //    getWeatherData(location)
                 } catch (ex: Exception) {
                     Log.d("WeatherEXP", ex.message.toString())
                 }
-                }
+                }*/
             }
 
             override fun onMarkerClick(p0: Marker): Boolean {

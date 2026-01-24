@@ -917,6 +917,12 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
             if (ColorUtil().isColorDark(primaryColor)) {
+
+                remoteViews?.setTextColor(
+                    R.id.tx_wish,
+                    ColorUtil().darkenColor(secondaryColor, 0.5f)
+                )
+
                 remoteViews?.setTextColor(
                     R.id.clock,
                     ColorUtil().darkenColor(primaryColor, 0.5f)
@@ -934,6 +940,12 @@ class NewAppWidget : AppWidgetProvider() {
                     ColorUtil().lightenColor(primaryColor, 0.5f)
                 )
             } else {
+
+                remoteViews?.setTextColor(
+                    R.id.tx_wish,
+                    ColorUtil().lightenColor(secondaryColor, 0.5f)
+                )
+
                 remoteViews?.setTextColor(
                     R.id.clock,
                     ColorUtil().lightenColor(primaryColor, 0.5f)
