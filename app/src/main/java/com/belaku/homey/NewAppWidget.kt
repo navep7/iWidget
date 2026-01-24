@@ -39,6 +39,7 @@ import android.hardware.camera2.CameraManager
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.location.Geocoder
+import android.location.Location
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.net.wifi.WifiManager
@@ -113,6 +114,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
@@ -613,11 +615,6 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
 
-       /* remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_weather_icon,
-            getPendingSelfIntent(context, GET_WEATHER)
-        )*/
-
 
         remoteViews?.setOnClickPendingIntent(
             R.id.imgbtn_lock,
@@ -920,7 +917,7 @@ class NewAppWidget : AppWidgetProvider() {
 
                 remoteViews?.setTextColor(
                     R.id.tx_wish,
-                    ColorUtil().darkenColor(secondaryColor, 0.5f)
+                    ColorUtil().darkenColor(tertianaryColor, 0.5f)
                 )
 
                 remoteViews?.setTextColor(
@@ -1995,7 +1992,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val TORCH_STATE = "torch"
 
         //    private const val RL_INVERT = "rlInvert"
-   //     private const val GET_WEATHER = "getWeather"
+        private const val GET_WEATHER = "getWeather"
         private const val STEPS_NOW = "newSteps"
         private const val LOCK_PHONE = "lockPhone"
         private const val SET_CLICKED = "setButtonClick"

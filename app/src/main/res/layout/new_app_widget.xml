@@ -37,15 +37,17 @@
             android:background="@drawable/thick_underline"
             android:paddingBottom="@dimen/padding_5">
 
+
             <TextView
                 android:id="@+id/tx_wish"
+                android:background="@drawable/circular_tr"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="5"
                 android:layout_gravity="center"
                 android:text="..Greet!"
                 android:textColor="@android:color/holo_red_light"
-                android:textSize="33sp"
+                android:textSize="30sp"
                 android:textStyle="bold"
                 tools:ignore="HardcodedText" />
 
@@ -296,6 +298,8 @@
                             android:layout_gravity="center_vertical"
                             android:scaleType="fitXY"
                             android:src="@drawable/clouds"/>
+
+
 
 
 

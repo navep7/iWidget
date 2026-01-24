@@ -114,6 +114,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
@@ -2037,7 +2038,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         @OptIn(DelicateCoroutinesApi::class)
-        fun getWeatherData(location: Location) {
+        fun getWeatherData(latLng: LatLng) {
 
             try {
                 val weatherService = Retrofit.Builder()
@@ -2050,8 +2051,8 @@ class MainActivity : AppCompatActivity() {
                 GlobalScope.launch(Dispatchers.IO) {
                     val openWeatherApiKey = "9fa8e101240ab18615e3133b051e767e"
                     weatherData = weatherService.getWeather(
-                        location.latitude.toString(),
-                        location.longitude.toString(), openWeatherApiKey
+                        latLng.latitude.toString(),
+                        latLng.longitude.toString(), openWeatherApiKey
                     )
                     withContext(Dispatchers.Main) {
                         //  updateUI(weatherData)

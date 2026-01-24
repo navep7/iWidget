@@ -35,6 +35,8 @@ import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.cDate
 import com.belaku.homey.MainActivity.Companion.cMonth
 import com.belaku.homey.MainActivity.Companion.cYear
+import com.belaku.homey.MainActivity.Companion.cityLat
+import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.delayUnit
 import com.belaku.homey.MainActivity.Companion.endCal
@@ -72,6 +74,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.gson.Gson
 import java.io.IOException
@@ -130,7 +133,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     val distanceInMeters = location.distanceTo(lastLocation!!)
                     if (distanceInMeters >= 1000f) {
                        try {
-                           getWeatherData(location)
+                           getWeatherData(LatLng(location.latitude, location.longitude))
                        } catch (ex: Exception) {
 
                        }
@@ -142,7 +145,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 } else {
                     getAddress(location.latitude, location.longitude)
                     try {
-                        getWeatherData(location)
+                        getWeatherData(LatLng(location.latitude, location.longitude))
                     } catch (ex: Exception) {
 
                     }
@@ -176,6 +179,10 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
     private fun getAddress(latitude: Double, longitude: Double) {
         val gcd = Geocoder(applicationContext)
         Locale.getDefault()
+
+        cityLat = latitude
+        cityLng = longitude
+
         try {
             cAddrs = gcd.getFromLocation(latitude, longitude, 1)!!
             //   makeToast(cAddrs?.get(0)!!.subLocality)
