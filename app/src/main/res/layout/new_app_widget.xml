@@ -19,6 +19,7 @@
 
 
 
+
     <RelativeLayout
         android:id="@+id/rl_clocks"
         android:layout_width="wrap_content"
@@ -26,6 +27,16 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:padding="@dimen/fab_margin">
+
+        <ImageButton
+            android:id="@+id/imgbtn_twitter"
+            android:layout_below="@+id/ll_top"
+            android:layout_alignParentEnd="true"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:background="@android:color/transparent"
+            android:scaleType="fitXY"
+            android:src="@drawable/tw" />
 
 
         <LinearLayout
@@ -40,13 +51,13 @@
 
             <TextView
                 android:id="@+id/tx_wish"
-                android:background="@drawable/circular_tr"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="5"
                 android:layout_gravity="center"
                 android:text="..Greet!"
-                android:textColor="@android:color/holo_red_light"
+                android:layout_marginEnd="@dimen/fab_margin"
+                android:gravity="center"
                 android:textSize="30sp"
                 android:textStyle="bold"
                 tools:ignore="HardcodedText" />
@@ -132,15 +143,6 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/ll_top">
 
-            <TextView
-                android:id="@+id/tx_activity_state"
-                android:text="State"
-                android:textStyle="bold|italic"
-                android:layout_marginStart="@dimen/padding_3"
-                android:layout_alignParentTop="true"
-                android:layout_toEndOf="@+id/frame_texts"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
 
 
             <ImageView
@@ -204,7 +206,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:format12Hour="h:mm:ss"
-                        android:textColor="@android:color/black"
                         android:textSize="25sp"
                         android:textStyle="bold" />
 
@@ -318,11 +319,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:padding="@dimen/fab_margin"
+                android:paddingStart="@dimen/fab_margin"
+                android:paddingEnd="@dimen/fab_margin"
                 android:orientation="vertical">
 
 
-                <RelativeLayout
+                <TextView
+                    android:id="@+id/tx_activity_state"
+                    android:text="State"
+                    android:textStyle="bold|italic"
+                    android:background="@drawable/circular_red"
+                    android:padding="@dimen/padding_5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                    <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
 
@@ -420,17 +431,6 @@
 
     </RelativeLayout>
 
-    <ImageButton
-        android:id="@+id/imgbtn_twitter"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:layout_marginTop="@dimen/padding_3"
-        android:layout_below="@+id/rl_clocks"
-        android:layout_toStartOf="@+id/tx_runner"
-        android:layout_marginEnd="@dimen/fab_margin"
-        android:background="@android:color/transparent"
-        android:scaleType="fitXY"
-        android:src="@drawable/tw" />
 
 
     <TextView

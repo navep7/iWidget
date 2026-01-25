@@ -21,6 +21,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.pm.ServiceInfo
+import android.content.res.Resources
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -875,6 +876,7 @@ class NewAppWidget : AppWidgetProvider() {
         return color xor 0x00FFFFFF
     }
 
+    @SuppressLint("ResourceAsColor")
     @RequiresApi(Build.VERSION_CODES.S)
     private fun wallColors() {
 
@@ -913,17 +915,19 @@ class NewAppWidget : AppWidgetProvider() {
                 Color.BLACK
             )
 
+
+
             if (ColorUtil().isColorDark(primaryColor)) {
 
                 remoteViews?.setTextColor(
-                    R.id.tx_wish,
-                    ColorUtil().darkenColor(tertianaryColor, 0.5f)
-                )
+                    R.id.clock,
+                    appContx.resources.getColor(android.R.color.holo_red_light))
 
                 remoteViews?.setTextColor(
-                    R.id.clock,
-                    ColorUtil().darkenColor(primaryColor, 0.5f)
+                    R.id.tx_wish,
+                    appContx.resources.getColor(R.color.white)
                 )
+
                 remoteViews?.setTextColor(
                     R.id.tx_day_date,
                     ColorUtil().lightenColor(primaryColor, 0.5f)
@@ -939,14 +943,15 @@ class NewAppWidget : AppWidgetProvider() {
             } else {
 
                 remoteViews?.setTextColor(
-                    R.id.tx_wish,
-                    ColorUtil().lightenColor(secondaryColor, 0.5f)
-                )
+                    R.id.clock,
+                    appContx.resources.getColor(android.R.color.holo_red_dark))
 
                 remoteViews?.setTextColor(
-                    R.id.clock,
-                    ColorUtil().lightenColor(primaryColor, 0.5f)
+                    R.id.tx_wish,
+                    appContx.resources.getColor(R.color.black)
                 )
+
+
                 remoteViews?.setTextColor(
                     R.id.tx_day_date,
                     ColorUtil().darkenColor(primaryColor, 2.0f)
@@ -1658,10 +1663,6 @@ class NewAppWidget : AppWidgetProvider() {
         var tW: String = "..."
         lateinit var appWidM: AppWidgetManager
 
-        fun isAppWidMInitialized(): Boolean {
-            appWidM = AppWidgetManager.getInstance(appContx)
-            return ::appWidM.isInitialized
-        }
 
         var selectedApps: ArrayList<SelectedApp> = ArrayList()
         lateinit var selectedApp: Bitmap
