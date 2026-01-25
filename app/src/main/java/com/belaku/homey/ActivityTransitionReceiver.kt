@@ -42,10 +42,10 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
     // types of activities
     fun toActivityString(activity: Int): String {
         return when (activity) {
-            DetectedActivity.STILL -> "STILL"
-            DetectedActivity.WALKING -> "WALKING"
-            DetectedActivity.IN_VEHICLE -> "IN VEHICLE"
-            DetectedActivity.RUNNING -> "RUNNING"
+            DetectedActivity.STILL -> " STILL "
+            DetectedActivity.WALKING -> " WALKING "
+            DetectedActivity.IN_VEHICLE -> " IN VEHICLE "
+            DetectedActivity.RUNNING -> " RUNNING "
             else -> "UNKNOWN"
         }
     }

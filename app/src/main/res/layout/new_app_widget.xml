@@ -324,14 +324,31 @@
                 android:orientation="vertical">
 
 
-                <TextView
-                    android:id="@+id/tx_activity_state"
-                    android:text="State"
-                    android:textStyle="bold|italic"
-                    android:background="@drawable/circular_red"
-                    android:padding="@dimen/padding_5"
+                <RelativeLayout
+                    android:layout_marginStart="@dimen/padding_5"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tx_activity_state"
+                        android:textStyle="bold"
+                        android:background="@drawable/gradient_glass_dark_flat"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" State "/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="3dp"
+                        android:layout_below="@+id/tx_activity_state"
+                        android:layout_toStartOf="@+id/tx_activity_state"
+                        android:layout_toEndOf="@+id/tx_activity_state"
+                        android:background="@android:color/holo_blue_dark"/>
+
+
+                </RelativeLayout>
+
 
                     <RelativeLayout
                     android:layout_width="wrap_content"

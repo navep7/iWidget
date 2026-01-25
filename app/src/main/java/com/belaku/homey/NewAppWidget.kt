@@ -929,6 +929,10 @@ class NewAppWidget : AppWidgetProvider() {
                 )
 
                 remoteViews?.setTextColor(
+                    R.id.tx_activity_state,
+                    ColorUtil().lightenColor(primaryColor, 0.5f)
+                )
+                remoteViews?.setTextColor(
                     R.id.tx_day_date,
                     ColorUtil().lightenColor(primaryColor, 0.5f)
                 )
@@ -952,6 +956,10 @@ class NewAppWidget : AppWidgetProvider() {
                 )
 
 
+                remoteViews?.setTextColor(
+                    R.id.tx_activity_state,
+                    ColorUtil().darkenColor(primaryColor, 2.0f)
+                )
                 remoteViews?.setTextColor(
                     R.id.tx_day_date,
                     ColorUtil().darkenColor(primaryColor, 2.0f)
