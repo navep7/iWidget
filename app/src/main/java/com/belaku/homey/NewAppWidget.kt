@@ -1659,6 +1659,7 @@ class NewAppWidget : AppWidgetProvider() {
         lateinit var appWidM: AppWidgetManager
 
         fun isAppWidMInitialized(): Boolean {
+            appWidM = AppWidgetManager.getInstance(appContx)
             return ::appWidM.isInitialized
         }
 
