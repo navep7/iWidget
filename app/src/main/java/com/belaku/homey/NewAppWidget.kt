@@ -35,6 +35,9 @@ import android.graphics.Rect
 import android.graphics.Shader
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.RectShape
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.icu.text.SimpleDateFormat
@@ -384,9 +387,8 @@ class NewAppWidget : AppWidgetProvider() {
 
 
             //  Create an intent to launch MainActivity
-            val intent = Intent(context, MainActivity::class.java)
 
-            setOnClickPendingIntents(context, intent)
+            setOnClickPendingIntents(context)
 
             appWidM = AppWidgetManager.getInstance(context)
             appWidM.updateAppWidget(appWidgetId, remoteViews)
@@ -398,12 +400,14 @@ class NewAppWidget : AppWidgetProvider() {
 
     }
 
-    private fun setOnClickPendingIntents(context: Context, intent: Intent) {
+    private fun setOnClickPendingIntents(context: Context) {
         // Create a PendingIntent
+
+        val intentMain = Intent(context, MainActivity::class.java)
         val pendingIntentMain = PendingIntent.getActivity(
             context,
             0,
-            intent,
+            intentMain,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE // Use FLAG_IMMUTABLE with modern Android
         )
 
@@ -443,8 +447,16 @@ class NewAppWidget : AppWidgetProvider() {
 
         remoteViews?.setOnClickPendingIntent(
             R.id.imgv_add_contacts, PendingIntent.getActivity(
-                context, 11,
+                context, 1,
                 Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.rl_player, PendingIntent.getActivity(
+                context, 2,
+                Intent(context, MusicActivity::class.java).putExtra("DialogIntent", "PC"),
                 PendingIntent.FLAG_IMMUTABLE
             )
         )
@@ -462,7 +474,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         val aiPendingIntent = PendingIntent.getActivity(
             context,
-            0,
+            3,
             aiIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -479,7 +491,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         val remindersPendingIntent = PendingIntent.getActivity(
             context,
-            0,
+            4,
             remindersIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -492,7 +504,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         remoteViews?.setOnClickPendingIntent(
             R.id.imgbtn_speech, PendingIntent.getActivity(
-                context, 1,
+                context, 5,
                 Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "StT"),
                 PendingIntent.FLAG_IMMUTABLE
             )
@@ -500,7 +512,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         remoteViews?.setOnClickPendingIntent(
             R.id.tx_runner, PendingIntent.getActivity(
-                context, 16,
+                context, 6,
                 Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "AddNote"),
                 PendingIntent.FLAG_IMMUTABLE
             )
@@ -508,7 +520,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         remoteViews?.setOnClickPendingIntent(
             R.id.imgbtn_twitter, PendingIntent.getActivity(
-                context, 2,
+                context, 7,
                 Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "ST"),
                 PendingIntent.FLAG_IMMUTABLE
             )
@@ -517,7 +529,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         remoteViews?.setOnClickPendingIntent(
             R.id.twSettings, PendingIntent.getActivity(
-                context, 3,
+                context, 8,
                 Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "STH"),
                 PendingIntent.FLAG_IMMUTABLE
             )
@@ -529,7 +541,7 @@ class NewAppWidget : AppWidgetProvider() {
         else intentBluetooth.putExtra("DialogIntent", "BLUEEnable")
         val pendingIntentBluetooth = PendingIntent.getActivity(
             context,
-            4,
+            9,
             intentBluetooth,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -542,7 +554,7 @@ class NewAppWidget : AppWidgetProvider() {
         else intentWifi.putExtra("DialogIntent", "WifiEnable")
         val pendingIntentWifi = PendingIntent.getActivity(
             context,
-            6,
+            10,
             intentWifi,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -560,7 +572,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         val launcherPendingIntentGaps = PendingIntent.getActivity(
             context,
-            0,
+            11,
             launcherIntentGaps,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -576,7 +588,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         val launcherPendingIntentNPs = PendingIntent.getActivity(
             context,
-            11,
+            12,
             launcherIntentNPs,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -589,7 +601,7 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setOnClickPendingIntent(
             R.id.imgbtn_qr,
             PendingIntent.getActivity(
-                context, 10,
+                context, 13,
                 Intent(context, DialogActivity::class.java).putExtra(
                     "DialogIntent",
                     "qrClick"
@@ -602,7 +614,7 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setOnClickPendingIntent(
             R.id.tx_screentime_info,
             PendingIntent.getActivity(
-                context, 8,
+                context, 14,
                 Intent(context, DialogActivity::class.java).putExtra(
                     "DialogIntent",
                     "screenTimeInfo"
@@ -613,7 +625,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         remoteViews?.setOnClickPendingIntent(
             R.id.tx_steps_info, PendingIntent.getActivity(
-                context, 7,
+                context, 15,
                 Intent(context, DialogActivity::class.java).putExtra(
                     "DialogIntent",
                     "stepsInfo"
@@ -632,7 +644,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         remoteViews?.setOnClickPendingIntent(
             R.id.imgbtn_set, PendingIntent.getActivity(
-                context, 12,
+                context, 16,
                 Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "WCh"),
                 PendingIntent.FLAG_IMMUTABLE
             )
@@ -642,7 +654,7 @@ class NewAppWidget : AppWidgetProvider() {
         val mapsIntent = Intent(context, MapsActivity::class.java)
         val mapsPendingIntent = PendingIntent.getActivity(
             context,
-            0,
+            17,
             mapsIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -660,7 +672,7 @@ class NewAppWidget : AppWidgetProvider() {
             val locIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
             val locPendingIntent = PendingIntent.getActivity(
                 context,
-                21,
+                18,
                 locIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
@@ -923,6 +935,11 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
 
+            remoteViews?.setImageViewBitmap(R.id.imgv_player, createGradientBitmap(screenWidth, 100, primaryColor, tertianaryColor))
+
+          //  findViewById<View>(R.id.myLayout).background = gradientDrawable
+
+
 
             if (ColorUtil().isColorDark(primaryColor)) {
 
@@ -1001,6 +1018,26 @@ class NewAppWidget : AppWidgetProvider() {
 
     }
 
+
+
+    fun createGradientBitmap(width: Int, height: Int, startColor: Int, endColor: Int): Bitmap {
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        // Define the gradient
+        val gradient = LinearGradient(0f, 0f, 0f, height.toFloat(), startColor, endColor, Shader.TileMode.CLAMP)
+
+        // Use ShapeDrawable to apply the gradient
+        val shapeDrawable = ShapeDrawable(RectShape())
+        shapeDrawable.paint.shader = gradient
+        shapeDrawable.setBounds(0, 0, width, height)
+
+        // Draw the shape onto the canvas
+        shapeDrawable.draw(canvas)
+
+        return bitmap
+    }
+
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setSomeTwAndWallDescUI() {
 
@@ -1023,7 +1060,7 @@ class NewAppWidget : AppWidgetProvider() {
                 remoteViews?.setOnClickPendingIntent(
                     R.id.tx_rewards_count, PendingIntent.getActivity(
                         appContx,
-                        5,
+                        18,
                         Intent(appContx, DialogActivity::class.java).putExtra("DialogIntent", "AD"),
                         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                     )
