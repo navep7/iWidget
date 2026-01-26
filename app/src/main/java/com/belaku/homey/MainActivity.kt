@@ -979,7 +979,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("MissingInflatedId")
+  /*  @SuppressLint("MissingInflatedId")
     private fun showTwitterHandleDialog() {
         val factory = LayoutInflater.from(this)
         twitterHandleDialog = factory.inflate(R.layout.twitter_handle_layout, null)
@@ -1007,7 +1007,7 @@ class MainActivity : AppCompatActivity() {
         twitterDialog.show()
     }
 
-    private fun getTweetID(uname: String, showPD: Boolean) {
+     private fun getTweetID(uname: String, showPD: Boolean) {
 
         val client = OkHttpClient()
 
@@ -1163,7 +1163,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         Log.d("result", "res - ${listTweets.size}")
-    }
+    }*/
 
 
     suspend fun getBitmapFromUrl(imageUrl: String): Bitmap? {

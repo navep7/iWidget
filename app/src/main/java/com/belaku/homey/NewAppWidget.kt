@@ -154,7 +154,7 @@ class NewAppWidget : AppWidgetProvider() {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
 
 //        Log.d("onEnabled! - ", favContacts.size.toString())
-   //     getLocationUpdates()
+        getLocationUpdates()
 
     }
 
@@ -280,32 +280,39 @@ class NewAppWidget : AppWidgetProvider() {
 
         //instantiating the LocationCallBack
         val locationCallback = object : LocationCallback() {
+
+            private var lastLocation: Location? = null
+
+            val connectivityManager = appContx.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val activeNetwork = connectivityManager.activeNetworkInfo
+            var isNetConnected = activeNetwork?.isConnectedOrConnecting == true
+
             override fun onLocationResult(locationResult: LocationResult) {
                 val location = locationResult.lastLocation
-                if (location != null) {
+                if (location != null)
+                    if (lastLocation != null) {
 
-                    cityLat = location.latitude
-                    cityLng = location.longitude
+                        val distanceInMeters = location.distanceTo(lastLocation!!)
+                        if (distanceInMeters >= 1000f && isNetConnected) {
+                            try {
+                                getWeatherData(LatLng(location.latitude, location.longitude))
+                            } catch (ex: Exception) {
+                                makeToast("WeatherEXP ~ $ex")
+                            }
+                        } else if (distanceInMeters >= 100f)
+                            getAddress(location.latitude, location.longitude)
+                        else
+                            lastLocation = location
 
-                    getAddress(location.latitude, location.longitude)
-                    //     makeToast("Location update - $cAddrs")
+                    } else {
+                        getAddress(location.latitude, location.longitude)
+                        try {
+                            getWeatherData(LatLng(location.latitude, location.longitude))
+                        } catch (ex: Exception) {
+                            makeToast("WeatherEXP ~ $ex")
+                        }
+                    }
 
-
-                    remoteViews?.setTextViewText(R.id.tx_place, cityname)
-                    remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "°C, " + tempKind)
-                    if (weatherIconID.startsWith("5"))
-                        remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.rain)
-                    if (weatherIconID.equals("800"))
-                        remoteViews?.setImageViewResource(
-                            R.id.imgv_weather_icon,
-                            R.drawable.clear_sky
-                        )
-                    if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals(
-                            "803"
-                        ) || weatherIconID.equals("804")
-                    )
-                        remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.clouds)
-                }
             }
 
             fun getAddress(lat: Double, lng: Double) {

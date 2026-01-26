@@ -1070,7 +1070,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun getTweetID(str: String, b: Boolean) {
+   /* private fun getTweetID(str: String, b: Boolean) {
 
         val client = OkHttpClient()
 
@@ -1255,7 +1255,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
         updateWidget()
 
-    }
+    }*/
 
     suspend fun getBitmapFromUrl(imageUrl: String): Bitmap? {
         return withContext(Dispatchers.IO) { // Switch to the IO dispatcher for network operations

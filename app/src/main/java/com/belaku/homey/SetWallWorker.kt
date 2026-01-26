@@ -20,6 +20,7 @@ import android.icu.util.Calendar
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
+import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -89,6 +90,8 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
     Worker(context!!, workerParams!!) {
 
 
+    private var isNetConnected: Boolean = false
+
     @RequiresApi(Build.VERSION_CODES.S)
     @NonNull
     override fun doWork(): Result {
@@ -103,13 +106,18 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
         wm = WallpaperManager.getInstance(appContx)
 
+        val connectivityManager = appContx.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork = connectivityManager.activeNetworkInfo
+        isNetConnected = activeNetwork?.isConnectedOrConnecting == true
+
+        if (isNetConnected)
         setWall(true)
-        getCity()
+        else makeToast("Check INTERNET!")
+     //   getCity()
         greeting()
 
         return Result.success()
     }
-
 
 
     @SuppressLint("MissingPermission")
@@ -128,28 +136,28 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             override fun onLocationResult(locationResult: LocationResult) {
                 val location = locationResult.lastLocation
                 if (location != null)
-                if (lastLocation != null) {
+                    if (lastLocation != null) {
 
-                    val distanceInMeters = location.distanceTo(lastLocation!!)
-                    if (distanceInMeters >= 1000f) {
-                       try {
-                           getWeatherData(LatLng(location.latitude, location.longitude))
-                       } catch (ex: Exception) {
+                        val distanceInMeters = location.distanceTo(lastLocation!!)
+                        if (distanceInMeters >= 1000f && isNetConnected) {
+                            try {
+                                getWeatherData(LatLng(location.latitude, location.longitude))
+                            } catch (ex: Exception) {
 
-                       }
-                    }  else if (distanceInMeters >= 100f)
-                           getAddress(location.latitude, location.longitude)
+                            }
+                        } else if (distanceInMeters >= 100f)
+                            getAddress(location.latitude, location.longitude)
                         else
-                        lastLocation = location
+                            lastLocation = location
 
-                } else {
-                    getAddress(location.latitude, location.longitude)
-                    try {
-                        getWeatherData(LatLng(location.latitude, location.longitude))
-                    } catch (ex: Exception) {
+                    } else {
+                        getAddress(location.latitude, location.longitude)
+                        try {
+                            getWeatherData(LatLng(location.latitude, location.longitude))
+                        } catch (ex: Exception) {
 
+                        }
                     }
-                }
 
                 /*if (location != null) {
                     getAddress(location.latitude, location.longitude)
@@ -162,7 +170,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             }
 
             override fun onMarkerClick(p0: Marker): Boolean {
-            //    makeToast("nothin")
+                //    makeToast("nothin")
                 return true
             }
         }
@@ -193,7 +201,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 cityname = cAddrs.get(0).locality
 
 
-
         } catch (e: IOException) {
             // TODO Auto-generated catch block
             e.printStackTrace()
@@ -201,8 +208,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         }
 
     }
-
-
 
 
     private fun updateWidget() {
@@ -227,6 +232,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         fun isPinNoteInitialized(): Boolean {
             return this::pinNote.isInitialized
         }
+
         lateinit var rActOpenedFirst: String
         lateinit var mAct: Activity
         var dayIndex: Int = -1
@@ -241,6 +247,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         fun isWallBitmapInitialized(): Boolean {
             return this::wallBitmap.isInitialized
         }
+
         var boolNewLap: Boolean = false
 
         @kotlin.jvm.JvmField
@@ -275,7 +282,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
 
                 if (urls.size > 0)
-                randomWallIndex = Random.Default.nextInt(urls.size)
+                    randomWallIndex = Random.Default.nextInt(urls.size)
                 wallDesc = wallDescs.get(randomWallIndex)
 
                 Log.d("settingWD", urls[randomWallIndex])
@@ -380,7 +387,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             if (sharedPreferences.getString("day", "someday").equals(dayOfTheWeek)) {
                 Log.d("DayChange?", "same Day")
             } else {
-                Log.d("DayChange?","diff Day")
+                Log.d("DayChange?", "diff Day")
                 dayChange = true
                 sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
                 stepsToday = 0
@@ -437,8 +444,9 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 val appName =
                     getAppNameFromPkg(applicationContext, queryUsageStats.get(i).packageName)
                 val appPname = queryUsageStats.get(i).packageName
-                val appUsage = formatMilliseconds(queryUsageStats[i].totalTimeInForeground).substring(0, 2)
-            //    var appUsage = arrayListUsageStats.elementAt(i).usageTime
+                val appUsage =
+                    formatMilliseconds(queryUsageStats[i].totalTimeInForeground).substring(0, 2)
+                //    var appUsage = arrayListUsageStats.elementAt(i).usageTime
 
                 Log.d(
                     "queryUsageStats",
@@ -461,16 +469,16 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
 
 
-                                    choosenApps.add(
-                                        App(
-                                            appName, appPname, appUsage
-                                        )
+                                choosenApps.add(
+                                    App(
+                                        appName, appPname, appUsage
                                     )
-                                }
-                          //  }
+                                )
+                            }
+                //  }
             }
 
-               saveApps(choosenApps)
+            saveApps(choosenApps)
 
         }
 
