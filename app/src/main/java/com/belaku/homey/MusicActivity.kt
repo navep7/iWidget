@@ -1,6 +1,9 @@
 package com.belaku.homey
 
+import android.annotation.SuppressLint
 import android.app.ActivityManager
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -10,29 +13,34 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import android.os.Messenger
-import android.text.InputType
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.RelativeLayout
+import android.widget.RemoteViews
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.TextView.OnEditorActionListener
 import android.widget.Toast
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.belaku.Data
+import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.MusicService.Companion.mediaPlayer
+import com.belaku.homey.MusicService.Companion.songIndex
+import com.belaku.homey.NewAppWidget.Companion.appWidM
+import com.belaku.homey.NewAppWidget.Companion.newAppWidget
+import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.databinding.ActivityMusicBinding
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -42,7 +50,6 @@ import java.net.URL
 
 class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
-    private var songIndex: Int = 0
     private lateinit var player: MediaPlayer
     private var gotDuration: Boolean = false
     private lateinit var bitmapAlbum: Bitmap
@@ -52,12 +59,10 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
     private lateinit var playIntent: Intent
     private var songs: ArrayList<String> = ArrayList()
     private lateinit var query: String
-    private lateinit var btnPlayPause: ImageButton
-    private lateinit var imgbtnPlay: ImageButton
+    private lateinit var fabPlayPause: FloatingActionButton
     private lateinit var recyclerview: RecyclerView
     private lateinit var playerBg: RelativeLayout
     private lateinit var editTextQuery: EditText
-    private lateinit var seekBar: SeekBar
     private var arraylistArtists = ArrayList<String>()
     private lateinit var handlerForBG: Handler
 
@@ -75,7 +80,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         val sData = MusicActivity.Companion.dataList[position]
 
         try {
-            findViewById<TextView>(R.id.tx_songname).text = MusicActivity.Companion.dataList[songIndex].title
+            //     findViewById<TextView>(R.id.tx_sname).text = MusicActivity.Companion.dataList[songIndex].title
             val uri = Uri.parse(MusicActivity.Companion.dataList.get(songIndex++).preview)
             player = MediaPlayer()
             player.setAudioStreamType(AudioManager.STREAM_MUSIC)
@@ -104,7 +109,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         thread.start()
 
 
-        handlerForBG.postDelayed(Runnable {  playerBg.background = image }, 1000)
+        handlerForBG.postDelayed(Runnable { playerBg.background = image }, 1000)
 
 
         Toast.makeText(
@@ -127,17 +132,18 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
         handlerForBG = Handler()
 
-        seekBar = findViewById(R.id.seekbar)
         playerBg = findViewById<RelativeLayout>(R.id.player_bg)
         editTextQuery = findViewById<EditText>(R.id.edtx_query)
-        editTextQuery.setInputType(InputType.TYPE_CLASS_TEXT)
         recyclerview = findViewById<RecyclerView>(R.id.rv)
-        imgbtnPlay = findViewById<ImageButton>(R.id.imgbtn_play)
-        btnPlayPause = findViewById<ImageButton>(R.id.imgbtn_playpause)
+        fabPlayPause = findViewById<FloatingActionButton>(R.id.fab_play_pause)
 
-        if (isMyMusicServiceRunning(MusicService::class.java)) {
-            imgbtnPlay.setImageResource(android.R.drawable.ic_media_pause)
-        }
+
+
+
+
+        if (isMyMusicServiceRunning(MusicService::class.java))
+            fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
+        else fabPlayPause.setImageResource(android.R.drawable.ic_media_play)
 
 
         query = "Coldplay"
@@ -147,7 +153,8 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         editTextQuery.setOnEditorActionListener(OnEditorActionListener { v, actionId, event ->
             var handled = false
             if (actionId == EditorInfo.IME_ACTION_SEND) {
-                Toast.makeText(this@MusicActivity, editTextQuery.getText(), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MusicActivity, editTextQuery.getText(), Toast.LENGTH_SHORT)
+                    .show()
                 query = editTextQuery.getText().toString()
                 Getdata()
                 handled = true
@@ -157,56 +164,99 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
 
 
-        btnPlayPause.setOnClickListener(View.OnClickListener {
+        fabPlayPause.setOnClickListener(View.OnClickListener {
+
+
+
+                        if(!isMyMusicServiceRunning(MusicService::class.java)) {
+
+                            var i: Int = 0;
+                            for (item in songs) {
+                                playIntent.putExtra(i.toString(), item)
+                                i++
+                            }
+
+                            handlerSongInfo = @SuppressLint("HandlerLeak")
+                            object : Handler(Looper.getMainLooper()) {
+                                override fun handleMessage(msg: Message) {
+                                    updateUI(msg.what)
+                                }
+                            }
+
+                            handlerSeekInfo = @SuppressLint("HandlerLeak")
+                            object : Handler(Looper.getMainLooper()) {
+                                override fun handleMessage(msg: Message) {
+                                    updateSeek(msg.what)
+                                }
+                            }
+
+                            playIntent.putExtra("songInfo", Messenger(handlerSongInfo));
+                            playIntent.putExtra("seekInfo", Messenger(handlerSeekInfo))
+
+                            //    updateUI(0)
+                            startForegroundService(playIntent)
+                            fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
+
+                        } else {
+
+                            if (MusicService.isMediaPlayerInitialized()) {
+                                if (mediaPlayer.isPlaying) {
+                                    mediaPlayer.pause()
+                                    remoteViews?.setImageViewResource(com.belaku.homey.R.id.imgbtn_play, android.R.drawable.ic_media_play)
+                                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                                    fabPlayPause.setImageResource(android.R.drawable.ic_media_play)
+                                } else {
+                                    mediaPlayer.start()
+                                    remoteViews?.setImageViewResource(com.belaku.homey.R.id.imgbtn_play, android.R.drawable.ic_media_pause)
+                                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                                    fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
+
+                                }
+                            }
+
+                        }
+
 
         })
 
 
-        imgbtnPlay.setOnClickListener(View.OnClickListener {
+        if(isMyMusicServiceRunning(MusicService::class.java)) {
 
-            if(!isMyMusicServiceRunning(MusicService::class.java)) {
-                imgbtnPlay.setImageResource(android.R.drawable.ic_media_pause)
-                seekBar.thumb = resources.getDrawable(android.R.drawable.ic_media_pause)
+        //    Toast.makeText(applicationContext, dataList[songIndex].title, Toast.LENGTH_LONG).show()
+          //  recyclerview.scrollToPosition(songIndex)
 
-                var i: Int = 0;
-                for (item in songs) {
-                    playIntent.putExtra(i.toString(), item)
-                    i++
+        }
+
+
+    }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        if (MusicService.isMediaPlayerInitialized())
+            try {
+                if (!mediaPlayer.isPlaying) {
+                    val myService = Intent(
+                        this@MusicActivity,
+                        MusicService::class.java
+                    )
+                    stopService(myService)
                 }
-
-                handlerSongInfo = object : Handler() {
-                    override fun handleMessage(msg: Message) {
-                        updateUI(msg.what)
-                    }
-                }
-
-                handlerSeekInfo = object : Handler() {
-                    override fun handleMessage(msg: Message) {
-                        updateSeek(msg.what)
-                    }
-                }
-
-                playIntent.putExtra("songInfo", Messenger(handlerSongInfo));
-                playIntent.putExtra("seekInfo", Messenger(handlerSeekInfo))
-
-                //    updateUI(0)
-                startForegroundService(playIntent)
-
-            } else {
-                imgbtnPlay.setImageResource(android.R.drawable.ic_media_play)
-                seekBar.thumb = resources.getDrawable(android.R.drawable.ic_media_play)
-                val myService = Intent(
-                    this@MusicActivity,
-                    MusicService::class.java
-                )
-                stopService(myService)
+            } catch (e: IllegalStateException) {
+                // Handle the exception, potentially logging or resetting the player
+                e.printStackTrace()
             }
-
-        })
-
+    }
 
 
+    override fun onResume() {
+        super.onResume()
 
+        playIntent = Intent(
+            this,
+            MusicService::class.java
+        )
     }
 
 
@@ -241,7 +291,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                 recyclerview.setLayoutManager(
                     LinearLayoutManager(
                         this@MusicActivity,
-                        LinearLayoutManager.HORIZONTAL,false
+                        LinearLayoutManager.HORIZONTAL, false
                     )
                 )
 
@@ -259,16 +309,18 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
         if (!gotDuration) {
             gotDuration = true
-            seekBar.max = what
+            //   seekBar.max = what
         } else {
-            seekBar.setProgress(what, true)
+            //  seekBar.setProgress(what, true)
         }
     }
 
     private fun updateUI(what: Int) {
 
+
+        Log.d("sInfomr", dataList[what].title + " ~ $what")
         recyclerview.scrollToPosition(what)
-        findViewById<TextView>(R.id.tx_songname).text = MusicActivity.Companion.dataList[what].title
+        //    findViewById<TextView>(R.id.tx_sname).text = MusicActivity.Companion.dataList[what].title
         val thread = Thread {
             try {
                 // Your code goes here
@@ -284,7 +336,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         thread.start()
 
 
-        handlerForBG.postDelayed(Runnable {  playerBg.background = image }, 1000)
+        handlerForBG.postDelayed(Runnable { playerBg.background = image }, 1000)
     }
 
     private fun isMyMusicServiceRunning(serviceClass: Class<*>): Boolean {
@@ -296,5 +348,5 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         }
         return false
     }
-    }
+}
 

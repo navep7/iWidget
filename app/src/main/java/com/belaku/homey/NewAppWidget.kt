@@ -89,6 +89,7 @@ import com.belaku.homey.MainActivity.Companion.tempKind
 import com.belaku.homey.MainActivity.Companion.updateWidget
 import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.MainActivity.Companion.weatherIconState
+import com.belaku.homey.MusicService.Companion.mediaPlayer
 import com.belaku.homey.RemindersActivity.Companion.adapterHabits
 import com.belaku.homey.RemindersActivity.Companion.arrayListHabits
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
@@ -703,10 +704,7 @@ class NewAppWidget : AppWidgetProvider() {
     private fun setUI() {
 
 
-        /*makeToast("isMyServiceRunning - ${isMyServiceRunning(SpeakService::class.java)}")
-        if (isMyServiceRunning(SpeakService::class.java))
-            remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
-        else remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")*/
+
 
         val spkServiceRunning = sharedPreferences.getBoolean("SPKSERVICE", false)
         //   makeToast("spkServiceRunning : $spkServiceRunning")

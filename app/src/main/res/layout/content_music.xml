@@ -1,71 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    android:id="@+id/player_bg"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/player_bg"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
 
     <EditText
         android:id="@+id/edtx_query"
-        android:imeOptions="actionSend"
-        android:background="@android:drawable/edit_text"
+        android:textColor="@android:color/holo_red_dark"
+        android:textColorHint="@android:color/holo_red_light"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_margin="@dimen/fab_margin"
+        android:background="@android:drawable/edit_text"
+        android:hint="Search"
+        android:imeOptions="actionSend"
+        android:inputType="text"
+        tools:ignore="HardcodedText" />
+
+    <HorizontalScrollView
+        android:id="@+id/ss_dynamic"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
-    <ImageButton
-        android:id="@+id/imgbtn_play"
+        android:layout_height="50dp"
         android:layout_below="@+id/edtx_query"
-        android:layout_alignParentStart="true"
-        android:background="@android:color/transparent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-      />
-
-
-    <ImageButton
-        android:id="@+id/imgbtn_playpause"
-        android:visibility="invisible"
-        android:layout_below="@+id/seekbar"
         android:layout_margin="@dimen/fab_margin"
-        android:layout_centerHorizontal="true"
-        android:background="@android:color/transparent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-       />
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/ll_dynamic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+
+    </HorizontalScrollView>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv"
-        android:layout_below="@+id/imgbtn_play"
-        android:layout_margin="@dimen/fab_margin"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <TextView
-        android:id="@+id/tx_songname"
-        android:textSize="75dp"
-        android:gravity="center"
-        android:textStyle="bold"
-        android:textColor="@android:color/holo_red_light"
-        android:layout_below="@+id/rv"
-        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/fab_margin"/>
-
-    <SeekBar
-        android:id="@+id/seekbar"
-        android:layout_below="@+id/tx_songname"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:thumbTint="@android:color/holo_red_dark"
-        android:progressTint="@android:color/holo_red_light"
-        android:thumb="@android:drawable/ic_media_play"
+        android:layout_below="@+id/ss_dynamic"
+        android:layout_centerHorizontal="true"
         android:layout_margin="@dimen/fab_margin" />
 
+
+
+
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_play_pause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rv"
+        android:layout_centerHorizontal="true"
+        android:src="@android:drawable/ic_media_play"
+        app:backgroundTint="@android:color/darker_gray" />
+
+    <!-- Template View for native ad -->
 
 
 </RelativeLayout>

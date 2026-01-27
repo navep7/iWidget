@@ -6,6 +6,8 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Intent
 import android.media.AudioAttributes
 import android.media.MediaPlayer
@@ -16,8 +18,17 @@ import android.os.Message
 import android.os.Messenger
 import android.os.RemoteException
 import android.util.Log
+import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.MusicActivity.Companion.dataList
+import com.belaku.homey.NewAppWidget.Companion.appWidM
+import com.belaku.homey.NewAppWidget.Companion.newAppWidget
+import com.belaku.homey.NewAppWidget.Companion.remoteViews
+import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
+import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import java.util.Timer
 import java.util.TimerTask
 
@@ -25,14 +36,23 @@ import java.util.TimerTask
 class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
     private lateinit var mSeekUpdateTimer: Timer
     private lateinit var serviceNotification: Notification
-    private lateinit var mediaPlayer: MediaPlayer
     private lateinit var sendIntent: Intent
     private lateinit var scontext: MusicService
     private var songsUrlList: ArrayList<String> = ArrayList()
 
-    private var songIndex: Int = 0
 
 
+
+    companion object {
+
+         var songIndex: Int = 0
+
+        lateinit var mediaPlayer: MediaPlayer
+
+        fun isMediaPlayerInitialized(): Boolean {
+            return  ::mediaPlayer.isInitialized
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -71,6 +91,13 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
     private fun notifySong(sIndex: Int) {
 
+        appWidM = AppWidgetManager.getInstance(appContx)
+        remoteViews = RemoteViews(applicationContext.packageName, com.belaku.homey.R.layout.new_app_widget)
+        newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
+        remoteViews?.setTextViewText(com.belaku.homey.R.id.tx_songname, dataList[sIndex].title)
+
+
+        appWidM.updateAppWidget(newAppWidget, remoteViews)
      //   serviceNotify(MainActivity.dataList[sIndex].title)
         val intent = Intent(
             applicationContext,
@@ -116,6 +143,12 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
 
+
+        appWidM = AppWidgetManager.getInstance(appContx)
+        remoteViews = RemoteViews(applicationContext.packageName, com.belaku.homey.R.layout.new_app_widget)
+        newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
+
+
         scontext = this;
     //    songsUrlList = intent.getStringArrayListExtra("songsUrl")!!
 
@@ -149,6 +182,8 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
                     prepare() // might take long! (for buffering, etc)
                     start()
                 }
+                remoteViews?.setImageViewResource(com.belaku.homey.R.id.imgbtn_play, android.R.drawable.ic_media_pause)
+                appWidM.updateAppWidget(newAppWidget, remoteViews)
                 mediaPlayer.setOnCompletionListener(this)
                 mediaPlayer.setOnErrorListener(this)
             } catch (e: Exception) {
@@ -216,6 +251,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     override fun onCompletion(p0: MediaPlayer?) {
 
         songIndex++
+
 
         notifySong(songIndex)
 
