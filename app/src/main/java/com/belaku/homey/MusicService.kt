@@ -28,6 +28,7 @@ import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
+import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import java.util.Timer
 import java.util.TimerTask
@@ -91,6 +92,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
     private fun notifySong(sIndex: Int) {
 
+        sharedPreferencesEditor.putInt("SIn", sIndex).apply()
         appWidM = AppWidgetManager.getInstance(appContx)
         remoteViews = RemoteViews(applicationContext.packageName, com.belaku.homey.R.layout.new_app_widget)
         newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)

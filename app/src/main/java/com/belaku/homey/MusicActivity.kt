@@ -39,6 +39,7 @@ import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
+import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.databinding.ActivityMusicBinding
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import retrofit2.Call
@@ -125,6 +126,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         binding = ActivityMusicBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        makeToast(sharedPreferences.getInt("SIn", 99).toString())
 
         arraylistArtists.add("Linkin Park")
         arraylistArtists.add("Coldplay")
@@ -295,6 +297,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                     )
                 )
 
+                recyclerview.scrollToPosition(sharedPreferences.getInt("SIn", 0))
             }
 
             override fun onFailure(call: Call<MusicData?>, t: Throwable) {

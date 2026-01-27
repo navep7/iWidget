@@ -90,6 +90,7 @@ import com.belaku.homey.MainActivity.Companion.updateWidget
 import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.MainActivity.Companion.weatherIconState
 import com.belaku.homey.MusicService.Companion.mediaPlayer
+import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.RemindersActivity.Companion.adapterHabits
 import com.belaku.homey.RemindersActivity.Companion.arrayListHabits
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
@@ -457,7 +458,7 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setOnClickPendingIntent(
             R.id.rl_player, PendingIntent.getActivity(
                 context, 2,
-                Intent(context, MusicActivity::class.java).putExtra("DialogIntent", "PC"),
+                Intent(context, MusicActivity::class.java).putExtra("songIndex", songIndex),
                 PendingIntent.FLAG_IMMUTABLE
             )
         )
