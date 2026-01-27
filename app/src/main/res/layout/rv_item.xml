@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="350dp"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fab_margin"
+        app:cardCornerRadius="5dp">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_margin="1dp">
+            
+            <ImageView
+                android:id="@+id/imgv_art"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@android:drawable/alert_dark_frame" />
+
+            <TextView
+                android:id="@+id/tx_sname"
+                android:layout_marginTop="@dimen/fab_margin"
+                android:layout_marginStart="@dimen/fab_margin"
+                android:layout_marginBottom="@dimen/fab_margin"
+                android:textStyle="bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/imgv_art"
+                android:text="Song name"
+                android:maxLines="1"
+                android:ellipsize="end"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/tx_aname"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/fab_margin"
+                android:layout_toEndOf="@+id/imgv_art"
+                android:layout_below="@+id/tx_sname"
+                android:text="Artist name"
+                android:maxLines="1"
+                android:ellipsize="end"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/tx_url"
+                android:visibility="invisible"
+                android:maxLines="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/imgv_art"
+                android:layout_below="@+id/tx_sname"
+                android:text="Artist name"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/tx_duration"
+                android:text="0:00"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/fab_margin"
+                android:layout_below="@+id/tx_aname"
+                android:layout_toRightOf="@+id/imgv_art"/>
+
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+
+
+    
+</RelativeLayout>
