@@ -228,6 +228,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
             cAddrs = gcd.getFromLocation(lat, lng, 1)!!
             //   makeToast(cAddrs?.get(0)!!.subLocality)
 
+            if (::cAddrs.isInitialized)
             if (SetWallWorker.Companion.cAddrs.get(0).subLocality != null)
                 cityname = SetWallWorker.Companion.cAddrs.get(0).subLocality.toString()
             else if (SetWallWorker.Companion.cAddrs.get(0).locality != null)

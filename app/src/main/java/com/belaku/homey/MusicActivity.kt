@@ -339,6 +339,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         thread.start()
 
 
+        if (::image.isInitialized)
         handlerForBG.postDelayed(Runnable { playerBg.background = image }, 1000)
     }
 
