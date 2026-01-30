@@ -21,13 +21,11 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.pm.ServiceInfo
-import android.content.res.Resources
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.LinearGradient
-import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
@@ -35,20 +33,16 @@ import android.graphics.Rect
 import android.graphics.Shader
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
-import android.location.Geocoder
-import android.location.Location
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
-import android.os.Looper
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
@@ -77,23 +71,18 @@ import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.beginCal
-import com.belaku.homey.MainActivity.Companion.cityLat
-import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
 import com.belaku.homey.MainActivity.Companion.tempKind
-import com.belaku.homey.MainActivity.Companion.updateWidget
 import com.belaku.homey.MainActivity.Companion.weatherIconID
-import com.belaku.homey.MainActivity.Companion.weatherIconState
 import com.belaku.homey.MusicService.Companion.mediaPlayer
 import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.RemindersActivity.Companion.adapterHabits
 import com.belaku.homey.RemindersActivity.Companion.arrayListHabits
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
-import com.belaku.homey.SetWallWorker.Companion.cAddrs
 import com.belaku.homey.SetWallWorker.Companion.dayChange
 import com.belaku.homey.SetWallWorker.Companion.dayIndex
 import com.belaku.homey.SetWallWorker.Companion.isPinNoteInitialized
@@ -108,18 +97,13 @@ import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.belaku.homey.StepsService.Companion.choosenApps
-import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.belaku.homey.StepsService.Companion.totalUsage
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionRequest
 import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
@@ -164,6 +148,8 @@ class NewAppWidget : AppWidgetProvider() {
     @SuppressLint("MissingPermission")
     private fun recognizeActivityTransitions() {
 
+   //     remoteViews?.setTextViewText(R.id.tx_activity_state, "User Activity")
+        appWidM.updateAppWidget(newAppWidget, remoteViews)
 
         val receiver: ActivityTransitionReceiver = ActivityTransitionReceiver()
         val filter = IntentFilter("com.belaku.homey.CUSTOM_ACTION") // Use a unique action string
@@ -176,7 +162,7 @@ class NewAppWidget : AppWidgetProvider() {
         val requestCodeAT = 57
         val pendingIntent = PendingIntent.getBroadcast(appContx, requestCodeAT, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
 
-        var transitions = ArrayList<ActivityTransition>()
+        val transitions = ArrayList<ActivityTransition>()
         transitions.apply {
             add(
                 ActivityTransition.Builder()
@@ -203,7 +189,7 @@ class NewAppWidget : AppWidgetProvider() {
                 .build())
         }
 
-        var transitionRequest = ActivityTransitionRequest(transitions)
+        val transitionRequest = ActivityTransitionRequest(transitions)
 
         // myPendingIntent is the instance of PendingIntent where the app receives callbacks.
         val task = ActivityRecognition.getClient(appContx).requestActivityTransitionUpdates(transitionRequest, pendingIntent)
@@ -219,59 +205,6 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
     }
-
-    @SuppressLint("UseCompatLoadingForDrawables")
-    private fun getWeatherDraws() {
-
-
-        //     makeToast("tempKind - " + tempKind)
-
-        // Add image resource IDs from the drawable folder (e.g., R.drawable.image1)
-        drawableIds.clear()
-
-        /*if (tempKind.contains("clouds")) {
-            drawableIds.add(R.drawable.cloudss0)
-            drawableIds.add(R.drawable.cloudss1)
-            drawableIds.add(R.drawable.cloudss2)
-            drawableIds.add(R.drawable.cloudss3)
-            drawableIds.add(R.drawable.cloudss4)
-        } else if(tempKind.contains("rain")) {
-            drawableIds.add(R.drawable.rain0)
-            drawableIds.add(R.drawable.rain1)
-            drawableIds.add(R.drawable.rain2)
-            drawableIds.add(R.drawable.rain3)
-            drawableIds.add(R.drawable.rain4)
-        } else if (tempKind.contains("clear")) {
-            drawableIds.add(R.drawable.clear0)
-            drawableIds.add(R.drawable.clear1)
-            drawableIds.add(R.drawable.clear2)
-            drawableIds.add(R.drawable.clear3)
-            drawableIds.add(R.drawable.clear4)
-        }*/
-
-
-        val res = appContx.resources
-
-
-// Assuming you have the IDs in an ArrayList<Integer> called drawableIds
-        for (id in drawableIds) {
-            val drawable: Drawable =
-                res.getDrawable(id, null) // Use getDrawable(id) for older API levels
-            weatherIcons.add(drawable)
-        }
-    }
-
-    private fun overlay(bmp1: Bitmap, bmp2: Bitmap): Bitmap {
-        val bmOverlay = Bitmap.createBitmap(
-            bmp1.width, bmp1.height,
-            bmp1.config!!
-        )
-        val canvas = Canvas(bmOverlay)
-        canvas.drawBitmap(bmp1, Matrix(), null)
-        canvas.drawBitmap(bmp2, Matrix(), null)
-        return bmOverlay
-    }
-
 
     override fun onDisabled(context: Context?) {
         super.onDisabled(context)
@@ -342,6 +275,11 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setOnClickPendingIntent(
             R.id.imgv_dialler,
             getPendingSelfIntent(context, DIAL_CLICK)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_playpause,
+            getPendingSelfIntent(context, PLAYPAUSE_CLICK)
         )
 
         remoteViews?.setOnClickPendingIntent(
@@ -1059,7 +997,30 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleIntentActions(intent: Intent) {
 
-        if (ACTION_LIST_CONTACTITEM_CLICK == intent.action) {
+        if (PLAYPAUSE_CLICK == intent.action) {
+            if (MusicService.isMediaPlayerInitialized()) {
+                try {
+                    if (mediaPlayer.isPlaying) {
+                        mediaPlayer.pause()
+                        remoteViews?.setImageViewResource(
+                            R.id.imgbtn_playpause,
+                            android.R.drawable.ic_media_play
+                        )
+                    } else {
+                        mediaPlayer.start()
+                        remoteViews?.setImageViewResource(
+                            R.id.imgbtn_playpause,
+                            android.R.drawable.ic_media_pause
+                        )
+                    }
+                } catch (ex: Exception) {
+                    startMusicActivity(0)
+                }
+            } else {
+                startMusicActivity(songIndex)
+            }
+
+        } else if (ACTION_LIST_CONTACTITEM_CLICK == intent.action) {
             // Extract the item position or ID from the intent extras
 
             getFavoriteContacts()
@@ -1258,6 +1219,13 @@ class NewAppWidget : AppWidgetProvider() {
             }
 
         }
+    }
+
+    private fun startMusicActivity(songIndex: Int) {
+        var intentMusic = Intent(appContx, MusicActivity::class.java)
+        intentMusic.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intentMusic.putExtra("songIndex", songIndex)
+        appContx.startActivity(intentMusic)
     }
 
 
@@ -1968,6 +1936,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val SET_CLICKED = "setButtonClick"
 
 
+        private const val PLAYPAUSE_CLICK = "pp_click"
         private const val Time_A_CLICKED = "ta_click"
         private const val PS_CLICK = "psClick"
         private const val DIAL_CLICK = "dialClick"

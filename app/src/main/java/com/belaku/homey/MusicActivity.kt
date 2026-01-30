@@ -204,12 +204,12 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                             if (MusicService.isMediaPlayerInitialized()) {
                                 if (mediaPlayer.isPlaying) {
                                     mediaPlayer.pause()
-                                    remoteViews?.setImageViewResource(com.belaku.homey.R.id.imgbtn_play, android.R.drawable.ic_media_play)
+                                    remoteViews?.setImageViewResource(com.belaku.homey.R.id.imgbtn_playpause, android.R.drawable.ic_media_play)
                                     appWidM.updateAppWidget(newAppWidget, remoteViews)
                                     fabPlayPause.setImageResource(android.R.drawable.ic_media_play)
                                 } else {
                                     mediaPlayer.start()
-                                    remoteViews?.setImageViewResource(com.belaku.homey.R.id.imgbtn_play, android.R.drawable.ic_media_pause)
+                                    remoteViews?.setImageViewResource(com.belaku.homey.R.id.imgbtn_playpause, android.R.drawable.ic_media_pause)
                                     appWidM.updateAppWidget(newAppWidget, remoteViews)
                                     fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
 

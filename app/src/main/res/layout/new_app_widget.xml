@@ -457,7 +457,7 @@
                 android:layout_height="35dp"/>
 
             <ImageButton
-                android:id="@+id/imgbtn_play"
+                android:id="@+id/imgbtn_playpause"
                 android:layout_marginStart="@dimen/fab_margin"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
@@ -468,8 +468,9 @@
                 android:src="@android:drawable/ic_media_play"/>
 
             <TextView
-                android:id="@+id/tx_songname"
-                android:layout_toEndOf="@+id/imgbtn_play"
+                android:id="@+id/tx_music_details"
+                android:ellipsize="end"
+                android:layout_toEndOf="@+id/imgbtn_playpause"
                 android:layout_centerVertical="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

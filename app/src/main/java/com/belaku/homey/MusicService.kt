@@ -22,14 +22,11 @@ import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.belaku.homey.MainActivity.Companion.appContx
-import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MusicActivity.Companion.dataList
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
-import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
-import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import java.util.Timer
 import java.util.TimerTask
 
@@ -42,26 +39,24 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     private var songsUrlList: ArrayList<String> = ArrayList()
 
 
-
-
     companion object {
 
-         var songIndex: Int = 0
+        var songIndex: Int = 0
 
         lateinit var mediaPlayer: MediaPlayer
 
         fun isMediaPlayerInitialized(): Boolean {
-            return  ::mediaPlayer.isInitialized
+            return ::mediaPlayer.isInitialized
         }
     }
 
     override fun onCreate() {
         super.onCreate()
         serviceNotify(MusicActivity.dataList[songIndex].title)
-    //    notifySong(0)
+        //    notifySong(0)
     }
 
-    private fun serviceNotify(str:String) {
+    private fun serviceNotify(str: String) {
 
         if (Build.VERSION.SDK_INT >= 26) {
             val CHANNEL_ID = "my_channel_01"
@@ -94,13 +89,14 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
         sharedPreferencesEditor.putInt("SIn", sIndex).apply()
         appWidM = AppWidgetManager.getInstance(appContx)
-        remoteViews = RemoteViews(applicationContext.packageName, com.belaku.homey.R.layout.new_app_widget)
+        remoteViews =
+            RemoteViews(applicationContext.packageName, com.belaku.homey.R.layout.new_app_widget)
         newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
-        remoteViews?.setTextViewText(com.belaku.homey.R.id.tx_songname, dataList[sIndex].title)
+        remoteViews?.setTextViewText(com.belaku.homey.R.id.tx_music_details, dataList[sIndex].title + " | " + dataList[sIndex].album.title + " | " + dataList[sIndex].artist.name)
 
 
         appWidM.updateAppWidget(newAppWidget, remoteViews)
-     //   serviceNotify(MainActivity.dataList[sIndex].title)
+        //   serviceNotify(MainActivity.dataList[sIndex].title)
         val intent = Intent(
             applicationContext,
             MainActivity::class.java
@@ -117,7 +113,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
                 .setSilent(true)
                 .setSmallIcon(R.drawable.ic_media_play) //                        .setContentTitle(getString(R.string.app_name)
                 .setContentTitle(MusicActivity.dataList[sIndex].title)
-                    .setContentText(MusicActivity.dataList[sIndex].album.title + " | \n" + MusicActivity.dataList[sIndex].artist.name)
+                .setContentText(MusicActivity.dataList[sIndex].album.title + " | \n" + MusicActivity.dataList[sIndex].artist.name)
                 .setAutoCancel(true)
                 .setSound(null)
                 .setOngoing(true)
@@ -139,7 +135,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         }
 
         checkNotNull(notificationManager)
-        notificationManager.notify(0,  notificationBuilder.build())
+        notificationManager.notify(0, notificationBuilder.build())
     }
 
 
@@ -147,12 +143,13 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
 
         appWidM = AppWidgetManager.getInstance(appContx)
-        remoteViews = RemoteViews(applicationContext.packageName, com.belaku.homey.R.layout.new_app_widget)
+        remoteViews =
+            RemoteViews(applicationContext.packageName, com.belaku.homey.R.layout.new_app_widget)
         newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
 
 
         scontext = this;
-    //    songsUrlList = intent.getStringArrayListExtra("songsUrl")!!
+        //    songsUrlList = intent.getStringArrayListExtra("songsUrl")!!
 
 
         for (i in 0 until 30) {
@@ -184,15 +181,17 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
                     prepare() // might take long! (for buffering, etc)
                     start()
                 }
-                remoteViews?.setImageViewResource(com.belaku.homey.R.id.imgbtn_play, android.R.drawable.ic_media_pause)
+                remoteViews?.setImageViewResource(
+                    com.belaku.homey.R.id.imgbtn_playpause,
+                    android.R.drawable.ic_media_pause
+                )
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
                 mediaPlayer.setOnCompletionListener(this)
                 mediaPlayer.setOnErrorListener(this)
             } catch (e: Exception) {
                 println(e.toString())
-            //    Toast.makeText(applicationContext, "P ex - " + e, Toast.LENGTH_LONG).show()
+                //    Toast.makeText(applicationContext, "P ex - " + e, Toast.LENGTH_LONG).show()
             }
-
 
 
         }
@@ -221,7 +220,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
 
         val messengerSeekInfo = sendIntent.getParcelableExtra("seekInfo") as Messenger?
-        val messageSeekInfo: Message = Message.obtain(null, mediaPlayer.duration/1000)
+        val messageSeekInfo: Message = Message.obtain(null, mediaPlayer.duration / 1000)
 
         try {
             messengerSeekInfo!!.send(messageSeekInfo)
@@ -234,20 +233,19 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             override fun run() {
 
                 if (mediaPlayer != null)
-                try {
+                    try {
                         val messengerSeekInfo =
                             sendIntent.getParcelableExtra("seekInfo") as Messenger?
                         val messageSeekInfo: Message =
                             Message.obtain(null, mediaPlayer.currentPosition / 1000)
                         messengerSeekInfo!!.send(messageSeekInfo)
 
-                } catch (exception: IllegalStateException) {
-                    exception.printStackTrace()
-                }        // do your periodic task
+                    } catch (exception: IllegalStateException) {
+                        exception.printStackTrace()
+                    }        // do your periodic task
             }
         }, 0, 1000)
     }
-
 
 
     override fun onCompletion(p0: MediaPlayer?) {
@@ -282,7 +280,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
     override fun onDestroy() {
         super.onDestroy()
-        if(mediaPlayer.isPlaying()){
+        if (mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
             mSeekUpdateTimer.cancel()
         }
