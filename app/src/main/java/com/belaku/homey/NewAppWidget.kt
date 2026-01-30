@@ -81,7 +81,6 @@ import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.endCal
-import com.belaku.homey.MainActivity.Companion.getWeatherData
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
@@ -158,8 +157,6 @@ class NewAppWidget : AppWidgetProvider() {
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
 
-//        Log.d("onEnabled! - ", favContacts.size.toString())
-        getLocationUpdates()
 
     }
 
@@ -275,86 +272,6 @@ class NewAppWidget : AppWidgetProvider() {
         return bmOverlay
     }
 
-    @SuppressLint("MissingPermission")
-    private fun getLocationUpdates() {
-        val locationRequest = LocationRequest.create()
-        locationRequest.setInterval(30000)
-        locationRequest.setSmallestDisplacement(1f)
-        locationRequest.setFastestInterval(10000)
-        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
-
-        //instantiating the LocationCallBack
-        val locationCallback = object : LocationCallback() {
-
-            private var lastLocation: Location? = null
-
-            val connectivityManager = appContx.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            val activeNetwork = connectivityManager.activeNetworkInfo
-            var isNetConnected = activeNetwork?.isConnectedOrConnecting == true
-
-            override fun onLocationResult(locationResult: LocationResult) {
-                val location = locationResult.lastLocation
-                if (location != null)
-                    if (lastLocation != null) {
-
-                        val distanceInMeters = location.distanceTo(lastLocation!!)
-                        if (distanceInMeters >= 1000f && isNetConnected) {
-                            try {
-                                getWeatherData(LatLng(location.latitude, location.longitude))
-                            } catch (ex: Exception) {
-                                makeToast("WeatherEXP ~ $ex")
-                            }
-                        } else if (distanceInMeters >= 100f)
-                            getAddress(location.latitude, location.longitude)
-                        else
-                            lastLocation = location
-
-                    } else {
-                        getAddress(location.latitude, location.longitude)
-                        try {
-                            getWeatherData(LatLng(location.latitude, location.longitude))
-                        } catch (ex: Exception) {
-                            makeToast("WeatherEXP ~ $ex")
-                        }
-                    }
-
-            }
-
-            fun getAddress(lat: Double, lng: Double) {
-                val gcd = Geocoder(appContx)
-                Locale.getDefault()
-                cityLat = lat
-                cityLng = lng
-                try {
-                    cAddrs = gcd.getFromLocation(lat, lng, 1)!!
-                    //   makeToast(cAddrs?.get(0)!!.subLocality)
-
-                    if (cAddrs.get(0).subLocality != null)
-                        cityname = cAddrs.get(0).subLocality.toString()
-                    else if (cAddrs.get(0).locality != null)
-                        cityname = cAddrs.get(0).locality
-
-                    //     if (cityname.length > 15)
-                    //       cityname = cityname.substring(0, 12) + "..,"
-
-                } catch (e: IOException) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace()
-                    makeToast("GCD - IOException \n $e")
-                }
-
-            }
-
-        }
-
-
-
-        fusedLocationProviderClient.requestLocationUpdates(
-            locationRequest,
-            locationCallback,
-            Looper.getMainLooper()
-        )
-    }
 
     override fun onDisabled(context: Context?) {
         super.onDisabled(context)

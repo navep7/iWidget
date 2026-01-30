@@ -42,7 +42,6 @@ import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.delayUnit
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.fabMain
-import com.belaku.homey.MainActivity.Companion.getWeatherData
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.queryType
@@ -119,108 +118,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         return Result.success()
     }
 
-
-    @SuppressLint("MissingPermission")
-    private fun getCity() {
-        var locationRequest = LocationRequest.create()
-        locationRequest.setInterval(30000)
-        locationRequest.setSmallestDisplacement(1f)
-        locationRequest.setFastestInterval(10000)
-        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
-
-        //instantiating the LocationCallBack
-        val locationCallback = object : LocationCallback(), GoogleMap.OnMarkerClickListener {
-
-            private var lastLocation: Location? = null
-
-            override fun onLocationResult(locationResult: LocationResult) {
-                val location = locationResult.lastLocation
-                if (location != null)
-                    if (lastLocation != null) {
-
-                        val distanceInMeters = location.distanceTo(lastLocation!!)
-                        if (distanceInMeters >= 1000f && isNetConnected) {
-                            try {
-                                getWeatherData(LatLng(location.latitude, location.longitude))
-                            } catch (ex: Exception) {
-
-                            }
-                        } else if (distanceInMeters >= 100f)
-                            getAddress(location.latitude, location.longitude)
-                        else
-                            lastLocation = location
-
-                    } else {
-                        getAddress(location.latitude, location.longitude)
-                        try {
-                            getWeatherData(LatLng(location.latitude, location.longitude))
-                        } catch (ex: Exception) {
-
-                        }
-                    }
-
-                /*if (location != null) {
-                    getAddress(location.latitude, location.longitude)
-                    try {
-                //    getWeatherData(location)
-                } catch (ex: Exception) {
-                    Log.d("WeatherEXP", ex.message.toString())
-                }
-                }*/
-            }
-
-            override fun onMarkerClick(p0: Marker): Boolean {
-                //    makeToast("nothin")
-                return true
-            }
-        }
-
-        var fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
-
-        fusedLocationProviderClient.requestLocationUpdates(
-            locationRequest,
-            locationCallback,
-            Looper.getMainLooper()
-        )
-    }
-
-    private fun getAddress(latitude: Double, longitude: Double) {
-        val gcd = Geocoder(applicationContext)
-        Locale.getDefault()
-
-        cityLat = latitude
-        cityLng = longitude
-
-        try {
-            cAddrs = gcd.getFromLocation(latitude, longitude, 1)!!
-            //   makeToast(cAddrs?.get(0)!!.subLocality)
-
-            if (cAddrs.get(0).subLocality != null)
-                cityname = cAddrs.get(0).subLocality.toString()
-            else if (cAddrs.get(0).locality != null)
-                cityname = cAddrs.get(0).locality
-
-
-        } catch (e: IOException) {
-            // TODO Auto-generated catch block
-            e.printStackTrace()
-            makeToast("GCD - IOException \n $e")
-        }
-
-    }
-
-
-    private fun updateWidget() {
-        val intent = Intent(
-            applicationContext,
-            NewAppWidget::class.java
-        )
-        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
-        val ids: IntArray = AppWidgetManager.getInstance(applicationContext)
-            .getAppWidgetIds(ComponentName(applicationContext, NewAppWidget::class.java))
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
-        applicationContext.sendBroadcast(intent)
-    }
 
 
     companion object {

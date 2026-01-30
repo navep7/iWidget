@@ -16,6 +16,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.location.Geocoder
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.net.wifi.WifiManager
@@ -27,7 +28,14 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.MainActivity.Companion.tempC
+import com.belaku.homey.MainActivity.Companion.tempKind
+import com.belaku.homey.MainActivity.Companion.weatherData
+import com.belaku.homey.MainActivity.Companion.weatherIconID
+import com.belaku.homey.MainActivity.Companion.weatherIconState
+import com.belaku.homey.MainActivity.Companion.weatherIconUrl
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
@@ -37,6 +45,19 @@ import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.io.IOException
 import java.util.Locale
 
 
@@ -162,7 +183,7 @@ class StepsService : Service() {
                     updateWidget()
                 } else if (action == ConnectivityManager.CONNECTIVITY_ACTION) {
                     val cm =
-                        appContx.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                        appContx.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
                     val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
                     val isConnected = activeNetwork?.isConnectedOrConnecting == true
 
@@ -286,8 +307,91 @@ class StepsService : Service() {
 
     companion object {
 
+        lateinit var mLocationResult: LocationResult
+        val locationCallback: LocationCallback = object : LocationCallback(), GoogleMap.OnMarkerClickListener {
+            override fun onLocationResult(locationResult: LocationResult) {
+                mLocationResult = locationResult
+                val location = locationResult.lastLocation
+                if (location != null) {
+                    getWeatherData(LatLng(location.latitude, location.longitude))
+                    getAddress(location.latitude, location.longitude)
+                }
+            }
+
+            @OptIn(DelicateCoroutinesApi::class)
+            fun getWeatherData(latLng: LatLng) {
+
+                try {
+                    val weatherService = Retrofit.Builder()
+                        .baseUrl("https://api.openweathermap.org/data/2.5/")
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create(WeatherService::class.java)
+
+
+                    GlobalScope.launch(Dispatchers.IO) {
+                        val openWeatherApiKey = "9fa8e101240ab18615e3133b051e767e"
+                        weatherData = weatherService.getWeather(
+                            latLng.latitude.toString(),
+                            latLng.longitude.toString(), openWeatherApiKey
+                        )
+                        withContext(Dispatchers.Main) {
+                            //  updateUI(weatherData)
+                            tempC = "${weatherData.main.temp - 273}°C"
+                            weatherIconState = weatherData.weather.get(0).main
+                            Log.d("weatherIconSubState",  weatherData.weather.toString())
+                            tempKind = weatherData.weather.get(0).main
+                            weatherIconID = weatherData.weather.get(0).id
+                            weatherIconUrl =
+                                "http://openweathermap.org/img/wn/" + weatherIconID + "@2x.png"
+
+
+                            Log.d("weatherInfo", tempC + " - " + tempKind)
+
+
+                            sharedPreferencesEditor.putString(
+                                "weatherTemp",
+                                tempC
+                            ).apply()
+                        }
+                    }
+                } catch (ex: Exception) {
+                    Log.d("WD Excep7 - ", ex.toString())
+                    makeToast("Weather EXP - ${ex.message}")
+                }
+
+                //   makeToast(tempC)
+
+            }
+
+            override fun onMarkerClick(p0: Marker): Boolean {
+                makeToast("nothin")
+                return true
+            }
+        }
         var totalUsage: String = ""
         var choosenApps: ArrayList<App> = ArrayList()
+
+
+        fun getAddress(lat: Double, lng: Double) {
+            val gcd = Geocoder(appContx)
+            Locale.getDefault()
+            try {
+                var cAddrs = gcd.getFromLocation(lat, lng, 1)!!
+                //   makeToast(cAddrs?.get(0)!!.subLocality)
+
+                cityname = cAddrs?.get(0)!!.subLocality
+                //      if (cityname.length > 15)
+                //        cityname = cityname.substring(0, 12) + "..,"
+                //   makeToast("cityname - " + cityname)
+
+            } catch (e: IOException) {
+                // TODO Auto-generated catch block
+                e.printStackTrace()
+                makeToast("GCD - IOException \n $e")
+            }
+
+        }
 
         fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
             val manager = appContx.getSystemService(ACTIVITY_SERVICE) as ActivityManager
