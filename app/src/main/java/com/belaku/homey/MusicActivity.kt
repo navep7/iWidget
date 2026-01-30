@@ -8,6 +8,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
+import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.Uri
@@ -69,6 +70,10 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
     companion object {
         lateinit var dataList: List<Data>
+
+        fun isDataListInitialized() : Boolean {
+            return ::dataList.isInitialized
+        }
     }
 
 
@@ -78,46 +83,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
     override
     fun onItemClick(position: Int) {
-        val sData = MusicActivity.Companion.dataList[position]
-
-        try {
-            //     findViewById<TextView>(R.id.tx_sname).text = MusicActivity.Companion.dataList[songIndex].title
-            val uri = Uri.parse(MusicActivity.Companion.dataList.get(songIndex++).preview)
-            player = MediaPlayer()
-            player.setAudioStreamType(AudioManager.STREAM_MUSIC)
-            player.setDataSource(this, uri)
-            player.prepare()
-            player.start()
-        } catch (e: Exception) {
-            println(e.toString())
-            Toast.makeText(applicationContext, "P ex - " + e, Toast.LENGTH_LONG).show()
-        }
-
-        //  player.setOnCompletionListener(this)
-
-        val thread = Thread {
-            try {
-                // Your code goes here
-                val url = URL(sData.album.cover)
-                val bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream())
-                image = BitmapDrawable(applicationContext.getResources(), bitmap)
-            } catch (e: java.lang.Exception) {
-                e.printStackTrace()
-                Toast.makeText(applicationContext, e.toString(), Toast.LENGTH_LONG).show()
-            }
-        }
-
-        thread.start()
-
-
-        handlerForBG.postDelayed(Runnable { playerBg.background = image }, 1000)
-
-
-        Toast.makeText(
-            this,
-            sData.title,
-            Toast.LENGTH_SHORT
-        ).show()
+        makeToast("Yet2Impl")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -126,7 +92,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         binding = ActivityMusicBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        makeToast(sharedPreferences.getInt("SIn", 99).toString())
+    //    makeToast(sharedPreferences.getInt("SIn", 99).toString())
 
         arraylistArtists.add("Linkin Park")
         arraylistArtists.add("Coldplay")
@@ -243,6 +209,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                         this@MusicActivity,
                         MusicService::class.java
                     )
+                    songIndex = 0
                     stopService(myService)
                 }
             } catch (e: IllegalStateException) {

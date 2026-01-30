@@ -36,11 +36,12 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     private lateinit var serviceNotification: Notification
     private lateinit var sendIntent: Intent
     private lateinit var scontext: MusicService
-    private var songsUrlList: ArrayList<String> = ArrayList()
+
 
 
     companion object {
 
+        var songsUrlList: ArrayList<String> = ArrayList()
         var songIndex: Int = 0
 
         lateinit var mediaPlayer: MediaPlayer
@@ -48,13 +49,69 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         fun isMediaPlayerInitialized(): Boolean {
             return ::mediaPlayer.isInitialized
         }
+
+        fun notifySong(sIndex: Int) {
+
+            sharedPreferencesEditor.putInt("SIn", sIndex).apply()
+            appWidM = AppWidgetManager.getInstance(appContx)
+            remoteViews =
+                RemoteViews(appContx.packageName, com.belaku.homey.R.layout.new_app_widget)
+            newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
+            remoteViews?.setTextViewText(com.belaku.homey.R.id.tx_music_details, dataList[sIndex].title + " | " + dataList[sIndex].album.title + " | " + dataList[sIndex].artist.name)
+
+
+            appWidM.updateAppWidget(newAppWidget, remoteViews)
+            //   serviceNotify(MainActivity.dataList[sIndex].title)
+            val intent = Intent(
+                appContx,
+                MainActivity::class.java
+            )
+            val pendingIntent = PendingIntent.getActivity(
+                appContx, 0, intent,
+                PendingIntent.FLAG_IMMUTABLE
+            )
+
+
+            val channelId = "some_channel_id"
+            val notificationBuilder: NotificationCompat.Builder =
+                NotificationCompat.Builder(appContx, channelId)
+                    .setSilent(true)
+                    .setSmallIcon(R.drawable.ic_media_play) //                        .setContentTitle(getString(R.string.app_name)
+                    .setContentTitle(MusicActivity.dataList[sIndex].title)
+                    .setContentText(MusicActivity.dataList[sIndex].album.title + " | \n" + MusicActivity.dataList[sIndex].artist.name)
+                    .setAutoCancel(true)
+                    .setSound(null)
+                    .setOngoing(true)
+                    .setContentIntent(pendingIntent)
+
+            val notificationManager =
+                appContx.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+
+
+            // Since android Oreo notification channel is needed.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val channel = NotificationChannel(
+                    channelId,
+                    "Channel human readable title",
+                    NotificationManager.IMPORTANCE_LOW
+                )
+                checkNotNull(notificationManager)
+                notificationManager.createNotificationChannel(channel)
+            }
+
+            checkNotNull(notificationManager)
+            notificationManager.notify(0, notificationBuilder.build())
+        }
     }
 
     override fun onCreate() {
         super.onCreate()
-        serviceNotify(MusicActivity.dataList[songIndex].title)
+
+        if (MusicActivity.isDataListInitialized())
+        serviceNotify(dataList[songIndex].title)
         //    notifySong(0)
     }
+
 
     private fun serviceNotify(str: String) {
 
@@ -85,58 +142,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     }
 
 
-    private fun notifySong(sIndex: Int) {
 
-        sharedPreferencesEditor.putInt("SIn", sIndex).apply()
-        appWidM = AppWidgetManager.getInstance(appContx)
-        remoteViews =
-            RemoteViews(applicationContext.packageName, com.belaku.homey.R.layout.new_app_widget)
-        newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
-        remoteViews?.setTextViewText(com.belaku.homey.R.id.tx_music_details, dataList[sIndex].title + " | " + dataList[sIndex].album.title + " | " + dataList[sIndex].artist.name)
-
-
-        appWidM.updateAppWidget(newAppWidget, remoteViews)
-        //   serviceNotify(MainActivity.dataList[sIndex].title)
-        val intent = Intent(
-            applicationContext,
-            MainActivity::class.java
-        )
-        val pendingIntent = PendingIntent.getActivity(
-            this, 0, intent,
-            PendingIntent.FLAG_IMMUTABLE
-        )
-
-
-        val channelId = "some_channel_id"
-        val notificationBuilder: NotificationCompat.Builder =
-            NotificationCompat.Builder(this, channelId)
-                .setSilent(true)
-                .setSmallIcon(R.drawable.ic_media_play) //                        .setContentTitle(getString(R.string.app_name)
-                .setContentTitle(MusicActivity.dataList[sIndex].title)
-                .setContentText(MusicActivity.dataList[sIndex].album.title + " | \n" + MusicActivity.dataList[sIndex].artist.name)
-                .setAutoCancel(true)
-                .setSound(null)
-                .setOngoing(true)
-                .setContentIntent(pendingIntent)
-
-        val notificationManager =
-            getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-
-
-        // Since android Oreo notification channel is needed.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                "Channel human readable title",
-                NotificationManager.IMPORTANCE_LOW
-            )
-            checkNotNull(notificationManager)
-            notificationManager.createNotificationChannel(channel)
-        }
-
-        checkNotNull(notificationManager)
-        notificationManager.notify(0, notificationBuilder.build())
-    }
 
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -219,6 +225,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         }
 
 
+/*
         val messengerSeekInfo = sendIntent.getParcelableExtra("seekInfo") as Messenger?
         val messageSeekInfo: Message = Message.obtain(null, mediaPlayer.duration / 1000)
 
@@ -227,6 +234,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         } catch (exception: RemoteException) {
             exception.printStackTrace()
         }
+*/
 
         mSeekUpdateTimer = Timer()
         mSeekUpdateTimer.schedule(object : TimerTask() {
@@ -285,6 +293,11 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             mSeekUpdateTimer.cancel()
         }
         mediaPlayer.release();
+        songIndex = 0
+        sharedPreferencesEditor.putInt("SIn", 0).apply()
+        remoteViews?.setTextViewText(com.belaku.homey.R.id.tx_music_details, dataList[0].title + " | " + dataList[0].album.title + " | " + dataList[0].artist.name)
+        appWidM.updateAppWidget(newAppWidget, remoteViews)
+
         Log.i("OnDestroyMS", "onDestroy: MS OnDestroy called");
     }
 
