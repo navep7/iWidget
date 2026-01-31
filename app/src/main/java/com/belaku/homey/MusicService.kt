@@ -32,7 +32,7 @@ import java.util.TimerTask
 
 
 class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
-    private lateinit var mSeekUpdateTimer: Timer
+
     private lateinit var serviceNotification: Notification
     private lateinit var sendIntent: Intent
     private lateinit var scontext: MusicService
@@ -225,34 +225,6 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         }
 
 
-/*
-        val messengerSeekInfo = sendIntent.getParcelableExtra("seekInfo") as Messenger?
-        val messageSeekInfo: Message = Message.obtain(null, mediaPlayer.duration / 1000)
-
-        try {
-            messengerSeekInfo!!.send(messageSeekInfo)
-        } catch (exception: RemoteException) {
-            exception.printStackTrace()
-        }
-*/
-
-        mSeekUpdateTimer = Timer()
-        mSeekUpdateTimer.schedule(object : TimerTask() {
-            override fun run() {
-
-                if (mediaPlayer != null)
-                    try {
-                        val messengerSeekInfo =
-                            sendIntent.getParcelableExtra("seekInfo") as Messenger?
-                        val messageSeekInfo: Message =
-                            Message.obtain(null, mediaPlayer.currentPosition / 1000)
-                        messengerSeekInfo!!.send(messageSeekInfo)
-
-                    } catch (exception: IllegalStateException) {
-                        exception.printStackTrace()
-                    }        // do your periodic task
-            }
-        }, 0, 1000)
     }
 
 
@@ -290,7 +262,6 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         super.onDestroy()
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
-            mSeekUpdateTimer.cancel()
         }
         mediaPlayer.release();
         songIndex = 0
