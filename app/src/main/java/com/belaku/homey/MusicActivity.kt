@@ -21,6 +21,7 @@ import android.widget.RelativeLayout
 import android.widget.TextView.OnEditorActionListener
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -34,6 +35,7 @@ import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.databinding.ActivityMusicBinding
 import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import retrofit2.Call
 import retrofit2.Callback
@@ -88,14 +90,11 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
         handlerForBG = Handler(Looper.getMainLooper())
 
-        val llArtists = findViewById<LinearLayout>(R.id.ll_artists)
 
-        var artists = ArrayList<String>()
-        artists.add("Coldplay")
-        artists.add("Linkin Park")
-        artists.add("The Fray")
 
-        chipArtists(artists, llArtists)
+
+
+        chipArtists()
 
 
         playerBg = findViewById<RelativeLayout>(R.id.player_bg)
@@ -138,33 +137,48 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         }
 
 
+
     }
 
-    private fun chipArtists(artists: ArrayList<String>, llArtists: LinearLayout?) {
+    private fun chipArtists() {
 
-        var chips : ArrayList<Chip> = ArrayList()
-        for (i in artists) {
+        val chipGroup = findViewById<ChipGroup>(R.id.chip_group)
+        val chipOptions = listOf("Coldplay", "Linkin Park", "The Fray", "XYZ")
+
+        chipOptions.forEach { text ->
             val chip = Chip(this).apply {
-                text = i
-                isCheckable = true
-                // Optional: Add a click listener
-                setOnClickListener {
+                // Assign a unique ID to each chip, crucial for single selection to work correctly
+                id = ViewCompat.generateViewId()
+                this.text = text
+                isSelected = false
+                isCheckable = true // Makes the chip selectable/checkable
+                // Use a choice or filter chip style for visual feedback when checked
+                // style is important for visual consistency
+            //    setChipBackgroundColorResource(android.R.color.darker_gray) // Use a color selector
+            //    setTextAppearanceResource(android.R.style.TextAppearance_Holo) // Set a valid text appearance
+            }
+            chipGroup.addView(chip)
+        }
+
+        chipGroup.check(chipGroup.getChildAt(0).id)
 
 
-                    it.isSelected = !it.isSelected
+        chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
+            // In single selection mode, checkedIds list will contain only one ID (or none if deselection is possible)
+            val selectedChipId = checkedIds.firstOrNull()
+            if (selectedChipId != null) {
+                val selectedChip = findViewById<Chip>(selectedChipId)
+                // Perform actions with the selected chip (e.g., fetch data, update UI)
+             //   makeToast(selectedChip.text.toString())
+                for (i in 0 until chipGroup.childCount) {
+                    val chip = chipGroup.getChildAt(i) as Chip
+                    val chipText = chip.text.toString()
+                    // Do something with the chip or its text
+                    if (chipText == selectedChip.text)
+                        chip.isSelected = true
+                    else chip.isSelected = false
                 }
             }
-
-// Set LayoutParams specific to the parent (LinearLayout)
-            val params = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            params.setMargins(8, 8, 8, 8) // Optional: Add spacing
-            chip.layoutParams = params
-
-            chips.add(chip)
-            llArtists?.addView(chip)
         }
     }
 
