@@ -29,6 +29,7 @@ import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import java.util.Timer
 import java.util.TimerTask
+import androidx.core.net.toUri
 
 
 class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
@@ -173,12 +174,12 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             for (item in songsUrlList)
                 println("S21 - received" + item)
 
-            if (songsUrlList != null) {
+            if (songsUrlList.isNotEmpty()) {
 
                 notifySong(0)
 
                 try {
-                    val uri = Uri.parse(songsUrlList[songIndex])
+                    val uri = songsUrlList[songIndex].toUri()
 
                     mediaPlayer = MediaPlayer().apply {
                         setAudioAttributes(

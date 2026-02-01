@@ -94,41 +94,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
                 val location = mLocationResult.lastLocation
                 if (location != null) {
                     getAddress(location.latitude, location.longitude)
-                    if (boolstreetViewPanorama) {
 
-                        if (!boolStreetMarkerClicked)
-                            mStreetViewPanorama.setPosition(
-                                LatLng(
-                                    location.latitude,
-                                    location.longitude
-                                )
-                            )
-
-
-                        //do something
-                        val handler = Handler(Looper.getMainLooper()) // For UI updates
-                        val runnable: Runnable = object : Runnable {
-                            override fun run() {
-                                var mStreetViewPanoramaCamera = StreetViewPanoramaCamera.Builder()
-                                    .zoom(mStreetViewPanorama.panoramaCamera.zoom)
-                                    .tilt(mStreetViewPanorama.panoramaCamera.tilt)
-                                    .bearing(mStreetViewPanorama.panoramaCamera.bearing - 60)
-                                    .build()
-                                mStreetViewPanorama.animateTo(mStreetViewPanoramaCamera, 1000)
-
-                                handler.postDelayed(this, 3000) // 1000 milliseconds = 1 second
-                            }
-                        }
-                        handler.post(runnable);
-
-                        if (mStreetViewPanorama.location != null)
-
-                            getAddress(
-                                mStreetViewPanorama.location.position.latitude,
-                                mStreetViewPanorama.location.position.longitude
-                            )
-
-                    }
                     if (boolMapReady) {
 
                         var addrs = ""
@@ -193,6 +159,49 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
     override fun onStreetViewPanoramaReady(streetViewPanorama: StreetViewPanorama) {
         mStreetViewPanorama = streetViewPanorama
         boolstreetViewPanorama = true
+        streetUpdates()
+    }
+
+    private fun streetUpdates() {
+        if (boolstreetViewPanorama) {
+
+            val location = mLocationResult.lastLocation
+
+            if (location != null) {
+            if (!boolStreetMarkerClicked)
+                mStreetViewPanorama.setPosition(
+                    LatLng(
+                        location.latitude,
+                        location.longitude
+                    )
+                )
+
+
+            //do something
+            val handler = Handler(Looper.getMainLooper()) // For UI updates
+            val runnable: Runnable = object : Runnable {
+                override fun run() {
+                    var mStreetViewPanoramaCamera = StreetViewPanoramaCamera.Builder()
+                        .zoom(mStreetViewPanorama.panoramaCamera.zoom)
+                        .tilt(mStreetViewPanorama.panoramaCamera.tilt)
+                        .bearing(mStreetViewPanorama.panoramaCamera.bearing - 60)
+                        .build()
+                    mStreetViewPanorama.animateTo(mStreetViewPanoramaCamera, 1000)
+
+                    handler.postDelayed(this, 3000) // 1000 milliseconds = 1 second
+                }
+            }
+            handler.post(runnable);
+
+            if (mStreetViewPanorama.location != null)
+
+                getAddress(
+                    mStreetViewPanorama.location.position.latitude,
+                    mStreetViewPanorama.location.position.longitude
+                )
+
+        }
+            }
     }
 
     @SuppressLint("MissingPermission")
