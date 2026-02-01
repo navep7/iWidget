@@ -30,7 +30,9 @@ import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import java.util.Timer
 import java.util.TimerTask
 import androidx.core.net.toUri
+import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
+import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 
 
 class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
@@ -149,6 +151,9 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
+        sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        sharedPreferencesEditor = sharedPreferences.edit()
+
         if (intent != null) {
 
             appWidM = AppWidgetManager.getInstance(appContx)
@@ -189,6 +194,8 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
                                 .setUsage(AudioAttributes.USAGE_MEDIA)
                                 .build()
                         )
+
+                        makeToast("URI ~ $uri")
                         setDataSource(applicationContext, uri)
                         prepare() // might take long! (for buffering, etc)
                         start()

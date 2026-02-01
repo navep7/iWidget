@@ -53,6 +53,7 @@ import android.renderscript.ScriptIntrinsicBlur
 import android.text.Html
 import android.text.SpannableString
 import android.text.style.UnderlineSpan
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -157,7 +158,12 @@ class NewAppWidget : AppWidgetProvider() {
 
         val intent = Intent(appContx, ActivityTransitionReceiver::class.java)
         val requestCodeAT = 57
-        val pendingIntent = PendingIntent.getBroadcast(appContx, requestCodeAT, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
+        val pendingIntent = PendingIntent.getBroadcast(
+            appContx,
+            requestCodeAT,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+        )
 
         val transitions = ArrayList<ActivityTransition>()
         transitions.apply {
@@ -165,40 +171,45 @@ class NewAppWidget : AppWidgetProvider() {
                 ActivityTransition.Builder()
                     .setActivityType(DetectedActivity.STILL)
                     .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-                    .build())
+                    .build()
+            )
 
             add(
                 ActivityTransition.Builder()
-                .setActivityType(DetectedActivity.STILL)
-                .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-                .build())
+                    .setActivityType(DetectedActivity.STILL)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                    .build()
+            )
 
             add(
                 ActivityTransition.Builder()
                     .setActivityType(DetectedActivity.WALKING)
                     .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-                    .build())
+                    .build()
+            )
 
             add(
                 ActivityTransition.Builder()
-                .setActivityType(DetectedActivity.WALKING)
-                .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-                .build())
+                    .setActivityType(DetectedActivity.WALKING)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                    .build()
+            )
         }
 
         val transitionRequest = ActivityTransitionRequest(transitions)
 
         // myPendingIntent is the instance of PendingIntent where the app receives callbacks.
-        val task = ActivityRecognition.getClient(appContx).requestActivityTransitionUpdates(transitionRequest, pendingIntent)
+        val task = ActivityRecognition.getClient(appContx)
+            .requestActivityTransitionUpdates(transitionRequest, pendingIntent)
 
         task.addOnSuccessListener {
             // Handle success
-        //    makeToast("Task added successfully")
+            //    makeToast("Task added successfully")
         }
 
         task.addOnFailureListener {
             // Handle error
-        //    makeToast("Error adding task")
+            //    makeToast("Error adding task")
         }
 
     }
@@ -557,8 +568,6 @@ class NewAppWidget : AppWidgetProvider() {
     private fun setUI() {
 
 
-
-
         val spkServiceRunning = sharedPreferences.getBoolean("SPKSERVICE", false)
         //   makeToast("spkServiceRunning : $spkServiceRunning")
         if (spkServiceRunning)
@@ -785,18 +794,24 @@ class NewAppWidget : AppWidgetProvider() {
                 Color.BLACK
             )
 
+            val metrics = DisplayMetrics()
+            mAct.getWindowManager().getDefaultDisplay().getMetrics(metrics)
+            screenHeight = metrics.heightPixels
+            screenWidth = metrics.widthPixels
+            remoteViews?.setImageViewBitmap(
+                R.id.imgv_player,
+                createGradientBitmap(screenWidth, 100, primaryColor, tertianaryColor)
+            )
 
-            remoteViews?.setImageViewBitmap(R.id.imgv_player, createGradientBitmap(screenWidth, 100, primaryColor, tertianaryColor))
-
-          //  findViewById<View>(R.id.myLayout).background = gradientDrawable
-
+            //  findViewById<View>(R.id.myLayout).background = gradientDrawable
 
 
             if (ColorUtil().isColorDark(primaryColor)) {
 
                 remoteViews?.setTextColor(
                     R.id.clock,
-                    appContx.resources.getColor(android.R.color.holo_red_light))
+                    appContx.resources.getColor(android.R.color.holo_red_light)
+                )
 
                 remoteViews?.setTextColor(
                     R.id.tx_wish,
@@ -823,7 +838,8 @@ class NewAppWidget : AppWidgetProvider() {
 
                 remoteViews?.setTextColor(
                     R.id.clock,
-                    appContx.resources.getColor(android.R.color.holo_red_dark))
+                    appContx.resources.getColor(android.R.color.holo_red_dark)
+                )
 
                 remoteViews?.setTextColor(
                     R.id.tx_wish,
@@ -870,13 +886,20 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
 
-
     fun createGradientBitmap(width: Int, height: Int, startColor: Int, endColor: Int): Bitmap {
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
 
         // Define the gradient
-        val gradient = LinearGradient(0f, 0f, 0f, height.toFloat(), startColor, endColor, Shader.TileMode.CLAMP)
+        val gradient = LinearGradient(
+            0f,
+            0f,
+            0f,
+            height.toFloat(),
+            startColor,
+            endColor,
+            Shader.TileMode.CLAMP
+        )
 
         // Use ShapeDrawable to apply the gradient
         val shapeDrawable = ShapeDrawable(RectShape())
@@ -1105,7 +1128,7 @@ class NewAppWidget : AppWidgetProvider() {
             shareBitmap(bitmapWidget)
 
 
-        }  else if (WIFI_AUTO == intent.action) {
+        } else if (WIFI_AUTO == intent.action) {
             var wifiIntent = Intent(Settings.ACTION_WIFI_SETTINGS)
             wifiIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             appContx.startActivity(wifiIntent)
@@ -1372,7 +1395,7 @@ class NewAppWidget : AppWidgetProvider() {
         mSpannableStringLoc.setSpan(UnderlineSpan(), 0, mSpannableStringLoc.length, 0)
         appWidgetView.findViewById<TextView>(R.id.tx_place).text = "⚲ " + cityname
         appWidgetView.findViewById<TextView>(R.id.tx_steps).text = "$stepsToday"
-    //    appWidgetView.findViewById<TextView>(R.id.tx_weather).text = tempC.substring(0, 2) + "°C, " + weatherIconState
+        //    appWidgetView.findViewById<TextView>(R.id.tx_weather).text = tempC.substring(0, 2) + "°C, " + weatherIconState
 
         appWidgetView.findViewById<LinearLayout>(R.id.ll_apps).visibility = View.INVISIBLE
         appWidgetView.findViewById<LinearLayout>(R.id.ll_contacts).visibility = View.INVISIBLE
@@ -1553,8 +1576,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         Collections.sort<App>(
             apps
-        ) {
-            p0, p1 ->
+        ) { p0, p1 ->
             p1.usage.compareTo(p0.usage)
         }
 
@@ -1884,7 +1906,6 @@ class NewAppWidget : AppWidgetProvider() {
 
 
             formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
-
 
 
             // remoteViews?.setTextViewText(R.id.tx_date, formattedDate)

@@ -106,9 +106,6 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         fabPlayPause = findViewById<FloatingActionButton>(R.id.fab_play_pause)
 
 
-
-
-
         if (isMyMusicServiceRunning(MusicService::class.java))
             fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
         else fabPlayPause.setImageResource(android.R.drawable.ic_media_play)
@@ -132,65 +129,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
 
 
-        fabPlayPause.setOnClickListener(View.OnClickListener {
 
-
-            if (!isMyMusicServiceRunning(MusicService::class.java)) {
-
-                var i: Int = 0;
-                for (item in songs) {
-                    playIntent.putExtra(i.toString(), item)
-                    i++
-                }
-
-                handlerSongInfo = @SuppressLint("HandlerLeak")
-                object : Handler(Looper.getMainLooper()) {
-                    override fun handleMessage(msg: Message) {
-                        updateUI(msg.what)
-                    }
-                }
-
-                handlerSeekInfo = @SuppressLint("HandlerLeak")
-                object : Handler(Looper.getMainLooper()) {
-                    override fun handleMessage(msg: Message) {
-                        updateSeek(msg.what)
-                    }
-                }
-
-                playIntent.putExtra("songInfo", Messenger(handlerSongInfo));
-                playIntent.putExtra("seekInfo", Messenger(handlerSeekInfo))
-
-                //    updateUI(0)
-                startForegroundService(playIntent)
-                fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
-
-            } else {
-
-                if (MusicService.isMediaPlayerInitialized()) {
-                    if (mediaPlayer.isPlaying) {
-                        mediaPlayer.pause()
-                        remoteViews?.setImageViewResource(
-                            com.belaku.homey.R.id.imgbtn_playpause,
-                            android.R.drawable.ic_media_play
-                        )
-                        appWidM.updateAppWidget(newAppWidget, remoteViews)
-                        fabPlayPause.setImageResource(android.R.drawable.ic_media_play)
-                    } else {
-                        mediaPlayer.start()
-                        remoteViews?.setImageViewResource(
-                            com.belaku.homey.R.id.imgbtn_playpause,
-                            android.R.drawable.ic_media_pause
-                        )
-                        appWidM.updateAppWidget(newAppWidget, remoteViews)
-                        fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
-
-                    }
-                }
-
-            }
-
-
-        })
 
 
         if (isMyMusicServiceRunning(MusicService::class.java)) {
@@ -250,8 +189,64 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
             ) {
                 dataList = response.body()?.data!!
 
-                if (dataList.size > 0)
+                appContx = applicationContext
+                makeToast("MusicData ~ ${dataList.size}")
+
+                if (dataList.size > 0) {
                     fabPlayPause.visibility = View.VISIBLE
+
+
+                    fabPlayPause.setOnClickListener(View.OnClickListener {
+                        if (!isMyMusicServiceRunning(MusicService::class.java)) {
+                            var i: Int = 0;
+                            for (item in songs) {
+                                playIntent.putExtra(i.toString(), item)
+                                i++
+                            }
+
+                            handlerSongInfo = @SuppressLint("HandlerLeak")
+                            object : Handler(Looper.getMainLooper()) {
+                                override fun handleMessage(msg: Message) {
+                                    updateUI(msg.what)
+                                }
+                            }
+
+
+
+                            playIntent.putExtra("songInfo", Messenger(handlerSongInfo));
+
+                            //    updateUI(0)
+                            startForegroundService(playIntent)
+                            fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
+
+                        } else {
+
+                            if (MusicService.isMediaPlayerInitialized()) {
+                                if (mediaPlayer.isPlaying) {
+                                    mediaPlayer.pause()
+                                    remoteViews?.setImageViewResource(
+                                        com.belaku.homey.R.id.imgbtn_playpause,
+                                        android.R.drawable.ic_media_play
+                                    )
+                                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                                    fabPlayPause.setImageResource(android.R.drawable.ic_media_play)
+                                } else {
+                                    mediaPlayer.start()
+                                    remoteViews?.setImageViewResource(
+                                        com.belaku.homey.R.id.imgbtn_playpause,
+                                        android.R.drawable.ic_media_pause
+                                    )
+                                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                                    fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
+
+                                }
+                            }
+
+                        }
+
+
+                    })
+                }
 
 
                 songs.clear()
@@ -272,7 +267,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                     )
                 )
 
-                recyclerview.scrollToPosition(sharedPreferences.getInt("SIn", 0))
+           //     recyclerview.scrollToPosition(sharedPreferences.getInt("SIn", 0))
             }
 
             override fun onFailure(call: Call<MusicData?>, t: Throwable) {
