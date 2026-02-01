@@ -250,6 +250,9 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
             ) {
                 dataList = response.body()?.data!!
 
+                if (dataList.size > 0)
+                    fabPlayPause.visibility = View.VISIBLE
+
 
                 songs.clear()
                 for (item in dataList)

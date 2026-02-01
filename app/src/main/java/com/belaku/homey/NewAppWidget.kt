@@ -1542,18 +1542,20 @@ class NewAppWidget : AppWidgetProvider() {
                 object : TypeToken<List<App?>?>() {}.type
             )
 
+        sortApps(choosenApps)
+
         appIndex = 0
 
     }
 
 
-    private fun sortApps(queryUsageStats: List<UsageStats>) {
+    private fun sortApps(apps: List<App>) {
 
-        Collections.sort<UsageStats>(
-            queryUsageStats
-        ) { p1: UsageStats, p2: UsageStats ->
-            p2.totalTimeInForeground.compareTo(p1.totalTimeInForeground)
-            //   p1.name.compareTo(p2.name)
+        Collections.sort<App>(
+            apps
+        ) {
+            p0, p1 ->
+            p1.usage.compareTo(p0.usage)
         }
 
     }
