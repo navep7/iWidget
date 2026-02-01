@@ -2,16 +2,11 @@ package com.belaku.homey
 
 import android.annotation.SuppressLint
 import android.app.ActivityManager
-import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
-import android.media.AudioAttributes
-import android.media.AudioManager
 import android.media.MediaPlayer
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -21,11 +16,8 @@ import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
-import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.RelativeLayout
-import android.widget.RemoteViews
-import android.widget.SeekBar
-import android.widget.TextView
 import android.widget.TextView.OnEditorActionListener
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -40,8 +32,8 @@ import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
-import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.databinding.ActivityMusicBinding
+import com.google.android.material.chip.Chip
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import retrofit2.Call
 import retrofit2.Callback
@@ -94,11 +86,17 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
         //    makeToast(sharedPreferences.getInt("SIn", 99).toString())
 
-        arraylistArtists.add("Linkin Park")
-        arraylistArtists.add("Coldplay")
-        arraylistArtists.add("Sanjith Hegde")
+        handlerForBG = Handler(Looper.getMainLooper())
 
-        handlerForBG = Handler()
+        val llArtists = findViewById<LinearLayout>(R.id.ll_artists)
+
+        var artists = ArrayList<String>()
+        artists.add("Coldplay")
+        artists.add("Linkin Park")
+        artists.add("The Fray")
+
+        chipArtists(artists, llArtists)
+
 
         playerBg = findViewById<RelativeLayout>(R.id.player_bg)
         editTextQuery = findViewById<EditText>(R.id.edtx_query)
@@ -140,6 +138,34 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         }
 
 
+    }
+
+    private fun chipArtists(artists: ArrayList<String>, llArtists: LinearLayout?) {
+
+        var chips : ArrayList<Chip> = ArrayList()
+        for (i in artists) {
+            val chip = Chip(this).apply {
+                text = i
+                isCheckable = true
+                // Optional: Add a click listener
+                setOnClickListener {
+
+
+                    it.isSelected = !it.isSelected
+                }
+            }
+
+// Set LayoutParams specific to the parent (LinearLayout)
+            val params = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            params.setMargins(8, 8, 8, 8) // Optional: Add spacing
+            chip.layoutParams = params
+
+            chips.add(chip)
+            llArtists?.addView(chip)
+        }
     }
 
 

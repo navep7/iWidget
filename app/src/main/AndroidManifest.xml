@@ -221,9 +221,15 @@
             android:theme="@style/Theme.Homey" />
         <activity
             android:name=".MusicActivity"
-            android:exported="false"
+            android:exported="true"
             android:label="Music"
-            android:theme="@style/Theme.Homey" />
+            android:theme="@style/Theme.Homey" >
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        </activity>
         <service
             android:name=".MusicService"
             android:foregroundServiceType="mediaPlayback"
@@ -294,11 +300,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Homey">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <service
