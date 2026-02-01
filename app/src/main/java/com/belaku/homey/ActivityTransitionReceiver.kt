@@ -6,9 +6,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
-import android.widget.Toast
-import com.belaku.homey.MainActivity.Companion.appContx
-import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
@@ -36,10 +33,10 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
                 //    makeToast("!onReceiveAR ${toActivityString(event.activityType)}")
 
-                    appWidM = AppWidgetManager.getInstance(appContx)
+                    appWidM = AppWidgetManager.getInstance(context)
                     remoteViews =
-                        RemoteViews(appContx.packageName, R.layout.new_app_widget)
-                    newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
+                        RemoteViews(context.packageName, R.layout.new_app_widget)
+                    newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
                     remoteViews?.setTextViewText(R.id.tx_activity_state, toActivityString(event.activityType))
 
