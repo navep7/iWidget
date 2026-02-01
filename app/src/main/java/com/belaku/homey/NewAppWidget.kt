@@ -148,9 +148,6 @@ class NewAppWidget : AppWidgetProvider() {
     @SuppressLint("MissingPermission")
     private fun recognizeActivityTransitions() {
 
-   //     remoteViews?.setTextViewText(R.id.tx_activity_state, "User Activity")
-        appWidM.updateAppWidget(newAppWidget, remoteViews)
-
         val receiver: ActivityTransitionReceiver = ActivityTransitionReceiver()
         val filter = IntentFilter("com.belaku.homey.CUSTOM_ACTION") // Use a unique action string
         appContx.registerReceiver(receiver, filter, RECEIVER_NOT_EXPORTED)

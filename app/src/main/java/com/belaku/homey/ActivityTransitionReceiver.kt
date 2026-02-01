@@ -38,7 +38,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
                     appWidM = AppWidgetManager.getInstance(appContx)
                     remoteViews =
-                        RemoteViews(appContx.packageName, com.belaku.homey.R.layout.new_app_widget)
+                        RemoteViews(appContx.packageName, R.layout.new_app_widget)
                     newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
 
                     remoteViews?.setTextViewText(R.id.tx_activity_state, toActivityString(event.activityType))

@@ -145,70 +145,73 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
 
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
+        if (intent != null) {
 
-        appWidM = AppWidgetManager.getInstance(appContx)
-        remoteViews =
-            RemoteViews(applicationContext.packageName, com.belaku.homey.R.layout.new_app_widget)
-        newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
-
-
-        scontext = this;
-        //    songsUrlList = intent.getStringArrayListExtra("songsUrl")!!
-
-
-        for (i in 0 until 30) {
-            if (intent.extras?.get(i.toString()) != null)
-                songsUrlList.add(intent.extras?.get(i.toString()).toString())
-            else break
-
-        }
-
-        println("S21 - rSize" + songsUrlList.size)
-        for (item in songsUrlList)
-            println("S21 - received" + item)
-
-        if (songsUrlList != null) {
-
-            notifySong(0)
-
-            try {
-                val uri = Uri.parse(songsUrlList[songIndex])
-
-                mediaPlayer = MediaPlayer().apply {
-                    setAudioAttributes(
-                        AudioAttributes.Builder()
-                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                            .setUsage(AudioAttributes.USAGE_MEDIA)
-                            .build()
-                    )
-                    setDataSource(applicationContext, uri)
-                    prepare() // might take long! (for buffering, etc)
-                    start()
-                }
-                remoteViews?.setImageViewResource(
-                    com.belaku.homey.R.id.imgbtn_playpause,
-                    android.R.drawable.ic_media_pause
+            appWidM = AppWidgetManager.getInstance(appContx)
+            remoteViews =
+                RemoteViews(
+                    applicationContext.packageName,
+                    com.belaku.homey.R.layout.new_app_widget
                 )
-                appWidM.updateAppWidget(newAppWidget, remoteViews)
-                mediaPlayer.setOnCompletionListener(this)
-                mediaPlayer.setOnErrorListener(this)
-            } catch (e: Exception) {
-                println(e.toString())
-                //    Toast.makeText(applicationContext, "P ex - " + e, Toast.LENGTH_LONG).show()
+            newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
+
+
+            scontext = this;
+            //    songsUrlList = intent.getStringArrayListExtra("songsUrl")!!
+
+
+            for (i in 0 until 30) {
+                if (intent.extras?.get(i.toString()) != null)
+                    songsUrlList.add(intent.extras?.get(i.toString()).toString())
+                else break
+
+            }
+
+            println("S21 - rSize" + songsUrlList.size)
+            for (item in songsUrlList)
+                println("S21 - received" + item)
+
+            if (songsUrlList != null) {
+
+                notifySong(0)
+
+                try {
+                    val uri = Uri.parse(songsUrlList[songIndex])
+
+                    mediaPlayer = MediaPlayer().apply {
+                        setAudioAttributes(
+                            AudioAttributes.Builder()
+                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                                .setUsage(AudioAttributes.USAGE_MEDIA)
+                                .build()
+                        )
+                        setDataSource(applicationContext, uri)
+                        prepare() // might take long! (for buffering, etc)
+                        start()
+                    }
+                    remoteViews?.setImageViewResource(
+                        com.belaku.homey.R.id.imgbtn_playpause,
+                        android.R.drawable.ic_media_pause
+                    )
+                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                    mediaPlayer.setOnCompletionListener(this)
+                    mediaPlayer.setOnErrorListener(this)
+                } catch (e: Exception) {
+                    println(e.toString())
+                    //    Toast.makeText(applicationContext, "P ex - " + e, Toast.LENGTH_LONG).show()
+                }
+
+
             }
 
 
+                sendIntent = intent
+
+
+            updateActivity()
         }
-
-
-        if (intent != null) {
-            sendIntent = intent
-        }
-
-        updateActivity()
-
 
         return START_STICKY
     }
