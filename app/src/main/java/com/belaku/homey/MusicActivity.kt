@@ -62,7 +62,6 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
     private lateinit var playIntent: Intent
     private var songs: ArrayList<String> = ArrayList()
     private lateinit var fabPlayPause: FloatingActionButton
-    private lateinit var recyclerview: RecyclerView
     private lateinit var playerBg: RelativeLayout
     private lateinit var editTextQuery: EditText
     private var arraylistArtists = ArrayList<String>()
@@ -73,6 +72,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
 
     companion object {
+        lateinit var recyclerViewSongs: RecyclerView
         var favAlbums: ArrayList<String> = ArrayList()
         lateinit var dataList: List<Data>
         lateinit var query: String
@@ -171,9 +171,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                 else ch.isSelected = false
             }
             Getdata(query)
-            Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                recyclerview.scrollToPosition(songIndex)
-            }, 5000)
+            
             fabPlayPause.visibility = View.VISIBLE
 
         }
@@ -211,7 +209,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         imgbtnFavAlbum = findViewById(R.id.imgbtn_fav_album)
         playerBg = findViewById<RelativeLayout>(R.id.player_bg)
         editTextQuery = findViewById<EditText>(R.id.edtx_query)
-        recyclerview = findViewById<RecyclerView>(R.id.rv)
+        recyclerViewSongs = findViewById<RecyclerView>(R.id.rv)
         fabPlayPause = findViewById<FloatingActionButton>(R.id.fab_play_pause)
         txPlayingSong = findViewById<TextView>(R.id.tx_psong_name)
 
@@ -397,14 +395,15 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
 
                 var rvAdapter = MusicAdapter(dataList, this@MusicActivity)
-                recyclerview.adapter = rvAdapter
+                recyclerViewSongs.adapter = rvAdapter
                 //    recyclerview.layoutManager = LinearLayoutManager(this@MainActivity)
-                recyclerview.setLayoutManager(
+                recyclerViewSongs.setLayoutManager(
                     LinearLayoutManager(
                         this@MusicActivity,
                         LinearLayoutManager.HORIZONTAL, false
                     )
                 )
+                recyclerViewSongs.scrollToPosition(songIndex)
 
                 //     recyclerview.scrollToPosition(sharedPreferences.getInt("SIn", 0))
             }
@@ -431,7 +430,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
 
         Log.d("sInfomr", dataList[what].title + " ~ $what")
-        recyclerview.scrollToPosition(what)
+        recyclerViewSongs.scrollToPosition(what)
         //    findViewById<TextView>(R.id.tx_sname).text = MusicActivity.Companion.dataList[what].title
         val thread = Thread {
             try {

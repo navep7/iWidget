@@ -32,6 +32,7 @@ import java.util.TimerTask
 import androidx.core.net.toUri
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
+import com.belaku.homey.MusicActivity.Companion.recyclerViewSongs
 import com.belaku.homey.MusicActivity.Companion.txPlayingSong
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 
@@ -233,6 +234,8 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     override fun onCompletion(p0: MediaPlayer?) {
 
         songIndex++
+
+        recyclerViewSongs.scrollToPosition(songIndex)
 
 
         notifySong(songIndex)

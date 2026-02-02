@@ -21,7 +21,7 @@ class MusicAdapter(
         val sname: TextView = view.findViewById(R.id.tx_sname)
         val aname: TextView = view.findViewById(R.id.tx_aname)
         val uname: TextView = view.findViewById(R.id.tx_url)
-        val dur: TextView = view.findViewById(R.id.tx_duration)
+      //  val dur: TextView = view.findViewById(R.id.tx_duration)
         val imageView: ImageView = view.findViewById(R.id.imgv_art)
 
         init {
@@ -51,7 +51,7 @@ class MusicAdapter(
         holder.sname.text = songdata.title
         holder.aname.text = songdata.album.title
         holder.uname.text = songdata.preview
-        holder.dur.text = songdata.duration.toString()
+     //   holder.dur.text = songdata.duration.toString()
         Picasso.get().load(songdata.album.cover).into(holder.imageView)
     }
 
