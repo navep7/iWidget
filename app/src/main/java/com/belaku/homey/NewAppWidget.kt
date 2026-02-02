@@ -79,7 +79,7 @@ import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
 import com.belaku.homey.MainActivity.Companion.tempKind
 import com.belaku.homey.MainActivity.Companion.weatherIconID
-import com.belaku.homey.MusicService.Companion.mediaPlayer
+import com.belaku.homey.MusicService.Companion.mPlayer
 import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.RemindersActivity.Companion.adapterHabits
 import com.belaku.homey.RemindersActivity.Companion.arrayListHabits
@@ -1020,14 +1020,14 @@ class NewAppWidget : AppWidgetProvider() {
         if (PLAYPAUSE_CLICK == intent.action) {
             if (MusicService.isMediaPlayerInitialized()) {
                 try {
-                    if (mediaPlayer.isPlaying) {
-                        mediaPlayer.pause()
+                    if (mPlayer.isPlaying) {
+                        mPlayer.pause()
                         remoteViews?.setImageViewResource(
                             R.id.imgbtn_playpause,
                             android.R.drawable.ic_media_play
                         )
                     } else {
-                        mediaPlayer.start()
+                        mPlayer.start()
                         remoteViews?.setImageViewResource(
                             R.id.imgbtn_playpause,
                             android.R.drawable.ic_media_pause

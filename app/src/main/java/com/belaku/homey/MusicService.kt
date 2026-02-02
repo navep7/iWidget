@@ -48,10 +48,10 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         var songsUrlList: ArrayList<String> = ArrayList()
         var songIndex: Int = 0
 
-        lateinit var mediaPlayer: MediaPlayer
+        lateinit var mPlayer: MediaPlayer
 
         fun isMediaPlayerInitialized(): Boolean {
-            return ::mediaPlayer.isInitialized
+            return ::mPlayer.isInitialized
         }
 
         fun notifySong(sIndex: Int) {
@@ -187,7 +187,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
                 try {
                     val uri = songsUrlList[songIndex].toUri()
 
-                    mediaPlayer = MediaPlayer().apply {
+                    mPlayer = MediaPlayer().apply {
                         setAudioAttributes(
                             AudioAttributes.Builder()
                                 .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
@@ -205,8 +205,8 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
                         android.R.drawable.ic_media_pause
                     )
                     appWidM.updateAppWidget(newAppWidget, remoteViews)
-                    mediaPlayer.setOnCompletionListener(this)
-                    mediaPlayer.setOnErrorListener(this)
+                    mPlayer.setOnCompletionListener(this)
+                    mPlayer.setOnErrorListener(this)
                 } catch (e: Exception) {
                     println(e.toString())
                     //    Toast.makeText(applicationContext, "P ex - " + e, Toast.LENGTH_LONG).show()
@@ -249,7 +249,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
         if (songIndex < songsUrlList.size) {
             val uri = Uri.parse(songsUrlList[songIndex])
-            mediaPlayer = MediaPlayer().apply {
+            mPlayer = MediaPlayer().apply {
                 setAudioAttributes(
                     AudioAttributes.Builder()
                         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
@@ -261,8 +261,8 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
                 start()
             }
 
-            mediaPlayer.setOnCompletionListener(this)
-            mediaPlayer.setOnErrorListener(this)
+            mPlayer.setOnCompletionListener(this)
+            mPlayer.setOnErrorListener(this)
         }
 
         updateActivity()
@@ -272,10 +272,10 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
     override fun onDestroy() {
         super.onDestroy()
-        if (mediaPlayer.isPlaying()) {
-            mediaPlayer.stop();
+        if (mPlayer.isPlaying()) {
+            mPlayer.stop();
         }
-        mediaPlayer.release();
+        mPlayer.release();
         songIndex = 0
         sharedPreferencesEditor.putInt("SIn", 0).apply()
         remoteViews?.setTextViewText(com.belaku.homey.R.id.tx_music_details, dataList[0].title + " | " + dataList[0].album.title + " | " + dataList[0].artist.name)

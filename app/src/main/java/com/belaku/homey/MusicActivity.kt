@@ -16,7 +16,6 @@ import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView.OnEditorActionListener
 import android.widget.Toast
@@ -28,7 +27,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.belaku.Data
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.makeToast
-import com.belaku.homey.MusicService.Companion.mediaPlayer
+import com.belaku.homey.MusicService.Companion.mPlayer
+import com.belaku.homey.MusicService.Companion.mPlayer
 import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
@@ -46,7 +46,7 @@ import java.net.URL
 
 class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
-    private lateinit var player: MediaPlayer
+    private lateinit var chipGroup: ChipGroup
     private var gotDuration: Boolean = false
     private lateinit var bitmapAlbum: Bitmap
     private lateinit var image: BitmapDrawable
@@ -54,7 +54,6 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
     private lateinit var handlerSeekInfo: Handler
     private lateinit var playIntent: Intent
     private var songs: ArrayList<String> = ArrayList()
-    private lateinit var query: String
     private lateinit var fabPlayPause: FloatingActionButton
     private lateinit var recyclerview: RecyclerView
     private lateinit var playerBg: RelativeLayout
@@ -64,6 +63,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
     companion object {
         lateinit var dataList: List<Data>
+        lateinit var query: String
 
         fun isDataListInitialized(): Boolean {
             return ::dataList.isInitialized
@@ -89,9 +89,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         //    makeToast(sharedPreferences.getInt("SIn", 99).toString())
 
         handlerForBG = Handler(Looper.getMainLooper())
-
-
-
+        SetWallWorker.mAct = this
 
 
         chipArtists()
@@ -108,42 +106,45 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         else fabPlayPause.setImageResource(android.R.drawable.ic_media_play)
 
 
-        query = "Coldplay"
-        editTextQuery.setText(query)
-        Getdata()
-
         editTextQuery.setOnEditorActionListener(OnEditorActionListener { v, actionId, event ->
             var handled = false
             if (actionId == EditorInfo.IME_ACTION_SEND) {
                 Toast.makeText(this@MusicActivity, editTextQuery.getText(), Toast.LENGTH_SHORT)
                     .show()
                 query = editTextQuery.getText().toString()
-                Getdata()
+                Getdata(query)
                 handled = true
             }
             handled
         })
 
-
-
-
-
-
         if (isMyMusicServiceRunning(MusicService::class.java)) {
+            makeToast(dataList[songIndex].title + " ~ " + query)
+            for (i in 0 until chipGroup.childCount) {
+                var ch = chipGroup.getChildAt(i) as Chip
+                if (query == ch.text)
+                    ch.isSelected = true
+                else ch.isSelected = false
+            }
+            Getdata(query)
+            Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                recyclerview.scrollToPosition(songIndex)
+            }, 5000)
+            fabPlayPause.visibility = View.VISIBLE
 
-            //    Toast.makeText(applicationContext, dataList[songIndex].title, Toast.LENGTH_LONG).show()
-            //  recyclerview.scrollToPosition(songIndex)
-
+        } else {
+            query = "Coldplay"
+            editTextQuery.setText(query)
+            Getdata(query)
         }
-
 
 
     }
 
     private fun chipArtists() {
 
-        val chipGroup = findViewById<ChipGroup>(R.id.chip_group)
-        val chipOptions = listOf("Coldplay", "Linkin Park", "The Fray", "XYZ")
+        chipGroup = findViewById<ChipGroup>(R.id.chip_group)
+        val chipOptions = listOf("Coldplay", "Linkin Park", "The Fray")
 
         chipOptions.forEach { text ->
             val chip = Chip(this).apply {
@@ -160,6 +161,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
             chipGroup.addView(chip)
         }
 
+        if (!isMyMusicServiceRunning(MusicService::class.java))
         chipGroup.check(chipGroup.getChildAt(0).id)
 
 
@@ -168,6 +170,8 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
             val selectedChipId = checkedIds.firstOrNull()
             if (selectedChipId != null) {
                 val selectedChip = findViewById<Chip>(selectedChipId)
+                query = selectedChip.text.toString()
+                Getdata(query)
                 // Perform actions with the selected chip (e.g., fetch data, update UI)
              //   makeToast(selectedChip.text.toString())
                 for (i in 0 until chipGroup.childCount) {
@@ -188,7 +192,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
         if (MusicService.isMediaPlayerInitialized())
             try {
-                if (!mediaPlayer.isPlaying) {
+                if (!mPlayer.isPlaying) {
                     val myService = Intent(
                         this@MusicActivity,
                         MusicService::class.java
@@ -213,12 +217,13 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
     }
 
 
-    private fun Getdata() {
+    private fun Getdata(query: String) {
         val retrofitBuilder = Retrofit.Builder()
             .baseUrl("https://deezerdevs-deezer.p.rapidapi.com/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiInterface::class.java)
+
 
         val retrofitData = retrofitBuilder.getDate(query)
 
@@ -262,8 +267,8 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                         } else {
 
                             if (MusicService.isMediaPlayerInitialized()) {
-                                if (mediaPlayer.isPlaying) {
-                                    mediaPlayer.pause()
+                                if (mPlayer.isPlaying) {
+                                    mPlayer.pause()
                                     remoteViews?.setImageViewResource(
                                         com.belaku.homey.R.id.imgbtn_playpause,
                                         android.R.drawable.ic_media_play
@@ -271,7 +276,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                                     appWidM.updateAppWidget(newAppWidget, remoteViews)
                                     fabPlayPause.setImageResource(android.R.drawable.ic_media_play)
                                 } else {
-                                    mediaPlayer.start()
+                                    mPlayer.start()
                                     remoteViews?.setImageViewResource(
                                         com.belaku.homey.R.id.imgbtn_playpause,
                                         android.R.drawable.ic_media_pause
