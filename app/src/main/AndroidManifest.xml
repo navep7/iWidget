@@ -223,7 +223,7 @@
             android:name=".MusicActivity"
             android:exported="true"
             android:label="Music"
-            android:theme="@style/Theme.Homey" >
+            android:theme="@style/AppTheme" >
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
 

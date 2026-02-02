@@ -46,6 +46,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
     companion object {
 
+        var boolMusicServiceRunning: Boolean = false
         var songsUrlList: ArrayList<String> = ArrayList()
         var songIndex: Int = 0
 
@@ -111,6 +112,8 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
     override fun onCreate() {
         super.onCreate()
+
+        boolMusicServiceRunning = true
 
         if (MusicActivity.isDataListInitialized())
         serviceNotify(dataList[songIndex].title)
@@ -220,25 +223,11 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
                 sendIntent = intent
 
 
-            updateActivity()
         }
 
         return START_STICKY
     }
 
-    private fun updateActivity() {
-
-        val messengerSongInfo = sendIntent.getParcelableExtra("songInfo") as Messenger?
-        val messageSongInfo: Message = Message.obtain(null, songIndex)
-
-        try {
-            messengerSongInfo!!.send(messageSongInfo)
-        } catch (exception: RemoteException) {
-            exception.printStackTrace()
-        }
-
-
-    }
 
 
     override fun onCompletion(p0: MediaPlayer?) {
@@ -267,13 +256,14 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             mPlayer.setOnErrorListener(this)
         }
 
-        updateActivity()
 
     }
 
 
     override fun onDestroy() {
         super.onDestroy()
+
+        boolMusicServiceRunning = false
         if (mPlayer.isPlaying()) {
             mPlayer.stop();
         }
