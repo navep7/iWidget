@@ -32,6 +32,7 @@ import java.util.TimerTask
 import androidx.core.net.toUri
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
+import com.belaku.homey.MusicActivity.Companion.txPlayingSong
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 
 
@@ -257,6 +258,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
                         .build()
                 )
                 setDataSource(applicationContext, uri)
+                txPlayingSong.text = dataList[0].title
                 prepare() // might take long! (for buffering, etc)
                 start()
             }

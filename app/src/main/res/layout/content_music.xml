@@ -50,6 +50,13 @@
         android:layout_margin="@dimen/fab_margin" />
 
 
+    <TextView
+        android:id="@+id/tx_psong_name"
+        android:text="...Song, playing.."
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/fab_play_pause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
 
 
@@ -58,7 +65,8 @@
         android:visibility="invisible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/rv"
+        android:layout_margin="50dp"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:src="@android:drawable/ic_media_play"
         app:backgroundTint="@android:color/darker_gray" />

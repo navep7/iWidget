@@ -17,6 +17,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.RelativeLayout
+import android.widget.TextView
 import android.widget.TextView.OnEditorActionListener
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -64,6 +65,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
     companion object {
         lateinit var dataList: List<Data>
         lateinit var query: String
+        lateinit var txPlayingSong: TextView
 
         fun isDataListInitialized(): Boolean {
             return ::dataList.isInitialized
@@ -99,11 +101,15 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         editTextQuery = findViewById<EditText>(R.id.edtx_query)
         recyclerview = findViewById<RecyclerView>(R.id.rv)
         fabPlayPause = findViewById<FloatingActionButton>(R.id.fab_play_pause)
+        txPlayingSong = findViewById<TextView>(R.id.tx_psong_name)
 
 
-        if (isMyMusicServiceRunning(MusicService::class.java))
+        if (isMyMusicServiceRunning(MusicService::class.java)) {
             fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
-        else fabPlayPause.setImageResource(android.R.drawable.ic_media_play)
+            txPlayingSong.text = dataList[songIndex].title
+        } else {
+            fabPlayPause.setImageResource(android.R.drawable.ic_media_play)
+        }
 
 
         editTextQuery.setOnEditorActionListener(OnEditorActionListener { v, actionId, event ->
@@ -117,6 +123,8 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
             }
             handled
         })
+
+
 
         if (isMyMusicServiceRunning(MusicService::class.java)) {
             makeToast(dataList[songIndex].title + " ~ " + query)
@@ -261,6 +269,8 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                             playIntent.putExtra("songInfo", Messenger(handlerSongInfo));
 
                             //    updateUI(0)
+
+                            txPlayingSong.text = dataList[0].title
                             startForegroundService(playIntent)
                             fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
 
