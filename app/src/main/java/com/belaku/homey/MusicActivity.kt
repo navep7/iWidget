@@ -116,8 +116,10 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
             for (i in favAlbums) {
                 addAlbumChip(i)
             }
-            Getdata(favAlbums[0])
-            chipGroup.getChildAt(0).isSelected = true
+            if (favAlbums.isNotEmpty()) {
+                Getdata(favAlbums[0])
+                chipGroup.getChildAt(0).isSelected = true
+            }
         }
 
         //    makeToast(sharedPreferences.getInt("SIn", 99).toString())
@@ -186,6 +188,8 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         chip.setOnCloseIconClickListener { view ->
             // Remove the chip from the ChipGroup when the close icon is clicked
             chipGroup.removeView(view)
+            favAlbums.remove(i)
+            saveFavAlbums(favAlbums)
 
         }
         chip.setOnClickListener {
