@@ -88,6 +88,7 @@ import com.belaku.homey.SetWallWorker.Companion.dayChange
 import com.belaku.homey.SetWallWorker.Companion.dayIndex
 import com.belaku.homey.SetWallWorker.Companion.isPinNoteInitialized
 import com.belaku.homey.SetWallWorker.Companion.isWallBitmapInitialized
+import com.belaku.homey.SetWallWorker.Companion.ismActInitialized
 import com.belaku.homey.SetWallWorker.Companion.mAct
 import com.belaku.homey.SetWallWorker.Companion.pinNote
 import com.belaku.homey.SetWallWorker.Companion.scaledBitmap
@@ -795,13 +796,16 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
             val metrics = DisplayMetrics()
-            mAct.getWindowManager().getDefaultDisplay().getMetrics(metrics)
-            screenHeight = metrics.heightPixels
-            screenWidth = metrics.widthPixels
-            remoteViews?.setImageViewBitmap(
-                R.id.imgv_player,
-                createGradientBitmap(screenWidth, 100, primaryColor, tertianaryColor)
-            )
+
+            if (ismActInitialized()) {
+                mAct.getWindowManager().getDefaultDisplay().getMetrics(metrics)
+                screenHeight = metrics.heightPixels
+                screenWidth = metrics.widthPixels
+                remoteViews?.setImageViewBitmap(
+                    R.id.imgv_player,
+                    createGradientBitmap(screenWidth, 100, primaryColor, tertianaryColor)
+                )
+            }
 
             //  findViewById<View>(R.id.myLayout).background = gradientDrawable
 

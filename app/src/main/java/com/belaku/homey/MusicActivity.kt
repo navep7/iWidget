@@ -48,6 +48,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.net.URL
 import androidx.core.view.isEmpty
+import com.belaku.homey.MusicService.Companion.isMediaPlayerInitialized
 
 class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
@@ -112,7 +113,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         if (set != null) {
             favAlbums = ArrayList(set)
 
-          //  makeToast("onCreate ~ ${favAlbums.size}")
+            //  makeToast("onCreate ~ ${favAlbums.size}")
             for (i in favAlbums) {
                 addAlbumChip(i)
             }
@@ -131,7 +132,6 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         //    chipArtists()
 
 
-
         parentLayout = findViewById(android.R.id.content);
 
         if (chipGroup.isEmpty())
@@ -139,13 +139,6 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                 .show()
 
 
-        if (boolMusicServiceRunning) {
-            imgbtnPlayAlbum.setImageResource(android.R.drawable.ic_media_pause)
-            fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
-            txPlayingSong.text = dataList[songIndex].title
-        } else {
-            fabPlayPause.setImageResource(android.R.drawable.ic_media_play)
-        }
 
 
         editTextQuery.setOnEditorActionListener(OnEditorActionListener { v, actionId, event ->
@@ -164,6 +157,19 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
         if (boolMusicServiceRunning) {
             makeToast(dataList[songIndex].title + " ~ " + query)
+            txPlayingSong.text = dataList[songIndex].title
+
+            try {
+                if (isMediaPlayerInitialized()) {
+                    if (mPlayer.isPlaying)
+                        fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
+                    else fabPlayPause.setImageResource(android.R.drawable.ic_media_play)
+                }
+            } catch (ex : Exception) {
+
+            }
+
+
             for (i in 0 until chipGroup.childCount) {
                 var ch = chipGroup.getChildAt(i) as Chip
                 if (query == ch.text)
@@ -171,7 +177,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                 else ch.isSelected = false
             }
             Getdata(query)
-            
+
             fabPlayPause.visibility = View.VISIBLE
 
         }
@@ -245,7 +251,6 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
             chipGroup.check(chipGroup.getChildAt(0).id)
 
 
-
     }
 
 
@@ -270,13 +275,11 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
     }
 
 
-
     fun saveFavAlbums(list: List<String>) {
         val set = list.toHashSet()
         sharedPreferencesEditor.putStringSet("favAlbums", set).apply()
-   //     makeToast("saveFavAlbums ~ ${list.size}")
+        //     makeToast("saveFavAlbums ~ ${list.size}")
     }
-
 
 
     override fun onResume() {
@@ -329,8 +332,18 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                         }
 
                         txPlayingSong.text = dataList[0].title
-                        if (!boolMusicServiceRunning)
-                            startForegroundService(playIntent)
+
+                        songIndex = 0
+
+                        if (boolMusicServiceRunning)
+                            stopService(
+                                Intent(
+                                    this@MusicActivity,
+                                    MusicService::class.java
+                                )
+                            )
+
+                        startForegroundService(playIntent)
 
                         imgbtnPlayAlbum.setImageResource(android.R.drawable.ic_media_pause)
                         fabPlayPause.visibility = View.VISIBLE

@@ -130,6 +130,10 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             return this::pinNote.isInitialized
         }
 
+        fun ismActInitialized(): Boolean {
+            return this::mAct.isInitialized
+        }
+
         lateinit var rActOpenedFirst: String
         lateinit var mAct: Activity
         var dayIndex: Int = -1
