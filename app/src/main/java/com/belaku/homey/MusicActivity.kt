@@ -76,7 +76,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         lateinit var recyclerViewSongs: RecyclerView
         var favAlbums: ArrayList<String> = ArrayList()
         lateinit var dataList: List<Data>
-        lateinit var query: String
+        var query: String = ""
         lateinit var txPlayingSong: TextView
 
         fun isDataListInitialized(): Boolean {
@@ -154,9 +154,9 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         })
 
 
-
+        makeToast("boolMusicServiceRunning ~ $boolMusicServiceRunning : $query")
         if (boolMusicServiceRunning) {
-            makeToast(dataList[songIndex].title + " ~ " + query)
+        //    makeToast(dataList[songIndex].title + " ~ " + query)
             txPlayingSong.text = dataList[songIndex].title
 
             try {
@@ -257,21 +257,6 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
     override fun onDestroy() {
         super.onDestroy()
 
-
-        if (MusicService.isMediaPlayerInitialized())
-            try {
-                if (!mPlayer.isPlaying) {
-                    val myService = Intent(
-                        this@MusicActivity,
-                        MusicService::class.java
-                    )
-                    songIndex = 0
-                    stopService(myService)
-                }
-            } catch (e: IllegalStateException) {
-                // Handle the exception, potentially logging or resetting the player
-                e.printStackTrace()
-            }
     }
 
 
@@ -334,14 +319,6 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                         txPlayingSong.text = dataList[0].title
 
                         songIndex = 0
-
-                        if (boolMusicServiceRunning)
-                            stopService(
-                                Intent(
-                                    this@MusicActivity,
-                                    MusicService::class.java
-                                )
-                            )
 
                         startForegroundService(playIntent)
 
