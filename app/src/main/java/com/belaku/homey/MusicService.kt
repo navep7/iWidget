@@ -233,6 +233,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
     override fun onCompletion(p0: MediaPlayer?) {
 
+        mPlayer.release()
         songIndex++
 
         recyclerViewSongs.scrollToPosition(songIndex)
@@ -242,23 +243,26 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
         if (songIndex < songsUrlList.size) {
             val uri = Uri.parse(songsUrlList[songIndex])
-            mPlayer = MediaPlayer().apply {
-                setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .build()
-                )
-                setDataSource(applicationContext, uri)
-                txPlayingSong.text = dataList[0].title
-                prepare() // might take long! (for buffering, etc)
-                start()
+            try {
+                mPlayer = MediaPlayer().apply {
+                    setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .build()
+                    )
+                    setDataSource(applicationContext, uri)
+                    txPlayingSong.text = dataList[0].title
+                    prepare() // might take long! (for buffering, etc)
+                    start()
+                }
+
+                mPlayer.setOnCompletionListener(this)
+                mPlayer.setOnErrorListener(this)
+            } catch (ex : Exception) {
+                makeToast("MP exception - $ex")
             }
-
-            mPlayer.setOnCompletionListener(this)
-            mPlayer.setOnErrorListener(this)
         }
-
 
     }
 
