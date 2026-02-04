@@ -313,7 +313,12 @@ class StepsService : Service() {
                 mLocationResult = locationResult
                 val location = locationResult.lastLocation
                 if (location != null) {
-                    getWeatherData(LatLng(location.latitude, location.longitude))
+
+                    if (!sharedPreferences.getBoolean("boolWeather", false)) {
+                        sharedPreferencesEditor.putBoolean("boolWeather", true).apply()
+                        getWeatherData(LatLng(location.latitude, location.longitude))
+                    }
+
                     getAddress(location.latitude, location.longitude)
                 }
             }

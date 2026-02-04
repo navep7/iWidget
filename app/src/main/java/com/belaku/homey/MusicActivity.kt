@@ -61,7 +61,6 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
     private lateinit var image: BitmapDrawable
 
     private lateinit var playIntent: Intent
-    private var songs: ArrayList<String> = ArrayList()
     private lateinit var fabPlayPause: FloatingActionButton
     private lateinit var playerBg: RelativeLayout
     private lateinit var editTextQuery: EditText
@@ -310,9 +309,20 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                     imgbtnFavAlbum.visibility = View.VISIBLE
 
                     imgbtnPlayAlbum.setOnClickListener {
+
+
+                        makeToast(query + " ~ " + dataList[0].title)
+                        if (boolMusicServiceRunning) {
+                            stopService(Intent(appContx, MusicService::class.java))
+                        }
+
                         var i = 0
-                        for (item in songs) {
-                            playIntent.putExtra(i.toString(), item)
+                        playIntent = Intent(
+                            appContx,
+                            MusicService::class.java
+                        )
+                        for (item in dataList) {
+                            playIntent.putExtra(i.toString(), item.preview)
                             i++
                         }
 
@@ -376,9 +386,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                 }
 
 
-                songs.clear()
-                for (item in dataList)
-                    songs.add(item.preview)
+
 
                 for (item in dataList)
                     Log.d("DATA7", "p - " + item.preview + "\n l - " + item.link)
