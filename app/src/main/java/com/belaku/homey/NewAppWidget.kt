@@ -72,6 +72,8 @@ import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.beginCal
+import com.belaku.homey.MainActivity.Companion.cityLat
+import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
@@ -108,6 +110,7 @@ import com.google.android.gms.location.ActivityTransitionRequest
 import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
@@ -277,6 +280,10 @@ class NewAppWidget : AppWidgetProvider() {
         // Set the click listener on the widget button
         remoteViews?.setOnClickPendingIntent(R.id.imgv_conf, pendingIntentMain)
 
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_weather_icon,
+            getPendingSelfIntent(context, GET_WEATHER)
+        )
 
         remoteViews?.setOnClickPendingIntent(
             R.id.tx_time_announcement,
@@ -1025,7 +1032,9 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleIntentActions(intent: Intent) {
 
-        if (PLAYPAUSE_CLICK == intent.action) {
+        if (GET_WEATHER == intent.action) {
+            StepsService.getWeatherData(LatLng(cityLat, cityLng))
+        } else if (PLAYPAUSE_CLICK == intent.action) {
             if (MusicService.isMediaPlayerInitialized()) {
                 try {
                     if (mPlayer.isPlaying) {

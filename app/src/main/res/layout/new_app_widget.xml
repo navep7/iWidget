@@ -289,11 +289,11 @@
 
                         <ImageButton
                             android:id="@+id/imgv_weather_icon"
-                            android:padding="@dimen/padding_3"
-                            android:background="@android:color/transparent"
+                            android:padding="@dimen/padding_5"
+                            android:background="@android:drawable/ic_popup_sync"
                             android:layout_toRightOf="@+id/tx_weather"
-                            android:layout_width="35dp"
-                            android:layout_height="35dp"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
                             android:layout_gravity="center_vertical"
                             android:scaleType="fitXY"
                             android:src="@drawable/clouds"/>

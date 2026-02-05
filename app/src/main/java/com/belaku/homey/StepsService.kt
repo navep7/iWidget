@@ -28,6 +28,8 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.MainActivity.Companion.cityLat
+import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
@@ -323,51 +325,7 @@ class StepsService : Service() {
                 }
             }
 
-            @OptIn(DelicateCoroutinesApi::class)
-            fun getWeatherData(latLng: LatLng) {
 
-                try {
-                    val weatherService = Retrofit.Builder()
-                        .baseUrl("https://api.openweathermap.org/data/2.5/")
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build()
-                        .create(WeatherService::class.java)
-
-
-                    GlobalScope.launch(Dispatchers.IO) {
-                        val openWeatherApiKey = "9fa8e101240ab18615e3133b051e767e"
-                        weatherData = weatherService.getWeather(
-                            latLng.latitude.toString(),
-                            latLng.longitude.toString(), openWeatherApiKey
-                        )
-                        withContext(Dispatchers.Main) {
-                            //  updateUI(weatherData)
-                            tempC = "${weatherData.main.temp - 273}°C"
-                            weatherIconState = weatherData.weather.get(0).main
-                            Log.d("weatherIconSubState",  weatherData.weather.toString())
-                            tempKind = weatherData.weather.get(0).main
-                            weatherIconID = weatherData.weather.get(0).id
-                            weatherIconUrl =
-                                "http://openweathermap.org/img/wn/" + weatherIconID + "@2x.png"
-
-
-                            Log.d("weatherInfo", tempC + " - " + tempKind)
-
-
-                            sharedPreferencesEditor.putString(
-                                "weatherTemp",
-                                tempC
-                            ).apply()
-                        }
-                    }
-                } catch (ex: Exception) {
-                    Log.d("WD Excep7 - ", ex.toString())
-                    makeToast("Weather EXP - ${ex.message}")
-                }
-
-                //   makeToast(tempC)
-
-            }
 
             override fun onMarkerClick(p0: Marker): Boolean {
                 makeToast("nothin")
@@ -378,6 +336,52 @@ class StepsService : Service() {
         var choosenApps: ArrayList<App> = ArrayList()
 
 
+        @OptIn(DelicateCoroutinesApi::class)
+        fun getWeatherData(latLng: LatLng) {
+
+            try {
+                val weatherService = Retrofit.Builder()
+                    .baseUrl("https://api.openweathermap.org/data/2.5/")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build()
+                    .create(WeatherService::class.java)
+
+
+                GlobalScope.launch(Dispatchers.IO) {
+                    val openWeatherApiKey = "9fa8e101240ab18615e3133b051e767e"
+                    weatherData = weatherService.getWeather(
+                        latLng.latitude.toString(),
+                        latLng.longitude.toString(), openWeatherApiKey
+                    )
+                    withContext(Dispatchers.Main) {
+                        //  updateUI(weatherData)
+                        tempC = "${weatherData.main.temp - 273}°C"
+                        weatherIconState = weatherData.weather.get(0).main
+                        Log.d("weatherIconSubState",  weatherData.weather.toString())
+                        tempKind = weatherData.weather.get(0).main
+                        weatherIconID = weatherData.weather.get(0).id
+                        weatherIconUrl =
+                            "http://openweathermap.org/img/wn/" + weatherIconID + "@2x.png"
+
+
+                        Log.d("weatherInfo", tempC + " - " + tempKind)
+
+
+                        sharedPreferencesEditor.putString(
+                            "weatherTemp",
+                            tempC
+                        ).apply()
+                    }
+                }
+            } catch (ex: Exception) {
+                Log.d("WD Excep7 - ", ex.toString())
+                makeToast("Weather EXP - ${ex.message}")
+            }
+
+            //   makeToast(tempC)
+
+        }
+
         fun getAddress(lat: Double, lng: Double) {
             val gcd = Geocoder(appContx)
             Locale.getDefault()
@@ -385,6 +389,8 @@ class StepsService : Service() {
                 var cAddrs = gcd.getFromLocation(lat, lng, 1)!!
                 //   makeToast(cAddrs?.get(0)!!.subLocality)
 
+                cityLat = lat
+                cityLng = lng
                 cityname = cAddrs?.get(0)!!.subLocality
                 //      if (cityname.length > 15)
                 //        cityname = cityname.substring(0, 12) + "..,"
