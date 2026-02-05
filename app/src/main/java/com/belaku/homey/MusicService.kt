@@ -66,6 +66,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
             remoteViews?.setTextViewText(com.belaku.homey.R.id.tx_music_details, dataList[sIndex].title + " | " + dataList[sIndex].album.title + " | " + dataList[sIndex].artist.name)
 
+            txPlayingSong.setText(dataList[sIndex].title)
 
             appWidM.updateAppWidget(newAppWidget, remoteViews)
             //   serviceNotify(MainActivity.dataList[sIndex].title)
