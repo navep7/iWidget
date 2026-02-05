@@ -213,8 +213,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
                     mPlayer.setOnCompletionListener(this)
                     mPlayer.setOnErrorListener(this)
                 } catch (e: Exception) {
-                    println(e.toString())
-                    //    Toast.makeText(applicationContext, "P ex - " + e, Toast.LENGTH_LONG).show()
+                    makeToast("onStartCommand EXCP - " + e)
                 }
 
 
@@ -233,35 +232,18 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
     override fun onCompletion(p0: MediaPlayer?) {
 
-        mPlayer.release()
         songIndex++
-
         recyclerViewSongs.scrollToPosition(songIndex)
-
-
         notifySong(songIndex)
 
         if (songIndex < songsUrlList.size) {
             val uri = Uri.parse(songsUrlList[songIndex])
-            try {
-                mPlayer = MediaPlayer().apply {
-                    setAudioAttributes(
-                        AudioAttributes.Builder()
-                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                            .setUsage(AudioAttributes.USAGE_MEDIA)
-                            .build()
-                    )
-                    setDataSource(applicationContext, uri)
-                    txPlayingSong.text = dataList[0].title
-                    prepare() // might take long! (for buffering, etc)
-                    start()
-                }
 
-                mPlayer.setOnCompletionListener(this)
-                mPlayer.setOnErrorListener(this)
-            } catch (ex : Exception) {
-                makeToast("MP exception - $ex")
-            }
+            mPlayer.reset(); // Reset the MediaPlayer for a new source
+            mPlayer.setDataSource(applicationContext, uri); // Set new song data source
+            mPlayer.prepare(); // Prepare the MediaPlayer
+            mPlayer.start();
+
         }
 
     }
