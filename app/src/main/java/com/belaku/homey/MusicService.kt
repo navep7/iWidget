@@ -252,11 +252,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     override fun onDestroy() {
         super.onDestroy()
 
-        boolMusicServiceRunning = false
-        if (mPlayer.isPlaying()) {
-            mPlayer.stop();
-        }
-        mPlayer.release();
+
         songIndex = 0
         sharedPreferencesEditor.putInt("SIn", 0).apply()
         remoteViews?.setTextViewText(com.belaku.homey.R.id.tx_music_details, dataList[0].title + " | " + dataList[0].album.title + " | " + dataList[0].artist.name)

@@ -1519,15 +1519,6 @@ class NewAppWidget : AppWidgetProvider() {
         )
     }
 
-
-    /*   private fun clickSound(context: Context) {
-
-           mp = MediaPlayer.create(context, R.raw.click)
-           mp.start()
-           Handler(Looper.getMainLooper()).postDelayed(Runnable { mp.release() }, 3000)
-
-       }*/
-
     fun isAccessibilityServiceEnabled(
         context: Context,
         service: Class<out AccessibilityService?>
