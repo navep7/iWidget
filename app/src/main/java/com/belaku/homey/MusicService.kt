@@ -10,39 +10,38 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Intent
 import android.media.AudioAttributes
+import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
-import android.os.Message
-import android.os.Messenger
-import android.os.RemoteException
+import android.os.Looper
 import android.util.Log
 import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
-import com.belaku.homey.MainActivity.Companion.appContx
-import com.belaku.homey.MusicActivity.Companion.dataList
-import com.belaku.homey.NewAppWidget.Companion.appWidM
-import com.belaku.homey.NewAppWidget.Companion.newAppWidget
-import com.belaku.homey.NewAppWidget.Companion.remoteViews
-import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
-import java.util.Timer
-import java.util.TimerTask
 import androidx.core.net.toUri
+import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.MusicActivity.Companion.dataList
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
 import com.belaku.homey.MusicActivity.Companion.recyclerViewSongs
 import com.belaku.homey.MusicActivity.Companion.txPlayingSong
+import com.belaku.homey.NewAppWidget.Companion.appWidM
+import com.belaku.homey.NewAppWidget.Companion.newAppWidget
+import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
+import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 
 
 class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
 
+    private lateinit var handlerVolume: Handler
+    private lateinit var runnableVolume: Runnable
     private lateinit var serviceNotification: Notification
     private lateinit var sendIntent: Intent
     private lateinit var scontext: MusicService
-
 
 
     companion object {
@@ -64,7 +63,10 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             remoteViews =
                 RemoteViews(appContx.packageName, com.belaku.homey.R.layout.new_app_widget)
             newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
-            remoteViews?.setTextViewText(com.belaku.homey.R.id.tx_music_details, dataList[sIndex].title + " | " + dataList[sIndex].album.title + " | " + dataList[sIndex].artist.name)
+            remoteViews?.setTextViewText(
+                com.belaku.homey.R.id.tx_music_details,
+                dataList[sIndex].title + " | " + dataList[sIndex].album.title + " | " + dataList[sIndex].artist.name
+            )
 
             txPlayingSong.setText(dataList[sIndex].title)
 
@@ -118,7 +120,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         boolMusicServiceRunning = true
 
         if (MusicActivity.isDataListInitialized())
-        serviceNotify(dataList[songIndex].title)
+            serviceNotify(dataList[songIndex].title)
         //    notifySong(0)
     }
 
@@ -152,9 +154,6 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     }
 
 
-
-
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
         sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
@@ -182,9 +181,6 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
             }
 
-            println("S21 - rSize" + songsUrlList.size)
-            for (item in songsUrlList)
-                println("S21 - received" + item)
 
             if (songsUrlList.isNotEmpty() && isDataListInitialized()) {
 
@@ -201,11 +197,12 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
                                 .build()
                         )
 
-                        makeToast("URI ~ $uri")
                         setDataSource(applicationContext, uri)
                         prepare() // might take long! (for buffering, etc)
                         start()
                     }
+                //    trackSeek()
+
                     remoteViews?.setImageViewResource(
                         com.belaku.homey.R.id.imgbtn_playpause,
                         android.R.drawable.ic_media_pause
@@ -221,13 +218,34 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             }
 
 
-                sendIntent = intent
+            sendIntent = intent
 
 
         }
 
         return START_STICKY
     }
+
+    private fun trackSeek() {
+
+        //  makeToast("!trackSeek")
+
+        val audioManager = appContx.getSystemService(AUDIO_SERVICE) as AudioManager
+     //   makeToast("!increaseVol ~ ${mPlayer.currentPosition}")
+     //   increaseVol()
+
+        val handler = Handler(Looper.getMainLooper())
+        handler.postDelayed(object : Runnable {
+            override fun run() {
+                // Code to run after the delay
+             //   makeToast("50secs ~ ${mPlayer.currentPosition}")
+            //    makeToast("!decreaseVol ~ ${mPlayer.currentPosition}")
+       //         reduceVolume()
+            }
+        }, (mPlayer.duration - 5000).toLong())
+
+    }
+
 
 
 
@@ -237,13 +255,15 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         recyclerViewSongs.scrollToPosition(songIndex)
         notifySong(songIndex)
 
+        if (songsUrlList.isNotEmpty() && isDataListInitialized())
         if (songIndex < songsUrlList.size) {
-            val uri = Uri.parse(songsUrlList[songIndex])
+            val uri = songsUrlList[songIndex].toUri()
 
             mPlayer.reset(); // Reset the MediaPlayer for a new source
-            mPlayer.setDataSource(applicationContext, uri); // Set new song data source
+            mPlayer.setDataSource(appContx, uri); // Set new song data source
             mPlayer.prepare(); // Prepare the MediaPlayer
             mPlayer.start();
+            trackSeek()
 
         }
 
@@ -256,7 +276,10 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
         songIndex = 0
         sharedPreferencesEditor.putInt("SIn", 0).apply()
-        remoteViews?.setTextViewText(com.belaku.homey.R.id.tx_music_details, dataList[0].title + " | " + dataList[0].album.title + " | " + dataList[0].artist.name)
+        remoteViews?.setTextViewText(
+            com.belaku.homey.R.id.tx_music_details,
+            dataList[0].title + " | " + dataList[0].album.title + " | " + dataList[0].artist.name
+        )
         appWidM.updateAppWidget(newAppWidget, remoteViews)
 
         Log.i("OnDestroyMS", "onDestroy: MS OnDestroy called");

@@ -375,27 +375,7 @@ class MainActivity : AppCompatActivity() {
         addPermissionCards()
 
 
-
-
-
-        /*var btnDone = Button(applicationContext)
-        btnDone.text = "Done"
-
-        btnDone.setOnClickListener {
-            if (!nPermissions()) {
-                rawTweets(false)
-                getFavoriteContacts(appContx)
-                iDV.dismiss()
-            } else makeToast("Ensure all Ps are Granted")
-        }
-        llInstructions.addView(btnDone)*/
-
-
-
         instructionsDialogBuilder.setTitle("nHome Widget Highlights ~ underlined words in the below pic, explain...!")
-
-
-
 
         sharedPreferencesEditor.putString("qT", queryType).apply()
 
