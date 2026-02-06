@@ -12,7 +12,6 @@ import android.content.Intent
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
-import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
@@ -22,6 +21,7 @@ import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MusicActivity.Companion.dataList
@@ -58,6 +58,14 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
         fun notifySong(sIndex: Int) {
 
+            try {
+                recyclerViewSongs.scrollToPosition(sIndex)
+                txPlayingSong.setText(dataList[sIndex].title)
+            } catch (ex: Exception) {
+                makeToast("EXP updating MusicActivity ~ ${ex.message}")
+            }
+
+
             sharedPreferencesEditor.putInt("SIn", sIndex).apply()
             appWidM = AppWidgetManager.getInstance(appContx)
             remoteViews =
@@ -68,7 +76,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
                 dataList[sIndex].title + " | " + dataList[sIndex].album.title + " | " + dataList[sIndex].artist.name
             )
 
-            txPlayingSong.setText(dataList[sIndex].title)
+
 
             appWidM.updateAppWidget(newAppWidget, remoteViews)
             //   serviceNotify(MainActivity.dataList[sIndex].title)
@@ -201,7 +209,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
                         prepare() // might take long! (for buffering, etc)
                         start()
                     }
-                //    trackSeek()
+                    //    trackSeek()
 
                     remoteViews?.setImageViewResource(
                         com.belaku.homey.R.id.imgbtn_playpause,
@@ -231,41 +239,38 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         //  makeToast("!trackSeek")
 
         val audioManager = appContx.getSystemService(AUDIO_SERVICE) as AudioManager
-     //   makeToast("!increaseVol ~ ${mPlayer.currentPosition}")
-     //   increaseVol()
+        //   makeToast("!increaseVol ~ ${mPlayer.currentPosition}")
+        //   increaseVol()
 
         val handler = Handler(Looper.getMainLooper())
         handler.postDelayed(object : Runnable {
             override fun run() {
                 // Code to run after the delay
-             //   makeToast("50secs ~ ${mPlayer.currentPosition}")
-            //    makeToast("!decreaseVol ~ ${mPlayer.currentPosition}")
-       //         reduceVolume()
+                //   makeToast("50secs ~ ${mPlayer.currentPosition}")
+                //    makeToast("!decreaseVol ~ ${mPlayer.currentPosition}")
+                //         reduceVolume()
             }
         }, (mPlayer.duration - 5000).toLong())
 
     }
 
 
-
-
     override fun onCompletion(p0: MediaPlayer?) {
 
         songIndex++
-        recyclerViewSongs.scrollToPosition(songIndex)
         notifySong(songIndex)
 
         if (songsUrlList.isNotEmpty() && isDataListInitialized())
-        if (songIndex < songsUrlList.size) {
-            val uri = songsUrlList[songIndex].toUri()
+            if (songIndex < songsUrlList.size) {
+                val uri = songsUrlList[songIndex].toUri()
 
-            mPlayer.reset(); // Reset the MediaPlayer for a new source
-            mPlayer.setDataSource(appContx, uri); // Set new song data source
-            mPlayer.prepare(); // Prepare the MediaPlayer
-            mPlayer.start();
-            trackSeek()
+                mPlayer.reset(); // Reset the MediaPlayer for a new source
+                mPlayer.setDataSource(appContx, uri); // Set new song data source
+                mPlayer.prepare(); // Prepare the MediaPlayer
+                mPlayer.start();
+                trackSeek()
 
-        }
+            }
 
     }
 
