@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity.ACTIVITY_SERVICE
-import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.MusicService.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.SpeakService.Companion.speakOut
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning

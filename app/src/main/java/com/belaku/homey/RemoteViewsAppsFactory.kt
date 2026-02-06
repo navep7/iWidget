@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService.RemoteViewsFactory
-import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.MusicService.Companion.appContx
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.StepsService.Companion.choosenApps

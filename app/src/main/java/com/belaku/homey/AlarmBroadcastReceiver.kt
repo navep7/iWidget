@@ -11,7 +11,7 @@ import android.media.RingtoneManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.MusicService.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.RemindersActivity.Companion.adapterReminders
 import com.belaku.homey.RemindersActivity.Companion.arrayListReminders

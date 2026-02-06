@@ -1,6 +1,7 @@
 package com.belaku.homey
 
 import android.R
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -8,6 +9,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.media.AudioAttributes
 import android.media.AudioManager
@@ -21,8 +23,6 @@ import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MusicActivity.Companion.dataList
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
@@ -46,6 +46,8 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
     companion object {
 
+        @SuppressLint("StaticFieldLeak")
+        lateinit var appContx: Context
         var boolMusicServiceRunning: Boolean = false
         var songsUrlList: ArrayList<String> = ArrayList()
         var songIndex: Int = 0
@@ -257,20 +259,26 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
     override fun onCompletion(p0: MediaPlayer?) {
 
-        songIndex++
-        notifySong(songIndex)
+        try {
+            songIndex++
+            notifySong(songIndex)
 
-        if (songsUrlList.isNotEmpty() && isDataListInitialized())
-            if (songIndex < songsUrlList.size) {
-                val uri = songsUrlList[songIndex].toUri()
+            if (songsUrlList.isNotEmpty() && isDataListInitialized())
+                if (songIndex < songsUrlList.size) {
+                    val uri = songsUrlList[songIndex].toUri()
 
-                mPlayer.reset(); // Reset the MediaPlayer for a new source
-                mPlayer.setDataSource(appContx, uri); // Set new song data source
-                mPlayer.prepare(); // Prepare the MediaPlayer
-                mPlayer.start();
-                trackSeek()
+                    makeToast(uri.toString())
 
-            }
+                    mPlayer.reset(); // Reset the MediaPlayer for a new source
+                    mPlayer.setDataSource(appContx, uri); // Set new song data source
+                    mPlayer.prepare(); // Prepare the MediaPlayer
+                    mPlayer.start();
+                    trackSeek()
+
+                }
+        } catch (ex: Exception) {
+            makeToast("onCompletionEXP ~ ${ex.message}")
+        }
 
     }
 

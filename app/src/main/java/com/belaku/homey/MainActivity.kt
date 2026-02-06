@@ -92,6 +92,7 @@ import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.belaku.homey.MusicService.Companion.appContx
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
@@ -1908,8 +1909,7 @@ class MainActivity : AppCompatActivity() {
         @SuppressLint("StaticFieldLeak")
         lateinit var parentLayout: View
 
-        @SuppressLint("StaticFieldLeak")
-        lateinit var appContx: Context
+
         var delayUnit: String = ""
         var queryType: String = "Material Design"
         var updateTime: String = "00:00"
@@ -1997,7 +1997,7 @@ class MainActivity : AppCompatActivity() {
             )
             intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
             val ids: IntArray = AppWidgetManager.getInstance(appContx)
-                .getAppWidgetIds(ComponentName(Companion.appContx, NewAppWidget::class.java))
+                .getAppWidgetIds(ComponentName(appContx, NewAppWidget::class.java))
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
             appContx.sendBroadcast(intent)
         }

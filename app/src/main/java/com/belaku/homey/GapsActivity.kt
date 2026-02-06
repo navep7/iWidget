@@ -27,9 +27,10 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.belaku.homey.MainActivity.Companion.appContx
+
 import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.MusicService.Companion.appContx
 import com.belaku.homey.databinding.ActivityGapsBinding
 
 

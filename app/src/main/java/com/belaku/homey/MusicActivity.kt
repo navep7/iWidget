@@ -23,7 +23,6 @@ import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.belaku.Data
-import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.parentLayout
 import com.belaku.homey.MusicService.Companion.boolMusicServiceRunning
@@ -48,6 +47,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.net.URL
 import androidx.core.view.isEmpty
+import com.belaku.homey.MusicService.Companion.appContx
 import com.belaku.homey.MusicService.Companion.isMediaPlayerInitialized
 
 class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {

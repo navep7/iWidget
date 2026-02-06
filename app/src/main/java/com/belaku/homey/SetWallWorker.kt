@@ -31,7 +31,7 @@ import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.MusicService.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.cDate
 import com.belaku.homey.MainActivity.Companion.cMonth
@@ -305,7 +305,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             val ids: IntArray = AppWidgetManager.getInstance(appContx)
                 .getAppWidgetIds(
                     ComponentName(
-                        MainActivity.Companion.appContx,
+                        appContx,
                         NewAppWidget::class.java
                     )
                 )
