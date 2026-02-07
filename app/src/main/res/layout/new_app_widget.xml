@@ -20,12 +20,12 @@
 
     <TextView
         android:id="@+id/tx_battery"
-        android:layout_toStartOf="@+id/progressBar_battery"
         android:text="Battery"
-        android:background="@drawable/rounded_corner_black"
+        android:background="@drawable/gradient_glass_rounded"
         android:padding="@dimen/padding_5"
         android:textStyle="bold"
-        android:textColor="@android:color/holo_green_dark"
+        android:textColor="@android:color/black"
+        android:textSize="15sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
@@ -33,7 +33,7 @@
         android:id="@+id/progressBar_battery"
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:layout_width="100dp"
-        android:layout_centerHorizontal="true"
+        android:layout_toEndOf="@+id/tx_battery"
         android:layout_height="wrap_content"
         android:progressTint="@android:color/holo_green_light"
         android:max="100"
