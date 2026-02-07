@@ -14,6 +14,7 @@ import android.content.Intent
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
+import android.media.MediaPlayer.OnPreparedListener
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
@@ -267,13 +268,14 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
                 if (songIndex < songsUrlList.size) {
                     val uri = songsUrlList[songIndex].toUri()
 
-                    makeToast(uri.toString())
-
                     mPlayer.reset(); // Reset the MediaPlayer for a new source
                     mPlayer.setDataSource(appContx, uri); // Set new song data source
-                    mPlayer.prepare(); // Prepare the MediaPlayer
-                    mPlayer.start();
-                    trackSeek()
+                    mPlayer.prepareAsync()
+                    mPlayer.setOnPreparedListener {
+                        mPlayer.start()
+                        trackSeek()
+                    }
+
 
                 }
         } catch (ex: Exception) {
@@ -299,9 +301,11 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     }
 
     override fun onError(p0: MediaPlayer?, p1: Int, p2: Int): Boolean {
-        TODO("Not yet implemented")
+
         Toast.makeText(applicationContext, "Err - " + p1.toString(), Toast.LENGTH_LONG).show()
         Log.d("onErrorMusService", p1.toString())
+
+        return true
     }
 
 
