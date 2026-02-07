@@ -42,6 +42,7 @@ import android.icu.util.Calendar
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.net.wifi.WifiManager
+import android.os.BatteryManager
 import android.os.Build
 import android.provider.ContactsContract
 import android.provider.MediaStore
@@ -241,6 +242,7 @@ class NewAppWidget : AppWidgetProvider() {
         sharedPreferencesEditor = sharedPreferences.edit()
 
         recognizeActivityTransitions()
+        getPreciseEnergyCounter(appContx)
 
         for (appWidgetId in appWidgetIds) {
 
@@ -576,7 +578,6 @@ class NewAppWidget : AppWidgetProvider() {
 
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setUI() {
-
 
         val spkServiceRunning = sharedPreferences.getBoolean("SPKSERVICE", false)
         //   makeToast("spkServiceRunning : $spkServiceRunning")
@@ -1351,6 +1352,21 @@ class NewAppWidget : AppWidgetProvider() {
         sharedPreferencesEditor.putString(key, json).commit()
     }
 
+
+
+    fun getPreciseEnergyCounter(context: Context): Long {
+        val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
+        val energy = batteryManager.getLongProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+        makeToast("Juice ~ $energy")
+
+        remoteViews?.setTextViewText(R.id.tx_battery, energy.toString())
+        remoteViews?.setProgressBar(R.id.progressBar_battery, 100, energy.toInt(), false)
+        return if (energy != Long.MIN_VALUE) {
+            energy // Energy remaining in microampere-hours (µAh)
+        } else {
+            0L
+        }
+    }
 
     fun isWifiEnabled(context: Context): Boolean {
         val wifiManager =

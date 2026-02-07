@@ -17,6 +17,29 @@
         android:layout_height="match_parent"
         android:scaleType="fitXY" />
 
+
+    <TextView
+        android:id="@+id/tx_battery"
+        android:layout_toStartOf="@+id/progressBar_battery"
+        android:text="Battery"
+        android:background="@drawable/rounded_corner_black"
+        android:padding="@dimen/padding_5"
+        android:textStyle="bold"
+        android:textColor="@android:color/holo_green_dark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar_battery"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="100dp"
+        android:layout_centerHorizontal="true"
+        android:layout_height="wrap_content"
+        android:progressTint="@android:color/holo_green_light"
+        android:max="100"
+        android:progress="50" />
+
+
     <RelativeLayout
         android:id="@+id/rl_clocks"
         android:layout_width="wrap_content"
