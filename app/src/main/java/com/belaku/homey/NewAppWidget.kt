@@ -8,7 +8,6 @@ import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.WallpaperManager
-import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -70,7 +69,6 @@ import androidx.appcompat.app.AppCompatActivity.RECEIVER_NOT_EXPORTED
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
-import com.belaku.homey.MusicService.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.cityLat
@@ -84,6 +82,7 @@ import com.belaku.homey.MainActivity.Companion.tempKind
 import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.MusicActivity.Companion.dataList
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
+import com.belaku.homey.MusicService.Companion.appContx
 import com.belaku.homey.MusicService.Companion.mPlayer
 import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.RemindersActivity.Companion.adapterHabits
@@ -282,6 +281,10 @@ class NewAppWidget : AppWidgetProvider() {
         // Set the click listener on the widget button
         remoteViews?.setOnClickPendingIntent(R.id.imgv_conf, pendingIntentMain)
 
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_battery,
+            getPendingSelfIntent(context, BATTERY_INFO)
+        )
         remoteViews?.setOnClickPendingIntent(
             R.id.imgv_weather_icon,
             getPendingSelfIntent(context, GET_WEATHER)
@@ -1033,7 +1036,13 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleIntentActions(intent: Intent) {
 
-        if (GET_WEATHER == intent.action) {
+        if (BATTERY_INFO == intent.action) {
+            val powerUsageIntent = Intent("android.intent.action.POWER_USAGE_SUMMARY")
+            if (powerUsageIntent.resolveActivity(appContx.getPackageManager()) != null) {
+                powerUsageIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                appContx.startActivity(powerUsageIntent)
+            }
+        } else if (GET_WEATHER == intent.action) {
             StepsService.getWeatherData(LatLng(cityLat, cityLng))
         } else if (PLAYPAUSE_CLICK == intent.action) {
             if (MusicService.isMediaPlayerInitialized()) {
@@ -1974,6 +1983,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val TORCH_STATE = "torch"
 
         //    private const val RL_INVERT = "rlInvert"
+        private const val BATTERY_INFO = "batteryInfo"
         private const val GET_WEATHER = "getWeather"
         private const val STEPS_NOW = "newSteps"
         private const val LOCK_PHONE = "lockPhone"

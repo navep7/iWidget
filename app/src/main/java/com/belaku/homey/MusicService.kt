@@ -269,6 +269,10 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
                     val uri = songsUrlList[songIndex].toUri()
 
                     mPlayer.reset(); // Reset the MediaPlayer for a new source
+                    mPlayer.setAudioAttributes(AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .build())
                     mPlayer.setDataSource(appContx, uri); // Set new song data source
                     mPlayer.prepareAsync()
                     mPlayer.setOnPreparedListener {
