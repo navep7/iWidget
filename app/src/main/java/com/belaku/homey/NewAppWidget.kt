@@ -588,7 +588,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
         else remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
 
-        if (isDataListInitialized())
+        if (isDataListInitialized() && dataList.size > songIndex)
         remoteViews?.setTextViewText(R.id.tx_music_details, dataList[songIndex].title + " | " + dataList[songIndex].album.title + " | " + dataList[songIndex].artist.name)
 
         //    googleAccountInfo()
