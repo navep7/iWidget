@@ -590,7 +590,10 @@ class NewAppWidget : AppWidgetProvider() {
         else remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
 
         if (isDataListInitialized() && dataList.size > songIndex)
-        remoteViews?.setTextViewText(R.id.tx_music_details, dataList[songIndex].title + " | " + dataList[songIndex].album.title + " | " + dataList[songIndex].artist.name)
+            remoteViews?.setTextViewText(
+                R.id.tx_music_details,
+                dataList[songIndex].title + " | " + dataList[songIndex].album.title + " | " + dataList[songIndex].artist.name
+            )
 
         //    googleAccountInfo()
         if (isPinNoteInitialized())
@@ -1049,19 +1052,19 @@ class NewAppWidget : AppWidgetProvider() {
             if (boolMusicServiceRunning) {
                 try {
                     if (mMediaPlayer != null)
-                    if (mMediaPlayer!!.isPlaying) {
-                        mMediaPlayer!!.pause()
-                        remoteViews?.setImageViewResource(
-                            R.id.imgbtn_playpause,
-                            android.R.drawable.ic_media_play
-                        )
-                    } else {
-                        mMediaPlayer!!.start()
-                        remoteViews?.setImageViewResource(
-                            R.id.imgbtn_playpause,
-                            android.R.drawable.ic_media_pause
-                        )
-                    }
+                        if (mMediaPlayer!!.isPlaying) {
+                            mMediaPlayer!!.pause()
+                            remoteViews?.setImageViewResource(
+                                R.id.imgbtn_playpause,
+                                android.R.drawable.ic_media_play
+                            )
+                        } else {
+                            mMediaPlayer!!.start()
+                            remoteViews?.setImageViewResource(
+                                R.id.imgbtn_playpause,
+                                android.R.drawable.ic_media_pause
+                            )
+                        }
                 } catch (ex: Exception) {
                     startMusicActivity(0)
                 }
@@ -1364,11 +1367,10 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
 
-
     fun getPreciseEnergyCounter(context: Context): Long {
         val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
         val energy = batteryManager.getLongProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
-   //     makeToast("Juice ~ $energy")
+        //     makeToast("Juice ~ $energy")
 
         remoteViews?.setTextViewText(R.id.tx_battery, energy.toString())
         remoteViews?.setProgressBar(R.id.progressBar_battery, 100, energy.toInt(), false)

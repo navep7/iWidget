@@ -70,6 +70,7 @@ class MusicService : Service() {
             remoteViews =
                 RemoteViews(appContx.packageName, com.belaku.homey.R.layout.new_app_widget)
             newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
+            remoteViews?.setImageViewResource(R.id.imgbtn_playpause, android.R.drawable.ic_media_pause)
             remoteViews?.setTextViewText(
                 com.belaku.homey.R.id.tx_music_details,
                 dataList[sIndex].title + " | " + dataList[sIndex].album.title + " | " + dataList[sIndex].artist.name
@@ -206,12 +207,11 @@ class MusicService : Service() {
     }
 
 
-    var currentSongIndex: Int
 
     private fun playSong(index: Int) {
         if (index in 0 until dataList.size) {
-            currentSongIndex = index
-            val url = dataList[currentSongIndex].preview
+            songIndex = index
+            val url = dataList[songIndex].preview
 
             if (mMediaPlayer == null) {
                 mMediaPlayer = MediaPlayer().apply {
@@ -236,7 +236,7 @@ class MusicService : Service() {
                     setOnPreparedListener {
                         it.start() // Start playback when prepared
 
-                        notifySong(currentSongIndex)
+                        notifySong(songIndex)
 
                     }
                 }
@@ -249,8 +249,9 @@ class MusicService : Service() {
     }
 
     private fun playNextSong() {
-        if (currentSongIndex < dataList.size - 1) {
-            playSong(currentSongIndex + 1)
+        if (songIndex < dataList.size - 1) {
+            songIndex++
+            playSong(songIndex)
         } else {
             // Handle end of playlist (e.g., stop playback or loop to the beginning)
             // For example, you can release the player and set it to null
@@ -290,11 +291,7 @@ class MusicService : Service() {
 
         songIndex = 0
         sharedPreferencesEditor.putInt("SIn", 0).apply()
-        remoteViews?.setTextViewText(
-            com.belaku.homey.R.id.tx_music_details,
-            dataList[0].title + " | " + dataList[0].album.title + " | " + dataList[0].artist.name
-        )
-        appWidM.updateAppWidget(newAppWidget, remoteViews)
+
 
         Log.i("OnDestroyMS", "onDestroy: MS OnDestroy called");
     }
