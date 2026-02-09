@@ -26,7 +26,7 @@ import com.belaku.Data
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.parentLayout
 import com.belaku.homey.MusicService.Companion.boolMusicServiceRunning
-import com.belaku.homey.MusicService.Companion.mPlayer
+import com.belaku.homey.MusicService.Companion.mMediaPlayer
 import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
@@ -48,7 +48,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.net.URL
 import androidx.core.view.isEmpty
 import com.belaku.homey.MusicService.Companion.appContx
-import com.belaku.homey.MusicService.Companion.isMediaPlayerInitialized
 
 class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
@@ -159,11 +158,12 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
             txPlayingSong.text = dataList[songIndex].title
 
             try {
-                if (isMediaPlayerInitialized()) {
-                    if (mPlayer.isPlaying)
+
+                if (mMediaPlayer != null)
+                    if (mMediaPlayer!!.isPlaying)
                         fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
                     else fabPlayPause.setImageResource(android.R.drawable.ic_media_play)
-                }
+
             } catch (ex : Exception) {
 
             }
@@ -278,140 +278,143 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
     private fun Getdata(query: String) {
 
-        if (favAlbums.contains(query.trim()))
-            imgbtnFavAlbum.setImageResource(android.R.drawable.star_on)
-        else imgbtnFavAlbum.setImageResource(android.R.drawable.star_off)
+        if (query.isNotEmpty()) {
+
+            if (favAlbums.contains(query.trim()))
+                imgbtnFavAlbum.setImageResource(android.R.drawable.star_on)
+            else imgbtnFavAlbum.setImageResource(android.R.drawable.star_off)
 
 
-        val retrofitBuilder = Retrofit.Builder()
-            .baseUrl("https://deezerdevs-deezer.p.rapidapi.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiInterface::class.java)
+            val retrofitBuilder = Retrofit.Builder()
+                .baseUrl("https://deezerdevs-deezer.p.rapidapi.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(ApiInterface::class.java)
 
 
-        val retrofitData = retrofitBuilder.getDate(query)
+            val retrofitData = retrofitBuilder.getDate(query)
 
-        retrofitData.enqueue(object : Callback<MusicData?> {
+            retrofitData.enqueue(object : Callback<MusicData?> {
 
-            override fun onResponse(
-                call: Call<MusicData?>,
-                response: Response<MusicData?>
-            ) {
-                dataList = response.body()?.data!!
+                override fun onResponse(
+                    call: Call<MusicData?>,
+                    response: Response<MusicData?>
+                ) {
+                    dataList = response.body()?.data!!
 
-                appContx = applicationContext
-                //     makeToast("MusicData ~ ${dataList.size}")
+                    appContx = applicationContext
+                    //     makeToast("MusicData ~ ${dataList.size}")
 
-                if (dataList.size > 0) {
+                    if (dataList.size > 0) {
 
-                    imgbtnPlayAlbum.visibility = View.VISIBLE
-                    imgbtnFavAlbum.visibility = View.VISIBLE
+                        imgbtnPlayAlbum.visibility = View.VISIBLE
+                        imgbtnFavAlbum.visibility = View.VISIBLE
 
-                    imgbtnPlayAlbum.setOnClickListener {
+                        imgbtnPlayAlbum.setOnClickListener {
 
 
-                        makeToast(query + " ~ " + dataList[0].title)
-                        if (boolMusicServiceRunning) {
-                            stopService(Intent(appContx, MusicService::class.java))
-                        }
-
-                        var i = 0
-                        playIntent = Intent(
-                            appContx,
-                            MusicService::class.java
-                        )
-                        for (item in dataList) {
-                            playIntent.putExtra(i.toString(), item.preview)
-                            i++
-                        }
-
-                        txPlayingSong.text = dataList[0].title
-
-                        songIndex = 0
-
-                        startForegroundService(playIntent)
-
-                        imgbtnPlayAlbum.setImageResource(android.R.drawable.ic_media_pause)
-                        fabPlayPause.visibility = View.VISIBLE
-                        fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
-
-                    }
-
-                    imgbtnFavAlbum.setOnClickListener {
-                        if (!favAlbums.contains(query.trim())) {
-                            imgbtnFavAlbum.setImageResource(android.R.drawable.star_on)
-                            favAlbums.add(query.trim())
-                            saveFavAlbums(favAlbums)
-                            addAlbumChip(query.trim())
-                        } else {
-                            imgbtnFavAlbum.setImageResource(android.R.drawable.star_off)
-                            favAlbums.remove(query.trim())
-                            for (i in 0 until chipGroup.childCount) {
-                                var ch = chipGroup.getChildAt(i) as Chip
-                                if (query.trim() == ch.text)
-                                    chipGroup.removeView(ch)
+                            makeToast(query + " ~ " + dataList[0].title)
+                            if (boolMusicServiceRunning) {
+                                stopService(Intent(appContx, MusicService::class.java))
                             }
+
+                            var i = 0
+                            playIntent = Intent(
+                                appContx,
+                                MusicService::class.java
+                            )
+                            for (item in dataList) {
+                                playIntent.putExtra(i.toString(), item.preview)
+                                i++
+                            }
+
+                            txPlayingSong.text = dataList[0].title
+
+                            songIndex = 0
+
+                            startForegroundService(playIntent)
+
+                            imgbtnPlayAlbum.setImageResource(android.R.drawable.ic_media_pause)
+                            fabPlayPause.visibility = View.VISIBLE
+                            fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
+
                         }
-                    }
 
-
-                    fabPlayPause.setOnClickListener(View.OnClickListener {
-
-                        if (MusicService.isMediaPlayerInitialized()) {
-                            if (mPlayer.isPlaying) {
-                                mPlayer.pause()
-                                remoteViews?.setImageViewResource(
-                                    com.belaku.homey.R.id.imgbtn_playpause,
-                                    android.R.drawable.ic_media_play
-                                )
-                                appWidM.updateAppWidget(newAppWidget, remoteViews)
-                                fabPlayPause.setImageResource(android.R.drawable.ic_media_play)
+                        imgbtnFavAlbum.setOnClickListener {
+                            if (!favAlbums.contains(query.trim())) {
+                                imgbtnFavAlbum.setImageResource(android.R.drawable.star_on)
+                                favAlbums.add(query.trim())
+                                saveFavAlbums(favAlbums)
+                                addAlbumChip(query.trim())
                             } else {
-                                mPlayer.start()
-                                remoteViews?.setImageViewResource(
-                                    com.belaku.homey.R.id.imgbtn_playpause,
-                                    android.R.drawable.ic_media_pause
-                                )
-                                appWidM.updateAppWidget(newAppWidget, remoteViews)
-                                fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
-
+                                imgbtnFavAlbum.setImageResource(android.R.drawable.star_off)
+                                favAlbums.remove(query.trim())
+                                for (i in 0 until chipGroup.childCount) {
+                                    var ch = chipGroup.getChildAt(i) as Chip
+                                    if (query.trim() == ch.text)
+                                        chipGroup.removeView(ch)
+                                }
                             }
-
-
                         }
 
 
-                    })
+                        fabPlayPause.setOnClickListener(View.OnClickListener {
+
+                            if (mMediaPlayer != null)
+                                if (mMediaPlayer!!.isPlaying) {
+                                    mMediaPlayer!!.pause()
+                                    remoteViews?.setImageViewResource(
+                                        com.belaku.homey.R.id.imgbtn_playpause,
+                                        android.R.drawable.ic_media_play
+                                    )
+                                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                                    fabPlayPause.setImageResource(android.R.drawable.ic_media_play)
+                                } else {
+                                    mMediaPlayer!!.start()
+                                    remoteViews?.setImageViewResource(
+                                        com.belaku.homey.R.id.imgbtn_playpause,
+                                        android.R.drawable.ic_media_pause
+                                    )
+                                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                                    fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
+
+                                }
+
+
+
+
+
+                        })
+                    }
+
+
+
+
+                    for (item in dataList)
+                        Log.d("DATA7", "p - " + item.preview + "\n l - " + item.link)
+
+
+                    var rvAdapter = MusicAdapter(dataList, this@MusicActivity)
+                    recyclerViewSongs.adapter = rvAdapter
+                    //    recyclerview.layoutManager = LinearLayoutManager(this@MainActivity)
+                    recyclerViewSongs.setLayoutManager(
+                        LinearLayoutManager(
+                            this@MusicActivity,
+                            LinearLayoutManager.HORIZONTAL, false
+                        )
+                    )
+                    recyclerViewSongs.scrollToPosition(songIndex)
+
+                    //     recyclerview.scrollToPosition(sharedPreferences.getInt("SIn", 0))
                 }
 
+                override fun onFailure(call: Call<MusicData?>, t: Throwable) {
+                    Toast.makeText(applicationContext, "not Found", Toast.LENGTH_LONG).show()
+                }
 
+            })
 
-
-                for (item in dataList)
-                    Log.d("DATA7", "p - " + item.preview + "\n l - " + item.link)
-
-
-                var rvAdapter = MusicAdapter(dataList, this@MusicActivity)
-                recyclerViewSongs.adapter = rvAdapter
-                //    recyclerview.layoutManager = LinearLayoutManager(this@MainActivity)
-                recyclerViewSongs.setLayoutManager(
-                    LinearLayoutManager(
-                        this@MusicActivity,
-                        LinearLayoutManager.HORIZONTAL, false
-                    )
-                )
-                recyclerViewSongs.scrollToPosition(songIndex)
-
-                //     recyclerview.scrollToPosition(sharedPreferences.getInt("SIn", 0))
-            }
-
-            override fun onFailure(call: Call<MusicData?>, t: Throwable) {
-                Toast.makeText(applicationContext, "not Found", Toast.LENGTH_LONG).show()
-            }
-
-        })
-
+        }
     }
 
     private fun updateSeek(what: Int) {

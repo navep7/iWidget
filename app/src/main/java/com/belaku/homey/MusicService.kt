@@ -1,6 +1,5 @@
 package com.belaku.homey
 
-import android.R
 import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
@@ -14,7 +13,6 @@ import android.content.Intent
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
-import android.media.MediaPlayer.OnPreparedListener
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
@@ -22,8 +20,8 @@ import android.os.Looper
 import android.util.Log
 import android.widget.RemoteViews
 import android.widget.Toast
+import androidx.compose.runtime.currentComposer
 import androidx.core.app.NotificationCompat
-import androidx.core.net.toUri
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MusicActivity.Companion.dataList
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
@@ -34,9 +32,10 @@ import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
+import okio.IOException
 
 
-class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
+class MusicService : Service() {
 
     private lateinit var handlerVolume: Handler
     private lateinit var runnableVolume: Runnable
@@ -50,14 +49,11 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         @SuppressLint("StaticFieldLeak")
         lateinit var appContx: Context
         var boolMusicServiceRunning: Boolean = false
-        var songsUrlList: ArrayList<String> = ArrayList()
+
+        //  var songsUrlList: ArrayList<String> = ArrayList()
         var songIndex: Int = 0
 
-        lateinit var mPlayer: MediaPlayer
-
-        fun isMediaPlayerInitialized(): Boolean {
-            return ::mPlayer.isInitialized
-        }
+        var mMediaPlayer: MediaPlayer? = null
 
         fun notifySong(sIndex: Int) {
 
@@ -78,6 +74,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
                 com.belaku.homey.R.id.tx_music_details,
                 dataList[sIndex].title + " | " + dataList[sIndex].album.title + " | " + dataList[sIndex].artist.name
             )
+            txPlayingSong.setText(dataList[sIndex].title)
 
 
 
@@ -97,7 +94,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             val notificationBuilder: NotificationCompat.Builder =
                 NotificationCompat.Builder(appContx, channelId)
                     .setSilent(true)
-                    .setSmallIcon(R.drawable.ic_media_play) //                        .setContentTitle(getString(R.string.app_name)
+                    .setSmallIcon(android.R.drawable.ic_media_play) //                        .setContentTitle(getString(R.string.app_name)
                     .setContentTitle(MusicActivity.dataList[sIndex].title)
                     .setContentText(MusicActivity.dataList[sIndex].album.title + " | \n" + MusicActivity.dataList[sIndex].artist.name)
                     .setAutoCancel(true)
@@ -185,46 +182,17 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             //    songsUrlList = intent.getStringArrayListExtra("songsUrl")!!
 
 
-            for (i in 0 until 30) {
+            /*for (i in 0 until 30) {
                 if (intent.extras?.get(i.toString()) != null)
                     songsUrlList.add(intent.extras?.get(i.toString()).toString())
                 else break
 
-            }
+            }*/
 
 
-            if (songsUrlList.isNotEmpty() && isDataListInitialized()) {
+            if (isDataListInitialized()) {
 
-                notifySong(0)
-
-                try {
-                    val uri = songsUrlList[songIndex].toUri()
-
-                    mPlayer = MediaPlayer().apply {
-                        setAudioAttributes(
-                            AudioAttributes.Builder()
-                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                                .setUsage(AudioAttributes.USAGE_MEDIA)
-                                .build()
-                        )
-
-                        setDataSource(applicationContext, uri)
-                        prepare() // might take long! (for buffering, etc)
-                        start()
-                    }
-                    //    trackSeek()
-
-                    remoteViews?.setImageViewResource(
-                        com.belaku.homey.R.id.imgbtn_playpause,
-                        android.R.drawable.ic_media_pause
-                    )
-                    appWidM.updateAppWidget(newAppWidget, remoteViews)
-                    mPlayer.setOnCompletionListener(this)
-                    mPlayer.setOnErrorListener(this)
-                } catch (e: Exception) {
-                    makeToast("onStartCommand EXCP - " + e)
-                }
-
+                playSong(0)
 
             }
 
@@ -236,6 +204,61 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
         return START_STICKY
     }
+
+
+    var currentSongIndex: Int
+
+    private fun playSong(index: Int) {
+        if (index in 0 until dataList.size) {
+            currentSongIndex = index
+            val url = dataList[currentSongIndex].preview
+
+            if (mMediaPlayer == null) {
+                mMediaPlayer = MediaPlayer().apply {
+                    setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .build()
+                    )
+                    setOnCompletionListener {
+                        playNextSong()
+                    }
+                }
+            } else {
+                mMediaPlayer?.reset() // Reset to the idle state for a new data source
+            }
+
+            try {
+                mMediaPlayer?.apply {
+                    setDataSource(url)
+                    prepareAsync()
+                    setOnPreparedListener {
+                        it.start() // Start playback when prepared
+
+                        notifySong(currentSongIndex)
+
+                    }
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+                makeToast("ECXP - ${e.message}")
+                playNextSong() // Optionally skip on error
+            }
+        }
+    }
+
+    private fun playNextSong() {
+        if (currentSongIndex < dataList.size - 1) {
+            playSong(currentSongIndex + 1)
+        } else {
+            // Handle end of playlist (e.g., stop playback or loop to the beginning)
+            // For example, you can release the player and set it to null
+            mMediaPlayer?.release()
+            mMediaPlayer = null
+        }
+    }
+
 
     private fun trackSeek() {
 
@@ -253,40 +276,12 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
                 //    makeToast("!decreaseVol ~ ${mPlayer.currentPosition}")
                 //         reduceVolume()
             }
-        }, (mPlayer.duration - 5000).toLong())
+        }, (mMediaPlayer!!.duration - 5000).toLong())
 
     }
 
 
-    override fun onCompletion(p0: MediaPlayer?) {
 
-        try {
-            songIndex++
-            notifySong(songIndex)
-
-            if (songsUrlList.isNotEmpty() && isDataListInitialized())
-                if (songIndex < songsUrlList.size) {
-                    val uri = songsUrlList[songIndex].toUri()
-
-                    mPlayer.reset(); // Reset the MediaPlayer for a new source
-                    mPlayer.setAudioAttributes(AudioAttributes.Builder()
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .build())
-                    mPlayer.setDataSource(appContx, uri); // Set new song data source
-                    mPlayer.prepareAsync()
-                    mPlayer.setOnPreparedListener {
-                        mPlayer.start()
-                        trackSeek()
-                    }
-
-
-                }
-        } catch (ex: Exception) {
-            makeToast("onCompletionEXP ~ ${ex.message}")
-        }
-
-    }
 
 
     override fun onDestroy() {
@@ -304,13 +299,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         Log.i("OnDestroyMS", "onDestroy: MS OnDestroy called");
     }
 
-    override fun onError(p0: MediaPlayer?, p1: Int, p2: Int): Boolean {
 
-        Toast.makeText(applicationContext, "Err - " + p1.toString(), Toast.LENGTH_LONG).show()
-        Log.d("onErrorMusService", p1.toString())
-
-        return true
-    }
 
 
 }

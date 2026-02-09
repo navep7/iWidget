@@ -83,7 +83,8 @@ import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.MusicActivity.Companion.dataList
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
 import com.belaku.homey.MusicService.Companion.appContx
-import com.belaku.homey.MusicService.Companion.mPlayer
+import com.belaku.homey.MusicService.Companion.boolMusicServiceRunning
+import com.belaku.homey.MusicService.Companion.mMediaPlayer
 import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.RemindersActivity.Companion.adapterHabits
 import com.belaku.homey.RemindersActivity.Companion.arrayListHabits
@@ -1045,16 +1046,17 @@ class NewAppWidget : AppWidgetProvider() {
         } else if (GET_WEATHER == intent.action) {
             StepsService.getWeatherData(LatLng(cityLat, cityLng))
         } else if (PLAYPAUSE_CLICK == intent.action) {
-            if (MusicService.isMediaPlayerInitialized()) {
+            if (boolMusicServiceRunning) {
                 try {
-                    if (mPlayer.isPlaying) {
-                        mPlayer.pause()
+                    if (mMediaPlayer != null)
+                    if (mMediaPlayer!!.isPlaying) {
+                        mMediaPlayer!!.pause()
                         remoteViews?.setImageViewResource(
                             R.id.imgbtn_playpause,
                             android.R.drawable.ic_media_play
                         )
                     } else {
-                        mPlayer.start()
+                        mMediaPlayer!!.start()
                         remoteViews?.setImageViewResource(
                             R.id.imgbtn_playpause,
                             android.R.drawable.ic_media_pause
