@@ -1379,15 +1379,35 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setTextViewText(R.id.tx_battery, energy.toString())
         remoteViews?.setProgressBar(R.id.progressBar_battery, 100, energy.toInt(), false)
 
-        val greenColor = ColorStateList.valueOf(context.resources.getColor(android.R.color.holo_green_light))
-        val redColor = ColorStateList.valueOf(context.resources.getColor(android.R.color.holo_red_dark))
-        val amberColor = ColorStateList.valueOf(context.resources.getColor(android.R.color.holo_orange_dark))
+        val greenColor =
+            ColorStateList.valueOf(context.resources.getColor(android.R.color.holo_green_light))
+        val redColor =
+            ColorStateList.valueOf(context.resources.getColor(android.R.color.holo_red_light))
+        val amberColor =
+            ColorStateList.valueOf(context.resources.getColor(android.R.color.holo_orange_light))
 
-        if (energy.toInt() > 70)
-            remoteViews?.setColorStateList(R.id.progressBar_battery, "setProgressTintList", greenColor)
-        else if (energy.toInt() < 30)
-            remoteViews?.setColorStateList(R.id.progressBar_battery, "setProgressTintList", redColor)
-        else remoteViews?.setColorStateList(R.id.progressBar_battery, "setProgressTintList", amberColor)
+        if (energy.toInt() > 70) {
+            remoteViews?.setColorStateList(
+                R.id.progressBar_battery,
+                "setProgressTintList",
+                greenColor
+            )
+            remoteViews?.setTextColor(R.id.tx_battery, appContx.resources.getColor(android.R.color.holo_green_dark))
+        } else if (energy.toInt() < 30) {
+            remoteViews?.setColorStateList(
+                R.id.progressBar_battery,
+                "setProgressTintList",
+                redColor
+            )
+            remoteViews?.setTextColor(R.id.tx_battery, appContx.resources.getColor(android.R.color.holo_red_dark))
+        } else {
+            remoteViews?.setColorStateList(
+                R.id.progressBar_battery,
+                "setProgressTintList",
+                amberColor
+            )
+            remoteViews?.setTextColor(R.id.tx_battery, appContx.resources.getColor(android.R.color.holo_orange_dark))
+        }
 
 
         return if (energy != Long.MIN_VALUE) {

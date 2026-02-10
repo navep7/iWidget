@@ -74,7 +74,8 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         lateinit var recyclerViewSongs: RecyclerView
         var favAlbums: ArrayList<String> = ArrayList()
         lateinit var dataList: List<Data>
-        var query: String = ""
+        var searchQuery: String = ""
+        var playingAlbum: String = ""
         lateinit var txPlayingSong: TextView
 
         fun isDataListInitialized(): Boolean {
@@ -144,15 +145,15 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
             if (actionId == EditorInfo.IME_ACTION_SEND) {
                 Toast.makeText(this@MusicActivity, editTextQuery.getText(), Toast.LENGTH_SHORT)
                     .show()
-                query = editTextQuery.getText().toString()
-                Getdata(query)
+                searchQuery = editTextQuery.getText().toString()
+                Getdata(searchQuery)
                 handled = true
             }
             handled
         })
 
 
-        makeToast("boolMusicServiceRunning ~ $boolMusicServiceRunning : $query")
+        makeToast("boolMusicServiceRunning ~ $boolMusicServiceRunning : $playingAlbum")
         if (boolMusicServiceRunning) {
         //    makeToast(dataList[songIndex].title + " ~ " + query)
             txPlayingSong.text = dataList[songIndex].title
@@ -171,11 +172,11 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
             for (i in 0 until chipGroup.childCount) {
                 var ch = chipGroup.getChildAt(i) as Chip
-                if (query == ch.text)
+                if (playingAlbum == ch.text)
                     ch.isSelected = true
                 else ch.isSelected = false
             }
-            Getdata(query)
+            Getdata(playingAlbum)
 
             fabPlayPause.visibility = View.VISIBLE
 
@@ -312,6 +313,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
                         imgbtnPlayAlbum.setOnClickListener {
 
+                            playingAlbum = query
 
                             makeToast(query + " ~ " + dataList[0].title)
                             if (boolMusicServiceRunning) {
