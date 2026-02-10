@@ -288,6 +288,10 @@ class MusicService : Service() {
     override fun onDestroy() {
         super.onDestroy()
 
+        if (mMediaPlayer != null) {
+            mMediaPlayer!!.release(); // Release resources when done
+            mMediaPlayer = null;
+        }
 
         songIndex = 0
         sharedPreferencesEditor.putInt("SIn", 0).apply()

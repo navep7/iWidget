@@ -1059,11 +1059,12 @@ class NewAppWidget : AppWidgetProvider() {
                                 android.R.drawable.ic_media_play
                             )
                         } else {
-                            mMediaPlayer!!.start()
+                            startMusicActivity(songIndex)
                             remoteViews?.setImageViewResource(
                                 R.id.imgbtn_playpause,
                                 android.R.drawable.ic_media_pause
                             )
+                            mMediaPlayer!!.start()
                         }
                 } catch (ex: Exception) {
                     startMusicActivity(0)
