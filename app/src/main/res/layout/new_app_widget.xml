@@ -20,11 +20,11 @@
 
     <TextView
         android:id="@+id/tx_battery"
-        android:text="Battery"
-        android:background="@drawable/gradient_glass_rounded"
+        android:text="Juice"
+        android:background="@drawable/circular_tx_border"
         android:padding="@dimen/padding_5"
         android:textStyle="bold"
-        android:textColor="@android:color/black"
+        android:textColor="@android:color/holo_green_dark"
         android:textSize="15sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
@@ -35,7 +35,7 @@
         android:layout_width="100dp"
         android:layout_toEndOf="@+id/tx_battery"
         android:layout_height="wrap_content"
-        android:progressTint="@android:color/holo_green_light"
+        android:progressTint="@android:color/darker_gray"
         android:max="100"
         android:progress="50" />
 

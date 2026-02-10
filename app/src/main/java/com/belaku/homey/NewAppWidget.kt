@@ -20,6 +20,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.pm.ServiceInfo
+import android.content.res.ColorStateList
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -1368,6 +1369,8 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
 
+    @SuppressLint("ResourceAsColor")
+    @RequiresApi(Build.VERSION_CODES.S)
     fun getPreciseEnergyCounter(context: Context): Long {
         val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
         val energy = batteryManager.getLongProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
@@ -1375,6 +1378,18 @@ class NewAppWidget : AppWidgetProvider() {
 
         remoteViews?.setTextViewText(R.id.tx_battery, energy.toString())
         remoteViews?.setProgressBar(R.id.progressBar_battery, 100, energy.toInt(), false)
+
+        val greenColor = ColorStateList.valueOf(context.resources.getColor(android.R.color.holo_green_light))
+        val redColor = ColorStateList.valueOf(context.resources.getColor(android.R.color.holo_red_dark))
+        val amberColor = ColorStateList.valueOf(context.resources.getColor(android.R.color.holo_orange_dark))
+
+        if (energy.toInt() > 70)
+            remoteViews?.setColorStateList(R.id.progressBar_battery, "setProgressTintList", greenColor)
+        else if (energy.toInt() < 30)
+            remoteViews?.setColorStateList(R.id.progressBar_battery, "setProgressTintList", redColor)
+        else remoteViews?.setColorStateList(R.id.progressBar_battery, "setProgressTintList", amberColor)
+
+
         return if (energy != Long.MIN_VALUE) {
             energy // Energy remaining in microampere-hours (µAh)
         } else {

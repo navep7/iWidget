@@ -15,7 +15,7 @@ android {
         minSdk = 28
         targetSdk = 35
         versionCode = 777
-        versionName = "777.1"
+        versionName = "777.2"
 
         renderscriptTargetApi = 18
         renderscriptSupportModeEnabled = true
