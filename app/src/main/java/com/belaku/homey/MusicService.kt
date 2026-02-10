@@ -266,7 +266,7 @@ class MusicService : Service() {
         //  makeToast("!trackSeek")
 
         val audioManager = appContx.getSystemService(AUDIO_SERVICE) as AudioManager
-        //   makeToast("!increaseVol ~ ${mPlayer.currentPosition}")
+           makeToast("!increaseVol ~ ${mMediaPlayer!!.currentPosition}")
         //   increaseVol()
 
         val handler = Handler(Looper.getMainLooper())
@@ -274,7 +274,7 @@ class MusicService : Service() {
             override fun run() {
                 // Code to run after the delay
                 //   makeToast("50secs ~ ${mPlayer.currentPosition}")
-                //    makeToast("!decreaseVol ~ ${mPlayer.currentPosition}")
+                    makeToast("!decreaseVol ~ ${mMediaPlayer!!.currentPosition}")
                 //         reduceVolume()
             }
         }, (mMediaPlayer!!.duration - 5000).toLong())

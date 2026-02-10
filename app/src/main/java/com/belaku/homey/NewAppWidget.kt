@@ -288,7 +288,7 @@ class NewAppWidget : AppWidgetProvider() {
             getPendingSelfIntent(context, BATTERY_INFO)
         )
         remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_weather_icon,
+            R.id.tx_refresh_weather,
             getPendingSelfIntent(context, GET_WEATHER)
         )
 
@@ -1029,7 +1029,7 @@ class NewAppWidget : AppWidgetProvider() {
         sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
-        setUI()
+    //    setUI()
         handleIntentActions(intent)
 
         appWidM = AppWidgetManager.getInstance(appContx)

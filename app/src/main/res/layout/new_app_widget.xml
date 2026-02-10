@@ -263,15 +263,13 @@
 
                         <TextView
                             android:id="@+id/tx_get_place"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="  ⚲  "
-                            android:background="@drawable/rounded_go_1dp"
+                            android:text="⚲"
+                            android:textSize="25sp"
                             android:textStyle="bold"
-                            android:textColor="@android:color/holo_red_light"
-                            android:layout_gravity="center"
-                            android:scaleType="fitXY"
-                            android:src="@drawable/clouds" />
+                            android:textColor="@android:color/holo_blue_dark"
+                            android:layout_alignBaseline="@+id/tx_place"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
 
 
                         <TextView
@@ -291,41 +289,99 @@
 
                     </RelativeLayout>
 
-
-
                     <RelativeLayout
+                        android:layout_marginTop="@dimen/padding_5"
                         android:layout_marginStart="@dimen/fab_margin"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
 
 
                         <TextView
+                            android:id="@+id/tx_refresh_weather"
+                            android:text="↺"
+                            android:layout_alignBaseline="@+id/tx_weather"
+                            android:textSize="25sp"
+                            android:textStyle="bold"
+                            android:textColor="@android:color/holo_blue_dark"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+
+                        <TextView
                             android:id="@+id/tx_weather"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_toEndOf="@+id/tx_refresh_weather"
+                            android:text="Weather Info..."
+                            android:layout_marginStart="@dimen/padding_5"
                             android:layout_centerVertical="true"
-                            android:text="25° C, Cloudy"
-                            android:layout_alignParentStart="true"
+                            android:maxLines="1"
+                            android:ellipsize="end"
                             android:textColor="@android:color/black"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
                         <ImageButton
                             android:id="@+id/imgv_weather_icon"
-                            android:padding="@dimen/padding_5"
-                            android:background="@android:drawable/ic_popup_sync"
+                            android:background="@android:color/transparent"
                             android:layout_toRightOf="@+id/tx_weather"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            android:layout_gravity="center_vertical"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
                             android:scaleType="fitXY"
+                            android:layout_centerVertical="true"
                             android:src="@drawable/clouds"/>
 
 
-
-
-
                     </RelativeLayout>
+
+
+
+                    <!--
+                                        <RelativeLayout
+                                            android:layout_marginStart="@dimen/fab_margin"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content">
+
+                                            <TextView
+                                                android:id="@+id/tx_weather_refresh"
+                                                android:layout_width="wrap_content"
+                                                android:layout_height="wrap_content"
+                                                android:layout_centerVertical="true"
+                                                android:text="⟲"
+                                                android:layout_alignParentStart="true"
+                                                android:textSize="21sp"
+                                                android:textStyle="bold" />
+
+
+                                            <TextView
+                                                android:id="@+id/tx_weather"
+                                                android:layout_width="wrap_content"
+                                                android:layout_height="wrap_content"
+                                                android:layout_centerVertical="true"
+                                                android:text="25° C, Cloudy"
+                                                android:gravity="center"
+                                                android:layout_toEndOf="@+id/tx_weather_refresh"
+                                                android:textColor="@android:color/black"
+                                                android:textSize="15sp"
+                                                android:textStyle="bold" />
+
+                                            <ImageButton
+                                                android:id="@+id/imgv_weather_icon"
+                                                android:background="@android:color/transparent"
+                                                android:padding="@dimen/padding_5"
+                                                android:layout_toRightOf="@+id/tx_weather"
+                                                android:layout_width="50dp"
+                                                android:layout_height="50dp"
+                                                android:layout_gravity="center_vertical"
+                                                android:scaleType="fitXY"
+                                                android:src="@drawable/clouds"/>
+
+
+
+
+
+                                        </RelativeLayout>
+                    -->
 
 
 
@@ -516,6 +572,8 @@
         android:layout_below="@+id/rl_clocks"
         android:layout_marginBottom="@dimen/fab_margin"
         android:text="Pin a Note!"
+        android:maxLines="1"
+        android:ellipsize="middle"
         android:textStyle="bold"
         android:padding="@dimen/padding_5"
         android:textColor="@android:color/holo_red_light"
@@ -575,10 +633,10 @@
 
     <LinearLayout
         android:id="@+id/ll_apps"
-        android:layout_width="100dp"
+        android:layout_width="125dp"
         android:layout_height="match_parent"
         android:layout_above="@+id/tx_walldesc"
-        android:layout_below="@+id/tx_runner"
+        android:layout_alignTop="@+id/tx_runner"
         android:layout_alignParentStart="true"
         android:gravity="center"
         android:orientation="vertical">
@@ -589,14 +647,19 @@
             android:background="@drawable/gradient_glass_list"
             android:gravity="center">
 
+            <ImageView
+                android:id="@+id/imgv_apps"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/launch_e" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginStart="@dimen/padding_5"
-                android:layout_marginEnd="@dimen/padding_5"
                 android:text="Apps"
+                android:textColor="@android:color/holo_red_dark"
                 android:padding="@dimen/padding_5"
                 android:textSize="21sp"
                 android:textStyle="bold" />
@@ -649,23 +712,7 @@
         android:src="@android:drawable/ic_media_play" />
 
 
-    <ImageView
-        android:id="@+id/imgv_apps"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignParentStart="true"
-        android:layout_above="@+id/ll_apps"
-        android:scaleType="centerCrop"
-        android:src="@drawable/launch_e" />
 
-    <ImageView
-        android:id="@+id/imgv_contacts"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignParentEnd="true"
-        android:layout_above="@+id/ll_contacts"
-        android:scaleType="centerCrop"
-        android:src="@drawable/contacts" />
 
 
 
@@ -684,10 +731,10 @@
 
     <LinearLayout
         android:id="@+id/ll_contacts"
-        android:layout_width="100dp"
+        android:layout_width="125dp"
         android:layout_height="wrap_content"
         android:layout_above="@+id/tx_walldesc"
-        android:layout_below="@+id/tx_runner"
+        android:layout_alignTop="@+id/tx_runner"
         android:layout_alignParentEnd="true"
         android:orientation="vertical">
 
@@ -698,15 +745,20 @@
             android:background="@drawable/gradient_glass_list"
             android:gravity="center">
 
+            <ImageView
+                android:id="@+id/imgv_contacts"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/contacts" />
+
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginStart="@dimen/padding_5"
-                android:layout_marginEnd="@dimen/padding_5"
                 android:text="Calls"
-                android:padding="@dimen/padding_5"
+                android:textColor="@android:color/holo_red_dark"
                 android:textSize="21sp"
                 android:textStyle="bold" />
 
