@@ -19,8 +19,6 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import android.widget.RemoteViews
-import android.widget.Toast
-import androidx.compose.runtime.currentComposer
 import androidx.core.app.NotificationCompat
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MusicActivity.Companion.dataList
@@ -70,7 +68,10 @@ class MusicService : Service() {
             remoteViews =
                 RemoteViews(appContx.packageName, com.belaku.homey.R.layout.new_app_widget)
             newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
-            remoteViews?.setImageViewResource(R.id.imgbtn_playpause, android.R.drawable.ic_media_pause)
+            remoteViews?.setImageViewResource(
+                R.id.imgbtn_playpause,
+                android.R.drawable.ic_media_pause
+            )
             remoteViews?.setTextViewText(
                 com.belaku.homey.R.id.tx_music_details,
                 dataList[sIndex].title + " | " + dataList[sIndex].album.title + " | " + dataList[sIndex].artist.name
@@ -207,7 +208,6 @@ class MusicService : Service() {
     }
 
 
-
     private fun playSong(index: Int) {
         if (index in 0 until dataList.size) {
             songIndex = index
@@ -235,9 +235,8 @@ class MusicService : Service() {
                     prepareAsync()
                     setOnPreparedListener {
                         it.start() // Start playback when prepared
-
                         notifySong(songIndex)
-
+                        trackSeek()
                     }
                 }
             } catch (e: IOException) {
@@ -261,28 +260,59 @@ class MusicService : Service() {
     }
 
 
+    val audioManager = appContx.getSystemService(AUDIO_SERVICE) as AudioManager
     private fun trackSeek() {
 
         //  makeToast("!trackSeek")
 
-        val audioManager = appContx.getSystemService(AUDIO_SERVICE) as AudioManager
-           makeToast("!increaseVol ~ ${mMediaPlayer!!.currentPosition}")
-        //   increaseVol()
+        //  makeToast("!increaseVol ~ ${mMediaPlayer!!.currentPosition}")
+        increaseVol()
 
         val handler = Handler(Looper.getMainLooper())
         handler.postDelayed(object : Runnable {
             override fun run() {
                 // Code to run after the delay
                 //   makeToast("50secs ~ ${mPlayer.currentPosition}")
-                    makeToast("!decreaseVol ~ ${mMediaPlayer!!.currentPosition}")
-                //         reduceVolume()
+                //   makeToast("!decreaseVol ~ ${mMediaPlayer!!.currentPosition}")
+                reduceVolume()
             }
+
+
         }, (mMediaPlayer!!.duration - 5000).toLong())
 
     }
 
+    private fun increaseVol() {
+        val handler = Handler(Looper.getMainLooper())
+        val steps = 5
 
+        // Total maximum steps might vary, but this lowers 5 times
+        for (i in 0 until steps) {
+            handler.postDelayed({
+                audioManager.adjustStreamVolume(
+                    AudioManager.STREAM_MUSIC, // Or STREAM_RING, etc.
+                    AudioManager.ADJUST_RAISE, // Decrease
+                    0 // Show UI feedback
+                )
+            }, (i * 300).toLong()) // 300ms delay between steps
+        }
+    }
 
+    private fun reduceVolume() {
+        val handler = Handler(Looper.getMainLooper())
+        val steps = 5
+
+        // Total maximum steps might vary, but this lowers 5 times
+        for (i in 0 until steps) {
+            handler.postDelayed({
+                audioManager.adjustStreamVolume(
+                    AudioManager.STREAM_MUSIC, // Or STREAM_RING, etc.
+                    AudioManager.ADJUST_LOWER, // Decrease
+                    AudioManager.FLAG_SHOW_UI // Show UI feedback
+                )
+            }, (i * 300).toLong()) // 300ms delay between steps
+        }
+    }
 
 
     override fun onDestroy() {
@@ -299,8 +329,6 @@ class MusicService : Service() {
 
         Log.i("OnDestroyMS", "onDestroy: MS OnDestroy called");
     }
-
-
 
 
 }
