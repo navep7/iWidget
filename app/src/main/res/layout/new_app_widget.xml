@@ -53,6 +53,7 @@
             android:id="@+id/imgbtn_twitter"
             android:layout_below="@+id/ll_top"
             android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/fab_margin"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:background="@android:color/transparent"
@@ -633,7 +634,7 @@
 
     <LinearLayout
         android:id="@+id/ll_apps"
-        android:layout_width="125dp"
+        android:layout_width="100dp"
         android:layout_height="match_parent"
         android:layout_above="@+id/tx_walldesc"
         android:layout_alignTop="@+id/tx_runner"
@@ -649,8 +650,8 @@
 
             <ImageView
                 android:id="@+id/imgv_apps"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/launch_e" />
 
@@ -731,7 +732,7 @@
 
     <LinearLayout
         android:id="@+id/ll_contacts"
-        android:layout_width="125dp"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_above="@+id/tx_walldesc"
         android:layout_alignTop="@+id/tx_runner"
@@ -747,8 +748,8 @@
 
             <ImageView
                 android:id="@+id/imgv_contacts"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/contacts" />
 
