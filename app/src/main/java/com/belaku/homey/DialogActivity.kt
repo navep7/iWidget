@@ -248,6 +248,10 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
             if (dialogIntentStr == "WCh") {
 
+                remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
+                appWidM.updateAppWidget(newAppWidget, remoteViews)
+
                 sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
                 sharedPreferencesEditor = sharedPreferences.edit()
 
@@ -257,7 +261,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 sharedPreferencesEditor.putInt("noRewards", noRewards).apply()
 
                 if (noRewards > 0) {
-                    makeSnack("Changing Wall, please wait...")
+                 //   makeSnack("Changing Wall, please wait...")
                     appContx = applicationContext
                     Thread {
                         SetWallWorker.setWall(true)
@@ -265,16 +269,6 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 } else {
                     makeSnack("Watch an AD to auto change Walls for next 7 times!")
                 }
-
-                val timer = Timer()
-                timer.schedule(object : TimerTask() {
-                    override fun run() {
-                        // Check your condition here
-                        if (boolWallSet) {
-                            timer.cancel()
-                        }
-                    }
-                }, 0, 1000)
 
             } else if (dialogIntentStr == "PC") {
                 llDialog.visibility = View.GONE

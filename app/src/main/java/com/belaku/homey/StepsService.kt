@@ -24,6 +24,7 @@ import android.os.Build
 import android.os.IBinder
 import android.speech.tts.TextToSpeech
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -371,6 +372,10 @@ class StepsService : Service() {
                             "weatherTemp",
                             tempC
                         ).apply()
+
+                        remoteViews?.setViewVisibility(R.id.progressBar_cyclic_weather, View.INVISIBLE)
+                        remoteViews?.setViewVisibility(R.id.tx_refresh_weather, View.VISIBLE)
+                        appWidM.updateAppWidget(newAppWidget, remoteViews)
                     }
                 }
             } catch (ex: Exception) {

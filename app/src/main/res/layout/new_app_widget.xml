@@ -297,6 +297,19 @@
                         android:layout_height="wrap_content">
 
 
+                        <ProgressBar
+                            android:id="@+id/progressBar_cyclic_weather"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:layout_alignBottom="@+id/tx_refresh_weather"
+                            android:indeterminate="true"
+                            android:indeterminateTint="?attr/colorSecondary"
+                            android:indeterminateTintMode="src_atop"
+                            android:minWidth="5dp"
+                            android:minHeight="5dp"
+                            android:visibility="invisible" />
+
+
                         <TextView
                             android:id="@+id/tx_refresh_weather"
                             android:text="↺"
@@ -908,6 +921,20 @@
                 android:scaleType="fitXY"
                 android:src="@android:drawable/ic_popup_sync"
                 app:tint="@android:color/white" />
+
+            <ProgressBar
+                android:id="@+id/progressBar_cyclic_wallchange"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:layout_marginBottom="@dimen/padding_5"
+                android:indeterminate="true"
+                android:indeterminateTint="?attr/colorSecondary"
+                android:indeterminateTintMode="src_atop"
+                android:minWidth="5dp"
+                android:minHeight="5dp"
+                android:visibility="invisible" />
+
 
         </RelativeLayout>
 

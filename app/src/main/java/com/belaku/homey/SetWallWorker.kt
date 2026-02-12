@@ -54,6 +54,7 @@ import com.belaku.homey.MainActivity.Companion.txStatus
 import com.belaku.homey.MainActivity.Companion.updateTime
 import com.belaku.homey.MainActivity.Companion.wallDelay
 import com.belaku.homey.MainActivity.Companion.weatherIconID
+import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
 import com.belaku.homey.NewAppWidget.Companion.dU
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
@@ -216,6 +217,10 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 }
                 Log.d(TAG, "Set successfully $noRewards")
                 boolWallSet = true
+
+                remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.INVISIBLE)
+                remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
+                appWidM.updateAppWidget(newAppWidget, remoteViews)
 
 
                 wD = wallDesc.split("+")[1]

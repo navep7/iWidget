@@ -1048,6 +1048,9 @@ class NewAppWidget : AppWidgetProvider() {
                 appContx.startActivity(powerUsageIntent)
             }
         } else if (GET_WEATHER == intent.action) {
+            remoteViews?.setViewVisibility(R.id.progressBar_cyclic_weather, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.tx_refresh_weather, View.INVISIBLE)
+            appWidM.updateAppWidget(newAppWidget, remoteViews)
             StepsService.getWeatherData(LatLng(cityLat, cityLng))
         } else if (PLAYPAUSE_CLICK == intent.action) {
             if (boolMusicServiceRunning) {
@@ -2043,20 +2046,6 @@ class NewAppWidget : AppWidgetProvider() {
         const val EXTRA_APPITEM_POSITION = "App_Item_Pos"
         const val EXTRA_CONTACTVIEW_ID = "CID"
         const val EXTRA_APPVIEW_ID = "AID"
-
-        private var CLEAR_C_CLICKED = "Clear_C_Clicked"
-        private val CL1_CLICK = "CL1_CLICK"
-        private val CL2_CLICK = "CL2_CLICK"
-        private val CL3_CLICK = "CL3_CLICK"
-        private val CL4_CLICK = "CL4_CLICK"
-        private val CL5_CLICK = "CL5_CLICK"
-
-        private var CALL_CLICKED = "CallClicked"
-        private val C1_CLICK = "C1_CLICK"
-        private val C2_CLICK = "C2_CLICK"
-        private val C3_CLICK = "C3_CLICK"
-        private val C4_CLICK = "C4_CLICK"
-        private val C5_CLICK = "C5_CLICK"
 
     }
 
