@@ -37,6 +37,7 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
@@ -59,6 +60,8 @@ import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.pickContactLauncher
 import com.belaku.homey.MainActivity.Companion.sN
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
+import com.belaku.homey.MusicActivity.Companion.dataList
+import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
@@ -101,6 +104,7 @@ import com.google.gson.Gson
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
+import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -151,6 +155,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
     private var blE by Delegates.notNull<Boolean>()
     private var wifE by Delegates.notNull<Boolean>()
     private lateinit var llDialog: RelativeLayout
+    private lateinit var imgvSongCover: ImageView
     private lateinit var txTitle: TextView
     private lateinit var txContent: TextView
     private lateinit var txAppName: TextView
@@ -224,6 +229,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
         llDialog = findViewById<RelativeLayout>(R.id.dialog_layout)
+        imgvSongCover = findViewById<ImageView>(R.id.dialog_imgv_cover)
         txTitle = findViewById<TextView>(R.id.tx_dialog_title)
         txContent = findViewById<TextView>(R.id.tx_dialog_content)
         txContent.movementMethod = ScrollingMovementMethod()
@@ -248,6 +254,16 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
             if (dialogIntentStr == "SongCover") {
                 makeToast("yet2Impl")
+                edtxDialog.visibility = View.GONE
+                btnOk.visibility = View.GONE
+                btnCancel.visibility = View.GONE
+                vpSteps.visibility = View.GONE
+                imgbtnShare.visibility = View.GONE
+                imgvSongCover.visibility = View.VISIBLE
+                txTitle.setText(dataList[songIndex].title)
+                Picasso.get()
+                    .load(dataList[songIndex].album.cover)
+                    .into(imgvSongCover)
             } else if (dialogIntentStr == "WCh") {
 
                 remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.VISIBLE)

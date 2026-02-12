@@ -20,4 +20,10 @@
     <string name="wallpaper_name">nHome Wall</string>
     <string name="prerequisites">Prerequisites, \n 1. Scroll down and grant the Permissions to get started. \n 2. Add the nHome widget to Home screen. \n 3. Enjoy! \n\n Permissions needed...</string>
     <string name="welcome">Welcome! \n nHome is a App ~ primarily a Home screen widget, which can serve as a Phone launcher, allowing User to access everything from One place, \n ..some Samples of how the nHome Widget looks on the Home Screen.</string>
+    <string name="dialog_title">Dialog Title</string>
+    <string name="set">Set</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
+    <string name="dialog_cover_image_description">Cover Image</string>
+    <string name="share_button_description">Share</string>
 </resources>

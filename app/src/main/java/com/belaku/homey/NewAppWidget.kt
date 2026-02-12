@@ -148,6 +148,7 @@ class NewAppWidget : AppWidgetProvider() {
         sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
+        if (ismActInitialized())
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
 
 

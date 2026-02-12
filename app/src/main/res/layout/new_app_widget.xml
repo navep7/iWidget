@@ -536,11 +536,21 @@
 
         </RelativeLayout>
 
+        <ImageView
+            android:id="@+id/imgv_p_album"
+            android:layout_alignParentEnd="true"
+            android:layout_alignBottom="@+id/rl_player"
+            android:layout_marginStart="@dimen/padding_5"
+            android:layout_width="50dp"
+            android:layout_height="50dp"/>
+
+
         <RelativeLayout
             android:id="@+id/rl_player"
             android:background="@drawable/gradient_glass_flat"
             android:layout_marginTop="@dimen/padding_5"
             android:layout_below="@+id/rl_clocks_weather"
+            android:layout_toStartOf="@+id/imgv_p_album"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -549,12 +559,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="35dp"/>
 
-            <ImageView
-                android:id="@+id/imgv_p_album"
-                android:layout_alignParentEnd="true"
-                android:layout_marginStart="@dimen/padding_5"
-                android:layout_width="35dp"
-                android:layout_height="35dp"/>
 
             <ImageButton
                 android:id="@+id/imgbtn_playpause"
