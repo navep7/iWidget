@@ -81,7 +81,7 @@ import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
 import com.belaku.homey.MainActivity.Companion.tempKind
 import com.belaku.homey.MainActivity.Companion.weatherIconID
-import com.belaku.homey.MusicActivity.Companion.dataList
+import com.belaku.homey.MusicActivity.Companion.pDatalistSongs
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
 import com.belaku.homey.MusicService.Companion.appContx
 import com.belaku.homey.MusicService.Companion.boolMusicServiceRunning
@@ -598,11 +598,19 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
         else remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
 
-        if (isDataListInitialized() && dataList.size > songIndex)
+        if (isDataListInitialized() && pDatalistSongs.size > songIndex) {
             remoteViews?.setTextViewText(
                 R.id.tx_music_details,
-                dataList[songIndex].title + " | " + dataList[songIndex].album.title + " | " + dataList[songIndex].artist.name
+                pDatalistSongs[songIndex].title + " | " + pDatalistSongs[songIndex].album.title + " | " + pDatalistSongs[songIndex].artist.name
             )
+
+            mMediaPlayer?.let {
+                if (it.isPlaying)
+                    remoteViews?.setImageViewResource(R.id.imgbtn_playpause, android.R.drawable.ic_media_pause)
+                else remoteViews?.setImageViewResource(R.id.imgbtn_playpause, android.R.drawable.ic_media_play)
+            }
+
+        }
 
         //    googleAccountInfo()
         if (isPinNoteInitialized())

@@ -63,7 +63,6 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
     private lateinit var fabPlayPause: FloatingActionButton
     private lateinit var playerBg: RelativeLayout
     private lateinit var editTextQuery: EditText
-    private var arraylistArtists = ArrayList<String>()
     private lateinit var handlerForBG: Handler
 
     private lateinit var imgbtnPlayAlbum: ImageButton
@@ -73,13 +72,14 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
     companion object {
         lateinit var recyclerViewSongs: RecyclerView
         var favAlbums: ArrayList<String> = ArrayList()
-        lateinit var dataList: List<Data>
+        lateinit var dataListSongs: List<Data>
+        lateinit var pDatalistSongs: List<Data>
         var searchQuery: String = ""
         var playingAlbum: String = ""
         lateinit var txPlayingSong: TextView
 
         fun isDataListInitialized(): Boolean {
-            return ::dataList.isInitialized
+            return ::dataListSongs.isInitialized
         }
     }
 
@@ -156,7 +156,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         makeToast("boolMusicServiceRunning ~ $boolMusicServiceRunning : $playingAlbum")
         if (boolMusicServiceRunning) {
         //    makeToast(dataList[songIndex].title + " ~ " + query)
-            txPlayingSong.text = dataList[songIndex].title
+            txPlayingSong.text = dataListSongs[songIndex].title
 
             try {
 
@@ -301,12 +301,12 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                     call: Call<MusicData?>,
                     response: Response<MusicData?>
                 ) {
-                    dataList = response.body()?.data!!
+                    dataListSongs = response.body()?.data!!
 
                     appContx = applicationContext
                     //     makeToast("MusicData ~ ${dataList.size}")
 
-                    if (dataList.size > 0) {
+                    if (dataListSongs.size > 0) {
 
                         imgbtnPlayAlbum.visibility = View.VISIBLE
                         imgbtnFavAlbum.visibility = View.VISIBLE
@@ -314,8 +314,9 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                         imgbtnPlayAlbum.setOnClickListener {
 
                             playingAlbum = query
+                            pDatalistSongs = dataListSongs
 
-                            makeToast(query + " ~ " + dataList[0].title)
+                            makeToast(query + " ~ " + dataListSongs[0].title)
                             if (boolMusicServiceRunning) {
                                 stopService(Intent(appContx, MusicService::class.java))
                             }
@@ -325,12 +326,12 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                                 appContx,
                                 MusicService::class.java
                             )
-                            for (item in dataList) {
+                            for (item in dataListSongs) {
                                 playIntent.putExtra(i.toString(), item.preview)
                                 i++
                             }
 
-                            txPlayingSong.text = dataList[0].title
+                            txPlayingSong.text = dataListSongs[0].title
 
                             songIndex = 0
 
@@ -392,11 +393,11 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
 
 
-                    for (item in dataList)
+                    for (item in dataListSongs)
                         Log.d("DATA7", "p - " + item.preview + "\n l - " + item.link)
 
 
-                    var rvAdapter = MusicAdapter(dataList, this@MusicActivity)
+                    var rvAdapter = MusicAdapter(dataListSongs, this@MusicActivity)
                     recyclerViewSongs.adapter = rvAdapter
                     //    recyclerview.layoutManager = LinearLayoutManager(this@MainActivity)
                     recyclerViewSongs.setLayoutManager(
@@ -432,13 +433,13 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
     private fun updateUI(what: Int) {
 
 
-        Log.d("sInfomr", dataList[what].title + " ~ $what")
+        Log.d("sInfomr", dataListSongs[what].title + " ~ $what")
         recyclerViewSongs.scrollToPosition(what)
         //    findViewById<TextView>(R.id.tx_sname).text = MusicActivity.Companion.dataList[what].title
         val thread = Thread {
             try {
                 // Your code goes here
-                val url = URL(MusicActivity.Companion.dataList[what].album.cover)
+                val url = URL(MusicActivity.Companion.dataListSongs[what].album.cover)
                 bitmapAlbum = BitmapFactory.decodeStream(url.openConnection().getInputStream())
                 image = BitmapDrawable(applicationContext.getResources(), bitmapAlbum)
             } catch (e: java.lang.Exception) {

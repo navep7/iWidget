@@ -21,7 +21,7 @@ import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.belaku.homey.MainActivity.Companion.makeToast
-import com.belaku.homey.MusicActivity.Companion.dataList
+import com.belaku.homey.MusicActivity.Companion.pDatalistSongs
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
 import com.belaku.homey.MusicActivity.Companion.recyclerViewSongs
 import com.belaku.homey.MusicActivity.Companion.txPlayingSong
@@ -58,7 +58,7 @@ class MusicService : Service() {
 
             try {
                 recyclerViewSongs.scrollToPosition(sIndex)
-                txPlayingSong.setText(dataList[sIndex].title)
+                txPlayingSong.setText(pDatalistSongs[sIndex].title)
             } catch (ex: Exception) {
                 makeToast("EXP updating MusicActivity ~ ${ex.message}")
             }
@@ -75,12 +75,12 @@ class MusicService : Service() {
             )
             remoteViews?.setTextViewText(
                 com.belaku.homey.R.id.tx_music_details,
-                dataList[sIndex].title + " | " + dataList[sIndex].album.title + " | " + dataList[sIndex].artist.name
+                pDatalistSongs[sIndex].title + " | " + pDatalistSongs[sIndex].album.title + " | " + pDatalistSongs[sIndex].artist.name
             )
                 Picasso.get()
-                    .load(dataList[songIndex].album.cover)
+                    .load(pDatalistSongs[songIndex].album.cover)
                     .into(remoteViews!!, R.id.imgv_p_album, NewAppWidget.i_appWidgetIds)
-            txPlayingSong.setText(dataList[sIndex].title)
+            txPlayingSong.setText(pDatalistSongs[sIndex].title)
 
 
 
@@ -101,8 +101,8 @@ class MusicService : Service() {
                 NotificationCompat.Builder(appContx, channelId)
                     .setSilent(true)
                     .setSmallIcon(android.R.drawable.ic_media_play) //                        .setContentTitle(getString(R.string.app_name)
-                    .setContentTitle(MusicActivity.dataList[sIndex].title)
-                    .setContentText(MusicActivity.dataList[sIndex].album.title + " | \n" + MusicActivity.dataList[sIndex].artist.name)
+                    .setContentTitle(MusicActivity.pDatalistSongs[sIndex].title)
+                    .setContentText(MusicActivity.pDatalistSongs[sIndex].album.title + " | \n" + MusicActivity.pDatalistSongs[sIndex].artist.name)
                     .setAutoCancel(true)
                     .setSound(null)
                     .setOngoing(true)
@@ -134,7 +134,7 @@ class MusicService : Service() {
         boolMusicServiceRunning = true
 
         if (MusicActivity.isDataListInitialized())
-            serviceNotify(dataList[songIndex].title)
+            serviceNotify(pDatalistSongs[songIndex].title)
         //    notifySong(0)
     }
 
@@ -213,9 +213,9 @@ class MusicService : Service() {
 
 
     private fun playSong(index: Int) {
-        if (index in 0 until dataList.size) {
+        if (index in 0 until pDatalistSongs.size) {
             songIndex = index
-            val url = dataList[songIndex].preview
+            val url = pDatalistSongs[songIndex].preview
 
             if (mMediaPlayer == null) {
                 mMediaPlayer = MediaPlayer().apply {
@@ -252,7 +252,7 @@ class MusicService : Service() {
     }
 
     private fun playNextSong() {
-        if (songIndex < dataList.size - 1) {
+        if (songIndex < pDatalistSongs.size - 1) {
             songIndex++
             playSong(songIndex)
         } else {

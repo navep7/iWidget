@@ -60,7 +60,7 @@ import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.pickContactLauncher
 import com.belaku.homey.MainActivity.Companion.sN
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
-import com.belaku.homey.MusicActivity.Companion.dataList
+import com.belaku.homey.MusicActivity.Companion.dataListSongs
 import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
@@ -260,9 +260,9 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 vpSteps.visibility = View.GONE
                 imgbtnShare.visibility = View.GONE
                 imgvSongCover.visibility = View.VISIBLE
-                txTitle.setText(dataList[songIndex].title)
+                txTitle.setText(dataListSongs[songIndex].title)
                 Picasso.get()
-                    .load(dataList[songIndex].album.cover)
+                    .load(dataListSongs[songIndex].album.cover)
                     .into(imgvSongCover)
             } else if (dialogIntentStr == "WCh") {
 
