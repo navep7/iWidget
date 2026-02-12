@@ -116,6 +116,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
             for (i in favAlbums) {
                 addAlbumChip(i)
             }
+            if (playingAlbum.isEmpty())
             if (favAlbums.isNotEmpty()) {
                 Getdata(favAlbums[0])
                 chipGroup.getChildAt(0).isSelected = true
@@ -156,7 +157,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         makeToast("boolMusicServiceRunning ~ $boolMusicServiceRunning : $playingAlbum")
         if (boolMusicServiceRunning) {
         //    makeToast(dataList[songIndex].title + " ~ " + query)
-            txPlayingSong.text = dataListSongs[songIndex].title
+            txPlayingSong.text = pDatalistSongs[songIndex].title
 
             try {
 
