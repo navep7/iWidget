@@ -30,6 +30,7 @@ import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
+import com.squareup.picasso.Picasso
 import okio.IOException
 
 
@@ -76,6 +77,9 @@ class MusicService : Service() {
                 com.belaku.homey.R.id.tx_music_details,
                 dataList[sIndex].title + " | " + dataList[sIndex].album.title + " | " + dataList[sIndex].artist.name
             )
+                Picasso.get()
+                    .load(dataList[songIndex].album.cover)
+                    .into(remoteViews!!, R.id.imgv_p_album, NewAppWidget.i_appWidgetIds)
             txPlayingSong.setText(dataList[sIndex].title)
 
 
@@ -236,7 +240,7 @@ class MusicService : Service() {
                     setOnPreparedListener {
                         it.start() // Start playback when prepared
                         notifySong(songIndex)
-                        trackSeek()
+                   //     trackSeek()
                     }
                 }
             } catch (e: IOException) {

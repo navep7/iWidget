@@ -245,6 +245,8 @@ class NewAppWidget : AppWidgetProvider() {
         recognizeActivityTransitions()
         getPreciseEnergyCounter(appContx)
 
+        i_appWidgetIds = appWidgetIds
+
         for (appWidgetId in appWidgetIds) {
 
             appContx = context
@@ -300,6 +302,11 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setOnClickPendingIntent(
             R.id.imgv_dialler,
             getPendingSelfIntent(context, DIAL_CLICK)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_p_album,
+            getPendingSelfIntent(context, P_THUMBNAIL_CLICK)
         )
 
         remoteViews?.setOnClickPendingIntent(
@@ -1077,7 +1084,16 @@ class NewAppWidget : AppWidgetProvider() {
                 startMusicActivity(songIndex)
             }
 
-        } else if (ACTION_LIST_CONTACTITEM_CLICK == intent.action) {
+        } else if (P_THUMBNAIL_CLICK == intent.action) {
+            appContx.startActivity(
+                Intent(
+                    appContx,
+                    DialogActivity::class.java
+                ).putExtra("DialogIntent", "SongCover")
+                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }
+        else if (ACTION_LIST_CONTACTITEM_CLICK == intent.action) {
             // Extract the item position or ID from the intent extras
 
             getFavoriteContacts()
@@ -1678,6 +1694,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     companion object {
+        lateinit var i_appWidgetIds: IntArray
         lateinit var gpBitmap: Bitmap
         var totalScreenTimeInHours: Long = 0
         lateinit var wD: String
@@ -2033,6 +2050,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val SET_CLICKED = "setButtonClick"
 
 
+        private const val P_THUMBNAIL_CLICK = "p_album_click"
         private const val PLAYPAUSE_CLICK = "pp_click"
         private const val Time_A_CLICKED = "ta_click"
         private const val PS_CLICK = "psClick"

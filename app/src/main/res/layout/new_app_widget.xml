@@ -549,9 +549,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="35dp"/>
 
+            <ImageView
+                android:id="@+id/imgv_p_album"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="@dimen/padding_5"
+                android:layout_width="35dp"
+                android:layout_height="35dp"/>
+
             <ImageButton
                 android:id="@+id/imgbtn_playpause"
-                android:layout_marginStart="@dimen/fab_margin"
+                android:layout_marginStart="@dimen/padding_5"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:scaleType="fitXY"
@@ -565,6 +572,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:layout_toEndOf="@+id/imgbtn_playpause"
+                android:layout_toStartOf="@+id/imgv_p_album"
                 android:layout_centerVertical="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

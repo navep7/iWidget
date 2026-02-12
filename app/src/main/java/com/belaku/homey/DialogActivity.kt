@@ -246,7 +246,9 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
         if (dialogIntentStr != null) {
 
-            if (dialogIntentStr == "WCh") {
+            if (dialogIntentStr == "SongCover") {
+                makeToast("yet2Impl")
+            } else if (dialogIntentStr == "WCh") {
 
                 remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.VISIBLE)
                 remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
