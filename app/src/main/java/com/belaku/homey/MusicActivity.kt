@@ -303,6 +303,8 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                     response: Response<MusicData?>
                 ) {
                     dataListSongs = response.body()?.data!!
+                    if (query == playingAlbum)
+                        pDatalistSongs = dataListSongs
 
                     appContx = applicationContext
                     //     makeToast("MusicData ~ ${dataList.size}")

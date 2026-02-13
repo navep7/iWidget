@@ -853,6 +853,7 @@ class NewAppWidget : AppWidgetProvider() {
                     appContx.resources.getColor(android.R.color.holo_red_light)
                 )
 
+
                 remoteViews?.setTextColor(
                     R.id.tx_wish,
                     appContx.resources.getColor(R.color.white)
@@ -860,12 +861,15 @@ class NewAppWidget : AppWidgetProvider() {
 
                 remoteViews?.setTextColor(
                     R.id.tx_activity_state,
-                    ColorUtil().lightenColor(primaryColor, 0.5f)
+                    ColorUtil().lightenColor(tertianaryColor, 0.5f)
                 )
+
                 remoteViews?.setTextColor(
                     R.id.tx_day_date,
                     ColorUtil().lightenColor(primaryColor, 0.5f)
                 )
+
+
                 remoteViews?.setTextColor(
                     R.id.tx_place,
                     ColorUtil().lightenColor(primaryColor, 0.5f)
@@ -889,12 +893,14 @@ class NewAppWidget : AppWidgetProvider() {
 
                 remoteViews?.setTextColor(
                     R.id.tx_activity_state,
-                    ColorUtil().darkenColor(primaryColor, 2.0f)
+                    ColorUtil().darkenColor(tertianaryColor, 2.0f)
                 )
+
                 remoteViews?.setTextColor(
                     R.id.tx_day_date,
                     ColorUtil().darkenColor(primaryColor, 2.0f)
                 )
+
                 remoteViews?.setTextColor(
                     R.id.tx_place,
                     ColorUtil().darkenColor(primaryColor, 2.0f)
@@ -905,20 +911,6 @@ class NewAppWidget : AppWidgetProvider() {
                 )
             }
 
-
-            /*if (ColorUtil().isColorDark(tertianaryColor))  {
-                makeToast("DARK tertianaryColor")
-                remoteViews?.setTextColor(R.id.clock, ColorUtil().lightenColor(tertianaryColor, 0.5f))
-                remoteViews?.setTextColor(R.id.tx_day_date, ColorUtil().lightenColor(tertianaryColor, 0.4f))
-                remoteViews?.setTextColor(R.id.tx_place, ColorUtil().lightenColor(tertianaryColor, 0.3f))
-                remoteViews?.setTextColor(R.id.tx_weather, ColorUtil().lightenColor(tertianaryColor, 0.2f))
-            } else {
-                makeToast("LIGHT tertianaryColor")
-                remoteViews?.setTextColor(R.id.clock, ColorUtil().darkenColor(tertianaryColor, 0.5f))
-                remoteViews?.setTextColor(R.id.tx_day_date, ColorUtil().darkenColor(tertianaryColor, 0.4f))
-                remoteViews?.setTextColor(R.id.tx_place, ColorUtil().darkenColor(tertianaryColor, 0.3f))
-                remoteViews?.setTextColor(R.id.tx_weather, ColorUtil().darkenColor(tertianaryColor, 0.2f))
-            }*/
 
         } else Log.d("wallColors", "NULL")
 
@@ -1980,7 +1972,7 @@ class NewAppWidget : AppWidgetProvider() {
         fun todaysDate() {
 
             val c: Date = Calendar.getInstance().time
-            val dfDate = SimpleDateFormat("dd", Locale.getDefault())
+            val dfDate = SimpleDateFormat("d", Locale.getDefault())
             val dfMonth = SimpleDateFormat("MMM", Locale.getDefault())
 
             var postFixDate = ""
@@ -2007,7 +1999,7 @@ class NewAppWidget : AppWidgetProvider() {
             }
 
 
-            formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
+            formattedDate = dfDate.format(c) + postFixDate /*+ " " + dfMonth.format(c)*/
 
 
             // remoteViews?.setTextViewText(R.id.tx_date, formattedDate)
