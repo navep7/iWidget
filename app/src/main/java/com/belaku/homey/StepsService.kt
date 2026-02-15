@@ -367,11 +367,20 @@ class StepsService : Service() {
 
                         Log.d("weatherInfo", tempC + " - " + tempKind)
 
+                        remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "°C, " + tempKind)
+                        if (weatherIconID.startsWith("5"))
+                            remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.rain)
+                        if (weatherIconID.equals("800"))
+                            remoteViews?.setImageViewResource(
+                                R.id.imgv_weather_icon,
+                                R.drawable.clear_sky
+                            )
+                        if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals(
+                                "803"
+                            ) || weatherIconID.equals("804")
+                        )
+                            remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.clouds)
 
-                        sharedPreferencesEditor.putString(
-                            "weatherTemp",
-                            tempC
-                        ).apply()
 
                         remoteViews?.setViewVisibility(R.id.progressBar_cyclic_weather, View.INVISIBLE)
                         remoteViews?.setViewVisibility(R.id.tx_refresh_weather, View.VISIBLE)

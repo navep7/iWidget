@@ -1,10 +1,13 @@
+import com.chaquo.python.pythonVersionInfo
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
- //   id("com.chaquo.python")
+    id("com.chaquo.python")
 }
+
 
 android {
     namespace = "com.belaku.homey"
@@ -14,8 +17,8 @@ android {
         applicationId = "com.belaku.homey"
         minSdk = 28
         targetSdk = 35
-        versionCode = 123
-        versionName = "123.0"
+        versionCode = 124
+        versionName = "124.0"
 
         renderscriptTargetApi = 18
         renderscriptSupportModeEnabled = true
@@ -28,16 +31,6 @@ android {
         }
 
 
-      /*  chaquopy {
-            defaultConfig {
-                pip {
-                    version = "3.8" // Specify your desired Python version
-                    pip {
-                        install("apify-client")
-                    }
-                }
-            }
-        }*/
 
     }
 
@@ -61,6 +54,25 @@ android {
         viewBinding = true
     }
 }
+
+/*  chaquopy {
+           defaultConfig {
+               pip {
+                   version = "3.8" // Specify your desired Python version
+                   pip {
+                       install("twikit")
+                   }
+               }
+           }
+       }*/
+
+chaquopy {
+    defaultConfig {
+        version = "3.10"
+
+    }
+}
+
 
 dependencies {
 

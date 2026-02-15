@@ -26,6 +26,7 @@ import android.provider.ContactsContract
 import android.provider.Settings
 import android.speech.RecognizerIntent
 import android.text.method.ScrollingMovementMethod
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
@@ -36,6 +37,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -72,6 +74,10 @@ import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.StepsService.Companion.totalUsage
+import com.chaquo.python.Python
+import com.chaquo.python.android.AndroidPlatform
+//import com.chaquo.python.Python
+//import com.chaquo.python.android.AndroidPlatform
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -334,13 +340,53 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                         )
                     )
                 })
+
+                if(!Python.isStarted())
+                    Python.start(AndroidPlatform(this))
+
+                val py = Python.getInstance()
+                val module = py.getModule("python_twitter_script")
+
+                Toast.makeText(applicationContext, "Py7 ! ${module.callAttr("wrapped_function", "NP21")}", Toast.LENGTH_LONG).show()
+
+
+
+
+              /*  from twikit import Client
+
+
+                        USERNAME = 'iNaveenPrakash'
+                EMAIL = 'i.nave@live.com'
+                PASSWORD = 'Twitter@7'
+
+
+                async def twitter_login(name):
+
+                client = Client(language='en-US')
+
+                await client.login(
+                        auth_info_1=USERNAME,
+                auth_info_2=EMAIL,
+                password=PASSWORD,
+                cookies_file='cookies.json' # Saves cookies to a file for later use
+                )
+
+
+                return f"Hello from Python, {USERNAME}!"
+            //    Log.d("TwPyLogs",  "Py7 ! ${module.callAttr("twitter_login", "NP21")}")*/
+
+                Toast.makeText(applicationContext, "Py7 ! ${module.callAttr("twitter_login", "NP21")}", Toast.LENGTH_LONG).show()
+
+
+                //   pythonTimpl()
             } else if (dialogIntentStr == "STH") {
                 llDialog.visibility = View.GONE
                 Snackbar.make(parentLayoutDialog, "Paid Feature!", Snackbar.LENGTH_LONG)
                     .setAction("Pay") {
-
                     }
                     .show()
+
+
                 /* txTitle.setText("Twitter")
                  txContent.visibility = View.INVISIBLE
                  edtxDialog.visibility = View.VISIBLE
@@ -690,7 +736,22 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+  /*  private fun pythonTimpl() {
 
+        // 1. Initialize Python (if not already done in Application)
+        if (!Python.isStarted()) {
+            Python.start(AndroidPlatform(this))
+        }
+
+        // 2. Get the Python instance
+        val py = Python.getInstance()
+
+        // 3. Get the module (script.py)
+        val module = py.getModule("python")
+
+        makeToast("Py ~ ${module.callAttr("wrapped_function", "KotlinUser")}")
+
+    }*/
 
 
     private fun sumTimeArray(myAppUsages: ArrayList<String>): String {
