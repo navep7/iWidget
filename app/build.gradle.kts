@@ -68,7 +68,11 @@ android {
 
 chaquopy {
     defaultConfig {
-        version = "3.10"
+        version = "3.13"
+        buildPython("/usr/local/bin/python3")
+        pip {
+            install("twikit")
+        }
 
     }
 }

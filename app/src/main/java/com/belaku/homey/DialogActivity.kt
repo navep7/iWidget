@@ -351,34 +351,6 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
 
-
-              /*  from twikit import Client
-
-
-                        USERNAME = 'iNaveenPrakash'
-                EMAIL = 'i.nave@live.com'
-                PASSWORD = 'Twitter@7'
-
-
-                async def twitter_login(name):
-
-                client = Client(language='en-US')
-
-                await client.login(
-                        auth_info_1=USERNAME,
-                auth_info_2=EMAIL,
-                password=PASSWORD,
-                cookies_file='cookies.json' # Saves cookies to a file for later use
-                )
-
-
-                return f"Hello from Python, {USERNAME}!"
-            //    Log.d("TwPyLogs",  "Py7 ! ${module.callAttr("twitter_login", "NP21")}")*/
-
-                Toast.makeText(applicationContext, "Py7 ! ${module.callAttr("twitter_login", "NP21")}", Toast.LENGTH_LONG).show()
-
-
-                //   pythonTimpl()
             } else if (dialogIntentStr == "STH") {
                 llDialog.visibility = View.GONE
                 Snackbar.make(parentLayoutDialog, "Paid Feature!", Snackbar.LENGTH_LONG)
