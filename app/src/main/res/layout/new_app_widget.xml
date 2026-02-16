@@ -168,6 +168,7 @@
                 android:id="@+id/imgv_texts"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/padding_5"
                 android:layout_alignStart="@+id/frame_texts"
                 android:layout_alignTop="@+id/frame_texts"
                 android:layout_alignEnd="@+id/frame_texts"
@@ -199,18 +200,12 @@
                     android:visibility="invisible"
                     tools:ignore="UnusedAttribute" />
 
-                <TextView
-                    android:id="@+id/tx_daychanges"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom" />
-
 
                 <LinearLayout
                     android:id="@+id/ll_time_day"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/fab_margin"
+                    android:layout_marginStart="@dimen/padding_5"
                     android:orientation="vertical"
                     android:padding="@dimen/padding_5">
 
@@ -243,7 +238,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="⊘"
-                            android:textColor="@android:color/holo_blue_dark"
+                            android:textColor="@android:color/holo_green_light"
                             android:textSize="25sp"
                             android:textStyle="bold" />
 
@@ -274,7 +269,7 @@
                             android:layout_height="wrap_content"
                             android:layout_alignBaseline="@+id/tx_place"
                             android:text="⚲"
-                            android:textColor="@android:color/holo_blue_dark"
+                            android:textColor="@android:color/holo_green_light"
                             android:textSize="25sp"
                             android:textStyle="bold" />
 
@@ -328,59 +323,11 @@
                             android:layout_alignBaseline="@+id/tx_weather"
                             android:layout_toRightOf="@+id/imgv_weather_icon"
                             android:text="↺"
-                            android:textColor="@android:color/holo_blue_dark"
+                            android:textColor="@android:color/holo_green_light"
                             android:textSize="25sp"
                             android:textStyle="bold" />
 
                     </RelativeLayout>
-
-
-                    <!--
-                                        <RelativeLayout
-                                            android:layout_marginStart="@dimen/fab_margin"
-                                            android:layout_width="wrap_content"
-                                            android:layout_height="wrap_content">
-
-                                            <TextView
-                                                android:id="@+id/tx_weather_refresh"
-                                                android:layout_width="wrap_content"
-                                                android:layout_height="wrap_content"
-                                                android:layout_centerVertical="true"
-                                                android:text="⟲"
-                                                android:layout_alignParentStart="true"
-                                                android:textSize="21sp"
-                                                android:textStyle="bold" />
-
-
-                                            <TextView
-                                                android:id="@+id/tx_weather"
-                                                android:layout_width="wrap_content"
-                                                android:layout_height="wrap_content"
-                                                android:layout_centerVertical="true"
-                                                android:text="25° C, Cloudy"
-                                                android:gravity="center"
-                                                android:layout_toEndOf="@+id/tx_weather_refresh"
-                                                android:textColor="@android:color/black"
-                                                android:textSize="15sp"
-                                                android:textStyle="bold" />
-
-                                            <ImageButton
-                                                android:id="@+id/imgv_weather_icon"
-                                                android:background="@android:color/transparent"
-                                                android:padding="@dimen/padding_5"
-                                                android:layout_toRightOf="@+id/tx_weather"
-                                                android:layout_width="50dp"
-                                                android:layout_height="50dp"
-                                                android:layout_gravity="center_vertical"
-                                                android:scaleType="fitXY"
-                                                android:src="@drawable/clouds"/>
-
-
-
-
-
-                                        </RelativeLayout>
-                    -->
 
 
                 </LinearLayout>
@@ -418,13 +365,15 @@
                         android:layout_below="@+id/tx_activity_state"
                         android:layout_toStartOf="@+id/tx_activity_state"
                         android:layout_toEndOf="@+id/tx_activity_state"
-                        android:background="@android:color/holo_blue_dark" />
+                        android:background="@android:color/darker_gray" />
 
 
                 </RelativeLayout>
 
 
                 <RelativeLayout
+                    android:layout_marginTop="1dp"
+                    android:background="@drawable/gradient_glass_rounded"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
 
@@ -446,7 +395,7 @@
                         android:layout_marginStart="5dp"
                         android:layout_toEndOf="@+id/imgv_steps"
                         android:text="Steps, \n today"
-                        android:textColor="@android:color/holo_red_light"
+                        android:textColor="@android:color/black"
                         android:textSize="15sp"
                         android:textStyle="bold" />
 
@@ -460,7 +409,7 @@
                         android:layout_marginEnd="5dp"
                         android:layout_toEndOf="@+id/tx_steps"
                         android:text="ⓘ"
-                        android:textColor="@android:color/holo_blue_dark"
+                        android:textColor="@android:color/holo_green_dark"
                         android:textSize="25sp"
                         android:textStyle="bold"
                         tools:ignore="HardcodedText" />
@@ -470,6 +419,8 @@
 
                 <RelativeLayout
                     android:id="@+id/rl_screentime"
+                    android:layout_marginTop="1dp"
+                    android:background="@drawable/gradient_glass_rounded"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
 
@@ -494,7 +445,7 @@
                         android:layout_toEndOf="@+id/imgv_scr_time"
                         android:background="@android:color/transparent"
                         android:text="Screen \n Time"
-                        android:textColor="@android:color/holo_red_light"
+                        android:textColor="@android:color/black"
                         android:textSize="15sp"
                         android:textStyle="bold" />
 
@@ -507,7 +458,7 @@
                         android:layout_marginEnd="5dp"
                         android:layout_toEndOf="@+id/btn_screentime"
                         android:text="ⓘ"
-                        android:textColor="@android:color/holo_blue_dark"
+                        android:textColor="@android:color/holo_green_dark"
                         android:textSize="25sp"
                         android:textStyle="bold"
                         tools:ignore="HardcodedText" />
