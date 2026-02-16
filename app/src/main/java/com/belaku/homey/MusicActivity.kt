@@ -172,8 +172,10 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
 
             for (i in 0 until chipGroup.childCount) {
-                val ch = chipGroup.getChildAt(i) as Chip
-                ch.isSelected = playingAlbum == ch.text
+                var ch = chipGroup.getChildAt(i) as Chip
+                if (playingAlbum == ch.text)
+                    ch.isSelected = true
+                else ch.isSelected = false
             }
             Getdata(playingAlbum)
 
@@ -369,7 +371,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                                     mMediaPlayer!!.pause()
                                     remoteViews?.setImageViewResource(
                                         com.belaku.homey.R.id.imgbtn_playpause,
-                                        R.drawable.play_m
+                                        android.R.drawable.ic_media_play
                                     )
                                     appWidM.updateAppWidget(newAppWidget, remoteViews)
                                     fabPlayPause.setImageResource(android.R.drawable.ic_media_play)
@@ -377,7 +379,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                                     mMediaPlayer!!.start()
                                     remoteViews?.setImageViewResource(
                                         com.belaku.homey.R.id.imgbtn_playpause,
-                                        R.drawable.pause_m
+                                        android.R.drawable.ic_media_pause
                                     )
                                     appWidM.updateAppWidget(newAppWidget, remoteViews)
                                     fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)

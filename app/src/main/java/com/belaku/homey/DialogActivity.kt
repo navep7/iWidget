@@ -3,6 +3,7 @@ package com.belaku.homey
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.PendingIntent
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
@@ -12,6 +13,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.database.Cursor
@@ -22,6 +24,7 @@ import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.provider.ContactsContract
 import android.provider.Settings
 import android.speech.RecognizerIntent
@@ -36,6 +39,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import android.widget.RemoteViews
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -43,6 +47,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.belaku.homey.MusicService.Companion.appContx
@@ -52,6 +57,8 @@ import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.MainActivity.Companion.pD
+import com.belaku.homey.MainActivity.Companion.parentLayout
 import com.belaku.homey.MainActivity.Companion.pickContactLauncher
 import com.belaku.homey.MainActivity.Companion.sN
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
@@ -60,6 +67,7 @@ import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
+import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.getScreenTime
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
@@ -68,14 +76,13 @@ import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
+import com.belaku.homey.SetWallWorker.Companion.boolWallSet
 import com.belaku.homey.SetWallWorker.Companion.pinNote
 import com.belaku.homey.SetWallWorker.Companion.screenHeight
 import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.StepsService.Companion.totalUsage
-import com.chaquo.python.Python
-import com.chaquo.python.android.AndroidPlatform
 //import com.chaquo.python.Python
 //import com.chaquo.python.android.AndroidPlatform
 import com.google.android.gms.ads.AdError
@@ -84,6 +91,10 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
+import com.google.android.gms.location.ActivityRecognition
+import com.google.android.gms.location.ActivityTransition
+import com.google.android.gms.location.ActivityTransitionRequest
+import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -99,11 +110,19 @@ import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 import java.io.IOException
 import java.net.URL
 import java.util.Calendar
 import java.util.Locale
+import java.util.Timer
+import java.util.TimerTask
 import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
 import kotlin.random.Random
@@ -323,6 +342,18 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 })
 
             } else if (dialogIntentStr == "ST") {
+
+                parentLayout = findViewById(android.R.id.content);
+                Snackbar.make(parentLayout, "Showing Tweets from @Fact.", Snackbar.LENGTH_SHORT)
+                    .setAction("Customize") { view ->
+                        // Code to undo the user's last action
+                        // For example, showing another snackbar:
+                        Snackbar.make(parentLayout, "Paid Feature, coming soon!", Snackbar.LENGTH_SHORT).show()
+                    }
+                    .setActionTextColor(resources.getColor(android.R.color.holo_red_dark, theme)) // Optional: set custom color
+                    .show()
+
+
                 tW = listTweets[Random.nextInt(0, listTweets.size)]
                 edtxDialog.visibility = View.GONE
                 btnOk.visibility = View.GONE
@@ -340,16 +371,6 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                         )
                     )
                 })
-
-                if(!Python.isStarted())
-                    Python.start(AndroidPlatform(this))
-
-                val py = Python.getInstance()
-                val module = py.getModule("python_twitter_script")
-
-                Toast.makeText(applicationContext, "Py7 ! ${module.callAttr("wrapped_function", "NP21")}", Toast.LENGTH_LONG).show()
-
-
 
             } else if (dialogIntentStr == "STH") {
                 llDialog.visibility = View.GONE
@@ -618,7 +639,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 vpSteps.visibility = View.VISIBLE
 
                 remoteViews?.setTextViewText(
-                    R.id.tx_screentime,
+                    R.id.btn_screentime,
                     "$hour+ H"
                 )
 

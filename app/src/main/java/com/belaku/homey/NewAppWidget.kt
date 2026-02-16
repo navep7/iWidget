@@ -417,13 +417,13 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
 
-        remoteViews?.setOnClickPendingIntent(
-            R.id.twSettings, PendingIntent.getActivity(
+        /*remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_twitter, PendingIntent.getActivity(
                 context, 8,
                 Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "STH"),
                 PendingIntent.FLAG_IMMUTABLE
             )
-        )
+        )*/
 
         val intentBluetooth = Intent(context, DialogActivity::class.java)
         if (mBluetoothAdapter.isEnabled)
@@ -606,8 +606,8 @@ class NewAppWidget : AppWidgetProvider() {
 
             mMediaPlayer?.let {
                 if (it.isPlaying)
-                    remoteViews?.setImageViewResource(R.id.imgbtn_playpause, R.drawable.pause_m)
-                else remoteViews?.setImageViewResource(R.id.imgbtn_playpause, R.drawable.play_m)
+                    remoteViews?.setImageViewResource(R.id.imgbtn_playpause, android.R.drawable.ic_media_pause)
+                else remoteViews?.setImageViewResource(R.id.imgbtn_playpause, android.R.drawable.ic_media_play)
             }
 
         }
@@ -843,6 +843,9 @@ class NewAppWidget : AppWidgetProvider() {
                 )
             }
 
+            //  findViewById<View>(R.id.myLayout).background = gradientDrawable
+
+
             if (ColorUtil().isColorDark(primaryColor)) {
 
                 remoteViews?.setTextColor(
@@ -850,12 +853,31 @@ class NewAppWidget : AppWidgetProvider() {
                     appContx.resources.getColor(android.R.color.holo_red_light)
                 )
 
+
                 remoteViews?.setTextColor(
                     R.id.tx_wish,
-                    Color.WHITE
+                    appContx.resources.getColor(R.color.white)
+                )
+
+                remoteViews?.setTextColor(
+                    R.id.tx_activity_state,
+                    ColorUtil().lightenColor(tertianaryColor, 0.5f)
+                )
+
+                remoteViews?.setTextColor(
+                    R.id.tx_day_date,
+                    ColorUtil().lightenColor(primaryColor, 0.5f)
                 )
 
 
+                remoteViews?.setTextColor(
+                    R.id.tx_place,
+                    ColorUtil().lightenColor(primaryColor, 0.5f)
+                )
+                remoteViews?.setTextColor(
+                    R.id.tx_weather,
+                    ColorUtil().lightenColor(primaryColor, 0.5f)
+                )
             } else {
 
                 remoteViews?.setTextColor(
@@ -865,10 +887,28 @@ class NewAppWidget : AppWidgetProvider() {
 
                 remoteViews?.setTextColor(
                     R.id.tx_wish,
-                    Color.BLACK
+                    appContx.resources.getColor(R.color.black)
                 )
 
 
+                remoteViews?.setTextColor(
+                    R.id.tx_activity_state,
+                    ColorUtil().darkenColor(tertianaryColor, 2.0f)
+                )
+
+                remoteViews?.setTextColor(
+                    R.id.tx_day_date,
+                    ColorUtil().darkenColor(primaryColor, 2.0f)
+                )
+
+                remoteViews?.setTextColor(
+                    R.id.tx_place,
+                    ColorUtil().darkenColor(primaryColor, 2.0f)
+                )
+                remoteViews?.setTextColor(
+                    R.id.tx_weather,
+                    ColorUtil().darkenColor(primaryColor, 2.0f)
+                )
             }
 
 
@@ -1028,13 +1068,13 @@ class NewAppWidget : AppWidgetProvider() {
                             mMediaPlayer!!.pause()
                             remoteViews?.setImageViewResource(
                                 R.id.imgbtn_playpause,
-                                R.drawable.play_m
+                                android.R.drawable.ic_media_play
                             )
                         } else {
                             startMusicActivity(songIndex)
                             remoteViews?.setImageViewResource(
                                 R.id.imgbtn_playpause,
-                                R.drawable.pause_m
+                                android.R.drawable.ic_media_pause
                             )
                             mMediaPlayer!!.start()
                         }
@@ -1440,7 +1480,7 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         appWidgetView.findViewById<TextView>(
-            R.id.tx_screentime
+            R.id.btn_screentime
         ).text = "${totalUsage}"
         greeting()
         appWidgetView.findViewById<TextView>(R.id.tx_wish).text = timelyWish
@@ -1473,7 +1513,8 @@ class NewAppWidget : AppWidgetProvider() {
          appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_state).text =
              MainActivity.weatherIconState */
         appWidgetView.findViewById<TextView>(R.id.tx_day_date).text =
-            formattedDate + " , " + SimpleDateFormat("EEEE", Locale.getDefault()).format(Calendar.getInstance().time)
+            SimpleDateFormat("EEE", Locale.getDefault()).format(Calendar.getInstance().time) +
+                    ", " + formattedDate
 
         readApps()
 
@@ -1920,7 +1961,7 @@ class NewAppWidget : AppWidgetProvider() {
                 else hour = sT[0]
 
                 remoteViews?.setTextViewText(
-                    R.id.tx_screentime,
+                    R.id.btn_screentime,
                     "$hour+ H"
                 )
             }
@@ -1932,7 +1973,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             val c: Date = Calendar.getInstance().time
             val dfDate = SimpleDateFormat("d", Locale.getDefault())
-            val dfMonth = SimpleDateFormat("MMMM", Locale.getDefault())
+            val dfMonth = SimpleDateFormat("MMM", Locale.getDefault())
 
             var postFixDate = ""
 
@@ -1958,7 +1999,7 @@ class NewAppWidget : AppWidgetProvider() {
             }
 
 
-            formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
+            formattedDate = dfDate.format(c) + postFixDate /*+ " " + dfMonth.format(c)*/
 
 
             // remoteViews?.setTextViewText(R.id.tx_date, formattedDate)
@@ -1969,7 +2010,8 @@ class NewAppWidget : AppWidgetProvider() {
             //   remoteViews?.setTextViewText(R.id.n_tx_steps, "Now, $newLapSteps")
             remoteViews?.setTextViewText(
                 R.id.tx_day_date,
-                formattedDate + " , " + SimpleDateFormat("EEEE", Locale.getDefault()).format(Calendar.getInstance().time)
+                SimpleDateFormat("EEE", Locale.getDefault()).format(c) +
+                        ", " + formattedDate
             )
 
             remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)

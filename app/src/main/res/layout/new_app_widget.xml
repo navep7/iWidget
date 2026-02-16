@@ -51,10 +51,11 @@
 
         <ImageButton
             android:id="@+id/imgbtn_twitter"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:layout_below="@+id/ll_top"
             android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/fab_margin"
             android:background="@android:color/transparent"
             android:scaleType="fitXY"
             android:src="@drawable/tw" />
@@ -64,7 +65,7 @@
             android:id="@+id/ll_top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/padding_5"
+            android:layout_margin="@dimen/padding_5"
             android:background="@drawable/thick_underline"
             android:paddingBottom="@dimen/padding_5"
             android:weightSum="10">
@@ -217,11 +218,20 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
 
+                        <TextView
+                            android:id="@+id/tx_day_date"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Fri, 13th"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
 
                         <android.widget.TextClock
                             android:id="@+id/clock"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/padding_5"
                             android:layout_marginEnd="@dimen/padding_5"
                             android:format12Hour="h:mm:ss"
                             android:textSize="25sp"
@@ -233,21 +243,12 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="⊘"
-                            android:textColor="@android:color/holo_green_light"
+                            android:textColor="@android:color/holo_blue_dark"
                             android:textSize="25sp"
                             android:textStyle="bold" />
 
 
                     </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tx_day_date"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="13th Fri"
-                        android:textColor="@color/white"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
 
 
                     <LinearLayout
@@ -262,8 +263,8 @@
                             android:maxWidth="155dp"
                             android:maxLines="1"
                             android:ellipsize="end"
-                            android:textColor="@color/bg_light"
                             android:text="Place Information.."
+                            android:textColor="@android:color/black"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
@@ -273,7 +274,7 @@
                             android:layout_height="wrap_content"
                             android:layout_alignBaseline="@+id/tx_place"
                             android:text="⚲"
-                            android:textColor="@android:color/holo_green_light"
+                            android:textColor="@android:color/holo_blue_dark"
                             android:textSize="25sp"
                             android:textStyle="bold" />
 
@@ -293,7 +294,7 @@
                             android:ellipsize="end"
                             android:maxLines="1"
                             android:text="Weather Info..."
-                            android:textColor="@color/bg_light"
+                            android:textColor="@android:color/black"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
@@ -327,7 +328,7 @@
                             android:layout_alignBaseline="@+id/tx_weather"
                             android:layout_toRightOf="@+id/imgv_weather_icon"
                             android:text="↺"
-                            android:textColor="@android:color/holo_green_light"
+                            android:textColor="@android:color/holo_blue_dark"
                             android:textSize="25sp"
                             android:textStyle="bold" />
 
@@ -407,10 +408,8 @@
                         android:id="@+id/tx_activity_state"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/gradient_glass_flat"
+                        android:background="@drawable/gradient_glass_dark_flat"
                         android:text=" State "
-                        android:textSize="15sp"
-                        android:textColor="@android:color/black"
                         android:textStyle="bold" />
 
                     <TextView
@@ -419,15 +418,13 @@
                         android:layout_below="@+id/tx_activity_state"
                         android:layout_toStartOf="@+id/tx_activity_state"
                         android:layout_toEndOf="@+id/tx_activity_state"
-                        android:background="@android:color/holo_green_light" />
+                        android:background="@android:color/holo_blue_dark" />
 
 
                 </RelativeLayout>
 
 
                 <RelativeLayout
-                    android:background="@drawable/gradient_glass_rounded"
-                    android:layout_marginTop="10dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
 
@@ -449,7 +446,7 @@
                         android:layout_marginStart="5dp"
                         android:layout_toEndOf="@+id/imgv_steps"
                         android:text="Steps, \n today"
-                        android:textColor="@android:color/black"
+                        android:textColor="@android:color/holo_red_light"
                         android:textSize="15sp"
                         android:textStyle="bold" />
 
@@ -463,7 +460,7 @@
                         android:layout_marginEnd="5dp"
                         android:layout_toEndOf="@+id/tx_steps"
                         android:text="ⓘ"
-                        android:textColor="@android:color/holo_green_dark"
+                        android:textColor="@android:color/holo_blue_dark"
                         android:textSize="25sp"
                         android:textStyle="bold"
                         tools:ignore="HardcodedText" />
@@ -473,8 +470,6 @@
 
                 <RelativeLayout
                     android:id="@+id/rl_screentime"
-                    android:layout_marginTop="@dimen/padding_3"
-                    android:background="@drawable/gradient_glass_rounded"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
 
@@ -491,14 +486,15 @@
 
 
                     <TextView
-                        android:id="@+id/tx_screentime"
+                        android:id="@+id/btn_screentime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:layout_marginStart="@dimen/padding_5"
                         android:layout_toEndOf="@+id/imgv_scr_time"
+                        android:background="@android:color/transparent"
                         android:text="Screen \n Time"
-                        android:textColor="@android:color/black"
+                        android:textColor="@android:color/holo_red_light"
                         android:textSize="15sp"
                         android:textStyle="bold" />
 
@@ -509,9 +505,9 @@
                         android:layout_centerVertical="true"
                         android:layout_marginStart="3dp"
                         android:layout_marginEnd="5dp"
-                        android:layout_toEndOf="@+id/tx_screentime"
+                        android:layout_toEndOf="@+id/btn_screentime"
                         android:text="ⓘ"
-                        android:textColor="@android:color/holo_green_dark"
+                        android:textColor="@android:color/holo_blue_dark"
                         android:textSize="25sp"
                         android:textStyle="bold"
                         tools:ignore="HardcodedText" />
@@ -553,9 +549,9 @@
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="@dimen/padding_5"
                 android:layout_marginEnd="@dimen/padding_5"
-                android:background="@android:color/transparent"
+                android:backgroundTint="@android:color/holo_red_dark"
                 android:scaleType="fitXY"
-                android:src="@drawable/play_m" />
+                android:src="@android:drawable/ic_media_play" />
 
             <TextView
                 android:id="@+id/tx_music_details"

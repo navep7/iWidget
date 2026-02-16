@@ -1,11 +1,9 @@
-import com.chaquo.python.pythonVersionInfo
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
-    id("com.chaquo.python")
+ //   id("com.chaquo.python")
 }
 
 
@@ -55,27 +53,6 @@ android {
     }
 }
 
-/*  chaquopy {
-           defaultConfig {
-               pip {
-                   version = "3.8" // Specify your desired Python version
-                   pip {
-                       install("twikit")
-                   }
-               }
-           }
-       }*/
-
-chaquopy {
-    defaultConfig {
-        version = "3.13"
-        buildPython("/usr/local/bin/python3")
-        pip {
-            install("twikit")
-        }
-
-    }
-}
 
 
 dependencies {

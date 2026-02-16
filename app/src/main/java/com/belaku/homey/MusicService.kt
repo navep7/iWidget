@@ -71,7 +71,7 @@ class MusicService : Service() {
             newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
             remoteViews?.setImageViewResource(
                 R.id.imgbtn_playpause,
-                R.drawable.pause_m
+                android.R.drawable.ic_media_pause
             )
             remoteViews?.setTextViewText(
                 com.belaku.homey.R.id.tx_music_details,
