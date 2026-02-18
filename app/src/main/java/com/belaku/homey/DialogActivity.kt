@@ -3,7 +3,6 @@ package com.belaku.homey
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
-import android.app.PendingIntent
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
@@ -13,7 +12,6 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.database.Cursor
@@ -24,12 +22,10 @@ import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.provider.ContactsContract
 import android.provider.Settings
 import android.speech.RecognizerIntent
 import android.text.method.ScrollingMovementMethod
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
@@ -39,25 +35,20 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.RelativeLayout
-import android.widget.RemoteViews
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
-import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
-import com.belaku.homey.MusicService.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.makeToast
-import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.parentLayout
 import com.belaku.homey.MainActivity.Companion.pickContactLauncher
 import com.belaku.homey.MainActivity.Companion.sN
@@ -67,7 +58,6 @@ import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
-import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.getScreenTime
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
@@ -76,7 +66,6 @@ import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
-import com.belaku.homey.SetWallWorker.Companion.boolWallSet
 import com.belaku.homey.SetWallWorker.Companion.pinNote
 import com.belaku.homey.SetWallWorker.Companion.screenHeight
 import com.belaku.homey.SetWallWorker.Companion.screenWidth
@@ -91,10 +80,6 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
-import com.google.android.gms.location.ActivityRecognition
-import com.google.android.gms.location.ActivityTransition
-import com.google.android.gms.location.ActivityTransitionRequest
-import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -110,19 +95,11 @@ import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import org.json.JSONArray
-import org.json.JSONException
-import org.json.JSONObject
 import java.io.IOException
 import java.net.URL
 import java.util.Calendar
 import java.util.Locale
-import java.util.Timer
-import java.util.TimerTask
 import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
 import kotlin.random.Random
@@ -130,6 +107,7 @@ import kotlin.random.Random
 
 class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    private lateinit var dialogActContext: Context
     private lateinit var parentLayoutDialog: View
     private val barcodeLauncher =
         registerForActivityResult(ScanContract()) { result: ScanIntentResult? ->
@@ -185,7 +163,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
         parentLayoutDialog = findViewById(android.R.id.content)
 
-        appContx = applicationContext
+        dialogActContext = applicationContext
 
         rewardedInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
@@ -284,9 +262,9 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 if (noRewards > 0) {
                  //   makeSnack("Changing Wall, please wait...")
-                    appContx = applicationContext
+                    dialogActContext = applicationContext
                     Thread {
-                        SetWallWorker.setWall(true)
+                        SetWallWorker.setWall(true, dialogActContext)
                     }.start()
                 } else {
                     makeSnack("Watch an AD to auto change Walls for next 7 times!")
@@ -451,7 +429,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                         }
 
                         override fun onAdFailedToLoad(adError: LoadAdError) {
-                            appContx = applicationContext
+                            dialogActContext = applicationContext
                             makeToast("onAdFailedToLoad: ${adError.message}")
                             rewardedInterstitialAd = null
                         }
@@ -515,7 +493,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     if (i.usageTime.substring(0, 2).toInt() > 10) {
                         muApps.add(
                             "\n" + getAppNameFromPkg(
-                                appContx, i.appName
+                                dialogActContext, i.appName
                             )
                         )
                         myAppUsages.add("\n" + i.usageTime)
@@ -550,7 +528,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     ) {
                         muApps.add(
                             "\n" + getAppNameFromPkg(
-                                appContx, c[i].appName
+                                dialogActContext, c[i].appName
                             )
                         )
                         myAppUsages.add("\n" + c[i].usageTime)
@@ -579,7 +557,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     ) {
                         muApps.add(
                             "\n" + getAppNameFromPkg(
-                                appContx, c[i].appName
+                                dialogActContext, c[i].appName
                             )
                         )
                         myAppUsages.add("\n" + c[i].usageTime)
@@ -606,7 +584,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     ) {
                         muApps.add(
                             "\n" + getAppNameFromPkg(
-                                appContx, c[i].appName
+                                dialogActContext, c[i].appName
                             )
                         )
                         myAppUsages.add("\n" + c[i].usageTime)
@@ -644,7 +622,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 )
 
 
-                    appWidM = AppWidgetManager.getInstance(appContx)
+                    appWidM = AppWidgetManager.getInstance(dialogActContext)
                     appWidM.updateAppWidget(newAppWidget, remoteViews)
 
             } else if (dialogIntentStr == "liveWall") {
@@ -683,7 +661,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
                     llDialog.visibility = View.GONE
                     Thread {
-                        SetWallWorker.setWall(true)
+                        SetWallWorker.setWall(true, dialogActContext)
                     }.start()
                     //  appWidM.updateAppWidget(newAppWidget, remoteViews)
                 }
@@ -701,7 +679,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     dialog.dismiss() // Dismiss the dialog
                     val openSettings = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
                     openSettings.addFlags(FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
-                    appContx.startActivity(openSettings)
+                    dialogActContext.startActivity(openSettings)
                 }
 
                 builder.setNegativeButton("Not now") { dialog, id ->
@@ -1027,7 +1005,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 Color.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
             var contactBitmap: Bitmap?
 
-            contactBitmap = ContactPhotoHelper.retrieveContactPhoto(appContx, contactID.toLong())
+            contactBitmap = ContactPhotoHelper.retrieveContactPhoto(dialogActContext, contactID.toLong())
             val cNme = cursor.getString(
                 cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
             )

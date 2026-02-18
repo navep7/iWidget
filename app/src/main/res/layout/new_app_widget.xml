@@ -472,8 +472,8 @@
 
         <ImageView
             android:id="@+id/imgv_p_album"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:layout_alignBottom="@+id/rl_player"
             android:layout_alignParentEnd="true" />
 
@@ -500,9 +500,9 @@
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="@dimen/padding_5"
                 android:layout_marginEnd="@dimen/padding_5"
-                android:backgroundTint="@android:color/holo_red_dark"
+                android:background="@android:color/transparent"
                 android:scaleType="fitXY"
-                android:src="@android:drawable/ic_media_play" />
+                android:src="@drawable/play_m" />
 
             <TextView
                 android:id="@+id/tx_music_details"

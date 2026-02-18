@@ -11,19 +11,17 @@ import android.media.RingtoneManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.belaku.homey.MusicService.Companion.appContx
-import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.RemindersActivity.Companion.adapterReminders
 import com.belaku.homey.RemindersActivity.Companion.arrayListReminders
 
 
 class AlarmBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        notifyAlarm(intent.getStringExtra("alertSub"))
+        notifyAlarm(context, intent.getStringExtra("alertSub"))
         // You can perform other actions here, like starting a service or showing a notification
     }
 
-    private fun notifyAlarm(rSubject: String?) {
+    private fun notifyAlarm(notifyAlarmContx: Context, rSubject: String?) {
 
         val CHANNEL_ID = "my_channel_id"
         val name: CharSequence = "My Channel Name"
@@ -42,19 +40,19 @@ class AlarmBroadcastReceiver : BroadcastReceiver() {
         // Uri customSoundUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + getPackageName() + "/raw/my_custom_sound");
         // channel.setSound(customSoundUri, new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION).build());
         val notificationManager: NotificationManager =
-            appContx.getSystemService(NotificationManager::class.java)
+            notifyAlarmContx.getSystemService(NotificationManager::class.java)
         notificationManager.createNotificationChannel(channel)
 
 
-        val builder: NotificationCompat.Builder = NotificationCompat.Builder(appContx, CHANNEL_ID)
+        val builder: NotificationCompat.Builder = NotificationCompat.Builder(notifyAlarmContx, CHANNEL_ID)
             .setSmallIcon(R.drawable.walp_icon)
             .setContentTitle("Reminding you to..")
             .setContentText(rSubject)
             .setPriority(NotificationCompat.PRIORITY_HIGH) // Match channel importance
 
-        val notificationManagerCompat = NotificationManagerCompat.from(appContx)
+        val notificationManagerCompat = NotificationManagerCompat.from(notifyAlarmContx)
         if (ActivityCompat.checkSelfPermission(
-                appContx,
+                notifyAlarmContx,
                 Manifest.permission.POST_NOTIFICATIONS
             ) != PackageManager.PERMISSION_GRANTED
         ) {

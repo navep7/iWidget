@@ -18,8 +18,6 @@ import android.graphics.BitmapFactory
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.location.Address
-import android.location.Geocoder
-import android.location.Location
 import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Handler
@@ -31,14 +29,10 @@ import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.belaku.homey.MusicService.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.cDate
 import com.belaku.homey.MainActivity.Companion.cMonth
 import com.belaku.homey.MainActivity.Companion.cYear
-import com.belaku.homey.MainActivity.Companion.cityLat
-import com.belaku.homey.MainActivity.Companion.cityLng
-import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.delayUnit
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.fabMain
@@ -47,13 +41,10 @@ import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.queryType
 import com.belaku.homey.MainActivity.Companion.randomWallIndex
 import com.belaku.homey.MainActivity.Companion.rlStatus
-import com.belaku.homey.MainActivity.Companion.tempC
-import com.belaku.homey.MainActivity.Companion.tempKind
 import com.belaku.homey.MainActivity.Companion.twitterProfileName
 import com.belaku.homey.MainActivity.Companion.txStatus
 import com.belaku.homey.MainActivity.Companion.updateTime
 import com.belaku.homey.MainActivity.Companion.wallDelay
-import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
 import com.belaku.homey.NewAppWidget.Companion.dU
@@ -70,13 +61,6 @@ import com.belaku.homey.NewAppWidget.Companion.timelyWish
 import com.belaku.homey.NewAppWidget.Companion.uT
 import com.belaku.homey.NewAppWidget.Companion.wD
 import com.belaku.homey.StepsService.Companion.choosenApps
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
 import com.google.gson.Gson
 import java.io.IOException
 import java.net.URL
@@ -86,9 +70,12 @@ import kotlin.properties.Delegates
 import kotlin.random.Random
 
 
+
+
 class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
     Worker(context!!, workerParams!!) {
 
+    private lateinit var wallWorkerContext: Context
 
     private var isNetConnected: Boolean = false
 
@@ -97,21 +84,21 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
     override fun doWork(): Result {
 
         Log.d(TAG, "doWork!")
-        appContx = applicationContext
-        sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        wallWorkerContext = applicationContext
+        sharedPreferences = wallWorkerContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
         urls = ArrayList(sharedPreferences.getStringSet("walls", null)!!)
         urls.sort()
 
-        wm = WallpaperManager.getInstance(appContx)
+        wm = WallpaperManager.getInstance(wallWorkerContext)
 
-        val connectivityManager = appContx.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager = wallWorkerContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork = connectivityManager.activeNetworkInfo
         isNetConnected = activeNetwork?.isConnectedOrConnecting == true
 
         if (isNetConnected)
-        setWall(true)
+        setWall(true, wallWorkerContext)
         else makeToast("Check INTERNET!")
      //   getCity()
         greeting()
@@ -164,13 +151,13 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
         @RequiresApi(Build.VERSION_CODES.S)
         @SuppressLint("SetTextI18n")
-        fun setWall(b: Boolean) {
+        fun setWall(b: Boolean, wallWorkerContext: Context) {
 
-            wm = WallpaperManager.getInstance(appContx)
+            wm = WallpaperManager.getInstance(wallWorkerContext)
             wm.setWallpaperOffsetSteps(1F, 1F)
 
 
-            getScreenTime(appContx)
+            getScreenTime(wallWorkerContext)
             greeting()
 
             wm.suggestDesiredDimensions(screenWidth, screenHeight)
@@ -268,12 +255,12 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     )
                 )
 
-                val intent = Intent(appContx, NewAppWidget::class.java)
+                val intent = Intent(wallWorkerContext, NewAppWidget::class.java)
                 intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
-                newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
+                newAppWidget = ComponentName(wallWorkerContext, NewAppWidget::class.java)
                 //   intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, newAppWidget)
 
-                appContx.sendBroadcast(intent)
+                wallWorkerContext.sendBroadcast(intent)
 
 
             } catch (e: IOException) {
@@ -282,14 +269,14 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 Log.d(TAG, "setWallEx2 - $e")
             }
 
-            DayChanges()
-            updateWidget()
+            DayChanges(wallWorkerContext)
+            updateWidget(wallWorkerContext)
 
         }
 
-        private fun DayChanges() {
+        private fun DayChanges(wallWorkerContext: Context) {
 
-            getScreenTime(appContx)
+            getScreenTime(wallWorkerContext)
             if (sharedPreferences.getString("day", "someday").equals(dayOfTheWeek)) {
                 Log.d("DayChange?", "same Day")
             } else {
@@ -301,21 +288,21 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             }
         }
 
-        private fun updateWidget() {
+        private fun updateWidget(wallWorkerContext: Context) {
             val intent = Intent(
-                appContx,
+                wallWorkerContext,
                 NewAppWidget::class.java
             )
             intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
-            val ids: IntArray = AppWidgetManager.getInstance(appContx)
+            val ids: IntArray = AppWidgetManager.getInstance(wallWorkerContext)
                 .getAppWidgetIds(
                     ComponentName(
-                        appContx,
+                        wallWorkerContext,
                         NewAppWidget::class.java
                     )
                 )
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
-            appContx.sendBroadcast(intent)
+            wallWorkerContext.sendBroadcast(intent)
         }
 
 

@@ -47,10 +47,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.net.URL
 import androidx.core.view.isEmpty
-import com.belaku.homey.MusicService.Companion.appContx
 
 class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
+    private lateinit var musicActivityContext: Context
     private lateinit var json: String
     private lateinit var gson: Gson
 
@@ -105,7 +105,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
-        appContx = applicationContext
+        musicActivityContext = applicationContext
 
         val set = sharedPreferences.getStringSet("favAlbums", null)
 
@@ -306,7 +306,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                     if (query == playingAlbum)
                         pDatalistSongs = dataListSongs
 
-                    appContx = applicationContext
+                    musicActivityContext = applicationContext
                     //     makeToast("MusicData ~ ${dataList.size}")
 
                     if (dataListSongs.size > 0) {
@@ -321,12 +321,12 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
                             makeToast(query + " ~ " + dataListSongs[0].title)
                             if (boolMusicServiceRunning) {
-                                stopService(Intent(appContx, MusicService::class.java))
+                                stopService(Intent(musicActivityContext, MusicService::class.java))
                             }
 
                             var i = 0
                             playIntent = Intent(
-                                appContx,
+                                musicActivityContext,
                                 MusicService::class.java
                             )
                             for (item in dataListSongs) {
@@ -371,7 +371,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                                     mMediaPlayer!!.pause()
                                     remoteViews?.setImageViewResource(
                                         com.belaku.homey.R.id.imgbtn_playpause,
-                                        android.R.drawable.ic_media_play
+                                        R.drawable.play_m
                                     )
                                     appWidM.updateAppWidget(newAppWidget, remoteViews)
                                     fabPlayPause.setImageResource(android.R.drawable.ic_media_play)
@@ -379,7 +379,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                                     mMediaPlayer!!.start()
                                     remoteViews?.setImageViewResource(
                                         com.belaku.homey.R.id.imgbtn_playpause,
-                                        android.R.drawable.ic_media_pause
+                                        R.drawable.pause_m
                                     )
                                     appWidM.updateAppWidget(newAppWidget, remoteViews)
                                     fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)

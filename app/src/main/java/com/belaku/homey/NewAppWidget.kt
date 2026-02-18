@@ -83,7 +83,6 @@ import com.belaku.homey.MainActivity.Companion.tempKind
 import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.MusicActivity.Companion.pDatalistSongs
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
-import com.belaku.homey.MusicService.Companion.appContx
 import com.belaku.homey.MusicService.Companion.boolMusicServiceRunning
 import com.belaku.homey.MusicService.Companion.mMediaPlayer
 import com.belaku.homey.MusicService.Companion.songIndex
@@ -141,11 +140,11 @@ class NewAppWidget : AppWidgetProvider() {
 
     override fun onEnabled(context: Context?) {
         super.onEnabled(context)
-        appContx = context!!
+        widgetContext = context!!
         onEn = true
 
         makeToast("Expand the widget to full screen dimens for better visibility")
-        sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
         if (ismActInitialized())
@@ -160,15 +159,15 @@ class NewAppWidget : AppWidgetProvider() {
 
         val receiver: ActivityTransitionReceiver = ActivityTransitionReceiver()
         val filter = IntentFilter("com.belaku.homey.CUSTOM_ACTION") // Use a unique action string
-        appContx.registerReceiver(receiver, filter, RECEIVER_NOT_EXPORTED)
+        widgetContext.registerReceiver(receiver, filter, RECEIVER_NOT_EXPORTED)
         // Source - https://stackoverflow.com/q
 // Posted by Mehul Kanzariya, modified by community. See post 'Timeline' for change history
 // Retrieved 2026-01-18, License - CC BY-SA 4.0
 
-        val intent = Intent(appContx, ActivityTransitionReceiver::class.java)
+        val intent = Intent(widgetContext, ActivityTransitionReceiver::class.java)
         val requestCodeAT = 57
         val pendingIntent = PendingIntent.getBroadcast(
-            appContx,
+            widgetContext,
             requestCodeAT,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
@@ -208,7 +207,7 @@ class NewAppWidget : AppWidgetProvider() {
         val transitionRequest = ActivityTransitionRequest(transitions)
 
         // myPendingIntent is the instance of PendingIntent where the app receives callbacks.
-        val task = ActivityRecognition.getClient(appContx)
+        val task = ActivityRecognition.getClient(widgetContext)
             .requestActivityTransitionUpdates(transitionRequest, pendingIntent)
 
         task.addOnSuccessListener {
@@ -225,7 +224,7 @@ class NewAppWidget : AppWidgetProvider() {
 
     override fun onDisabled(context: Context?) {
         super.onDisabled(context)
-        appContx = context!!
+        widgetContext = context!!
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -235,22 +234,22 @@ class NewAppWidget : AppWidgetProvider() {
         appWidgetIds: IntArray
     ) {
 
-        appContx = context
+        widgetContext = context
         Log.d(TAG, "!onUpdate")
         remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
-        sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
         recognizeActivityTransitions()
-        getPreciseEnergyCounter(appContx)
+        getPreciseEnergyCounter(widgetContext)
 
         i_appWidgetIds = appWidgetIds
 
         for (appWidgetId in appWidgetIds) {
 
-            appContx = context
+            widgetContext = context
 
             setUI()
             readApps()
@@ -606,8 +605,8 @@ class NewAppWidget : AppWidgetProvider() {
 
             mMediaPlayer?.let {
                 if (it.isPlaying)
-                    remoteViews?.setImageViewResource(R.id.imgbtn_playpause, android.R.drawable.ic_media_pause)
-                else remoteViews?.setImageViewResource(R.id.imgbtn_playpause, android.R.drawable.ic_media_play)
+                    remoteViews?.setImageViewResource(R.id.imgbtn_playpause, R.drawable.pause_m)
+                else remoteViews?.setImageViewResource(R.id.imgbtn_playpause, R.drawable.play_m)
             }
 
         }
@@ -618,9 +617,9 @@ class NewAppWidget : AppWidgetProvider() {
         liquidGlassEffects()
         seekWifiState()
         seekBluetoothState()
-        getScreenTime(appContx)
+        getScreenTime(widgetContext)
         todaysDate()
-        locationTxUpdate(appContx)
+        locationTxUpdate(widgetContext)
         wallColors()
         //   getWeatherDraws()
         setSomeTwAndWallDescUI()
@@ -628,7 +627,7 @@ class NewAppWidget : AppWidgetProvider() {
 
     /*   private fun googleAccountInfo() {
 
-           val accountManager = AccountManager.get(appContx)
+           val accountManager = AccountManager.get(widgetContext)
 
            // To get all Google accounts
            val googleAccounts = accountManager.getAccountsByType("com.google")
@@ -651,9 +650,9 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.imgv_widget_layout,
                 applyThinFilmOverlay(
                     drawableToBitmap(
-                        appContx, RoundedBitmapDrawableFactory.create(
-                            appContx.resources, BitmapBlurHelper.blurBitmap(
-                                appContx,
+                        widgetContext, RoundedBitmapDrawableFactory.create(
+                            widgetContext.resources, BitmapBlurHelper.blurBitmap(
+                                widgetContext,
                                 Bitmap.createBitmap(
                                     scaledBitmap,
                                     10,
@@ -705,7 +704,7 @@ class NewAppWidget : AppWidgetProvider() {
 
     /*   private fun blurBitmap(originalBitmap: Bitmap) : Bitmap {
 
-           val rs = RenderScript.create(appContx)
+           val rs = RenderScript.create(widgetContext)
 
            val input = Allocation.createFromBitmap(
                rs,
@@ -796,7 +795,7 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun wallColors() {
 
-        val wallpaperManager = WallpaperManager.getInstance(appContx)
+        val wallpaperManager = WallpaperManager.getInstance(widgetContext)
         val wallpaperColors = wallpaperManager.getWallpaperColors(WallpaperManager.FLAG_SYSTEM)
 
 
@@ -850,13 +849,13 @@ class NewAppWidget : AppWidgetProvider() {
 
                 remoteViews?.setTextColor(
                     R.id.clock,
-                    appContx.resources.getColor(android.R.color.holo_red_light)
+                    widgetContext.resources.getColor(android.R.color.holo_red_light)
                 )
 
 
                 remoteViews?.setTextColor(
                     R.id.tx_wish,
-                    appContx.resources.getColor(R.color.white)
+                    widgetContext.resources.getColor(R.color.white)
                 )
 
                 remoteViews?.setTextColor(
@@ -882,12 +881,12 @@ class NewAppWidget : AppWidgetProvider() {
 
                 remoteViews?.setTextColor(
                     R.id.clock,
-                    appContx.resources.getColor(android.R.color.holo_red_dark)
+                    widgetContext.resources.getColor(android.R.color.holo_red_dark)
                 )
 
                 remoteViews?.setTextColor(
                     R.id.tx_wish,
-                    appContx.resources.getColor(R.color.black)
+                    widgetContext.resources.getColor(R.color.black)
                 )
 
 
@@ -965,9 +964,9 @@ class NewAppWidget : AppWidgetProvider() {
                 remoteViews?.setTextViewText(R.id.tx_rewards_count, "\uD83D\uDC41\uFE0FAD!")
                 remoteViews?.setOnClickPendingIntent(
                     R.id.tx_rewards_count, PendingIntent.getActivity(
-                        appContx,
+                        widgetContext,
                         18,
-                        Intent(appContx, DialogActivity::class.java).putExtra("DialogIntent", "AD"),
+                        Intent(widgetContext, DialogActivity::class.java).putExtra("DialogIntent", "AD"),
                         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                     )
                 )
@@ -980,7 +979,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
     private fun setAppsAdapter() {
-        serviceIntentApp = Intent(appContx, RemoteViewsAppsService::class.java)
+        serviceIntentApp = Intent(widgetContext, RemoteViewsAppsService::class.java)
         serviceIntentApp.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, newAppWidget)
         serviceIntentApp.setData(Uri.parse(serviceIntentApp.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
         remoteViews?.setRemoteAdapter(R.id.list_apps, serviceIntentApp)
@@ -988,7 +987,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     private fun setContactsAdapter() {
-        serviceIntentContact = Intent(appContx, RemoteViewsContactsService::class.java)
+        serviceIntentContact = Intent(widgetContext, RemoteViewsContactsService::class.java)
         serviceIntentContact.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, newAppWidget)
         serviceIntentContact.setData(Uri.parse(serviceIntentContact.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
         remoteViews?.setRemoteAdapter(R.id.list_contacts, serviceIntentContact)
@@ -997,10 +996,10 @@ class NewAppWidget : AppWidgetProvider() {
 
     private fun setAppsClick() {
         // Set the PendingIntent template for the list items
-        clickIntentApp = Intent(appContx, NewAppWidget::class.java)
+        clickIntentApp = Intent(widgetContext, NewAppWidget::class.java)
         clickIntentApp.setAction(ACTION_LIST_APPITEM_CLICK)
         clickPendingIntentTemplateApp = PendingIntent.getBroadcast(
-            appContx,
+            widgetContext,
             1,
             clickIntentApp,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE // Use FLAG_MUTABLE for security
@@ -1011,10 +1010,10 @@ class NewAppWidget : AppWidgetProvider() {
 
     private fun setContactsClick() {
         // Set the PendingIntent template for the list items
-        clickIntentContact = Intent(appContx, NewAppWidget::class.java)
+        clickIntentContact = Intent(widgetContext, NewAppWidget::class.java)
         clickIntentContact.setAction(ACTION_LIST_CONTACTITEM_CLICK)
         clickPendingIntentTemplateContact = PendingIntent.getBroadcast(
-            appContx,
+            widgetContext,
             0,
             clickIntentContact,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE // Use FLAG_MUTABLE for security
@@ -1029,18 +1028,18 @@ class NewAppWidget : AppWidgetProvider() {
 
         super.onReceive(context, intent)
 
-        appContx = context
+        widgetContext = context
 
         Log.d(TAG, "!onReceive")
         remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
-        sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
     //    setUI()
         handleIntentActions(intent)
 
-        appWidM = AppWidgetManager.getInstance(appContx)
+        appWidM = AppWidgetManager.getInstance(widgetContext)
         appWidM.updateAppWidget(newAppWidget, remoteViews)
 
     }
@@ -1051,9 +1050,9 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (BATTERY_INFO == intent.action) {
             val powerUsageIntent = Intent("android.intent.action.POWER_USAGE_SUMMARY")
-            if (powerUsageIntent.resolveActivity(appContx.getPackageManager()) != null) {
+            if (powerUsageIntent.resolveActivity(widgetContext.getPackageManager()) != null) {
                 powerUsageIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                appContx.startActivity(powerUsageIntent)
+                widgetContext.startActivity(powerUsageIntent)
             }
         } else if (GET_WEATHER == intent.action) {
             remoteViews?.setViewVisibility(R.id.progressBar_cyclic_weather, View.VISIBLE)
@@ -1068,13 +1067,13 @@ class NewAppWidget : AppWidgetProvider() {
                             mMediaPlayer!!.pause()
                             remoteViews?.setImageViewResource(
                                 R.id.imgbtn_playpause,
-                                android.R.drawable.ic_media_play
+                                R.drawable.play_m
                             )
                         } else {
                             startMusicActivity(songIndex)
                             remoteViews?.setImageViewResource(
                                 R.id.imgbtn_playpause,
-                                android.R.drawable.ic_media_pause
+                                R.drawable.pause_m
                             )
                             mMediaPlayer!!.start()
                         }
@@ -1086,9 +1085,9 @@ class NewAppWidget : AppWidgetProvider() {
             }
 
         } else if (P_THUMBNAIL_CLICK == intent.action) {
-            appContx.startActivity(
+            widgetContext.startActivity(
                 Intent(
-                    appContx,
+                    widgetContext,
                     DialogActivity::class.java
                 ).putExtra("DialogIntent", "SongCover")
                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -1111,7 +1110,7 @@ class NewAppWidget : AppWidgetProvider() {
             if (position != AdapterView.INVALID_POSITION) {
 
                 if (viewID == 0)
-                    dialPhoneNumber(appContx, favContacts[position].number)
+                    dialPhoneNumber(widgetContext, favContacts[position].number)
                 else if (viewID == 1) {
                     unMarkAsFav(favContacts[position].id)
                 }
@@ -1133,20 +1132,20 @@ class NewAppWidget : AppWidgetProvider() {
 
                 if (viewID == 0) {
                     makeToast(choosenApps[position].name)
-                    val launchIntent: Intent = appContx.packageManager.getLaunchIntentForPackage(
+                    val launchIntent: Intent = widgetContext.packageManager.getLaunchIntentForPackage(
                         choosenApps[position].pName
                     )!!
 
                     // Optional: Add flags for desired behavior (e.g., to ensure a new task is created)
                     launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    appContx.startActivity(launchIntent)
+                    widgetContext.startActivity(launchIntent)
                 } else if (viewID == 1)
                     makeToast("Remove App - ${apps[position].name}")
             } else makeToast("INvalid Pos - $position")
         } else if (FAB_SHARE == intent.action) {
 
             val inflater =
-                appContx.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+                widgetContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             val appWidgetView: View = inflater.inflate(R.layout.new_app_widget, null)
 
             makeToast("Yet2IMPL")
@@ -1185,15 +1184,15 @@ class NewAppWidget : AppWidgetProvider() {
         } else if (WIFI_AUTO == intent.action) {
             var wifiIntent = Intent(Settings.ACTION_WIFI_SETTINGS)
             wifiIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            appContx.startActivity(wifiIntent)
+            widgetContext.startActivity(wifiIntent)
         } else if (TORCH_STATE == intent.action) {
 
             val isFlashAvailable =
-                appContx.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)
+                widgetContext.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)
             if (!isFlashAvailable) {
                 //  return
             }
-            val cameraManager = appContx.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+            val cameraManager = widgetContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
             var cameraId: String? = null
             try {
                 cameraId = cameraManager.cameraIdList[0] // Typically the back camera
@@ -1225,12 +1224,12 @@ class NewAppWidget : AppWidgetProvider() {
             sharedPreferencesEditor.putBoolean("newLap", boolNewLap).apply()
 
         } else if (LOCK_PHONE == intent.action) {
-            if (appContx != null) {
-                if (isAccessibilityServiceEnabled(appContx, LockAccessibilityService::class.java))
-                    LockAccessibilityService.lockScreenAccessibility(appContx)
-                else appContx.startActivity(
+            if (widgetContext != null) {
+                if (isAccessibilityServiceEnabled(widgetContext, LockAccessibilityService::class.java))
+                    LockAccessibilityService.lockScreenAccessibility(widgetContext)
+                else widgetContext.startActivity(
                     Intent(
-                        appContx,
+                        widgetContext,
                         DialogActivity::class.java
                     ).putExtra("DialogIntent", "AccessibilityPermDialog")
                         .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -1239,16 +1238,16 @@ class NewAppWidget : AppWidgetProvider() {
 
         } else if (SET_CLICKED == intent.action) {
             val launchIntent: Intent =
-                appContx.packageManager.getLaunchIntentForPackage("com.belaku.homey")!!
-            appContx.startActivity(launchIntent)
+                widgetContext.packageManager.getLaunchIntentForPackage("com.belaku.homey")!!
+            widgetContext.startActivity(launchIntent)
         } else if (A_CLICKED == intent.action) {
-            val intentApps = Intent(appContx, AppsActivity::class.java)
+            val intentApps = Intent(widgetContext, AppsActivity::class.java)
             intentApps.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            appContx.startActivity(intentApps)
+            widgetContext.startActivity(intentApps)
         } else if (C_CLICKED == intent.action) {
             val intentContacts = Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI)
             intentContacts.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            appContx.startActivity(intentContacts)
+            widgetContext.startActivity(intentContacts)
         } else if (TIME_CLICKED == intent.action) {
 
             if (sharedPreferences.getBoolean("AnalogV", true)) {
@@ -1266,27 +1265,27 @@ class NewAppWidget : AppWidgetProvider() {
         } else if (DIAL_CLICK == intent.action) {
             val intentDial = Intent(Intent.ACTION_DIAL)
             intentDial.data = Uri.parse("tel:") // Replace with the desired number
-            appContx.startActivity(intentDial.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            widgetContext.startActivity(intentDial.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 
         } else if (PS_CLICK == intent.action) {
-            val pm: PackageManager = appContx.getPackageManager()
+            val pm: PackageManager = widgetContext.getPackageManager()
             val intent = pm.getLaunchIntentForPackage("com.android.vending")
             intent?.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            appContx.startActivity(intent);
+            widgetContext.startActivity(intent);
 
         } else if (Time_A_CLICKED == intent.action) {
 
             var boolSpkService = sharedPreferences.getBoolean("SPKSERVICE", false)
             //    makeToast("TIME_A_CLICKED, spkServiceState : $boolSpkService")
-            val speakIntent = Intent(appContx, SpeakService::class.java)
+            val speakIntent = Intent(widgetContext, SpeakService::class.java)
             if (!boolSpkService) {
-                appContx.startService(speakIntent)
+                widgetContext.startService(speakIntent)
                 remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
                 //   makeToast("strtingSPKservice")
                 sharedPreferencesEditor.putBoolean("SPKSERVICE", true).apply()
             } else {
-                appContx.stopService(speakIntent)
+                widgetContext.stopService(speakIntent)
                 remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
                 //    makeToast("stopingSPKservice")
                 sharedPreferencesEditor.putBoolean("SPKSERVICE", false).apply()
@@ -1296,10 +1295,10 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     private fun startMusicActivity(songIndex: Int) {
-        var intentMusic = Intent(appContx, MusicActivity::class.java)
+        var intentMusic = Intent(widgetContext, MusicActivity::class.java)
         intentMusic.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intentMusic.putExtra("songIndex", songIndex)
-        appContx.startActivity(intentMusic)
+        widgetContext.startActivity(intentMusic)
     }
 
 
@@ -1309,7 +1308,7 @@ class NewAppWidget : AppWidgetProvider() {
         val values = ContentValues()
         values.put(ContactsContract.Contacts.STARRED, 0) // 1 for favorite, 0 for not favorite
 
-        appContx.contentResolver.update(
+        widgetContext.contentResolver.update(
             ContactsContract.Contacts.CONTENT_URI,
             values,
             ContactsContract.Contacts._ID + " = ?",
@@ -1338,7 +1337,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         val selection = ContactsContract.Contacts.STARRED + "='1'"
 
-        val cursor = appContx.contentResolver.query(
+        val cursor = widgetContext.contentResolver.query(
             queryUri, projection, selection, null, null
         )
 
@@ -1348,7 +1347,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             if (Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
 
-                val phones: Cursor? = appContx.getContentResolver().query(
+                val phones: Cursor? = widgetContext.getContentResolver().query(
                     ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                     null,
                     ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactID,
@@ -1364,7 +1363,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             var contactBitmap: Bitmap?
 
-            contactBitmap = ContactPhotoHelper.retrieveContactPhoto(appContx, contactID.toLong())
+            contactBitmap = ContactPhotoHelper.retrieveContactPhoto(widgetContext, contactID.toLong())
             val cNme = cursor.getString(
                 cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
             )
@@ -1412,21 +1411,21 @@ class NewAppWidget : AppWidgetProvider() {
                 "setProgressTintList",
                 greenColor
             )
-            remoteViews?.setTextColor(R.id.tx_battery, appContx.resources.getColor(android.R.color.holo_green_dark))
+            remoteViews?.setTextColor(R.id.tx_battery, widgetContext.resources.getColor(android.R.color.holo_green_dark))
         } else if (energy.toInt() < 30) {
             remoteViews?.setColorStateList(
                 R.id.progressBar_battery,
                 "setProgressTintList",
                 redColor
             )
-            remoteViews?.setTextColor(R.id.tx_battery, appContx.resources.getColor(android.R.color.holo_red_dark))
+            remoteViews?.setTextColor(R.id.tx_battery, widgetContext.resources.getColor(android.R.color.holo_red_dark))
         } else {
             remoteViews?.setColorStateList(
                 R.id.progressBar_battery,
                 "setProgressTintList",
                 amberColor
             )
-            remoteViews?.setTextColor(R.id.tx_battery, appContx.resources.getColor(android.R.color.holo_orange_dark))
+            remoteViews?.setTextColor(R.id.tx_battery, widgetContext.resources.getColor(android.R.color.holo_orange_dark))
         }
 
 
@@ -1463,9 +1462,9 @@ class NewAppWidget : AppWidgetProvider() {
         appWidgetView.findViewById<ImageView>(R.id.imgv_widget_layout).setImageBitmap(
             applyThinFilmOverlay(
                 drawableToBitmap(
-                    appContx, RoundedBitmapDrawableFactory.create(
-                        appContx.resources, BitmapBlurHelper.blurBitmap(
-                            appContx,
+                    widgetContext, RoundedBitmapDrawableFactory.create(
+                        widgetContext.resources, BitmapBlurHelper.blurBitmap(
+                            widgetContext,
                             Bitmap.createBitmap(
                                 scaledBitmap,
                                 10,
@@ -1554,7 +1553,7 @@ class NewAppWidget : AppWidgetProvider() {
 
     private fun shareBitmap(bitmapWidget: Bitmap) {
 
-        val cachePath: File = File(appContx.getCacheDir(), "images")
+        val cachePath: File = File(widgetContext.getCacheDir(), "images")
         cachePath.mkdirs() // Create the directory if it doesn't exist
         val imageFile: File = File(cachePath, "image_to_share.png")
 
@@ -1573,8 +1572,8 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
         val contentUri = FileProvider.getUriForFile(
-            appContx,
-            appContx.getApplicationContext().getPackageName() + ".fileprovider",
+            widgetContext,
+            widgetContext.getApplicationContext().getPackageName() + ".fileprovider",
             imageFile
         )
 
@@ -1583,7 +1582,7 @@ class NewAppWidget : AppWidgetProvider() {
         shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri)
         shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) // Grant temporary read permission
 
-        appContx.startActivity(
+        widgetContext.startActivity(
             Intent.createChooser(shareIntent, "Share Image Using")
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         )
@@ -1599,7 +1598,7 @@ class NewAppWidget : AppWidgetProvider() {
 
     private fun shareWidget(context: Context, bitmap: Bitmap) {
         val bitmapPath = MediaStore.Images.Media.insertImage(
-            appContx.getContentResolver(), bitmap, "title", ""
+            widgetContext.getContentResolver(), bitmap, "title", ""
         )
         val uri = Uri.parse(bitmapPath)
         val shareIntent = Intent(Intent.ACTION_SEND)
@@ -1695,6 +1694,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     companion object {
+        lateinit var widgetContext: Context
         lateinit var i_appWidgetIds: IntArray
         lateinit var gpBitmap: Bitmap
         var totalScreenTimeInHours: Long = 0
@@ -1806,7 +1806,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             timelyWish = timeOfDay
 
-            val c: Cursor? = appContx.contentResolver
+            val c: Cursor? = widgetContext.contentResolver
                 .query(ContactsContract.Profile.CONTENT_URI, null, null, null, null)
             c?.moveToFirst()
 
@@ -1837,7 +1837,7 @@ class NewAppWidget : AppWidgetProvider() {
         fun getScreenTime(applicationContext: Context) {
 
             if (sharedPreferences == null)
-                sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+                sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
             if (sharedPreferencesEditor == null)
                 sharedPreferencesEditor = sharedPreferences.edit()
 

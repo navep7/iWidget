@@ -5,13 +5,9 @@ import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.Dialog
 import android.app.ProgressDialog
-import android.app.WallpaperManager
-import android.app.job.JobInfo
-import android.app.job.JobScheduler
 import android.app.usage.UsageStats
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
@@ -33,8 +29,6 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Typeface
 import android.icu.util.Calendar
-import android.location.Geocoder
-import android.location.Location
 import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.Uri
@@ -63,14 +57,12 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
 import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.LinearLayout.LayoutParams
 import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
 import android.widget.TextView.OnEditorActionListener
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -92,7 +84,6 @@ import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.belaku.homey.MusicService.Companion.appContx
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
@@ -108,15 +99,9 @@ import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.belaku.homey.databinding.ActivityMainBinding
-import com.bumptech.glide.Glide
 import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -126,22 +111,13 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import java.io.IOException
 import java.net.URL
 import java.util.Collections
-import java.util.Locale
 import java.util.concurrent.TimeUnit
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -152,6 +128,7 @@ import kotlin.random.Random
 class MainActivity : AppCompatActivity() {
 
 
+    private lateinit var mainActivityContext: Context
     val permissions = arrayOf(
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.READ_CONTACTS,
@@ -232,7 +209,7 @@ class MainActivity : AppCompatActivity() {
         mainWindow = this.window
 
         mAct = this@MainActivity
-        appContx = applicationContext
+        mainActivityContext = applicationContext
 
         sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
@@ -429,7 +406,7 @@ class MainActivity : AppCompatActivity() {
 
         BluetoothState()
         val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-        appContx.registerReceiver(mBluetoothReceiver, filter)
+        mainActivityContext.registerReceiver(mBluetoothReceiver, filter)
 
 
     }
@@ -541,8 +518,8 @@ class MainActivity : AppCompatActivity() {
 
         val radiusInPixels = resources.displayMetrics.density * 8 // Convert 8dp to pixels
         cardP.radius = radiusInPixels
-        val marginInPxX: Int = dpToPx(8, appContx) // Example: 16dp margin
-        val marginInPxY: Int = dpToPx(16, appContx)
+        val marginInPxX: Int = dpToPx(8, mainActivityContext) // Example: 16dp margin
+        val marginInPxY: Int = dpToPx(16, mainActivityContext)
         layoutParamsCard.setMargins(marginInPxX, marginInPxY, marginInPxX, marginInPxY)
         cardP.layoutParams = layoutParamsCard
 
@@ -673,7 +650,7 @@ class MainActivity : AppCompatActivity() {
         alertDialog.setButton(
             AlertDialog.BUTTON_NEUTRAL, "OK"
         ) { dialog, which ->
-            UsageStatsChecker().requestUsageStatsPermission(appContx)
+            UsageStatsChecker().requestUsageStatsPermission(mainActivityContext)
             dialog.dismiss()
         }
 
@@ -1324,7 +1301,7 @@ class MainActivity : AppCompatActivity() {
             val color = Color.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
             var contactBitmap: Bitmap?
 
-            contactBitmap = ContactPhotoHelper.retrieveContactPhoto(appContx, contactID.toLong())
+            contactBitmap = ContactPhotoHelper.retrieveContactPhoto(mainActivityContext, contactID.toLong())
 
             if (contactBitmap == null)
                 contactBitmap = CharacterToBitmapConverter.getBitmapFromCharacter(
@@ -1673,7 +1650,7 @@ class MainActivity : AppCompatActivity() {
                 buttonAll.setOnClickListener {
                     if (!nPermissions()) {
                         rawTweets(false)
-                        getFavoriteContacts(appContx)
+                        getFavoriteContacts(mainActivityContext)
                         iDV.dismiss()
                     } else ActivityCompat.requestPermissions(this, permissions, ALL_PERMISSIONS_REQUEST_CODE);
                 }
@@ -1698,7 +1675,7 @@ class MainActivity : AppCompatActivity() {
 
                 val action = intent.action
                 makeSnack("onReceive BLT - " + action)
-                appWidM = AppWidgetManager.getInstance(appContx)
+                appWidM = AppWidgetManager.getInstance(mainActivityContext)
 
 
                 if (BluetoothAdapter.ACTION_STATE_CHANGED == action) {
@@ -1725,7 +1702,7 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun startStepsService() {
-        if (!isMyServiceRunning(StepsService::class.java)) {
+        if (!isMyServiceRunning(applicationContext, StepsService::class.java)) {
             val intentSteps = Intent(this, StepsService::class.java)
             startForegroundService(intentSteps)
         }
@@ -1829,7 +1806,7 @@ class MainActivity : AppCompatActivity() {
             buttonAll.setOnClickListener {
                 if (!nPermissions()) {
                     rawTweets(false)
-                    getFavoriteContacts(appContx)
+                    getFavoriteContacts(mainActivityContext)
                     iDV.dismiss()
                 } else ActivityCompat.requestPermissions(this, permissions, ALL_PERMISSIONS_REQUEST_CODE);
             }
@@ -1944,7 +1921,7 @@ class MainActivity : AppCompatActivity() {
 
 
         fun makeToast(s: String) {
-        //    Toast.makeText(appContx, s, Toast.LENGTH_SHORT).show()
+        //    Toast.makeText(mainActivityContext, s, Toast.LENGTH_SHORT).show()
             Log.d("makeToastinG", s)
         }
 
@@ -1955,52 +1932,6 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        fun showSelected(adapterPosition: Int) {
-
-            var url = imgUrls[adapterPosition]
-            url = url.split("+ ")[1]
-
-            val dialog = Dialog(mAct)
-            dialog.setContentView(R.layout.imgv_dialog_layout)
-            dialog.setTitle("Title...")
-
-            var image: ImageView = dialog.findViewById(R.id.imgv_dialog)
-            var txt: TextView = dialog.findViewById(R.id.tx_dialog)
-            var set: Button = dialog.findViewById(R.id.btn_set_dialog)
-
-            set.setOnClickListener(View.OnClickListener {
-                Thread {
-                    val inputStream = URL(url).openStream()
-                    WallpaperManager.getInstance(appContx).setStream(inputStream)
-                }.start()
-                Handler(Looper.getMainLooper()).postDelayed(Runnable { makeToast("Set!") }, 1000)
-
-            })
-
-            txt.text = imgDescs[adapterPosition].substring(4, imgDescs[adapterPosition].length)
-
-
-            Glide.with(appContx)
-                .load(url)
-                .into(image)
-
-            dialog.show()
-        }
-
-
-
-
-        fun updateWidget() {
-            val intent = Intent(
-                appContx,
-                NewAppWidget::class.java
-            )
-            intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
-            val ids: IntArray = AppWidgetManager.getInstance(appContx)
-                .getAppWidgetIds(ComponentName(appContx, NewAppWidget::class.java))
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
-            appContx.sendBroadcast(intent)
-        }
 
 
         fun isLocationEnabled(context: Context): Boolean {
@@ -2018,33 +1949,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        fun AccessibilityServicePermissionDialog() {
-
-            val builder = AlertDialog.Builder(mAct)
-            builder.setTitle("Requisition for Accessibility Service permission")
-            builder.setMessage(
-                "Please Enable Accessibility Service to smoothly lock Phone screen from Widget shortcut."
-            )
-
-            builder.setPositiveButton("OK") { dialog, id ->
-                // User clicked OK button
-                dialog.dismiss() // Dismiss the dialog
-                val openSettings = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                openSettings.addFlags(FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
-                appContx.startActivity(openSettings)
-            }
-
-            builder.setPositiveButton("OK") { dialog, id ->
-                // User clicked OK button
-                dialog.dismiss() // Dismiss the dialog
-                makeToast("Lock Screen cannot work without access to Accessibility Service!")
-            }
-
-
-            // Create the AlertDialog object and show it
-            val dialog = builder.create()
-            dialog.show()
-        }
 
 
     }

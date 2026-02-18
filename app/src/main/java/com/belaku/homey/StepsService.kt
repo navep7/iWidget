@@ -22,7 +22,6 @@ import android.net.NetworkInfo
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.IBinder
-import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -38,7 +37,6 @@ import com.belaku.homey.MainActivity.Companion.weatherData
 import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.MainActivity.Companion.weatherIconState
 import com.belaku.homey.MainActivity.Companion.weatherIconUrl
-import com.belaku.homey.MusicService.Companion.appContx
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
@@ -110,12 +108,12 @@ class StepsService : Service() {
             startForeground(1, notification)
         }
 
-        appContx = applicationContext
+        sContext = this
 
         BluetoothState()
         WifiState()
 
-        sensorManager = appContx.getSystemService(SENSOR_SERVICE) as SensorManager
+        sensorManager = sContext.getSystemService(SENSOR_SERVICE) as SensorManager
         stepCounterSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)!!
 
         mSensorEventListener = object : SensorEventListener {
@@ -186,7 +184,7 @@ class StepsService : Service() {
                     updateWidget()
                 } else if (action == ConnectivityManager.CONNECTIVITY_ACTION) {
                     val cm =
-                        appContx.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+                        sContext.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
                     val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
                     val isConnected = activeNetwork?.isConnectedOrConnecting == true
 
@@ -217,7 +215,7 @@ class StepsService : Service() {
 
     private fun BluetoothState() {
 
-        sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        sharedPreferences = sContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
 
@@ -267,7 +265,7 @@ class StepsService : Service() {
                 }
             }
 
-            appContx.registerReceiver(
+            sContext.registerReceiver(
                 mBluetoothReceiver,
                 IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
             )
@@ -310,6 +308,7 @@ class StepsService : Service() {
 
     companion object {
 
+        private lateinit var sContext: StepsService
         lateinit var mLocationResult: LocationResult
         val locationCallback: LocationCallback = object : LocationCallback(), GoogleMap.OnMarkerClickListener {
             override fun onLocationResult(locationResult: LocationResult) {
@@ -397,7 +396,7 @@ class StepsService : Service() {
         }
 
         fun getAddress(lat: Double, lng: Double) {
-            val gcd = Geocoder(appContx)
+            val gcd = Geocoder(sContext)
             Locale.getDefault()
             try {
                 var cAddrs = gcd.getFromLocation(lat, lng, 1)!!
@@ -418,8 +417,8 @@ class StepsService : Service() {
 
         }
 
-        fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
-            val manager = appContx.getSystemService(ACTIVITY_SERVICE) as ActivityManager
+        fun isMyServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
+            val manager = context.getSystemService(ACTIVITY_SERVICE) as ActivityManager
             for (service in manager.getRunningServices(Int.MAX_VALUE)) {
                 if (serviceClass.name == service.service.className) {
                     return true

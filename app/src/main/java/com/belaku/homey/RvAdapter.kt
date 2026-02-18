@@ -62,8 +62,8 @@ class RvAdapter internal constructor(
         }
 
         override fun onClick(view: View) {
-            if (mClickListener != null) mClickListener!!.onItemClick(view, adapterPosition)
-            MainActivity.showSelected(adapterPosition)
+           /* if (mClickListener != null) mClickListener!!.onItemClick(view, adapterPosition)
+            MainActivity.showSelected(adapterPosition)*/
         }
     }
 

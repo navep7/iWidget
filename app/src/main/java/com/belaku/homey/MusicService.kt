@@ -36,17 +36,18 @@ import okio.IOException
 
 class MusicService : Service() {
 
+    private lateinit var audioManager: AudioManager
     private lateinit var handlerVolume: Handler
     private lateinit var runnableVolume: Runnable
     private lateinit var serviceNotification: Notification
     private lateinit var sendIntent: Intent
-    private lateinit var scontext: MusicService
 
 
     companion object {
 
-        @SuppressLint("StaticFieldLeak")
-        lateinit var appContx: Context
+        private lateinit var sContext: MusicService
+
+
         var boolMusicServiceRunning: Boolean = false
 
         //  var songsUrlList: ArrayList<String> = ArrayList()
@@ -65,13 +66,13 @@ class MusicService : Service() {
 
 
             sharedPreferencesEditor.putInt("SIn", sIndex).apply()
-            appWidM = AppWidgetManager.getInstance(appContx)
+            appWidM = AppWidgetManager.getInstance(sContext)
             remoteViews =
-                RemoteViews(appContx.packageName, com.belaku.homey.R.layout.new_app_widget)
-            newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
+                RemoteViews(sContext.packageName, com.belaku.homey.R.layout.new_app_widget)
+            newAppWidget = ComponentName(sContext, NewAppWidget::class.java)
             remoteViews?.setImageViewResource(
                 R.id.imgbtn_playpause,
-                android.R.drawable.ic_media_pause
+                R.drawable.pause_m
             )
             remoteViews?.setTextViewText(
                 com.belaku.homey.R.id.tx_music_details,
@@ -87,18 +88,18 @@ class MusicService : Service() {
             appWidM.updateAppWidget(newAppWidget, remoteViews)
             //   serviceNotify(MainActivity.dataList[sIndex].title)
             val intent = Intent(
-                appContx,
+                sContext,
                 MainActivity::class.java
             )
             val pendingIntent = PendingIntent.getActivity(
-                appContx, 0, intent,
+                sContext, 0, intent,
                 PendingIntent.FLAG_IMMUTABLE
             )
 
 
             val channelId = "some_channel_id"
             val notificationBuilder: NotificationCompat.Builder =
-                NotificationCompat.Builder(appContx, channelId)
+                NotificationCompat.Builder(sContext, channelId)
                     .setSilent(true)
                     .setSmallIcon(android.R.drawable.ic_media_play) //                        .setContentTitle(getString(R.string.app_name)
                     .setContentTitle(MusicActivity.pDatalistSongs[sIndex].title)
@@ -109,7 +110,7 @@ class MusicService : Service() {
                     .setContentIntent(pendingIntent)
 
             val notificationManager =
-                appContx.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+                sContext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
 
             // Since android Oreo notification channel is needed.
@@ -170,12 +171,13 @@ class MusicService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
+        sContext = this;
         sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
         if (intent != null) {
 
-            appWidM = AppWidgetManager.getInstance(appContx)
+            appWidM = AppWidgetManager.getInstance(sContext)
             remoteViews =
                 RemoteViews(
                     applicationContext.packageName,
@@ -184,7 +186,7 @@ class MusicService : Service() {
             newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
 
 
-            scontext = this;
+            audioManager = sContext.getSystemService(AUDIO_SERVICE) as AudioManager
             //    songsUrlList = intent.getStringArrayListExtra("songsUrl")!!
 
 
@@ -264,7 +266,6 @@ class MusicService : Service() {
     }
 
 
-    val audioManager = appContx.getSystemService(AUDIO_SERVICE) as AudioManager
     private fun trackSeek() {
 
         //  makeToast("!trackSeek")

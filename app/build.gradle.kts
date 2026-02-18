@@ -15,8 +15,8 @@ android {
         applicationId = "com.belaku.homey"
         minSdk = 28
         targetSdk = 35
-        versionCode = 124
-        versionName = "124.0"
+        versionCode = 125
+        versionName = "125.0"
 
         renderscriptTargetApi = 18
         renderscriptSupportModeEnabled = true

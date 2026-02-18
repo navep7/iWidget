@@ -25,7 +25,6 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.belaku.homey.MusicService.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
@@ -37,6 +36,7 @@ import kotlin.properties.Delegates
 class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
 
+    private lateinit var mySpaceActivityContext: Context
     var addType = "App"
     private var appsShown: ArrayList<InstalledApp> = ArrayList()
     private var boolSelectOrLaunch by Delegates.notNull<Boolean>()
@@ -58,7 +58,7 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
         setContentView(binding.root)
 
-        appContx = applicationContext
+        mySpaceActivityContext = applicationContext
         makeToast("MySpace - apps, contacts, web links, etc .., of my Own!")
 
         val rootLayout = findViewById<RelativeLayout>(R.id.my_space_layout)
@@ -232,7 +232,7 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
     @SuppressLint("NotifyDataSetChanged")
     override fun onItemClick(pos: Int) {
 
-        appContx = applicationContext
+        mySpaceActivityContext = applicationContext
 
 
         if (boolSelectOrLaunch) {
