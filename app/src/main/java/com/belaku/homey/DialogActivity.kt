@@ -3,6 +3,7 @@ package com.belaku.homey
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.ProgressDialog
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
@@ -22,10 +23,13 @@ import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.ContactsContract
 import android.provider.Settings
 import android.speech.RecognizerIntent
 import android.text.method.ScrollingMovementMethod
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
@@ -35,12 +39,14 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.belaku.homey.MainActivity.Companion.beginCal
@@ -49,15 +55,17 @@ import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.parentLayout
 import com.belaku.homey.MainActivity.Companion.pickContactLauncher
 import com.belaku.homey.MainActivity.Companion.sN
-import com.belaku.homey.MainActivity.Companion.twitterProfileName
+import com.belaku.homey.StepsService.Companion.twitterProfileName
 import com.belaku.homey.MusicActivity.Companion.dataListSongs
 import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
+import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.getScreenTime
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
@@ -95,7 +103,13 @@ import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 import java.io.IOException
 import java.net.URL
 import java.util.Calendar
@@ -107,6 +121,7 @@ import kotlin.random.Random
 
 class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    private var boolFetchingTweets: Boolean = false
     private lateinit var dialogActContext: Context
     private lateinit var parentLayoutDialog: View
     private val barcodeLauncher =
@@ -235,7 +250,8 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         if (dialogIntentStr != null) {
 
             if (dialogIntentStr == "SongCover") {
-                makeToast("yet2Impl")
+                //     makeToast("yet2Impl")
+                llDialog.setBackgroundColor(android.R.color.transparent)
                 edtxDialog.visibility = View.GONE
                 btnOk.visibility = View.GONE
                 btnCancel.visibility = View.GONE
@@ -261,7 +277,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 sharedPreferencesEditor.putInt("noRewards", noRewards).apply()
 
                 if (noRewards > 0) {
-                 //   makeSnack("Changing Wall, please wait...")
+                    //   makeSnack("Changing Wall, please wait...")
                     dialogActContext = applicationContext
                     Thread {
                         SetWallWorker.setWall(true, dialogActContext)
@@ -322,33 +338,90 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
             } else if (dialogIntentStr == "ST") {
 
                 parentLayout = findViewById(android.R.id.content);
-                Snackbar.make(parentLayout, "Showing Tweets from @Fact.", Snackbar.LENGTH_SHORT)
+                Snackbar.make(
+                    parentLayout,
+                    "Showing Tweets from $twitterProfileName",
+                    Snackbar.LENGTH_SHORT
+                )
                     .setAction("Customize") { view ->
                         // Code to undo the user's last action
                         // For example, showing another snackbar:
-                        Snackbar.make(parentLayout, "Paid Feature, coming soon!", Snackbar.LENGTH_SHORT).show()
+                        Snackbar.make(
+                            parentLayout,
+                            "Paid Feature, coming soon!",
+                            Snackbar.LENGTH_SHORT
+                        ).show()
+                        txTitle.setText("Twitter")
+                        txContent.visibility = View.INVISIBLE
+                        edtxDialog.visibility = View.VISIBLE
+                        vpSteps.visibility = View.GONE
+                        imgbtnShare.visibility = View.GONE
+                        btnOk.visibility = View.VISIBLE
+                        btnOk.setText("Set")
+                        btnOk.setOnClickListener(View.OnClickListener {
+                            boolFetchingTweets = true
+                            if (edtxDialog.text.toString().equals("Fact")) {
+                                twitterProfileName = "Fact"
+                                listTweets.clear()
+                                rawTweets(false)
+                            } else {
+                                getTweetID(edtxDialog.text.toString())
+                            }
+                            //   llDialog.visibility = View.GONE
+                        })
+
                     }
-                    .setActionTextColor(resources.getColor(android.R.color.holo_red_dark, theme)) // Optional: set custom color
+                    .setActionTextColor(
+                        resources.getColor(
+                            android.R.color.holo_red_dark,
+                            theme
+                        )
+                    ) // Optional: set custom color
                     .show()
 
 
-                tW = listTweets[Random.nextInt(0, listTweets.size)]
-                edtxDialog.visibility = View.GONE
-                btnOk.visibility = View.GONE
-                btnCancel.visibility = View.GONE
-                vpSteps.visibility = View.GONE
-                txTitle.setText(twitterProfileName)
-                txContent.setText(tW)
-                imgbtnShare.setOnClickListener(View.OnClickListener {
-                    startActivity(
-                        Intent.createChooser(
-                            Intent(Intent.ACTION_SEND).setType("text/plain")
-                                .putExtra(Intent.EXTRA_TEXT, tW)
-                                .putExtra(Intent.EXTRA_SUBJECT, "Sharing via nHome!"),
-                            "Share via..."
+
+                if (boolFetchingTweets) {
+                    Handler(Looper.getMainLooper()).postDelayed( {
+                        tW = listTweets[Random.nextInt(0, listTweets.size)]
+                        edtxDialog.visibility = View.GONE
+                        btnOk.visibility = View.GONE
+                        btnCancel.visibility = View.GONE
+                        vpSteps.visibility = View.GONE
+                        txContent.visibility = View.VISIBLE
+                        imgbtnShare.visibility = View.VISIBLE
+                        txTitle.setText(twitterProfileName)
+                        txContent.setText(tW)
+                        imgbtnShare.setOnClickListener(View.OnClickListener {
+                            startActivity(
+                                Intent.createChooser(
+                                    Intent(Intent.ACTION_SEND).setType("text/plain")
+                                        .putExtra(Intent.EXTRA_TEXT, tW)
+                                        .putExtra(Intent.EXTRA_SUBJECT, "Sharing via nHome!"),
+                                    "Share via..."
+                                )
+                            )
+                        })
+                    }, 3000)
+                } else {
+                    tW = listTweets[Random.nextInt(0, listTweets.size)]
+                    edtxDialog.visibility = View.GONE
+                    btnOk.visibility = View.GONE
+                    btnCancel.visibility = View.GONE
+                    vpSteps.visibility = View.GONE
+                    txTitle.setText(twitterProfileName)
+                    txContent.setText(tW)
+                    imgbtnShare.setOnClickListener(View.OnClickListener {
+                        startActivity(
+                            Intent.createChooser(
+                                Intent(Intent.ACTION_SEND).setType("text/plain")
+                                    .putExtra(Intent.EXTRA_TEXT, tW)
+                                    .putExtra(Intent.EXTRA_SUBJECT, "Sharing via nHome!"),
+                                "Share via..."
+                            )
                         )
-                    )
-                })
+                    })
+                }
 
             } else if (dialogIntentStr == "STH") {
                 llDialog.visibility = View.GONE
@@ -509,7 +582,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 for (i in muApps) txAppName.append(i)
                 for (i in myAppUsages) txAppUsageTime.append(i)
 
-             //   txAppName.append("\n\n\n ${sumTimeArray(myAppUsages)}")
+                //   txAppName.append("\n\n\n ${sumTimeArray(myAppUsages)}")
                 muApps.clear()
                 myAppUsages.clear()
 
@@ -622,8 +695,8 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 )
 
 
-                    appWidM = AppWidgetManager.getInstance(dialogActContext)
-                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                appWidM = AppWidgetManager.getInstance(dialogActContext)
+                appWidM.updateAppWidget(newAppWidget, remoteViews)
 
             } else if (dialogIntentStr == "liveWall") {
                 makeToast("LIVEWALL!")
@@ -707,22 +780,22 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-  /*  private fun pythonTimpl() {
+    /*  private fun pythonTimpl() {
 
-        // 1. Initialize Python (if not already done in Application)
-        if (!Python.isStarted()) {
-            Python.start(AndroidPlatform(this))
-        }
+          // 1. Initialize Python (if not already done in Application)
+          if (!Python.isStarted()) {
+              Python.start(AndroidPlatform(this))
+          }
 
-        // 2. Get the Python instance
-        val py = Python.getInstance()
+          // 2. Get the Python instance
+          val py = Python.getInstance()
 
-        // 3. Get the module (script.py)
-        val module = py.getModule("python")
+          // 3. Get the module (script.py)
+          val module = py.getModule("python")
 
-        makeToast("Py ~ ${module.callAttr("wrapped_function", "KotlinUser")}")
+          makeToast("Py ~ ${module.callAttr("wrapped_function", "KotlinUser")}")
 
-    }*/
+      }*/
 
 
     private fun sumTimeArray(myAppUsages: ArrayList<String>): String {
@@ -1005,7 +1078,8 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 Color.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
             var contactBitmap: Bitmap?
 
-            contactBitmap = ContactPhotoHelper.retrieveContactPhoto(dialogActContext, contactID.toLong())
+            contactBitmap =
+                ContactPhotoHelper.retrieveContactPhoto(dialogActContext, contactID.toLong())
             val cNme = cursor.getString(
                 cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
             )
@@ -1093,7 +1167,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-   /* private fun getTweetID(str: String, b: Boolean) {
+    private fun getTweetID(str: String) {
 
         val client = OkHttpClient()
 
@@ -1102,16 +1176,14 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 .addHeader("x-rapidapi-key", "8521aa6a65mshab927b74fff566dp175607jsn24cd6edd63a7")
                 .addHeader("x-rapidapi-host", "twitter241.p.rapidapi.com").build()
 
+        pD = ProgressDialog(this@DialogActivity)
 
-        pD.setTitle("Twitter")
-        pD.setMessage("fetching user ID...")
-        if (b) pD.show()
         lifecycleScope.launch(Dispatchers.IO) {
             var responseTweetID = client.newCall(request).execute()
 
             withContext(Dispatchers.Main) {
                 // Handle the result and hide the loading indicator
-                if (b) pD.dismiss()
+
                 val responseBodyString = responseTweetID.peekBody(Long.MAX_VALUE).string()
 
 
@@ -1133,7 +1205,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     twitterProfileName = jsonObject.getJSONObject("result").getJSONObject("data")
                         .getJSONObject("user").getJSONObject("result").getJSONObject("core")
                         .getString("screen_name")
-                    Log.d("TwitterPicUrl - ", twitterPicUrl)
+                    //  Log.d("TwitterPicUrl - ", twitterPicUrl)
 
                     remoteViews =
                         RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
@@ -1142,22 +1214,47 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
                     updateWidget()
 
-                    if (b) pD.dismiss()
 
                     getTweets(twitterID, false)
+                    twitterProfileName = edtxDialog.text.toString()
+
+                    pD.setTitle("Twitter")
+                    pD.setMessage("fetching Tweets...")
+                    pD.show()
+                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                        pD.dismiss()
+                    }, 3000)
                 } else {
-                    if (b) pD.dismiss()
+
                     makeSnack("Twitter User doesn't Exist!")
+                    pD.setTitle("Twitter")
+                    pD.setMessage("Twitter User doesn't Exist!")
+                    pD.show()
+                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                        pD.dismiss()
+                    }, 3000)
 
                 }
                 else {
-                    if (b) pD.dismiss()
+
                     makeSnack("Twitter User doesn't Exist!")
+                    pD.setTitle("Twitter")
+                    pD.setMessage("Twitter User doesn't Exist!")
+                    pD.show()
+                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                        pD.dismiss()
+                    }, 3000)
 
                 }
                 else {
-                    if (b) pD.dismiss()
+
                     makeSnack("Twitter User doesn't Exist!")
+                    pD.setTitle("Twitter")
+                    pD.setMessage("Twitter User doesn't Exist!")
+                    pD.show()
+                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                        pD.dismiss()
+                    }, 3000)
 
                 }
                 // Update UI with result
@@ -1230,7 +1327,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
             pD.setTitle("Twitter")
             pD.setMessage("fetching Tweets...")
             pD.show()
-            Handler().postDelayed(Runnable {
+            Handler(Looper.getMainLooper()).postDelayed(Runnable {
                 pD.dismiss()
             }, 1000)
         }
@@ -1278,7 +1375,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
         updateWidget()
 
-    }*/
+    }
 
     suspend fun getBitmapFromUrl(imageUrl: String): Bitmap? {
         return withContext(Dispatchers.IO) { // Switch to the IO dispatcher for network operations

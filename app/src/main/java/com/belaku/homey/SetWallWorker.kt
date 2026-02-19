@@ -41,7 +41,7 @@ import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.queryType
 import com.belaku.homey.MainActivity.Companion.randomWallIndex
 import com.belaku.homey.MainActivity.Companion.rlStatus
-import com.belaku.homey.MainActivity.Companion.twitterProfileName
+import com.belaku.homey.StepsService.Companion.twitterProfileName
 import com.belaku.homey.MainActivity.Companion.txStatus
 import com.belaku.homey.MainActivity.Companion.updateTime
 import com.belaku.homey.MainActivity.Companion.wallDelay

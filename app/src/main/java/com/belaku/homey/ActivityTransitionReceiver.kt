@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
+import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
@@ -29,9 +30,8 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                         "Transition: " + toActivityString(event.activityType) +
                                 " (" + toTransitionType(event.transitionType) + ")" + "   " +
                                 SimpleDateFormat("HH:mm:ss", Locale.US).format(Date())
-                    // notification details
 
-                //    makeToast("!onReceiveAR ${toActivityString(event.activityType)}")
+               //     makeToast("!onReceiveAR ${toActivityString(event.activityType)}")
 
                     appWidM = AppWidgetManager.getInstance(context)
                     remoteViews =

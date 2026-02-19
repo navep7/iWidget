@@ -98,6 +98,7 @@ import com.belaku.homey.SetWallWorker.Companion.mAct
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
+import com.belaku.homey.StepsService.Companion.twitterProfileName
 import com.belaku.homey.databinding.ActivityMainBinding
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.location.LocationRequest
@@ -1859,7 +1860,6 @@ class MainActivity : AppCompatActivity() {
         val mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         var apps: ArrayList<InstalledApp> = ArrayList()
         var wallDelay: Int = 0
-        var twitterProfileName: String = "Fact"
         var listTweets: ArrayList<String> = ArrayList()
         var cDate by Delegates.notNull<Int>()
         var cMonth by Delegates.notNull<Int>()

@@ -308,6 +308,7 @@ class StepsService : Service() {
 
     companion object {
 
+        var twitterProfileName: String = "Fact"
         private lateinit var sContext: StepsService
         lateinit var mLocationResult: LocationResult
         val locationCallback: LocationCallback = object : LocationCallback(), GoogleMap.OnMarkerClickListener {

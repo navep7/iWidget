@@ -472,8 +472,8 @@
 
         <ImageView
             android:id="@+id/imgv_p_album"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_alignBottom="@+id/rl_player"
             android:layout_alignParentEnd="true" />
 
