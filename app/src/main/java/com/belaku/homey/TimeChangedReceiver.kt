@@ -22,7 +22,7 @@ class TimeChangedReceiver : BroadcastReceiver() {
 
             if (currentMin == 0)
             if (isMyServiceRunning( context, SpeakService::class.java))
-                speakOut(currentHour)
+                speakOut(currentHour.toString())
         //    }
 
             // Implement your hour change logic here

@@ -63,6 +63,7 @@ import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
 import android.widget.TextView.OnEditorActionListener
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -70,6 +71,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
@@ -85,16 +87,15 @@ import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.belaku.homey.NewAppWidget.Companion.appWidM
-
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
-import com.belaku.homey.SetWallWorker.Companion.screenHeight
-import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.SetWallWorker.Companion.dayIndex
 import com.belaku.homey.SetWallWorker.Companion.mAct
+import com.belaku.homey.SetWallWorker.Companion.screenHeight
+import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
@@ -153,6 +154,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnCP: Button
     private lateinit var btnAUS: Button
     private lateinit var btnAS: Button
+    private lateinit var btNRO: Button
 
     private lateinit var iDV: AlertDialog
     private lateinit var instructionsDialogView: View
@@ -216,8 +218,6 @@ class MainActivity : AppCompatActivity() {
         sharedPreferencesEditor = sharedPreferences.edit()
 
         launchers()
-
-
 
         timeR()
 
@@ -354,6 +354,11 @@ class MainActivity : AppCompatActivity() {
         addPermissionCards()
 
 
+        if (isNotificationListenerPermissionGranted())
+            btNRO.text = "Granted"
+        else btNRO.text = "Permit"
+
+
         instructionsDialogBuilder.setTitle("nHome Widget Highlights ~ underlined words in the below pic, explain...!")
 
         sharedPreferencesEditor.putString("qT", queryType).apply()
@@ -412,6 +417,23 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+
+
+
+    fun redirectToSettings() {
+        Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).apply {
+            startActivityForResult(this, 1001)
+        }
+    }
+
+    fun isNotificationListenerPermissionGranted(): Boolean {
+        val componentName = ComponentName(applicationContext, NotificationService::class.java)
+        val enabledListeners = Settings.Secure.getString(applicationContext.contentResolver, "enabled_notification_listeners")
+        return enabledListeners?.contains(componentName.flattenToString()) ?: false
+    }
+
+
+
     private fun timeR() {
 
         val intentFilter = IntentFilter().apply {
@@ -451,6 +473,11 @@ class MainActivity : AppCompatActivity() {
             "<b> Notifications </b>- to notify of set Reminders",
             "Permit POST_NOTIFICATIONS Access",
             Manifest.permission.POST_NOTIFICATIONS
+        )
+        addPermissionCard(
+            "<b> Read Notifications </b>- to notify of all incoming notifications",
+            "Permit READ_NOTIFICATIONS Access",
+            "NRO"
         )
         addPermissionCard(
             "<b> Make Phone calls </b>- to quickly dial your \"Favorite Contacts\"",
@@ -534,7 +561,23 @@ class MainActivity : AppCompatActivity() {
 
 
         var requestCode: Int = 25
-        if (rPermission == Manifest.permission.ACCESS_FINE_LOCATION) {
+        if (rPermission == "NRO") {
+
+            btNRO = Button(applicationContext)
+            if (isNotificationListenerPermissionGranted())
+            btNRO.text = "Granted"
+            else btNRO.text = bTx
+            btNRO.setOnClickListener {
+
+                if (!isNotificationListenerPermissionGranted())
+                    redirectToSettings()
+
+
+            }
+            llP.addView(btNRO)
+
+
+        } else if (rPermission == Manifest.permission.ACCESS_FINE_LOCATION) {
             requestCode = LOC_P
             btnL = Button(applicationContext)
             btnL.text = bTx
