@@ -8,14 +8,13 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SpeakService.Companion.speakOut
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 
 
 class NotificationService : NotificationListenerService() {
     private var componentName: ComponentName? = null
-
-
 
 
     override fun onCreate() {
@@ -27,7 +26,7 @@ class NotificationService : NotificationListenerService() {
         super.onStartCommand(intent, flags, startId)
 
         Log.d("NoteServiceLOG", "onStartCommand")
-        if(componentName == null) {
+        if (componentName == null) {
             componentName = ComponentName(this, this::class.java)
         }
 
@@ -70,6 +69,11 @@ class NotificationService : NotificationListenerService() {
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
+
+        /*if (!isMyServiceRunning( applicationContext, SpeakService::class.java) )
+            startService(Intent(applicationContext, SpeakService::class.java))*/
+
+
         val packageName = sbn?.packageName ?: ""
         val extras = sbn?.notification?.extras
 
@@ -85,15 +89,10 @@ class NotificationService : NotificationListenerService() {
             appName = "Unknown"
         }
 
-        if (isMyServiceRunning( applicationContext, SpeakService::class.java))
-            speakOut(appName)
-        else makeToast("NOy Init")
-
-
-
-
-        makeToast(title + " NoteServiceLOG " + text)
-
-        Log.d("NoteServiceLOG", title + " - " + text + " : " + pkgName)
+        if (sharedPreferences.getBoolean("SPKSERVICE", false))
+            if (appName != "Phone")
+            speakOut(appName + " $title   $text")
+            else speakOut(appName)
+        makeToast(appName)
     }
 }

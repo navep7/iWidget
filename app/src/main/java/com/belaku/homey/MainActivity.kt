@@ -131,6 +131,7 @@ class MainActivity : AppCompatActivity() {
 
 
     private lateinit var mainActivityContext: Context
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     val permissions = arrayOf(
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.READ_CONTACTS,
@@ -572,6 +573,7 @@ class MainActivity : AppCompatActivity() {
                 if (!isNotificationListenerPermissionGranted())
                     redirectToSettings()
 
+                btNRO.text = "Granted"
 
             }
             llP.addView(btNRO)
@@ -695,6 +697,22 @@ class MainActivity : AppCompatActivity() {
             AlertDialog.BUTTON_NEUTRAL, "OK"
         ) { dialog, which ->
             UsageStatsChecker().requestUsageStatsPermission(mainActivityContext)
+            dialog.dismiss()
+        }
+
+        alertDialog.show()
+
+    }
+
+    fun readNotificationsPermissionDialog() {
+        val alertDialog: AlertDialog = AlertDialog.Builder(mAct).create()
+        alertDialog.setTitle("Permission Request to Read all incoming notifications")
+        alertDialog.setMessage("App needs permission to Read all incoming nottifications to notify you with Voice.. ")
+        alertDialog.setButton(
+            AlertDialog.BUTTON_NEUTRAL, "OK"
+        ) { dialog, which ->
+            if (!isNotificationListenerPermissionGranted())
+                redirectToSettings()
             dialog.dismiss()
         }
 
@@ -1690,6 +1708,7 @@ class MainActivity : AppCompatActivity() {
             boolAccessibilityNotNow = true
             btnAS.text = "Not Now"
             if (!nPermissions()) {
+
                 buttonAll.text = "Proceed"
                 buttonAll.setOnClickListener {
                     if (!nPermissions()) {
@@ -1844,9 +1863,15 @@ class MainActivity : AppCompatActivity() {
             btnAS.text = "Granted"
             else btnAS.text = "Not Now"*/
 
-            if (!nPermissions())
-            buttonAll.text = "Proceed"
+            if (!nPermissions()) {
 
+                //h3r3
+                if (!isNotificationListenerPermissionGranted())
+                readNotificationsPermissionDialog()
+                else btNRO.text = "Granted"
+
+                buttonAll.text = "Proceed"
+            }
             buttonAll.setOnClickListener {
                 if (!nPermissions()) {
                     rawTweets(false)
