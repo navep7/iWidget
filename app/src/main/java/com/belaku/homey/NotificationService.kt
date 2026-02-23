@@ -90,9 +90,7 @@ class NotificationService : NotificationListenerService() {
         }
 
         if (sharedPreferences.getBoolean("SPKSERVICE", false))
-            if (appName != "Phone")
-            speakOut(appName + " $title   $text")
-            else speakOut(appName)
+             speakOut(appName)
         makeToast(appName)
     }
 }

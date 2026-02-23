@@ -1282,7 +1282,7 @@ class NewAppWidget : AppWidgetProvider() {
             if (!boolSpkService) {
                 widgetContext.startService(speakIntent)
                 remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
-                //   makeToast("strtingSPKservice")
+                makeToast("Change in Hour & notification app name will be announced!")
                 sharedPreferencesEditor.putBoolean("SPKSERVICE", true).apply()
             } else {
                 widgetContext.stopService(speakIntent)

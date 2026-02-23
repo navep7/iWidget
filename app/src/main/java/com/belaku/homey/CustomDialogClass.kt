@@ -84,7 +84,7 @@ class CustomDialogClass // TODO Auto-generated constructor stub
                     arg0: AdapterView<*>?, arg1: View?,
                     position: Int, id: Long
                 ) {
-                    makeToast(spinReminderTypes[position])
+
                     if (spinReminderTypes[position] == "Repeating")
                         boolRepeating = true
                 }
@@ -104,9 +104,6 @@ class CustomDialogClass // TODO Auto-generated constructor stub
     override fun onClick(v: View) {
         when (v.id) {
             R.id.btn_okd -> {
-
-
-                makeToast("dayIndex : " + dayIndex)
 
                 arrayListHabits.add(Habit(editText.text.toString(), false))
                 adapterHabits.notifyDataSetChanged()

@@ -405,7 +405,9 @@ class StepsService : Service() {
 
                 cityLat = lat
                 cityLng = lng
-                cityname = cAddrs?.get(0)!!.subLocality
+                if (cAddrs.isNotEmpty())
+                    if (cAddrs.get(0) != null)
+                cityname = cAddrs.get(0)!!.subLocality
                 //      if (cityname.length > 15)
                 //        cityname = cityname.substring(0, 12) + "..,"
                 //   makeToast("cityname - " + cityname)

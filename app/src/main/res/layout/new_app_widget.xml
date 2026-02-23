@@ -529,16 +529,17 @@
         android:layout_below="@+id/rl_clocks"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/fab_margin"
-        android:background="@drawable/circular_white"
+        android:background="@drawable/circular_white_border"
         android:clickable="true"
         android:ellipsize="middle"
         android:focusable="true"
         android:gravity="center"
         android:maxLines="1"
+        android:fontFamily="sans-serif-condensed"
         android:orientation="horizontal"
-        android:padding="@dimen/padding_5"
+        android:padding="7dp"
         android:text="Pin a Note!"
-        android:textColor="@android:color/holo_red_light"
+        android:textColor="@android:color/holo_red_dark"
         android:textStyle="bold" />
 
     <TextView
