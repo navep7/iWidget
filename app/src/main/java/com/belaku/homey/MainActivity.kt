@@ -130,6 +130,7 @@ import kotlin.random.Random
 class MainActivity : AppCompatActivity() {
 
 
+    private lateinit var mainActivityContext: Context
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     val permissions = arrayOf(
@@ -1913,7 +1914,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
 
-        private lateinit var mainActivityContext: Context
         lateinit var mainWindow: Window
         lateinit var fabMain: ExtendedFloatingActionButton
         lateinit var TxAutoUpdate: TextView
@@ -1991,7 +1991,7 @@ class MainActivity : AppCompatActivity() {
 
 
         fun makeToast(s: String) {
-            Toast.makeText(mainActivityContext, s, Toast.LENGTH_SHORT).show()
+        //    Toast.makeText(applicationContext, s, Toast.LENGTH_SHORT).show()
             Log.d("makeToastinG", s)
         }
 
