@@ -14,6 +14,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.ContentValues
 import android.content.Context
+import android.content.Context.LOCATION_SERVICE
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.content.IntentFilter
@@ -39,6 +40,7 @@ import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
+import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.net.wifi.WifiManager
@@ -555,7 +557,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     private fun locationTxUpdate(context: Context) {
-        if (!MainActivity.isLocationEnabled(context)) {
+        if (!isLocationEnabled(context)) {
             remoteViews?.setTextViewText(R.id.tx_place, "Please Enable Location services!")
 
             val locIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
@@ -587,6 +589,13 @@ class NewAppWidget : AppWidgetProvider() {
                 remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.clouds)
         }
     }
+
+    fun isLocationEnabled(context: Context): Boolean {
+        val locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    }
+
 
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setUI() {

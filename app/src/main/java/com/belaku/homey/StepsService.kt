@@ -1,5 +1,6 @@
 package com.belaku.homey
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.app.NotificationChannel
@@ -11,21 +12,26 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.IntentFilter
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.location.Geocoder
+import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.IBinder
+import android.os.Looper
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
@@ -47,7 +53,9 @@ import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
@@ -72,8 +80,78 @@ class StepsService : Service() {
         return null
     }
 
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onCreate() {
         super.onCreate()
+
+
+
+            if (!isLocationEnabled(applicationContext)) {
+                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                applicationContext.startActivity(intent.setFlags(FLAG_ACTIVITY_NEW_TASK))
+            }
+
+            var locationRequest = LocationRequest.create()
+            locationRequest.setInterval(30000)
+            locationRequest.setSmallestDisplacement(1f)
+            locationRequest.setFastestInterval(10000)
+            locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
+
+            //instantiating the LocationCallBack
+
+
+            var fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+
+            fusedLocationProviderClient.requestLocationUpdates(
+                locationRequest,
+                object : LocationCallback(), GoogleMap.OnMarkerClickListener {
+                    override fun onLocationResult(locationResult: LocationResult) {
+                        mLocationResult = locationResult
+                        val location = locationResult.lastLocation
+                        if (location != null) {
+
+                            if (!sharedPreferences.getBoolean("boolWeather", false)) {
+                                sharedPreferencesEditor.putBoolean("boolWeather", true).apply()
+                                getWeatherData(LatLng(location.latitude, location.longitude))
+                            }
+
+                            getAddress(location.latitude, location.longitude)
+                        }
+                    }
+
+                    fun getAddress(lat: Double, lng: Double) {
+                        val gcd = Geocoder(applicationContext)
+                        Locale.getDefault()
+                        try {
+                            var cAddrs = gcd.getFromLocation(lat, lng, 1)!!
+                            //   makeToast(cAddrs?.get(0)!!.subLocality)
+
+                            cityLat = lat
+                            cityLng = lng
+                            if (cAddrs.isNotEmpty())
+                                if (cAddrs.get(0) != null)
+                                    if (cAddrs.get(0).locality != null)
+                                        cityname = cAddrs.get(0)!!.locality
+                                    else if (cAddrs.get(0).subLocality != null)
+                                        cityname = cAddrs.get(0)!!.subLocality
+
+
+                        } catch (e: IOException) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace()
+                            makeToast("GCD - IOException \n $e")
+                        }
+
+                    }
+
+
+                    override fun onMarkerClick(p0: Marker): Boolean {
+                        makeToast("nothin")
+                        return true
+                    }
+                },
+                Looper.getMainLooper()
+            )
 
 
         val userPresentReceiver = object : BroadcastReceiver() {
@@ -108,12 +186,10 @@ class StepsService : Service() {
             startForeground(1, notification)
         }
 
-        sContext = this
+        BluetoothState(this)
+        WifiState(this)
 
-        BluetoothState()
-        WifiState()
-
-        sensorManager = sContext.getSystemService(SENSOR_SERVICE) as SensorManager
+        sensorManager = this.getSystemService(SENSOR_SERVICE) as SensorManager
         stepCounterSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)!!
 
         mSensorEventListener = object : SensorEventListener {
@@ -142,6 +218,12 @@ class StepsService : Service() {
         }
     }
 
+    fun isLocationEnabled(context: Context): Boolean {
+        val locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    }
+
     private fun updateWidget() {
         val intent = Intent(
             applicationContext,
@@ -154,7 +236,7 @@ class StepsService : Service() {
         sendBroadcast(intent)
     }
 
-    private fun WifiState() {
+    private fun WifiState(contx: StepsService) {
         val mWifiReceiver: BroadcastReceiver = object : BroadcastReceiver() {
 
             @RequiresApi(Build.VERSION_CODES.S)
@@ -184,7 +266,7 @@ class StepsService : Service() {
                     updateWidget()
                 } else if (action == ConnectivityManager.CONNECTIVITY_ACTION) {
                     val cm =
-                        sContext.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+                        contx.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
                     val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
                     val isConnected = activeNetwork?.isConnectedOrConnecting == true
 
@@ -201,7 +283,6 @@ class StepsService : Service() {
                 }
 
 
-
             }
         }
 
@@ -213,9 +294,9 @@ class StepsService : Service() {
     }
 
 
-    private fun BluetoothState() {
+    private fun BluetoothState(contx: StepsService) {
 
-        sharedPreferences = sContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        sharedPreferences = contx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
 
@@ -261,11 +342,10 @@ class StepsService : Service() {
                     }
 
 
-
                 }
             }
 
-            sContext.registerReceiver(
+            contx.registerReceiver(
                 mBluetoothReceiver,
                 IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
             )
@@ -309,30 +389,7 @@ class StepsService : Service() {
     companion object {
 
         var twitterProfileName: String = "Fact"
-        private lateinit var sContext: StepsService
         lateinit var mLocationResult: LocationResult
-        val locationCallback: LocationCallback = object : LocationCallback(), GoogleMap.OnMarkerClickListener {
-            override fun onLocationResult(locationResult: LocationResult) {
-                mLocationResult = locationResult
-                val location = locationResult.lastLocation
-                if (location != null) {
-
-                    if (!sharedPreferences.getBoolean("boolWeather", false)) {
-                        sharedPreferencesEditor.putBoolean("boolWeather", true).apply()
-                        getWeatherData(LatLng(location.latitude, location.longitude))
-                    }
-
-                    getAddress(location.latitude, location.longitude)
-                }
-            }
-
-
-
-            override fun onMarkerClick(p0: Marker): Boolean {
-                makeToast("nothin")
-                return true
-            }
-        }
         var totalUsage: String = ""
         var choosenApps: ArrayList<App> = ArrayList()
 
@@ -358,7 +415,7 @@ class StepsService : Service() {
                         //  updateUI(weatherData)
                         tempC = "${weatherData.main.temp - 273}°C"
                         weatherIconState = weatherData.weather.get(0).main
-                        Log.d("weatherIconSubState",  weatherData.weather.toString())
+                        Log.d("weatherIconSubState", weatherData.weather.toString())
                         tempKind = weatherData.weather.get(0).main
                         weatherIconID = weatherData.weather.get(0).id
                         weatherIconUrl =
@@ -367,9 +424,15 @@ class StepsService : Service() {
 
                         Log.d("weatherInfo", tempC + " - " + tempKind)
 
-                        remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "°C, " + tempKind)
+                        remoteViews?.setTextViewText(
+                            R.id.tx_weather,
+                            tempC.split(".")[0] + "°C, " + tempKind
+                        )
                         if (weatherIconID.startsWith("5"))
-                            remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.rain)
+                            remoteViews?.setImageViewResource(
+                                R.id.imgv_weather_icon,
+                                R.drawable.rain
+                            )
                         if (weatherIconID.equals("800"))
                             remoteViews?.setImageViewResource(
                                 R.id.imgv_weather_icon,
@@ -379,10 +442,16 @@ class StepsService : Service() {
                                 "803"
                             ) || weatherIconID.equals("804")
                         )
-                            remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.clouds)
+                            remoteViews?.setImageViewResource(
+                                R.id.imgv_weather_icon,
+                                R.drawable.clouds
+                            )
 
 
-                        remoteViews?.setViewVisibility(R.id.progressBar_cyclic_weather, View.INVISIBLE)
+                        remoteViews?.setViewVisibility(
+                            R.id.progressBar_cyclic_weather,
+                            View.INVISIBLE
+                        )
                         remoteViews?.setViewVisibility(R.id.tx_refresh_weather, View.VISIBLE)
                         appWidM.updateAppWidget(newAppWidget, remoteViews)
                     }
@@ -396,29 +465,7 @@ class StepsService : Service() {
 
         }
 
-        fun getAddress(lat: Double, lng: Double) {
-            val gcd = Geocoder(sContext)
-            Locale.getDefault()
-            try {
-                var cAddrs = gcd.getFromLocation(lat, lng, 1)!!
-                //   makeToast(cAddrs?.get(0)!!.subLocality)
 
-                cityLat = lat
-                cityLng = lng
-                if (cAddrs.isNotEmpty())
-                    if (cAddrs.get(0) != null)
-                cityname = cAddrs.get(0)!!.subLocality
-                //      if (cityname.length > 15)
-                //        cityname = cityname.substring(0, 12) + "..,"
-                //   makeToast("cityname - " + cityname)
-
-            } catch (e: IOException) {
-                // TODO Auto-generated catch block
-                e.printStackTrace()
-                makeToast("GCD - IOException \n $e")
-            }
-
-        }
 
         fun isMyServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
             val manager = context.getSystemService(ACTIVITY_SERVICE) as ActivityManager

@@ -29,6 +29,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Typeface
 import android.icu.util.Calendar
+import android.location.Geocoder
 import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.Uri
@@ -98,12 +99,19 @@ import com.belaku.homey.SetWallWorker.Companion.screenHeight
 import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
+import com.belaku.homey.StepsService.Companion.getWeatherData
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
+import com.belaku.homey.StepsService.Companion.mLocationResult
 import com.belaku.homey.StepsService.Companion.twitterProfileName
 import com.belaku.homey.databinding.ActivityMainBinding
 import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -118,8 +126,10 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import java.io.IOException
 import java.net.URL
 import java.util.Collections
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -305,13 +315,7 @@ class MainActivity : AppCompatActivity() {
 
         //    getNews(cDate - 1)
 
-        if ((ActivityCompat.checkSelfPermission(
-                applicationContext,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PERMISSION_GRANTED)
-        ) {
-            getCity()
-        }
+
 
 
         instructionsDialogBuilder = AlertDialog.Builder(this@MainActivity)
@@ -537,6 +541,7 @@ class MainActivity : AppCompatActivity() {
                 ))
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun addPermissionCard(tx: String, bTx: String, rPermission: String) {
 
             val cardP = CardView(applicationContext)
@@ -1273,31 +1278,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    @SuppressLint("MissingPermission")
-    private fun getCity() {
-
-        if (!isLocationEnabled(applicationContext)) {
-            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-            applicationContext.startActivity(intent.setFlags(FLAG_ACTIVITY_NEW_TASK))
-        }
-
-        var locationRequest = LocationRequest.create()
-        locationRequest.setInterval(30000)
-        locationRequest.setSmallestDisplacement(1f)
-        locationRequest.setFastestInterval(10000)
-        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
-
-        //instantiating the LocationCallBack
-
-
-        var fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-
-        fusedLocationProviderClient.requestLocationUpdates(
-            locationRequest,
-            StepsService.locationCallback,
-            Looper.getMainLooper()
-        )
-    }
 
 
 
@@ -1610,7 +1590,7 @@ class MainActivity : AppCompatActivity() {
                     usageStatsPermissionDialog()
 
                     sharedPreferencesEditor.putBoolean("LP", true).apply()
-                    getCity()
+
                     btnL.text = "Granted"
 
 
@@ -1644,7 +1624,7 @@ class MainActivity : AppCompatActivity() {
                 if (grantResults.isNotEmpty())
                     if (grantResults[0].equals(PERMISSION_GRANTED)) {
                         sharedPreferencesEditor.putBoolean("LP", true).apply()
-                        getCity()
+
                         btnL.text = "Granted"
                     }
 
@@ -1855,6 +1835,7 @@ class MainActivity : AppCompatActivity() {
         rvImages.adapter = rvAdapter
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onResume() {
         super.onResume()
 
@@ -1940,7 +1921,7 @@ class MainActivity : AppCompatActivity() {
         var newsIndex: Int = 0
         private val TAG: String = "MainActTAG"
         lateinit var launcher: ActivityResultLauncher<Intent>
-        var cityname: String = "cN"
+        var cityname: String = " "
         var cityLat: Double = 0.0
         var cityLng: Double = 0.0
 
@@ -2004,11 +1985,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        fun isLocationEnabled(context: Context): Boolean {
-            val locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
-            return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
-                    locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-        }
+
 
         fun pickContact() {
             val intent = Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
