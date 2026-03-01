@@ -288,6 +288,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     }.start()
                 } else {
 
+                    makeSnack("loading Advertisement, please wait...")
                     txTitle.setText("loading Advertisement, please wait...")
                     txContent.visibility = View.GONE
                     edtxDialog.visibility = View.GONE

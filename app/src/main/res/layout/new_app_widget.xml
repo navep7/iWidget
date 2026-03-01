@@ -528,6 +528,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/rl_clocks"
         android:layout_centerHorizontal="true"
+        android:layout_toEndOf="@+id/ll_apps"
+        android:layout_toStartOf="@+id/ll_contacts"
         android:layout_marginBottom="@dimen/fab_margin"
         android:background="@drawable/gradient_glass_dark"
         android:clickable="true"
@@ -575,19 +577,18 @@
 
     <LinearLayout
         android:id="@+id/ll_apps"
+        android:background="@drawable/gradient_glass_list"
         android:layout_width="100dp"
         android:layout_height="match_parent"
         android:layout_above="@+id/tx_walldesc"
         android:layout_alignTop="@+id/tx_runner"
         android:layout_alignParentStart="true"
-        android:background="@drawable/gradient_glass"
         android:gravity="center"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/gradient_glass_list"
             android:gravity="center">
 
             <ImageView
@@ -613,6 +614,7 @@
 
         <ListView
             android:id="@+id/list_apps"
+            android:background="@drawable/gradient_glass_flat"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fadeScrollbars="false" />
@@ -626,16 +628,15 @@
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_above="@+id/tx_walldesc"
+        android:background="@drawable/gradient_glass_list"
         android:layout_alignTop="@+id/tx_runner"
         android:layout_alignParentEnd="true"
-        android:background="@drawable/gradient_glass"
         android:orientation="vertical">
 
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/gradient_glass_list"
             android:gravity="center">
 
             <ImageView
@@ -667,6 +668,7 @@
 
         <ListView
             android:id="@+id/list_contacts"
+            android:background="@drawable/gradient_glass_flat"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fadeScrollbars="false"
@@ -680,13 +682,15 @@
         android:layout_width="wrap_content"
         android:layout_height="45dp"
         android:layout_below="@+id/rl_controls"
+        android:layout_marginStart="@dimen/padding_3"
+        android:layout_marginEnd="@dimen/padding_3"
         android:layout_toStartOf="@+id/ll_contacts"
         android:layout_toEndOf="@+id/ll_apps"
         android:gravity="center">
 
         <ImageView
             android:id="@+id/imgv_ps"
-            android:layout_width="40dp"
+            android:layout_width="35dp"
             android:layout_height="40dp"
             android:layout_above="@id/tx_walldesc"
             android:layout_marginStart="@dimen/padding_3"
@@ -698,7 +702,7 @@
 
         <ImageButton
             android:id="@+id/imgbtn_g_apps"
-            android:layout_width="40dp"
+            android:layout_width="35dp"
             android:layout_height="40dp"
             android:layout_alignTop="@+id/ll_apps"
             android:layout_marginStart="@dimen/padding_3"
@@ -710,7 +714,7 @@
 
         <ImageButton
             android:id="@+id/imgbtn_speech"
-            android:layout_width="40dp"
+            android:layout_width="35dp"
             android:layout_height="40dp"
             android:layout_above="@id/tx_walldesc"
             android:layout_marginStart="@dimen/padding_3"
@@ -724,7 +728,7 @@
 
         <ImageView
             android:id="@+id/imgv_dialler"
-            android:layout_width="40dp"
+            android:layout_width="35dp"
             android:layout_height="40dp"
             android:layout_alignTop="@+id/ll_apps"
             android:layout_marginStart="@dimen/padding_3"
