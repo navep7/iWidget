@@ -130,10 +130,11 @@ class StepsService : Service() {
                             cityLng = lng
                             if (cAddrs.isNotEmpty())
                                 if (cAddrs.get(0) != null)
-                                    if (cAddrs.get(0).locality != null)
-                                        cityname = cAddrs.get(0)!!.locality
-                                    else if (cAddrs.get(0).subLocality != null)
+                                    if (cAddrs.get(0).subLocality != null)
                                         cityname = cAddrs.get(0)!!.subLocality
+                                    else if (cAddrs.get(0).locality != null)
+                                        cityname = cAddrs.get(0)!!.locality
+                                    else cityname = "remoteAreaMaybe!"
 
 
                         } catch (e: IOException) {

@@ -126,6 +126,8 @@ import java.util.Locale
 
 class NewAppWidget : AppWidgetProvider() {
 
+    val semiTransparentWhite = 0x80FFFFFF.toInt()
+    val semiTransparentBlack = 0x80000000.toInt()
     private val TAG: String = "NewAppWidget"
     private val drawableIds: ArrayList<Int> = ArrayList()
     private var weatherIcons: ArrayList<Drawable> = ArrayList()
@@ -623,7 +625,7 @@ class NewAppWidget : AppWidgetProvider() {
         //    googleAccountInfo()
         if (isPinNoteInitialized())
             remoteViews?.setTextViewText(R.id.tx_runner, pinNote)
-        liquidGlassEffects()
+   //     liquidGlassEffects()
         seekWifiState()
         seekBluetoothState()
         getScreenTime(widgetContext)
@@ -856,6 +858,25 @@ class NewAppWidget : AppWidgetProvider() {
 
             if (ColorUtil().isColorDark(primaryColor)) {
 
+
+
+                remoteViews?.setInt(R.id.ll_controls1, "setBackgroundColor", semiTransparentWhite)
+                remoteViews?.setInt(R.id.ll_controls2, "setBackgroundColor", semiTransparentWhite)
+                remoteViews?.setInt(R.id.ll_mandates, "setBackgroundColor", semiTransparentWhite)
+
+                remoteViews?.setInt(R.id.tx_myspace, "setBackgroundColor", semiTransparentBlack)
+                remoteViews?.setInt(R.id.imgbtn_lock, "setBackgroundColor", semiTransparentBlack)
+                remoteViews?.setInt(R.id.imgbtn_qr, "setBackgroundColor", semiTransparentBlack)
+                remoteViews?.setInt(R.id.rl_setwall, "setBackgroundColor", semiTransparentBlack)
+                remoteViews?.setInt(R.id.imgv_conf, "setBackgroundColor", semiTransparentBlack)
+
+                remoteViews?.setInt(R.id.imgv_ps, "setBackgroundColor", semiTransparentBlack)
+                remoteViews?.setInt(R.id.imgbtn_g_apps, "setBackgroundColor", semiTransparentBlack)
+                remoteViews?.setInt(R.id.imgbtn_speech, "setBackgroundColor", semiTransparentBlack)
+                remoteViews?.setInt(R.id.imgv_dialler, "setBackgroundColor", semiTransparentBlack)
+
+
+
                 remoteViews?.setTextColor(
                     R.id.clock,
                     widgetContext.resources.getColor(android.R.color.holo_red_light)
@@ -887,6 +908,21 @@ class NewAppWidget : AppWidgetProvider() {
                     ColorUtil().lightenColor(primaryColor, 0.5f)
                 )
             } else {
+
+                remoteViews?.setInt(R.id.ll_controls1, "setBackgroundColor", semiTransparentBlack)
+                remoteViews?.setInt(R.id.ll_controls2, "setBackgroundColor", semiTransparentBlack)
+                remoteViews?.setInt(R.id.ll_mandates, "setBackgroundColor", semiTransparentBlack)
+
+                remoteViews?.setInt(R.id.tx_myspace, "setBackgroundColor", semiTransparentWhite)
+                remoteViews?.setInt(R.id.imgbtn_lock, "setBackgroundColor", semiTransparentWhite)
+                remoteViews?.setInt(R.id.imgbtn_qr, "setBackgroundColor", semiTransparentWhite)
+                remoteViews?.setInt(R.id.rl_setwall, "setBackgroundColor", semiTransparentWhite)
+                remoteViews?.setInt(R.id.imgv_conf, "setBackgroundColor", semiTransparentWhite)
+
+                remoteViews?.setInt(R.id.imgv_ps, "setBackgroundColor", semiTransparentWhite)
+                remoteViews?.setInt(R.id.imgbtn_g_apps, "setBackgroundColor", semiTransparentWhite)
+                remoteViews?.setInt(R.id.imgbtn_speech, "setBackgroundColor", semiTransparentWhite)
+                remoteViews?.setInt(R.id.imgv_dialler, "setBackgroundColor", semiTransparentWhite)
 
                 remoteViews?.setTextColor(
                     R.id.clock,
@@ -972,7 +1008,7 @@ class NewAppWidget : AppWidgetProvider() {
             else {
                 remoteViews?.setTextViewText(R.id.tx_rewards_count, "\uD83D\uDC41\uFE0FAD!")
                 remoteViews?.setOnClickPendingIntent(
-                    R.id.tx_rewards_count, PendingIntent.getActivity(
+                    R.id.imgbtn_set, PendingIntent.getActivity(
                         widgetContext,
                         18,
                         Intent(widgetContext, DialogActivity::class.java).putExtra("DialogIntent", "AD"),

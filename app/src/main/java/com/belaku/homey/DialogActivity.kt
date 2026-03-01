@@ -264,10 +264,14 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     .into(imgvSongCover)
             } else if (dialogIntentStr == "WCh") {
 
-                remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
-                appWidM.updateAppWidget(newAppWidget, remoteViews)
-
+                if (noRewards > 1) {
+                    remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
+                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                } else {
+                    remoteViews?.setTextViewText(R.id.tx_rewards_count, "\uD83D\uDC41\uFE0FAD!")
+                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                }
                 sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
                 sharedPreferencesEditor = sharedPreferences.edit()
 
@@ -283,7 +287,44 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                         SetWallWorker.setWall(true, dialogActContext)
                     }.start()
                 } else {
-                    makeSnack("Watch an AD to auto change Walls for next 7 times!")
+
+                    txTitle.setText("loading Advertisement, please wait...")
+                    txContent.visibility = View.GONE
+                    edtxDialog.visibility = View.GONE
+                    imgbtnShare.visibility = View.GONE
+                    btnOk.visibility = View.GONE
+                    btnCancel.visibility = View.GONE
+                    vpSteps.visibility = View.GONE
+
+                    RewardedInterstitialAd.load(
+                        this,
+                        getString(R.string.admob_ri_ad),
+                        AdRequest.Builder().build(),
+                        object : RewardedInterstitialAdLoadCallback() {
+                            override fun onAdLoaded(rewardedAd: RewardedInterstitialAd) {
+                                makeToast("Ad was loaded.")
+                                rewardedInterstitialAd = rewardedAd
+
+                                rewardedInterstitialAd?.show(this@DialogActivity) { rewardItem ->
+                                    makeToast("User earned the reward.")
+                                    // Handle the reward.
+                                    val rewardAmount = rewardItem.amount
+                                    val rewardType = rewardItem.type
+                                    sharedPreferencesEditor.putInt("noRewards", 7).apply()
+                                    noRewards = 7
+                                    remoteViews?.setTextViewText(R.id.tx_rewards_count, "" + 7)
+                                    txTitle.setText("swipe outside to continue changing walls.")
+                                    updateWidget()
+                                }
+                            }
+
+                            override fun onAdFailedToLoad(adError: LoadAdError) {
+                                dialogActContext = applicationContext
+                                makeToast("onAdFailedToLoad: ${adError.message}")
+                                rewardedInterstitialAd = null
+                            }
+                        },
+                    )
                 }
 
             } else if (dialogIntentStr == "PC") {
@@ -469,45 +510,6 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 } catch (ignored: ActivityNotFoundException) {
                     startActivity(Intent(Settings.ACTION_WIFI_SETTINGS))
                 }
-            } else if (dialogIntentStr == "AD") {
-
-                txTitle.setText("loading Advertisement, please wait...")
-                txContent.visibility = View.GONE
-                edtxDialog.visibility = View.GONE
-                imgbtnShare.visibility = View.GONE
-                btnOk.visibility = View.GONE
-                btnCancel.visibility = View.GONE
-                vpSteps.visibility = View.GONE
-
-                RewardedInterstitialAd.load(
-                    this,
-                    getString(R.string.admob_ri_ad),
-                    AdRequest.Builder().build(),
-                    object : RewardedInterstitialAdLoadCallback() {
-                        override fun onAdLoaded(rewardedAd: RewardedInterstitialAd) {
-                            makeToast("Ad was loaded.")
-                            rewardedInterstitialAd = rewardedAd
-
-                            rewardedInterstitialAd?.show(this@DialogActivity) { rewardItem ->
-                                makeToast("User earned the reward.")
-                                // Handle the reward.
-                                val rewardAmount = rewardItem.amount
-                                val rewardType = rewardItem.type
-                                sharedPreferencesEditor.putInt("noRewards", 7).apply()
-                                noRewards = 7
-                                remoteViews?.setTextViewText(R.id.tx_rewards_count, "" + 7)
-                                txTitle.setText("swipe outside to continue changing walls.")
-                                updateWidget()
-                            }
-                        }
-
-                        override fun onAdFailedToLoad(adError: LoadAdError) {
-                            dialogActContext = applicationContext
-                            makeToast("onAdFailedToLoad: ${adError.message}")
-                            rewardedInterstitialAd = null
-                        }
-                    },
-                )
             } else if (dialogIntentStr == "stepsInfo") {
 
                 stepsMapsFragment.getMapAsync(this)
