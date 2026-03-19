@@ -783,7 +783,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="@dimen/padding_5"
             android:background="@drawable/circular_primary_border"
-            android:src="@drawable/scan" />
+            android:src="@drawable/qr" />
 
         <FrameLayout
             android:id="@+id/frame_l_tweets"

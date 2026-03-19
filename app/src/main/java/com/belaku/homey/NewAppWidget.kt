@@ -24,9 +24,11 @@ import android.content.pm.ServiceInfo
 import android.content.res.ColorStateList
 import android.database.Cursor
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.LinearGradient
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
@@ -40,12 +42,15 @@ import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
+import android.location.LocationListener
 import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.BatteryManager
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
@@ -67,11 +72,13 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RemoteViews
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity.RECEIVER_NOT_EXPORTED
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
+import com.belaku.homey.MainActivity.Companion.BitmapRotated
 import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.cityLat
@@ -83,8 +90,8 @@ import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
 import com.belaku.homey.MainActivity.Companion.tempKind
 import com.belaku.homey.MainActivity.Companion.weatherIconID
-import com.belaku.homey.MusicActivity.Companion.pDatalistSongs
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
+import com.belaku.homey.MusicActivity.Companion.pDatalistSongs
 import com.belaku.homey.MusicService.Companion.boolMusicServiceRunning
 import com.belaku.homey.MusicService.Companion.mMediaPlayer
 import com.belaku.homey.MusicService.Companion.songIndex
@@ -126,13 +133,11 @@ import java.util.Locale
 
 class NewAppWidget : AppWidgetProvider() {
 
-    val semiTransparentWhite = 0x80FFFFFF.toInt()
-    val semiTransparentBlack = 0x80000000.toInt()
+
+    private lateinit var locationListenerSpeed: LocationListener
+    private lateinit var needleBitmap: Bitmap
     private val TAG: String = "NewAppWidget"
-    private val drawableIds: ArrayList<Int> = ArrayList()
-    private var weatherIcons: ArrayList<Drawable> = ArrayList()
     private var wallpColors: ArrayList<Int> = ArrayList()
-    private var runningColor: Int = 0
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var clickPendingIntentTemplateContact: PendingIntent
     private lateinit var clickIntentContact: Intent
@@ -154,7 +159,48 @@ class NewAppWidget : AppWidgetProvider() {
         if (ismActInitialized())
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
 
+        speedTracking()
 
+    }
+
+    private fun speedTracking() {
+        Toast.makeText(widgetContext, "!speedTracking", Toast.LENGTH_SHORT).show()
+
+        locationListenerSpeed =
+            LocationListener() { location ->
+                run {
+
+                    makeToast("!locationRrd")
+                    needleBitmap =
+                        BitmapFactory.decodeResource(widgetContext.resources, R.drawable.s_needle)
+
+                    if (location.hasSpeed()) {
+                        val speedInMps = location.speed // Speed in meters/second
+
+                        // Convert to km/h (optional)
+                        val speedInKmph = (speedInMps * 3.6).toInt()
+
+
+                        var rBitmap = Bitmap.createScaledBitmap(
+                            BitmapRotated(speedInKmph, widgetContext),
+                            95,
+                            95,
+                            true
+                        )
+
+
+                        speedR(speedInKmph.toString(), rBitmap)
+                    } else speedR("0.0", scaledBitmap)
+
+                }
+            }
+
+        StepsService.locationManager.requestLocationUpdates(
+            LocationManager.GPS_PROVIDER,
+            0,
+            0f,
+            locationListenerSpeed
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -203,6 +249,20 @@ class NewAppWidget : AppWidgetProvider() {
             add(
                 ActivityTransition.Builder()
                     .setActivityType(DetectedActivity.WALKING)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                    .build()
+            )
+
+            add(
+                ActivityTransition.Builder()
+                    .setActivityType(DetectedActivity.IN_VEHICLE)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                    .build()
+            )
+
+            add(
+                ActivityTransition.Builder()
+                    .setActivityType(DetectedActivity.IN_VEHICLE)
                     .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
                     .build()
             )
@@ -265,6 +325,8 @@ class NewAppWidget : AppWidgetProvider() {
 
             setOnClickPendingIntents(context)
 
+
+
             appWidM = AppWidgetManager.getInstance(context)
             appWidM.updateAppWidget(appWidgetId, remoteViews)
         }
@@ -275,8 +337,82 @@ class NewAppWidget : AppWidgetProvider() {
 
     }
 
+    private fun speedR(strSpeed: String, rBit: Bitmap) {
+
+        makeToast("!speedR")
+
+        val scaledBitmap = decodeSampledBitmapFromResource(R.drawable.s_needle, 95, 95, widgetContext)
+
+        remoteViews?.setImageViewBitmap(R.id.needle, rBit)
+        remoteViews?.setTextViewText(R.id.tx_speed, strSpeed)
+
+        remoteViews?.setViewVisibility(
+            R.id.progressBar_cyclic_speed,
+            View.INVISIBLE
+        )
+        remoteViews?.setViewVisibility(R.id.needle, View.VISIBLE)
+        remoteViews?.setViewVisibility(R.id.tx_speed, View.VISIBLE)
+        appWidM.updateAppWidget(newAppWidget, remoteViews)
+
+    //    StepsService.locationManager.removeUpdates(locationListenerSpeed)
+
+        Handler(Looper.getMainLooper()).postDelayed(Runnable {
+            StepsService.locationManager.removeUpdates(locationListenerSpeed)
+        }, 600000)
+
+
+    }
+
+
+    fun decodeSampledBitmapFromResource(
+        resId: Int,
+        reqWidth: Int,
+        reqHeight: Int,
+        context: Context
+    ): Bitmap {
+
+        // First decode with inJustDecodeBounds=true to check dimensions
+        val options = BitmapFactory.Options().apply {
+            inJustDecodeBounds = true
+        }
+        BitmapFactory.decodeResource(context.resources, resId, options)
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight)
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false
+        return BitmapFactory.decodeResource(context.resources, resId, options)
+    }
+
+    fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
+        // Raw height and width of image
+        val (height: Int, width: Int) = options.run { outHeight to outWidth }
+        var inSampleSize = 1
+
+        if (height > reqHeight || width > reqWidth) {
+
+            val halfHeight: Int = height / 2
+            val halfWidth: Int = width / 2
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps
+            // both height and width larger than the requested height and width.
+            while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
+                inSampleSize *= 2
+            }
+        }
+
+        return inSampleSize
+    }
+
+
     private fun setOnClickPendingIntents(context: Context) {
         // Create a PendingIntent
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.fl_speed,
+            getPendingSelfIntent(context, SPEED_INFO)
+        )
 
         val intentMain = Intent(context, MainActivity::class.java)
         val pendingIntentMain = PendingIntent.getActivity(
@@ -373,7 +509,7 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.tx_ai,
+            R.id.fab_ai,
             aiPendingIntent
         )
 
@@ -390,7 +526,7 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.tx_reminders,
+            R.id.fab_reminders,
             remindersPendingIntent
         )
 
@@ -625,7 +761,7 @@ class NewAppWidget : AppWidgetProvider() {
         //    googleAccountInfo()
         if (isPinNoteInitialized())
             remoteViews?.setTextViewText(R.id.tx_runner, pinNote)
-   //     liquidGlassEffects()
+        liquidGlassEffects()
         seekWifiState()
         seekBluetoothState()
         getScreenTime(widgetContext)
@@ -834,12 +970,7 @@ class NewAppWidget : AppWidgetProvider() {
                 Color.RED
             )
 
-            remoteViews?.setColorInt(
-                R.id.imgbtn_speech,
-                "setColorFilter",
-                Color.BLACK,
-                Color.BLACK
-            )
+
 
             val metrics = DisplayMetrics()
 
@@ -856,26 +987,43 @@ class NewAppWidget : AppWidgetProvider() {
             //  findViewById<View>(R.id.myLayout).background = gradientDrawable
 
 
+
+
             if (ColorUtil().isColorDark(primaryColor)) {
 
+                makeToast("Dark")
+
+                remoteViews?.setInt(R.id.tx_myspace, "setBackgroundResource", R.drawable.gradient_glass_light)
+                remoteViews?.setInt(R.id.imgbtn_lock, "setBackgroundResource", R.drawable.gradient_glass_light)
+                remoteViews?.setInt(R.id.imgbtn_qr, "setBackgroundResource", R.drawable.gradient_glass_light)
+                remoteViews?.setInt(R.id.rl_setwall, "setBackgroundResource", R.drawable.gradient_glass_light)
+                remoteViews?.setInt(R.id.imgv_conf, "setBackgroundResource", R.drawable.gradient_glass_light)
+
+                remoteViews?.setInt(R.id.imgv_ps, "setBackgroundResource", R.drawable.gradient_glass_dark)
+                remoteViews?.setInt(R.id.imgbtn_g_apps, "setBackgroundResource", R.drawable.gradient_glass_dark)
+                remoteViews?.setInt(R.id.imgbtn_speech, "setBackgroundResource", R.drawable.gradient_glass_dark)
+                remoteViews?.setInt(R.id.imgv_dialler, "setBackgroundResource", R.drawable.gradient_glass_dark)
 
 
-                remoteViews?.setInt(R.id.ll_controls1, "setBackgroundColor", semiTransparentWhite)
-                remoteViews?.setInt(R.id.ll_controls2, "setBackgroundColor", semiTransparentWhite)
-                remoteViews?.setInt(R.id.ll_mandates, "setBackgroundColor", semiTransparentWhite)
+                remoteViews?.setColorInt(
+                    R.id.imgv_ps,
+                    "setColorFilter",
+                    Color.WHITE,
+                    Color.WHITE
+                )
 
-                remoteViews?.setInt(R.id.tx_myspace, "setBackgroundColor", semiTransparentBlack)
-                remoteViews?.setInt(R.id.imgbtn_lock, "setBackgroundColor", semiTransparentBlack)
-                remoteViews?.setInt(R.id.imgbtn_qr, "setBackgroundColor", semiTransparentBlack)
-                remoteViews?.setInt(R.id.rl_setwall, "setBackgroundColor", semiTransparentBlack)
-                remoteViews?.setInt(R.id.imgv_conf, "setBackgroundColor", semiTransparentBlack)
-
-                remoteViews?.setInt(R.id.imgv_ps, "setBackgroundColor", semiTransparentBlack)
-                remoteViews?.setInt(R.id.imgbtn_g_apps, "setBackgroundColor", semiTransparentBlack)
-                remoteViews?.setInt(R.id.imgbtn_speech, "setBackgroundColor", semiTransparentBlack)
-                remoteViews?.setInt(R.id.imgv_dialler, "setBackgroundColor", semiTransparentBlack)
-
-
+                remoteViews?.setColorInt(
+                    R.id.imgbtn_speech,
+                    "setColorFilter",
+                    Color.WHITE,
+                    Color.WHITE
+                )
+                remoteViews?.setColorInt(
+                    R.id.imgv_dialler,
+                    "setColorFilter",
+                    Color.WHITE,
+                    Color.WHITE
+                )
 
                 remoteViews?.setTextColor(
                     R.id.clock,
@@ -909,20 +1057,39 @@ class NewAppWidget : AppWidgetProvider() {
                 )
             } else {
 
-                remoteViews?.setInt(R.id.ll_controls1, "setBackgroundColor", semiTransparentBlack)
-                remoteViews?.setInt(R.id.ll_controls2, "setBackgroundColor", semiTransparentBlack)
-                remoteViews?.setInt(R.id.ll_mandates, "setBackgroundColor", semiTransparentBlack)
+                makeToast("Light")
 
-                remoteViews?.setInt(R.id.tx_myspace, "setBackgroundColor", semiTransparentWhite)
-                remoteViews?.setInt(R.id.imgbtn_lock, "setBackgroundColor", semiTransparentWhite)
-                remoteViews?.setInt(R.id.imgbtn_qr, "setBackgroundColor", semiTransparentWhite)
-                remoteViews?.setInt(R.id.rl_setwall, "setBackgroundColor", semiTransparentWhite)
-                remoteViews?.setInt(R.id.imgv_conf, "setBackgroundColor", semiTransparentWhite)
+                remoteViews?.setInt(R.id.tx_myspace, "setBackgroundResource", R.drawable.gradient_glass_dark)
+                remoteViews?.setInt(R.id.imgbtn_lock, "setBackgroundResource", R.drawable.gradient_glass_dark)
+                remoteViews?.setInt(R.id.imgbtn_qr, "setBackgroundResource", R.drawable.gradient_glass_dark)
+                remoteViews?.setInt(R.id.rl_setwall, "setBackgroundResource", R.drawable.gradient_glass_dark)
+                remoteViews?.setInt(R.id.imgv_conf, "setBackgroundResource", R.drawable.gradient_glass_dark)
 
-                remoteViews?.setInt(R.id.imgv_ps, "setBackgroundColor", semiTransparentWhite)
-                remoteViews?.setInt(R.id.imgbtn_g_apps, "setBackgroundColor", semiTransparentWhite)
-                remoteViews?.setInt(R.id.imgbtn_speech, "setBackgroundColor", semiTransparentWhite)
-                remoteViews?.setInt(R.id.imgv_dialler, "setBackgroundColor", semiTransparentWhite)
+                remoteViews?.setInt(R.id.imgv_ps, "setBackgroundResource", R.drawable.gradient_glass_light)
+                remoteViews?.setInt(R.id.imgbtn_g_apps, "setBackgroundResource", R.drawable.gradient_glass_light)
+                remoteViews?.setInt(R.id.imgbtn_speech, "setBackgroundResource", R.drawable.gradient_glass_light)
+                remoteViews?.setInt(R.id.imgv_dialler, "setBackgroundResource", R.drawable.gradient_glass_light)
+
+
+                remoteViews?.setColorInt(
+                    R.id.imgv_ps,
+                    "setColorFilter",
+                    Color.BLACK,
+                    Color.BLACK
+                )
+
+                remoteViews?.setColorInt(
+                    R.id.imgbtn_speech,
+                    "setColorFilter",
+                    Color.BLACK,
+                    Color.BLACK
+                )
+                remoteViews?.setColorInt(
+                    R.id.imgv_dialler,
+                    "setColorFilter",
+                    Color.BLACK,
+                    Color.BLACK
+                )
 
                 remoteViews?.setTextColor(
                     R.id.clock,
@@ -1089,11 +1256,16 @@ class NewAppWidget : AppWidgetProvider() {
 
     }
 
+
+
     @SuppressLint("InflateParams", "ResourceAsColor")
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleIntentActions(intent: Intent) {
 
-        if (BATTERY_INFO == intent.action) {
+
+
+
+       if (BATTERY_INFO == intent.action) {
             val powerUsageIntent = Intent("android.intent.action.POWER_USAGE_SUMMARY")
             if (powerUsageIntent.resolveActivity(widgetContext.getPackageManager()) != null) {
                 powerUsageIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -1337,6 +1509,20 @@ class NewAppWidget : AppWidgetProvider() {
             }
 
         }
+    }
+
+    fun RotateBitmap(source: Bitmap, angle: Float): Bitmap? {
+        val matrix: Matrix = Matrix()
+        matrix.postRotate(angle)
+        return Bitmap.createBitmap(
+            source,
+            0,
+            0,
+            90,
+            90,
+            matrix,
+            true
+        )
     }
 
     private fun startMusicActivity(songIndex: Int) {
@@ -2089,6 +2275,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val TORCH_STATE = "torch"
 
         //    private const val RL_INVERT = "rlInvert"
+        private const val SPEED_INFO = "sppedInfo"
         private const val BATTERY_INFO = "batteryInfo"
         private const val GET_WEATHER = "getWeather"
         private const val STEPS_NOW = "newSteps"

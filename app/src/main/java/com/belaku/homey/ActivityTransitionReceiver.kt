@@ -5,7 +5,9 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.view.View
 import android.widget.RemoteViews
+import android.widget.Toast
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
@@ -39,6 +41,21 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
                     remoteViews?.setTextViewText(R.id.tx_activity_state, toActivityString(event.activityType))
+                    Toast.makeText(context, "AE ~ ${event.activityType}", Toast.LENGTH_LONG).show()
+                    if (toActivityString(event.activityType).trim() == "STILL") {
+                        remoteViews?.setViewVisibility(R.id.rl_still_state, View.VISIBLE)
+                        remoteViews?.setViewVisibility(R.id.rl_walking_state, View.INVISIBLE)
+                        remoteViews?.setViewVisibility(R.id.fl_speed, View.INVISIBLE)
+                    } else if (toActivityString(event.activityType).trim() == "WALKING") {
+                        remoteViews?.setViewVisibility(R.id.rl_still_state, View.INVISIBLE)
+                        remoteViews?.setViewVisibility(R.id.rl_walking_state, View.VISIBLE)
+                        remoteViews?.setViewVisibility(R.id.fl_speed, View.VISIBLE)
+                    } else if (toActivityString(event.activityType).trim() == "INVEHICLE") {
+                        remoteViews?.setViewVisibility(R.id.rl_still_state, View.INVISIBLE)
+                        remoteViews?.setViewVisibility(R.id.rl_walking_state, View.INVISIBLE)
+                        remoteViews?.setViewVisibility(R.id.fl_speed, View.VISIBLE)
+                    }
+
 
                     appWidM.updateAppWidget(newAppWidget, remoteViews)
 

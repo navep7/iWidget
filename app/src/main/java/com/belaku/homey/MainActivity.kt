@@ -27,9 +27,11 @@ import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.Matrix
 import android.graphics.Typeface
 import android.icu.util.Calendar
 import android.location.Geocoder
+import android.location.Location
 import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.Uri
@@ -93,6 +95,7 @@ import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
+import com.belaku.homey.NewAppWidget.Companion.widgetContext
 import com.belaku.homey.SetWallWorker.Companion.dayIndex
 import com.belaku.homey.SetWallWorker.Companion.mAct
 import com.belaku.homey.SetWallWorker.Companion.screenHeight
@@ -316,8 +319,6 @@ class MainActivity : AppCompatActivity() {
         //    getNews(cDate - 1)
 
 
-
-
         instructionsDialogBuilder = AlertDialog.Builder(this@MainActivity)
         val inflater = LayoutInflater.from(this@MainActivity)
         instructionsDialogView = inflater.inflate(R.layout.instructions_dialog, null)
@@ -338,7 +339,7 @@ class MainActivity : AppCompatActivity() {
 
         viewPager.offscreenPageLimit = 2
 
-   //     viewPager.post { viewPager.currentItem = 17 }
+        //     viewPager.post { viewPager.currentItem = 17 }
 
 
         TabLayoutMediator(
@@ -354,7 +355,6 @@ class MainActivity : AppCompatActivity() {
         //    messageView.movementMethod = ScrollingMovementMethod()
 
         //all Ps at once
-
 
 
         addPermissionCards()
@@ -424,8 +424,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
-
     fun redirectToSettings() {
         Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).apply {
             startActivityForResult(this, 1001)
@@ -434,10 +432,12 @@ class MainActivity : AppCompatActivity() {
 
     fun isNotificationListenerPermissionGranted(): Boolean {
         val componentName = ComponentName(applicationContext, NotificationService::class.java)
-        val enabledListeners = Settings.Secure.getString(applicationContext.contentResolver, "enabled_notification_listeners")
+        val enabledListeners = Settings.Secure.getString(
+            applicationContext.contentResolver,
+            "enabled_notification_listeners"
+        )
         return enabledListeners?.contains(componentName.flattenToString()) ?: false
     }
-
 
 
     private fun timeR() {
@@ -544,7 +544,7 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun addPermissionCard(tx: String, bTx: String, rPermission: String) {
 
-            val cardP = CardView(applicationContext)
+        val cardP = CardView(applicationContext)
 
         val layoutParamsCard = LayoutParams(
             LayoutParams.MATCH_PARENT,  // or WRAP_CONTENT, or specific dimension
@@ -572,7 +572,7 @@ class MainActivity : AppCompatActivity() {
 
             btNRO = Button(applicationContext)
             if (isNotificationListenerPermissionGranted())
-            btNRO.text = "Granted"
+                btNRO.text = "Granted"
             else btNRO.text = bTx
             btNRO.setOnClickListener {
 
@@ -748,24 +748,6 @@ class MainActivity : AppCompatActivity() {
             arrayListKeys.add("Colorful Bokeh Lights")
             addWallKey("Colorful Bokeh Lights", false)
         }
-
-
-    }
-
-    fun isAccessibilityServiceEnabled(
-        context: Context,
-        service: Class<out AccessibilityService?>
-    ): Boolean {
-        val am = context.getSystemService(ACCESSIBILITY_SERVICE) as AccessibilityManager
-        val enabledServices =
-            am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
-
-        for (enabledService in enabledServices) {
-            val enabledServiceInfo = enabledService.resolveInfo.serviceInfo
-            if (enabledServiceInfo.packageName == context.packageName && enabledServiceInfo.name == service.name) return true
-        }
-
-        return false
     }
 
     private fun addWallKey(s: String, boolSelection: Boolean) {
@@ -848,7 +830,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         getFavoriteContacts(applicationContext)
-    updateWidget()
+        updateWidget()
     }
 
     private fun updateWidget() {
@@ -1005,192 +987,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-  /*  @SuppressLint("MissingInflatedId")
-    private fun showTwitterHandleDialog() {
-        val factory = LayoutInflater.from(this)
-        twitterHandleDialog = factory.inflate(R.layout.twitter_handle_layout, null)
-        val twitterDialog = AlertDialog.Builder(this).create()
-        twitterDialog.setView(twitterHandleDialog)
-        editTextTwitterHandle = twitterHandleDialog.findViewById<EditText>(R.id.edtx_th)
-        editTextTwitterHandle.setText("")
-        twitterHandleDialog.findViewById<View>(R.id.btn_ok)
-            .setOnClickListener { //your business logic
-
-                if (editTextTwitterHandle.text.toString().equals("Fact")) {
-                    twitterProfileName = "Fact"
-                    listTweets.clear()
-                    rawTweets(true)
-                } else {
-                    getTweetID(editTextTwitterHandle.text.toString(), true)
-                }
-                twitterDialog.dismiss()
-
-
-            }
-        twitterHandleDialog.findViewById<View>(R.id.btn_cancel)
-            .setOnClickListener { twitterDialog.dismiss() }
-
-        twitterDialog.show()
-    }
-
-     private fun getTweetID(uname: String, showPD: Boolean) {
-
-        val client = OkHttpClient()
-
-        val request = Request.Builder()
-            .url("https://twitter241.p.rapidapi.com/user?username=$uname")
-            .get()
-            .addHeader("x-rapidapi-key", "8521aa6a65mshab927b74fff566dp175607jsn24cd6edd63a7")
-            .addHeader("x-rapidapi-host", "twitter241.p.rapidapi.com")
-            .build()
-
-
-        pD.setTitle("Twitter")
-        pD.setMessage("fetching user ID...")
-        if (showPD)
-            pD.show()
-        lifecycleScope.launch(Dispatchers.IO) {
-            responseTweetID = client.newCall(request).execute()
-
-            withContext(Dispatchers.Main) {
-                // Handle the result and hide the loading indicator
-                if (showPD)
-                    pD.dismiss()
-                val responseBodyString = responseTweetID.peekBody(Long.MAX_VALUE).string()
-
-
-                val jsonObject = JSONObject(responseBodyString)
-
-                if (jsonObject.getJSONObject("result").getJSONObject("data").optString("user")
-                        .isNotEmpty()
-                )
-                    if (jsonObject.getJSONObject("result").getJSONObject("data")
-                            .getJSONObject("user").optString("result")
-                            .isNotEmpty()
-                    )
-                        if (jsonObject.getJSONObject("result").getJSONObject("data")
-                                .getJSONObject("user").getJSONObject("result").optString("rest_id")
-                                .isNotEmpty()
-                        ) {
-                            twitterID = jsonObject.getJSONObject("result").getJSONObject("data")
-                                .getJSONObject("user")
-                                .getJSONObject("result").getString("rest_id")
-                            twitterPicUrl = jsonObject.getJSONObject("result").getJSONObject("data")
-                                .getJSONObject("user")
-                                .getJSONObject("result").getJSONObject("avatar")
-                                .getString("image_url")
-
-                            twitterProfileName =
-                                jsonObject.getJSONObject("result").getJSONObject("data")
-                                    .getJSONObject("user")
-                                    .getJSONObject("result").getJSONObject("core")
-                                    .getString("screen_name")
-                            Log.d("TwitterPicUrl - ", twitterPicUrl)
-
-                            remoteViews =
-                                RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
-                            newAppWidget =
-                                ComponentName(applicationContext, NewAppWidget::class.java)
-                            remoteViews?.setImageViewUri(R.id.twSettings, Uri.parse(twitterPicUrl))
-
-                       updateWidget()
-
-                            Log.d(TAG + "responseTweetID - ", responseBodyString)
-                            Log.d(TAG + "Tw ID - ", twitterID + " - " + twitterProfileName)
-
-                            if (showPD)
-                                pD.dismiss()
-
-                            getTweets(twitterID, showPD)
-                        } else {
-                            if (showPD)
-                                pD.dismiss()
-                            makeSnack("Twitter User doesn't Exist!")
-
-                        }
-                    else {
-                        if (showPD)
-                            pD.dismiss()
-                        makeSnack("Twitter User doesn't Exist!")
-
-                    }
-                else {
-                    if (showPD)
-                        pD.dismiss()
-                    makeSnack("Twitter User doesn't Exist!")
-
-                }
-                // Update UI with result
-            }
-        }
-
-
-    }
-
-    private fun getTweets(twitterID: String, showPD: Boolean) {
-
-        val client = OkHttpClient()
-
-        val request = Request.Builder()
-            .url("https://twitter241.p.rapidapi.com/user-tweets?user=$twitterID&count=5")
-            .get()
-            .addHeader("x-rapidapi-key", "8521aa6a65mshab927b74fff566dp175607jsn24cd6edd63a7")
-            .addHeader("x-rapidapi-host", "twitter241.p.rapidapi.com")
-            .build()
-
-        pD.setTitle("Twitter")
-        pD.setMessage("fetching Tweets...")
-        if (showPD)
-            pD.show()
-        lifecycleScope.launch(Dispatchers.IO) {
-            responseTweets = client.newCall(request).execute()
-
-            var js: JSONArray = (JSONObject(responseTweets.body?.string()).getJSONObject("result")
-                .getJSONObject("timeline")
-                .getJSONArray("instructions"))//[2] as JSONObject).getJSONArray("entries")
-
-            for (i in 0 until js.length()) {
-                if (js[i].toString().contains("entries"))
-                    js = (js[i] as JSONObject).getJSONArray("entries")
-            }
-
-            withContext(Dispatchers.Main) {
-                if (showPD)
-                    pD.dismiss()
-                if (js.length() > 0)
-                    listTweets.clear()
-                for (i in 0 until js.length()) {
-                    val tw =
-                        JSONObject(js[i].toString()).getJSONObject("content")//.getJSONObject("itemContent").getJSONObject("tweet_results").getJSONObject("result")
-                    //   .getJSONObject("legacy").get("full_text")
-
-                    if (tw.optString("itemContent").isNotEmpty()) {
-                        val actTw = tw.getJSONObject("itemContent").getJSONObject("tweet_results")
-                            .getJSONObject("result")
-                            .getJSONObject("legacy").get("full_text")
-
-                        Log.d("Twwtt $i", actTw.toString())
-                        listTweets.add(actTw.toString())
-                    }
-                }
-
-                makeSnack("Tweets - ${listTweets.size}")
-
-                remoteViews = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
-                newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
-                remoteViews?.setTextViewText(
-                    R.id.tx_tweets,
-                    "@" + twitterProfileName + "\t ~ \t" + listTweets[1]
-                )
-
-           updateWidget()
-
-            }
-        }
-
-        Log.d("result", "res - ${listTweets.size}")
-    }*/
-
 
     suspend fun getBitmapFromUrl(imageUrl: String): Bitmap? {
         return withContext(Dispatchers.IO) { // Switch to the IO dispatcher for network operations
@@ -1263,7 +1059,7 @@ class MainActivity : AppCompatActivity() {
         newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
 
 
-   updateWidget()
+        updateWidget()
 
     }
 
@@ -1275,17 +1071,6 @@ class MainActivity : AppCompatActivity() {
         val pattern: Pattern = Pattern.compile(urlRegex, Pattern.CASE_INSENSITIVE)
         val matcher: Matcher = pattern.matcher(text)
         return matcher.find() // Returns true if a match is found
-    }
-
-
-
-
-
-    fun formatMilliseconds(milliseconds: Long): String {
-        val totalSeconds = milliseconds / 1000
-        val minutes = totalSeconds / 60
-        val seconds = totalSeconds % 60
-        return String.format("%02d:%02d", minutes, seconds)
     }
 
 
@@ -1341,14 +1126,17 @@ class MainActivity : AppCompatActivity() {
                 cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
             )
 
-            val color = Color.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
+            val color =
+                Color.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
             var contactBitmap: Bitmap?
 
-            contactBitmap = ContactPhotoHelper.retrieveContactPhoto(mainActivityContext, contactID.toLong())
+            contactBitmap =
+                ContactPhotoHelper.retrieveContactPhoto(mainActivityContext, contactID.toLong())
 
             if (contactBitmap == null)
                 contactBitmap = CharacterToBitmapConverter.getBitmapFromCharacter(
-                    cNme[0], 100, 100, 70, color)
+                    cNme[0], 100, 100, 70, color
+                )
 
             var c = Contact(contactID, cNme, phoneNumber, contactBitmap)
 
@@ -1389,7 +1177,6 @@ class MainActivity : AppCompatActivity() {
         sharedPreferencesEditor.remove(key).commit()
         sharedPreferencesEditor.putString(key, json).commit()
     }
-
 
 
     private fun sortApps(queryUsageStats: List<UsageStats>) {
@@ -1576,94 +1363,93 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
 
-            if (requestCode == ALL_PERMISSIONS_REQUEST_CODE) {
-                var allGranted = true
-                for (result in grantResults) {
-                    if (result != PERMISSION_GRANTED) {
-                        allGranted = false
-                        break
-                    }
+        if (requestCode == ALL_PERMISSIONS_REQUEST_CODE) {
+            var allGranted = true
+            for (result in grantResults) {
+                if (result != PERMISSION_GRANTED) {
+                    allGranted = false
+                    break
                 }
-                if (allGranted) {
+            }
+            if (allGranted) {
 
-                    //   AccessibilityServicePermissionDialog()
-                    usageStatsPermissionDialog()
+                //   AccessibilityServicePermissionDialog()
+                usageStatsPermissionDialog()
 
+                sharedPreferencesEditor.putBoolean("LP", true).apply()
+
+                btnL.text = "Granted"
+
+
+                sharedPreferencesEditor.putBoolean("ARP", true).apply()
+                startStepsService()
+                btnAR.text = "Granted"
+
+
+                sharedPreferencesEditor.putBoolean("RCP", true).apply()
+                getFavoriteContacts(applicationContext)
+                btnRC.text = "Granted"
+
+
+                sharedPreferencesEditor.putBoolean("BP", true).apply()
+                btnBT.text = "Granted"
+
+
+                sharedPreferencesEditor.putBoolean("PNP", true).apply()
+                btnPN.text = "Granted"
+
+
+                sharedPreferencesEditor.putBoolean("CPP", true).apply()
+                btnCP.text = "Granted"
+
+
+            } else {
+                makeToast("Some permissions denied")
+            }
+        } else if (requestCode == LOC_P) {
+            if (grantResults.isNotEmpty())
+                if (grantResults[0].equals(PERMISSION_GRANTED)) {
                     sharedPreferencesEditor.putBoolean("LP", true).apply()
 
                     btnL.text = "Granted"
+                }
 
-
+        } else if (requestCode == ACTIVITY_RECOGNITION_P) {
+            if (grantResults.isNotEmpty())
+                if (grantResults[0].equals(PERMISSION_GRANTED)) {
                     sharedPreferencesEditor.putBoolean("ARP", true).apply()
                     startStepsService()
                     btnAR.text = "Granted"
-
-
+                }
+        } else if (requestCode == READ_CONTACTS_P) {
+            if (grantResults.isNotEmpty())
+                if (grantResults[0].equals(PERMISSION_GRANTED)) {
                     sharedPreferencesEditor.putBoolean("RCP", true).apply()
                     getFavoriteContacts(applicationContext)
                     btnRC.text = "Granted"
-
-
+                }
+        } else if (requestCode == BLUETOOTH_P) {
+            if (grantResults.isNotEmpty())
+                if (grantResults[0].equals(PERMISSION_GRANTED)) {
                     sharedPreferencesEditor.putBoolean("BP", true).apply()
                     btnBT.text = "Granted"
-
-
+                }
+        } else if (requestCode == NOTIfications_P) {
+            if (grantResults.isNotEmpty())
+                if (grantResults[0].equals(PERMISSION_GRANTED)) {
                     sharedPreferencesEditor.putBoolean("PNP", true).apply()
                     btnPN.text = "Granted"
-
-
+                }
+        } else if (requestCode == CALLPHONE_P) {
+            if (grantResults.isNotEmpty())
+                if (grantResults[0].equals(PERMISSION_GRANTED)) {
                     sharedPreferencesEditor.putBoolean("CPP", true).apply()
                     btnCP.text = "Granted"
-
-
-
-                } else {
-                    makeToast("Some permissions denied")
                 }
-            } else if (requestCode == LOC_P) {
-                if (grantResults.isNotEmpty())
-                    if (grantResults[0].equals(PERMISSION_GRANTED)) {
-                        sharedPreferencesEditor.putBoolean("LP", true).apply()
+        }
 
-                        btnL.text = "Granted"
-                    }
-
-            } else if (requestCode == ACTIVITY_RECOGNITION_P) {
-                if (grantResults.isNotEmpty())
-                    if (grantResults[0].equals(PERMISSION_GRANTED)) {
-                        sharedPreferencesEditor.putBoolean("ARP", true).apply()
-                        startStepsService()
-                        btnAR.text = "Granted"
-                    }
-            } else if (requestCode == READ_CONTACTS_P) {
-                if (grantResults.isNotEmpty())
-                    if (grantResults[0].equals(PERMISSION_GRANTED)) {
-                        sharedPreferencesEditor.putBoolean("RCP", true).apply()
-                        getFavoriteContacts(applicationContext)
-                        btnRC.text = "Granted"
-                    }
-            } else if (requestCode == BLUETOOTH_P) {
-                if (grantResults.isNotEmpty())
-                    if (grantResults[0].equals(PERMISSION_GRANTED)) {
-                        sharedPreferencesEditor.putBoolean("BP", true).apply()
-                        btnBT.text = "Granted"
-                    }
-            } else if (requestCode == NOTIfications_P) {
-                if (grantResults.isNotEmpty())
-                    if (grantResults[0].equals(PERMISSION_GRANTED)) {
-                        sharedPreferencesEditor.putBoolean("PNP", true).apply()
-                        btnPN.text = "Granted"
-                    }
-            } else if (requestCode == CALLPHONE_P) {
-                if (grantResults.isNotEmpty())
-                    if (grantResults[0].equals(PERMISSION_GRANTED)) {
-                        sharedPreferencesEditor.putBoolean("CPP", true).apply()
-                        btnCP.text = "Granted"
-                    }
-            }
-
-            if (nPermissions())
-                instructionsDialogBuilder.create().dismiss()
+        if (nPermissions())
+            instructionsDialogBuilder.create().dismiss()
 
     }
 
@@ -1697,7 +1483,11 @@ class MainActivity : AppCompatActivity() {
                         rawTweets(false)
                         getFavoriteContacts(mainActivityContext)
                         iDV.dismiss()
-                    } else ActivityCompat.requestPermissions(this, permissions, ALL_PERMISSIONS_REQUEST_CODE);
+                    } else ActivityCompat.requestPermissions(
+                        this,
+                        permissions,
+                        ALL_PERMISSIONS_REQUEST_CODE
+                    );
                 }
             }
             dialog.dismiss()
@@ -1728,13 +1518,13 @@ class MainActivity : AppCompatActivity() {
                     when (state) {
                         BluetoothAdapter.STATE_OFF -> {
                             remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_off)
-                  updateWidget()
+                            updateWidget()
                         }
 
                         BluetoothAdapter.STATE_TURNING_OFF -> {}
                         BluetoothAdapter.STATE_ON -> {
                             remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_on)
-                   updateWidget()
+                            updateWidget()
                         }
 
                         BluetoothAdapter.STATE_TURNING_ON -> {}
@@ -1839,30 +1629,26 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-   //     if (isAccessibilityServiceEnabled(applicationContext, LockAccessibilityService::class.java) || boolAccessibilityNotNow) {
-            sharedPreferencesEditor.putBoolean("AS", true).apply()
+        sharedPreferencesEditor.putBoolean("AS", true).apply()
 
-            /*if (!boolAccessibilityNotNow)
-            btnAS.text = "Granted"
-            else btnAS.text = "Not Now"*/
-
-            if (!nPermissions()) {
-
-                //h3r3
-                if (!isNotificationListenerPermissionGranted())
+        if (!nPermissions()) {
+            if (!isNotificationListenerPermissionGranted())
                 readNotificationsPermissionDialog()
-                else btNRO.text = "Granted"
+            else btNRO.text = "Granted"
 
-                buttonAll.text = "Proceed"
-            }
-            buttonAll.setOnClickListener {
-                if (!nPermissions()) {
-                    rawTweets(false)
-                    getFavoriteContacts(mainActivityContext)
-                    iDV.dismiss()
-                } else ActivityCompat.requestPermissions(this, permissions, ALL_PERMISSIONS_REQUEST_CODE);
-            }
-    //    }
+            buttonAll.text = "Proceed"
+        }
+        buttonAll.setOnClickListener {
+            if (!nPermissions()) {
+                rawTweets(false)
+                getFavoriteContacts(mainActivityContext)
+                iDV.dismiss()
+            } else ActivityCompat.requestPermissions(
+                this,
+                permissions,
+                ALL_PERMISSIONS_REQUEST_CODE
+            );
+        }
 
         if (UsageStatsChecker().hasUsageStatsPermission(applicationContext)) {
             btnAUS.text = "Granted"
@@ -1882,12 +1668,12 @@ class MainActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings ->
-                {
+            R.id.action_settings -> {
 
-                    iDV.show()
-                    true
-                }
+                iDV.show()
+                true
+            }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -1903,11 +1689,7 @@ class MainActivity : AppCompatActivity() {
         lateinit var llKeywords: LinearLayout
         lateinit var scrollKeys: HorizontalScrollView
         lateinit var pickContactLauncher: ActivityResultLauncher<Intent>
-        private val CPick: Int = 7
-        private val REQUEST_CONTACT_PICKER: Int = 9
-        lateinit var pDNews: ProgressDialog
         lateinit var pD: ProgressDialog
-        private lateinit var newsimgLink: String
         val mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         var apps: ArrayList<InstalledApp> = ArrayList()
         var wallDelay: Int = 0
@@ -1917,16 +1699,13 @@ class MainActivity : AppCompatActivity() {
         var cYear by Delegates.notNull<Int>()
         val beginCal = Calendar.getInstance()
         val endCal = Calendar.getInstance()
-        private val newSAPIKEY: String = "3fa88b5851974caea39bcc59bd2e5746"
-        var newsIndex: Int = 0
-        private val TAG: String = "MainActTAG"
-        lateinit var launcher: ActivityResultLauncher<Intent>
+
+        lateinit var currentLocation: Location
         var cityname: String = " "
         var cityLat: Double = 0.0
         var cityLng: Double = 0.0
 
         var weatherIconState: String = ""
-        var weatherIconSubState: String = ""
         var tempC: String = ""
         var tempKind: String = ""
         var weatherIconID: String = ""
@@ -1947,32 +1726,15 @@ class MainActivity : AppCompatActivity() {
         val imgUrls: ArrayList<String> = ArrayList()
         var imgDescs: ArrayList<String> = ArrayList()
 
-        fun isAccessibilityServiceEnabled(
-            context: Context,
-            service: Class<out AccessibilityService?>
-        ): Boolean {
-            val am: AccessibilityManager =
-                context.getSystemService(ACCESSIBILITY_SERVICE) as AccessibilityManager
-            val enabledServices: List<AccessibilityServiceInfo> =
-                am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
-
-            for (enabledService in enabledServices) {
-                val enabledServiceInfo: ServiceInfo = enabledService.resolveInfo.serviceInfo
-                if (enabledServiceInfo.packageName.equals(context.packageName) && enabledServiceInfo.name.equals(
-                        service.name
-                    )
-                )
-                    return true
-            }
-
-            return false
+        fun BitmapRotated(angle: Int, contx: Context): Bitmap {
+            var needleBitmap = BitmapFactory.decodeResource(widgetContext.resources, R.drawable.s_needle)
+            val matrix = Matrix()
+            matrix.postRotate(angle.toFloat())
+            return Bitmap.createBitmap(needleBitmap, 0, 0, needleBitmap.width, needleBitmap.height, matrix, true)
         }
 
-
-
-
         fun makeToast(s: String) {
-        //    Toast.makeText(applicationContext, s, Toast.LENGTH_SHORT).show()
+            //    Toast.makeText(applicationContext, s, Toast.LENGTH_SHORT).show()
             Log.d("makeToastinG", s)
         }
 
@@ -1983,10 +1745,6 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-
-
-
-
         fun pickContact() {
             val intent = Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
             try {
@@ -1995,8 +1753,6 @@ class MainActivity : AppCompatActivity() {
                 makeToast("Ex - ${ex.message}")
             }
         }
-
-
 
     }
 

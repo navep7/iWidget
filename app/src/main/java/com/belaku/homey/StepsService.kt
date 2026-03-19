@@ -36,6 +36,7 @@ import androidx.core.app.NotificationCompat
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
+import com.belaku.homey.MainActivity.Companion.currentLocation
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
 import com.belaku.homey.MainActivity.Companion.tempKind
@@ -47,6 +48,7 @@ import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
+import com.belaku.homey.NewAppWidget.Companion.widgetContext
 import com.belaku.homey.SetWallWorker.Companion.TAG
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
@@ -71,6 +73,7 @@ import java.util.Locale
 
 
 class StepsService : Service() {
+
 
     private lateinit var mSensorEventListener: SensorEventListener
     lateinit var stepCounterSensor: Sensor
@@ -115,6 +118,7 @@ class StepsService : Service() {
                                 getWeatherData(LatLng(location.latitude, location.longitude))
                             }
 
+                            currentLocation = location
                             getAddress(location.latitude, location.longitude)
                         }
                     }
@@ -220,7 +224,7 @@ class StepsService : Service() {
     }
 
     fun isLocationEnabled(context: Context): Boolean {
-        val locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
+        locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
                 locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
@@ -389,6 +393,7 @@ class StepsService : Service() {
 
     companion object {
 
+        lateinit var locationManager: LocationManager
         var twitterProfileName: String = "Fact"
         lateinit var mLocationResult: LocationResult
         var totalUsage: String = ""
