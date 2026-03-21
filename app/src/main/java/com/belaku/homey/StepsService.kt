@@ -30,6 +30,7 @@ import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.view.View
+import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
@@ -47,6 +48,7 @@ import com.belaku.homey.MainActivity.Companion.weatherIconState
 import com.belaku.homey.MainActivity.Companion.weatherIconUrl
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
+import com.belaku.homey.NewAppWidget.Companion.isAppWidMInitialized
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.widgetContext
@@ -204,7 +206,7 @@ class StepsService : Service() {
                 stepsToday++
 
                 if (presentActivityState == "WALKING") {
-                    remoteViews?.setTextViewText(R.id.tx_stepstoday, "Steps, today ~ $stepsToday")
+                    remoteViews?.setTextViewText(R.id.tx_stepstoday, "Steps ~ $stepsToday")
                     remoteViews?.setTextViewText(R.id.tx_steps_km_today, "Distance ~ " + (stepsToday * 74f / 100000f).toString())
                 }
 
@@ -216,10 +218,11 @@ class StepsService : Service() {
                     sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
                     boolNewLap = sharedPreferences.getBoolean("newLap", false)
 
-
-                    appWidM.updateAppWidget(newAppWidget, remoteViews)
-
                 }
+
+
+                if (isAppWidMInitialized())
+                appWidM.updateAppWidget(newAppWidget, remoteViews)
 
             }
 

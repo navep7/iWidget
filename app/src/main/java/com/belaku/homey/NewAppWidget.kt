@@ -113,6 +113,7 @@ import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.belaku.homey.StepsService.Companion.choosenApps
+import com.belaku.homey.StepsService.Companion.presentActivityState
 import com.belaku.homey.StepsService.Companion.totalUsage
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityTransition
@@ -132,7 +133,6 @@ import java.util.Locale
 
 
 class NewAppWidget : AppWidgetProvider() {
-
 
 
     private val TAG: String = "NewAppWidget"
@@ -156,7 +156,7 @@ class NewAppWidget : AppWidgetProvider() {
         sharedPreferencesEditor = sharedPreferences.edit()
 
         if (ismActInitialized())
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
+            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
 
 
         recognizeActivityTransitions()
@@ -271,6 +271,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             widgetContext = context
 
+            recognizeActivityTransitions()
             setUI()
             readApps()
             getFavoriteContacts()
@@ -294,13 +295,19 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
 
-
-
-
-
-
     private fun setOnClickPendingIntents(context: Context) {
         // Create a PendingIntent
+
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_nextstate,
+            getPendingSelfIntent(context, NEXT_STATE)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_prevstate,
+            getPendingSelfIntent(context, PREV_STATE)
+        )
 
         remoteViews?.setOnClickPendingIntent(
             R.id.fl_speed,
@@ -367,13 +374,13 @@ class NewAppWidget : AppWidgetProvider() {
             getPendingSelfIntent(context, C_CLICKED)
         )
 
-      /*  remoteViews?.setOnClickPendingIntent(
-            R.id.imgbtn_add_contact, PendingIntent.getActivity(
-                context, 1,
-                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
-                PendingIntent.FLAG_IMMUTABLE
-            )
-        )*/
+        /*  remoteViews?.setOnClickPendingIntent(
+              R.id.imgbtn_add_contact, PendingIntent.getActivity(
+                  context, 1,
+                  Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
+                  PendingIntent.FLAG_IMMUTABLE
+              )
+          )*/
 
         remoteViews?.setOnClickPendingIntent(
             R.id.rl_player, PendingIntent.getActivity(
@@ -419,17 +426,17 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.fab_reminders,
+            R.id.tx_reminders,
             remindersPendingIntent
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.tx_breatheincrement,
+            R.id.tx_breathe,
             getPendingSelfIntent(context, BREATHE_INC)
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_drinkincrement,
+            R.id.tx_drink,
             getPendingSelfIntent(context, DRINK_INC)
         )
 
@@ -874,7 +881,6 @@ class NewAppWidget : AppWidgetProvider() {
             )
 
 
-
             val metrics = DisplayMetrics()
 
             if (ismActInitialized()) {
@@ -890,22 +896,56 @@ class NewAppWidget : AppWidgetProvider() {
             //  findViewById<View>(R.id.myLayout).background = gradientDrawable
 
 
-
-
             if (ColorUtil().isColorDark(primaryColor)) {
 
                 makeToast("Dark")
 
-                remoteViews?.setInt(R.id.tx_myspace, "setBackgroundResource", R.drawable.gradient_glass_light)
-                remoteViews?.setInt(R.id.imgbtn_lock, "setBackgroundResource", R.drawable.gradient_glass_light)
-                remoteViews?.setInt(R.id.imgbtn_qr, "setBackgroundResource", R.drawable.gradient_glass_light)
-                remoteViews?.setInt(R.id.rl_setwall, "setBackgroundResource", R.drawable.gradient_glass_light)
-                remoteViews?.setInt(R.id.imgv_conf, "setBackgroundResource", R.drawable.gradient_glass_light)
+                remoteViews?.setInt(
+                    R.id.tx_myspace,
+                    "setBackgroundResource",
+                    R.drawable.gradient_glass_light
+                )
+                remoteViews?.setInt(
+                    R.id.imgbtn_lock,
+                    "setBackgroundResource",
+                    R.drawable.gradient_glass_light
+                )
+                remoteViews?.setInt(
+                    R.id.imgbtn_qr,
+                    "setBackgroundResource",
+                    R.drawable.gradient_glass_light
+                )
+                remoteViews?.setInt(
+                    R.id.rl_setwall,
+                    "setBackgroundResource",
+                    R.drawable.gradient_glass_light
+                )
+                remoteViews?.setInt(
+                    R.id.imgv_conf,
+                    "setBackgroundResource",
+                    R.drawable.gradient_glass_light
+                )
 
-                remoteViews?.setInt(R.id.imgv_ps, "setBackgroundResource", R.drawable.gradient_glass_dark)
-                remoteViews?.setInt(R.id.imgbtn_g_apps, "setBackgroundResource", R.drawable.gradient_glass_dark)
-                remoteViews?.setInt(R.id.imgbtn_speech, "setBackgroundResource", R.drawable.gradient_glass_dark)
-                remoteViews?.setInt(R.id.imgv_dialler, "setBackgroundResource", R.drawable.gradient_glass_dark)
+                remoteViews?.setInt(
+                    R.id.imgv_ps,
+                    "setBackgroundResource",
+                    R.drawable.gradient_glass_dark
+                )
+                remoteViews?.setInt(
+                    R.id.imgbtn_g_apps,
+                    "setBackgroundResource",
+                    R.drawable.gradient_glass_dark
+                )
+                remoteViews?.setInt(
+                    R.id.imgbtn_speech,
+                    "setBackgroundResource",
+                    R.drawable.gradient_glass_dark
+                )
+                remoteViews?.setInt(
+                    R.id.imgv_dialler,
+                    "setBackgroundResource",
+                    R.drawable.gradient_glass_dark
+                )
 
 
                 remoteViews?.setColorInt(
@@ -962,16 +1002,52 @@ class NewAppWidget : AppWidgetProvider() {
 
                 makeToast("Light")
 
-                remoteViews?.setInt(R.id.tx_myspace, "setBackgroundResource", R.drawable.gradient_glass_dark)
-                remoteViews?.setInt(R.id.imgbtn_lock, "setBackgroundResource", R.drawable.gradient_glass_dark)
-                remoteViews?.setInt(R.id.imgbtn_qr, "setBackgroundResource", R.drawable.gradient_glass_dark)
-                remoteViews?.setInt(R.id.rl_setwall, "setBackgroundResource", R.drawable.gradient_glass_dark)
-                remoteViews?.setInt(R.id.imgv_conf, "setBackgroundResource", R.drawable.gradient_glass_dark)
+                remoteViews?.setInt(
+                    R.id.tx_myspace,
+                    "setBackgroundResource",
+                    R.drawable.gradient_glass_dark
+                )
+                remoteViews?.setInt(
+                    R.id.imgbtn_lock,
+                    "setBackgroundResource",
+                    R.drawable.gradient_glass_dark
+                )
+                remoteViews?.setInt(
+                    R.id.imgbtn_qr,
+                    "setBackgroundResource",
+                    R.drawable.gradient_glass_dark
+                )
+                remoteViews?.setInt(
+                    R.id.rl_setwall,
+                    "setBackgroundResource",
+                    R.drawable.gradient_glass_dark
+                )
+                remoteViews?.setInt(
+                    R.id.imgv_conf,
+                    "setBackgroundResource",
+                    R.drawable.gradient_glass_dark
+                )
 
-                remoteViews?.setInt(R.id.imgv_ps, "setBackgroundResource", R.drawable.gradient_glass_light)
-                remoteViews?.setInt(R.id.imgbtn_g_apps, "setBackgroundResource", R.drawable.gradient_glass_light)
-                remoteViews?.setInt(R.id.imgbtn_speech, "setBackgroundResource", R.drawable.gradient_glass_light)
-                remoteViews?.setInt(R.id.imgv_dialler, "setBackgroundResource", R.drawable.gradient_glass_light)
+                remoteViews?.setInt(
+                    R.id.imgv_ps,
+                    "setBackgroundResource",
+                    R.drawable.gradient_glass_light
+                )
+                remoteViews?.setInt(
+                    R.id.imgbtn_g_apps,
+                    "setBackgroundResource",
+                    R.drawable.gradient_glass_light
+                )
+                remoteViews?.setInt(
+                    R.id.imgbtn_speech,
+                    "setBackgroundResource",
+                    R.drawable.gradient_glass_light
+                )
+                remoteViews?.setInt(
+                    R.id.imgv_dialler,
+                    "setBackgroundResource",
+                    R.drawable.gradient_glass_light
+                )
 
 
                 remoteViews?.setColorInt(
@@ -1081,7 +1157,10 @@ class NewAppWidget : AppWidgetProvider() {
                     R.id.imgbtn_set, PendingIntent.getActivity(
                         widgetContext,
                         18,
-                        Intent(widgetContext, DialogActivity::class.java).putExtra("DialogIntent", "AD"),
+                        Intent(widgetContext, DialogActivity::class.java).putExtra(
+                            "DialogIntent",
+                            "AD"
+                        ),
                         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                     )
                 )
@@ -1151,7 +1230,7 @@ class NewAppWidget : AppWidgetProvider() {
         sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
-    //    setUI()
+        //    setUI()
         handleIntentActions(intent)
 
         appWidM = AppWidgetManager.getInstance(widgetContext)
@@ -1160,12 +1239,11 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
 
-
     @SuppressLint("InflateParams", "ResourceAsColor")
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleIntentActions(intent: Intent) {
 
-       if (BATTERY_INFO == intent.action) {
+        if (BATTERY_INFO == intent.action) {
             val powerUsageIntent = Intent("android.intent.action.POWER_USAGE_SUMMARY")
             if (powerUsageIntent.resolveActivity(widgetContext.getPackageManager()) != null) {
                 powerUsageIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -1209,8 +1287,7 @@ class NewAppWidget : AppWidgetProvider() {
                 ).putExtra("DialogIntent", "SongCover")
                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
-        }
-        else if (ACTION_LIST_CONTACTITEM_CLICK == intent.action) {
+        } else if (ACTION_LIST_CONTACTITEM_CLICK == intent.action) {
             // Extract the item position or ID from the intent extras
 
             getFavoriteContacts()
@@ -1255,9 +1332,10 @@ class NewAppWidget : AppWidgetProvider() {
 
                 if (viewID == 0) {
                     makeToast(choosenApps[position].name)
-                    val launchIntent: Intent = widgetContext.packageManager.getLaunchIntentForPackage(
-                        choosenApps[position].pName
-                    )!!
+                    val launchIntent: Intent =
+                        widgetContext.packageManager.getLaunchIntentForPackage(
+                            choosenApps[position].pName
+                        )!!
 
                     // Optional: Add flags for desired behavior (e.g., to ensure a new task is created)
                     launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -1315,7 +1393,8 @@ class NewAppWidget : AppWidgetProvider() {
             if (!isFlashAvailable) {
                 //  return
             }
-            val cameraManager = widgetContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+            val cameraManager =
+                widgetContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
             var cameraId: String? = null
             try {
                 cameraId = cameraManager.cameraIdList[0] // Typically the back camera
@@ -1348,20 +1427,24 @@ class NewAppWidget : AppWidgetProvider() {
 
         } else if (BREATHE_INC == intent.action) {
             makeToast("!BREATHE_INC")
-           var bC = sharedPreferences.getInt("breatheCount", 0)
-           bC++
+            var bC = sharedPreferences.getInt("breatheCount", 0)
+            bC++
             sharedPreferencesEditor.putInt("breatheCount", bC).commit()
-           makeToast("setting $bC")
+            makeToast("setting $bC")
             remoteViews?.setTextViewText(R.id.tx_breathe_count, bC.toString())
-       } else if (DRINK_INC == intent.action) {
-           makeToast("!DRINK_INC")
-           var dC = sharedPreferences.getInt("drinkCount", 0)
-           dC++
-           sharedPreferencesEditor.putInt("drinkCount", dC).commit()
-           remoteViews?.setTextViewText(R.id.tx_drink_count, dC.toString())
-       } else if (LOCK_PHONE == intent.action) {
+        } else if (DRINK_INC == intent.action) {
+            makeToast("!DRINK_INC")
+            var dC = sharedPreferences.getInt("drinkCount", 0)
+            dC++
+            sharedPreferencesEditor.putInt("drinkCount", dC).commit()
+            remoteViews?.setTextViewText(R.id.tx_drink_count, dC.toString())
+        } else if (LOCK_PHONE == intent.action) {
             if (widgetContext != null) {
-                if (isAccessibilityServiceEnabled(widgetContext, LockAccessibilityService::class.java))
+                if (isAccessibilityServiceEnabled(
+                        widgetContext,
+                        LockAccessibilityService::class.java
+                    )
+                )
                     LockAccessibilityService.lockScreenAccessibility(widgetContext)
                 else widgetContext.startActivity(
                     Intent(
@@ -1384,6 +1467,44 @@ class NewAppWidget : AppWidgetProvider() {
             val intentContacts = Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI)
             intentContacts.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             widgetContext.startActivity(intentContacts)
+        } else if (NEXT_STATE == intent.action) {
+
+            if (sharedPreferences.getString("actState", "STILL") == "STILL") {
+                sharedPreferencesEditor.putString("actState", "WALKING").commit()
+                remoteViews?.setTextViewText(R.id.tx_activity_state, "WALKING")
+                remoteViews?.setViewVisibility(R.id.rl_still_state, View.INVISIBLE)
+                remoteViews?.setViewVisibility(R.id.rl_walking_state, View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.fl_speed, View.INVISIBLE)
+            } else if (sharedPreferences.getString("actState", "STILL") == "WALKING") {
+                sharedPreferencesEditor.putString("actState", "INVEHICLE").commit()
+                remoteViews?.setTextViewText(R.id.tx_activity_state, "IN VEHICLE")
+                remoteViews?.setViewVisibility(R.id.rl_still_state, View.INVISIBLE)
+                remoteViews?.setViewVisibility(R.id.rl_walking_state, View.INVISIBLE)
+                remoteViews?.setViewVisibility(R.id.fl_speed, View.VISIBLE)
+            } else if (sharedPreferences.getString("actState", "STILL") == "INVEHICLE") {
+                sharedPreferencesEditor.putString("actState", "STILL").commit()
+                remoteViews?.setTextViewText(R.id.tx_activity_state, "STILL")
+                remoteViews?.setViewVisibility(R.id.rl_still_state, View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.rl_walking_state, View.INVISIBLE)
+                remoteViews?.setViewVisibility(R.id.fl_speed, View.INVISIBLE)
+            }
+
+        } else if (PREV_STATE == intent.action) {
+
+            if (presentActivityState == "STILL") {
+                remoteViews?.setViewVisibility(R.id.rl_still_state, View.INVISIBLE)
+                remoteViews?.setViewVisibility(R.id.rl_walking_state, View.INVISIBLE)
+                remoteViews?.setViewVisibility(R.id.fl_speed, View.VISIBLE)
+            } else if (presentActivityState == "WALKING") {
+                remoteViews?.setViewVisibility(R.id.rl_still_state, View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.rl_walking_state, View.INVISIBLE)
+                remoteViews?.setViewVisibility(R.id.fl_speed, View.INVISIBLE)
+            } else if (presentActivityState == "INVEHICLE") {
+                remoteViews?.setViewVisibility(R.id.rl_still_state, View.INVISIBLE)
+                remoteViews?.setViewVisibility(R.id.rl_walking_state, View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.fl_speed, View.INVISIBLE)
+            }
+
         } else if (TIME_CLICKED == intent.action) {
 
             if (sharedPreferences.getBoolean("AnalogV", true)) {
@@ -1513,7 +1634,8 @@ class NewAppWidget : AppWidgetProvider() {
 
             var contactBitmap: Bitmap?
 
-            contactBitmap = ContactPhotoHelper.retrieveContactPhoto(widgetContext, contactID.toLong())
+            contactBitmap =
+                ContactPhotoHelper.retrieveContactPhoto(widgetContext, contactID.toLong())
             val cNme = cursor.getString(
                 cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
             )
@@ -1561,21 +1683,30 @@ class NewAppWidget : AppWidgetProvider() {
                 "setProgressTintList",
                 greenColor
             )
-            remoteViews?.setTextColor(R.id.tx_battery, widgetContext.resources.getColor(android.R.color.holo_green_dark))
+            remoteViews?.setTextColor(
+                R.id.tx_battery,
+                widgetContext.resources.getColor(android.R.color.holo_green_dark)
+            )
         } else if (energy.toInt() < 30) {
             remoteViews?.setColorStateList(
                 R.id.progressBar_battery,
                 "setProgressTintList",
                 redColor
             )
-            remoteViews?.setTextColor(R.id.tx_battery, widgetContext.resources.getColor(android.R.color.holo_red_dark))
+            remoteViews?.setTextColor(
+                R.id.tx_battery,
+                widgetContext.resources.getColor(android.R.color.holo_red_dark)
+            )
         } else {
             remoteViews?.setColorStateList(
                 R.id.progressBar_battery,
                 "setProgressTintList",
                 amberColor
             )
-            remoteViews?.setTextColor(R.id.tx_battery, widgetContext.resources.getColor(android.R.color.holo_orange_dark))
+            remoteViews?.setTextColor(
+                R.id.tx_battery,
+                widgetContext.resources.getColor(android.R.color.holo_orange_dark)
+            )
         }
 
 
@@ -1864,6 +1995,13 @@ class NewAppWidget : AppWidgetProvider() {
         var tW: String = "..."
         lateinit var appWidM: AppWidgetManager
 
+        fun isAppWidMInitialized(): Boolean {
+            if (::appWidM.isInitialized)
+                return true
+             else
+                return false
+
+        }
 
         var selectedApps: ArrayList<SelectedApp> = ArrayList()
         lateinit var selectedApp: Bitmap
@@ -1987,7 +2125,8 @@ class NewAppWidget : AppWidgetProvider() {
         fun getScreenTime(applicationContext: Context) {
 
             if (sharedPreferences == null)
-                sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+                sharedPreferences =
+                    widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
             if (sharedPreferencesEditor == null)
                 sharedPreferencesEditor = sharedPreferences.edit()
 
@@ -2194,6 +2333,8 @@ class NewAppWidget : AppWidgetProvider() {
         private const val TORCH_STATE = "torch"
 
         //    private const val RL_INVERT = "rlInvert"
+        private const val NEXT_STATE = "nextState"
+        private const val PREV_STATE = "nextState"
         private const val SPEED_INFO = "sppedInfo"
         private const val BATTERY_INFO = "batteryInfo"
         private const val GET_WEATHER = "getWeather"
