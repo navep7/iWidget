@@ -134,8 +134,7 @@ import java.util.Locale
 class NewAppWidget : AppWidgetProvider() {
 
 
-    private lateinit var locationListenerSpeed: LocationListener
-    private lateinit var needleBitmap: Bitmap
+
     private val TAG: String = "NewAppWidget"
     private var wallpColors: ArrayList<Int> = ArrayList()
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
@@ -159,60 +158,18 @@ class NewAppWidget : AppWidgetProvider() {
         if (ismActInitialized())
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
 
-        speedTracking()
 
-    }
-
-    private fun speedTracking() {
-        Toast.makeText(widgetContext, "!speedTracking", Toast.LENGTH_SHORT).show()
-
-        locationListenerSpeed =
-            LocationListener() { location ->
-                run {
-
-                    makeToast("!locationRrd")
-                    needleBitmap =
-                        BitmapFactory.decodeResource(widgetContext.resources, R.drawable.s_needle)
-
-                    if (location.hasSpeed()) {
-                        val speedInMps = location.speed // Speed in meters/second
-
-                        // Convert to km/h (optional)
-                        val speedInKmph = (speedInMps * 3.6).toInt()
-
-
-                        var rBitmap = Bitmap.createScaledBitmap(
-                            BitmapRotated(speedInKmph, widgetContext),
-                            95,
-                            95,
-                            true
-                        )
-
-
-                        speedR(speedInKmph.toString(), rBitmap)
-                    } else speedR("0.0", scaledBitmap)
-
-                }
-            }
-
-        StepsService.locationManager.requestLocationUpdates(
-            LocationManager.GPS_PROVIDER,
-            0,
-            0f,
-            locationListenerSpeed
-        )
+        recognizeActivityTransitions()
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @SuppressLint("MissingPermission")
     private fun recognizeActivityTransitions() {
 
-        val receiver: ActivityTransitionReceiver = ActivityTransitionReceiver()
+        makeToast("!recognizeActivityTransitions")
+        val receiver = ActivityTransitionReceiver()
         val filter = IntentFilter("com.belaku.homey.CUSTOM_ACTION") // Use a unique action string
         widgetContext.registerReceiver(receiver, filter, RECEIVER_NOT_EXPORTED)
-        // Source - https://stackoverflow.com/q
-// Posted by Mehul Kanzariya, modified by community. See post 'Timeline' for change history
-// Retrieved 2026-01-18, License - CC BY-SA 4.0
 
         val intent = Intent(widgetContext, ActivityTransitionReceiver::class.java)
         val requestCodeAT = 57
@@ -306,7 +263,6 @@ class NewAppWidget : AppWidgetProvider() {
         sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
-        recognizeActivityTransitions()
         getPreciseEnergyCounter(widgetContext)
 
         i_appWidgetIds = appWidgetIds
@@ -337,73 +293,10 @@ class NewAppWidget : AppWidgetProvider() {
 
     }
 
-    private fun speedR(strSpeed: String, rBit: Bitmap) {
-
-        makeToast("!speedR")
-
-        val scaledBitmap = decodeSampledBitmapFromResource(R.drawable.s_needle, 95, 95, widgetContext)
-
-        remoteViews?.setImageViewBitmap(R.id.needle, rBit)
-        remoteViews?.setTextViewText(R.id.tx_speed, strSpeed)
-
-        remoteViews?.setViewVisibility(
-            R.id.progressBar_cyclic_speed,
-            View.INVISIBLE
-        )
-        remoteViews?.setViewVisibility(R.id.needle, View.VISIBLE)
-        remoteViews?.setViewVisibility(R.id.tx_speed, View.VISIBLE)
-        appWidM.updateAppWidget(newAppWidget, remoteViews)
-
-    //    StepsService.locationManager.removeUpdates(locationListenerSpeed)
-
-        Handler(Looper.getMainLooper()).postDelayed(Runnable {
-            StepsService.locationManager.removeUpdates(locationListenerSpeed)
-        }, 600000)
 
 
-    }
 
 
-    fun decodeSampledBitmapFromResource(
-        resId: Int,
-        reqWidth: Int,
-        reqHeight: Int,
-        context: Context
-    ): Bitmap {
-
-        // First decode with inJustDecodeBounds=true to check dimensions
-        val options = BitmapFactory.Options().apply {
-            inJustDecodeBounds = true
-        }
-        BitmapFactory.decodeResource(context.resources, resId, options)
-
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight)
-
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false
-        return BitmapFactory.decodeResource(context.resources, resId, options)
-    }
-
-    fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
-        // Raw height and width of image
-        val (height: Int, width: Int) = options.run { outHeight to outWidth }
-        var inSampleSize = 1
-
-        if (height > reqHeight || width > reqWidth) {
-
-            val halfHeight: Int = height / 2
-            val halfWidth: Int = width / 2
-
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps
-            // both height and width larger than the requested height and width.
-            while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
-                inSampleSize *= 2
-            }
-        }
-
-        return inSampleSize
-    }
 
 
     private fun setOnClickPendingIntents(context: Context) {
@@ -474,13 +367,13 @@ class NewAppWidget : AppWidgetProvider() {
             getPendingSelfIntent(context, C_CLICKED)
         )
 
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_add_contacts, PendingIntent.getActivity(
+      /*  remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_add_contact, PendingIntent.getActivity(
                 context, 1,
                 Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
                 PendingIntent.FLAG_IMMUTABLE
             )
-        )
+        )*/
 
         remoteViews?.setOnClickPendingIntent(
             R.id.rl_player, PendingIntent.getActivity(
@@ -528,6 +421,16 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setOnClickPendingIntent(
             R.id.fab_reminders,
             remindersPendingIntent
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_breatheincrement,
+            getPendingSelfIntent(context, BREATHE_INC)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_drinkincrement,
+            getPendingSelfIntent(context, DRINK_INC)
         )
 
 
@@ -1262,9 +1165,6 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleIntentActions(intent: Intent) {
 
-
-
-
        if (BATTERY_INFO == intent.action) {
             val powerUsageIntent = Intent("android.intent.action.POWER_USAGE_SUMMARY")
             if (powerUsageIntent.resolveActivity(widgetContext.getPackageManager()) != null) {
@@ -1331,7 +1231,13 @@ class NewAppWidget : AppWidgetProvider() {
                 else if (viewID == 1) {
                     unMarkAsFav(favContacts[position].id)
                 }
-            } else makeToast("INvalid Pos - $position")
+            } else {
+                val pickContactIntent =
+                    Intent(widgetContext, DialogActivity::class.java)
+                pickContactIntent.putExtra("DialogIntent", "PC")
+                pickContactIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                widgetContext.startActivity(pickContactIntent)
+            }
         } else if (ACTION_LIST_APPITEM_CLICK == intent.action) {
             // Extract the item position or ID from the intent extras
             val position = intent.getIntExtra(
@@ -1440,7 +1346,20 @@ class NewAppWidget : AppWidgetProvider() {
 
             sharedPreferencesEditor.putBoolean("newLap", boolNewLap).apply()
 
-        } else if (LOCK_PHONE == intent.action) {
+        } else if (BREATHE_INC == intent.action) {
+            makeToast("!BREATHE_INC")
+           var bC = sharedPreferences.getInt("breatheCount", 0)
+           bC++
+            sharedPreferencesEditor.putInt("breatheCount", bC).commit()
+           makeToast("setting $bC")
+            remoteViews?.setTextViewText(R.id.tx_breathe_count, bC.toString())
+       } else if (DRINK_INC == intent.action) {
+           makeToast("!DRINK_INC")
+           var dC = sharedPreferences.getInt("drinkCount", 0)
+           dC++
+           sharedPreferencesEditor.putInt("drinkCount", dC).commit()
+           remoteViews?.setTextViewText(R.id.tx_drink_count, dC.toString())
+       } else if (LOCK_PHONE == intent.action) {
             if (widgetContext != null) {
                 if (isAccessibilityServiceEnabled(widgetContext, LockAccessibilityService::class.java))
                     LockAccessibilityService.lockScreenAccessibility(widgetContext)
@@ -2281,7 +2200,8 @@ class NewAppWidget : AppWidgetProvider() {
         private const val STEPS_NOW = "newSteps"
         private const val LOCK_PHONE = "lockPhone"
         private const val SET_CLICKED = "setButtonClick"
-
+        private const val BREATHE_INC = "breatheInc"
+        private const val DRINK_INC = "drinkInc"
 
         private const val P_THUMBNAIL_CLICK = "p_album_click"
         private const val PLAYPAUSE_CLICK = "pp_click"

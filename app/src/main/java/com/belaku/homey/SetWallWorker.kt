@@ -276,6 +276,8 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
         private fun DayChanges(wallWorkerContext: Context) {
 
+            sharedPreferencesEditor.putInt("breatheCount", 0).commit()
+            sharedPreferencesEditor.putInt("drinkCount", 0).commit()
             getScreenTime(wallWorkerContext)
             if (sharedPreferences.getString("day", "someday").equals(dayOfTheWeek)) {
                 Log.d("DayChange?", "same Day")

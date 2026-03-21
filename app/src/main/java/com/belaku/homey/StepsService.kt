@@ -19,6 +19,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.location.Geocoder
+import android.location.LocationListener
 import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
@@ -201,6 +202,11 @@ class StepsService : Service() {
             override fun onSensorChanged(event: SensorEvent) {
                 Log.d("onSensorChanged", stepsToday.toString())
                 stepsToday++
+
+                if (presentActivityState == "WALKING") {
+                    remoteViews?.setTextViewText(R.id.tx_stepstoday, "Steps, today ~ $stepsToday")
+                    remoteViews?.setTextViewText(R.id.tx_steps_km_today, "Distance ~ " + (stepsToday * 74f / 100000f).toString())
+                }
 
                 if (stepsToday % 10 == 0) {
                     remoteViews?.setTextViewText(
@@ -393,6 +399,8 @@ class StepsService : Service() {
 
     companion object {
 
+        var presentActivityState = ""
+        lateinit var locationListenerSpeed: LocationListener
         lateinit var locationManager: LocationManager
         var twitterProfileName: String = "Fact"
         lateinit var mLocationResult: LocationResult

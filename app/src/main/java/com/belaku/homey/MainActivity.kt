@@ -1734,7 +1734,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         fun makeToast(s: String) {
-            //    Toast.makeText(applicationContext, s, Toast.LENGTH_SHORT).show()
+           //     Toast.makeText(applicationContext, s, Toast.LENGTH_SHORT).show()
             Log.d("makeToastinG", s)
         }
 

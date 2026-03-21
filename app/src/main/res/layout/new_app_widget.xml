@@ -33,7 +33,7 @@
             android:layout_height="40dp"
             android:background="@drawable/gradient_glass_flatbottom"
             android:paddingEnd="@dimen/padding_5"
-            android:weightSum="10">
+            android:weightSum="9">
 
             <TextView
                 android:id="@+id/tx_wish"
@@ -49,8 +49,12 @@
 
             <RelativeLayout
                 android:layout_width="0dp"
+                android:gravity="center"
+                android:layout_marginEnd="35dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
                 android:layout_height="30dp"
-                android:layout_margin="@dimen/padding_5"
                 android:layout_weight="1">
 
                 <ProgressBar
@@ -113,20 +117,6 @@
                 android:scaleType="fitXY"
                 android:src="@drawable/blue_off" />
 
-
-            <ImageButton
-                android:id="@+id/fab_reminders"
-                android:layout_width="0dp"
-                android:layout_height="30dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="3dp"
-                android:layout_weight="1"
-                android:background="@drawable/rounded_corner_gray"
-                android:gravity="center"
-                android:padding="@dimen/padding_5"
-                android:scaleType="fitXY"
-                android:src="@drawable/notifications" />
-
             <ImageButton
                 android:id="@+id/fab_ai"
                 android:layout_width="0dp"
@@ -173,8 +163,8 @@
 
                 <AnalogClock
                     android:id="@+id/a_clock"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_width="102dp"
+                    android:layout_height="98dp"
                     android:layout_gravity="top|center_horizontal"
                     android:layout_marginTop="-24dp"
                     android:dial="@drawable/dialcircle"
@@ -430,7 +420,7 @@
                     android:id="@+id/imgbtn_twitter"
                     android:layout_width="25dp"
                     android:layout_height="25dp"
-                    android:layout_gravity="end"
+                    android:layout_gravity="start"
                     android:background="@android:color/transparent"
                     android:scaleType="fitXY"
                     android:src="@drawable/tw" />
@@ -451,8 +441,8 @@
             android:id="@+id/rl_player"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/padding_3"
             android:layout_below="@+id/rl_clocks_weather"
-            android:layout_marginTop="@dimen/padding_5"
             android:layout_toStartOf="@+id/imgv_p_album"
             android:background="@drawable/gradient_glass_flat">
 
@@ -827,6 +817,7 @@
 
     <LinearLayout
         android:id="@+id/rl_still_state"
+        android:visibility="invisible"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
@@ -836,6 +827,7 @@
         android:layout_toStartOf="@+id/ll_contacts">
 
         <TextView
+            android:id="@+id/tx_breatheincrement"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -846,7 +838,24 @@
             android:textSize="14sp"
             android:textStyle="bold" />
 
+        <TextView
+            android:id="@+id/tx_breathe_count"
+            android:text="0"
+            android:padding="3sp"
+            android:background="@drawable/circular_white"
+            android:textSize="10sp"
+            android:textColor="@android:color/holo_red_dark"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:layout_marginBottom="21dp"
+            android:layout_marginStart="-20.5dp"
+            tools:ignore="HardcodedText" />
+
+
         <ImageView
+            android:id="@+id/imgv_drinkincrement"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:scaleType="fitXY"
@@ -854,6 +863,23 @@
             android:src="@drawable/water_reminder"/>
 
         <TextView
+            android:id="@+id/tx_drink_count"
+            android:text="0"
+            android:padding="3sp"
+            android:background="@drawable/circular_white"
+            android:textSize="10sp"
+            android:textColor="@android:color/holo_red_dark"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:layout_marginBottom="21dp"
+            android:layout_marginStart="-25dp"
+            android:layout_marginEnd="@dimen/fab_margin"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/fab_reminders"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -864,8 +890,6 @@
             android:textColor="#FFFFFF"
             android:textSize="14sp"
             android:textStyle="bold" />
-
-
 
     </LinearLayout>
 
@@ -883,10 +907,26 @@
         android:layout_toStartOf="@+id/ll_contacts">
 
         <TextView
+            android:id="@+id/tx_stepstoday"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text=" STEP$!"
+            android:text="Steps, today"
+            android:gravity="center_horizontal|top"
+            android:background="@drawable/circular_red"
+            android:letterSpacing="0.2"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tx_steps_km_today"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/fab_margin"
+            android:layout_below="@+id/tx_stepstoday"
+            android:text="Distance ~ "
             android:gravity="center_horizontal|top"
             android:background="@drawable/circular_red"
             android:letterSpacing="0.2"
