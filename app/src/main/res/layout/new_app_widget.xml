@@ -799,7 +799,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/rl_controls"
         android:layout_centerHorizontal="true"
-        android:background="@drawable/circular_red"
+        android:background="@drawable/gradient_glass_dark"
         android:ellipsize="middle"
         android:fontFamily="sans-serif"
         android:gravity="center"
@@ -968,7 +968,6 @@
     <FrameLayout
         android:id="@+id/fl_speed"
         android:visibility="invisible"
-        android:layout_margin="@dimen/padding_5"
         android:layout_below="@+id/tx_activity_state"
         android:layout_above="@id/tx_walldesc"
         android:layout_toEndOf="@+id/ll_apps"

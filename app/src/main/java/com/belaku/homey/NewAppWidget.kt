@@ -660,6 +660,9 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
+        remoteViews?.setTextViewText(R.id.tx_breathe_count, sharedPreferences.getInt("breatheCount", 0).toString())
+        remoteViews?.setTextViewText(R.id.tx_drink_count, sharedPreferences.getInt("drinkCount", 0).toString())
+
         //    googleAccountInfo()
         if (isPinNoteInitialized())
             remoteViews?.setTextViewText(R.id.tx_runner, pinNote)
@@ -672,6 +675,8 @@ class NewAppWidget : AppWidgetProvider() {
         wallColors()
         //   getWeatherDraws()
         setSomeTwAndWallDescUI()
+
+
     }
 
     /*   private fun googleAccountInfo() {
@@ -971,10 +976,6 @@ class NewAppWidget : AppWidgetProvider() {
                     widgetContext.resources.getColor(R.color.white)
                 )
 
-                remoteViews?.setTextColor(
-                    R.id.tx_activity_state,
-                    ColorUtil().lightenColor(tertianaryColor, 0.5f)
-                )
 
                 remoteViews?.setTextColor(
                     R.id.tx_day_date,
@@ -1072,11 +1073,6 @@ class NewAppWidget : AppWidgetProvider() {
                     widgetContext.resources.getColor(R.color.black)
                 )
 
-
-                remoteViews?.setTextColor(
-                    R.id.tx_activity_state,
-                    ColorUtil().darkenColor(tertianaryColor, 2.0f)
-                )
 
                 remoteViews?.setTextColor(
                     R.id.tx_day_date,
@@ -1318,6 +1314,8 @@ class NewAppWidget : AppWidgetProvider() {
                 7
             )
 
+            sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+            sharedPreferencesEditor = sharedPreferences.edit()
 
 
             if (position != AdapterView.INVALID_POSITION) {
