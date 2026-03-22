@@ -207,7 +207,7 @@ class StepsService : Service() {
 
                 if (presentActivityState == "WALKING") {
                     remoteViews?.setTextViewText(R.id.tx_stepstoday, "Steps ~ $stepsToday")
-                    remoteViews?.setTextViewText(R.id.tx_steps_km_today, "Distance ~ " + (stepsToday * 74f / 100000f).toString())
+                    remoteViews?.setTextViewText(R.id.tx_steps_km_today, "Distance ~ " + String.format("%.1f",  stepsToday * 74f / 100000f) + " Km")
                 }
 
                 if (stepsToday % 10 == 0) {

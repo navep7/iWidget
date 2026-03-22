@@ -614,13 +614,6 @@
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
-            <ImageView
-                android:id="@+id/imgv_add_contacts"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:src="@android:drawable/ic_input_add"
-                android:visibility="gone"
-                tools:ignore="ContentDescription" />
 
         </LinearLayout>
 
@@ -806,7 +799,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/rl_controls"
         android:layout_centerHorizontal="true"
-        android:background="@drawable/gradient_glass_dark"
+        android:background="@drawable/circular_red"
         android:ellipsize="middle"
         android:fontFamily="sans-serif"
         android:gravity="center"
@@ -817,7 +810,7 @@
 
     <TextView
         android:id="@+id/tx_nextstate"
-        android:text="&gt;"
+        android:text=" &gt; "
         android:textColor="@color/white"
         android:padding="7dp"
         android:layout_below="@+id/rl_controls"
@@ -829,7 +822,7 @@
 
     <TextView
         android:id="@+id/tx_prevstate"
-        android:text="&lt;"
+        android:text=" &lt; "
         android:textColor="@color/white"
         android:padding="7dp"
         android:layout_below="@+id/rl_controls"
@@ -841,10 +834,12 @@
 
     <LinearLayout
         android:id="@+id/rl_still_state"
-        android:visibility="invisible"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
+        android:visibility="invisible"
+        android:layout_margin="@dimen/padding_5"
+        android:background="@drawable/gradient_glass_light"
         android:layout_below="@+id/tx_activity_state"
         android:layout_above="@id/tx_walldesc"
         android:layout_toEndOf="@+id/ll_apps"
@@ -884,8 +879,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text=" \? "
-            android:layout_margin="@dimen/fab_margin"
+            android:text=" ? "
+            android:layout_marginEnd="7dp"
+            android:layout_marginStart="10dp"
             android:padding="@dimen/fab_margin"
             android:background="@drawable/circular_red"
             android:textColor="#FFFFFF"
@@ -927,9 +923,11 @@
 
     <RelativeLayout
         android:id="@+id/rl_walking_state"
-        android:visibility="invisible"
+
+        android:layout_margin="@dimen/padding_5"
+        android:background="@drawable/gradient_glass_light"
         android:layout_width="match_parent"
-        android:gravity="center_horizontal"
+        android:gravity="center"
         android:layout_height="match_parent"
         android:layout_below="@+id/tx_activity_state"
         android:layout_above="@id/tx_walldesc"
@@ -940,25 +938,24 @@
             android:id="@+id/tx_stepstoday"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_marginTop="@dimen/padding_5"
-            android:text="Steps, today"
-            android:gravity="center_horizontal|top"
+            android:text="Steps ~"
+            android:layout_centerHorizontal="true"
             android:background="@drawable/circular_red"
             android:letterSpacing="0.2"
             android:textColor="#FFFFFF"
             android:textSize="14sp"
             android:textStyle="bold" />
 
+
         <TextView
             android:id="@+id/tx_steps_km_today"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_marginTop="@dimen/padding_3"
             android:layout_below="@+id/tx_stepstoday"
             android:text="Distance ~ "
-            android:gravity="center_horizontal|top"
+            android:layout_centerHorizontal="true"
             android:background="@drawable/circular_red"
             android:letterSpacing="0.2"
             android:textColor="#FFFFFF"
@@ -971,6 +968,7 @@
     <FrameLayout
         android:id="@+id/fl_speed"
         android:visibility="invisible"
+        android:layout_margin="@dimen/padding_5"
         android:layout_below="@+id/tx_activity_state"
         android:layout_above="@id/tx_walldesc"
         android:layout_toEndOf="@+id/ll_apps"
@@ -1013,6 +1011,7 @@
 
         <TextView
             android:id="@+id/tx_speed"
+            android:visibility="invisible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

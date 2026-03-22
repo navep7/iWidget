@@ -374,14 +374,6 @@ class NewAppWidget : AppWidgetProvider() {
             getPendingSelfIntent(context, C_CLICKED)
         )
 
-        /*  remoteViews?.setOnClickPendingIntent(
-              R.id.imgbtn_add_contact, PendingIntent.getActivity(
-                  context, 1,
-                  Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "PC"),
-                  PendingIntent.FLAG_IMMUTABLE
-              )
-          )*/
-
         remoteViews?.setOnClickPendingIntent(
             R.id.rl_player, PendingIntent.getActivity(
                 context, 2,
@@ -426,7 +418,7 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.tx_reminders,
+            R.id.tx_nextplan,
             remindersPendingIntent
         )
 
@@ -1429,14 +1421,16 @@ class NewAppWidget : AppWidgetProvider() {
             makeToast("!BREATHE_INC")
             var bC = sharedPreferences.getInt("breatheCount", 0)
             bC++
-            sharedPreferencesEditor.putInt("breatheCount", bC).commit()
+            sharedPreferencesEditor.putInt("breatheCount", bC).apply()
+            sharedPreferencesEditor.commit()
             makeToast("setting $bC")
             remoteViews?.setTextViewText(R.id.tx_breathe_count, bC.toString())
         } else if (DRINK_INC == intent.action) {
             makeToast("!DRINK_INC")
             var dC = sharedPreferences.getInt("drinkCount", 0)
             dC++
-            sharedPreferencesEditor.putInt("drinkCount", dC).commit()
+            sharedPreferencesEditor.putInt("drinkCount", dC).apply()
+            sharedPreferencesEditor.commit()
             remoteViews?.setTextViewText(R.id.tx_drink_count, dC.toString())
         } else if (LOCK_PHONE == intent.action) {
             if (widgetContext != null) {
@@ -1474,6 +1468,8 @@ class NewAppWidget : AppWidgetProvider() {
                 remoteViews?.setTextViewText(R.id.tx_activity_state, "WALKING")
                 remoteViews?.setViewVisibility(R.id.rl_still_state, View.INVISIBLE)
                 remoteViews?.setViewVisibility(R.id.rl_walking_state, View.VISIBLE)
+                remoteViews?.setTextViewText(R.id.tx_stepstoday, "Steps ~ $stepsToday")
+                remoteViews?.setTextViewText(R.id.tx_steps_km_today, "Distance ~ " + String.format("%.1f",  stepsToday * 74f / 100000f) + " Km")
                 remoteViews?.setViewVisibility(R.id.fl_speed, View.INVISIBLE)
             } else if (sharedPreferences.getString("actState", "STILL") == "WALKING") {
                 sharedPreferencesEditor.putString("actState", "INVEHICLE").commit()
@@ -1484,6 +1480,10 @@ class NewAppWidget : AppWidgetProvider() {
             } else if (sharedPreferences.getString("actState", "STILL") == "INVEHICLE") {
                 sharedPreferencesEditor.putString("actState", "STILL").commit()
                 remoteViews?.setTextViewText(R.id.tx_activity_state, "STILL")
+                var dC = sharedPreferences.getInt("drinkCount", 0)
+                remoteViews?.setTextViewText(R.id.tx_drink_count, dC.toString())
+                var bC = sharedPreferences.getInt("breatheCount", 0)
+                remoteViews?.setTextViewText(R.id.tx_breathe_count, bC.toString())
                 remoteViews?.setViewVisibility(R.id.rl_still_state, View.VISIBLE)
                 remoteViews?.setViewVisibility(R.id.rl_walking_state, View.INVISIBLE)
                 remoteViews?.setViewVisibility(R.id.fl_speed, View.INVISIBLE)

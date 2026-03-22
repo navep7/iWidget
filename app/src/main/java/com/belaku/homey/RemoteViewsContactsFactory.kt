@@ -40,9 +40,8 @@ class RemoteViewsContactsFactory(private val mContext: Context) :
     override fun getViewAt(position: Int): RemoteViews {
         val rvContacts = RemoteViews(mContext.packageName, R.layout.remote_view_layout_contact)
 
-        if (favContacts.size >= position) {
+        if (favContacts.size == position) {
 
-            if (position == favContacts.size) {
                 rvContacts.setViewVisibility(R.id.contact_tx_close, View.INVISIBLE)
                 rvContacts.setImageViewResource(
                     R.id.contact_imgv,
@@ -96,7 +95,6 @@ class RemoteViewsContactsFactory(private val mContext: Context) :
                 rvContacts.setOnClickFillInIntent(R.id.contact_imgv, fillInIntentDial)
                 rvContacts.setOnClickFillInIntent(R.id.contact_tx_close, fillInIntentRemove)
             }
-        }
 
         return rvContacts
     }
