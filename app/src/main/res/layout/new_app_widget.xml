@@ -839,7 +839,6 @@
         android:gravity="center"
         android:visibility="invisible"
         android:layout_margin="@dimen/padding_5"
-        android:background="@drawable/gradient_glass_light"
         android:layout_below="@+id/tx_activity_state"
         android:layout_above="@id/tx_walldesc"
         android:layout_toEndOf="@+id/ll_apps"
@@ -923,7 +922,7 @@
 
     <RelativeLayout
         android:id="@+id/rl_walking_state"
-
+        android:visibility="invisible"
         android:layout_margin="@dimen/padding_5"
         android:background="@drawable/gradient_glass_light"
         android:layout_width="match_parent"
@@ -940,10 +939,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/padding_5"
             android:text="Steps ~"
+            android:padding="@dimen/padding_5"
             android:layout_centerHorizontal="true"
             android:background="@drawable/circular_red"
             android:letterSpacing="0.2"
-            android:textColor="#FFFFFF"
+            android:textColor="@android:color/black"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -955,10 +955,11 @@
             android:layout_marginTop="@dimen/padding_3"
             android:layout_below="@+id/tx_stepstoday"
             android:text="Distance ~ "
+            android:padding="@dimen/padding_3"
             android:layout_centerHorizontal="true"
             android:background="@drawable/circular_red"
             android:letterSpacing="0.2"
-            android:textColor="#FFFFFF"
+            android:textColor="@android:color/black"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -967,14 +968,14 @@
 
     <FrameLayout
         android:id="@+id/fl_speed"
-        android:visibility="invisible"
+
         android:layout_below="@+id/tx_activity_state"
         android:layout_above="@id/tx_walldesc"
         android:layout_toEndOf="@+id/ll_apps"
+        android:background="@drawable/gradient_glass"
         android:layout_toStartOf="@+id/ll_contacts"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="-50dp"
         android:scaleType="fitXY">
 
 
@@ -995,6 +996,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="fitXY"
+            android:layout_marginBottom="-25dp"
             android:src="@drawable/speed_guage" />
 
         <!-- The Needle -->

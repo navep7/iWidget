@@ -282,11 +282,13 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 Log.d("DayChange?", "same Day")
             } else {
                 Log.d("DayChange?", "diff Day")
-                sharedPreferencesEditor.putInt("breatheCount", 0).commit()
-                sharedPreferencesEditor.putInt("drinkCount", 0).commit()
+
+                sharedPreferencesEditor.putInt("breatheCount", 0).apply()
+                sharedPreferencesEditor.putInt("drinkCount", 0).apply()
                 dayChange = true
                 sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
                 stepsToday = 0
+                updateWidget(wallWorkerContext)
 
             }
         }

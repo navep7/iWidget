@@ -62,6 +62,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                         remoteViews?.setViewVisibility(R.id.rl_still_state, View.INVISIBLE)
                         remoteViews?.setViewVisibility(R.id.rl_walking_state, View.VISIBLE)
                         remoteViews?.setViewVisibility(R.id.fl_speed, View.INVISIBLE)
+                        speedTracking()
                     } else if (toActivityString(event.activityType).trim() == "INVEHICLE") {
                         StepsService.presentActivityState = "INVEHICLE"
                         remoteViews?.setViewVisibility(R.id.rl_still_state, View.INVISIBLE)
@@ -120,8 +121,6 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
     private fun speedR(strSpeed: String, rBit: Bitmap) {
 
         makeToast("!speedR")
-
-        val scaledBitmap = decodeSampledBitmapFromResource(R.drawable.s_needle, 95, 95, widgetContext)
 
         remoteViews?.setImageViewBitmap(R.id.needle, rBit)
         remoteViews?.setTextViewText(R.id.tx_speed, strSpeed)
