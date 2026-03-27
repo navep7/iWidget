@@ -89,6 +89,9 @@ class NotificationService : NotificationListenerService() {
             appName = "Unknown"
         }
 
+
+        sharedPreferences = applicationContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+
         if (sharedPreferences.getBoolean("SPKSERVICE", false))
              speakOut(appName)
         makeToast(appName)
