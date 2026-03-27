@@ -62,7 +62,6 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                         remoteViews?.setViewVisibility(R.id.rl_still_state, View.INVISIBLE)
                         remoteViews?.setViewVisibility(R.id.rl_walking_state, View.VISIBLE)
                         remoteViews?.setViewVisibility(R.id.fl_speed, View.INVISIBLE)
-                        speedTracking()
                     } else if (toActivityString(event.activityType).trim() == "INVEHICLE") {
                         StepsService.presentActivityState = "INVEHICLE"
                         remoteViews?.setViewVisibility(R.id.rl_still_state, View.INVISIBLE)
