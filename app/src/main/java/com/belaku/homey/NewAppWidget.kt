@@ -970,27 +970,6 @@ class NewAppWidget : AppWidgetProvider() {
                     widgetContext.resources.getColor(android.R.color.holo_red_light)
                 )
 
-
-                remoteViews?.setTextColor(
-                    R.id.tx_wish,
-                    widgetContext.resources.getColor(R.color.white)
-                )
-
-
-                remoteViews?.setTextColor(
-                    R.id.tx_day_date,
-                    ColorUtil().lightenColor(primaryColor, 0.5f)
-                )
-
-
-                remoteViews?.setTextColor(
-                    R.id.tx_place,
-                    ColorUtil().lightenColor(primaryColor, 0.5f)
-                )
-                remoteViews?.setTextColor(
-                    R.id.tx_weather,
-                    ColorUtil().lightenColor(primaryColor, 0.5f)
-                )
             } else {
 
                 makeToast("Light")
@@ -1068,26 +1047,20 @@ class NewAppWidget : AppWidgetProvider() {
                     widgetContext.resources.getColor(android.R.color.holo_red_dark)
                 )
 
-                remoteViews?.setTextColor(
-                    R.id.tx_wish,
-                    widgetContext.resources.getColor(R.color.black)
-                )
-
-
-                remoteViews?.setTextColor(
-                    R.id.tx_day_date,
-                    ColorUtil().darkenColor(primaryColor, 2.0f)
-                )
-
-                remoteViews?.setTextColor(
-                    R.id.tx_place,
-                    ColorUtil().darkenColor(primaryColor, 2.0f)
-                )
-                remoteViews?.setTextColor(
-                    R.id.tx_weather,
-                    ColorUtil().darkenColor(primaryColor, 2.0f)
-                )
             }
+            remoteViews?.setTextColor(
+                R.id.tx_day_date,
+                ColorUtil().lightenColor(primaryColor, 0.5f)
+            )
+
+            remoteViews?.setTextColor(
+                R.id.tx_place,
+                ColorUtil().lightenColor(primaryColor, 0.5f)
+            )
+            remoteViews?.setTextColor(
+                R.id.tx_weather,
+                ColorUtil().lightenColor(primaryColor, 0.5f)
+            )
 
 
         } else Log.d("wallColors", "NULL")
@@ -2299,6 +2272,11 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.tx_day_date,
                 SimpleDateFormat("EEE", Locale.getDefault()).format(c) +
                         ", " + formattedDate
+            )
+
+            remoteViews?.setTextColor(
+                R.id.tx_wish,
+                ColorUtil().darkenColor(primaryColor, 0.5f)
             )
 
             remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)

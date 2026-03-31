@@ -6,24 +6,26 @@
     android:id="@+id/dialog_layout"
     android:background="@android:color/transparent"
     android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     tools:context=".DialogActivity">
+
+
 
     <ImageView
         android:id="@+id/dialog_imgv_cover"
-        android:visibility="gone"
-        android:contentDescription="Cover"
-        tools:ignore="HardcodedText"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:layout_centerInParent="true"
         android:adjustViewBounds="true"
-        android:scaleType="fitCenter"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:scaleType="fitCenter" />
+
 
 
     <TextView
         android:id="@+id/tx_dialog_title"
-        android:layout_alignParentTop="true"
+        android:layout_above="@+id/dialog_imgv_cover"
         android:text="Dialog Title"
         android:textStyle="bold"
         android:layout_margin="@dimen/fab_margin"

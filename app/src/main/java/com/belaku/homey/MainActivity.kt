@@ -537,7 +537,7 @@ class MainActivity : AppCompatActivity() {
         ) && sharedPreferences.getBoolean("PNP", false) && sharedPreferences.getBoolean(
             "CPP",
             false
-        ) //&& sharedPreferences.getBoolean("AUS", false) && (sharedPreferences.getBoolean("AS", false) || boolAccessibilityNotNow)
+        ) && UsageStatsChecker().hasUsageStatsPermission(applicationContext)
                 ))
     }
 

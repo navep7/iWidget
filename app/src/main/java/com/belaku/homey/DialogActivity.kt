@@ -251,14 +251,15 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
             if (dialogIntentStr == "SongCover") {
                 //     makeToast("yet2Impl")
-                llDialog.setBackgroundColor(android.R.color.transparent)
+            //    llDialog.setBackgroundColor(android.R.color.transparent)
                 edtxDialog.visibility = View.GONE
                 btnOk.visibility = View.GONE
                 btnCancel.visibility = View.GONE
                 vpSteps.visibility = View.GONE
                 imgbtnShare.visibility = View.GONE
                 imgvSongCover.visibility = View.VISIBLE
-                txTitle.setText(dataListSongs[songIndex].title)
+                txTitle.visibility = View.VISIBLE
+                txTitle.text = dataListSongs[songIndex].title
                 Picasso.get()
                     .load(dataListSongs[songIndex].album.cover)
                     .into(imgvSongCover)
