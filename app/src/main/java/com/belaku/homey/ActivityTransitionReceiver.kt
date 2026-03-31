@@ -95,16 +95,16 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                         val speedInKmph = (speedInMps * 3.6).toInt()
 
 
-                        var rBitmap = Bitmap.createScaledBitmap(
+                       /* var rBitmap = Bitmap.createScaledBitmap(
                             BitmapRotated(speedInKmph, widgetContext),
                             95,
                             95,
                             true
-                        )
+                        )*/
 
 
-                        speedR(speedInKmph.toString(), rBitmap)
-                    } else speedR("0.0", scaledBitmap)
+                        speedR(speedInKmph.toString())
+                    } else speedR("0.0")
 
                 }
             }
@@ -117,11 +117,11 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
         )
     }
 
-    private fun speedR(strSpeed: String, rBit: Bitmap) {
+    private fun speedR(strSpeed: String) {
 
         makeToast("!speedR")
 
-        remoteViews?.setImageViewBitmap(R.id.needle, rBit)
+  //      remoteViews?.setImageViewBitmap(R.id.needle, rBit)
         remoteViews?.setTextViewText(R.id.tx_speed, strSpeed)
 
         remoteViews?.setViewVisibility(

@@ -285,6 +285,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
                 sharedPreferencesEditor.putInt("breatheCount", 0).apply()
                 sharedPreferencesEditor.putInt("drinkCount", 0).apply()
+
                 dayChange = true
                 sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
                 stepsToday = 0

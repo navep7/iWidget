@@ -997,6 +997,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="fitXY"
+            android:visibility="invisible"
             android:layout_marginBottom="-25dp"
             android:src="@drawable/speed_guage" />
 
@@ -1006,21 +1007,21 @@
             android:layout_width="100dp"
             android:layout_height="50dp"
             android:scaleType="fitXY"
-            android:src="@drawable/s_needle"
             android:layout_marginBottom="-21dp"
             android:layout_gravity="bottom|center_horizontal"
             /> <!-- Start position -->
 
         <TextView
             android:id="@+id/tx_speed"
-            android:visibility="invisible"
+            android:padding="@dimen/padding_5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="@dimen/fab_margin"
-            android:text="0"
+            android:text="XxX KmpH"
+            android:gravity="center"
+            android:background="@drawable/gradient_glass_light"
             android:textColor="@android:color/holo_red_dark"
-            android:textSize="21sp"
+            android:textSize="25sp"
             android:textStyle="bold" />
 
 
