@@ -446,7 +446,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                             )
                         })
                     }, 3000)
-                } else {
+                } else if (listTweets.size > 0) {
                     tW = listTweets[Random.nextInt(0, listTweets.size)]
                     edtxDialog.visibility = View.GONE
                     btnOk.visibility = View.GONE
@@ -464,7 +464,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                             )
                         )
                     })
-                }
+                } else rawTweets(false)
 
             } else if (dialogIntentStr == "STH") {
                 llDialog.visibility = View.GONE
