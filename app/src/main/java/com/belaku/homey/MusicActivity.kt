@@ -302,7 +302,10 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                     call: Call<MusicData?>,
                     response: Response<MusicData?>
                 ) {
-                    dataListSongs = response.body()?.data!!
+
+                    if (response.body() != null)
+                        if (response.body()?.data != null) {
+                            dataListSongs = response.body()?.data!!
                     if (query == playingAlbum)
                         pDatalistSongs = dataListSongs
 
@@ -387,9 +390,6 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                                 }
 
 
-
-
-
                         })
                     }
 
@@ -412,7 +412,9 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                     recyclerViewSongs.scrollToPosition(songIndex)
 
                     //     recyclerview.scrollToPosition(sharedPreferences.getInt("SIn", 0))
-                }
+                } else Toast.makeText(applicationContext, "DeeZerDOWN, maybe!", Toast.LENGTH_LONG).show()
+                    else Toast.makeText(applicationContext, "DeeZerDOWN, maybe!", Toast.LENGTH_LONG).show()
+            }
 
                 override fun onFailure(call: Call<MusicData?>, t: Throwable) {
                     Toast.makeText(applicationContext, "not Found", Toast.LENGTH_LONG).show()
