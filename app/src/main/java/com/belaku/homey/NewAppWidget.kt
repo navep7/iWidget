@@ -2179,6 +2179,8 @@ class NewAppWidget : AppWidgetProvider() {
 
             if (sharedPreferences.getString("day", "someday") != dayOfTheWeek) {
                 stepsToday = 0
+                sharedPreferencesEditor.putInt("breatheCount", 0).apply()
+                sharedPreferencesEditor.putInt("drinkCount", 0).apply()
                 dayIndex = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
 
                 if (arrayListHabits.size > 0) {

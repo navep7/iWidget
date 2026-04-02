@@ -373,6 +373,8 @@ class StepsService : Service() {
 
 
         stepsToday = 0
+        sharedPreferencesEditor.putInt("breatheCount", 0).apply()
+        sharedPreferencesEditor.putInt("drinkCount", 0).apply()
         sensorManager.registerListener(
             mSensorEventListener,
             stepCounterSensor,
