@@ -157,6 +157,8 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         makeToast("boolMusicServiceRunning ~ $boolMusicServiceRunning : $playingAlbum")
         if (boolMusicServiceRunning) {
         //    makeToast(dataList[songIndex].title + " ~ " + query)
+
+            if (isDataListInitialized())
             txPlayingSong.text = pDatalistSongs[songIndex].title
 
             try {

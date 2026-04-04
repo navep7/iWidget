@@ -61,6 +61,7 @@ import com.belaku.homey.MainActivity.Companion.pickContactLauncher
 import com.belaku.homey.MainActivity.Companion.sN
 import com.belaku.homey.StepsService.Companion.twitterProfileName
 import com.belaku.homey.MusicActivity.Companion.dataListSongs
+import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
 import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
@@ -259,10 +260,12 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 imgbtnShare.visibility = View.GONE
                 imgvSongCover.visibility = View.VISIBLE
                 txTitle.visibility = View.VISIBLE
-                txTitle.text = dataListSongs[songIndex].title
-                Picasso.get()
-                    .load(dataListSongs[songIndex].album.cover)
-                    .into(imgvSongCover)
+                if (isDataListInitialized()) {
+                    txTitle.text = dataListSongs[songIndex].title
+                    Picasso.get()
+                        .load(dataListSongs[songIndex].album.cover)
+                        .into(imgvSongCover)
+                }
             } else if (dialogIntentStr == "WCh") {
 
                 if (noRewards > 1) {

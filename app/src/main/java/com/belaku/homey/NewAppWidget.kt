@@ -2065,6 +2065,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             timelyWish = timeOfDay
 
+
             val c: Cursor? = widgetContext.contentResolver
                 .query(ContactsContract.Profile.CONTENT_URI, null, null, null, null)
             c?.moveToFirst()
