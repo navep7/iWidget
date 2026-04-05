@@ -1966,6 +1966,8 @@ class NewAppWidget : AppWidgetProvider() {
         var tW: String = "..."
         lateinit var appWidM: AppWidgetManager
 
+
+
         fun isAppWidMInitialized(): Boolean {
             if (::appWidM.isInitialized)
                 return true

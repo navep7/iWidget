@@ -26,6 +26,7 @@ import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
 import com.belaku.homey.MusicActivity.Companion.recyclerViewSongs
 import com.belaku.homey.MusicActivity.Companion.txPlayingSong
 import com.belaku.homey.NewAppWidget.Companion.appWidM
+import com.belaku.homey.NewAppWidget.Companion.isAppWidMInitialized
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
@@ -78,6 +79,8 @@ class MusicService : Service() {
                 com.belaku.homey.R.id.tx_music_details,
                 pDatalistSongs[sIndex].title + " | " + pDatalistSongs[sIndex].album.title + " | " + pDatalistSongs[sIndex].artist.name
             )
+
+            if (isAppWidMInitialized())
                 Picasso.get()
                     .load(pDatalistSongs[songIndex].album.cover)
                     .into(remoteViews!!, R.id.imgv_p_album, NewAppWidget.i_appWidgetIds)

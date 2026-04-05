@@ -170,23 +170,24 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 wallDescs.sort()
 
 
-                if (urls.size > 0)
+                if (urls.isNotEmpty()) {
                     randomWallIndex = Random.Default.nextInt(urls.size)
-                wallDesc = wallDescs.get(randomWallIndex)
+                    wallDesc = wallDescs.get(randomWallIndex)
+                    Log.d("settingWD", urls[randomWallIndex])
 
-                Log.d("settingWD", urls[randomWallIndex])
 
-                wallBitmap = BitmapFactory.decodeStream(
-                    URL(
-                        urls[randomWallIndex].substring(
-                            4,
-                            urls[randomWallIndex].length
-                        )
-                    ).openConnection().getInputStream()
-                )
+                    wallBitmap = BitmapFactory.decodeStream(
+                        URL(
+                            urls[randomWallIndex].substring(
+                                4,
+                                urls[randomWallIndex].length
+                            )
+                        ).openConnection().getInputStream()
+                    )
 
-                scaledBitmap =
-                    Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
+                    scaledBitmap =
+                        Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
+                }
 
                 if (b)
                     wm.setBitmap(scaledBitmap)
