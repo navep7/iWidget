@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.belaku.homey"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.belaku.homey"
@@ -59,7 +59,7 @@ dependencies {
 
   //  implementation(libs.androidx.activity.ktx)
 
-
+    implementation(libs.androidx.media)
     implementation(libs.zxing.android.embedded)
     implementation(libs.androidx.viewpager2)
     implementation(libs.material.v1130) // Or the latest version
@@ -82,6 +82,7 @@ dependencies {
     implementation(libs.picasso.v28)
     implementation(libs.gson)
     implementation(libs.glide)
+    implementation(libs.androidx.media3.exoplayer)
 
     annotationProcessor(libs.compiler) // Use the same version
     implementation(libs.androidx.core.ktx)

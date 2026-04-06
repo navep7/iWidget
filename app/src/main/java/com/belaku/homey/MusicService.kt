@@ -1,6 +1,5 @@
 package com.belaku.homey
 
-import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -8,21 +7,24 @@ import android.app.PendingIntent
 import android.app.Service
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
-import android.media.AudioAttributes
 import android.media.AudioManager
-import android.media.MediaPlayer
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import android.widget.RemoteViews
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import androidx.core.net.toUri
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 import com.belaku.homey.MainActivity.Companion.makeToast
-import com.belaku.homey.MusicActivity.Companion.pDatalistSongs
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
+import com.belaku.homey.MusicActivity.Companion.pDatalistSongs
 import com.belaku.homey.MusicActivity.Companion.recyclerViewSongs
 import com.belaku.homey.MusicActivity.Companion.txPlayingSong
 import com.belaku.homey.NewAppWidget.Companion.appWidM
@@ -32,11 +34,11 @@ import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.squareup.picasso.Picasso
-import okio.IOException
 
 
 class MusicService : Service() {
 
+    private var mediaItems: ArrayList<MediaItem> = ArrayList()
     private lateinit var audioManager: AudioManager
     private lateinit var handlerVolume: Handler
     private lateinit var runnableVolume: Runnable
@@ -46,6 +48,7 @@ class MusicService : Service() {
 
     companion object {
 
+        private var sIndex: Int = 0
         private lateinit var sContext: MusicService
 
 
@@ -54,19 +57,27 @@ class MusicService : Service() {
         //  var songsUrlList: ArrayList<String> = ArrayList()
         var songIndex: Int = 0
 
-        var mMediaPlayer: MediaPlayer? = null
+        var mMediaPlayer: ExoPlayer? = null
 
-        fun notifySong(sIndex: Int) {
+        fun notifySong(mediaItem: MediaItem) {
+
+            var mediaMetadata = mediaItem.mediaMetadata
+            makeToast("!notifySong - ${mediaMetadata}")
+            Toast.makeText(sContext, "!notifySong - ${mediaMetadata}", Toast.LENGTH_LONG).show()
 
             try {
-                recyclerViewSongs.scrollToPosition(sIndex)
-                txPlayingSong.setText(pDatalistSongs[sIndex].title)
+                for (i in 0 until pDatalistSongs.size)
+                    if (pDatalistSongs[i].title == mediaMetadata.title) {
+                        sIndex = i
+                        recyclerViewSongs.scrollToPosition(i)
+                    }
+                txPlayingSong.text = mediaMetadata.title
             } catch (ex: Exception) {
                 makeToast("EXP updating MusicActivity ~ ${ex.message}")
             }
 
 
-            sharedPreferencesEditor.putInt("SIn", sIndex).apply()
+            //     sharedPreferencesEditor.putInt("SIn", sIndex).apply()
             appWidM = AppWidgetManager.getInstance(sContext)
             remoteViews =
                 RemoteViews(sContext.packageName, com.belaku.homey.R.layout.new_app_widget)
@@ -77,14 +88,14 @@ class MusicService : Service() {
             )
             remoteViews?.setTextViewText(
                 com.belaku.homey.R.id.tx_music_details,
-                pDatalistSongs[sIndex].title + " | " + pDatalistSongs[sIndex].album.title + " | " + pDatalistSongs[sIndex].artist.name
+                mediaMetadata.title.toString() + " | " + mediaMetadata.albumTitle + " | " + mediaMetadata.artist
             )
 
-            if (isAppWidMInitialized())
+            if (isAppWidMInitialized() && mediaMetadata.artworkUri != null)
                 Picasso.get()
-                    .load(pDatalistSongs[songIndex].album.cover)
+                    .load(mediaMetadata.artworkUri)
                     .into(remoteViews!!, R.id.imgv_p_album, NewAppWidget.i_appWidgetIds)
-            txPlayingSong.setText(pDatalistSongs[sIndex].title)
+            txPlayingSong.text = mediaMetadata.title
 
 
 
@@ -105,8 +116,8 @@ class MusicService : Service() {
                 NotificationCompat.Builder(sContext, channelId)
                     .setSilent(true)
                     .setSmallIcon(android.R.drawable.ic_media_play) //                        .setContentTitle(getString(R.string.app_name)
-                    .setContentTitle(MusicActivity.pDatalistSongs[sIndex].title)
-                    .setContentText(MusicActivity.pDatalistSongs[sIndex].album.title + " | \n" + MusicActivity.pDatalistSongs[sIndex].artist.name)
+                    .setContentTitle(mediaMetadata.title)
+                    .setContentText(mediaMetadata.albumTitle.toString() + " | \n" + mediaMetadata.artist)
                     .setAutoCancel(true)
                     .setSound(null)
                     .setOngoing(true)
@@ -219,40 +230,49 @@ class MusicService : Service() {
 
     private fun playSong(index: Int) {
         if (index in 0 until pDatalistSongs.size) {
-            songIndex = index
-            val url = pDatalistSongs[songIndex].preview
 
-            if (mMediaPlayer == null) {
-                mMediaPlayer = MediaPlayer().apply {
-                    setAudioAttributes(
-                        AudioAttributes.Builder()
-                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                            .setUsage(AudioAttributes.USAGE_MEDIA)
-                            .build()
-                    )
-                    setOnCompletionListener {
-                        playNextSong()
-                    }
-                }
-            } else {
-                mMediaPlayer?.reset() // Reset to the idle state for a new data source
+
+            mMediaPlayer = ExoPlayer.Builder(applicationContext).build()
+
+            for (i in pDatalistSongs) {
+
+                val metadata = MediaMetadata.Builder()
+                    .setTitle(i.title)
+                    .setArtworkUri(i.album.cover.toUri())
+                    .setAlbumTitle(i.album.title)
+                    .setArtist(i.artist.name) // Optional
+                    .build()
+
+                val mItem = MediaItem.Builder()
+                    .setUri(i.preview)
+                    .setMediaMetadata(metadata)
+                    .build()
+
+
+                mediaItems.add(mItem)
+                mMediaPlayer!!.addMediaItem(mItem)
             }
 
-            try {
-                mMediaPlayer?.apply {
-                    setDataSource(url)
-                    prepareAsync()
-                    setOnPreparedListener {
-                        it.start() // Start playback when prepared
-                        notifySong(songIndex)
-                   //     trackSeek()
-                    }
+
+            mMediaPlayer!!.addListener(object : Player.Listener {
+
+                override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                    super.onMediaItemTransition(mediaItem, reason)
+                    // Get media info when a new media item starts
+                    songIndex++
+                    if (mediaItem != null)
+                        notifySong(mediaItem)
                 }
-            } catch (e: IOException) {
-                e.printStackTrace()
-                makeToast("ECXP - ${e.message}")
-                playNextSong() // Optionally skip on error
-            }
+            })
+
+
+
+            mMediaPlayer!!.prepare()
+            mMediaPlayer!!.play()
+            songIndex = 0
+            notifySong(mediaItems[songIndex])
+
+
         }
     }
 

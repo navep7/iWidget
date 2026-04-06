@@ -1231,7 +1231,7 @@ class NewAppWidget : AppWidgetProvider() {
                                 R.id.imgbtn_playpause,
                                 R.drawable.pause_m
                             )
-                            mMediaPlayer!!.start()
+                            mMediaPlayer!!.play()
                         }
                 } catch (ex: Exception) {
                     startMusicActivity(0)
@@ -1539,6 +1539,7 @@ class NewAppWidget : AppWidgetProvider() {
     private fun startMusicActivity(songIndex: Int) {
         var intentMusic = Intent(widgetContext, MusicActivity::class.java)
         intentMusic.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        makeToast("songIndex ~ " + songIndex)
         intentMusic.putExtra("songIndex", songIndex)
         widgetContext.startActivity(intentMusic)
     }

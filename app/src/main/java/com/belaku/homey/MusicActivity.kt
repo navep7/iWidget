@@ -117,10 +117,10 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                 addAlbumChip(i)
             }
             if (playingAlbum.isEmpty())
-            if (favAlbums.isNotEmpty()) {
-                Getdata(favAlbums[0])
-                chipGroup.getChildAt(0).isSelected = true
-            }
+                if (favAlbums.isNotEmpty()) {
+                    Getdata(favAlbums[0])
+                    chipGroup.getChildAt(0).isSelected = true
+                }
         }
 
         //    makeToast(sharedPreferences.getInt("SIn", 99).toString())
@@ -156,10 +156,10 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
         makeToast("boolMusicServiceRunning ~ $boolMusicServiceRunning : $playingAlbum")
         if (boolMusicServiceRunning) {
-        //    makeToast(dataList[songIndex].title + " ~ " + query)
+            //    makeToast(dataList[songIndex].title + " ~ " + query)
 
             if (isDataListInitialized())
-            txPlayingSong.text = pDatalistSongs[songIndex].title
+                txPlayingSong.text = pDatalistSongs[songIndex].title
 
             try {
 
@@ -168,7 +168,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                         fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
                     else fabPlayPause.setImageResource(android.R.drawable.ic_media_play)
 
-            } catch (ex : Exception) {
+            } catch (ex: Exception) {
 
             }
 
@@ -277,6 +277,12 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
             this,
             MusicService::class.java
         )
+
+        val intentIndex = intent.getStringExtra("songIndex")
+        if (intentIndex != null) {
+            Toast.makeText(applicationContext, "iIn " + intentIndex, Toast.LENGTH_LONG).show()
+        }
+
     }
 
 
@@ -308,115 +314,125 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                     if (response.body() != null)
                         if (response.body()?.data != null) {
                             dataListSongs = response.body()?.data!!
-                    if (query == playingAlbum)
-                        pDatalistSongs = dataListSongs
+                            if (query == playingAlbum)
+                                pDatalistSongs = dataListSongs
 
-                    musicActivityContext = applicationContext
-                    //     makeToast("MusicData ~ ${dataList.size}")
+                            musicActivityContext = applicationContext
+                            //     makeToast("MusicData ~ ${dataList.size}")
 
-                    if (dataListSongs.size > 0) {
+                            if (dataListSongs.size > 0) {
 
-                        imgbtnPlayAlbum.visibility = View.VISIBLE
-                        imgbtnFavAlbum.visibility = View.VISIBLE
+                                imgbtnPlayAlbum.visibility = View.VISIBLE
+                                imgbtnFavAlbum.visibility = View.VISIBLE
 
-                        imgbtnPlayAlbum.setOnClickListener {
+                                imgbtnPlayAlbum.setOnClickListener {
 
-                            playingAlbum = query
-                            pDatalistSongs = dataListSongs
+                                    playingAlbum = query
+                                    pDatalistSongs = dataListSongs
 
-                            makeToast(query + " ~ " + dataListSongs[0].title)
-                            if (boolMusicServiceRunning) {
-                                stopService(Intent(musicActivityContext, MusicService::class.java))
-                            }
+                                    makeToast(query + " ~ " + dataListSongs[0].title)
+                                    if (boolMusicServiceRunning) {
+                                        stopService(
+                                            Intent(
+                                                musicActivityContext,
+                                                MusicService::class.java
+                                            )
+                                        )
+                                    }
 
-                            var i = 0
-                            playIntent = Intent(
-                                musicActivityContext,
-                                MusicService::class.java
-                            )
-                            for (item in dataListSongs) {
-                                playIntent.putExtra(i.toString(), item.preview)
-                                i++
-                            }
-
-                            txPlayingSong.text = dataListSongs[0].title
-
-                            songIndex = 0
-
-                            startForegroundService(playIntent)
-
-                            imgbtnPlayAlbum.setImageResource(android.R.drawable.ic_media_pause)
-                            fabPlayPause.visibility = View.VISIBLE
-                            fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
-
-                        }
-
-                        imgbtnFavAlbum.setOnClickListener {
-                            if (!favAlbums.contains(query.trim())) {
-                                imgbtnFavAlbum.setImageResource(android.R.drawable.star_on)
-                                favAlbums.add(query.trim())
-                                saveFavAlbums(favAlbums)
-                                addAlbumChip(query.trim())
-                            } else {
-                                imgbtnFavAlbum.setImageResource(android.R.drawable.star_off)
-                                favAlbums.remove(query.trim())
-                                for (i in 0 until chipGroup.childCount) {
-                                    var ch = chipGroup.getChildAt(i) as Chip
-                                    if (query.trim() == ch.text)
-                                        chipGroup.removeView(ch)
-                                }
-                            }
-                        }
-
-
-                        fabPlayPause.setOnClickListener(View.OnClickListener {
-
-                            if (mMediaPlayer != null)
-                                if (mMediaPlayer!!.isPlaying) {
-                                    mMediaPlayer!!.pause()
-                                    remoteViews?.setImageViewResource(
-                                        com.belaku.homey.R.id.imgbtn_playpause,
-                                        R.drawable.play_m
+                                    var i = 0
+                                    playIntent = Intent(
+                                        musicActivityContext,
+                                        MusicService::class.java
                                     )
-                                    appWidM.updateAppWidget(newAppWidget, remoteViews)
-                                    fabPlayPause.setImageResource(android.R.drawable.ic_media_play)
-                                } else {
-                                    mMediaPlayer!!.start()
-                                    remoteViews?.setImageViewResource(
-                                        com.belaku.homey.R.id.imgbtn_playpause,
-                                        R.drawable.pause_m
-                                    )
-                                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                                    for (item in dataListSongs) {
+                                        playIntent.putExtra(i.toString(), item.preview)
+                                        i++
+                                    }
+
+                                    txPlayingSong.text = dataListSongs[0].title
+
+                                    songIndex = 0
+
+                                    startForegroundService(playIntent)
+
+                                    imgbtnPlayAlbum.setImageResource(android.R.drawable.ic_media_pause)
+                                    fabPlayPause.visibility = View.VISIBLE
                                     fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
 
                                 }
 
+                                imgbtnFavAlbum.setOnClickListener {
+                                    if (!favAlbums.contains(query.trim())) {
+                                        imgbtnFavAlbum.setImageResource(android.R.drawable.star_on)
+                                        favAlbums.add(query.trim())
+                                        saveFavAlbums(favAlbums)
+                                        addAlbumChip(query.trim())
+                                    } else {
+                                        imgbtnFavAlbum.setImageResource(android.R.drawable.star_off)
+                                        favAlbums.remove(query.trim())
+                                        for (i in 0 until chipGroup.childCount) {
+                                            var ch = chipGroup.getChildAt(i) as Chip
+                                            if (query.trim() == ch.text)
+                                                chipGroup.removeView(ch)
+                                        }
+                                    }
+                                }
 
-                        })
-                    }
+
+                                fabPlayPause.setOnClickListener(View.OnClickListener {
+
+                                    if (mMediaPlayer != null)
+                                        if (mMediaPlayer!!.isPlaying) {
+                                            mMediaPlayer!!.pause()
+                                            remoteViews?.setImageViewResource(
+                                                com.belaku.homey.R.id.imgbtn_playpause,
+                                                R.drawable.play_m
+                                            )
+                                            appWidM.updateAppWidget(newAppWidget, remoteViews)
+                                            fabPlayPause.setImageResource(android.R.drawable.ic_media_play)
+                                        } else {
+                                            mMediaPlayer!!.play()
+                                            remoteViews?.setImageViewResource(
+                                                com.belaku.homey.R.id.imgbtn_playpause,
+                                                R.drawable.pause_m
+                                            )
+                                            appWidM.updateAppWidget(newAppWidget, remoteViews)
+                                            fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
+
+                                        }
+
+
+                                })
+                            }
 
 
 
 
-                    for (item in dataListSongs)
-                        Log.d("DATA7", "p - " + item.preview + "\n l - " + item.link)
+                            for (item in dataListSongs)
+                                Log.d("DATA7", "p - " + item.preview + "\n l - " + item.link)
 
 
-                    var rvAdapter = MusicAdapter(dataListSongs, this@MusicActivity)
-                    recyclerViewSongs.adapter = rvAdapter
-                    //    recyclerview.layoutManager = LinearLayoutManager(this@MainActivity)
-                    recyclerViewSongs.setLayoutManager(
-                        LinearLayoutManager(
-                            this@MusicActivity,
-                            LinearLayoutManager.HORIZONTAL, false
-                        )
-                    )
-                    recyclerViewSongs.scrollToPosition(songIndex)
+                            var rvAdapter = MusicAdapter(dataListSongs, this@MusicActivity)
+                            recyclerViewSongs.adapter = rvAdapter
+                            //    recyclerview.layoutManager = LinearLayoutManager(this@MainActivity)
+                            recyclerViewSongs.setLayoutManager(
+                                LinearLayoutManager(
+                                    this@MusicActivity,
+                                    LinearLayoutManager.HORIZONTAL, false
+                                )
+                            )
+                            recyclerViewSongs.scrollToPosition(songIndex)
 
-                    //     recyclerview.scrollToPosition(sharedPreferences.getInt("SIn", 0))
-                } else Toast.makeText(applicationContext, "DeeZerDOWN, maybe!", Toast.LENGTH_LONG).show()
-                    else Toast.makeText(applicationContext, "DeeZerDOWN, maybe!", Toast.LENGTH_LONG).show()
-            }
+                            //     recyclerview.scrollToPosition(sharedPreferences.getInt("SIn", 0))
+                        } else Toast.makeText(
+                            applicationContext,
+                            "DeeZerDOWN, maybe!",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    else Toast.makeText(applicationContext, "DeeZerDOWN, maybe!", Toast.LENGTH_LONG)
+                        .show()
+                }
 
                 override fun onFailure(call: Call<MusicData?>, t: Throwable) {
                     Toast.makeText(applicationContext, "not Found", Toast.LENGTH_LONG).show()
