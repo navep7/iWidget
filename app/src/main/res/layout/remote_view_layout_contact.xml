@@ -8,13 +8,18 @@
         android:id="@+id/contact_imgv"
         android:src="@drawable/launch_e"
         android:layout_above="@+id/contact_tx_name"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="65dp"
+        android:scaleType="fitXY"
+        android:layout_centerInParent="true"
+        android:background="@drawable/rounded_corner"
+        android:layout_height="65dp"
+        android:layout_marginBottom="@dimen/padding_5"
         tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/contact_tx_name"
-        android:tag="APP"
+        android:tag="Contact"
+        android:padding="@dimen/padding_5"
         android:text="App"
         android:background="@drawable/gradient_glass_flat"
         android:textStyle="bold"
@@ -43,7 +48,7 @@
         android:gravity="end"
         android:layout_alignParentTop="true"
         android:layout_marginStart="-20dp"
-        android:layout_toRightOf="@+id/contact_imgv"
+        android:layout_alignParentEnd="true"
         android:src="@drawable/contacts"
         tools:ignore="HardcodedText" />
 

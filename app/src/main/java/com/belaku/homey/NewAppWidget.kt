@@ -146,6 +146,7 @@ class NewAppWidget : AppWidgetProvider() {
     private lateinit var serviceIntentApp: Intent
 
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onEnabled(context: Context?) {
         super.onEnabled(context)
         widgetContext = context!!
@@ -157,7 +158,6 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (ismActInitialized())
             fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
-
 
         recognizeActivityTransitions()
     }
@@ -543,7 +543,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.tx_screentime_info,
+            R.id.imgv_scr_time,
             PendingIntent.getActivity(
                 context, 14,
                 Intent(context, DialogActivity::class.java).putExtra(
@@ -555,7 +555,7 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.tx_steps_info, PendingIntent.getActivity(
+            R.id.imgv_steps, PendingIntent.getActivity(
                 context, 15,
                 Intent(context, DialogActivity::class.java).putExtra(
                     "DialogIntent",
@@ -666,7 +666,7 @@ class NewAppWidget : AppWidgetProvider() {
         //    googleAccountInfo()
         if (isPinNoteInitialized())
             remoteViews?.setTextViewText(R.id.tx_runner, pinNote)
-        liquidGlassEffects()
+
         seekWifiState()
         seekBluetoothState()
         getScreenTime(widgetContext)
@@ -694,33 +694,6 @@ class NewAppWidget : AppWidgetProvider() {
 
        }*/
 
-    private fun liquidGlassEffects() {
-
-        if (isWallBitmapInitialized()) {
-            scaledBitmap =
-                Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
-
-            remoteViews?.setImageViewBitmap(
-                R.id.imgv_widget_layout,
-                applyThinFilmOverlay(
-                    drawableToBitmap(
-                        widgetContext, RoundedBitmapDrawableFactory.create(
-                            widgetContext.resources, BitmapBlurHelper.blurBitmap(
-                                widgetContext,
-                                Bitmap.createBitmap(
-                                    scaledBitmap,
-                                    10,
-                                    25,
-                                    screenWidth - 20,
-                                    screenHeight - 150
-                                )
-                            )
-                        )
-                    ), ColorUtil().lightenColor(primaryColor, 0.5f), 75
-                )
-            )
-        }
-    }
 
     private fun glossyOverlay(
         originalBitmap: Bitmap
@@ -897,6 +870,36 @@ class NewAppWidget : AppWidgetProvider() {
 
                 makeToast("Dark")
 
+                remoteViews?.setImageViewBitmap(R.id.imgv_rl_controls, drawableToBitmap(widgetContext,
+                    widgetContext.getDrawable(R.drawable.gradient_glass_list)!!
+                ))
+
+
+                if (isWallBitmapInitialized()) {
+                    scaledBitmap =
+                        Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
+
+                    remoteViews?.setImageViewBitmap(
+                        R.id.imgv_widget_layout,
+                        applyThinFilmOverlay(
+                            drawableToBitmap(
+                                widgetContext, RoundedBitmapDrawableFactory.create(
+                                    widgetContext.resources, BitmapBlurHelper.blurBitmap(
+                                        widgetContext,
+                                        Bitmap.createBitmap(
+                                            scaledBitmap,
+                                            10,
+                                            25,
+                                            screenWidth - 20,
+                                            screenHeight - 150
+                                        )
+                                    )
+                                )
+                            ), android.R.color.white, 75
+                        )
+                    )
+                }
+
                 remoteViews?.setInt(
                     R.id.tx_myspace,
                     "setBackgroundResource",
@@ -974,6 +977,35 @@ class NewAppWidget : AppWidgetProvider() {
 
                 makeToast("Light")
 
+                remoteViews?.setImageViewBitmap(R.id.imgv_rl_controls, drawableToBitmap(widgetContext,
+                    widgetContext.getDrawable(R.drawable.gradient_glass_dark)!!
+                ))
+
+                if (isWallBitmapInitialized()) {
+                    scaledBitmap =
+                        Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
+
+                    remoteViews?.setImageViewBitmap(
+                        R.id.imgv_widget_layout,
+                        applyThinFilmOverlay(
+                            drawableToBitmap(
+                                widgetContext, RoundedBitmapDrawableFactory.create(
+                                    widgetContext.resources, BitmapBlurHelper.blurBitmap(
+                                        widgetContext,
+                                        Bitmap.createBitmap(
+                                            scaledBitmap,
+                                            10,
+                                            25,
+                                            screenWidth - 20,
+                                            screenHeight - 150
+                                        )
+                                    )
+                                )
+                            ), android.R.color.black, 75
+                        )
+                    )
+                }
+
                 remoteViews?.setInt(
                     R.id.tx_myspace,
                     "setBackgroundResource",
@@ -1048,20 +1080,6 @@ class NewAppWidget : AppWidgetProvider() {
                 )
 
             }
-            remoteViews?.setTextColor(
-                R.id.tx_day_date,
-                ColorUtil().lightenColor(primaryColor, 0.5f)
-            )
-
-            remoteViews?.setTextColor(
-                R.id.tx_place,
-                ColorUtil().lightenColor(primaryColor, 0.5f)
-            )
-            remoteViews?.setTextColor(
-                R.id.tx_weather,
-                ColorUtil().lightenColor(primaryColor, 0.5f)
-            )
-
 
         } else Log.d("wallColors", "NULL")
 
@@ -2265,7 +2283,7 @@ class NewAppWidget : AppWidgetProvider() {
             }
 
 
-            formattedDate = dfDate.format(c) + postFixDate /*+ " " + dfMonth.format(c)*/
+            formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
 
 
             // remoteViews?.setTextViewText(R.id.tx_date, formattedDate)
@@ -2280,12 +2298,10 @@ class NewAppWidget : AppWidgetProvider() {
                         ", " + formattedDate
             )
 
-            remoteViews?.setTextColor(
-                R.id.tx_wish,
-                ColorUtil().darkenColor(primaryColor, 0.5f)
-            )
 
+            greeting()
             remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
+
             try {
 
                 if (gpName.length > 0)

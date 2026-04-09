@@ -123,11 +123,6 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
   //      remoteViews?.setImageViewBitmap(R.id.needle, rBit)
         remoteViews?.setTextViewText(R.id.tx_speed, strSpeed)
-
-        remoteViews?.setViewVisibility(
-            R.id.progressBar_cyclic_speed,
-            View.INVISIBLE
-        )
         remoteViews?.setViewVisibility(R.id.needle, View.VISIBLE)
         remoteViews?.setViewVisibility(R.id.tx_speed, View.VISIBLE)
         appWidM.updateAppWidget(newAppWidget, remoteViews)

@@ -71,6 +71,7 @@ import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.getScreenTime
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
+import com.belaku.homey.NewAppWidget.Companion.primaryColor
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
@@ -1079,10 +1080,10 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     phoneNumber = phoneNumber.filter { !it.isWhitespace() }
                 }
             }
+            val colorText: Int = if (ColorUtil().isColorDark(primaryColor))
+                android.R.color.holo_green_light
+            else android.R.color.holo_green_dark
 
-
-            val color =
-                Color.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
             var contactBitmap: Bitmap?
 
             contactBitmap =
@@ -1093,7 +1094,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
             if (contactBitmap == null)
                 contactBitmap = CharacterToBitmapConverter.getBitmapFromCharacter(
-                    cNme[0], 100, 100, 70, color
+                    cNme[0], 100, 100, 70, R.color.light_blue_900
                 )
 
             val c = Contact(contactID, cNme, phoneNumber, contactBitmap)
