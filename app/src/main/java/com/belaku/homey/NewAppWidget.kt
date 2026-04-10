@@ -24,7 +24,6 @@ import android.content.pm.ServiceInfo
 import android.content.res.ColorStateList
 import android.database.Cursor
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.LinearGradient
@@ -42,15 +41,12 @@ import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
-import android.location.LocationListener
 import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.BatteryManager
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
@@ -72,13 +68,11 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RemoteViews
 import android.widget.TextView
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity.RECEIVER_NOT_EXPORTED
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
-import com.belaku.homey.MainActivity.Companion.BitmapRotated
 import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.cityLat
@@ -1755,7 +1749,7 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         appWidgetView.findViewById<TextView>(
-            R.id.btn_screentime
+            R.id.tx_screentime
         ).text = "${totalUsage}"
         greeting()
         appWidgetView.findViewById<TextView>(R.id.tx_wish).text = timelyWish
@@ -2250,7 +2244,7 @@ class NewAppWidget : AppWidgetProvider() {
                 else hour = sT[0]
 
                 remoteViews?.setTextViewText(
-                    R.id.btn_screentime,
+                    R.id.tx_screentime,
                     "$hour+ H"
                 )
             }

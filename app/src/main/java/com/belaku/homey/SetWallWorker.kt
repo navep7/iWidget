@@ -41,7 +41,6 @@ import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.queryType
 import com.belaku.homey.MainActivity.Companion.randomWallIndex
 import com.belaku.homey.MainActivity.Companion.rlStatus
-import com.belaku.homey.StepsService.Companion.twitterProfileName
 import com.belaku.homey.MainActivity.Companion.txStatus
 import com.belaku.homey.MainActivity.Companion.updateTime
 import com.belaku.homey.MainActivity.Companion.wallDelay
@@ -61,6 +60,7 @@ import com.belaku.homey.NewAppWidget.Companion.timelyWish
 import com.belaku.homey.NewAppWidget.Companion.uT
 import com.belaku.homey.NewAppWidget.Companion.wD
 import com.belaku.homey.StepsService.Companion.choosenApps
+import com.belaku.homey.StepsService.Companion.twitterProfileName
 import com.google.gson.Gson
 import java.io.IOException
 import java.net.URL
@@ -68,8 +68,6 @@ import java.util.Collections
 import java.util.Locale
 import kotlin.properties.Delegates
 import kotlin.random.Random
-
-
 
 
 class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
@@ -221,9 +219,14 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                         pD.dismiss()
                         Handler(Looper.getMainLooper()).postDelayed({
                             txStatus.text =
-                                "\"$queryType\" wallpapers Set, updates every $wallDelay mins. \n Add the HomeScreen Widget to see more of the Magic!"
+                                "\"$queryType\" wallpapers Set, updates every $wallDelay mins."
                             rlStatus.visibility = View.VISIBLE
-                            fabMain.text = "How to ?"
+                            val ids: IntArray = appWidM.getAppWidgetIds(newAppWidget)
+
+                            if (ids.size == 0) {
+                                fabMain.text = "Add Widget to Homescreen"
+                            }
+
                         }, 1000)
                     }
 

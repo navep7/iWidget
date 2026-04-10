@@ -248,6 +248,8 @@
                         android:id="@+id/progressBar_cyclic_weather"
                         android:visibility="invisible"
                         android:layout_gravity="center"
+                        android:layout_marginEnd="7dp"
+                        android:layout_marginTop="@dimen/padding_5"
                         android:layout_width="25dp"
                         android:layout_height="25dp"
                         android:indeterminate="true"
@@ -261,6 +263,8 @@
                     <TextView
                         android:id="@+id/tx_refresh_weather"
                         android:layout_gravity="center"
+                        android:layout_marginEnd="7dp"
+                        android:layout_marginTop="@dimen/padding_5"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignBaseline="@+id/tx_weather"
@@ -408,7 +412,7 @@
                     android:background="@drawable/gradient_glass_rounded">
 
                     <TextView
-                        android:id="@+id/tx_screentime_info"
+                        android:id="@+id/tx_screentime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
@@ -424,7 +428,7 @@
                         android:id="@+id/imgv_scr_time"
                         android:layout_width="25dp"
                         android:layout_height="25dp"
-                        android:layout_toEndOf="@+id/tx_screentime_info"
+                        android:layout_toEndOf="@+id/tx_screentime"
                         android:layout_centerVertical="true"
                         android:background="@android:color/transparent"
                         android:scaleType="fitXY"

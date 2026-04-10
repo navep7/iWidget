@@ -280,7 +280,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
         val intentIndex = intent.getStringExtra("songIndex")
         if (intentIndex != null) {
-            Toast.makeText(applicationContext, "iIn " + intentIndex, Toast.LENGTH_LONG).show()
+            Toast.makeText(applicationContext, "iIn ${intentIndex.toString()}", Toast.LENGTH_LONG).show()
         }
 
     }

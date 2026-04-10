@@ -18,7 +18,6 @@ import android.content.pm.PackageManager.NameNotFoundException
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
@@ -698,7 +697,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 vpSteps.visibility = View.VISIBLE
 
                 remoteViews?.setTextViewText(
-                    R.id.btn_screentime,
+                    R.id.tx_screentime,
                     "$hour+ H"
                 )
 

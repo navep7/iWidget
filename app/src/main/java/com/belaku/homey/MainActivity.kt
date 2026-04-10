@@ -7,6 +7,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
+import android.app.PendingIntent
 import android.app.ProgressDialog
 import android.app.usage.UsageStats
 import android.appwidget.AppWidgetManager
@@ -391,27 +392,45 @@ class MainActivity : AppCompatActivity() {
                     // Add animation here to collapse the menu
                 }
             else {
-                val builder = AlertDialog.Builder(this)
 
-                // Set the dialog's title and message
-                builder.setTitle("How to Add nHome Widget to HomeScreen")
-                builder.setMessage(
-                    "1. Goto Device Home Screen.\n" +
-                            "2. Long press on empty region.\n" +
-                            "3. Scroll down till you see nHome widget and long press the widget to HomeScreen"
-                )
+                val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
+                val myProvider = ComponentName(applicationContext, NewAppWidget::class.java)
 
+                if (appWidgetManager.isRequestPinAppWidgetSupported) {
+                    // Optional: Success callback intent when the widget is pinned
+                    val successCallback = PendingIntent.getBroadcast(
+                        applicationContext, 0, Intent(applicationContext, NewAppWidget::class.java),
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    )
 
-                // Set a positive button and its click listener
-                builder.setPositiveButton("OK") { dialog, id ->
-                    // User clicked OK button
-                    dialog.dismiss() // Dismiss the dialog
+                    // Launch the system request to pin the widget
+                    appWidgetManager.requestPinAppWidget(myProvider, null, successCallback)
                 }
 
 
-                // Create the AlertDialog object and show it
-                val dialog = builder.create()
-                dialog.show()
+                /*{
+                                val builder = AlertDialog.Builder(this)
+
+                                // Set the dialog's title and message
+                                builder.setTitle("How to Add nHome Widget to HomeScreen")
+                                builder.setMessage(
+                                    "1. Goto Device Home Screen.\n" +
+                                            "2. Long press on empty region.\n" +
+                                            "3. Scroll down till you see nHome widget and long press the widget to HomeScreen"
+                                )
+
+
+                                // Set a positive button and its click listener
+                                builder.setPositiveButton("OK") { dialog, id ->
+                                    // User clicked OK button
+                                    dialog.dismiss() // Dismiss the dialog
+                                }
+
+
+                                // Create the AlertDialog object and show it
+                                val dialog = builder.create()
+                                dialog.show()
+                            }*/
             }
 
         }
