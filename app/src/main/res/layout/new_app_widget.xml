@@ -145,71 +145,14 @@
             android:layout_below="@id/ll_top"
             android:background="@drawable/gradient_glass_dark">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_margin="@dimen/padding_5"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tx_weather"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:text="Weather Info..."
-                    android:textColor="@android:color/white"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-
-                <RelativeLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-
-                    <ImageButton
-                        android:id="@+id/imgv_weather_icon"
-                        android:layout_width="35dp"
-                        android:layout_height="35dp"
-                        android:background="@android:color/transparent"
-                        android:scaleType="fitXY"
-                        android:src="@drawable/clouds" />
-
-                    <ProgressBar
-                        android:id="@+id/progressBar_cyclic_weather"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:layout_alignBottom="@+id/tx_refresh_weather"
-                        android:layout_toRightOf="@+id/imgv_weather_icon"
-                        android:indeterminate="true"
-                        android:indeterminateTint="?attr/colorSecondary"
-                        android:indeterminateTintMode="src_atop"
-                        android:minWidth="5dp"
-                        android:minHeight="5dp"
-                        android:visibility="invisible" />
-
-                    <TextView
-                        android:id="@+id/tx_refresh_weather"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignBaseline="@+id/tx_weather"
-                        android:layout_toRightOf="@+id/imgv_weather_icon"
-                        android:text="↺"
-                        android:textColor="@android:color/holo_green_light"
-                        android:textSize="25sp"
-                        android:textStyle="bold" />
-
-                </RelativeLayout>
-            </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/ll_place"
+                android:layout_alignParentStart="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_margin="@dimen/padding_5"
+                android:layout_marginStart="@dimen/fab_margin"
+                android:layout_marginTop="@dimen/padding_5"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -220,23 +163,121 @@
                     android:ellipsize="end"
                     android:maxWidth="155dp"
                     android:maxLines="1"
+                    android:gravity="center"
+                    android:layout_marginTop="@dimen/padding_5"
+                    android:layout_marginBottom="@dimen/padding_5"
                     android:text="Place Information.."
                     android:textColor="@android:color/white"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tx_get_place"
+                <FrameLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignBaseline="@+id/tx_place"
-                    android:text=" ⚲"
-                    android:textColor="@android:color/holo_green_light"
-                    android:textSize="25sp"
-                    android:textStyle="bold" />
+                    android:layout_height="wrap_content">
+
+                    <ImageButton
+                        android:id="@+id/imgv_map_icon"
+                        android:layout_gravity="center"
+                        android:layout_width="55dp"
+                        android:layout_height="55dp"
+                        android:background="@android:color/transparent"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/map_logo" />
+
+
+                    <TextView
+                        android:id="@+id/tx_open_maps"
+                        android:layout_gravity="top|center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignBaseline="@+id/tx_weather"
+                        android:text="⚲"
+                        android:textColor="@android:color/holo_green_light"
+                        android:textSize="25sp"
+                        android:textStyle="bold" />
+
+                </FrameLayout>
+
 
 
             </LinearLayout>
+
+
+
+
+            <LinearLayout
+                android:id="@+id/ll_weather"
+                android:layout_alignParentEnd="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/fab_margin"
+                android:layout_marginTop="@dimen/padding_5"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tx_weather"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:maxWidth="155dp"
+                    android:maxLines="1"
+                    android:layout_marginTop="@dimen/padding_5"
+                    android:layout_marginBottom="@dimen/padding_5"
+                    android:text="Weather Information.."
+                    android:textColor="@android:color/white"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <FrameLayout
+                    android:layout_marginTop="-21dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageButton
+                        android:id="@+id/imgv_weather_icon"
+                        android:layout_gravity="center"
+                        android:layout_width="95dp"
+                        android:layout_height="95dp"
+                        android:background="@android:color/transparent"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/clouds" />
+
+                    <ProgressBar
+                        android:id="@+id/progressBar_cyclic_weather"
+                        android:visibility="invisible"
+                        android:layout_gravity="center"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:indeterminate="true"
+                        android:indeterminateTint="?attr/colorSecondary"
+                        android:indeterminateTintMode="src_atop"
+                        android:minWidth="25dp"
+                        android:minHeight="25dp"
+                         />
+
+
+                    <TextView
+                        android:id="@+id/tx_refresh_weather"
+                        android:layout_gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignBaseline="@+id/tx_weather"
+                        android:text="↺"
+                        android:textColor="@android:color/holo_green_light"
+                        android:textSize="25sp"
+                        android:textStyle="bold" />
+
+                </FrameLayout>
+
+
+
+            </LinearLayout>
+
+
+
+
 
             <FrameLayout
                 android:id="@+id/frame_texts"
@@ -306,19 +347,32 @@
 
             </FrameLayout>
 
-            <LinearLayout
+            <RelativeLayout
                 android:id="@+id/ll_steps_screentime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/frame_texts"
-                android:gravity="center_horizontal"
                 android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/imgbtn_twitter"
+                    android:layout_centerInParent="true"
+                    android:layout_marginBottom="@dimen/padding_5"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:background="@android:color/transparent"
+                    android:gravity="center"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/tw"
+                    tools:ignore="HardcodedText" />
 
 
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/padding_5"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginStart="@dimen/fab_margin"
+                    android:layout_marginBottom="@dimen/padding_5"
                     android:background="@drawable/gradient_glass_rounded">
 
                     <ImageButton
@@ -337,6 +391,7 @@
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:layout_marginStart="5dp"
+                        android:paddingEnd="@dimen/padding_3"
                         android:layout_toEndOf="@+id/imgv_steps"
                         android:text="Steps, today."
                         android:textColor="@android:color/black"
@@ -345,55 +400,43 @@
 
                 </RelativeLayout>
 
-                <ImageButton
-                    android:id="@+id/imgbtn_twitter"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginEnd="3dp"
-                    android:background="@android:color/transparent"
-                    android:gravity="center"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/tw"
-                    tools:ignore="HardcodedText" />
-
-
                 <RelativeLayout
-                    android:id="@+id/rl_screentime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/padding_5"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="@dimen/fab_margin"
                     android:background="@drawable/gradient_glass_rounded">
 
+                    <TextView
+                        android:id="@+id/tx_screentime_info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="5dp"
+                        android:paddingStart="@dimen/padding_3"
+                        android:layout_alignParentStart="true"
+                        android:text="Screen Time"
+                        android:textColor="@android:color/black"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
                     <ImageButton
                         android:id="@+id/imgv_scr_time"
                         android:layout_width="25dp"
                         android:layout_height="25dp"
-                        android:layout_alignParentStart="true"
+                        android:layout_toEndOf="@+id/tx_screentime_info"
                         android:layout_centerVertical="true"
                         android:background="@android:color/transparent"
                         android:scaleType="fitXY"
                         android:src="@drawable/scr_time" />
 
 
-                    <TextView
-                        android:id="@+id/btn_screentime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginStart="@dimen/padding_5"
-                        android:layout_toEndOf="@+id/imgv_scr_time"
-                        android:background="@android:color/transparent"
-                        android:text="Screen Time"
-                        android:textColor="@android:color/black"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
 
                 </RelativeLayout>
 
 
-            </LinearLayout>
+
+            </RelativeLayout>
 
 
         </RelativeLayout>
@@ -402,6 +445,8 @@
             android:id="@+id/imgv_p_album"
             android:layout_width="35dp"
             android:layout_height="35dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/thumbnail"
             android:layout_alignBottom="@+id/rl_player"
             android:layout_alignParentEnd="true" />
 
@@ -914,7 +959,7 @@
 
         <RelativeLayout
             android:id="@+id/rl_walking_state"
-
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_toStartOf="@+id/ll_contacts"

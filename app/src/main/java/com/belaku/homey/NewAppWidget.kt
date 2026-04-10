@@ -591,7 +591,12 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.tx_get_place,
+            R.id.tx_open_maps,
+            mapsPendingIntent
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_map_icon,
             mapsPendingIntent
         )
     }

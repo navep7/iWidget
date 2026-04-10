@@ -62,8 +62,6 @@ class MusicService : Service() {
         fun notifySong(mediaItem: MediaItem) {
 
             var mediaMetadata = mediaItem.mediaMetadata
-            makeToast("!notifySong - ${mediaMetadata}")
-            Toast.makeText(sContext, "!notifySong - ${mediaMetadata}", Toast.LENGTH_LONG).show()
 
             try {
                 for (i in 0 until pDatalistSongs.size)
@@ -255,6 +253,15 @@ class MusicService : Service() {
 
 
             mMediaPlayer!!.addListener(object : Player.Listener {
+
+                override fun onPlaybackStateChanged(playbackState: Int) {
+                    if (playbackState == Player.STATE_ENDED) {
+                        // The entire playlist has finished playing
+                        remoteViews?.setImageViewResource(R.id.imgbtn_playpause, R.drawable.play_m)
+                        remoteViews?.setTextViewText(R.id.tx_music_details, "End of Playback")
+                        appWidM.updateAppWidget(newAppWidget, remoteViews)
+                    }
+                }
 
                 override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                     super.onMediaItemTransition(mediaItem, reason)
