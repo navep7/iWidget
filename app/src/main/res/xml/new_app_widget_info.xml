@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:minWidth="250dp"
-    android:minHeight="250dp"
-    android:targetCellWidth="5"
-    android:targetCellHeight="6"
+    android:minWidth="300dp"
+    android:minHeight="600dp"
+    android:minResizeWidth="40dp"
+    android:minResizeHeight="40dp"
     android:resizeMode="horizontal|vertical"
-    android:initialLayout="@layout/new_app_widget" />
+    android:initialLayout="@layout/new_app_widget"
+    android:widgetFeatures="reconfigurable|configuration_optional">
+</appwidget-provider>
+
