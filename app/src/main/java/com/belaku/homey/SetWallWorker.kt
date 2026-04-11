@@ -232,12 +232,12 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
 
 
-                remoteViews?.setTextViewText(
+                /*remoteViews?.setTextViewText(
                     R.id.tx_tweets,
                     "@" + twitterProfileName + "\t ~ \t" + tW
                 )
                 //🖍
-                remoteViews?.setTextViewText(R.id.tx_tweets, tW)
+                remoteViews?.setTextViewText(R.id.tx_tweets, tW)*/
                 NewAppWidget.greeting()
                 remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
                 NewAppWidget.todaysDate()
@@ -268,7 +268,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
 
             } catch (e: IOException) {
-                remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.INVISIBLE)
+            //    remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.INVISIBLE)
                 remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
                 Log.d(TAG, "setWallEx2 - $e")
             }

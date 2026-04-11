@@ -1217,7 +1217,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     remoteViews =
                         RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
                     newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
-                    remoteViews?.setImageViewUri(R.id.twSettings, Uri.parse(twitterPicUrl))
+               //     remoteViews?.setImageViewUri(R.id.twSettings, Uri.parse(twitterPicUrl))
 
                     updateWidget()
 
@@ -1314,9 +1314,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 remoteViews = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
                 newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
-                remoteViews?.setTextViewText(
-                    R.id.tx_tweets, "@" + twitterProfileName + "\t ~ \t" + listTweets[1]
-                )
+           //     remoteViews?.setTextViewText( R.id.tx_tweets, "@" + twitterProfileName + "\t ~ \t" + listTweets[1] )
 
 
                 updateWidget()
@@ -1367,10 +1365,10 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
             if (bitmap != null) {
                 //     makeToast("TwiPic")
                 try {
-                    remoteViews?.setTextViewText(
+                    /*remoteViews?.setTextViewText(
                         R.id.tx_tweets, "@" + twitterProfileName + "\t ~ \t" + listTweets[1]
                     )
-                    remoteViews?.setImageViewBitmap(R.id.twSettings, bitmap)
+                    remoteViews?.setImageViewBitmap(R.id.twSettings, bitmap)*/
                 } catch (ex: Exception) {
                     makeToast("TwiEx - ${ex.message}")
                 }
