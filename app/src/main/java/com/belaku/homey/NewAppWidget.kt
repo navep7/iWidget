@@ -411,6 +411,11 @@ class NewAppWidget : AppWidgetProvider() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_reminders,
+            remindersPendingIntent
+        )
+
       /*  remoteViews?.setOnClickPendingIntent(
             R.id.tx_nextplan,
             remindersPendingIntent

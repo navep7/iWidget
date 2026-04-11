@@ -91,7 +91,7 @@
                 android:padding="@dimen/padding_5"
                 android:scaleType="fitXY"
                 android:src="@drawable/torch_off"
-                android:tint="@android:color/darker_gray"
+                app:tint="@android:color/darker_gray"
                 tools:ignore="HardcodedText" />
 
             <ImageButton
@@ -360,8 +360,9 @@
 
                 <ImageButton
                     android:id="@+id/imgbtn_twitter"
-                    android:layout_centerInParent="true"
-                    android:layout_marginBottom="@dimen/padding_5"
+                    android:layout_toEndOf="@+id/rl_steps"
+                    android:layout_marginStart="@dimen/padding_5"
+                    android:layout_alignBottom="@id/rl_steps"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:background="@android:color/transparent"
@@ -370,8 +371,23 @@
                     android:src="@drawable/tw"
                     tools:ignore="HardcodedText" />
 
+                <ImageButton
+                    android:id="@+id/imgbtn_reminders"
+                    android:layout_toStartOf="@+id/rl_scrtime"
+                    android:layout_marginEnd="@dimen/padding_5"
+                    android:layout_alignBottom="@+id/rl_scrtime"
+                    android:layout_alignTop="@+id/rl_scrtime"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:background="@android:color/transparent"
+                    android:gravity="center"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/bell_hr"
+                    tools:ignore="HardcodedText" />
+
 
                 <RelativeLayout
+                    android:id="@+id/rl_steps"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
@@ -405,6 +421,7 @@
                 </RelativeLayout>
 
                 <RelativeLayout
+                    android:id="@+id/rl_scrtime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
