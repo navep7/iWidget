@@ -50,7 +50,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                         RemoteViews(context.packageName, R.layout.new_app_widget)
                     newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
-                    remoteViews?.setTextViewText(R.id.tx_activity_state, toActivityString(event.activityType))
+               /*     remoteViews?.setTextViewText(R.id.tx_activity_state, toActivityString(event.activityType))
 
                     if (toActivityString(event.activityType).trim() == "STILL") {
                         StepsService.presentActivityState = "STILL"
@@ -69,7 +69,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                         remoteViews?.setViewVisibility(R.id.fl_speed, View.VISIBLE)
 
                         speedTracking()
-                    }
+                    }*/
 
 
                     appWidM.updateAppWidget(newAppWidget, remoteViews)
@@ -122,9 +122,9 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
         makeToast("!speedR")
 
   //      remoteViews?.setImageViewBitmap(R.id.needle, rBit)
-        remoteViews?.setTextViewText(R.id.tx_speed, strSpeed)
+   /*     remoteViews?.setTextViewText(R.id.tx_speed, strSpeed)
         remoteViews?.setViewVisibility(R.id.needle, View.VISIBLE)
-        remoteViews?.setViewVisibility(R.id.tx_speed, View.VISIBLE)
+        remoteViews?.setViewVisibility(R.id.tx_speed, View.VISIBLE)*/
         appWidM.updateAppWidget(newAppWidget, remoteViews)
 
         //    StepsService.locationManager.removeUpdates(locationListenerSpeed)

@@ -449,7 +449,7 @@
             android:layout_alignEnd="@+id/ll_apps"
             android:background="@drawable/gradient_glass_rounded"
             android:scaleType="centerCrop"
-            android:src="@drawable/g1" />
+            android:src="@drawable/google" />
 
         <LinearLayout
             android:id="@+id/ll_apps"

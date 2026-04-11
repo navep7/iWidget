@@ -153,10 +153,10 @@ class NewAppWidget : AppWidgetProvider() {
         if (ismActInitialized())
             fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
 
-        recognizeActivityTransitions()
+       // recognizeActivityTransitions()
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+ /*   @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @SuppressLint("MissingPermission")
     private fun recognizeActivityTransitions() {
 
@@ -235,7 +235,7 @@ class NewAppWidget : AppWidgetProvider() {
             //    makeToast("Error adding task")
         }
 
-    }
+    }*/
 
     override fun onDisabled(context: Context?) {
         super.onDisabled(context)
@@ -265,7 +265,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             widgetContext = context
 
-            recognizeActivityTransitions()
+        //    recognizeActivityTransitions()
             setUI()
             readApps()
             getFavoriteContacts()
@@ -293,7 +293,7 @@ class NewAppWidget : AppWidgetProvider() {
         // Create a PendingIntent
 
 
-        remoteViews?.setOnClickPendingIntent(
+      /*  remoteViews?.setOnClickPendingIntent(
             R.id.tx_nextstate,
             getPendingSelfIntent(context, NEXT_STATE)
         )
@@ -306,7 +306,7 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setOnClickPendingIntent(
             R.id.fl_speed,
             getPendingSelfIntent(context, SPEED_INFO)
-        )
+        )*/
 
         val intentMain = Intent(context, MainActivity::class.java)
         val pendingIntentMain = PendingIntent.getActivity(
@@ -411,7 +411,7 @@ class NewAppWidget : AppWidgetProvider() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        remoteViews?.setOnClickPendingIntent(
+      /*  remoteViews?.setOnClickPendingIntent(
             R.id.tx_nextplan,
             remindersPendingIntent
         )
@@ -424,7 +424,7 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setOnClickPendingIntent(
             R.id.tx_drink,
             getPendingSelfIntent(context, DRINK_INC)
-        )
+        )*/
 
 
         remoteViews?.setOnClickPendingIntent(
@@ -659,8 +659,8 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
-        remoteViews?.setTextViewText(R.id.tx_breathe_count, sharedPreferences.getInt("breatheCount", 0).toString())
-        remoteViews?.setTextViewText(R.id.tx_drink_count, sharedPreferences.getInt("drinkCount", 0).toString())
+ //       remoteViews?.setTextViewText(R.id.tx_breathe_count, sharedPreferences.getInt("breatheCount", 0).toString())
+   //     remoteViews?.setTextViewText(R.id.tx_drink_count, sharedPreferences.getInt("drinkCount", 0).toString())
 
         //    googleAccountInfo()
         if (isPinNoteInitialized())
@@ -1405,7 +1405,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             sharedPreferencesEditor.putBoolean("newLap", boolNewLap).apply()
 
-        } else if (BREATHE_INC == intent.action) {
+        } /* else if (BREATHE_INC == intent.action) {
             makeToast("!BREATHE_INC")
             var bC = sharedPreferences.getInt("breatheCount", 0)
             bC++
@@ -1420,7 +1420,7 @@ class NewAppWidget : AppWidgetProvider() {
             sharedPreferencesEditor.putInt("drinkCount", dC).apply()
             sharedPreferencesEditor.commit()
             remoteViews?.setTextViewText(R.id.tx_drink_count, dC.toString())
-        } else if (LOCK_PHONE == intent.action) {
+        }*/ else if (LOCK_PHONE == intent.action) {
             if (widgetContext != null) {
                 if (isAccessibilityServiceEnabled(
                         widgetContext,
@@ -1449,7 +1449,7 @@ class NewAppWidget : AppWidgetProvider() {
             val intentContacts = Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI)
             intentContacts.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             widgetContext.startActivity(intentContacts)
-        } else if (NEXT_STATE == intent.action) {
+        }/* else if (NEXT_STATE == intent.action) {
 
             if (sharedPreferences.getString("actState", "STILL") == "STILL") {
                 sharedPreferencesEditor.putString("actState", "WALKING").commit()
@@ -1493,7 +1493,7 @@ class NewAppWidget : AppWidgetProvider() {
                 remoteViews?.setViewVisibility(R.id.fl_speed, View.INVISIBLE)
             }
 
-        } else if (TIME_CLICKED == intent.action) {
+        }*/ else if (TIME_CLICKED == intent.action) {
 
             if (sharedPreferences.getBoolean("AnalogV", true)) {
                 sharedPreferencesEditor.putBoolean("AnalogV", false).apply()
@@ -1765,7 +1765,7 @@ class NewAppWidget : AppWidgetProvider() {
         val mSpannableStringLoc = SpannableString(cityname)
         mSpannableStringLoc.setSpan(UnderlineSpan(), 0, mSpannableStringLoc.length, 0)
         appWidgetView.findViewById<TextView>(R.id.tx_place).text = "⚲ " + cityname
-        appWidgetView.findViewById<TextView>(R.id.tx_steps).text = "$stepsToday"
+        appWidgetView.findViewById<TextView>(R.id.tx_steps).text = "$stepsToday / " + String.format("%.1f",  stepsToday * 74f / 100000f) + " Km"
         //    appWidgetView.findViewById<TextView>(R.id.tx_weather).text = tempC.substring(0, 2) + "°C, " + weatherIconState
 
         appWidgetView.findViewById<LinearLayout>(R.id.ll_apps).visibility = View.INVISIBLE
@@ -2289,7 +2289,7 @@ class NewAppWidget : AppWidgetProvider() {
             sharedPreferencesEditor.putBoolean("DateSet", true).apply()
             sharedPreferencesEditor.putString("fD", formattedDate).apply()
             if (stepsToday != 0)
-                remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday")
+                remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday / " + String.format("%.1f",  stepsToday * 74f / 100000f) + " Km")
             //   remoteViews?.setTextViewText(R.id.n_tx_steps, "Now, $newLapSteps")
             remoteViews?.setTextViewText(
                 R.id.tx_day_date,

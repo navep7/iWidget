@@ -6,21 +6,16 @@
 
     <ImageView
         android:id="@+id/contact_imgv"
-        android:src="@drawable/launch_e"
+        android:src="@drawable/contacts"
         android:layout_above="@+id/contact_tx_name"
-        android:layout_width="55dp"
-        android:scaleType="fitXY"
-        android:layout_centerInParent="true"
-        android:background="@drawable/rounded_corner"
-        android:layout_height="65dp"
-        android:layout_marginBottom="@dimen/padding_5"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/contact_tx_name"
         android:tag="Contact"
-        android:padding="@dimen/padding_5"
-        android:text="App"
+        android:text="Contact"
         android:background="@drawable/gradient_glass_flat"
         android:textStyle="bold"
         android:maxLines="1"
@@ -29,15 +24,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:padding="@dimen/padding_5"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:src="@drawable/contacts"
         tools:ignore="HardcodedText" />
 
+
+
     <TextView
         android:id="@+id/contact_tx_close"
         android:tag="APP"
-        android:text=" X "
+        android:text="x"
         android:padding="3sp"
         android:background="@drawable/circular_white"
         android:textSize="10sp"
@@ -47,8 +45,8 @@
         android:layout_height="wrap_content"
         android:gravity="end"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="-20dp"
-        android:layout_alignParentEnd="true"
+        android:layout_marginStart="-25dp"
+        android:layout_toEndOf="@+id/contact_imgv"
         android:src="@drawable/contacts"
         tools:ignore="HardcodedText" />
 
