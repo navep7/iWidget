@@ -1064,11 +1064,11 @@ class MainActivity : AppCompatActivity() {
             if (bitmap != null) {
                 //     makeToast("TwiPic")
                 try {
-                    remoteViews?.setTextViewText(
+                    /*remoteViews?.setTextViewText(
                         R.id.tx_tweets,
                         "@" + twitterProfileName + "\t ~ \t" + listTweets[1]
                     )
-                    remoteViews?.setImageViewBitmap(R.id.twSettings, bitmap)
+                    remoteViews?.setImageViewBitmap(R.id.twSettings, bitmap)*/
                 } catch (ex: Exception) {
                     makeToast("TwiEx - ${ex.message}")
                 }
