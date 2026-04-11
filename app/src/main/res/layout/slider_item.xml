@@ -340,7 +340,7 @@
 
 
                         <TextView
-                            android:id="@+id/btn_screentime"
+                            android:id="@+id/tx_screentime"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
@@ -358,7 +358,7 @@
                             android:layout_centerVertical="true"
                             android:layout_marginStart="3dp"
                             android:layout_marginEnd="5dp"
-                            android:layout_toEndOf="@+id/btn_screentime"
+                            android:layout_toEndOf="@+id/tx_screentime"
                             android:text="ⓘ"
                             android:textColor="@android:color/holo_red_dark"
                             android:textSize="25sp"
@@ -449,7 +449,7 @@
             android:layout_alignEnd="@+id/ll_apps"
             android:background="@drawable/gradient_glass_rounded"
             android:scaleType="centerCrop"
-            android:src="@drawable/g1" />
+            android:src="@drawable/google" />
 
         <LinearLayout
             android:id="@+id/ll_apps"
@@ -783,7 +783,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="@dimen/padding_5"
             android:background="@drawable/circular_primary_border"
-            android:src="@drawable/scan" />
+            android:src="@drawable/qr" />
 
         <FrameLayout
             android:id="@+id/frame_l_tweets"

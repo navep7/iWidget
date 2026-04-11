@@ -3,7 +3,7 @@
     android:shape="rectangle">
     <!-- Background color of the TextView -->
     <stroke
-        android:width="5dp"
+        android:width="1dp"
         android:color="?attr/colorPrimary" /> <!-- Border color and width -->
     <corners android:radius="999dp" /> <!-- Large radius for circular effect -->
     <padding

@@ -3,6 +3,7 @@ package com.belaku.homey
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.ProgressDialog
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
@@ -17,16 +18,15 @@ import android.content.pm.PackageManager.NameNotFoundException
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.provider.ContactsContract
 import android.provider.Settings
 import android.speech.RecognizerIntent
-import android.text.Html
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.View
@@ -36,6 +36,7 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
@@ -47,21 +48,21 @@ import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
-import com.belaku.homey.MainActivity.Companion.AccessibilityServicePermissionDialog
-import com.belaku.homey.MainActivity.Companion.appContx
 import com.belaku.homey.MainActivity.Companion.beginCal
-import com.belaku.homey.MainActivity.Companion.cDate
-import com.belaku.homey.MainActivity.Companion.cMonth
-import com.belaku.homey.MainActivity.Companion.cYear
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
+import com.belaku.homey.MainActivity.Companion.parentLayout
 import com.belaku.homey.MainActivity.Companion.pickContactLauncher
 import com.belaku.homey.MainActivity.Companion.sN
-import com.belaku.homey.MainActivity.Companion.twitterProfileName
+import com.belaku.homey.StepsService.Companion.twitterProfileName
+import com.belaku.homey.MusicActivity.Companion.dataListSongs
+import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
+import com.belaku.homey.MusicService.Companion.songIndex
+import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
@@ -69,17 +70,19 @@ import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.getScreenTime
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
+import com.belaku.homey.NewAppWidget.Companion.primaryColor
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
-import com.belaku.homey.SetWallWorker.Companion.screenHeight
-import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
-import com.belaku.homey.SetWallWorker.Companion.boolWallSet
-import com.belaku.homey.SetWallWorker.Companion.mAct
 import com.belaku.homey.SetWallWorker.Companion.pinNote
+import com.belaku.homey.SetWallWorker.Companion.screenHeight
+import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
+import com.belaku.homey.StepsService.Companion.totalUsage
+//import com.chaquo.python.Python
+//import com.chaquo.python.android.AndroidPlatform
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -99,6 +102,7 @@ import com.google.gson.Gson
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
+import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -111,14 +115,15 @@ import java.io.IOException
 import java.net.URL
 import java.util.Calendar
 import java.util.Locale
-import java.util.Timer
-import java.util.TimerTask
+import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
 import kotlin.random.Random
 
 
 class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    private var boolFetchingTweets: Boolean = false
+    private lateinit var dialogActContext: Context
     private lateinit var parentLayoutDialog: View
     private val barcodeLauncher =
         registerForActivityResult(ScanContract()) { result: ScanIntentResult? ->
@@ -148,6 +153,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
     private var blE by Delegates.notNull<Boolean>()
     private var wifE by Delegates.notNull<Boolean>()
     private lateinit var llDialog: RelativeLayout
+    private lateinit var imgvSongCover: ImageView
     private lateinit var txTitle: TextView
     private lateinit var txContent: TextView
     private lateinit var txAppName: TextView
@@ -173,7 +179,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
         parentLayoutDialog = findViewById(android.R.id.content)
 
-        appContx = applicationContext
+        dialogActContext = applicationContext
 
         rewardedInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
@@ -221,6 +227,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
         llDialog = findViewById<RelativeLayout>(R.id.dialog_layout)
+        imgvSongCover = findViewById<ImageView>(R.id.dialog_imgv_cover)
         txTitle = findViewById<TextView>(R.id.tx_dialog_title)
         txContent = findViewById<TextView>(R.id.tx_dialog_content)
         txContent.movementMethod = ScrollingMovementMethod()
@@ -243,8 +250,32 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
         if (dialogIntentStr != null) {
 
-            if (dialogIntentStr == "WCh") {
+            if (dialogIntentStr == "SongCover") {
+                //     makeToast("yet2Impl")
+            //    llDialog.setBackgroundColor(android.R.color.transparent)
+                edtxDialog.visibility = View.GONE
+                btnOk.visibility = View.GONE
+                btnCancel.visibility = View.GONE
+                vpSteps.visibility = View.GONE
+                imgbtnShare.visibility = View.GONE
+                imgvSongCover.visibility = View.VISIBLE
+                txTitle.visibility = View.VISIBLE
+                if (isDataListInitialized()) {
+                    txTitle.text = dataListSongs[songIndex].title
+                    Picasso.get()
+                        .load(dataListSongs[songIndex].album.cover)
+                        .into(imgvSongCover)
+                }
+            } else if (dialogIntentStr == "WCh") {
 
+                if (noRewards > 1) {
+                    remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
+                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                } else {
+                    remoteViews?.setTextViewText(R.id.tx_rewards_count, "\uD83D\uDC41\uFE0FAD!")
+                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                }
                 sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
                 sharedPreferencesEditor = sharedPreferences.edit()
 
@@ -254,24 +285,52 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 sharedPreferencesEditor.putInt("noRewards", noRewards).apply()
 
                 if (noRewards > 0) {
-                    makeSnack("Changing Wall, please wait...")
-                    appContx = applicationContext
+                    //   makeSnack("Changing Wall, please wait...")
+                    dialogActContext = applicationContext
                     Thread {
-                        SetWallWorker.setWall(true)
+                        SetWallWorker.setWall(true, dialogActContext)
                     }.start()
                 } else {
-                    makeSnack("Watch an AD to auto change Walls for next 7 times!")
-                }
 
-                val timer = Timer()
-                timer.schedule(object : TimerTask() {
-                    override fun run() {
-                        // Check your condition here
-                        if (boolWallSet) {
-                            timer.cancel()
-                        }
-                    }
-                }, 0, 1000)
+                    makeSnack("loading Advertisement, please wait...")
+                    txTitle.setText("loading Advertisement, please wait...")
+                    txContent.visibility = View.GONE
+                    edtxDialog.visibility = View.GONE
+                    imgbtnShare.visibility = View.GONE
+                    btnOk.visibility = View.GONE
+                    btnCancel.visibility = View.GONE
+                    vpSteps.visibility = View.GONE
+
+                    RewardedInterstitialAd.load(
+                        this,
+                        getString(R.string.admob_ri_ad),
+                        AdRequest.Builder().build(),
+                        object : RewardedInterstitialAdLoadCallback() {
+                            override fun onAdLoaded(rewardedAd: RewardedInterstitialAd) {
+                                makeToast("Ad was loaded.")
+                                rewardedInterstitialAd = rewardedAd
+
+                                rewardedInterstitialAd?.show(this@DialogActivity) { rewardItem ->
+                                    makeToast("User earned the reward.")
+                                    // Handle the reward.
+                                    val rewardAmount = rewardItem.amount
+                                    val rewardType = rewardItem.type
+                                    sharedPreferencesEditor.putInt("noRewards", 7).apply()
+                                    noRewards = 7
+                                    remoteViews?.setTextViewText(R.id.tx_rewards_count, "" + 7)
+                                    txTitle.setText("swipe outside to continue changing walls.")
+                                    updateWidget()
+                                }
+                            }
+
+                            override fun onAdFailedToLoad(adError: LoadAdError) {
+                                dialogActContext = applicationContext
+                                makeToast("onAdFailedToLoad: ${adError.message}")
+                                rewardedInterstitialAd = null
+                            }
+                        },
+                    )
+                }
 
             } else if (dialogIntentStr == "PC") {
                 llDialog.visibility = View.GONE
@@ -323,30 +382,101 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 })
 
             } else if (dialogIntentStr == "ST") {
-                tW = listTweets[Random.nextInt(0, listTweets.size)]
-                edtxDialog.visibility = View.GONE
-                btnOk.visibility = View.GONE
-                btnCancel.visibility = View.GONE
-                vpSteps.visibility = View.GONE
-                txTitle.setText(twitterProfileName)
-                txContent.setText(tW)
-                imgbtnShare.setOnClickListener(View.OnClickListener {
-                    startActivity(
-                        Intent.createChooser(
-                            Intent(Intent.ACTION_SEND).setType("text/plain")
-                                .putExtra(Intent.EXTRA_TEXT, tW)
-                                .putExtra(Intent.EXTRA_SUBJECT, "Sharing via nHome!"),
-                            "Share via..."
+
+                parentLayout = findViewById(android.R.id.content);
+                Snackbar.make(
+                    parentLayout,
+                    "Showing Tweets from $twitterProfileName",
+                    Snackbar.LENGTH_SHORT
+                )
+                    .setAction("Customize") { view ->
+                        // Code to undo the user's last action
+                        // For example, showing another snackbar:
+                        Snackbar.make(
+                            parentLayout,
+                            "Paid Feature, coming soon!",
+                            Snackbar.LENGTH_SHORT
+                        ).show()
+                        txTitle.setText("Twitter")
+                        txContent.visibility = View.INVISIBLE
+                        edtxDialog.visibility = View.VISIBLE
+                        vpSteps.visibility = View.GONE
+                        imgbtnShare.visibility = View.GONE
+                        btnOk.visibility = View.VISIBLE
+                        btnOk.setText("Set")
+                        btnOk.setOnClickListener(View.OnClickListener {
+                            boolFetchingTweets = true
+                            if (edtxDialog.text.toString().equals("Fact")) {
+                                twitterProfileName = "Fact"
+                                listTweets.clear()
+                                rawTweets(false)
+                            } else {
+                                getTweetID(edtxDialog.text.toString())
+                            }
+                            //   llDialog.visibility = View.GONE
+                        })
+
+                    }
+                    .setActionTextColor(
+                        resources.getColor(
+                            android.R.color.holo_red_dark,
+                            theme
                         )
-                    )
-                })
+                    ) // Optional: set custom color
+                    .show()
+
+
+
+                if (boolFetchingTweets) {
+                    Handler(Looper.getMainLooper()).postDelayed( {
+                        tW = listTweets[Random.nextInt(0, listTweets.size)]
+                        edtxDialog.visibility = View.GONE
+                        btnOk.visibility = View.GONE
+                        btnCancel.visibility = View.GONE
+                        vpSteps.visibility = View.GONE
+                        txContent.visibility = View.VISIBLE
+                        imgbtnShare.visibility = View.VISIBLE
+                        txTitle.setText(twitterProfileName)
+                        txContent.setText(tW)
+                        imgbtnShare.setOnClickListener(View.OnClickListener {
+                            startActivity(
+                                Intent.createChooser(
+                                    Intent(Intent.ACTION_SEND).setType("text/plain")
+                                        .putExtra(Intent.EXTRA_TEXT, tW)
+                                        .putExtra(Intent.EXTRA_SUBJECT, "Sharing via nHome!"),
+                                    "Share via..."
+                                )
+                            )
+                        })
+                    }, 3000)
+                } else if (listTweets.size > 0) {
+                    tW = listTweets[Random.nextInt(0, listTweets.size)]
+                    edtxDialog.visibility = View.GONE
+                    btnOk.visibility = View.GONE
+                    btnCancel.visibility = View.GONE
+                    vpSteps.visibility = View.GONE
+                    txTitle.setText(twitterProfileName)
+                    txContent.setText(tW)
+                    imgbtnShare.setOnClickListener(View.OnClickListener {
+                        startActivity(
+                            Intent.createChooser(
+                                Intent(Intent.ACTION_SEND).setType("text/plain")
+                                    .putExtra(Intent.EXTRA_TEXT, tW)
+                                    .putExtra(Intent.EXTRA_SUBJECT, "Sharing via nHome!"),
+                                "Share via..."
+                            )
+                        )
+                    })
+                } else rawTweets(false)
+
             } else if (dialogIntentStr == "STH") {
                 llDialog.visibility = View.GONE
                 Snackbar.make(parentLayoutDialog, "Paid Feature!", Snackbar.LENGTH_LONG)
                     .setAction("Pay") {
-
                     }
                     .show()
+
+
                 /* txTitle.setText("Twitter")
                  txContent.visibility = View.INVISIBLE
                  edtxDialog.visibility = View.VISIBLE
@@ -385,45 +515,6 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 } catch (ignored: ActivityNotFoundException) {
                     startActivity(Intent(Settings.ACTION_WIFI_SETTINGS))
                 }
-            } else if (dialogIntentStr == "AD") {
-
-                txTitle.setText("loading Advertisement, please wait...")
-                txContent.visibility = View.GONE
-                edtxDialog.visibility = View.GONE
-                imgbtnShare.visibility = View.GONE
-                btnOk.visibility = View.GONE
-                btnCancel.visibility = View.GONE
-                vpSteps.visibility = View.GONE
-
-                RewardedInterstitialAd.load(
-                    this,
-                    getString(R.string.admob_ri_ad),
-                    AdRequest.Builder().build(),
-                    object : RewardedInterstitialAdLoadCallback() {
-                        override fun onAdLoaded(rewardedAd: RewardedInterstitialAd) {
-                            makeToast("Ad was loaded.")
-                            rewardedInterstitialAd = rewardedAd
-
-                            rewardedInterstitialAd?.show(this@DialogActivity) { rewardItem ->
-                                makeToast("User earned the reward.")
-                                // Handle the reward.
-                                val rewardAmount = rewardItem.amount
-                                val rewardType = rewardItem.type
-                                sharedPreferencesEditor.putInt("noRewards", 7).apply()
-                                noRewards = 7
-                                remoteViews?.setTextViewText(R.id.tx_rewards_count, "" + 7)
-                                txTitle.setText("swipe outside to continue changing walls.")
-                                updateWidget()
-                            }
-                        }
-
-                        override fun onAdFailedToLoad(adError: LoadAdError) {
-                            appContx = applicationContext
-                            makeToast("onAdFailedToLoad: ${adError.message}")
-                            rewardedInterstitialAd = null
-                        }
-                    },
-                )
             } else if (dialogIntentStr == "stepsInfo") {
 
                 stepsMapsFragment.getMapAsync(this)
@@ -444,6 +535,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
             } else if (dialogIntentStr == "screenTimeInfo") {
+
                 window.setLayout(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
                 );
@@ -461,7 +553,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                                 endCal.get(
                                     Calendar.YEAR
                                 )
-                            })" + ", below is the App data, every day..  "
+                            })" + ", below is the App data, every day (mm:ss)..  "
                 )
 
 
@@ -471,11 +563,17 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 var c = b.sortedBy { it.usageTime }
 
 
+                for (i in c)
+                    myAppUsages.add(i.usageTime)
+
+                totalUsage = sumTimeArray(myAppUsages)
+                myAppUsages.clear()
+
                 for (i in c) {
                     if (i.usageTime.substring(0, 2).toInt() > 10) {
                         muApps.add(
                             "\n" + getAppNameFromPkg(
-                                appContx, i.appName
+                                dialogActContext, i.appName
                             )
                         )
                         myAppUsages.add("\n" + i.usageTime)
@@ -490,6 +588,8 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 txAppUsageTime.append("> 10 mins/day\n")
                 for (i in muApps) txAppName.append(i)
                 for (i in myAppUsages) txAppUsageTime.append(i)
+
+                //   txAppName.append("\n\n\n ${sumTimeArray(myAppUsages)}")
                 muApps.clear()
                 myAppUsages.clear()
 
@@ -508,7 +608,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     ) {
                         muApps.add(
                             "\n" + getAppNameFromPkg(
-                                appContx, c[i].appName
+                                dialogActContext, c[i].appName
                             )
                         )
                         myAppUsages.add("\n" + c[i].usageTime)
@@ -537,7 +637,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     ) {
                         muApps.add(
                             "\n" + getAppNameFromPkg(
-                                appContx, c[i].appName
+                                dialogActContext, c[i].appName
                             )
                         )
                         myAppUsages.add("\n" + c[i].usageTime)
@@ -564,7 +664,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     ) {
                         muApps.add(
                             "\n" + getAppNameFromPkg(
-                                appContx, c[i].appName
+                                dialogActContext, c[i].appName
                             )
                         )
                         myAppUsages.add("\n" + c[i].usageTime)
@@ -584,8 +684,27 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 txAppName.append("\n\n")
                 txAppUsageTime.append("\n\n")
 
+                var sT = totalUsage.split(":")
+                var hour = ""
+
+                if (sT[0][0] == '0')
+                    hour = sT[0].drop(1)
+                else hour = sT[0]
+
+                txAppName.append("Avg Usage/Day ~ $hour Hours : ${sT[1]} Mins ")
+
                 edtxDialog.visibility = View.GONE
                 vpSteps.visibility = View.VISIBLE
+
+                remoteViews?.setTextViewText(
+                    R.id.tx_screentime,
+                    "$hour+ H"
+                )
+
+
+                appWidM = AppWidgetManager.getInstance(dialogActContext)
+                appWidM.updateAppWidget(newAppWidget, remoteViews)
+
             } else if (dialogIntentStr == "liveWall") {
                 makeToast("LIVEWALL!")
                 val p: String = WallService::class.java.getPackage().getName()
@@ -622,7 +741,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
                     llDialog.visibility = View.GONE
                     Thread {
-                        SetWallWorker.setWall(true)
+                        SetWallWorker.setWall(true, dialogActContext)
                     }.start()
                     //  appWidM.updateAppWidget(newAppWidget, remoteViews)
                 }
@@ -640,7 +759,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     dialog.dismiss() // Dismiss the dialog
                     val openSettings = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
                     openSettings.addFlags(FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
-                    appContx.startActivity(openSettings)
+                    dialogActContext.startActivity(openSettings)
                 }
 
                 builder.setNegativeButton("Not now") { dialog, id ->
@@ -666,6 +785,46 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
         }
+    }
+
+    /*  private fun pythonTimpl() {
+
+          // 1. Initialize Python (if not already done in Application)
+          if (!Python.isStarted()) {
+              Python.start(AndroidPlatform(this))
+          }
+
+          // 2. Get the Python instance
+          val py = Python.getInstance()
+
+          // 3. Get the module (script.py)
+          val module = py.getModule("python")
+
+          makeToast("Py ~ ${module.callAttr("wrapped_function", "KotlinUser")}")
+
+      }*/
+
+
+    private fun sumTimeArray(myAppUsages: ArrayList<String>): String {
+        // 1. Calculate total seconds from all "mm:ss" strings
+        var totalSeconds = 0L
+        for (time in myAppUsages) {
+            val parts = time.split(":")
+            if (parts.size == 2) {
+                val minutes = parts[0].toLong()
+                val seconds = parts[1].toLong()
+                totalSeconds += minutes * 60 + seconds
+            }
+        }
+
+        // 2. Format the total seconds to "hh:mm"
+        // TimeUnit handles the conversion to hours and minutes
+        val hours = TimeUnit.SECONDS.toHours(totalSeconds)
+        val minutes = TimeUnit.SECONDS.toMinutes(totalSeconds) % 60
+
+        // Use String.format for consistent "hh:mm" formatting, including leading zeros for minutes
+        // Note: The hour part can be > 23, which is correct for a duration
+        return String.format(Locale.getDefault(), "%02d:%02d", hours, minutes)
     }
 
     private fun stepsMapsAdapter(
@@ -920,20 +1079,21 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     phoneNumber = phoneNumber.filter { !it.isWhitespace() }
                 }
             }
+            val colorText: Int = if (ColorUtil().isColorDark(primaryColor))
+                android.R.color.holo_green_light
+            else android.R.color.holo_green_dark
 
-
-            val color =
-                Color.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
             var contactBitmap: Bitmap?
 
-            contactBitmap = ContactPhotoHelper.retrieveContactPhoto(appContx, contactID.toLong())
+            contactBitmap =
+                ContactPhotoHelper.retrieveContactPhoto(dialogActContext, contactID.toLong())
             val cNme = cursor.getString(
                 cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
             )
 
             if (contactBitmap == null)
                 contactBitmap = CharacterToBitmapConverter.getBitmapFromCharacter(
-                    cNme[0], 100, 100, 70, color
+                    cNme[0], 100, 100, 70, R.color.light_blue_900
                 )
 
             val c = Contact(contactID, cNme, phoneNumber, contactBitmap)
@@ -1014,7 +1174,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun getTweetID(str: String, b: Boolean) {
+    private fun getTweetID(str: String) {
 
         val client = OkHttpClient()
 
@@ -1023,16 +1183,14 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 .addHeader("x-rapidapi-key", "8521aa6a65mshab927b74fff566dp175607jsn24cd6edd63a7")
                 .addHeader("x-rapidapi-host", "twitter241.p.rapidapi.com").build()
 
+        pD = ProgressDialog(this@DialogActivity)
 
-        pD.setTitle("Twitter")
-        pD.setMessage("fetching user ID...")
-        if (b) pD.show()
         lifecycleScope.launch(Dispatchers.IO) {
             var responseTweetID = client.newCall(request).execute()
 
             withContext(Dispatchers.Main) {
                 // Handle the result and hide the loading indicator
-                if (b) pD.dismiss()
+
                 val responseBodyString = responseTweetID.peekBody(Long.MAX_VALUE).string()
 
 
@@ -1054,7 +1212,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     twitterProfileName = jsonObject.getJSONObject("result").getJSONObject("data")
                         .getJSONObject("user").getJSONObject("result").getJSONObject("core")
                         .getString("screen_name")
-                    Log.d("TwitterPicUrl - ", twitterPicUrl)
+                    //  Log.d("TwitterPicUrl - ", twitterPicUrl)
 
                     remoteViews =
                         RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
@@ -1063,22 +1221,47 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
                     updateWidget()
 
-                    if (b) pD.dismiss()
 
                     getTweets(twitterID, false)
+                    twitterProfileName = edtxDialog.text.toString()
+
+                    pD.setTitle("Twitter")
+                    pD.setMessage("fetching Tweets...")
+                    pD.show()
+                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                        pD.dismiss()
+                    }, 3000)
                 } else {
-                    if (b) pD.dismiss()
+
                     makeSnack("Twitter User doesn't Exist!")
+                    pD.setTitle("Twitter")
+                    pD.setMessage("Twitter User doesn't Exist!")
+                    pD.show()
+                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                        pD.dismiss()
+                    }, 3000)
 
                 }
                 else {
-                    if (b) pD.dismiss()
+
                     makeSnack("Twitter User doesn't Exist!")
+                    pD.setTitle("Twitter")
+                    pD.setMessage("Twitter User doesn't Exist!")
+                    pD.show()
+                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                        pD.dismiss()
+                    }, 3000)
 
                 }
                 else {
-                    if (b) pD.dismiss()
+
                     makeSnack("Twitter User doesn't Exist!")
+                    pD.setTitle("Twitter")
+                    pD.setMessage("Twitter User doesn't Exist!")
+                    pD.show()
+                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                        pD.dismiss()
+                    }, 3000)
 
                 }
                 // Update UI with result
@@ -1151,7 +1334,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
             pD.setTitle("Twitter")
             pD.setMessage("fetching Tweets...")
             pD.show()
-            Handler().postDelayed(Runnable {
+            Handler(Looper.getMainLooper()).postDelayed(Runnable {
                 pD.dismiss()
             }, 1000)
         }

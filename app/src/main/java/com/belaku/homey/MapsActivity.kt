@@ -2,8 +2,6 @@ package com.belaku.homey
 
 import android.R.attr.button
 import android.annotation.SuppressLint
-import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.graphics.Bitmap
 import android.location.Address
 import android.location.Geocoder
@@ -11,15 +9,12 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.provider.Settings
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import androidx.appcompat.app.AppCompatActivity
-import com.belaku.homey.MainActivity.Companion.cityLat
-import com.belaku.homey.MainActivity.Companion.cityLng
-import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.StepsService.Companion.mLocationResult
 import com.belaku.homey.databinding.ActivityMapsBinding
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -45,8 +40,9 @@ import java.io.IOException
 import java.util.Locale
 
 
-class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnMapReadyCallback,
-    GoogleMap.OnMapClickListener {
+
+class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnMapReadyCallback, GoogleMap.OnMapClickListener,
+    GoogleMap.OnMarkerClickListener {
 
     private var boolStreetMarkerClicked: Boolean = false
     private lateinit var cAddrs: MutableList<Address>
@@ -67,11 +63,6 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
 
         setSupportActionBar(binding.toolbar)
 
-        if (!MainActivity.isLocationEnabled(applicationContext)) {
-            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-            applicationContext.startActivity(intent.setFlags(FLAG_ACTIVITY_NEW_TASK))
-        }
-
         mStreetViewPanoramaView = findViewById(R.id.streetviewpanorama)
         mSupportMapFragment =
             (supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?)!!
@@ -81,7 +72,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
         mStreetViewPanoramaView.onCreate(savedInstanceState);
         mStreetViewPanoramaView.getStreetViewPanoramaAsync(this);
 
-        locationUpdates()
+      //  locationUpdates()
 
         binding.fabMapOStreet.setOnClickListener { view ->
 
@@ -99,58 +90,11 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
 
     @SuppressLint("MissingPermission")
     private fun locationUpdates() {
-        var locationRequest = LocationRequest.create()
-        locationRequest.setInterval(30000)
-        locationRequest.setSmallestDisplacement(1f)
-        locationRequest.setFastestInterval(10000)
-        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
 
-        //instantiating the LocationCallBack
-        val locationCallback = object : LocationCallback(), GoogleMap.OnMarkerClickListener {
-            override fun onLocationResult(locationResult: LocationResult) {
-                val location = locationResult.lastLocation
+                val location = mLocationResult.lastLocation
                 if (location != null) {
-
-                    cityLat = location.latitude
-                    cityLng = location.longitude
-
                     getAddress(location.latitude, location.longitude)
-                //    makeToast("Location update - $cAddrs")
-                    if (boolstreetViewPanorama) {
 
-                        if (!boolStreetMarkerClicked)
-                            mStreetViewPanorama.setPosition(
-                                LatLng(
-                                    location.latitude,
-                                    location.longitude
-                                )
-                            )
-
-
-                        //do something
-                        val handler = Handler(Looper.getMainLooper()) // For UI updates
-                        val runnable: Runnable = object : Runnable {
-                            override fun run() {
-                                var mStreetViewPanoramaCamera = StreetViewPanoramaCamera.Builder()
-                                    .zoom(mStreetViewPanorama.getPanoramaCamera().zoom)
-                                    .tilt(mStreetViewPanorama.getPanoramaCamera().tilt)
-                                    .bearing(mStreetViewPanorama.getPanoramaCamera().bearing - 60)
-                                    .build()
-                                mStreetViewPanorama.animateTo(mStreetViewPanoramaCamera, 1000)
-
-                                handler.postDelayed(this, 3000) // 1000 milliseconds = 1 second
-                            }
-                        }
-                        handler.post(runnable);
-
-                        if (mStreetViewPanorama.location != null)
-
-                            getAddress(
-                                mStreetViewPanorama.location.position.latitude,
-                                mStreetViewPanorama.location.position.longitude
-                            )
-
-                    }
                     if (boolMapReady) {
 
                         var addrs = ""
@@ -159,37 +103,16 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
                                 addrs = addrs + cAddrs[0].getAddressLine(i)
                             }
                         else addrs = cAddrs[0].subLocality
-
-                        mGoogleMap.clear()
                         addPresentMarker(LatLng(location.latitude, location.longitude), addrs)
 
                         mGoogleMap.setOnMapClickListener(this@MapsActivity)
                         mGoogleMap.setOnMarkerClickListener(this)
                     }
-                }
-            }
 
-            override fun onMarkerClick(p0: Marker): Boolean {
-                makeToast(p0.title.toString())
-                val anim: Animation = AlphaAnimation(0.0f, 1.0f)
-                anim.duration = 50 //You can manage the blinking time with this parameter
-                anim.startOffset = 20
-                anim.repeatMode = Animation.REVERSE
-                anim.repeatCount = 1
-                binding.fabMapOStreet.startAnimation(anim)
-                boolStreetMarkerClicked = true
-                mStreetViewPanorama.setPosition(p0.position)
-                return true
-            }
+
         }
 
-        var fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
-        fusedLocationProviderClient.requestLocationUpdates(
-            locationRequest,
-            locationCallback,
-            Looper.getMainLooper()
-        )
     }
 
     private fun addPresentMarker(ltlng: LatLng, addrs: String) {
@@ -217,16 +140,14 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
     fun getAddress(lat: Double, lng: Double) {
         val gcd = Geocoder(applicationContext)
         Locale.getDefault()
-        cityLat = lat
-        cityLng = lng
         try {
             cAddrs = gcd.getFromLocation(lat, lng, 1)!!
             //   makeToast(cAddrs?.get(0)!!.subLocality)
-
-            cityname = cAddrs?.get(0)!!.subLocality
-       //     if (cityname.length > 15)
-         //       cityname = cityname.substring(0, 12) + "..,"
-
+            Snackbar.make(
+                window.decorView.rootView,
+                cAddrs?.get(0)!!.subLocality,
+                Snackbar.LENGTH_INDEFINITE
+            ).show()
         } catch (e: IOException) {
             // TODO Auto-generated catch block
             e.printStackTrace()
@@ -238,6 +159,49 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
     override fun onStreetViewPanoramaReady(streetViewPanorama: StreetViewPanorama) {
         mStreetViewPanorama = streetViewPanorama
         boolstreetViewPanorama = true
+        streetUpdates()
+    }
+
+    private fun streetUpdates() {
+        if (boolstreetViewPanorama) {
+
+            val location = mLocationResult.lastLocation
+
+            if (location != null) {
+            if (!boolStreetMarkerClicked)
+                mStreetViewPanorama.setPosition(
+                    LatLng(
+                        location.latitude,
+                        location.longitude
+                    )
+                )
+
+
+            //do something
+            val handler = Handler(Looper.getMainLooper()) // For UI updates
+            val runnable: Runnable = object : Runnable {
+                override fun run() {
+                    var mStreetViewPanoramaCamera = StreetViewPanoramaCamera.Builder()
+                        .zoom(mStreetViewPanorama.panoramaCamera.zoom)
+                        .tilt(mStreetViewPanorama.panoramaCamera.tilt)
+                        .bearing(mStreetViewPanorama.panoramaCamera.bearing - 60)
+                        .build()
+                    mStreetViewPanorama.animateTo(mStreetViewPanoramaCamera, 1000)
+
+                    handler.postDelayed(this, 3000) // 1000 milliseconds = 1 second
+                }
+            }
+            handler.post(runnable);
+
+            if (mStreetViewPanorama.location != null)
+
+                getAddress(
+                    mStreetViewPanorama.location.position.latitude,
+                    mStreetViewPanorama.location.position.longitude
+                )
+
+        }
+            }
     }
 
     @SuppressLint("MissingPermission")
@@ -246,10 +210,24 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
         googleMap.isBuildingsEnabled = true
         mGoogleMap = googleMap
         boolMapReady = true
+        locationUpdates()
     }
 
     override fun onMapClick(p0: LatLng) {
         addPresentMarker(p0, "Street")
+    }
+
+    override fun onMarkerClick(p0: Marker): Boolean {
+        makeToast(p0.title.toString())
+        val anim: Animation = AlphaAnimation(0.0f, 1.0f)
+        anim.duration = 50 //You can manage the blinking time with this parameter
+        anim.startOffset = 20
+        anim.repeatMode = Animation.REVERSE
+        anim.repeatCount = 1
+        binding.fabMapOStreet.startAnimation(anim)
+        boolStreetMarkerClicked = true
+        mStreetViewPanorama.setPosition(p0.position)
+        return true
     }
 
 }

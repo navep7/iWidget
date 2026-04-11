@@ -11,8 +11,6 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.belaku.homey.MainActivity.Companion.appContx
-import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.NewAppWidget.Companion.lapCount
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
 
@@ -38,7 +36,6 @@ class DialogWidgetStepsActivity : Activity() {
 
         txSteps.text = "Total Steps ~ $stepsToday"
 
-        appContx = applicationContext
 
         if (lapCount == 1)
             cv1.visibility = View.VISIBLE

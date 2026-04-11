@@ -50,24 +50,14 @@ class SpeakService : Service(), OnInitListener {
 
 
     companion object {
-        lateinit var spoken: String
+
         lateinit var tts: TextToSpeech
 
-        fun isSpokenInitialized(): Boolean {
-            return ::spoken.isInitialized // Works inside the companion object
-        }
 
-        fun speakOut(spk: Int) {
+        fun speakOut(spk: String) {
 
-            if (isSpokenInitialized()) {
-                if (spk.toString() != spoken) {
-                    spoken = spk.toString()
-                    tts.speak(spk.toString(), TextToSpeech.QUEUE_FLUSH, null)
-                }
-            } else {
-                spoken = spk.toString()
-                tts.speak(spk.toString(), TextToSpeech.QUEUE_FLUSH, null)
-            }
+            tts.speak(spk, TextToSpeech.QUEUE_FLUSH, null)
+
         }
     }
 }

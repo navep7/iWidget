@@ -5,10 +5,6 @@ import android.app.job.JobService
 import android.content.Intent
 import android.icu.util.Calendar
 import android.util.Log
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.belaku.homey.MainActivity.Companion.getNews
-import com.belaku.homey.MainActivity.Companion.pD
-import com.belaku.homey.MainActivity.Companion.pDNews
 
 
 class DailyJobService : JobService() {

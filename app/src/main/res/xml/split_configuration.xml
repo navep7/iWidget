@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:window="http://schemas.android.com/apk/res-auto">
+    <SplitPairRule
+        window:splitRatio="0.4">
+        <SplitPairFilter
+            window:primaryActivityName=".list.ListActivity"
+            window:secondaryActivityName=".details.DetailsActivity" />
+    </SplitPairRule>
+</resources>

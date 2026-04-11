@@ -38,6 +38,7 @@ import com.belaku.homey.databinding.ActivityRemindersBinding
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.core.graphics.drawable.toDrawable
 
 
 class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
@@ -64,13 +65,10 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
             )
         } catch (ex: Exception) {
 
-            wallBitmap = BitmapFactory.decodeResource(resources, R.drawable.gradient_glass)
+            wallBitmap = BitmapFactory.decodeResource(applicationContext.resources, R.drawable.gradient_glass)
 
             rootLayout.setBackgroundDrawable(
-                BitmapDrawable(
-                    getResources(),
-                    blur(applicationContext, wallBitmap)
-                )
+                blur(applicationContext, wallBitmap).toDrawable(getResources())
             )
         }
 

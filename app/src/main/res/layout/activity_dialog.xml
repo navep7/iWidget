@@ -6,18 +6,32 @@
     android:id="@+id/dialog_layout"
     android:background="@android:color/transparent"
     android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     tools:context=".DialogActivity">
+
+
+
+    <ImageView
+        android:id="@+id/dialog_imgv_cover"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:layout_centerInParent="true"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter" />
+
+
 
     <TextView
         android:id="@+id/tx_dialog_title"
-        android:layout_alignParentTop="true"
+        android:layout_above="@+id/dialog_imgv_cover"
         android:text="Dialog Title"
         android:textStyle="bold"
         android:layout_margin="@dimen/fab_margin"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        tools:ignore="HardcodedText" />
 
     <TextView
         android:id="@+id/tx_dialog_content"
@@ -65,6 +79,7 @@
     <EditText
         android:id="@+id/edtx_dialog"
         android:hint="Set"
+        tools:ignore="Autofill,HardcodedText,TextFields"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/tx_dialog_title"
         android:layout_width="wrap_content"
@@ -101,17 +116,18 @@
         app:cardCornerRadius="125dp"
         app:cardElevation="12dp">
 
-        <fragment
+        <androidx.fragment.app.FragmentContainerView
             android:id="@+id/steps_map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            tools:layout="@layout/abc_action_menu_item_layout" />
     </androidx.cardview.widget.CardView>
 
 
 
     <LinearLayout
-        android:layout_below="@id/tx_dialog_content"
+        android:layout_below="@+id/tx_dialog_content"
         android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
@@ -119,6 +135,7 @@
         <Button
             android:id="@+id/btn_dialog_ok"
             android:text="Ok"
+            tools:ignore="HardcodedText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
@@ -126,11 +143,14 @@
             android:id="@+id/imgbtn_dialog_share"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_menu_share"/>
+            android:contentDescription="Share"
+            android:src="@android:drawable/ic_menu_share"
+            tools:ignore="HardcodedText" />
 
         <Button
             android:id="@+id/btn_dialog_cancel"
             android:text="Cancel"
+            tools:ignore="ButtonOrder,HardcodedText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 

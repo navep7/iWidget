@@ -24,10 +24,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:padding="@dimen/padding_5"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:src="@drawable/contacts"
         tools:ignore="HardcodedText" />
+
+
 
     <TextView
         android:id="@+id/app_time"
@@ -42,8 +45,8 @@
         android:layout_height="wrap_content"
         android:gravity="end"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="-20dp"
-        android:layout_toRightOf="@+id/app_imgv"
+        android:layout_marginEnd="-25dp"
+        android:layout_toStartOf="@+id/app_imgv"
         android:src="@drawable/contacts"
         tools:ignore="HardcodedText" />
 

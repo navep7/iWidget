@@ -6,16 +6,17 @@ plugins {
  //   id("com.chaquo.python")
 }
 
+
 android {
     namespace = "com.belaku.homey"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.belaku.homey"
         minSdk = 28
         targetSdk = 35
-        versionCode = 115
-        versionName = "115.0"
+        versionCode = 136
+        versionName = "136.0"
 
         renderscriptTargetApi = 18
         renderscriptSupportModeEnabled = true
@@ -28,16 +29,6 @@ android {
         }
 
 
-      /*  chaquopy {
-            defaultConfig {
-                pip {
-                    version = "3.8" // Specify your desired Python version
-                    pip {
-                        install("apify-client")
-                    }
-                }
-            }
-        }*/
 
     }
 
@@ -62,11 +53,13 @@ android {
     }
 }
 
+
+
 dependencies {
 
   //  implementation(libs.androidx.activity.ktx)
 
-
+    implementation(libs.androidx.media)
     implementation(libs.zxing.android.embedded)
     implementation(libs.androidx.viewpager2)
     implementation(libs.material.v1130) // Or the latest version
@@ -89,6 +82,7 @@ dependencies {
     implementation(libs.picasso.v28)
     implementation(libs.gson)
     implementation(libs.glide)
+    implementation(libs.androidx.media3.exoplayer)
 
     annotationProcessor(libs.compiler) // Use the same version
     implementation(libs.androidx.core.ktx)

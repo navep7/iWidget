@@ -1,36 +1,14 @@
 package com.belaku.homey
 
-import org.intellij.lang.annotations.Language
-import retrofit2.http.GET
-import retrofit2.http.Query
 import retrofit2.Call
-
+import retrofit2.http.GET
+import retrofit2.http.Headers
+import retrofit2.http.Query
 
 interface ApiInterface {
 
-
-
-    @GET("everything")
-    fun getNews(
-        @Query("q") q: String,
-        @Query("from") from: String,
-        @Query("sortBy") sortBy: String,
-        @Query("language") language: String,
-      //  @Query("pageSize") pagesize: Int,
-        @Query("apikey") apikey: String
-    ): Call<MainNews>
-
-
-    @GET("top-headlines")
-    fun getCategory(
-        @Query("country") country: String,
-        @Query("category") category: String,
-        @Query("pageSize") pagesize: String,
-        @Query("apikey") apikey: String
-    ): Call<MainNews>
-
-    companion object {
-        val BASE_URL: String
-             = "https://newsapi.org/v2/"
-    }
+    @Headers("X-RapidAPI-Host: deezerdevs-deezer.p.rapidapi.com",
+                "X-RapidAPI-Key: 9e92cc4f67msh8bb4ede93f53bf7p1ecb22jsn26ea5014a6df")
+    @GET("search")
+    fun getDate(@Query("q") query: String) : Call<MusicData>
 }
