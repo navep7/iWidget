@@ -330,11 +330,14 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             beginCal.set(cYear, cMonth, cDate - 7, 0, 0)
             endCal.set(cYear, cMonth, cDate - 1, 0, 0)
 
-            val queryUsageStats = usageStatsManager.queryUsageStats(
-                UsageStatsManager.INTERVAL_DAILY,
-                beginCal.timeInMillis,
-                endCal.timeInMillis
-            )
+            try {
+                val queryUsageStats = usageStatsManager.queryUsageStats(
+                    UsageStatsManager.INTERVAL_DAILY,
+                    beginCal.timeInMillis,
+                    endCal.timeInMillis
+                )
+                // ... rest of your logic
+
             println("results for " + beginCal.time + " - " + endCal.time)
             println("QUS SWW - " + queryUsageStats.size)
             sortApps(queryUsageStats)
@@ -382,7 +385,10 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             }
 
             saveApps(choosenApps)
-
+            } catch (e: Exception) {
+                // Check if it's an AppSearchException or related to system indexing
+                Log.e("SetWallWorker", "Failed to query usage stats due to system indexing error", e)
+            }
         }
 
         private fun saveApps(apps: java.util.ArrayList<App>) {

@@ -97,8 +97,8 @@ class StepsService : Service() {
                 applicationContext.startActivity(intent.setFlags(FLAG_ACTIVITY_NEW_TASK))
             }
 
-            var locationRequest = LocationRequest.create()
-            locationRequest.setInterval(30000)
+            val locationRequest = LocationRequest.create()
+            locationRequest.setInterval(60000)
             locationRequest.setSmallestDisplacement(1f)
             locationRequest.setFastestInterval(10000)
             locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)

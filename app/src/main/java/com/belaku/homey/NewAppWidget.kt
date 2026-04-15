@@ -129,6 +129,7 @@ import java.util.Locale
 class NewAppWidget : AppWidgetProvider() {
 
 
+    private lateinit var cName: String
     private val TAG: String = "NewAppWidget"
     private var wallpColors: ArrayList<Int> = ArrayList()
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
@@ -153,10 +154,10 @@ class NewAppWidget : AppWidgetProvider() {
         if (ismActInitialized())
             fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
 
-       // recognizeActivityTransitions()
+        recognizeActivityTransitions()
     }
 
- /*   @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @SuppressLint("MissingPermission")
     private fun recognizeActivityTransitions() {
 
@@ -235,7 +236,7 @@ class NewAppWidget : AppWidgetProvider() {
             //    makeToast("Error adding task")
         }
 
-    }*/
+    }
 
     override fun onDisabled(context: Context?) {
         super.onDisabled(context)
@@ -265,7 +266,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             widgetContext = context
 
-        //    recognizeActivityTransitions()
+            recognizeActivityTransitions()
             setUI()
             readApps()
             getFavoriteContacts()
@@ -617,7 +618,12 @@ class NewAppWidget : AppWidgetProvider() {
             )
         } else {
 
-            remoteViews?.setTextViewText(R.id.tx_place, cityname)
+            if (::cName.isInitialized)
+                if (cName != cityname)
+                    cName = cityname
+            cName = cityname
+
+            remoteViews?.setTextViewText(R.id.tx_place, cName)
             remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "°C, " + tempKind)
             if (weatherIconID.startsWith("5"))
                 remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.rain)

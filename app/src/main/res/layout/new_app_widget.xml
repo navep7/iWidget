@@ -166,7 +166,7 @@
                     android:gravity="center"
                     android:layout_marginTop="@dimen/padding_5"
                     android:layout_marginBottom="@dimen/padding_5"
-                    android:text="Place Information.."
+                    android:text="Place Info.."
                     android:textColor="@android:color/white"
                     android:textSize="15sp"
                     android:textStyle="bold" />
@@ -225,7 +225,7 @@
                     android:maxLines="1"
                     android:layout_marginTop="@dimen/padding_5"
                     android:layout_marginBottom="@dimen/padding_5"
-                    android:text="Weather Information.."
+                    android:text="Weather Info.."
                     android:textColor="@android:color/white"
                     android:textSize="15sp"
                     android:textStyle="bold" />
@@ -262,12 +262,11 @@
 
                     <TextView
                         android:id="@+id/tx_refresh_weather"
-                        android:layout_gravity="center"
+                        android:layout_gravity="top|end"
                         android:layout_marginEnd="7dp"
                         android:layout_marginTop="@dimen/padding_5"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignBaseline="@+id/tx_weather"
                         android:text="↺"
                         android:textColor="@android:color/holo_green_light"
                         android:textSize="25sp"
@@ -351,12 +350,24 @@
 
             </FrameLayout>
 
+            <TextView
+                android:id="@+id/tx_activity_state"
+                android:layout_above="@+id/ll_steps_screentime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/fab_margin"
+                android:text="STILL"
+                android:textSize="10sp"
+                android:textColor="@color/white"/>
+
+
             <RelativeLayout
                 android:id="@+id/ll_steps_screentime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/frame_texts"
                 android:orientation="horizontal">
+
 
                 <ImageButton
                     android:id="@+id/imgbtn_twitter"
@@ -395,6 +406,7 @@
                     android:layout_marginBottom="@dimen/padding_5"
                     android:background="@drawable/gradient_glass_rounded">
 
+
                     <ImageButton
                         android:id="@+id/imgv_steps"
                         android:layout_width="25dp"
@@ -403,7 +415,7 @@
                         android:layout_centerVertical="true"
                         android:background="@android:color/transparent"
                         android:scaleType="fitXY"
-                        android:src="@drawable/steps" />
+                        android:src="@drawable/still" />
 
                     <TextView
                         android:id="@+id/tx_steps"

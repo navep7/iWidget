@@ -32,7 +32,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
 
-     //   makeToast("!onReceiveAR ${intent.action}")
+        //   makeToast("!onReceiveAR ${intent.action}")
         if (ActivityTransitionResult.hasResult(intent)) {
             val result = ActivityTransitionResult.extractResult(intent)
             result?.let {
@@ -50,26 +50,18 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                         RemoteViews(context.packageName, R.layout.new_app_widget)
                     newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
-               /*     remoteViews?.setTextViewText(R.id.tx_activity_state, toActivityString(event.activityType))
+                         remoteViews?.setTextViewText(R.id.tx_activity_state, toActivityString(event.activityType))
 
-                    if (toActivityString(event.activityType).trim() == "STILL") {
-                        StepsService.presentActivityState = "STILL"
-                        remoteViews?.setViewVisibility(R.id.rl_still_state, View.VISIBLE)
-                        remoteViews?.setViewVisibility(R.id.rl_walking_state, View.INVISIBLE)
-                        remoteViews?.setViewVisibility(R.id.fl_speed, View.INVISIBLE)
-                    } else if (toActivityString(event.activityType).trim() == "WALKING") {
-                        StepsService.presentActivityState = "WALKING"
-                        remoteViews?.setViewVisibility(R.id.rl_still_state, View.INVISIBLE)
-                        remoteViews?.setViewVisibility(R.id.rl_walking_state, View.VISIBLE)
-                        remoteViews?.setViewVisibility(R.id.fl_speed, View.INVISIBLE)
-                    } else if (toActivityString(event.activityType).trim() == "INVEHICLE") {
-                        StepsService.presentActivityState = "INVEHICLE"
-                        remoteViews?.setViewVisibility(R.id.rl_still_state, View.INVISIBLE)
-                        remoteViews?.setViewVisibility(R.id.rl_walking_state, View.INVISIBLE)
-                        remoteViews?.setViewVisibility(R.id.fl_speed, View.VISIBLE)
-
-                        speedTracking()
-                    }*/
+                         if (toActivityString(event.activityType).trim() == "STILL") {
+                             StepsService.presentActivityState = "STILL"
+                             remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.still)
+                         } else if (toActivityString(event.activityType).trim() == "WALKING") {
+                             StepsService.presentActivityState = "WALKING"
+                             remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.steps)
+                         } else if (toActivityString(event.activityType).trim() == "INVEHICLE") {
+                             StepsService.presentActivityState = "INVEHICLE"
+                             remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.in_a_vehicle)
+                         }
 
 
                     appWidM.updateAppWidget(newAppWidget, remoteViews)
@@ -95,12 +87,12 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                         val speedInKmph = (speedInMps * 3.6).toInt()
 
 
-                       /* var rBitmap = Bitmap.createScaledBitmap(
-                            BitmapRotated(speedInKmph, widgetContext),
-                            95,
-                            95,
-                            true
-                        )*/
+                        /* var rBitmap = Bitmap.createScaledBitmap(
+                             BitmapRotated(speedInKmph, widgetContext),
+                             95,
+                             95,
+                             true
+                         )*/
 
 
                         speedR(speedInKmph.toString())
@@ -121,10 +113,10 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
         makeToast("!speedR")
 
-  //      remoteViews?.setImageViewBitmap(R.id.needle, rBit)
-   /*     remoteViews?.setTextViewText(R.id.tx_speed, strSpeed)
-        remoteViews?.setViewVisibility(R.id.needle, View.VISIBLE)
-        remoteViews?.setViewVisibility(R.id.tx_speed, View.VISIBLE)*/
+        //      remoteViews?.setImageViewBitmap(R.id.needle, rBit)
+        /*     remoteViews?.setTextViewText(R.id.tx_speed, strSpeed)
+             remoteViews?.setViewVisibility(R.id.needle, View.VISIBLE)
+             remoteViews?.setViewVisibility(R.id.tx_speed, View.VISIBLE)*/
         appWidM.updateAppWidget(newAppWidget, remoteViews)
 
         //    StepsService.locationManager.removeUpdates(locationListenerSpeed)
@@ -180,10 +172,10 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
     // types of activities
     fun toActivityString(activity: Int): String {
         return when (activity) {
-            DetectedActivity.STILL -> " STILL "
-            DetectedActivity.WALKING -> " WALKING "
-            DetectedActivity.IN_VEHICLE -> " IN VEHICLE "
-            DetectedActivity.RUNNING -> " RUNNING "
+            DetectedActivity.STILL -> "STILL"
+            DetectedActivity.WALKING -> "WALKING"
+            DetectedActivity.IN_VEHICLE -> "IN VEHICLE"
+            DetectedActivity.RUNNING -> "RUNNING"
             else -> "UNKNOWN"
         }
     }
