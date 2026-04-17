@@ -20,35 +20,14 @@ class NotificationService : NotificationListenerService() {
     override fun onCreate() {
         super.onCreate()
         Log.d("NoteServiceLOG", "onCreate")
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        super.onStartCommand(intent, flags, startId)
-
-        Log.d("NoteServiceLOG", "onStartCommand")
         if (componentName == null) {
             componentName = ComponentName(this, this::class.java)
         }
-
-        componentName?.let {
-            requestRebind(it)
-            toggleNotificationListenerService(it)
-        }
-        return START_REDELIVER_INTENT
     }
 
-    private fun toggleNotificationListenerService(componentName: ComponentName) {
-        val pm = packageManager
-        pm.setComponentEnabledSetting(
-            componentName,
-            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-            PackageManager.DONT_KILL_APP
-        )
-        pm.setComponentEnabledSetting(
-            componentName,
-            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-            PackageManager.DONT_KILL_APP
-        )
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d("NoteServiceLOG", "onStartCommand")
+        return START_STICKY
     }
 
     override fun onListenerConnected() {
@@ -65,7 +44,13 @@ class NotificationService : NotificationListenerService() {
             componentName = ComponentName(this, this::class.java)
         }
 
-        componentName?.let { requestRebind(it) }
+        componentName?.let { 
+            try {
+                requestRebind(it)
+            } catch (e: Exception) {
+                Log.e("NoteServiceLOG", "Failed to request rebind", e)
+            }
+        }
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
