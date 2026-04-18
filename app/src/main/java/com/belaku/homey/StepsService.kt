@@ -90,6 +90,7 @@ class StepsService : Service() {
     override fun onCreate() {
         super.onCreate()
 
+        makeToast("!StepsServiceStarted")
 
 
             if (!isLocationEnabled(applicationContext)) {
@@ -131,7 +132,7 @@ class StepsService : Service() {
                         Locale.getDefault()
                         try {
                             var cAddrs = gcd.getFromLocation(lat, lng, 1)!!
-                            //   makeToast(cAddrs?.get(0)!!.subLocality)
+                            //   // makeToast(cAddrs?.get(0)!!.subLocality)
 
                             cityLat = lat
                             cityLng = lng
@@ -147,14 +148,14 @@ class StepsService : Service() {
                         } catch (e: IOException) {
                             // TODO Auto-generated catch block
                             e.printStackTrace()
-                            makeToast("GCD - IOException \n $e")
+                            // makeToast("GCD - IOException \n $e")
                         }
 
                     }
 
 
                     override fun onMarkerClick(p0: Marker): Boolean {
-                        makeToast("nothin")
+                        // makeToast("nothin")
                         return true
                     }
                 },
@@ -166,7 +167,7 @@ class StepsService : Service() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 if (intent?.action == Intent.ACTION_USER_PRESENT) {
                     // Handle the screen unlock event here
-                    //    makeToast("Screen unlocked!")
+                    //    // makeToast("Screen unlocked!")
                     // You can update UI, start a task, etc.
                 }
             }
@@ -213,7 +214,7 @@ class StepsService : Service() {
                 if (stepsToday % 10 == 0) {
                     remoteViews?.setTextViewText(
                         R.id.tx_steps,
-                        "$stepsToday / " + String.format("%.1f",  stepsToday * 74f / 100000f) + " Km"
+                        "$stepsToday"
                     )
                     sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
                     boolNewLap = sharedPreferences.getBoolean("newLap", false)
@@ -380,7 +381,7 @@ class StepsService : Service() {
             stepCounterSensor,
             SensorManager.SENSOR_DELAY_NORMAL
         )
-        //    makeToast("step UP!")
+        //    // makeToast("step UP!")
 
 
         //    stopSelf()
@@ -477,10 +478,10 @@ class StepsService : Service() {
                 }
             } catch (ex: Exception) {
                 Log.d("WD Excep7 - ", ex.toString())
-                makeToast("Weather EXP - ${ex.message}")
+                 makeToast("Weather EXP - ${ex.message}")
             }
 
-            //   makeToast(tempC)
+            //   // makeToast(tempC)
 
         }
 

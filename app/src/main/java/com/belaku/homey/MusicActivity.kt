@@ -88,7 +88,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
     override
     fun onItemClick(position: Int) {
-        makeToast("Yet2Impl")
+        // makeToast("Yet2Impl")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -112,7 +112,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         if (set != null) {
             favAlbums = ArrayList(set)
 
-            //  makeToast("onCreate ~ ${favAlbums.size}")
+            //  // makeToast("onCreate ~ ${favAlbums.size}")
             for (i in favAlbums) {
                 addAlbumChip(i)
             }
@@ -123,7 +123,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                 }
         }
 
-        //    makeToast(sharedPreferences.getInt("SIn", 99).toString())
+        //    // makeToast(sharedPreferences.getInt("SIn", 99).toString())
 
         handlerForBG = Handler(Looper.getMainLooper())
         SetWallWorker.mAct = this
@@ -154,9 +154,9 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         })
 
 
-        makeToast("boolMusicServiceRunning ~ $boolMusicServiceRunning : $playingAlbum")
+        // makeToast("boolMusicServiceRunning ~ $boolMusicServiceRunning : $playingAlbum")
         if (boolMusicServiceRunning) {
-            //    makeToast(dataList[songIndex].title + " ~ " + query)
+            //    // makeToast(dataList[songIndex].title + " ~ " + query)
 
             if (isDataListInitialized())
                 txPlayingSong.text = pDatalistSongs[songIndex].title
@@ -266,7 +266,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
     fun saveFavAlbums(list: List<String>) {
         val set = list.toHashSet()
         sharedPreferencesEditor.putStringSet("favAlbums", set).apply()
-        //     makeToast("saveFavAlbums ~ ${list.size}")
+        //     // makeToast("saveFavAlbums ~ ${list.size}")
     }
 
 
@@ -318,7 +318,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                                 pDatalistSongs = dataListSongs
 
                             musicActivityContext = applicationContext
-                            //     makeToast("MusicData ~ ${dataList.size}")
+                            //     // makeToast("MusicData ~ ${dataList.size}")
 
                             if (dataListSongs.size > 0) {
 
@@ -330,7 +330,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                                     playingAlbum = query
                                     pDatalistSongs = dataListSongs
 
-                                    makeToast(query + " ~ " + dataListSongs[0].title)
+                                    // makeToast(query + " ~ " + dataListSongs[0].title)
                                     if (boolMusicServiceRunning) {
                                         stopService(
                                             Intent(

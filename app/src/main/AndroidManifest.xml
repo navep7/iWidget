@@ -74,6 +74,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
         tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
 
     <uses-feature
         android:name="android.software.live_wallpaper"
@@ -252,11 +253,8 @@
         <service
             android:name=".StepsService"
             android:enabled="true"
-            android:exported="true"
+            android:exported="false"
             android:foregroundServiceType="health">
-            <intent-filter>
-                <action android:name="com.example.MY_SERVICE" />
-            </intent-filter>
         </service>
 
         <receiver android:name=".AlarmBroadcastReceiver" />

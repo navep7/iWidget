@@ -20,7 +20,7 @@ class ImageSliderAdapter(private val imageList: List<String>, private val contex
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view: View =
             LayoutInflater.from(parent.context).inflate(R.layout.slider_item, parent, false)
-     //   makeToast("SZ - ${imageList.size}")
+     //   // makeToast("SZ - ${imageList.size}")
         return ViewHolder(view)
     }
 

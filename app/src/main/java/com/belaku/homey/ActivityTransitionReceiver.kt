@@ -32,7 +32,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
 
-        //   makeToast("!onReceiveAR ${intent.action}")
+        //   // makeToast("!onReceiveAR ${intent.action}")
         if (ActivityTransitionResult.hasResult(intent)) {
             val result = ActivityTransitionResult.extractResult(intent)
             result?.let {
@@ -43,7 +43,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                                 " (" + toTransitionType(event.transitionType) + ")" + "   " +
                                 SimpleDateFormat("HH:mm:ss", Locale.US).format(Date())
 
-                    makeToast("!onReceiveAR ${toActivityString(event.activityType)}")
+                //     makeToast("${toActivityString(event.activityType)}")
 
                     appWidM = AppWidgetManager.getInstance(context)
                     remoteViews =
@@ -78,7 +78,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
             LocationListener() { location ->
                 run {
 
-                    makeToast("!locationRrd")
+                    // makeToast("!locationRrd")
 
                     if (location.hasSpeed()) {
                         val speedInMps = location.speed // Speed in meters/second
@@ -111,7 +111,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
     private fun speedR(strSpeed: String) {
 
-        makeToast("!speedR")
+        // makeToast("!speedR")
 
         //      remoteViews?.setImageViewBitmap(R.id.needle, rBit)
         /*     remoteViews?.setTextViewText(R.id.tx_speed, strSpeed)

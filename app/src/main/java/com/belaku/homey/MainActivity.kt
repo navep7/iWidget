@@ -269,7 +269,7 @@ class MainActivity : AppCompatActivity() {
         var bluetoothLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == RESULT_OK) {
-                    makeToast("Bluetooth enabled by user")
+                    // makeToast("Bluetooth enabled by user")
                 } else {
                     // Bluetooth not enabled by user
                 }
@@ -278,7 +278,7 @@ class MainActivity : AppCompatActivity() {
         if (intent != null) {
             var intentStr = intent.getStringExtra("intent2Main")
             if (intentStr != null)
-                makeToast(intentStr)
+                // makeToast(intentStr)
 
             if (intentStr.equals("BLUEDisable")) {
                 val disableintent = Intent("android.bluetooth.adapter.action.REQUEST_DISABLE")
@@ -887,7 +887,7 @@ class MainActivity : AppCompatActivity() {
                 if (phoneNumberIndex != -1) {
                     val phoneNumber = phoneCursor.getString(phoneNumberIndex)
                     // Process phone number
-                    makeToast("Contct - $displayName : $phoneNumber")
+                    // makeToast("Contct - $displayName : $phoneNumber")
                 }
             }
 
@@ -1062,7 +1062,7 @@ class MainActivity : AppCompatActivity() {
             val bitmap = getBitmapFromUrl(imageUrl)
             // Now you have the bitmap, you can display it in an ImageView or process it further
             if (bitmap != null) {
-                //     makeToast("TwiPic")
+                //     // makeToast("TwiPic")
                 try {
                     /*remoteViews?.setTextViewText(
                         R.id.tx_tweets,
@@ -1070,7 +1070,7 @@ class MainActivity : AppCompatActivity() {
                     )
                     remoteViews?.setImageViewBitmap(R.id.twSettings, bitmap)*/
                 } catch (ex: Exception) {
-                    makeToast("TwiEx - ${ex.message}")
+                    // makeToast("TwiEx - ${ex.message}")
                 }
             }
         }
@@ -1306,7 +1306,7 @@ class MainActivity : AppCompatActivity() {
 
         fabMin.setOnClickListener {
             updateInterval = "min"
-            //       makeToast("Wallpaper updates every 15 Mins!")
+            //       // makeToast("Wallpaper updates every 15 Mins!")
             wallDelay = 15
             setWalls(15)
             sharedPreferencesEditor.putStringSet("walls", HashSet(imgUrls)).apply()
@@ -1317,7 +1317,7 @@ class MainActivity : AppCompatActivity() {
 
         fabHour.setOnClickListener {
             updateInterval = "hour"
-            //       makeToast("Wallpaper updates every 30 Mins!")
+            //       // makeToast("Wallpaper updates every 30 Mins!")
             setWalls(30)
             sharedPreferencesEditor.putStringSet("walls", HashSet(imgUrls)).apply()
             sharedPreferencesEditor.putStringSet("wallDescs", HashSet(imgDescs)).apply()
@@ -1325,7 +1325,7 @@ class MainActivity : AppCompatActivity() {
 
         fabDay.setOnClickListener {
             updateInterval = "day"
-            //        makeToast("Wallpaper updates every 60 Mins!")
+            //        // makeToast("Wallpaper updates every 60 Mins!")
             setWalls(60)
             sharedPreferencesEditor.putStringSet("walls", HashSet(imgUrls)).apply()
             sharedPreferencesEditor.putStringSet("wallDescs", HashSet(imgDescs)).apply()
@@ -1423,7 +1423,7 @@ class MainActivity : AppCompatActivity() {
 
 
             } else {
-                makeToast("Some permissions denied")
+                // makeToast("Some permissions denied")
             }
         } else if (requestCode == LOC_P) {
             if (grantResults.isNotEmpty())
@@ -1435,33 +1435,33 @@ class MainActivity : AppCompatActivity() {
 
         } else if (requestCode == ACTIVITY_RECOGNITION_P) {
             if (grantResults.isNotEmpty())
-                if (grantResults[0].equals(PERMISSION_GRANTED)) {
+                if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("ARP", true).apply()
                     startStepsService()
                     btnAR.text = "Granted"
                 }
         } else if (requestCode == READ_CONTACTS_P) {
             if (grantResults.isNotEmpty())
-                if (grantResults[0].equals(PERMISSION_GRANTED)) {
+                if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("RCP", true).apply()
                     getFavoriteContacts(applicationContext)
                     btnRC.text = "Granted"
                 }
         } else if (requestCode == BLUETOOTH_P) {
             if (grantResults.isNotEmpty())
-                if (grantResults[0].equals(PERMISSION_GRANTED)) {
+                if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("BP", true).apply()
                     btnBT.text = "Granted"
                 }
         } else if (requestCode == NOTIfications_P) {
             if (grantResults.isNotEmpty())
-                if (grantResults[0].equals(PERMISSION_GRANTED)) {
+                if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("PNP", true).apply()
                     btnPN.text = "Granted"
                 }
         } else if (requestCode == CALLPHONE_P) {
             if (grantResults.isNotEmpty())
-                if (grantResults[0].equals(PERMISSION_GRANTED)) {
+                if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("CPP", true).apply()
                     btnCP.text = "Granted"
                 }
@@ -1612,13 +1612,13 @@ class MainActivity : AppCompatActivity() {
 
 
                         } catch (e: JSONException) {
-                            makeToast("EXE7 - " + e.message)
+                            // makeToast("EXE7 - " + e.message)
                         }
 
 
                     }, object : Response.ErrorListener {
                         override fun onErrorResponse(error: VolleyError?) {
-                            makeToast("onErrorResponse - " + error.toString())
+                            // makeToast("onErrorResponse - " + error.toString())
                         }
                     }) {
                     @Throws(AuthFailureError::class)
@@ -1753,7 +1753,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         fun makeToast(s: String) {
-           //     Toast.makeText(applicationContext, s, Toast.LENGTH_SHORT).show()
+            if (NewAppWidget.isAppWidMInitialized())
+            Toast.makeText(widgetContext, s, Toast.LENGTH_SHORT).show()
             Log.d("makeToastinG", s)
         }
 
@@ -1769,7 +1770,7 @@ class MainActivity : AppCompatActivity() {
             try {
                 pickContactLauncher.launch(intent)
             } catch (ex: Exception) {
-                makeToast("Ex - ${ex.message}")
+                // makeToast("Ex - ${ex.message}")
             }
         }
 

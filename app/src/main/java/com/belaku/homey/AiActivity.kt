@@ -103,7 +103,7 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
                 try {
                     generateAIresponse(generativeModel, edtxAi.text.toString())
                 } catch (ex: Exception) {
-                    makeToast("Gemini Exception - $ex")
+                     makeToast("Gemini Exception - $ex")
                 }
             }
             false
@@ -132,7 +132,7 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
                     }
                 })
             } catch (ex: Exception) {
-                makeToast("Gemini AI exception - $ex")
+                 makeToast("Gemini AI exception - $ex")
             }
 
 
@@ -167,12 +167,12 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
                 val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                 if (result != null && !result.isEmpty()) {
                     val recognizedText = result[0] // Get the most likely recognized phrase
-                    makeToast(recognizedText)
+                    // makeToast(recognizedText)
                     edtxAi.setText(recognizedText)
                     try {
                         generateAIresponse(generativeModel, recognizedText)
                     } catch (ex: Exception) {
-                        makeToast("Gemini Exception - $ex")
+                         makeToast("Gemini Exception - $ex")
                     }
                 }
             }

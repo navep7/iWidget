@@ -68,6 +68,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RemoteViews
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity.RECEIVER_NOT_EXPORTED
 import androidx.appcompat.content.res.AppCompatResources
@@ -129,6 +130,7 @@ import java.util.Locale
 class NewAppWidget : AppWidgetProvider() {
 
 
+    private var boolKm: Boolean = false
     private lateinit var cName: String
     private val TAG: String = "NewAppWidget"
     private var wallpColors: ArrayList<Int> = ArrayList()
@@ -147,7 +149,7 @@ class NewAppWidget : AppWidgetProvider() {
         widgetContext = context!!
         onEn = true
 
-        makeToast("Expand the widget to full screen dimens for better visibility")
+        // makeToast("Expand the widget to full screen dimens for better visibility")
         sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
@@ -161,7 +163,7 @@ class NewAppWidget : AppWidgetProvider() {
     @SuppressLint("MissingPermission")
     private fun recognizeActivityTransitions() {
 
-        makeToast("!recognizeActivityTransitions")
+        // makeToast("!recognizeActivityTransitions")
         val receiver = ActivityTransitionReceiver()
         val filter = IntentFilter("com.belaku.homey.CUSTOM_ACTION") // Use a unique action string
         widgetContext.registerReceiver(receiver, filter, RECEIVER_NOT_EXPORTED)
@@ -228,12 +230,12 @@ class NewAppWidget : AppWidgetProvider() {
 
         task.addOnSuccessListener {
             // Handle success
-            //    makeToast("Task added successfully")
+            //    // makeToast("Task added successfully")
         }
 
         task.addOnFailureListener {
             // Handle error
-            //    makeToast("Error adding task")
+            //    // makeToast("Error adding task")
         }
 
     }
@@ -291,23 +293,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
     private fun setOnClickPendingIntents(context: Context) {
-        // Create a PendingIntent
 
-
-      /*  remoteViews?.setOnClickPendingIntent(
-            R.id.tx_nextstate,
-            getPendingSelfIntent(context, NEXT_STATE)
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.tx_prevstate,
-            getPendingSelfIntent(context, PREV_STATE)
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.fl_speed,
-            getPendingSelfIntent(context, SPEED_INFO)
-        )*/
 
         val intentMain = Intent(context, MainActivity::class.java)
         val pendingIntentMain = PendingIntent.getActivity(
@@ -319,6 +305,11 @@ class NewAppWidget : AppWidgetProvider() {
 
         // Set the click listener on the widget button
         remoteViews?.setOnClickPendingIntent(R.id.imgv_conf, pendingIntentMain)
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_steps,
+            getPendingSelfIntent(context, STEPS_CLICK)
+        )
 
         remoteViews?.setOnClickPendingIntent(
             R.id.tx_battery,
@@ -651,7 +642,7 @@ class NewAppWidget : AppWidgetProvider() {
     private fun setUI() {
 
         val spkServiceRunning = sharedPreferences.getBoolean("SPKSERVICE", false)
-        //   makeToast("spkServiceRunning : $spkServiceRunning")
+        //   // makeToast("spkServiceRunning : $spkServiceRunning")
         if (spkServiceRunning)
             remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
         else remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
@@ -699,7 +690,7 @@ class NewAppWidget : AppWidgetProvider() {
            val allAccounts = accountManager.accounts
            for (account in googleAccounts) {
                val accountName = account.name
-            //   makeToast(accountName)
+            //   // makeToast(accountName)
            }
 
        }*/
@@ -878,7 +869,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             if (ColorUtil().isColorDark(primaryColor)) {
 
-                makeToast("Dark")
+                // makeToast("Dark")
 
                 remoteViews?.setImageViewBitmap(R.id.imgv_rl_controls, drawableToBitmap(widgetContext,
                     widgetContext.getDrawable(R.drawable.gradient_glass_list)!!
@@ -985,7 +976,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             } else {
 
-                makeToast("Light")
+                // makeToast("Light")
 
                 remoteViews?.setImageViewBitmap(R.id.imgv_rl_controls, drawableToBitmap(widgetContext,
                     widgetContext.getDrawable(R.drawable.gradient_glass_dark)!!
@@ -1232,6 +1223,9 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleIntentActions(intent: Intent) {
 
+        if (STEPS_CLICK == intent.action) {
+            Toast.makeText(widgetContext,"$stepsToday ~ " + String.format("%.1f", stepsToday * 74f / 100000f) + " Km", Toast.LENGTH_LONG).show()
+            }
         if (BATTERY_INFO == intent.action) {
             val powerUsageIntent = Intent("android.intent.action.POWER_USAGE_SUMMARY")
             if (powerUsageIntent.resolveActivity(widgetContext.getPackageManager()) != null) {
@@ -1322,7 +1316,7 @@ class NewAppWidget : AppWidgetProvider() {
             if (position != AdapterView.INVALID_POSITION) {
 
                 if (viewID == 0) {
-                    makeToast(choosenApps[position].name)
+                    // makeToast(choosenApps[position].name)
                     val launchIntent: Intent =
                         widgetContext.packageManager.getLaunchIntentForPackage(
                             choosenApps[position].pName
@@ -1332,15 +1326,15 @@ class NewAppWidget : AppWidgetProvider() {
                     launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     widgetContext.startActivity(launchIntent)
                 } else if (viewID == 1)
-                    makeToast("Remove App - ${apps[position].name}")
-            } else makeToast("INvalid Pos - $position")
+                     makeToast("Remove App - ${apps[position].name}")
+            } else  makeToast("INvalid Pos - $position")
         } else if (FAB_SHARE == intent.action) {
 
             val inflater =
                 widgetContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             val appWidgetView: View = inflater.inflate(R.layout.new_app_widget, null)
 
-            makeToast("Yet2IMPL")
+            // makeToast("Yet2IMPL")
             //     loadWidgetToShare(appWidgetView)
             appWidgetView.measure(
                 View.MeasureSpec.makeMeasureSpec(screenWidth, View.MeasureSpec.EXACTLY),
@@ -1417,15 +1411,15 @@ class NewAppWidget : AppWidgetProvider() {
             sharedPreferencesEditor.putBoolean("newLap", boolNewLap).apply()
 
         } /* else if (BREATHE_INC == intent.action) {
-            makeToast("!BREATHE_INC")
+            // makeToast("!BREATHE_INC")
             var bC = sharedPreferences.getInt("breatheCount", 0)
             bC++
             sharedPreferencesEditor.putInt("breatheCount", bC).apply()
             sharedPreferencesEditor.commit()
-            makeToast("setting $bC")
+            // makeToast("setting $bC")
             remoteViews?.setTextViewText(R.id.tx_breathe_count, bC.toString())
         } else if (DRINK_INC == intent.action) {
-            makeToast("!DRINK_INC")
+            // makeToast("!DRINK_INC")
             var dC = sharedPreferences.getInt("drinkCount", 0)
             dC++
             sharedPreferencesEditor.putInt("drinkCount", dC).apply()
@@ -1533,17 +1527,17 @@ class NewAppWidget : AppWidgetProvider() {
         } else if (Time_A_CLICKED == intent.action) {
 
             var boolSpkService = sharedPreferences.getBoolean("SPKSERVICE", false)
-            //    makeToast("TIME_A_CLICKED, spkServiceState : $boolSpkService")
+            //    // makeToast("TIME_A_CLICKED, spkServiceState : $boolSpkService")
             val speakIntent = Intent(widgetContext, SpeakService::class.java)
             if (!boolSpkService) {
                 widgetContext.startService(speakIntent)
                 remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
-                makeToast("Change in Hour & notification app name will be announced!")
+                // makeToast("Change in Hour & notification app name will be announced!")
                 sharedPreferencesEditor.putBoolean("SPKSERVICE", true).apply()
             } else {
                 widgetContext.stopService(speakIntent)
                 remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
-                //    makeToast("stopingSPKservice")
+                //    // makeToast("stopingSPKservice")
                 sharedPreferencesEditor.putBoolean("SPKSERVICE", false).apply()
             }
 
@@ -1567,7 +1561,7 @@ class NewAppWidget : AppWidgetProvider() {
     private fun startMusicActivity(songIndex: Int) {
         var intentMusic = Intent(widgetContext, MusicActivity::class.java)
         intentMusic.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        makeToast("songIndex ~ " + songIndex)
+        // makeToast("songIndex ~ " + songIndex)
         intentMusic.putExtra("songIndex", songIndex)
         widgetContext.startActivity(intentMusic)
     }
@@ -1665,7 +1659,7 @@ class NewAppWidget : AppWidgetProvider() {
     fun getPreciseEnergyCounter(context: Context): Long {
         val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
         val energy = batteryManager.getLongProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
-        //     makeToast("Juice ~ $energy")
+        //     // makeToast("Juice ~ $energy")
 
         remoteViews?.setTextViewText(R.id.tx_battery, energy.toString())
         remoteViews?.setProgressBar(R.id.progressBar_battery, 100, energy.toInt(), false)
@@ -1776,7 +1770,7 @@ class NewAppWidget : AppWidgetProvider() {
         val mSpannableStringLoc = SpannableString(cityname)
         mSpannableStringLoc.setSpan(UnderlineSpan(), 0, mSpannableStringLoc.length, 0)
         appWidgetView.findViewById<TextView>(R.id.tx_place).text = "⚲ " + cityname
-        appWidgetView.findViewById<TextView>(R.id.tx_steps).text = "$stepsToday / " + String.format("%.1f",  stepsToday * 74f / 100000f) + " Km"
+        appWidgetView.findViewById<TextView>(R.id.tx_steps).text = "$stepsToday"
         //    appWidgetView.findViewById<TextView>(R.id.tx_weather).text = tempC.substring(0, 2) + "°C, " + weatherIconState
 
         appWidgetView.findViewById<LinearLayout>(R.id.ll_apps).visibility = View.INVISIBLE
@@ -1871,7 +1865,7 @@ class NewAppWidget : AppWidgetProvider() {
 
     private fun selectContact() {
 
-        makeToast("pickContact!")
+        // makeToast("pickContact!")
         MainActivity.pickContact()
 
     }
@@ -2300,7 +2294,7 @@ class NewAppWidget : AppWidgetProvider() {
             sharedPreferencesEditor.putBoolean("DateSet", true).apply()
             sharedPreferencesEditor.putString("fD", formattedDate).apply()
             if (stepsToday != 0)
-                remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday / " + String.format("%.1f",  stepsToday * 74f / 100000f) + " Km")
+                remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday")
             //   remoteViews?.setTextViewText(R.id.n_tx_steps, "Now, $newLapSteps")
             remoteViews?.setTextViewText(
                 R.id.tx_day_date,
@@ -2344,6 +2338,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val NEXT_STATE = "nextState"
         private const val PREV_STATE = "nextState"
         private const val SPEED_INFO = "sppedInfo"
+        private const val STEPS_CLICK = "stepsClick"
         private const val BATTERY_INFO = "batteryInfo"
         private const val GET_WEATHER = "getWeather"
         private const val STEPS_NOW = "newSteps"

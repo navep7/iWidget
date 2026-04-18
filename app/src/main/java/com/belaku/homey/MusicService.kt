@@ -71,7 +71,7 @@ class MusicService : Service() {
                     }
                 txPlayingSong.text = mediaMetadata.title
             } catch (ex: Exception) {
-                makeToast("EXP updating MusicActivity ~ ${ex.message}")
+                // makeToast("EXP updating MusicActivity ~ ${ex.message}")
             }
 
 
@@ -298,17 +298,17 @@ class MusicService : Service() {
 
     private fun trackSeek() {
 
-        //  makeToast("!trackSeek")
+        //  // makeToast("!trackSeek")
 
-        //  makeToast("!increaseVol ~ ${mMediaPlayer!!.currentPosition}")
+        //  // makeToast("!increaseVol ~ ${mMediaPlayer!!.currentPosition}")
         increaseVol()
 
         val handler = Handler(Looper.getMainLooper())
         handler.postDelayed(object : Runnable {
             override fun run() {
                 // Code to run after the delay
-                //   makeToast("50secs ~ ${mPlayer.currentPosition}")
-                //   makeToast("!decreaseVol ~ ${mMediaPlayer!!.currentPosition}")
+                //   // makeToast("50secs ~ ${mPlayer.currentPosition}")
+                //   // makeToast("!decreaseVol ~ ${mMediaPlayer!!.currentPosition}")
                 reduceVolume()
             }
 

@@ -97,7 +97,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
         if (isNetConnected)
         setWall(true, wallWorkerContext)
-        else makeToast("Check INTERNET!")
+        else // makeToast("Check INTERNET!")
      //   getCity()
         greeting()
 

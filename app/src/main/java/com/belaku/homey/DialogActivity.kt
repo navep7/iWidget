@@ -128,11 +128,11 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
     private val barcodeLauncher =
         registerForActivityResult(ScanContract()) { result: ScanIntentResult? ->
             if (result?.contents == null) {
-                makeToast("Cancelled")
+                // makeToast("Cancelled")
             } else {
                 // Handle the scan result
                 var scannedUrl = result.contents
-                makeToast("Scanned: ${result}")
+                // makeToast("Scanned: ${result}")
                 val upiUri = Uri.parse(scannedUrl)
                 val upiIntent = Intent(Intent.ACTION_VIEW)
                 upiIntent.setData(upiUri)
@@ -141,7 +141,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     startActivity(chooser);
                 } else {
                     // Handle the case where no UPI apps are installed
-                    makeToast("No UPI app found. Please install one to proceed.")
+                    // makeToast("No UPI app found. Please install one to proceed.")
                 }
             }
         }
@@ -217,12 +217,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
         var bluetoothLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode == AppCompatActivity.RESULT_OK) {
-                    if (blE) makeToast("Bluetooth ON")
-                    else makeToast("Bluetooth OFF")
-                } else {
-                    // Bluetooth not enabled by user
-                }
+
             }
 
 
@@ -251,7 +246,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         if (dialogIntentStr != null) {
 
             if (dialogIntentStr == "SongCover") {
-                //     makeToast("yet2Impl")
+                //     // makeToast("yet2Impl")
             //    llDialog.setBackgroundColor(android.R.color.transparent)
                 edtxDialog.visibility = View.GONE
                 btnOk.visibility = View.GONE
@@ -307,11 +302,11 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                         AdRequest.Builder().build(),
                         object : RewardedInterstitialAdLoadCallback() {
                             override fun onAdLoaded(rewardedAd: RewardedInterstitialAd) {
-                                makeToast("Ad was loaded.")
+                                // makeToast("Ad was loaded.")
                                 rewardedInterstitialAd = rewardedAd
 
                                 rewardedInterstitialAd?.show(this@DialogActivity) { rewardItem ->
-                                    makeToast("User earned the reward.")
+                                    // makeToast("User earned the reward.")
                                     // Handle the reward.
                                     val rewardAmount = rewardItem.amount
                                     val rewardType = rewardItem.type
@@ -325,7 +320,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
                             override fun onAdFailedToLoad(adError: LoadAdError) {
                                 dialogActContext = applicationContext
-                                makeToast("onAdFailedToLoad: ${adError.message}")
+                                // makeToast("onAdFailedToLoad: ${adError.message}")
                                 rewardedInterstitialAd = null
                             }
                         },
@@ -349,7 +344,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 try {
                     pickContactLauncher.launch(intent)
                 } catch (ex: Exception) {
-                    makeToast("Ex - ${ex.message}")
+                    // makeToast("Ex - ${ex.message}")
                 }
             } else if (dialogIntentStr == "StT") {
                 edtxDialog.visibility = View.GONE
@@ -520,7 +515,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 stepsMapsFragment.getMapAsync(this)
                 getScreenTime(applicationContext)
                 findViewById<CardView>(R.id.card_map).visibility = View.VISIBLE
-                makeToast(dayOfTheWeek)
+                // makeToast(dayOfTheWeek)
                 window.setLayout(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
                 );
@@ -706,7 +701,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
 
             } else if (dialogIntentStr == "liveWall") {
-                makeToast("LIVEWALL!")
+                // makeToast("LIVEWALL!")
                 val p: String = WallService::class.java.getPackage().getName()
                 val c: String = WallService::class.java.getCanonicalName()
 
@@ -800,7 +795,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
           // 3. Get the module (script.py)
           val module = py.getModule("python")
 
-          makeToast("Py ~ ${module.callAttr("wrapped_function", "KotlinUser")}")
+          // makeToast("Py ~ ${module.callAttr("wrapped_function", "KotlinUser")}")
 
       }*/
 
@@ -865,7 +860,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 position: Int, positionOffset: Float, positionOffsetPixels: Int
             ) {
 
-                //   makeToast("$currentOffset VS $positionOffset")
+                //   // makeToast("$currentOffset VS $positionOffset")
                 addMarker(
                     stepsLocInfo[position],
                     days[position] + " - " + stepsData[position] + " steps",
@@ -892,7 +887,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 var cityname = "unKnown"
                 try {
                     var cAddrs = gcd.getFromLocation(lat, lng, 1)!!
-                    //   makeToast(cAddrs?.get(0)!!.subLocality)
+                    //   // makeToast(cAddrs?.get(0)!!.subLocality)
 
                     cityname = cAddrs?.get(0)!!.subLocality
                     //        if (MainActivity.cityname.length > 15)
@@ -902,7 +897,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 } catch (e: IOException) {
                     // TODO Auto-generated catch block
                     e.printStackTrace()
-                    makeToast("GCD - IOException \n $e")
+                     makeToast("GCD - IOException \n $e")
                 }
 
                 return cityname
@@ -1147,7 +1142,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (phoneNumberIndex != -1) {
                     val phoneNumber = phoneCursor.getString(phoneNumberIndex)
                     // Process phone number
-                    makeToast("Contct - $displayName : $phoneNumber")
+                    // makeToast("Contct - $displayName : $phoneNumber")
                 }
             }
 
@@ -1363,14 +1358,14 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
             val bitmap = getBitmapFromUrl(imageUrl)
             // Now you have the bitmap, you can display it in an ImageView or process it further
             if (bitmap != null) {
-                //     makeToast("TwiPic")
+                //     // makeToast("TwiPic")
                 try {
                     /*remoteViews?.setTextViewText(
                         R.id.tx_tweets, "@" + twitterProfileName + "\t ~ \t" + listTweets[1]
                     )
                     remoteViews?.setImageViewBitmap(R.id.twSettings, bitmap)*/
                 } catch (ex: Exception) {
-                    makeToast("TwiEx - ${ex.message}")
+                    // makeToast("TwiEx - ${ex.message}")
                 }
             }
         }

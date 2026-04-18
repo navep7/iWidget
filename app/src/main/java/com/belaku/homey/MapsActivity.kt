@@ -142,7 +142,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
         Locale.getDefault()
         try {
             cAddrs = gcd.getFromLocation(lat, lng, 1)!!
-            //   makeToast(cAddrs?.get(0)!!.subLocality)
+            //   // makeToast(cAddrs?.get(0)!!.subLocality)
             Snackbar.make(
                 window.decorView.rootView,
                 cAddrs?.get(0)!!.subLocality,
@@ -151,7 +151,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
         } catch (e: IOException) {
             // TODO Auto-generated catch block
             e.printStackTrace()
-            makeToast("GCD - IOException \n $e")
+            // makeToast("GCD - IOException \n $e")
         }
 
     }
@@ -218,7 +218,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
     }
 
     override fun onMarkerClick(p0: Marker): Boolean {
-        makeToast(p0.title.toString())
+        // makeToast(p0.title.toString())
         val anim: Animation = AlphaAnimation(0.0f, 1.0f)
         anim.duration = 50 //You can manage the blinking time with this parameter
         anim.startOffset = 20

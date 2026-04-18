@@ -32,18 +32,19 @@
             android:layout_height="40dp"
             android:background="@drawable/gradient_glass_flatbottom"
             android:paddingEnd="@dimen/padding_5"
-            android:weightSum="9">
+            android:weightSum="10">
 
             <TextView
                 android:id="@+id/tx_wish"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
+                android:layout_marginTop="5dp"
                 android:layout_marginStart="@dimen/fab_margin"
                 android:layout_marginEnd="@dimen/padding_5"
                 android:layout_weight="4"
                 android:text="..Greet!"
                 android:textColor="@android:color/black"
-                android:textSize="30sp"
+                android:textSize="25sp"
                 android:textStyle="bold"
                 tools:ignore="HardcodedText" />
 
@@ -61,8 +62,8 @@
                 <ProgressBar
                     android:id="@+id/progressBar_battery"
                     style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="250dp"
-                    android:layout_height="250dp"
+                    android:layout_width="300dp"
+                    android:layout_height="300dp"
                     android:indeterminate="false"
                     android:max="100"
                     android:progress="75"
@@ -74,10 +75,26 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:text="⚡"
+                    android:tag="⚡"
                     android:textColor="@android:color/holo_red_dark"
-                    android:textSize="18sp"
+                    android:textSize="11sp"
                     android:textStyle="bold" />
             </RelativeLayout>
+
+
+            <ImageButton
+                android:id="@+id/imgbtn_reminders"
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="3dp"
+                android:layout_weight="1"
+                android:background="@drawable/rounded_corner_gray"
+                android:padding="@dimen/padding_5"
+                android:scaleType="fitXY"
+                android:src="@drawable/bell_hr"
+                app:tint="@android:color/darker_gray"
+                tools:ignore="HardcodedText" />
 
 
             <ImageButton
@@ -371,8 +388,7 @@
 
                 <ImageButton
                     android:id="@+id/imgbtn_twitter"
-                    android:layout_toEndOf="@+id/rl_steps"
-                    android:layout_marginStart="@dimen/padding_5"
+                   android:layout_centerHorizontal="true"
                     android:layout_alignBottom="@id/rl_steps"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
@@ -380,20 +396,6 @@
                     android:gravity="center"
                     android:scaleType="fitXY"
                     android:src="@drawable/tw"
-                    tools:ignore="HardcodedText" />
-
-                <ImageButton
-                    android:id="@+id/imgbtn_reminders"
-                    android:layout_toStartOf="@+id/rl_scrtime"
-                    android:layout_marginEnd="@dimen/padding_5"
-                    android:layout_alignBottom="@+id/rl_scrtime"
-                    android:layout_alignTop="@+id/rl_scrtime"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:background="@android:color/transparent"
-                    android:gravity="center"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/bell_hr"
                     tools:ignore="HardcodedText" />
 
 
@@ -581,13 +583,13 @@
     <LinearLayout
         android:id="@+id/ll_apps"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:padding="@dimen/padding_5"
         android:layout_above="@+id/tx_walldesc"
         android:layout_alignTop="@+id/tx_runner"
         android:layout_alignParentStart="true"
-        android:gravity="center"
         android:orientation="vertical">
+
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -620,8 +622,8 @@
             android:id="@+id/list_apps"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fadeScrollbars="false" />
-
+            android:fadeScrollbars="false"
+            android:verticalScrollbarPosition="left" />
 
     </LinearLayout>
 
@@ -882,6 +884,7 @@
         android:background="@drawable/gradient_glass_dark_flat"
         android:ellipsize="end"
         android:gravity="center"
+        android:text="Wallpaper Description"
         android:maxLines="2"
         android:textColor="@color/white"
         android:textStyle="bold" />
@@ -904,7 +907,7 @@
         android:background="@drawable/gradient_glass_flattop"
         android:gravity="center"
         android:linksClickable="true"
-        android:text="..."
+        android:text="WallpaperType ||| UpdateInfo ||| @ Last updated"
         android:textColor="?attr/colorPrimaryDark"
         android:textStyle="bold" />
 

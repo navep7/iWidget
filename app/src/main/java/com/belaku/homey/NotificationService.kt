@@ -79,6 +79,6 @@ class NotificationService : NotificationListenerService() {
 
         if (sharedPreferences.getBoolean("SPKSERVICE", false))
              speakOut(appName)
-        makeToast(appName)
+        // makeToast(appName)
     }
 }
