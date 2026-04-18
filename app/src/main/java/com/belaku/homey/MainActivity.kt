@@ -1136,28 +1136,18 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            val intent = Intent(Intent.ACTION_VIEW)
-            val uri = Uri.withAppendedPath(
-                ContactsContract.Contacts.CONTENT_URI, contactID.toString()
-            )
+
 
             val cNme = cursor.getString(
                 cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
             )
 
-            val color =
-                Color.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
-            var contactBitmap: Bitmap?
+            var contactBitmap: Bitmap = BitmapFactory.decodeResource(applicationContext.resources, R.drawable.contacts)
 
-            contactBitmap =
-                ContactPhotoHelper.retrieveContactPhoto(mainActivityContext, contactID.toLong())
+            if (ContactPhotoHelper.retrieveContactPhoto(mainActivityContext, contactID.toLong()) != null)
+            contactBitmap = ContactPhotoHelper.retrieveContactPhoto(mainActivityContext, contactID.toLong())!!
 
-            if (contactBitmap == null)
-                contactBitmap = CharacterToBitmapConverter.getBitmapFromCharacter(
-                    cNme[0], 100, 100, 70, color
-                )
-
-            var c = Contact(contactID, cNme, phoneNumber, contactBitmap)
+            val c = Contact(contactID, cNme, phoneNumber, contactBitmap)
 
             if (c.number.length > 7)
                 favContacts.add(c)

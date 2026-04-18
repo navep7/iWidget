@@ -336,58 +336,55 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     beginCal.timeInMillis,
                     endCal.timeInMillis
                 )
-                // ... rest of your logic
 
-            println("results for " + beginCal.time + " - " + endCal.time)
-            println("QUS SWW - " + queryUsageStats.size)
-            sortApps(queryUsageStats)
+                if (queryUsageStats != null) {
+                    println("results for " + beginCal.time + " - " + endCal.time)
+                    println("QUS SWW - " + queryUsageStats.size)
+                    sortApps(queryUsageStats)
 
-            choosenApps.clear()
+                    choosenApps.clear()
 
-            val appNames = HashSet<String>()
-            for (i in 0 until queryUsageStats.size) {
+                    val appNames = HashSet<String>()
+                    for (i in 0 until queryUsageStats.size) {
 
-                val appName =
-                    getAppNameFromPkg(applicationContext, queryUsageStats.get(i).packageName)
-                val appPname = queryUsageStats.get(i).packageName
-                val appUsage =
-                    formatMilliseconds(queryUsageStats[i].totalTimeInForeground).substring(0, 2)
-                //    var appUsage = arrayListUsageStats.elementAt(i).usageTime
+                        val appName =
+                            getAppNameFromPkg(applicationContext!!, queryUsageStats.get(i).packageName)
+                        val appPname = queryUsageStats.get(i).packageName
+                        val appUsage =
+                            formatMilliseconds(queryUsageStats[i].totalTimeInForeground).substring(0, 2)
 
-                Log.d(
-                    "queryUsageStats",
-                    "$appName ... - $i : " + queryUsageStats.get(i).totalTimeInForeground
-                )
-
-                if (queryUsageStats.get(i).totalTimeInForeground > 0)
-                    if (!appName.contains("Launcher") || !appName.equals("Home"))
-                        if (applicationContext.packageManager.getLaunchIntentForPackage(
-                                queryUsageStats[i].packageName
-                            ) != null
+                        Log.d(
+                            "queryUsageStats",
+                            "$appName ... - $i : " + queryUsageStats.get(i).totalTimeInForeground
                         )
-                            if (appNames.add(appName)) {
-                                arrayListUsageStats.add(
-                                    AppUsage(
-                                        queryUsageStats[i].packageName,
-                                        formatMilliseconds(queryUsageStats[i].totalTimeInForeground)
-                                    )
+
+                        if (queryUsageStats.get(i).totalTimeInForeground > 0)
+                            if (!appName.contains("Launcher") || !appName.equals("Home"))
+                                if (applicationContext.packageManager.getLaunchIntentForPackage(
+                                        queryUsageStats[i].packageName
+                                    ) != null
                                 )
+                                    if (appNames.add(appName)) {
+                                        arrayListUsageStats.add(
+                                            AppUsage(
+                                                queryUsageStats[i].packageName,
+                                                formatMilliseconds(queryUsageStats[i].totalTimeInForeground)
+                                            )
+                                        )
 
-
-
-                                choosenApps.add(
-                                    App(
-                                        appName, appPname, appUsage
-                                    )
-                                )
-                            }
-                //  }
-            }
-
-            saveApps(choosenApps)
+                                        choosenApps.add(
+                                            App(
+                                                appName, appPname, appUsage
+                                            )
+                                        )
+                                    }
+                    }
+                    saveApps(choosenApps)
+                }
             } catch (e: Exception) {
-                // Check if it's an AppSearchException or related to system indexing
-                Log.e("SetWallWorker", "Failed to query usage stats due to system indexing error", e)
+                // This catches the AppSearchException "Invalid cycle detected" which is a system bug
+                // in the AppsIndexer when processing Digital Wellbeing metadata.
+                Log.e(TAG, "System indexing error during UsageStats query: ${e.message}")
             }
         }
 
@@ -435,5 +432,3 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
     }
 
 }
-
-
