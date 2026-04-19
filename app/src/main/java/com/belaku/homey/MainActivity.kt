@@ -299,7 +299,7 @@ class MainActivity : AppCompatActivity() {
         pD = ProgressDialog(this@MainActivity)
         pD.setMessage("fetching Walls...")
 
-        DynamicColors.applyToActivitiesIfAvailable(application)
+        // Removed redundant DynamicColors call here as it's already in NHApp.onCreate()
 
         queryType = sharedPreferences.getString("walltype", "Nature").toString()
 
@@ -933,6 +933,9 @@ class MainActivity : AppCompatActivity() {
                 RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
             )
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, Locale.getDefault().toString())
+            intent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, Locale.getDefault().toString())
             intent.putExtra(
                 RecognizerIntent.EXTRA_PROMPT,
                 "Speak now..."

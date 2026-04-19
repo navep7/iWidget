@@ -203,13 +203,10 @@ class StepsService : Service() {
 
         mSensorEventListener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent) {
-                Log.d("onSensorChanged", stepsToday.toString())
+                if (presentActivityState == "WALKING") {
+                    Log.d("onSensorChanged", stepsToday.toString())
                 stepsToday++
 
-             /*   if (presentActivityState == "WALKING") {
-                    remoteViews?.setTextViewText(R.id.tx_stepstoday, "Steps ~ $stepsToday")
-                    remoteViews?.setTextViewText(R.id.tx_steps_km_today, "Distance ~ " + String.format("%.1f",  stepsToday * 74f / 100000f) + " Km")
-                }*/
 
                 if (stepsToday % 10 == 0) {
                     remoteViews?.setTextViewText(
@@ -223,9 +220,10 @@ class StepsService : Service() {
 
 
                 if (isAppWidMInitialized())
-                appWidM.updateAppWidget(newAppWidget, remoteViews)
+                    appWidM.updateAppWidget(newAppWidget, remoteViews)
 
             }
+        }
 
             override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {
                 Log.d("MY_APP", "$sensor - $accuracy")

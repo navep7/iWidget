@@ -42,7 +42,7 @@ import java.util.Locale
 class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInitListener {
 
 
-    private lateinit var generativeModel: GenerativeModel
+    private val generativeModel: GenerativeModel get() = generativeModelInstance
     private val REQUEST_CODE_SPEECH_INPUT: Int = 1
     private lateinit var tts: TextToSpeech
     private lateinit var playAI: ImageButton
@@ -76,17 +76,15 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
         txAi.movementMethod = ScrollingMovementMethod()
 
 
-
-        generativeModel = Firebase.ai(backend = GenerativeBackend.googleAI())
-                .generativeModel("gemini-2.5-flash")
-
-
         voiceAI.setOnClickListener {
 
             val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
             intent.putExtra(
                 RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
             )
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, Locale.getDefault().toString())
+            intent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, Locale.getDefault().toString())
             intent.putExtra(
                 RecognizerIntent.EXTRA_PROMPT, "Speak now..."
             ) // Optional: prompt for the user
@@ -140,7 +138,10 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
     }
 
     override fun onDestroy() {
-        tts.stop()
+        if (::tts.isInitialized) {
+            tts.stop()
+            tts.shutdown()
+        }
         super.onDestroy()
     }
 
@@ -200,6 +201,12 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
         theIntrinsic.forEach(tmpOut)
         tmpOut.copyTo(outputBitmap)
 
+        // Cleanup RenderScript resources to avoid memory leaks
+        rs.destroy()
+        theIntrinsic.destroy()
+        tmpIn.destroy()
+        tmpOut.destroy()
+
         return outputBitmap
     }
 
@@ -216,6 +223,15 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 Toast.makeText(this, "Language Not Supported", Toast.LENGTH_LONG).show()
             }
+        }
+    }
+
+    companion object {
+        // Use a singleton for GenerativeModel to reuse the underlying gRPC channel
+        // and avoid "Previous channel was garbage collected without being shut down" warnings.
+        private val generativeModelInstance: GenerativeModel by lazy {
+            Firebase.ai(backend = GenerativeBackend.googleAI())
+                .generativeModel("gemini-1.5-flash")
         }
     }
 
