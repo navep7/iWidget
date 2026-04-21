@@ -1738,12 +1738,6 @@ class MainActivity : AppCompatActivity() {
         val imgUrls: ArrayList<String> = ArrayList()
         var imgDescs: ArrayList<String> = ArrayList()
 
-        fun BitmapRotated(angle: Int, contx: Context): Bitmap {
-            var needleBitmap = BitmapFactory.decodeResource(widgetContext.resources, R.drawable.s_needle)
-            val matrix = Matrix()
-            matrix.postRotate(angle.toFloat())
-            return Bitmap.createBitmap(needleBitmap, 0, 0, needleBitmap.width, needleBitmap.height, matrix, true)
-        }
 
         fun makeToast(s: String) {
             if (NewAppWidget.isAppWidMInitialized())

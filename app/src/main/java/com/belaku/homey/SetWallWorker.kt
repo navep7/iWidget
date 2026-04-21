@@ -231,14 +231,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     }
 
 
-
-                /*remoteViews?.setTextViewText(
-                    R.id.tx_tweets,
-                    "@" + twitterProfileName + "\t ~ \t" + tW
-                )
-                //🖍
-                remoteViews?.setTextViewText(R.id.tx_tweets, tW)*/
-                NewAppWidget.greeting()
+                greeting()
                 remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
                 NewAppWidget.todaysDate()
                 remoteViews?.setTextViewText(

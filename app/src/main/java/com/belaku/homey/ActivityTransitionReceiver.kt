@@ -1,5 +1,6 @@
 package com.belaku.homey
 
+import android.Manifest
 import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -11,11 +12,9 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Handler
 import android.os.Looper
-import android.view.View
 import android.widget.RemoteViews
 import android.widget.Toast
-import com.belaku.homey.MainActivity.Companion.BitmapRotated
-import com.belaku.homey.MainActivity.Companion.makeToast
+import androidx.annotation.RequiresPermission
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
@@ -71,10 +70,11 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
         }
     }
 
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun speedTracking() {
         Toast.makeText(widgetContext, "!speedTracking", Toast.LENGTH_SHORT).show()
 
-        StepsService.locationListenerSpeed =
+        locationListenerSpeed =
             LocationListener() { location ->
                 run {
 
