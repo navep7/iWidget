@@ -2114,7 +2114,7 @@ class NewAppWidget : AppWidgetProvider() {
 
                 remoteViews?.setTextViewText(
                     R.id.tx_screentime,
-                    "$hour+ H"
+                    "$hour+ Hours"
                 )
             }
 

@@ -1,5 +1,8 @@
 package com.belaku.homey
 
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
@@ -561,7 +564,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 for (i in c)
                     myAppUsages.add(i.usageTime)
 
-                totalUsage = sumTimeArray(myAppUsages)
+                totalUsage = sumTimes(myAppUsages)
                 myAppUsages.clear()
 
                 for (i in c) {
@@ -680,13 +683,10 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 txAppUsageTime.append("\n\n")
 
                 var sT = totalUsage.split(":")
-                var hour = ""
+                var hour = sT[0]
+                var min = sT[1]
 
-                if (sT[0][0] == '0')
-                    hour = sT[0].drop(1)
-                else hour = sT[0]
-
-                txAppName.append("Avg Usage/Day ~ $hour Hours : ${sT[1]} Mins ")
+                txAppName.append("Avg Usage/Day ~ $hour Hours : $min Mins ")
 
                 edtxDialog.visibility = View.GONE
                 vpSteps.visibility = View.VISIBLE
@@ -695,6 +695,28 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     R.id.tx_screentime,
                     "$hour+ H"
                 )
+
+                if (Integer.parseInt(hour) < 2)
+                    remoteViews?.setTextViewText(
+                        R.id.tx_screenusage_state,
+                        "LOW"
+                    )
+                else if ((Integer.parseInt(hour) > 2) && (Integer.parseInt(hour) < 4))
+                    remoteViews?.setTextViewText(
+                        R.id.tx_screenusage_state,
+                        "MODERATE"
+                    )
+                else if ((Integer.parseInt(hour) > 4) && (Integer.parseInt(hour) < 6))
+                    remoteViews?.setTextViewText(
+                        R.id.tx_screenusage_state,
+                        "HIGH"
+                    )
+                else if (Integer.parseInt(hour) > 6)
+                    remoteViews?.setTextViewText(
+                        R.id.tx_screenusage_state,
+                        "EXCESSIVE"
+                    )
+
 
 
                 appWidM = AppWidgetManager.getInstance(dialogActContext)
@@ -800,27 +822,19 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
       }*/
 
 
-    private fun sumTimeArray(myAppUsages: ArrayList<String>): String {
-        // 1. Calculate total seconds from all "mm:ss" strings
-        var totalSeconds = 0L
-        for (time in myAppUsages) {
-            val parts = time.split(":")
-            if (parts.size == 2) {
-                val minutes = parts[0].toLong()
-                val seconds = parts[1].toLong()
-                totalSeconds += minutes * 60 + seconds
-            }
+
+
+    fun sumTimes(times: List<String>): String {
+        val totalDuration = times.fold(Duration.ZERO) { acc, time ->
+            val parts = time.split(":").map { it.toInt() }
+            acc + parts[0].minutes + parts[1].seconds
         }
 
-        // 2. Format the total seconds to "hh:mm"
-        // TimeUnit handles the conversion to hours and minutes
-        val hours = TimeUnit.SECONDS.toHours(totalSeconds)
-        val minutes = TimeUnit.SECONDS.toMinutes(totalSeconds) % 60
-
-        // Use String.format for consistent "hh:mm" formatting, including leading zeros for minutes
-        // Note: The hour part can be > 23, which is correct for a duration
-        return String.format(Locale.getDefault(), "%02d:%02d", hours, minutes)
+        return totalDuration.toComponents { hours, minutes, _, _ ->
+            "%02d:%02d".format(hours, minutes)
+        }
     }
+
 
     private fun stepsMapsAdapter(
         stepsData: ArrayList<String>,

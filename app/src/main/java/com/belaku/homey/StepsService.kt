@@ -211,12 +211,12 @@ class StepsService : Service() {
                     if (stepsToday < 10)
                         remoteViews?.setTextViewText(
                             R.id.tx_steps,
-                            "$stepsToday steps"
+                            "$stepsToday Steps"
                         )
                 else if (stepsToday % 10 == 0) {
                     remoteViews?.setTextViewText(
                         R.id.tx_steps,
-                        "$stepsToday"
+                        "$stepsToday Steps"
                     )
                     sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
 
