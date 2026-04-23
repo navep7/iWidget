@@ -285,7 +285,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
                 dayChange = true
                 sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
-                stepsToday = 0
+             //   stepsToday = 0
                 updateWidget(wallWorkerContext)
 
             }

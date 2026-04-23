@@ -123,8 +123,10 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -405,32 +407,27 @@ class MainActivity : AppCompatActivity() {
 
                     // Launch the system request to pin the widget
                     appWidgetManager.requestPinAppWidget(myProvider, null, successCallback)
+
+
+                    val scope = CoroutineScope(Dispatchers.Main)
+                    scope.launch {
+                        while (true) {
+                            val ids: IntArray = appWidM.getAppWidgetIds(newAppWidget)
+                            if (ids.size > 0) {
+                                gotoHome()
+                                break
+                            }
+                            delay(1000) // Wait for 1 second
+                        }
+                    }
+
+                    Handler(Looper.getMainLooper()).postDelayed({
+
+
+
+                    }, 1000)
                 }
 
-
-                /*{
-                                val builder = AlertDialog.Builder(this)
-
-                                // Set the dialog's title and message
-                                builder.setTitle("How to Add nHome Widget to HomeScreen")
-                                builder.setMessage(
-                                    "1. Goto Device Home Screen.\n" +
-                                            "2. Long press on empty region.\n" +
-                                            "3. Scroll down till you see nHome widget and long press the widget to HomeScreen"
-                                )
-
-
-                                // Set a positive button and its click listener
-                                builder.setPositiveButton("OK") { dialog, id ->
-                                    // User clicked OK button
-                                    dialog.dismiss() // Dismiss the dialog
-                                }
-
-
-                                // Create the AlertDialog object and show it
-                                val dialog = builder.create()
-                                dialog.show()
-                            }*/
             }
 
         }
@@ -440,6 +437,13 @@ class MainActivity : AppCompatActivity() {
         mainActivityContext.registerReceiver(mBluetoothReceiver, filter)
 
 
+    }
+
+    private fun gotoHome() {
+            val intent = Intent(Intent.ACTION_MAIN)
+            intent.addCategory(Intent.CATEGORY_HOME)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
     }
 
 

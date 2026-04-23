@@ -482,7 +482,7 @@
         </RelativeLayout>
 
         <ImageView
-            android:id="@+id/imgv_p_album"
+            android:id="@+id/imgv_albumcover"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:scaleType="fitXY"
@@ -497,7 +497,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/rl_clocks_weather"
             android:layout_marginTop="@dimen/padding_3"
-            android:layout_toStartOf="@+id/imgv_p_album"
+            android:layout_toStartOf="@+id/imgv_albumcover"
             android:background="@drawable/gradient_glass_flat">
 
             <ImageView

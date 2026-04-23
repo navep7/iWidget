@@ -43,7 +43,6 @@ import android.hardware.camera2.CameraManager
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.location.LocationManager
-import android.net.ConnectivityManager
 import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.BatteryManager
@@ -53,24 +52,14 @@ import android.provider.CalendarContract
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
-import android.renderscript.Allocation
-import android.renderscript.Element
-import android.renderscript.RenderScript
-import android.renderscript.ScriptIntrinsicBlur
 import android.text.Html
-import android.text.SpannableString
-import android.text.style.UnderlineSpan
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.accessibility.AccessibilityManager
 import android.widget.AdapterView
-import android.widget.AnalogClock
-import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.RemoteViews
-import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity.RECEIVER_NOT_EXPORTED
@@ -111,7 +100,6 @@ import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.belaku.homey.StepsService.Companion.choosenApps
-import com.belaku.homey.StepsService.Companion.presentActivityState
 import com.belaku.homey.StepsService.Companion.totalUsage
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityTransition
@@ -122,6 +110,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.squareup.picasso.Picasso
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -347,7 +336,7 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_p_album,
+            R.id.imgv_albumcover,
             getPendingSelfIntent(context, P_THUMBNAIL_CLICK)
         )
 
@@ -653,6 +642,9 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.tx_music_details,
                 pDatalistSongs[songIndex].title + " | " + pDatalistSongs[songIndex].album.title + " | " + pDatalistSongs[songIndex].artist.name
             )
+            Picasso.get()
+                .load(pDatalistSongs[songIndex].md5_image)
+                .into(remoteViews!!, R.id.imgv_albumcover, NewAppWidget.i_appWidgetIds)
 
             mMediaPlayer?.let {
                 if (it.isPlaying)
@@ -2074,7 +2066,7 @@ class NewAppWidget : AppWidgetProvider() {
             }
 
             if (sharedPreferences.getString("day", "someday") != dayOfTheWeek) {
-                stepsToday = 0
+             //   stepsToday = 0
                 sharedPreferencesEditor.putInt("breatheCount", 0).apply()
                 sharedPreferencesEditor.putInt("drinkCount", 0).apply()
                 dayIndex = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)

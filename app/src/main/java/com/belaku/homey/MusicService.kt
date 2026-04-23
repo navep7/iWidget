@@ -15,14 +15,12 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import android.widget.RemoteViews
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
-import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
 import com.belaku.homey.MusicActivity.Companion.pDatalistSongs
 import com.belaku.homey.MusicActivity.Companion.recyclerViewSongs
@@ -92,7 +90,7 @@ class MusicService : Service() {
             if (isAppWidMInitialized() && mediaMetadata.artworkUri != null)
                 Picasso.get()
                     .load(mediaMetadata.artworkUri)
-                    .into(remoteViews!!, R.id.imgv_p_album, NewAppWidget.i_appWidgetIds)
+                    .into(remoteViews!!, R.id.imgv_albumcover, NewAppWidget.i_appWidgetIds)
             txPlayingSong.text = mediaMetadata.title
 
 
