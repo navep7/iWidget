@@ -23,6 +23,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.text.Html
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import androidx.annotation.NonNull
@@ -158,7 +159,15 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             getScreenTime(wallWorkerContext)
             greeting()
 
-            wm.suggestDesiredDimensions(screenWidth, screenHeight)
+            try {
+                wm.suggestDesiredDimensions(screenWidth, screenHeight)
+            } catch (ex: IllegalStateException) {
+                val metrics = DisplayMetrics()
+                mAct.getWindowManager().getDefaultDisplay().getMetrics(metrics)
+                screenHeight = metrics.heightPixels
+                screenWidth = metrics.widthPixels
+                wm.suggestDesiredDimensions(screenWidth, screenHeight)
+            }
 
             try {
 
