@@ -3,22 +3,19 @@ package com.belaku.homey
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
-import com.belaku.homey.DialogActivity.Companion.isStepsMapsInitialized
-import com.belaku.homey.DialogActivity.Companion.stepsMaps
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
-import com.google.android.gms.maps.CameraUpdateFactory
+import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
+import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import java.time.LocalDate
 
 
 class StepsAdapter(
     private val stepsData: ArrayList<String>,
-    private val stepsLocInfo: ArrayList<LatLng>
 ) : RecyclerView.Adapter<StepsViewHolder>() {
     private var km: String = ""
 
@@ -31,13 +28,14 @@ class StepsAdapter(
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: StepsViewHolder, position: Int) {
 
-        remoteViews?.setTextViewText(R.id.tx_steps, stepsData[position])
+        stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
+        remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday Steps")
         appWidM.updateAppWidget(newAppWidget, remoteViews)
 
-        if (isStepsMapsInitialized())
+
             when (position) {
                 0 -> {
-                    stepsMaps.clear()
+
                     if (stepsData[position].toInt() != 0)
                         km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
@@ -49,7 +47,7 @@ class StepsAdapter(
                 }
 
                 1 -> {
-                    stepsMaps.clear()
+
                     if (stepsData[position].toInt() != 0)
                         km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
@@ -60,7 +58,7 @@ class StepsAdapter(
                 }
 
                 2 -> {
-                    stepsMaps.clear()
+
                     if (stepsData[position].toInt() != 0)
                         km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
@@ -71,7 +69,7 @@ class StepsAdapter(
                 }
 
                 3 -> {
-                    stepsMaps.clear()
+
                     if (stepsData[position].toInt() != 0)
                         km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
@@ -82,7 +80,7 @@ class StepsAdapter(
                 }
 
                 4 -> {
-                    stepsMaps.clear()
+
                     if (stepsData[position].toInt() != 0)
                         km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
@@ -93,7 +91,7 @@ class StepsAdapter(
                 }
 
                 5 -> {
-                    stepsMaps.clear()
+
                     if (stepsData[position].toInt() != 0)
                         km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
@@ -104,7 +102,7 @@ class StepsAdapter(
                 }
 
                 6 -> {
-                    stepsMaps.clear()
+
                     if (Integer.parseInt(stepsData[position]) != 0)
                      km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"

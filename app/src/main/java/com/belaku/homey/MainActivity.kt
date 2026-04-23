@@ -1741,7 +1741,7 @@ class MainActivity : AppCompatActivity() {
 
         fun makeToast(s: String) {
             if (NewAppWidget.isAppWidMInitialized())
-            Toast.makeText(widgetContext, s, Toast.LENGTH_SHORT).show()
+                Toast.makeText(widgetContext, s, Toast.LENGTH_SHORT).show()
             Log.d("makeToastinG", s)
         }
 

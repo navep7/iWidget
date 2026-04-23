@@ -125,6 +125,7 @@ import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.time.LocalDate
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
@@ -552,14 +553,8 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_steps, PendingIntent.getActivity(
-                context, 15,
-                Intent(context, DialogActivity::class.java).putExtra(
-                    "DialogIntent",
-                    "stepsInfo"
-                ),
-                PendingIntent.FLAG_IMMUTABLE
-            )
+            R.id.imgv_steps,
+            getPendingSelfIntent(context, STEPSINFO_CLICK)
         )
 
 
@@ -1248,6 +1243,18 @@ class NewAppWidget : AppWidgetProvider() {
                 .setData(builder.build())
             intentCalendar.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             widgetContext.startActivity(intentCalendar)
+        }
+
+        if (STEPSINFO_CLICK == intent.action) {
+
+            val day = LocalDate.now().dayOfWeek.name
+            makeToast(day + " - " + stepsToday)
+            sharedPreferencesEditor.putInt(day, stepsToday).commit()
+
+            widgetContext.startActivity(
+                Intent(widgetContext, DialogActivity::class.java)
+                    .putExtra("DialogIntent", "stepsInfo")
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }
         if (STEPS_CLICK == intent.action) {
             Toast.makeText(widgetContext,"$stepsToday ~ " + String.format("%.1f", stepsToday * 74f / 100000f) + " Km", Toast.LENGTH_LONG).show()
@@ -2026,7 +2033,6 @@ class NewAppWidget : AppWidgetProvider() {
                     vpStepsPos = 2
                     dayOfTheWeek = "Wednesday"
                     sharedPreferencesEditor.putInt("Wednesday", stepsToday).apply()
-
                     sharedPreferencesEditor.putInt("Thursday", 0).apply()
                     sharedPreferencesEditor.putInt("Friday", 0).apply()
                     sharedPreferencesEditor.putInt("Saturday", 0).apply()
@@ -2116,6 +2122,27 @@ class NewAppWidget : AppWidgetProvider() {
                     R.id.tx_screentime,
                     "$hour+ Hours"
                 )
+
+                if (Integer.parseInt(hour) < 2)
+                    remoteViews?.setTextViewText(
+                        R.id.tx_screenusage_state,
+                        "LOW"
+                    )
+                else if ((Integer.parseInt(hour) > 2) && (Integer.parseInt(hour) < 4))
+                    remoteViews?.setTextViewText(
+                        R.id.tx_screenusage_state,
+                        "MODERATE"
+                    )
+                else if ((Integer.parseInt(hour) > 4) && (Integer.parseInt(hour) < 6))
+                    remoteViews?.setTextViewText(
+                        R.id.tx_screenusage_state,
+                        "HIGH"
+                    )
+                else if (Integer.parseInt(hour) > 6)
+                    remoteViews?.setTextViewText(
+                        R.id.tx_screenusage_state,
+                        "EXCESSIVE"
+                    )
             }
 
 
@@ -2157,8 +2184,10 @@ class NewAppWidget : AppWidgetProvider() {
             // remoteViews?.setTextViewText(R.id.tx_date, formattedDate)
             sharedPreferencesEditor.putBoolean("DateSet", true).apply()
             sharedPreferencesEditor.putString("fD", formattedDate).apply()
+
             if (stepsToday != 0)
-                remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday")
+                remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday Steps")
+
             //   remoteViews?.setTextViewText(R.id.n_tx_steps, "Now, $newLapSteps")
             remoteViews?.setTextViewText(
                 R.id.tx_day_date,
@@ -2204,6 +2233,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val SPEED_INFO = "sppedInfo"
         private const val TIME_CLICK = "timeClick"
         private const val DATE_CLICK = "dateClick"
+        private const val STEPSINFO_CLICK = "stepsinfoClick"
         private const val STEPS_CLICK = "stepsClick"
         private const val BATTERY_INFO = "batteryInfo"
         private const val GET_WEATHER = "getWeather"

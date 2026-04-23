@@ -72,6 +72,7 @@ import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
+import java.time.LocalDate
 import java.util.Locale
 
 
@@ -218,9 +219,10 @@ class StepsService : Service() {
                         R.id.tx_steps,
                         "$stepsToday Steps"
                     )
-                    sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
-
                 }
+                    dayOfTheWeek = LocalDate.now().dayOfWeek.name
+                    sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
+                    sharedPreferencesEditor.putString("day", dayOfTheWeek).apply()
 
 
                 if (isAppWidMInitialized())
@@ -373,9 +375,6 @@ class StepsService : Service() {
 
         Log.d("Service Status", "Starting Service")
 
-
-
-        stepsToday = 0
         sharedPreferencesEditor.putInt("breatheCount", 0).apply()
         sharedPreferencesEditor.putInt("drinkCount", 0).apply()
         sensorManager.registerListener(

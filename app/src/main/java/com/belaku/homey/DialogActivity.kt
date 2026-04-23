@@ -83,6 +83,7 @@ import com.belaku.homey.SetWallWorker.Companion.screenHeight
 import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
+import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.belaku.homey.StepsService.Companion.totalUsage
 //import com.chaquo.python.Python
 //import com.chaquo.python.android.AndroidPlatform
@@ -116,6 +117,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 import java.net.URL
+import java.time.LocalDate
 import java.util.Calendar
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -123,7 +125,7 @@ import kotlin.properties.Delegates
 import kotlin.random.Random
 
 
-class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
+class DialogActivity : AppCompatActivity() {
 
     private var boolFetchingTweets: Boolean = false
     private lateinit var dialogActContext: Context
@@ -162,7 +164,6 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var txAppName: TextView
     private lateinit var txAppUsageTime: TextView
     private lateinit var vpSteps: ViewPager2
-    private lateinit var stepsMapsFragment: SupportMapFragment
 
     private lateinit var edtxDialog: EditText
 
@@ -237,10 +238,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         btnCancel = findViewById<Button>(R.id.btn_dialog_cancel)
         imgbtnShare = findViewById<ImageButton>(R.id.imgbtn_dialog_share)
         vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
-        stepsMapsFragment =
-            supportFragmentManager.findFragmentById(R.id.steps_map) as SupportMapFragment
 
-        stepsMapsFragment.view?.visibility = View.GONE
 
 
         var dialogIntentStr = intent.getStringExtra("DialogIntent")
@@ -515,10 +513,18 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             } else if (dialogIntentStr == "stepsInfo") {
 
-                stepsMapsFragment.getMapAsync(this)
+                val stepsData: ArrayList<String> = ArrayList()
+                stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
+                stepsMapsAdapter(stepsData)
+
                 getScreenTime(applicationContext)
-                findViewById<CardView>(R.id.card_map).visibility = View.VISIBLE
-                // makeToast(dayOfTheWeek)
+
                 window.setLayout(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
                 );
@@ -530,7 +536,6 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 btnCancel.visibility = View.GONE
                 imgbtnShare.visibility = View.GONE
                 vpSteps.visibility = View.VISIBLE
-
 
             } else if (dialogIntentStr == "screenTimeInfo") {
 
@@ -693,7 +698,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 remoteViews?.setTextViewText(
                     R.id.tx_screentime,
-                    "$hour+ H"
+                    "$hour+ Hours"
                 )
 
                 if (Integer.parseInt(hour) < 2)
@@ -804,25 +809,6 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    /*  private fun pythonTimpl() {
-
-          // 1. Initialize Python (if not already done in Application)
-          if (!Python.isStarted()) {
-              Python.start(AndroidPlatform(this))
-          }
-
-          // 2. Get the Python instance
-          val py = Python.getInstance()
-
-          // 3. Get the module (script.py)
-          val module = py.getModule("python")
-
-          // makeToast("Py ~ ${module.callAttr("wrapped_function", "KotlinUser")}")
-
-      }*/
-
-
-
 
     fun sumTimes(times: List<String>): String {
         val totalDuration = times.fold(Duration.ZERO) { acc, time ->
@@ -838,10 +824,9 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun stepsMapsAdapter(
         stepsData: ArrayList<String>,
-        stepsLocInfo: ArrayList<LatLng>
     ) {
 
-        val stepsAdapter = StepsAdapter(stepsData, stepsLocInfo)
+        val stepsAdapter = StepsAdapter(stepsData)
         vpSteps.adapter = stepsAdapter
         vpSteps.currentItem = vpStepsPos
 
@@ -875,11 +860,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
             ) {
 
                 //   // makeToast("$currentOffset VS $positionOffset")
-                addMarker(
-                    stepsLocInfo[position],
-                    days[position] + " - " + stepsData[position] + " steps",
-                    getAddress(stepsLocInfo[position])
-                )
+
 
                 if (currentOffset == positionOffset) if (myState == ViewPager2.SCROLL_STATE_DRAGGING && currentPosition == position && currentPosition == 0) vpSteps.setCurrentItem(
                     6
@@ -893,30 +874,6 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 super.onPageScrolled(position, positionOffset, positionOffsetPixels)
             }
 
-            private fun getAddress(latLng: LatLng): String {
-                val gcd = Geocoder(applicationContext)
-                Locale.getDefault()
-                var lat = latLng.latitude
-                var lng = latLng.longitude
-                var cityname = "unKnown"
-                try {
-                    var cAddrs = gcd.getFromLocation(lat, lng, 1)!!
-                    //   // makeToast(cAddrs?.get(0)!!.subLocality)
-
-                    cityname = cAddrs?.get(0)!!.subLocality
-                    //        if (MainActivity.cityname.length > 15)
-                    //          MainActivity.cityname = cityname.substring(0, 12) + "..,"
-
-
-                } catch (e: IOException) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace()
-                     makeToast("GCD - IOException \n $e")
-                }
-
-                return cityname
-
-            }
 
             override fun onPageSelected(position: Int) {
 
@@ -934,27 +891,6 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         })
     }
 
-    private fun addMarker(markerLocationn: LatLng, mTitle: String, mDesc: String) {
-
-        stepsMaps.clear()
-        val markerLocation = markerLocationn//LatLng(37.7749, -122.4194)
-        val marker = stepsMaps.addMarker(
-            MarkerOptions()
-                .position(markerLocation)
-                .title(mTitle)
-                .snippet(mDesc)
-        )
-
-        // Show the info window for the marker immediately
-        marker?.showInfoWindow()
-
-        stepsMaps.moveCamera(
-            CameraUpdateFactory.newLatLngZoom(
-                markerLocation,
-                19f
-            )
-        )
-    }
 
     fun makeSnack(s: String) {
         sN = Snackbar.make(parentLayoutDialog, s, Snackbar.LENGTH_LONG)
@@ -1422,56 +1358,6 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    override fun onMapReady(p0: GoogleMap) {
-
-        stepsMaps = p0
-
-        val stepsData: ArrayList<String> = ArrayList()
-        stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
-
-        val stepsLocInfo: ArrayList<LatLng> = ArrayList()
-        stepsLocInfo.add(LatLng(-34.0, 151.0))
-        stepsLocInfo.add(LatLng(35.69, 139.69))
-        stepsLocInfo.add(LatLng(19.08, 72.88))
-        stepsLocInfo.add(LatLng(19.43, -99.13))
-        stepsLocInfo.add(LatLng(52.30, 13.40))
-        stepsLocInfo.add(LatLng(23.55, 46.63))
-        stepsLocInfo.add(LatLng(40.71, -74.00))
-
-        stepsMapsAdapter(stepsData, stepsLocInfo)
-
-        // Example: Setting a location for Sydney, Australia
-        val presentLoc = LatLng(cityLat, cityLng)
-
-
-        // Add a marker at the specified location
-        //    stepsMaps.addMarker(MarkerOptions().position(presentLoc).title(cityname))
-
-
-        // Move the camera to the specified location with a zoom level
-        /*stepsMaps.moveCamera(
-            CameraUpdateFactory.newLatLngZoom(
-                presentLoc,
-                21f
-            )
-        )*/ // Zoom level 10 is a good starting point
-
-
-    }
-
-    companion object {
-        lateinit var stepsMaps: GoogleMap
-
-        fun isStepsMapsInitialized(): Boolean {
-            return this::stepsMaps.isInitialized
-        }
-    }
 
 
 }
