@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -13,9 +14,7 @@ public class DayChangeReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (Intent.ACTION_DATE_CHANGED.equals(intent.getAction())) {
 
-            Toast.makeText(context, "Day changed", Toast.LENGTH_LONG).show();
-
-            SetWallWorker.stepsToday = 0;
+            Log.d("ACTION_DATE_CHANGED", "Y3S");
 
             AppWidgetManager appWidM = AppWidgetManager.getInstance(context);
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.new_app_widget);

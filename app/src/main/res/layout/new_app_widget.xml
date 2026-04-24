@@ -296,9 +296,9 @@
                 android:layout_centerHorizontal="true"
                 android:dial="@drawable/dial_transparent"
                 android:dialTint="@color/alpha_primary_color"
-                android:hand_hourTint="@android:color/holo_green_light"
-                android:hand_minuteTint="@android:color/white"
                 android:hand_second="@drawable/s_hand"
+                android:hand_minuteTint="@android:color/holo_green_light"
+                android:hand_hourTint="@android:color/holo_orange_light"
                 android:hand_secondTint="@android:color/holo_red_dark"
                 android:visibility="visible"
                 tools:ignore="UnusedAttribute" />

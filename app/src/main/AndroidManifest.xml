@@ -260,13 +260,13 @@
         </service>
 
         <receiver android:name=".AlarmBroadcastReceiver" />
-        <receiver
-            android:name=".DayChangeReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.DATE_CHANGED" />
-            </intent-filter>
-        </receiver>
+<!--        <receiver-->
+<!--            android:name=".DayChangeReceiver"-->
+<!--            android:exported="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.DATE_CHANGED" />-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
 
         <receiver
             android:name=".TimeChangedReceiver"

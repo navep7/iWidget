@@ -240,17 +240,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     }
 
 
-                greeting()
-                remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
-                NewAppWidget.todaysDate()
-                remoteViews?.setTextViewText(
-                    R.id.tx_day_date,
-                    SimpleDateFormat(
-                        "EEE",
-                        Locale.getDefault()
-                    ).format(Calendar.getInstance().time) +
-                            ", " + formattedDate
-                )
                 remoteViews?.setTextViewText(R.id.tx_walldesc, wD)
                 remoteViews?.setTextViewText(
                     R.id.tx_walltype_updateinfo,

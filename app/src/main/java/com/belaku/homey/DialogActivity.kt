@@ -21,7 +21,6 @@ import android.content.pm.PackageManager.NameNotFoundException
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -47,13 +46,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.belaku.homey.MainActivity.Companion.beginCal
-import com.belaku.homey.MainActivity.Companion.cityLat
-import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.makeToast
@@ -67,7 +63,6 @@ import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
 import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
-import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.getScreenTime
@@ -83,7 +78,6 @@ import com.belaku.homey.SetWallWorker.Companion.screenHeight
 import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
-import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.belaku.homey.StepsService.Companion.totalUsage
 //import com.chaquo.python.Python
 //import com.chaquo.python.android.AndroidPlatform
@@ -93,12 +87,6 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -115,12 +103,8 @@ import okhttp3.Request
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import java.io.IOException
 import java.net.URL
-import java.time.LocalDate
 import java.util.Calendar
-import java.util.Locale
-import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
 import kotlin.random.Random
 
@@ -808,6 +792,7 @@ class DialogActivity : AppCompatActivity() {
 
         }
     }
+
 
 
     fun sumTimes(times: List<String>): String {

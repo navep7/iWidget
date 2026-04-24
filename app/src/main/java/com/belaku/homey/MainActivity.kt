@@ -413,7 +413,7 @@ class MainActivity : AppCompatActivity() {
                     scope.launch {
                         while (true) {
                             val ids: IntArray = appWidM.getAppWidgetIds(newAppWidget)
-                            if (ids.size > 0) {
+                            if (ids.size == 1) {
                                 gotoHome()
                                 break
                             }
@@ -1389,7 +1389,6 @@ class MainActivity : AppCompatActivity() {
             }
             if (allGranted) {
 
-                //   AccessibilityServicePermissionDialog()
                 usageStatsPermissionDialog()
 
                 sharedPreferencesEditor.putBoolean("LP", true).apply()

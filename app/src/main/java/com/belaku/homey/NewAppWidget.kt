@@ -41,7 +41,7 @@ import android.graphics.drawable.shapes.RectShape
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.icu.text.SimpleDateFormat
-import android.icu.util.Calendar
+import java.util.Calendar
 import android.location.LocationManager
 import android.net.Uri
 import android.net.wifi.WifiManager
@@ -1984,19 +1984,73 @@ class NewAppWidget : AppWidgetProvider() {
 
         fun getScreenTime(applicationContext: Context) {
 
-            if (sharedPreferences == null)
-                sharedPreferences =
-                    widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
-            if (sharedPreferencesEditor == null)
-                sharedPreferencesEditor = sharedPreferences.edit()
-
             val usageStatsManager =
                 applicationContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-            val calendar = Calendar.getInstance()
-            val endTime = calendar.timeInMillis
-            calendar.add(Calendar.DAY_OF_YEAR, -1) // Query for the last 24 hours
-            val startTime = calendar.timeInMillis
 
+            dayListener(Calendar.getInstance())
+
+            // Get a map of package names to UsageStats objects
+            val usageStatsMap = usageStatsManager.queryAndAggregateUsageStats(
+                beginCal.timeInMillis,
+                endCal.timeInMillis
+            )
+
+            var totalScreenTimeInMillis: Long = 0
+            for (usageStats in usageStatsMap.values) {
+                totalScreenTimeInMillis += usageStats.totalTimeInForeground
+            }
+
+            // Convert to desired units (e.g., minutes, hours)
+            totalScreenTimeInHours = totalScreenTimeInMillis / (1000 * 60 * 60) / 6
+
+            val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
+            var ampm = Calendar.getInstance()[Calendar.AM_PM].toString()
+
+            when (ampm) {
+                "0" -> ampm = "AM"
+                "1" -> ampm = "PM"
+            }
+
+            if (totalUsage.split(":")[0].isNotEmpty()) {
+                var sT = totalUsage.split(":")
+                var hour = ""
+
+                if (sT[0][0] == '0')
+                    hour = sT[0].drop(1)
+                else hour = sT[0]
+
+                remoteViews?.setTextViewText(
+                    R.id.tx_screentime,
+                    "$hour+ Hours"
+                )
+
+                if (Integer.parseInt(hour) < 2)
+                    remoteViews?.setTextViewText(
+                        R.id.tx_screenusage_state,
+                        "LOW"
+                    )
+                else if ((Integer.parseInt(hour) > 2) && (Integer.parseInt(hour) < 4))
+                    remoteViews?.setTextViewText(
+                        R.id.tx_screenusage_state,
+                        "MODERATE"
+                    )
+                else if ((Integer.parseInt(hour) > 4) && (Integer.parseInt(hour) < 6))
+                    remoteViews?.setTextViewText(
+                        R.id.tx_screenusage_state,
+                        "HIGH"
+                    )
+                else if (Integer.parseInt(hour) > 6)
+                    remoteViews?.setTextViewText(
+                        R.id.tx_screenusage_state,
+                        "EXCESSIVE"
+                    )
+            }
+
+
+        }
+
+
+        fun dayListener(calendar: java.util.Calendar) {
             when (calendar.get(Calendar.DAY_OF_WEEK)) {
                 1 -> {
                     dayOfTheWeek = "Monday"
@@ -2067,8 +2121,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             if (sharedPreferences.getString("day", "someday") != dayOfTheWeek) {
              //   stepsToday = 0
-                sharedPreferencesEditor.putInt("breatheCount", 0).apply()
-                sharedPreferencesEditor.putInt("drinkCount", 0).apply()
+
                 dayIndex = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
 
                 if (arrayListHabits.size > 0) {
@@ -2079,65 +2132,6 @@ class NewAppWidget : AppWidgetProvider() {
                 dayChange = true
                 sharedPreferencesEditor.putString("day", dayOfTheWeek).apply()
             }
-
-            // Get a map of package names to UsageStats objects
-            val usageStatsMap = usageStatsManager.queryAndAggregateUsageStats(
-                beginCal.timeInMillis,
-                endCal.timeInMillis
-            )
-
-            var totalScreenTimeInMillis: Long = 0
-            for (usageStats in usageStatsMap.values) {
-                totalScreenTimeInMillis += usageStats.totalTimeInForeground
-            }
-
-            // Convert to desired units (e.g., minutes, hours)
-            totalScreenTimeInHours = totalScreenTimeInMillis / (1000 * 60 * 60) / 6
-
-            val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
-            var ampm = Calendar.getInstance()[Calendar.AM_PM].toString()
-
-            when (ampm) {
-                "0" -> ampm = "AM"
-                "1" -> ampm = "PM"
-            }
-
-            if (totalUsage.split(":")[0].isNotEmpty()) {
-                var sT = totalUsage.split(":")
-                var hour = ""
-
-                if (sT[0][0] == '0')
-                    hour = sT[0].drop(1)
-                else hour = sT[0]
-
-                remoteViews?.setTextViewText(
-                    R.id.tx_screentime,
-                    "$hour+ Hours"
-                )
-
-                if (Integer.parseInt(hour) < 2)
-                    remoteViews?.setTextViewText(
-                        R.id.tx_screenusage_state,
-                        "LOW"
-                    )
-                else if ((Integer.parseInt(hour) > 2) && (Integer.parseInt(hour) < 4))
-                    remoteViews?.setTextViewText(
-                        R.id.tx_screenusage_state,
-                        "MODERATE"
-                    )
-                else if ((Integer.parseInt(hour) > 4) && (Integer.parseInt(hour) < 6))
-                    remoteViews?.setTextViewText(
-                        R.id.tx_screenusage_state,
-                        "HIGH"
-                    )
-                else if (Integer.parseInt(hour) > 6)
-                    remoteViews?.setTextViewText(
-                        R.id.tx_screenusage_state,
-                        "EXCESSIVE"
-                    )
-            }
-
-
         }
 
         fun todaysDate() {
@@ -2170,7 +2164,13 @@ class NewAppWidget : AppWidgetProvider() {
             }
 
 
+            if (!::formattedDate.isInitialized)
             formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
+            else if (formattedDate != dfDate.format(c) + postFixDate + " " + dfMonth.format(c)) {
+
+                //AnotherDay...
+                stepsToday = 0
+            }
 
 
             // remoteViews?.setTextViewText(R.id.tx_date, formattedDate)
