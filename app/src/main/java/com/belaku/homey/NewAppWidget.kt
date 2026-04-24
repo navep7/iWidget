@@ -1239,10 +1239,6 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (STEPSINFO_CLICK == intent.action) {
 
-            val day = LocalDate.now().dayOfWeek.name
-            makeToast(day + " - " + stepsToday)
-            sharedPreferencesEditor.putInt(day, stepsToday).commit()
-
             widgetContext.startActivity(
                 Intent(widgetContext, DialogActivity::class.java)
                     .putExtra("DialogIntent", "stepsInfo")

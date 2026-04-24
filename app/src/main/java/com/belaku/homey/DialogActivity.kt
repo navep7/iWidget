@@ -78,6 +78,7 @@ import com.belaku.homey.SetWallWorker.Companion.screenHeight
 import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
+import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.belaku.homey.StepsService.Companion.totalUsage
 //import com.chaquo.python.Python
 //import com.chaquo.python.android.AndroidPlatform
@@ -104,6 +105,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.net.URL
+import java.time.LocalDate
 import java.util.Calendar
 import kotlin.properties.Delegates
 import kotlin.random.Random
@@ -111,6 +113,7 @@ import kotlin.random.Random
 
 class DialogActivity : AppCompatActivity() {
 
+    private lateinit var stepsAdapter: StepsAdapter
     private var boolFetchingTweets: Boolean = false
     private lateinit var dialogActContext: Context
     private lateinit var parentLayoutDialog: View
@@ -168,6 +171,18 @@ class DialogActivity : AppCompatActivity() {
         parentLayoutDialog = findViewById(android.R.id.content)
 
         dialogActContext = applicationContext
+
+        val stepsData: ArrayList<String> = ArrayList()
+
+        stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
+        stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
+        stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
+        stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
+        stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
+        stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
+        stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
+
+
 
         rewardedInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
@@ -228,7 +243,11 @@ class DialogActivity : AppCompatActivity() {
         var dialogIntentStr = intent.getStringExtra("DialogIntent")
 
 
+
         if (dialogIntentStr != null) {
+
+            if (dialogIntentStr == "stepsInfo")
+                stepsMapsAdapter(stepsData)
 
             if (dialogIntentStr == "SongCover") {
                 //     // makeToast("yet2Impl")
@@ -497,15 +516,8 @@ class DialogActivity : AppCompatActivity() {
                 }
             } else if (dialogIntentStr == "stepsInfo") {
 
-                val stepsData: ArrayList<String> = ArrayList()
-                stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
-                stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
-                stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
-                stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
-                stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
-                stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
-                stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
-                stepsMapsAdapter(stepsData)
+                stepsData[Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1] = stepsToday.toString()
+                stepsAdapter.notifyDataSetChanged()
 
                 getScreenTime(applicationContext)
 
@@ -520,6 +532,7 @@ class DialogActivity : AppCompatActivity() {
                 btnCancel.visibility = View.GONE
                 imgbtnShare.visibility = View.GONE
                 vpSteps.visibility = View.VISIBLE
+                findViewById<TabLayout>(R.id.tab_layout).visibility = View.VISIBLE
 
             } else if (dialogIntentStr == "screenTimeInfo") {
 
@@ -811,7 +824,8 @@ class DialogActivity : AppCompatActivity() {
         stepsData: ArrayList<String>,
     ) {
 
-        val stepsAdapter = StepsAdapter(stepsData)
+        stepsAdapter = StepsAdapter(stepsData)
+        vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
         vpSteps.adapter = stepsAdapter
         vpSteps.currentItem = vpStepsPos
 
