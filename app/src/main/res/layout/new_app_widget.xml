@@ -11,6 +11,12 @@
     android:theme="@style/Theme.Material3.DynamicColors.Light">
 
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="android:background=&quot;@android:color/transparent&quot;" />
+
     <ImageView
         android:id="@+id/imgv_widget_layout"
         android:layout_width="match_parent"
@@ -696,20 +702,72 @@
             android:id="@+id/rl_controls"
             android:layout_width="wrap_content"
             android:layout_height="190dp"
-            android:layout_margin="@dimen/padding_5"
-            android:layout_below="@+id/tx_runner"
+            android:layout_marginStart="@dimen/fab_margin"
+            android:layout_marginEnd="@dimen/fab_margin"
+            android:layout_marginBottom="50dp"
+            android:layout_above="@+id/tx_walldesc"
             android:layout_toEndOf="@+id/ll_apps"
             android:layout_toStartOf="@+id/ll_contacts"
-            android:background="@drawable/gradient_glass_light"
-            android:gravity="center">
+            android:background="@drawable/gradient_glass_light">
+
+            <ImageView
+                android:id="@+id/imgbtn_g_apps"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="@dimen/fab_margin"
+                android:adjustViewBounds="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/google" />
+
+            <ImageButton
+                android:id="@+id/imgv_conf"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="@dimen/fab_margin"
+                android:background="@android:color/transparent"
+                android:adjustViewBounds="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:scaleType="fitXY"
+                app:tint="@color/white"
+                android:src="@drawable/conf"
+                />
+
+
+            <ImageButton
+                android:id="@+id/imgbtn_speech"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="@dimen/fab_margin"
+                android:background="@android:color/transparent"
+                android:adjustViewBounds="true"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:scaleType="fitXY"
+                android:src="@android:drawable/ic_btn_speak_now"
+                app:tint="@color/white" />
+
+            <ImageView
+                android:id="@+id/imgbtn_qr"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:tint="@color/white"
+                android:layout_margin="@dimen/fab_margin"
+                android:adjustViewBounds="true"
+                android:layout_centerVertical="true"
+                android:layout_alignParentStart="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/qr" />
 
             <RelativeLayout
                 android:id="@+id/rl_setwall"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
+                android:layout_centerInParent="true"
                 android:layout_margin="@dimen/padding_5"
-                android:adjustViewBounds="true"
-                android:background="@drawable/gradient_glass_rounded_go">
+                android:adjustViewBounds="true">
 
                 <TextView
                     android:id="@+id/tx_rewards_count"
@@ -718,8 +776,8 @@
                     android:layout_centerInParent="true"
                     android:gravity="center"
                     android:text="5"
-                    android:textColor="@android:color/holo_red_light"
-                    android:textSize="25sp"
+                    android:textColor="@android:color/black"
+                    android:textSize="21sp"
                     android:textStyle="bold"
                     tools:ignore="HardcodedText" />
 
@@ -752,107 +810,57 @@
 
             </RelativeLayout>
 
-            <ImageView
-                android:id="@+id/imgv_conf"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_above="@+id/rl_setwall"
-                android:layout_alignStart="@+id/rl_setwall"
-                android:layout_marginBottom="@dimen/padding_5"
-                android:adjustViewBounds="true"
-                android:background="@drawable/gradient_glass_rounded_go"
-                android:padding="@dimen/padding_5"
-                android:scaleType="fitXY"
-                android:src="@drawable/conf" />
-
             <ImageButton
-                android:id="@+id/imgbtn_speech"
+                android:id="@+id/imgbtn_lock"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_above="@id/rl_setwall"
-                android:layout_marginStart="@dimen/fab_margin"
-                android:layout_marginBottom="@dimen/fab_margin"
-                android:layout_toEndOf="@+id/imgv_conf"
-                android:background="@drawable/gradient_glass_rounded"
+                android:layout_margin="@dimen/fab_margin"
+                android:background="@android:color/transparent"
+                android:adjustViewBounds="true"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"
                 android:scaleType="fitXY"
-                android:src="@android:drawable/ic_btn_speak_now"
-                app:tint="@color/white" />
-
-            <ImageView
-                android:id="@+id/imgv_dialler"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_below="@id/rl_setwall"
-                android:layout_marginStart="@dimen/fab_margin"
-                android:layout_marginTop="@dimen/fab_margin"
-                android:layout_toEndOf="@+id/imgv_conf"
-                android:background="@drawable/gradient_glass_rounded"
-                android:scaleType="fitXY"
-                android:src="@drawable/dial"
-                app:tint="@color/white" />
+                app:tint="@color/white"
+                android:src="@android:drawable/ic_lock_lock" />
 
             <ImageView
                 android:id="@+id/imgv_ps"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_alignStart="@+id/imgbtn_qr"
-                android:layout_alignBottom="@+id/tx_myspace"
+                android:layout_margin="@dimen/fab_margin"
+                android:background="@android:color/transparent"
                 android:adjustViewBounds="true"
-                android:background="@drawable/gradient_glass_rounded_go"
-                android:padding="@dimen/padding_5"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true"
                 android:scaleType="fitXY"
+                app:tint="@color/white"
                 android:src="@android:drawable/ic_media_play" />
-
-
-            <ImageView
-                android:id="@+id/imgbtn_g_apps"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_alignStart="@+id/imgbtn_qr"
-                android:layout_alignTop="@+id/imgv_conf"
-                android:adjustViewBounds="true"
-                android:background="@drawable/gradient_glass_rounded_go"
-                android:padding="@dimen/padding_5"
-                android:scaleType="fitXY"
-                android:src="@drawable/google" />
-
-
-            <ImageButton
-                android:id="@+id/imgbtn_lock"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="@dimen/padding_5"
-                android:layout_toEndOf="@+id/rl_setwall"
-                android:adjustViewBounds="true"
-                android:background="@drawable/gradient_glass_rounded_go"
-                android:scaleType="fitXY"
-                android:src="@android:drawable/ic_lock_lock"
-                app:tint="@android:color/holo_red_dark" />
-
-            <ImageView
-                android:id="@+id/imgbtn_qr"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginEnd="@dimen/padding_5"
-                android:layout_toStartOf="@+id/rl_setwall"
-                android:adjustViewBounds="true"
-                android:background="@drawable/gradient_glass_rounded_go"
-                android:padding="@dimen/padding_5"
-                android:src="@drawable/qr" />
 
             <TextView
                 android:id="@+id/tx_myspace"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:layout_below="@+id/rl_setwall"
-                android:layout_alignStart="@+id/rl_setwall"
-                android:layout_marginTop="@dimen/padding_5"
-                android:background="@drawable/gradient_glass_rounded_ss"
+                android:layout_margin="@dimen/fab_margin"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
                 android:gravity="center"
-                android:text="User"
+                android:text="User \nSpace"
                 android:textColor="@android:color/white"
                 android:textSize="15sp"
                 android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/imgv_dialler"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="@dimen/fab_margin"
+                android:background="@android:color/transparent"
+                android:adjustViewBounds="true"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:scaleType="fitXY"
+                app:tint="@color/white"
+                android:src="@drawable/dial" />
 
         </RelativeLayout>
 
@@ -866,7 +874,6 @@
         android:layout_below="@+id/ll_contacts"
         android:layout_alignParentEnd="true"
         android:layout_toStartOf="@+id/ll_contacts"
-        android:background="@drawable/gradient_glass"
         android:visibility="gone" />
 
     <TextView
@@ -877,7 +884,6 @@
         android:layout_below="@+id/ll_apps"
         android:layout_alignParentEnd="true"
         android:layout_toStartOf="@+id/ll_apps"
-        android:background="@drawable/gradient_glass"
         android:visibility="gone" />
 
 

@@ -868,6 +868,17 @@ class NewAppWidget : AppWidgetProvider() {
                     widgetContext.getDrawable(R.drawable.gradient_glass_list)!!
                 ))
 
+                remoteViews?.setInt(R.id.imgv_conf, "setColorFilter", Color.BLACK)
+                remoteViews?.setInt(R.id.imgbtn_speech, "setColorFilter", Color.BLACK)
+                remoteViews?.setInt(R.id.imgbtn_qr, "setColorFilter", Color.BLACK)
+                remoteViews?.setInt(R.id.imgbtn_set, "setColorFilter", Color.BLACK)
+                remoteViews?.setInt(R.id.imgbtn_lock, "setColorFilter", Color.BLACK)
+                remoteViews?.setInt(R.id.imgv_ps, "setColorFilter", Color.BLACK)
+                remoteViews?.setTextColor(R.id.tx_myspace, Color.BLACK)
+                remoteViews?.setTextColor(R.id.tx_rewards_count, Color.WHITE)
+                remoteViews?.setInt(R.id.imgv_dialler, "setColorFilter", Color.BLACK)
+
+
 
                 if (isWallBitmapInitialized()) {
                     scaledBitmap =
@@ -894,73 +905,6 @@ class NewAppWidget : AppWidgetProvider() {
                     )
                 }
 
-                remoteViews?.setInt(
-                    R.id.tx_myspace,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_light
-                )
-                remoteViews?.setInt(
-                    R.id.imgbtn_lock,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_light
-                )
-                remoteViews?.setInt(
-                    R.id.imgbtn_qr,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_light
-                )
-                remoteViews?.setInt(
-                    R.id.rl_setwall,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_light
-                )
-                remoteViews?.setInt(
-                    R.id.imgv_conf,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_light
-                )
-
-                remoteViews?.setInt(
-                    R.id.imgv_ps,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_dark
-                )
-                remoteViews?.setInt(
-                    R.id.imgbtn_g_apps,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_dark
-                )
-                remoteViews?.setInt(
-                    R.id.imgbtn_speech,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_dark
-                )
-                remoteViews?.setInt(
-                    R.id.imgv_dialler,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_dark
-                )
-
-
-                remoteViews?.setColorInt(
-                    R.id.imgv_ps,
-                    "setColorFilter",
-                    Color.WHITE,
-                    Color.WHITE
-                )
-
-                remoteViews?.setColorInt(
-                    R.id.imgbtn_speech,
-                    "setColorFilter",
-                    Color.WHITE,
-                    Color.WHITE
-                )
-                remoteViews?.setColorInt(
-                    R.id.imgv_dialler,
-                    "setColorFilter",
-                    Color.WHITE,
-                    Color.WHITE
-                )
 
                 remoteViews?.setTextColor(
                     R.id.clock,
@@ -974,6 +918,17 @@ class NewAppWidget : AppWidgetProvider() {
                 remoteViews?.setImageViewBitmap(R.id.imgv_rl_controls, drawableToBitmap(widgetContext,
                     widgetContext.getDrawable(R.drawable.gradient_glass_dark)!!
                 ))
+
+                remoteViews?.setInt(R.id.imgv_conf, "setColorFilter", Color.WHITE)
+                remoteViews?.setInt(R.id.imgbtn_speech, "setColorFilter", Color.WHITE)
+                remoteViews?.setInt(R.id.imgbtn_qr, "setColorFilter", Color.WHITE)
+                remoteViews?.setInt(R.id.imgbtn_set, "setColorFilter", Color.WHITE)
+                remoteViews?.setInt(R.id.imgbtn_lock, "setColorFilter", Color.WHITE)
+                remoteViews?.setInt(R.id.imgv_ps, "setColorFilter", Color.WHITE)
+                remoteViews?.setTextColor(R.id.tx_myspace, Color.WHITE)
+                remoteViews?.setTextColor(R.id.tx_rewards_count, Color.BLACK)
+                remoteViews?.setInt(R.id.imgv_dialler, "setColorFilter", Color.WHITE)
+
 
                 if (isWallBitmapInitialized()) {
                     scaledBitmap =
@@ -1000,73 +955,6 @@ class NewAppWidget : AppWidgetProvider() {
                     )
                 }
 
-                remoteViews?.setInt(
-                    R.id.tx_myspace,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_dark
-                )
-                remoteViews?.setInt(
-                    R.id.imgbtn_lock,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_dark
-                )
-                remoteViews?.setInt(
-                    R.id.imgbtn_qr,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_dark
-                )
-                remoteViews?.setInt(
-                    R.id.rl_setwall,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_dark
-                )
-                remoteViews?.setInt(
-                    R.id.imgv_conf,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_dark
-                )
-
-                remoteViews?.setInt(
-                    R.id.imgv_ps,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_light
-                )
-                remoteViews?.setInt(
-                    R.id.imgbtn_g_apps,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_light
-                )
-                remoteViews?.setInt(
-                    R.id.imgbtn_speech,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_light
-                )
-                remoteViews?.setInt(
-                    R.id.imgv_dialler,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_light
-                )
-
-
-                remoteViews?.setColorInt(
-                    R.id.imgv_ps,
-                    "setColorFilter",
-                    Color.BLACK,
-                    Color.BLACK
-                )
-
-                remoteViews?.setColorInt(
-                    R.id.imgbtn_speech,
-                    "setColorFilter",
-                    Color.BLACK,
-                    Color.BLACK
-                )
-                remoteViews?.setColorInt(
-                    R.id.imgv_dialler,
-                    "setColorFilter",
-                    Color.BLACK,
-                    Color.BLACK
-                )
 
                 remoteViews?.setTextColor(
                     R.id.clock,
