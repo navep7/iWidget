@@ -163,10 +163,12 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 wm.suggestDesiredDimensions(screenWidth, screenHeight)
             } catch (ex: IllegalStateException) {
                 val metrics = DisplayMetrics()
-                mAct.getWindowManager().getDefaultDisplay().getMetrics(metrics)
-                screenHeight = metrics.heightPixels
-                screenWidth = metrics.widthPixels
-                wm.suggestDesiredDimensions(screenWidth, screenHeight)
+                if (ismActInitialized()) {
+                    mAct.windowManager.getDefaultDisplay().getMetrics(metrics)
+                    screenHeight = metrics.heightPixels
+                    screenWidth = metrics.widthPixels
+                    wm.suggestDesiredDimensions(screenWidth, screenHeight)
+                }
             }
 
             try {
