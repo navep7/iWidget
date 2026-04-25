@@ -857,16 +857,11 @@ class NewAppWidget : AppWidgetProvider() {
                 )
             }
 
-            //  findViewById<View>(R.id.myLayout).background = gradientDrawable
 
 
             if (ColorUtil().isColorDark(primaryColor)) {
 
                 // makeToast("Dark")
-
-                remoteViews?.setImageViewBitmap(R.id.imgv_rl_controls, drawableToBitmap(widgetContext,
-                    widgetContext.getDrawable(R.drawable.gradient_glass_list)!!
-                ))
 
                 remoteViews?.setInt(R.id.imgv_conf, "setColorFilter", Color.BLACK)
                 remoteViews?.setInt(R.id.imgbtn_speech, "setColorFilter", Color.BLACK)
@@ -914,10 +909,6 @@ class NewAppWidget : AppWidgetProvider() {
             } else {
 
                 // makeToast("Light")
-
-                remoteViews?.setImageViewBitmap(R.id.imgv_rl_controls, drawableToBitmap(widgetContext,
-                    widgetContext.getDrawable(R.drawable.gradient_glass_dark)!!
-                ))
 
                 remoteViews?.setInt(R.id.imgv_conf, "setColorFilter", Color.WHITE)
                 remoteViews?.setInt(R.id.imgbtn_speech, "setColorFilter", Color.WHITE)

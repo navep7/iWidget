@@ -11,12 +11,6 @@
     android:theme="@style/Theme.Material3.DynamicColors.Light">
 
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="android:background=&quot;@android:color/transparent&quot;" />
-
     <ImageView
         android:id="@+id/imgv_widget_layout"
         android:layout_width="match_parent"
@@ -633,8 +627,7 @@
             android:id="@+id/list_apps"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fadeScrollbars="false"
-            android:verticalScrollbarPosition="left" />
+            android:fadeScrollbars="false" />
 
     </LinearLayout>
 
@@ -685,17 +678,6 @@
             android:verticalScrollbarPosition="left" />
 
     </LinearLayout>
-
-
-    <ImageView
-        android:id="@+id/imgv_rl_controls"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/tx_walldesc"
-        android:layout_below="@+id/tx_runner"
-        android:layout_toStartOf="@+id/ll_contacts"
-        android:layout_toEndOf="@+id/ll_apps"
-        android:scaleType="fitXY" />
 
 
         <RelativeLayout
