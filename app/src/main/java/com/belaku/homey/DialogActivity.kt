@@ -174,6 +174,7 @@ class DialogActivity : AppCompatActivity() {
 
         val stepsData: ArrayList<String> = ArrayList()
 
+
         stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
         stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
         stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())

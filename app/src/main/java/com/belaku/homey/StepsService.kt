@@ -91,7 +91,7 @@ class StepsService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        makeToast("!StepsServiceStarted")
+//        makeToast("!StepsServiceStarted")
 
 
             if (!isLocationEnabled(applicationContext)) {

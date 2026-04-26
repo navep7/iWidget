@@ -679,17 +679,20 @@
 
     </LinearLayout>
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/fab_margin"
+        android:layout_below="@+id/tx_runner"
+        android:layout_above="@+id/tx_walldesc"
+        android:layout_toEndOf="@+id/ll_apps"
+        android:layout_toStartOf="@+id/ll_contacts">
 
         <RelativeLayout
             android:id="@+id/rl_controls"
             android:layout_width="wrap_content"
             android:layout_height="190dp"
-            android:layout_marginStart="@dimen/fab_margin"
-            android:layout_marginEnd="@dimen/fab_margin"
-            android:layout_marginBottom="50dp"
-            android:layout_above="@+id/tx_walldesc"
-            android:layout_toEndOf="@+id/ll_apps"
-            android:layout_toStartOf="@+id/ll_contacts"
+            android:layout_centerInParent="true"
             android:background="@drawable/gradient_glass_light">
 
             <ImageView
@@ -846,6 +849,7 @@
 
         </RelativeLayout>
 
+    </RelativeLayout>
 
 
     <TextView

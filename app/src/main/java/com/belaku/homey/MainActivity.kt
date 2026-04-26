@@ -141,6 +141,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.properties.Delegates
 import kotlin.random.Random
+import kotlin.system.exitProcess
 
 
 class MainActivity : AppCompatActivity() {
@@ -235,6 +236,11 @@ class MainActivity : AppCompatActivity() {
         sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
+        val metrics = DisplayMetrics()
+        windowManager.getDefaultDisplay().getMetrics(metrics)
+        screenHeight = metrics.heightPixels
+        screenWidth = metrics.widthPixels
+
         launchers()
 
         timeR()
@@ -244,12 +250,6 @@ class MainActivity : AppCompatActivity() {
         ) { initializationStatus -> //Showing a simple Toast Message to the user when The Google AdMob Sdk Initialization is Completed
             //   Toast.makeText( this@MainActivity, "AdMob Sdk Initialize $initializationStatus", Toast.LENGTH_LONG ).show()
         }
-
-        val metrics = DisplayMetrics()
-        getWindowManager().getDefaultDisplay().getMetrics(metrics)
-        screenHeight = metrics.heightPixels
-        screenWidth = metrics.widthPixels
-
 
 
         if (apps.size == 0)
@@ -444,6 +444,7 @@ class MainActivity : AppCompatActivity() {
             intent.addCategory(Intent.CATEGORY_HOME)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
+            exitProcess(0)
     }
 
 

@@ -26,6 +26,7 @@ import android.text.Html
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
+import android.view.WindowManager
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.work.Worker
@@ -37,6 +38,7 @@ import com.belaku.homey.MainActivity.Companion.cYear
 import com.belaku.homey.MainActivity.Companion.delayUnit
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.fabMain
+import com.belaku.homey.MainActivity.Companion.mainWindow
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.queryType
@@ -194,6 +196,13 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                         ).openConnection().getInputStream()
                     )
 
+                    val metrics = DisplayMetrics()
+                    val windowManager = wallWorkerContext.applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+
+                    windowManager.getDefaultDisplay().getMetrics(metrics)
+                    screenHeight = metrics.heightPixels
+                    screenWidth = metrics.widthPixels
+
                     scaledBitmap =
                         Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
                 }
@@ -225,7 +234,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 dU = delayUnit
                 uT = updateTime
 
-                if (MainActivity.mainWindow.decorView.rootView.isShown)
+                try {
                     if (pD.isShowing) {
                         pD.dismiss()
                         Handler(Looper.getMainLooper()).postDelayed({
@@ -240,7 +249,9 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
                         }, 1000)
                     }
+                } catch (ex: Exception) {
 
+                }
 
                 remoteViews?.setTextViewText(R.id.tx_walldesc, wD)
                 remoteViews?.setTextViewText(
