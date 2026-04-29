@@ -1196,31 +1196,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun sortApps(queryUsageStats: List<UsageStats>) {
-
-        Collections.sort<UsageStats>(
-            queryUsageStats
-        ) { p1: UsageStats, p2: UsageStats ->
-            p2.totalTimeInForeground.compareTo(p1.totalTimeInForeground)
-            //   p1.name.compareTo(p2.name)
-        }
-
-    }
-
-
-    private fun getAppNameFromPkg(context: Context, packageName: String?): String {
-        val pm: PackageManager = context.getPackageManager()
-        var ai = try {
-            pm.getApplicationInfo(packageName.toString(), 0)
-        } catch (e: NameNotFoundException) {
-            null
-        }
-        val applicationName =
-            (if (ai != null) pm.getApplicationLabel(ai) else "(unknown)") as String
-
-        return applicationName
-    }
-
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setWalls(delay: Long) {
 

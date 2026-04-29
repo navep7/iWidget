@@ -67,6 +67,7 @@ import com.belaku.homey.StepsService.Companion.twitterProfileName
 import com.google.gson.Gson
 import java.io.IOException
 import java.net.URL
+import java.time.LocalDate
 import java.util.Collections
 import java.util.Locale
 import kotlin.properties.Delegates
@@ -295,6 +296,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 sharedPreferencesEditor.putInt("drinkCount", 0).apply()
 
                 dayChange = true
+                stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
                 sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
              //   stepsToday = 0
                 updateWidget(wallWorkerContext)

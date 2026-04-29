@@ -8,7 +8,6 @@ plugins {
 android {
     namespace = "com.belaku.homey"
     compileSdk = 36
-    // Lowered to latest stable 35 (Android 15)
 
     defaultConfig {
         applicationId = "com.belaku.homey"

@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
@@ -22,7 +23,9 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.OnMapsSdkInitializedCallback
 import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback
 import com.google.android.gms.maps.StreetViewPanorama
 import com.google.android.gms.maps.StreetViewPanoramaView
@@ -62,6 +65,15 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
+
+
+        MapsInitializer.initialize(
+            applicationContext,
+            MapsInitializer.Renderer.LATEST,
+            OnMapsSdkInitializedCallback { renderer ->
+                Log.d("MapsSDK", "Renderer initialized: ${renderer.name}")
+            }
+        )
 
         mStreetViewPanoramaView = findViewById(R.id.streetviewpanorama)
         mSupportMapFragment =

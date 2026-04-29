@@ -81,6 +81,10 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         fun isDataListInitialized(): Boolean {
             return ::dataListSongs.isInitialized
         }
+
+        fun ispDataListInitialized(): Boolean {
+            return ::pDatalistSongs.isInitialized
+        }
     }
 
     private lateinit var binding: ActivityMusicBinding

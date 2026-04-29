@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Build
+import android.os.Process
 import android.provider.Settings
 
 
@@ -12,7 +13,7 @@ class UsageStatsChecker {
     fun hasUsageStatsPermission(context: Context): Boolean {
         val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
         val mode = try {
-            val uid = context.applicationInfo.uid
+            val uid = Process.myUid()
             val packageName = context.packageName
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 appOps.unsafeCheckOpNoThrow(
