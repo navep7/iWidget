@@ -152,7 +152,7 @@ class NewAppWidget : AppWidgetProvider() {
         recognizeActivityTransitions()
 
         readApps()
-        getFavoriteContacts()
+    //    getFavoriteContacts()
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -260,6 +260,8 @@ class NewAppWidget : AppWidgetProvider() {
 
         i_appWidgetIds = appWidgetIds
 
+        if (favContacts.size == 0)
+        getFavoriteContacts()
         for (appWidgetId in appWidgetIds) {
 
             widgetContext = context
@@ -1427,7 +1429,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     @SuppressLint("Range")
-    private fun getFavoriteContacts() {
+    fun getFavoriteContacts() {
 
         favContacts = ArrayList()
 
@@ -1485,6 +1487,7 @@ class NewAppWidget : AppWidgetProvider() {
         }
         saveContacts()
         cursor.close()
+
     }
 
     private fun saveContacts() {

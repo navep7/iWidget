@@ -232,6 +232,7 @@ class MainActivity : AppCompatActivity() {
 
         mAct = this@MainActivity
         mainActivityContext = applicationContext
+        widgetContext = applicationContext
 
         sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
@@ -442,7 +443,7 @@ class MainActivity : AppCompatActivity() {
     private fun gotoHome() {
             val intent = Intent(Intent.ACTION_MAIN)
             intent.addCategory(Intent.CATEGORY_HOME)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            intent.flags = FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
             exitProcess(0)
     }
@@ -853,7 +854,7 @@ class MainActivity : AppCompatActivity() {
             arrayOf<String>(contactId.toString())
         )
 
-        getFavoriteContacts(applicationContext)
+        NewAppWidget().getFavoriteContacts()
         updateWidget()
     }
 
@@ -1101,92 +1102,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    @SuppressLint("Range", "UseCompatLoadingForDrawables", "Recycle")
-    fun getFavoriteContacts(context: Context) {
-
-        favContacts = ArrayList()
-
-        val queryUri = ContactsContract.Contacts.CONTENT_URI.buildUpon()
-            .appendQueryParameter(ContactsContract.Contacts.EXTRA_ADDRESS_BOOK_INDEX, "true")
-            .build()
-
-        val projection = arrayOf(
-            ContactsContract.Contacts._ID,
-            ContactsContract.Contacts.DISPLAY_NAME,
-            ContactsContract.Contacts.STARRED,
-            ContactsContract.Contacts.HAS_PHONE_NUMBER
-        )
-
-        val selection = ContactsContract.Contacts.STARRED + "='1'"
-
-        val cursor = context.contentResolver.query(
-            queryUri,
-            projection, selection, null, null
-        )
-
-        while (cursor!!.moveToNext()) {
-            val contactID = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
-            var phoneNumber: String = "7"
-
-            if (Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
-
-                val phones: Cursor? = context.contentResolver.query(
-                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                    null,
-                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactID,
-                    null,
-                    null
-                )
-                while (phones!!.moveToNext()) {
-                    phoneNumber =
-                        phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                    phoneNumber = phoneNumber.filter { !it.isWhitespace() }
-                }
-            }
-
-
-
-            val cNme = cursor.getString(
-                cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
-            )
-
-            var contactBitmap: Bitmap = BitmapFactory.decodeResource(applicationContext.resources, R.drawable.contacts)
-
-            if (ContactPhotoHelper.retrieveContactPhoto(mainActivityContext, contactID.toLong()) != null)
-            contactBitmap = ContactPhotoHelper.retrieveContactPhoto(mainActivityContext, contactID.toLong())!!
-
-            val c = Contact(contactID, cNme, phoneNumber, contactBitmap)
-
-            if (c.number.length > 7)
-                favContacts.add(c)
-
-        }
-
-
-
-        if (favContacts.size > 0)
-            saveContacts()
-        else {
-            makeToast("You've got no Contacts marked as Favorute!.. Go ahead add some to dial from the widget directly.")
-            val builder = AlertDialog.Builder(this)
-
-            builder.setTitle("Favorites") // Set the title of the dialog
-            builder.setMessage("You've got no Contacts marked as Favorite!.. You can add some to dial from the widget directly, by clicking on + contact button in the Widget.") // Set the message of the dialog
-
-            // Set the Positive Button and its action
-            builder.setPositiveButton("Ok") { dialog: DialogInterface, which: Int ->
-                dialog.dismiss() // Dismiss the dialog
-            }
-
-            // Create and show the AlertDialog
-            val alertDialog: AlertDialog = builder.create()
-            alertDialog.show()
-        }
-
-        cursor.close()
-    }
-
-
     private fun saveContacts() {
         val key = "CTS"
         val gson = Gson()
@@ -1378,7 +1293,7 @@ class MainActivity : AppCompatActivity() {
 
 
                 sharedPreferencesEditor.putBoolean("RCP", true).apply()
-                getFavoriteContacts(applicationContext)
+                NewAppWidget().getFavoriteContacts()
                 btnRC.text = "Granted"
 
 
@@ -1416,7 +1331,7 @@ class MainActivity : AppCompatActivity() {
             if (grantResults.isNotEmpty())
                 if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("RCP", true).apply()
-                    getFavoriteContacts(applicationContext)
+                    NewAppWidget().getFavoriteContacts()
                     btnRC.text = "Granted"
                 }
         } else if (requestCode == BLUETOOTH_P) {
@@ -1472,7 +1387,7 @@ class MainActivity : AppCompatActivity() {
                 buttonAll.setOnClickListener {
                     if (!nPermissions()) {
                         rawTweets(false)
-                        getFavoriteContacts(mainActivityContext)
+                        NewAppWidget().getFavoriteContacts()
                         iDV.dismiss()
                     } else ActivityCompat.requestPermissions(
                         this,
@@ -1632,7 +1547,7 @@ class MainActivity : AppCompatActivity() {
         buttonAll.setOnClickListener {
             if (!nPermissions()) {
                 rawTweets(false)
-                getFavoriteContacts(mainActivityContext)
+                NewAppWidget().getFavoriteContacts()
                 iDV.dismiss()
             } else ActivityCompat.requestPermissions(
                 this,

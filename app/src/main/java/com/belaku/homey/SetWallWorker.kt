@@ -413,6 +413,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         }
 
         private fun getAppNameFromPkg(context: Context, packageName: String?): String {
+
             val pm: PackageManager = context.getPackageManager()
             var ai = try {
                 pm.getApplicationInfo(packageName.toString(), 0)

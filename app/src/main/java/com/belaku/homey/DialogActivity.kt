@@ -21,6 +21,7 @@ import android.content.pm.PackageManager.NameNotFoundException
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -72,6 +73,7 @@ import com.belaku.homey.NewAppWidget.Companion.primaryColor
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
+import com.belaku.homey.NewAppWidget.Companion.widgetContext
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.pinNote
 import com.belaku.homey.SetWallWorker.Companion.screenHeight
@@ -334,7 +336,7 @@ class DialogActivity : AppCompatActivity() {
 
             } else if (dialogIntentStr == "PC") {
                 llDialog.visibility = View.GONE
-                getFavoriteContacts(applicationContext)
+                NewAppWidget().getFavoriteContacts()
                 pickContactLauncher =
                     registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                         if (result.resultCode == Activity.RESULT_OK) {
@@ -980,87 +982,9 @@ class DialogActivity : AppCompatActivity() {
             arrayOf<String>(contactId.toString())
         )
 
-        getFavoriteContacts(applicationContext)
+        NewAppWidget().getFavoriteContacts()
     }
 
-    @SuppressLint("Range", "UseCompatLoadingForDrawables")
-    fun getFavoriteContacts(context: Context) {
-
-        favContacts = ArrayList()
-
-        val queryUri = ContactsContract.Contacts.CONTENT_URI.buildUpon()
-            .appendQueryParameter(ContactsContract.Contacts.EXTRA_ADDRESS_BOOK_INDEX, "true")
-            .build()
-
-        val projection = arrayOf(
-            ContactsContract.Contacts._ID,
-            ContactsContract.Contacts.DISPLAY_NAME,
-            ContactsContract.Contacts.STARRED,
-            ContactsContract.Contacts.HAS_PHONE_NUMBER
-        )
-
-        val selection = ContactsContract.Contacts.STARRED + "='1'"
-
-        val cursor = context.contentResolver.query(
-            queryUri, projection, selection, null, null
-        )
-
-        while (cursor!!.moveToNext()) {
-            val contactID = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
-            var phoneNumber: String = "7"
-
-            if (Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
-
-                val phones: Cursor? = context.getContentResolver().query(
-                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                    null,
-                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactID,
-                    null,
-                    null
-                )
-                while (phones!!.moveToNext()) {
-                    phoneNumber =
-                        phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                    phoneNumber = phoneNumber.filter { !it.isWhitespace() }
-                }
-            }
-            val colorText: Int = if (ColorUtil().isColorDark(primaryColor))
-                android.R.color.holo_green_light
-            else android.R.color.holo_green_dark
-
-            var contactBitmap: Bitmap?
-
-            contactBitmap =
-                ContactPhotoHelper.retrieveContactPhoto(dialogActContext, contactID.toLong())
-            val cNme = cursor.getString(
-                cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
-            )
-
-            if (contactBitmap == null)
-                contactBitmap = CharacterToBitmapConverter.getBitmapFromCharacter(
-                    cNme[0], 100, 100, 70, R.color.light_blue_900
-                )
-
-            val c = Contact(contactID, cNme, phoneNumber, contactBitmap)
-
-
-            //     var c = Contact(contactID, cNme, phoneNumber, cPhUri)
-
-            if (c.number.length > 7)
-                favContacts.add(c)
-
-        }
-
-
-
-        if (favContacts.size > 0)
-            saveContacts()
-
-
-        cursor.close()
-
-
-    }
 
     private fun saveContacts() {
         val key = "CTS"
