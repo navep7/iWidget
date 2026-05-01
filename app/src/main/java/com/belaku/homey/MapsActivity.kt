@@ -103,7 +103,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
     @SuppressLint("MissingPermission")
     private fun locationUpdates() {
 
-                val location = mLocationResult.lastLocation
+                val location = mLocationResult?.lastLocation
                 if (location != null) {
                     getAddress(location.latitude, location.longitude)
 
@@ -177,7 +177,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
     private fun streetUpdates() {
         if (boolstreetViewPanorama) {
 
-            val location = mLocationResult.lastLocation
+            val location = mLocationResult?.lastLocation
 
             if (location != null) {
             if (!boolStreetMarkerClicked)

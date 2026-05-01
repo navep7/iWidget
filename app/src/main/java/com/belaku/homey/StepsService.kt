@@ -410,7 +410,7 @@ class StepsService : Service() {
         lateinit var locationListenerSpeed: LocationListener
         lateinit var locationManager: LocationManager
         var twitterProfileName: String = "Fact"
-        lateinit var mLocationResult: LocationResult
+        var mLocationResult: LocationResult? = null
         var totalUsage: String = ""
         var choosenApps: ArrayList<App> = ArrayList()
 
@@ -447,7 +447,7 @@ class StepsService : Service() {
 
                         remoteViews?.setTextViewText(
                             R.id.tx_weather,
-                            tempC.split(".")[0] + "°C, " + tempKind
+                            tempC.split(".")[0] + "°C,\n" + tempKind
                         )
                         if (weatherIconID.startsWith("5"))
                             remoteViews?.setImageViewResource(

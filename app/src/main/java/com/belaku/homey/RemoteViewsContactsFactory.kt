@@ -22,7 +22,6 @@ class RemoteViewsContactsFactory(private val mContext: Context) :
     override fun onCreate() {
         // Initialize your data source here
 
-        makeToast("fCSz " + favContacts.size)
 
     }
 

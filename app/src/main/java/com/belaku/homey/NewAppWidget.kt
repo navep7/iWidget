@@ -114,7 +114,6 @@ import com.squareup.picasso.Picasso
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.time.LocalDate
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
@@ -607,7 +606,7 @@ class NewAppWidget : AppWidgetProvider() {
             cName = cityname
 
             remoteViews?.setTextViewText(R.id.tx_place, cName)
-            remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "°C, " + tempKind)
+            remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "°C\n" + tempKind)
             if (weatherIconID.startsWith("5"))
                 remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.rain)
             if (weatherIconID.equals("800"))
@@ -1723,7 +1722,7 @@ class NewAppWidget : AppWidgetProvider() {
         lateinit var timeOfDay: String
         var timelyWish: String = ""
         var gpName: String = ""
-        var arrayListUsageStats: HashSet<AppUsage> = HashSet()
+        var hashSetAppUsage: HashSet<AppUsage> = HashSet()
         lateinit var dayOfTheWeek: String
         var vpStepsPos: Int = 0
         var noRewards: Int = 0

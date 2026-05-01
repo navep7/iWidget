@@ -164,8 +164,9 @@
                 android:layout_alignParentStart="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/fab_margin"
+                android:layout_marginStart="@dimen/padding_5"
                 android:layout_marginTop="@dimen/padding_5"
+                android:layout_toStartOf="@+id/a_clock"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -174,12 +175,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
-                    android:maxWidth="155dp"
-                    android:maxLines="1"
+                    android:maxLines="2"
                     android:gravity="center"
                     android:layout_marginTop="@dimen/padding_5"
                     android:layout_marginBottom="@dimen/padding_5"
-                    android:text="Place Info.."
+                    android:text="Place Info.. mvnhbv"
                     android:textColor="@android:color/white"
                     android:textSize="15sp"
                     android:textStyle="bold" />
@@ -213,79 +213,6 @@
 
 
             </LinearLayout>
-
-
-
-
-            <LinearLayout
-                android:id="@+id/ll_weather"
-                android:layout_alignParentEnd="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/fab_margin"
-                android:layout_marginTop="@dimen/padding_5"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tx_weather"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:gravity="center"
-                    android:maxWidth="155dp"
-                    android:maxLines="1"
-                    android:layout_marginTop="@dimen/padding_5"
-                    android:layout_marginBottom="@dimen/padding_5"
-                    android:text="Weather Info.."
-                    android:textColor="@android:color/white"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-                <FrameLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-
-                    <ImageButton
-                        android:id="@+id/imgv_weather_icon"
-                        android:layout_gravity="center"
-                        android:layout_width="75dp"
-                        android:layout_height="75dp"
-                        android:background="@android:color/transparent"
-                        android:scaleType="fitXY"
-                        android:src="@drawable/weather_info" />
-
-
-                    <TextView
-                        android:id="@+id/tx_refresh_weather"
-                        android:layout_gravity="top|center"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="↺"
-                        android:textColor="@android:color/holo_green_light"
-                        android:textSize="25sp"
-                        android:textStyle="bold" />
-
-                    <ProgressBar
-                        android:id="@+id/progressBar_cyclic_weather"
-                        android:visibility="invisible"
-                        android:layout_gravity="top|center"
-                        android:layout_marginEnd="7dp"
-                        android:layout_marginTop="@dimen/padding_5"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:indeterminate="true"
-                        android:indeterminateTint="?attr/colorSecondary"
-                        android:indeterminateTintMode="src_atop"
-                        android:minWidth="25dp"
-                        android:minHeight="25dp" />
-
-
-                </FrameLayout>
-
-
-            </LinearLayout>
-
 
             <AnalogClock
                 android:id="@+id/a_clock"
@@ -359,6 +286,80 @@
                 </LinearLayout>
 
             </FrameLayout>
+
+
+
+
+            <LinearLayout
+                android:id="@+id/ll_weather"
+                android:layout_alignParentEnd="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/a_clock"
+                android:layout_marginEnd="@dimen/fab_margin"
+                android:layout_marginTop="@dimen/padding_5"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tx_weather"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxWidth="155dp"
+                    android:layout_marginTop="@dimen/padding_5"
+                    android:layout_marginBottom="@dimen/padding_5"
+                    android:text="Weather Info.."
+                    android:textColor="@android:color/white"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageButton
+                        android:id="@+id/imgv_weather_icon"
+                        android:layout_gravity="center"
+                        android:layout_width="75dp"
+                        android:layout_height="75dp"
+                        android:background="@android:color/transparent"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/weather_info" />
+
+
+                    <TextView
+                        android:id="@+id/tx_refresh_weather"
+                        android:layout_gravity="top|center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="↺"
+                        android:textColor="@android:color/holo_green_light"
+                        android:textSize="25sp"
+                        android:textStyle="bold" />
+
+                    <ProgressBar
+                        android:id="@+id/progressBar_cyclic_weather"
+                        android:visibility="invisible"
+                        android:layout_gravity="top|center"
+                        android:layout_marginEnd="7dp"
+                        android:layout_marginTop="@dimen/padding_5"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:indeterminate="true"
+                        android:indeterminateTint="?attr/colorSecondary"
+                        android:indeterminateTintMode="src_atop"
+                        android:minWidth="25dp"
+                        android:minHeight="25dp" />
+
+
+                </FrameLayout>
+
+
+            </LinearLayout>
+
+
+
 
             <TextView
                 android:id="@+id/tx_activity_state"

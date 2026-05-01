@@ -21,7 +21,6 @@ import android.content.pm.PackageManager.NameNotFoundException
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -63,17 +62,15 @@ import com.belaku.homey.MusicActivity.Companion.dataListSongs
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
 import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.NewAppWidget.Companion.appWidM
-import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
+import com.belaku.homey.NewAppWidget.Companion.hashSetAppUsage
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.getScreenTime
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
-import com.belaku.homey.NewAppWidget.Companion.primaryColor
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
-import com.belaku.homey.NewAppWidget.Companion.widgetContext
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.pinNote
 import com.belaku.homey.SetWallWorker.Companion.screenHeight
@@ -107,7 +104,6 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.net.URL
-import java.time.LocalDate
 import java.util.Calendar
 import kotlin.properties.Delegates
 import kotlin.random.Random
@@ -562,7 +558,9 @@ class DialogActivity : AppCompatActivity() {
 
                 appUsageStats(applicationContext)
 
-                var b = arrayListUsageStats.distinctBy { it.usageTime }
+                hashSetAppUsage.removeIf { Integer.parseInt(it.usageTime.split(":")[0]) > 300 }
+
+                var b = hashSetAppUsage.distinctBy { it.usageTime }
                 var c = b.sortedBy { it.usageTime }
 
 
@@ -580,7 +578,7 @@ class DialogActivity : AppCompatActivity() {
                             )
                         )
                         myAppUsages.add("\n" + i.usageTime)
-                        arrayListUsageStats.remove(i)
+                        hashSetAppUsage.remove(i)
                     }
                 }
 
@@ -599,7 +597,7 @@ class DialogActivity : AppCompatActivity() {
                 txAppName.append("\n\n")
                 txAppUsageTime.append("\n\n")
 
-                b = arrayListUsageStats.distinctBy { it.usageTime }
+                b = hashSetAppUsage.distinctBy { it.usageTime }
                 c = b.sortedBy { it.usageTime }
 
 
@@ -615,7 +613,7 @@ class DialogActivity : AppCompatActivity() {
                             )
                         )
                         myAppUsages.add("\n" + c[i].usageTime)
-                        arrayListUsageStats.remove(c[i])
+                        hashSetAppUsage.remove(c[i])
                     }
                 }
 
@@ -629,7 +627,7 @@ class DialogActivity : AppCompatActivity() {
                 txAppName.append("\n\n")
                 txAppUsageTime.append("\n\n")
 
-                b = arrayListUsageStats.distinctBy { it.usageTime }
+                b = hashSetAppUsage.distinctBy { it.usageTime }
                 c = b.sortedBy { it.usageTime }
 
 
@@ -644,7 +642,7 @@ class DialogActivity : AppCompatActivity() {
                             )
                         )
                         myAppUsages.add("\n" + c[i].usageTime)
-                        arrayListUsageStats.remove(c[i])
+                        hashSetAppUsage.remove(c[i])
                     }
                 }
 
@@ -658,7 +656,7 @@ class DialogActivity : AppCompatActivity() {
                 txAppName.append("\n\n")
                 txAppUsageTime.append("\n\n")
 
-                b = arrayListUsageStats.distinctBy { it.usageTime }
+                b = hashSetAppUsage.distinctBy { it.usageTime }
                 c = b.sortedBy { it.usageTime }
 
 
@@ -671,7 +669,7 @@ class DialogActivity : AppCompatActivity() {
                             )
                         )
                         myAppUsages.add("\n" + c[i].usageTime)
-                        arrayListUsageStats.remove(c[i])
+                        hashSetAppUsage.remove(c[i])
                     }
                 }
 

@@ -15,7 +15,6 @@ import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.location.Address
 import android.net.ConnectivityManager
@@ -38,8 +37,6 @@ import com.belaku.homey.MainActivity.Companion.cYear
 import com.belaku.homey.MainActivity.Companion.delayUnit
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.fabMain
-import com.belaku.homey.MainActivity.Companion.mainWindow
-import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.queryType
 import com.belaku.homey.MainActivity.Companion.randomWallIndex
@@ -48,28 +45,23 @@ import com.belaku.homey.MainActivity.Companion.txStatus
 import com.belaku.homey.MainActivity.Companion.updateTime
 import com.belaku.homey.MainActivity.Companion.wallDelay
 import com.belaku.homey.NewAppWidget.Companion.appWidM
-import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
+import com.belaku.homey.NewAppWidget.Companion.hashSetAppUsage
 import com.belaku.homey.NewAppWidget.Companion.dU
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
-import com.belaku.homey.NewAppWidget.Companion.formattedDate
 import com.belaku.homey.NewAppWidget.Companion.getScreenTime
 import com.belaku.homey.NewAppWidget.Companion.greeting
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
 import com.belaku.homey.NewAppWidget.Companion.qT
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
-import com.belaku.homey.NewAppWidget.Companion.tW
-import com.belaku.homey.NewAppWidget.Companion.timelyWish
 import com.belaku.homey.NewAppWidget.Companion.uT
 import com.belaku.homey.NewAppWidget.Companion.wD
 import com.belaku.homey.StepsService.Companion.choosenApps
-import com.belaku.homey.StepsService.Companion.twitterProfileName
 import com.google.gson.Gson
 import java.io.IOException
 import java.net.URL
 import java.time.LocalDate
 import java.util.Collections
-import java.util.Locale
 import kotlin.properties.Delegates
 import kotlin.random.Random
 
@@ -357,7 +349,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                             getAppNameFromPkg(applicationContext!!, queryUsageStats.get(i).packageName)
                         val appPname = queryUsageStats.get(i).packageName
                         val appUsage =
-                            formatMilliseconds(queryUsageStats[i].totalTimeInForeground).substring(0, 2)
+                            formatMilliseconds(queryUsageStats[i].totalTimeInForeground)
 
                         Log.d(
                             "queryUsageStats",
@@ -371,7 +363,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                                     ) != null
                                 )
                                     if (appNames.add(appName)) {
-                                        arrayListUsageStats.add(
+                                        hashSetAppUsage.add(
                                             AppUsage(
                                                 queryUsageStats[i].packageName,
                                                 formatMilliseconds(queryUsageStats[i].totalTimeInForeground)
