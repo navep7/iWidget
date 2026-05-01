@@ -606,7 +606,7 @@ class NewAppWidget : AppWidgetProvider() {
             cName = cityname
 
             remoteViews?.setTextViewText(R.id.tx_place, cName)
-            remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "°C\n" + tempKind)
+            remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "°C " + tempKind)
             if (weatherIconID.startsWith("5"))
                 remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.rain)
             if (weatherIconID.equals("800"))

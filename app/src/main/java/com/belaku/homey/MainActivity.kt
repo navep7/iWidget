@@ -408,25 +408,8 @@ class MainActivity : AppCompatActivity() {
 
                     // Launch the system request to pin the widget
                     appWidgetManager.requestPinAppWidget(myProvider, null, successCallback)
+                    finish()
 
-
-                    val scope = CoroutineScope(Dispatchers.Main)
-                    scope.launch {
-                        while (true) {
-                            val ids: IntArray = appWidM.getAppWidgetIds(newAppWidget)
-                            if (ids.size == 1) {
-                                gotoHome()
-                                break
-                            }
-                            delay(1000) // Wait for 1 second
-                        }
-                    }
-
-                    Handler(Looper.getMainLooper()).postDelayed({
-
-
-
-                    }, 1000)
                 }
 
             }

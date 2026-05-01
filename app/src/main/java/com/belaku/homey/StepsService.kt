@@ -447,7 +447,7 @@ class StepsService : Service() {
 
                         remoteViews?.setTextViewText(
                             R.id.tx_weather,
-                            tempC.split(".")[0] + "°C,\n" + tempKind
+                            tempC.split(".")[0] + "°C " + tempKind
                         )
                         if (weatherIconID.startsWith("5"))
                             remoteViews?.setImageViewResource(
