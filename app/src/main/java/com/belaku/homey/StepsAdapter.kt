@@ -4,13 +4,11 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
-import com.belaku.homey.SetWallWorker.Companion.stepsToday
-import com.google.android.gms.maps.model.LatLng
 import java.time.LocalDate
 
 

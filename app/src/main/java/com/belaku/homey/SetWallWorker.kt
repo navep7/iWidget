@@ -30,6 +30,7 @@ import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.cDate
 import com.belaku.homey.MainActivity.Companion.cMonth
@@ -132,9 +133,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         }
 
         var boolNewLap: Boolean = false
-
-        @kotlin.jvm.JvmField
-        var stepsToday = 0
 
         val TAG: String = "SetWallWorkerLOG7"
         var wallDesc: String = ""
@@ -270,7 +268,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 Log.d(TAG, "setWallEx2 - $e")
             }
 
-            DayChanges(wallWorkerContext)
+        //    DayChanges(wallWorkerContext)
             updateWidget(wallWorkerContext)
 
         }
