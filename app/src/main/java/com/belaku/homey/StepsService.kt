@@ -207,24 +207,22 @@ class StepsService : Service() {
                 stepsToday++
 
 
-                    if (stepsToday < 10)
+                    if (stepsToday < 10) {
                         remoteViews?.setTextViewText(
                             R.id.tx_steps,
                             "$stepsToday Steps"
                         )
-                else if (stepsToday % 10 == 0) {
+                        if (isAppWidMInitialized())
+                            appWidM.updateAppWidget(newAppWidget, remoteViews)
+                    } else if (stepsToday % 10 == 0) {
+                        sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
                     remoteViews?.setTextViewText(
                         R.id.tx_steps,
                         "$stepsToday Steps"
                     )
+                        if (isAppWidMInitialized())
+                            appWidM.updateAppWidget(newAppWidget, remoteViews)
                 }
-                    dayOfTheWeek = LocalDate.now().dayOfWeek.name
-                    sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
-                    sharedPreferencesEditor.putString("day", dayOfTheWeek).apply()
-
-
-                if (isAppWidMInitialized())
-                    appWidM.updateAppWidget(newAppWidget, remoteViews)
 
             }
         }
@@ -372,6 +370,9 @@ class StepsService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
         Log.d("Service Status", "Starting Service")
+
+        dayOfTheWeek = LocalDate.now().dayOfWeek.name
+        sharedPreferencesEditor.putString("day", dayOfTheWeek).apply()
 
         sharedPreferencesEditor.putInt("breatheCount", 0).apply()
         sharedPreferencesEditor.putInt("drinkCount", 0).apply()
