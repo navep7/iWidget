@@ -27,7 +27,7 @@ class StepsAdapter(
     override fun onBindViewHolder(holder: StepsViewHolder, position: Int) {
 
         stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
-        remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday Steps")
+        remoteViews?.setTextViewText(R.id.txsteps, "$stepsToday Steps")
         appWidM.updateAppWidget(newAppWidget, remoteViews)
 
 

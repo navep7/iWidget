@@ -152,7 +152,7 @@ class NewAppWidget : AppWidgetProvider() {
         recognizeActivityTransitions()
 
         readApps()
-    //    getFavoriteContacts()
+        getFavoriteContacts()
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -260,8 +260,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         i_appWidgetIds = appWidgetIds
 
-        if (favContacts.size == 0)
-        getFavoriteContacts()
+
         for (appWidgetId in appWidgetIds) {
 
             widgetContext = context
@@ -269,8 +268,10 @@ class NewAppWidget : AppWidgetProvider() {
             recognizeActivityTransitions()
             setUI()
 
-            setACAdapter()
-
+            if (!Constants.boolACadapterSet) {
+                setACAdapter()
+                Constants.boolACadapterSet = true
+            }
 
             //  Create an intent to launch MainActivity
 
@@ -281,6 +282,8 @@ class NewAppWidget : AppWidgetProvider() {
             appWidM = AppWidgetManager.getInstance(context)
             appWidM.updateAppWidget(appWidgetId, remoteViews)
         }
+
+
 
 
 
@@ -1126,6 +1129,8 @@ class NewAppWidget : AppWidgetProvider() {
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }
         if (STEPS_CLICK == intent.action) {
+
+            remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday Steps")
             Toast.makeText(widgetContext,"$stepsToday ~ " + String.format("%.1f", stepsToday * 74f / 100000f) + " Km", Toast.LENGTH_LONG).show()
             }
         if (BATTERY_INFO == intent.action) {
@@ -2055,8 +2060,8 @@ class NewAppWidget : AppWidgetProvider() {
             sharedPreferencesEditor.putBoolean("DateSet", true).apply()
             sharedPreferencesEditor.putString("fD", formattedDate).apply()
 
-            if (stepsToday != 0)
-                remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday Steps")
+       //     if (stepsToday != 0)
+         //       remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday Steps")
 
             //   remoteViews?.setTextViewText(R.id.n_tx_steps, "Now, $newLapSteps")
             remoteViews?.setTextViewText(
