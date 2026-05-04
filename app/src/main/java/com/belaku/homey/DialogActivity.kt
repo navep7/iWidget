@@ -722,7 +722,7 @@ class DialogActivity : AppCompatActivity() {
 
 
 
-                appWidM = AppWidgetManager.getInstance(dialogActContext)
+                appWidM = AppWidgetManager.getInstance(applicationContext)
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
 
             } else if (dialogIntentStr == "liveWall") {

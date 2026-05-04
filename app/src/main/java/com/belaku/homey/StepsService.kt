@@ -207,20 +207,22 @@ class StepsService : Service() {
                 stepsToday++
 
 
-                    if (stepsToday < 10)
+                    if (stepsToday < 10) {
                         remoteViews?.setTextViewText(
                             R.id.tx_steps,
                             "$stepsToday Steps"
                         )
-                else if (stepsToday % 10 == 0) {
+                        sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
+                    } else if (stepsToday % 10 == 0) {
                     remoteViews?.setTextViewText(
                         R.id.tx_steps,
                         "$stepsToday Steps"
                     )
+                        sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
                 }
-                    dayOfTheWeek = LocalDate.now().dayOfWeek.name
-                    sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
-                    sharedPreferencesEditor.putString("day", dayOfTheWeek).apply()
+
+
+                    sharedPreferencesEditor.putString("day", LocalDate.now().dayOfWeek.name).apply()
 
 
                 if (isAppWidMInitialized())

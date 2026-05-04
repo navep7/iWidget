@@ -271,6 +271,9 @@ class NewAppWidget : AppWidgetProvider() {
             if (!Constants.boolACadapterSet) {
                 setACAdapter()
                 Constants.boolACadapterSet = true
+            } else {
+                appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.ll_apps)
+                appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.ll_contacts)
             }
 
             //  Create an intent to launch MainActivity
@@ -1087,10 +1090,11 @@ class NewAppWidget : AppWidgetProvider() {
         sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
-        //    setUI()
+        setUI()
+
         handleIntentActions(intent)
 
-        appWidM = AppWidgetManager.getInstance(widgetContext)
+        appWidM = AppWidgetManager.getInstance(context)
         appWidM.updateAppWidget(newAppWidget, remoteViews)
 
     }

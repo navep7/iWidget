@@ -416,9 +416,10 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        BluetoothState()
-        val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-        mainActivityContext.registerReceiver(mBluetoothReceiver, filter)
+        appWidM = AppWidgetManager.getInstance(applicationContext)
+        remoteViews =
+            RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
+        newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
 
 
     }
@@ -1390,39 +1391,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun BluetoothState() {
-        var wTAG = "BluetoothState ~ "
-
-
-        mBluetoothReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent) {
-
-                val action = intent.action
-                makeSnack("onReceive BLT - " + action)
-                appWidM = AppWidgetManager.getInstance(mainActivityContext)
-
-
-                if (BluetoothAdapter.ACTION_STATE_CHANGED == action) {
-                    val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
-                    when (state) {
-                        BluetoothAdapter.STATE_OFF -> {
-                            remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_off)
-                            updateWidget()
-                        }
-
-                        BluetoothAdapter.STATE_TURNING_OFF -> {}
-                        BluetoothAdapter.STATE_ON -> {
-                            remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_on)
-                            updateWidget()
-                        }
-
-                        BluetoothAdapter.STATE_TURNING_ON -> {}
-                    }
-                }
-            }
-        }
-
-    }
 
 
     private fun startStepsService() {
