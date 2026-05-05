@@ -5,8 +5,10 @@ import android.content.Intent
 import android.util.Log
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService.RemoteViewsFactory
+import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.NewAppWidget.Companion.hashSetAppUsage
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
+import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.StepsService.Companion.choosenApps
 
@@ -16,8 +18,10 @@ class RemoteViewsAppsFactory(private val mContext: Context) :
 
     override fun onCreate() {
         // Initialize your data source here
-        appUsageStats(mContext)
+        if (choosenApps.isEmpty())
+            appUsageStats(mContext)
 
+        makeToast("choosenAppsSZ : ${choosenApps.size}")
     }
 
     override fun onDataSetChanged() {

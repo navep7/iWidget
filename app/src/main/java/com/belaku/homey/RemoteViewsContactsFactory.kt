@@ -14,6 +14,8 @@ import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
+import com.belaku.homey.SetWallWorker.Companion.appUsageStats
+import com.belaku.homey.StepsService.Companion.choosenApps
 
 
 class RemoteViewsContactsFactory(private val mContext: Context) :
@@ -21,8 +23,10 @@ class RemoteViewsContactsFactory(private val mContext: Context) :
 
     override fun onCreate() {
         // Initialize your data source here
+        if (favContacts.isEmpty())
+            NewAppWidget().getFavoriteContacts()
 
-
+        makeToast("favContactsSZ : ${favContacts.size}")
     }
 
     override fun onDataSetChanged() {

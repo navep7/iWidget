@@ -4,7 +4,6 @@ package com.belaku.homey
 // Weather Key - 9fa8e101240ab18615e3133b051e767e
 
 
-import com.belaku.homey.Constants.Companion.stepsToday
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
@@ -43,7 +42,6 @@ import android.graphics.drawable.shapes.RectShape
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.icu.text.SimpleDateFormat
-import java.util.Calendar
 import android.location.LocationManager
 import android.net.Uri
 import android.net.wifi.WifiManager
@@ -68,6 +66,7 @@ import androidx.appcompat.app.AppCompatActivity.RECEIVER_NOT_EXPORTED
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
+import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.cityLat
@@ -86,6 +85,7 @@ import com.belaku.homey.MusicService.Companion.mMediaPlayer
 import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.RemindersActivity.Companion.adapterHabits
 import com.belaku.homey.RemindersActivity.Companion.arrayListHabits
+import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.dayChange
 import com.belaku.homey.SetWallWorker.Companion.dayIndex
@@ -115,6 +115,7 @@ import com.squareup.picasso.Picasso
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.util.Calendar
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
@@ -151,7 +152,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         recognizeActivityTransitions()
 
-        readApps()
+        appUsageStats(context)
         getFavoriteContacts()
     }
 
@@ -271,23 +272,17 @@ class NewAppWidget : AppWidgetProvider() {
             if (!Constants.boolACadapterSet) {
                 setACAdapter()
                 Constants.boolACadapterSet = true
-            } else {
-                appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.ll_apps)
-                appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.ll_contacts)
             }
 
             //  Create an intent to launch MainActivity
 
             setOnClickPendingIntents(context)
 
-
-
-            appWidM = AppWidgetManager.getInstance(context)
+            appWidM = AppWidgetManager.getInstance(widgetContext)
             appWidM.updateAppWidget(appWidgetId, remoteViews)
+            appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_apps)
+            appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)
         }
-
-
-
 
 
         super.onUpdate(context, appWidgetManager, appWidgetIds)
@@ -662,12 +657,9 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
- //       remoteViews?.setTextViewText(R.id.tx_breathe_count, sharedPreferences.getInt("breatheCount", 0).toString())
-   //     remoteViews?.setTextViewText(R.id.tx_drink_count, sharedPreferences.getInt("drinkCount", 0).toString())
-
-        //    googleAccountInfo()
-        if (isPinNoteInitialized())
+        if (isPinNoteInitialized()) {
             remoteViews?.setTextViewText(R.id.tx_runner, pinNote)
+        }
 
         seekWifiState()
         seekBluetoothState()
@@ -675,80 +667,16 @@ class NewAppWidget : AppWidgetProvider() {
         todaysDate()
         locationTxUpdate(widgetContext)
         wallColors()
-        //   getWeatherDraws()
         setSomeTwAndWallDescUI()
 
 
     }
 
-    /*   private fun googleAccountInfo() {
 
-           val accountManager = AccountManager.get(widgetContext)
-
-           // To get all Google accounts
-           val googleAccounts = accountManager.getAccountsByType("com.google")
-           // To get all accounts of any type
-           val allAccounts = accountManager.accounts
-           for (account in googleAccounts) {
-               val accountName = account.name
-            //   // makeToast(accountName)
-           }
-
-       }*/
-
-
-    private fun glossyOverlay(
-        originalBitmap: Bitmap
-    ): Bitmap {
-        val resultBitmap =
-            originalBitmap.copy(Bitmap.Config.ARGB_8888, true) // Must be ARGB_8888 and mutable
-        val canvas = Canvas(resultBitmap)
-
-
-        // Define colors: Top (semi-transparent white), Middle (more transparent), Bottom (fully transparent)
-        val colors = intArrayOf(
-            Color.parseColor("#99FFFFFF"),  // Top: ~60% white transparency
-            Color.parseColor("#44FFFFFF"),  // Middle: ~25% white transparency
-            Color.TRANSPARENT // Bottom: fully transparent
-        )
-
-
-// Define positions for the colors (optional, can be null for even distribution)
-        val positions = floatArrayOf(0.0f, 0.5f, 1.0f)
-
-        val gradient = LinearGradient(
-            0f, 0f, 0f, canvas.height.toFloat(), // Start X, Y; End X, Y (vertical gradient)
-            colors,
-            positions,
-            Shader.TileMode.CLAMP
-        )
-
-        val paint = Paint()
-        paint.setShader(gradient)
-        canvas.drawRect(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat(), paint)
-
-        return resultBitmap
-
+    private fun manualWidgetUpdate() {
+        val appWidgetIds = appWidM.getAppWidgetIds(newAppWidget)
+        onUpdate(widgetContext, appWidM, appWidgetIds)
     }
-
-    /*   private fun blurBitmap(originalBitmap: Bitmap) : Bitmap {
-
-           val rs = RenderScript.create(widgetContext)
-
-           val input = Allocation.createFromBitmap(
-               rs,
-               originalBitmap
-           ) //use this constructor for best performance, because it uses USAGE_SHARED mode which reuses memory
-           val output = Allocation.createTyped(rs, input.type)
-           val script = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
-           script.setRadius(8f);
-           script.setInput(input);
-           script.forEach(output);
-           output.copyTo(originalBitmap);
-
-           return originalBitmap
-
-       }*/
 
     private fun applyThinFilmOverlay(
         originalBitmap: Bitmap,
@@ -808,6 +736,10 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     private fun setACAdapter() {
+
+        appUsageStats(widgetContext)
+        getFavoriteContacts()
+
         setContactsAdapter()
         setContactsClick()
         setAppsAdapter()
@@ -1084,6 +1016,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         widgetContext = context
 
+
         Log.d(TAG, "!onReceive")
         remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
@@ -1094,8 +1027,12 @@ class NewAppWidget : AppWidgetProvider() {
 
         handleIntentActions(intent)
 
-        appWidM = AppWidgetManager.getInstance(context)
+
+
+       /* appWidM = AppWidgetManager.getInstance(context)
         appWidM.updateAppWidget(newAppWidget, remoteViews)
+        appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_apps)
+        appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)*/
 
     }
 
@@ -1103,6 +1040,13 @@ class NewAppWidget : AppWidgetProvider() {
     @SuppressLint("InflateParams", "ResourceAsColor")
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleIntentActions(intent: Intent) {
+
+        val appWidgetManager = AppWidgetManager.getInstance(widgetContext)
+        // 3. Get IDs for all active widgets of this provider
+        val thisAppWidget = ComponentName(widgetContext.getPackageName(), javaClass.getName())
+        val appWidgetIds = appWidgetManager.getAppWidgetIds(thisAppWidget)
+        // 4. Manually trigger onUpdate
+       // onUpdate(context, appWidgetManager, appWidgetIds!!)
 
         if (TIME_CLICK == intent.action) {
 
@@ -1133,10 +1077,11 @@ class NewAppWidget : AppWidgetProvider() {
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }
         if (STEPS_CLICK == intent.action) {
-
-            remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday Steps")
             Toast.makeText(widgetContext,"$stepsToday ~ " + String.format("%.1f", stepsToday * 74f / 100000f) + " Km", Toast.LENGTH_LONG).show()
-            }
+            remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday Steps")
+
+             manualWidgetUpdate()
+        }
         if (BATTERY_INFO == intent.action) {
             val powerUsageIntent = Intent("android.intent.action.POWER_USAGE_SUMMARY")
             if (powerUsageIntent.resolveActivity(widgetContext.getPackageManager()) != null) {
@@ -1148,6 +1093,8 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setViewVisibility(R.id.tx_refresh_weather, View.INVISIBLE)
             appWidM.updateAppWidget(newAppWidget, remoteViews)
             StepsService.getWeatherData(LatLng(cityLat, cityLng))
+
+             manualWidgetUpdate()
         } else if (PLAYPAUSE_CLICK == intent.action) {
             if (boolMusicServiceRunning) {
                 try {
@@ -1172,6 +1119,8 @@ class NewAppWidget : AppWidgetProvider() {
             } else {
                 startMusicActivity(songIndex)
             }
+
+             manualWidgetUpdate()
 
         } else if (P_THUMBNAIL_CLICK == intent.action) {
             widgetContext.startActivity(
@@ -1209,6 +1158,7 @@ class NewAppWidget : AppWidgetProvider() {
                 pickContactIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 widgetContext.startActivity(pickContactIntent)
             }
+
         } else if (ACTION_LIST_APPITEM_CLICK == intent.action) {
             // Extract the item position or ID from the intent extras
             val position = intent.getIntExtra(
@@ -1287,7 +1237,7 @@ class NewAppWidget : AppWidgetProvider() {
             val isFlashAvailable =
                 widgetContext.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)
             if (!isFlashAvailable) {
-                //  return
+                  return
             }
             val cameraManager =
                 widgetContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
@@ -1312,31 +1262,17 @@ class NewAppWidget : AppWidgetProvider() {
                     }
                 }
             } catch (e: CameraAccessException) {
-                e.printStackTrace()
+                makeToast(e.message.toString())
             }
 
+            manualWidgetUpdate()
 
         } else if (STEPS_NOW == intent.action) {
             boolNewLap = !boolNewLap
 
             sharedPreferencesEditor.putBoolean("newLap", boolNewLap).apply()
 
-        } /* else if (BREATHE_INC == intent.action) {
-            // makeToast("!BREATHE_INC")
-            var bC = sharedPreferences.getInt("breatheCount", 0)
-            bC++
-            sharedPreferencesEditor.putInt("breatheCount", bC).apply()
-            sharedPreferencesEditor.commit()
-            // makeToast("setting $bC")
-            remoteViews?.setTextViewText(R.id.tx_breathe_count, bC.toString())
-        } else if (DRINK_INC == intent.action) {
-            // makeToast("!DRINK_INC")
-            var dC = sharedPreferences.getInt("drinkCount", 0)
-            dC++
-            sharedPreferencesEditor.putInt("drinkCount", dC).apply()
-            sharedPreferencesEditor.commit()
-            remoteViews?.setTextViewText(R.id.tx_drink_count, dC.toString())
-        }*/ else if (LOCK_PHONE == intent.action) {
+        } else if (LOCK_PHONE == intent.action) {
             if (widgetContext != null) {
                 if (isAccessibilityServiceEnabled(
                         widgetContext,
@@ -1394,22 +1330,10 @@ class NewAppWidget : AppWidgetProvider() {
                 sharedPreferencesEditor.putBoolean("SPKSERVICE", false).apply()
             }
 
+             manualWidgetUpdate()
         }
     }
 
-    fun RotateBitmap(source: Bitmap, angle: Float): Bitmap? {
-        val matrix: Matrix = Matrix()
-        matrix.postRotate(angle)
-        return Bitmap.createBitmap(
-            source,
-            0,
-            0,
-            90,
-            90,
-            matrix,
-            true
-        )
-    }
 
     private fun startMusicActivity(songIndex: Int) {
         var intentMusic = Intent(widgetContext, MusicActivity::class.java)
@@ -1434,7 +1358,7 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         getFavoriteContacts()
-
+        manualWidgetUpdate()
     }
 
     @SuppressLint("Range")

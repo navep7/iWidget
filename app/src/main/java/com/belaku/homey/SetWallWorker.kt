@@ -15,6 +15,7 @@ import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.icu.util.Calendar
 import android.location.Address
 import android.net.ConnectivityManager
@@ -28,6 +29,7 @@ import android.view.View
 import android.view.WindowManager
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
+import androidx.core.graphics.drawable.toBitmap
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.belaku.homey.Constants.Companion.stepsToday
@@ -245,6 +247,10 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
                 }
 
+                if (isPinNoteInitialized()) {
+                    remoteViews?.setTextViewText(R.id.tx_runner, pinNote)
+                }
+
                 remoteViews?.setTextViewText(R.id.tx_walldesc, wD)
                 remoteViews?.setTextViewText(
                     R.id.tx_walltype_updateinfo,
@@ -369,11 +375,18 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                                             )
                                         )
 
-                                        choosenApps.add(
+                                        if (Integer.parseInt(appUsage.split(":")[0]) > 10) {
+
+                                            val iconBitmap: Bitmap = applicationContext.packageManager.getApplicationIcon(appPname).toBitmap()
+
+                                            choosenApps.add(
                                             App(
-                                                appName, appPname, appUsage
+                                                appName, appPname, appUsage, iconBitmap
+                                                )
                                             )
-                                        )
+
+                                        }
+
                                     }
                     }
                     saveApps(choosenApps)
