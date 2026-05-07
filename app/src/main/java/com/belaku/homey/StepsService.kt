@@ -373,10 +373,7 @@ class StepsService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        Log.d("Service Status", "Starting Service")
 
-        sharedPreferencesEditor.putInt("breatheCount", 0).apply()
-        sharedPreferencesEditor.putInt("drinkCount", 0).apply()
         sensorManager.registerListener(
             mSensorEventListener,
             stepCounterSensor,

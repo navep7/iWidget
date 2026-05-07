@@ -95,11 +95,10 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         val activeNetwork = connectivityManager.activeNetworkInfo
         isNetConnected = activeNetwork?.isConnectedOrConnecting == true
 
-        if (isNetConnected)
-        setWall(true, wallWorkerContext)
-        else // makeToast("Check INTERNET!")
-     //   getCity()
-        greeting()
+        if(isNetConnected)
+            setWall(true, wallWorkerContext)
+        else
+            greeting()
 
         return Result.success()
     }

@@ -269,10 +269,10 @@ class NewAppWidget : AppWidgetProvider() {
             recognizeActivityTransitions()
             setUI()
 
-            if (!Constants.boolACadapterSet) {
+       //     if (!Constants.boolACadapterSet) {
                 setACAdapter()
-                Constants.boolACadapterSet = true
-            }
+      //          Constants.boolACadapterSet = true
+      //      }
 
             //  Create an intent to launch MainActivity
 
@@ -673,11 +673,6 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
 
-    private fun manualWidgetUpdate() {
-        val appWidgetIds = appWidM.getAppWidgetIds(newAppWidget)
-        onUpdate(widgetContext, appWidM, appWidgetIds)
-    }
-
     private fun applyThinFilmOverlay(
         originalBitmap: Bitmap,
         filmColor: Int,
@@ -1028,11 +1023,11 @@ class NewAppWidget : AppWidgetProvider() {
         handleIntentActions(intent)
 
 
-
-       /* appWidM = AppWidgetManager.getInstance(context)
+        val appWidgetIds = appWidM.getAppWidgetIds(newAppWidget)
+      //  appWidM = AppWidgetManager.getInstance(context)
         appWidM.updateAppWidget(newAppWidget, remoteViews)
         appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_apps)
-        appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)*/
+        appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)
 
     }
 
@@ -1080,7 +1075,6 @@ class NewAppWidget : AppWidgetProvider() {
             Toast.makeText(widgetContext,"$stepsToday ~ " + String.format("%.1f", stepsToday * 74f / 100000f) + " Km", Toast.LENGTH_LONG).show()
             remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday Steps")
 
-             manualWidgetUpdate()
         }
         if (BATTERY_INFO == intent.action) {
             val powerUsageIntent = Intent("android.intent.action.POWER_USAGE_SUMMARY")
@@ -1094,7 +1088,6 @@ class NewAppWidget : AppWidgetProvider() {
             appWidM.updateAppWidget(newAppWidget, remoteViews)
             StepsService.getWeatherData(LatLng(cityLat, cityLng))
 
-             manualWidgetUpdate()
         } else if (PLAYPAUSE_CLICK == intent.action) {
             if (boolMusicServiceRunning) {
                 try {
@@ -1120,7 +1113,6 @@ class NewAppWidget : AppWidgetProvider() {
                 startMusicActivity(songIndex)
             }
 
-             manualWidgetUpdate()
 
         } else if (P_THUMBNAIL_CLICK == intent.action) {
             widgetContext.startActivity(
@@ -1265,7 +1257,6 @@ class NewAppWidget : AppWidgetProvider() {
                 makeToast(e.message.toString())
             }
 
-            manualWidgetUpdate()
 
         } else if (STEPS_NOW == intent.action) {
             boolNewLap = !boolNewLap
@@ -1330,7 +1321,6 @@ class NewAppWidget : AppWidgetProvider() {
                 sharedPreferencesEditor.putBoolean("SPKSERVICE", false).apply()
             }
 
-             manualWidgetUpdate()
         }
     }
 
@@ -1358,7 +1348,6 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         getFavoriteContacts()
-        manualWidgetUpdate()
     }
 
     @SuppressLint("Range")
@@ -1947,6 +1936,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         fun todaysDate() {
 
+            makeToast("!todaysDate")
             val c: Date = Calendar.getInstance().time
             val dfDate = SimpleDateFormat("d", Locale.getDefault())
             val dfMonth = SimpleDateFormat("MMM", Locale.getDefault())
@@ -1980,6 +1970,7 @@ class NewAppWidget : AppWidgetProvider() {
             else if (formattedDate != dfDate.format(c) + postFixDate + " " + dfMonth.format(c)) {
 
                 //AnotherDay...
+                makeToast("AnotherDay... $stepsToday")
                 stepsToday = 0
             }
 
@@ -1988,10 +1979,7 @@ class NewAppWidget : AppWidgetProvider() {
             sharedPreferencesEditor.putBoolean("DateSet", true).apply()
             sharedPreferencesEditor.putString("fD", formattedDate).apply()
 
-       //     if (stepsToday != 0)
-         //       remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday Steps")
 
-            //   remoteViews?.setTextViewText(R.id.n_tx_steps, "Now, $newLapSteps")
             remoteViews?.setTextViewText(
                 R.id.tx_day_date,
                 SimpleDateFormat("EEE", Locale.getDefault()).format(c) +
