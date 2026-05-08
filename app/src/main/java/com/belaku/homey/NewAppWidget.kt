@@ -1936,7 +1936,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         fun todaysDate() {
 
-            makeToast("!todaysDate")
+       //     makeToast("!todaysDate")
             val c: Date = Calendar.getInstance().time
             val dfDate = SimpleDateFormat("d", Locale.getDefault())
             val dfMonth = SimpleDateFormat("MMM", Locale.getDefault())

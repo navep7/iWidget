@@ -7,7 +7,11 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.appwidget.AppWidgetManager
+import android.bluetooth.BluetoothA2dp
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothHeadset
+import android.bluetooth.BluetoothProfile
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
@@ -315,60 +319,58 @@ class StepsService : Service() {
 
     private fun BluetoothState(contx: StepsService) {
 
-        sharedPreferences = contx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
-        sharedPreferencesEditor = sharedPreferences.edit()
+   //     makeToast("!BluetoothState")
+        val mBluetoothStateReceiver = object : BroadcastReceiver() {
+            @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+            override fun onReceive(context: Context, intent: Intent) {
 
-
-        if (!sharedPreferences.getBoolean("BRd", false)) {
-            Log.d(TAG, "BlBrRd")
-            sharedPreferencesEditor.putBoolean("BRd", true).apply()
-
-            val mBluetoothReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-                @RequiresApi(Build.VERSION_CODES.S)
-                @SuppressLint("UnsafeIntentLaunch")
-                override fun onReceive(context: Context, intent: Intent) {
-
-                    val state = intent?.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
+                val action = intent?.action
+                if (action == BluetoothAdapter.ACTION_STATE_CHANGED) {
+                    val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
 
                     when (state) {
-
-                        BluetoothAdapter.STATE_CONNECTED -> {
-                            Log.d(TAG, "STATE_CONNECTED")
-                            sharedPreferencesEditor.putBoolean("BluetoothConnectionState", true)
-                                .apply()
-                            updateWidget()
-                        }
-
-                        BluetoothAdapter.STATE_DISCONNECTED -> {
-                            Log.d(TAG, "STATE_DISCONNECTED")
-                            sharedPreferencesEditor.putBoolean("BluetoothConnectionState", false)
-                                .apply()
-                            updateWidget()
-                        }
-
                         BluetoothAdapter.STATE_OFF -> {
-                            Log.d(TAG, "STATE_OFF")
+                            makeToast("Bluetooth OFF")
                             sharedPreferencesEditor.putBoolean("BluetoothState", false).apply()
-                            updateWidget()
                         }
-
+                        BluetoothAdapter.STATE_TURNING_OFF -> { /* Bluetooth is turning off */ }
                         BluetoothAdapter.STATE_ON -> {
-                            Log.d(TAG, "STATE_ON")
+                            makeToast("Bluetooth ON")
                             sharedPreferencesEditor.putBoolean("BluetoothState", true).apply()
-                            updateWidget()
+                        }
+                        BluetoothAdapter.STATE_TURNING_ON -> { /* Bluetooth is turning on */ }
+                    }
+                }
+
+                if (BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED == intent.action) {
+                    val state = intent.getIntExtra(BluetoothProfile.EXTRA_STATE, BluetoothProfile.STATE_DISCONNECTED)
+                    val device: BluetoothDevice? = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+
+                    when (state) {
+                        BluetoothProfile.STATE_CONNECTED -> {
+                            makeToast("Headset connected: ${device?.name}")
+                            sharedPreferencesEditor.putBoolean("BluetoothConnectionState", true).apply()
+                        }
+                        BluetoothProfile.STATE_DISCONNECTED -> {
+                            makeToast("Headset disconnected: ${device?.name}")
+                            sharedPreferencesEditor.putBoolean("BluetoothConnectionState", false).apply()
                         }
 
                     }
-
-
                 }
-            }
 
-            contx.registerReceiver(
-                mBluetoothReceiver,
-                IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-            )
+                updateWidget()
+
+            }
         }
+
+        val bluetoothFilter = IntentFilter()
+        bluetoothFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
+        bluetoothFilter.addAction(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)
+        registerReceiver(mBluetoothStateReceiver, bluetoothFilter)
+
+
+
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
