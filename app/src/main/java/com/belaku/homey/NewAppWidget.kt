@@ -565,6 +565,18 @@ class NewAppWidget : AppWidgetProvider() {
             )
         )
 
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_rewards_count, PendingIntent.getActivity(
+                widgetContext,
+                18,
+                Intent(widgetContext, DialogActivity::class.java).putExtra(
+                    "DialogIntent",
+                    "AD"
+                ),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
 
         val mapsIntent = Intent(context, MapsActivity::class.java)
         val mapsPendingIntent = PendingIntent.getActivity(

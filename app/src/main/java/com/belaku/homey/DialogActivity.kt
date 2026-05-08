@@ -272,6 +272,7 @@ class DialogActivity : AppCompatActivity() {
                     appWidM.updateAppWidget(newAppWidget, remoteViews)
                 } else {
                     remoteViews?.setTextViewText(R.id.tx_rewards_count, "\uD83D\uDC41\uFE0FAD!")
+                    remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
                     appWidM.updateAppWidget(newAppWidget, remoteViews)
                 }
                 sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
@@ -329,6 +330,40 @@ class DialogActivity : AppCompatActivity() {
                         },
                     )
                 }
+
+            } else if (dialogIntentStr == "AD") {
+
+                makeToast("loading Advertisement, please wait...")
+                llDialog.visibility = View.GONE
+                RewardedInterstitialAd.load(
+                    this,
+                    getString(R.string.admob_ri_ad),
+                    AdRequest.Builder().build(),
+                    object : RewardedInterstitialAdLoadCallback() {
+                        override fun onAdLoaded(rewardedAd: RewardedInterstitialAd) {
+                            // makeToast("Ad was loaded.")
+                            rewardedInterstitialAd = rewardedAd
+
+                            rewardedInterstitialAd?.show(this@DialogActivity) { rewardItem ->
+                                // makeToast("User earned the reward.")
+                                // Handle the reward.
+                                val rewardAmount = rewardItem.amount
+                                val rewardType = rewardItem.type
+                                sharedPreferencesEditor.putInt("noRewards", 7).apply()
+                                noRewards = 7
+                                remoteViews?.setTextViewText(R.id.tx_rewards_count, "" + 7)
+                                txTitle.setText("swipe outside to continue changing walls.")
+                                updateWidget()
+                            }
+                        }
+
+                        override fun onAdFailedToLoad(adError: LoadAdError) {
+                            dialogActContext = applicationContext
+                            // makeToast("onAdFailedToLoad: ${adError.message}")
+                            rewardedInterstitialAd = null
+                        }
+                    },
+                )
 
             } else if (dialogIntentStr == "PC") {
                 llDialog.visibility = View.GONE
