@@ -123,8 +123,10 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -139,6 +141,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.properties.Delegates
 import kotlin.random.Random
+import kotlin.system.exitProcess
 
 
 class MainActivity : AppCompatActivity() {
@@ -229,9 +232,15 @@ class MainActivity : AppCompatActivity() {
 
         mAct = this@MainActivity
         mainActivityContext = applicationContext
+        widgetContext = applicationContext
 
         sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
+
+        val metrics = DisplayMetrics()
+        windowManager.getDefaultDisplay().getMetrics(metrics)
+        screenHeight = metrics.heightPixels
+        screenWidth = metrics.widthPixels
 
         launchers()
 
@@ -242,12 +251,6 @@ class MainActivity : AppCompatActivity() {
         ) { initializationStatus -> //Showing a simple Toast Message to the user when The Google AdMob Sdk Initialization is Completed
             //   Toast.makeText( this@MainActivity, "AdMob Sdk Initialize $initializationStatus", Toast.LENGTH_LONG ).show()
         }
-
-        val metrics = DisplayMetrics()
-        getWindowManager().getDefaultDisplay().getMetrics(metrics)
-        screenHeight = metrics.heightPixels
-        screenWidth = metrics.widthPixels
-
 
 
         if (apps.size == 0)
@@ -269,7 +272,7 @@ class MainActivity : AppCompatActivity() {
         var bluetoothLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == RESULT_OK) {
-                    makeToast("Bluetooth enabled by user")
+                    // makeToast("Bluetooth enabled by user")
                 } else {
                     // Bluetooth not enabled by user
                 }
@@ -278,7 +281,7 @@ class MainActivity : AppCompatActivity() {
         if (intent != null) {
             var intentStr = intent.getStringExtra("intent2Main")
             if (intentStr != null)
-                makeToast(intentStr)
+                // makeToast(intentStr)
 
             if (intentStr.equals("BLUEDisable")) {
                 val disableintent = Intent("android.bluetooth.adapter.action.REQUEST_DISABLE")
@@ -299,7 +302,7 @@ class MainActivity : AppCompatActivity() {
         pD = ProgressDialog(this@MainActivity)
         pD.setMessage("fetching Walls...")
 
-        DynamicColors.applyToActivitiesIfAvailable(application)
+        // Removed redundant DynamicColors call here as it's already in NHApp.onCreate()
 
         queryType = sharedPreferences.getString("walltype", "Nature").toString()
 
@@ -405,32 +408,10 @@ class MainActivity : AppCompatActivity() {
 
                     // Launch the system request to pin the widget
                     appWidgetManager.requestPinAppWidget(myProvider, null, successCallback)
+                    finish()
+
                 }
 
-
-                /*{
-                                val builder = AlertDialog.Builder(this)
-
-                                // Set the dialog's title and message
-                                builder.setTitle("How to Add nHome Widget to HomeScreen")
-                                builder.setMessage(
-                                    "1. Goto Device Home Screen.\n" +
-                                            "2. Long press on empty region.\n" +
-                                            "3. Scroll down till you see nHome widget and long press the widget to HomeScreen"
-                                )
-
-
-                                // Set a positive button and its click listener
-                                builder.setPositiveButton("OK") { dialog, id ->
-                                    // User clicked OK button
-                                    dialog.dismiss() // Dismiss the dialog
-                                }
-
-
-                                // Create the AlertDialog object and show it
-                                val dialog = builder.create()
-                                dialog.show()
-                            }*/
             }
 
         }
@@ -440,6 +421,14 @@ class MainActivity : AppCompatActivity() {
         mainActivityContext.registerReceiver(mBluetoothReceiver, filter)
 
 
+    }
+
+    private fun gotoHome() {
+            val intent = Intent(Intent.ACTION_MAIN)
+            intent.addCategory(Intent.CATEGORY_HOME)
+            intent.flags = FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+            exitProcess(0)
     }
 
 
@@ -848,7 +837,7 @@ class MainActivity : AppCompatActivity() {
             arrayOf<String>(contactId.toString())
         )
 
-        getFavoriteContacts(applicationContext)
+        NewAppWidget().getFavoriteContacts()
         updateWidget()
     }
 
@@ -887,7 +876,7 @@ class MainActivity : AppCompatActivity() {
                 if (phoneNumberIndex != -1) {
                     val phoneNumber = phoneCursor.getString(phoneNumberIndex)
                     // Process phone number
-                    makeToast("Contct - $displayName : $phoneNumber")
+                    // makeToast("Contct - $displayName : $phoneNumber")
                 }
             }
 
@@ -933,6 +922,9 @@ class MainActivity : AppCompatActivity() {
                 RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
             )
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, Locale.getDefault().toString())
+            intent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, Locale.getDefault().toString())
             intent.putExtra(
                 RecognizerIntent.EXTRA_PROMPT,
                 "Speak now..."
@@ -1062,7 +1054,7 @@ class MainActivity : AppCompatActivity() {
             val bitmap = getBitmapFromUrl(imageUrl)
             // Now you have the bitmap, you can display it in an ImageView or process it further
             if (bitmap != null) {
-                //     makeToast("TwiPic")
+                //     // makeToast("TwiPic")
                 try {
                     /*remoteViews?.setTextViewText(
                         R.id.tx_tweets,
@@ -1070,7 +1062,7 @@ class MainActivity : AppCompatActivity() {
                     )
                     remoteViews?.setImageViewBitmap(R.id.twSettings, bitmap)*/
                 } catch (ex: Exception) {
-                    makeToast("TwiEx - ${ex.message}")
+                    // makeToast("TwiEx - ${ex.message}")
                 }
             }
         }
@@ -1093,102 +1085,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    @SuppressLint("Range", "UseCompatLoadingForDrawables", "Recycle")
-    fun getFavoriteContacts(context: Context) {
-
-        favContacts = ArrayList()
-
-        val queryUri = ContactsContract.Contacts.CONTENT_URI.buildUpon()
-            .appendQueryParameter(ContactsContract.Contacts.EXTRA_ADDRESS_BOOK_INDEX, "true")
-            .build()
-
-        val projection = arrayOf(
-            ContactsContract.Contacts._ID,
-            ContactsContract.Contacts.DISPLAY_NAME,
-            ContactsContract.Contacts.STARRED,
-            ContactsContract.Contacts.HAS_PHONE_NUMBER
-        )
-
-        val selection = ContactsContract.Contacts.STARRED + "='1'"
-
-        val cursor = context.contentResolver.query(
-            queryUri,
-            projection, selection, null, null
-        )
-
-        while (cursor!!.moveToNext()) {
-            val contactID = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
-            var phoneNumber: String = "7"
-
-            if (Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
-
-                val phones: Cursor? = context.contentResolver.query(
-                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                    null,
-                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactID,
-                    null,
-                    null
-                )
-                while (phones!!.moveToNext()) {
-                    phoneNumber =
-                        phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                    phoneNumber = phoneNumber.filter { !it.isWhitespace() }
-                }
-            }
-
-            val intent = Intent(Intent.ACTION_VIEW)
-            val uri = Uri.withAppendedPath(
-                ContactsContract.Contacts.CONTENT_URI, contactID.toString()
-            )
-
-            val cNme = cursor.getString(
-                cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
-            )
-
-            val color =
-                Color.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
-            var contactBitmap: Bitmap?
-
-            contactBitmap =
-                ContactPhotoHelper.retrieveContactPhoto(mainActivityContext, contactID.toLong())
-
-            if (contactBitmap == null)
-                contactBitmap = CharacterToBitmapConverter.getBitmapFromCharacter(
-                    cNme[0], 100, 100, 70, color
-                )
-
-            var c = Contact(contactID, cNme, phoneNumber, contactBitmap)
-
-            if (c.number.length > 7)
-                favContacts.add(c)
-
-        }
-
-
-
-        if (favContacts.size > 0)
-            saveContacts()
-        else {
-            makeToast("You've got no Contacts marked as Favorute!.. Go ahead add some to dial from the widget directly.")
-            val builder = AlertDialog.Builder(this)
-
-            builder.setTitle("Favorites") // Set the title of the dialog
-            builder.setMessage("You've got no Contacts marked as Favorite!.. You can add some to dial from the widget directly, by clicking on + contact button in the Widget.") // Set the message of the dialog
-
-            // Set the Positive Button and its action
-            builder.setPositiveButton("Ok") { dialog: DialogInterface, which: Int ->
-                dialog.dismiss() // Dismiss the dialog
-            }
-
-            // Create and show the AlertDialog
-            val alertDialog: AlertDialog = builder.create()
-            alertDialog.show()
-        }
-
-        cursor.close()
-    }
-
-
     private fun saveContacts() {
         val key = "CTS"
         val gson = Gson()
@@ -1197,31 +1093,6 @@ class MainActivity : AppCompatActivity() {
         sharedPreferencesEditor.putString(key, json).commit()
     }
 
-
-    private fun sortApps(queryUsageStats: List<UsageStats>) {
-
-        Collections.sort<UsageStats>(
-            queryUsageStats
-        ) { p1: UsageStats, p2: UsageStats ->
-            p2.totalTimeInForeground.compareTo(p1.totalTimeInForeground)
-            //   p1.name.compareTo(p2.name)
-        }
-
-    }
-
-
-    private fun getAppNameFromPkg(context: Context, packageName: String?): String {
-        val pm: PackageManager = context.getPackageManager()
-        var ai = try {
-            pm.getApplicationInfo(packageName.toString(), 0)
-        } catch (e: NameNotFoundException) {
-            null
-        }
-        val applicationName =
-            (if (ai != null) pm.getApplicationLabel(ai) else "(unknown)") as String
-
-        return applicationName
-    }
 
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setWalls(delay: Long) {
@@ -1306,7 +1177,7 @@ class MainActivity : AppCompatActivity() {
 
         fabMin.setOnClickListener {
             updateInterval = "min"
-            //       makeToast("Wallpaper updates every 15 Mins!")
+            //       // makeToast("Wallpaper updates every 15 Mins!")
             wallDelay = 15
             setWalls(15)
             sharedPreferencesEditor.putStringSet("walls", HashSet(imgUrls)).apply()
@@ -1317,7 +1188,7 @@ class MainActivity : AppCompatActivity() {
 
         fabHour.setOnClickListener {
             updateInterval = "hour"
-            //       makeToast("Wallpaper updates every 30 Mins!")
+            //       // makeToast("Wallpaper updates every 30 Mins!")
             setWalls(30)
             sharedPreferencesEditor.putStringSet("walls", HashSet(imgUrls)).apply()
             sharedPreferencesEditor.putStringSet("wallDescs", HashSet(imgDescs)).apply()
@@ -1325,7 +1196,7 @@ class MainActivity : AppCompatActivity() {
 
         fabDay.setOnClickListener {
             updateInterval = "day"
-            //        makeToast("Wallpaper updates every 60 Mins!")
+            //        // makeToast("Wallpaper updates every 60 Mins!")
             setWalls(60)
             sharedPreferencesEditor.putStringSet("walls", HashSet(imgUrls)).apply()
             sharedPreferencesEditor.putStringSet("wallDescs", HashSet(imgDescs)).apply()
@@ -1392,7 +1263,6 @@ class MainActivity : AppCompatActivity() {
             }
             if (allGranted) {
 
-                //   AccessibilityServicePermissionDialog()
                 usageStatsPermissionDialog()
 
                 sharedPreferencesEditor.putBoolean("LP", true).apply()
@@ -1406,7 +1276,7 @@ class MainActivity : AppCompatActivity() {
 
 
                 sharedPreferencesEditor.putBoolean("RCP", true).apply()
-                getFavoriteContacts(applicationContext)
+                NewAppWidget().getFavoriteContacts()
                 btnRC.text = "Granted"
 
 
@@ -1423,7 +1293,7 @@ class MainActivity : AppCompatActivity() {
 
 
             } else {
-                makeToast("Some permissions denied")
+                // makeToast("Some permissions denied")
             }
         } else if (requestCode == LOC_P) {
             if (grantResults.isNotEmpty())
@@ -1435,33 +1305,33 @@ class MainActivity : AppCompatActivity() {
 
         } else if (requestCode == ACTIVITY_RECOGNITION_P) {
             if (grantResults.isNotEmpty())
-                if (grantResults[0].equals(PERMISSION_GRANTED)) {
+                if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("ARP", true).apply()
                     startStepsService()
                     btnAR.text = "Granted"
                 }
         } else if (requestCode == READ_CONTACTS_P) {
             if (grantResults.isNotEmpty())
-                if (grantResults[0].equals(PERMISSION_GRANTED)) {
+                if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("RCP", true).apply()
-                    getFavoriteContacts(applicationContext)
+                    NewAppWidget().getFavoriteContacts()
                     btnRC.text = "Granted"
                 }
         } else if (requestCode == BLUETOOTH_P) {
             if (grantResults.isNotEmpty())
-                if (grantResults[0].equals(PERMISSION_GRANTED)) {
+                if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("BP", true).apply()
                     btnBT.text = "Granted"
                 }
         } else if (requestCode == NOTIfications_P) {
             if (grantResults.isNotEmpty())
-                if (grantResults[0].equals(PERMISSION_GRANTED)) {
+                if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("PNP", true).apply()
                     btnPN.text = "Granted"
                 }
         } else if (requestCode == CALLPHONE_P) {
             if (grantResults.isNotEmpty())
-                if (grantResults[0].equals(PERMISSION_GRANTED)) {
+                if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("CPP", true).apply()
                     btnCP.text = "Granted"
                 }
@@ -1500,7 +1370,7 @@ class MainActivity : AppCompatActivity() {
                 buttonAll.setOnClickListener {
                     if (!nPermissions()) {
                         rawTweets(false)
-                        getFavoriteContacts(mainActivityContext)
+                        NewAppWidget().getFavoriteContacts()
                         iDV.dismiss()
                     } else ActivityCompat.requestPermissions(
                         this,
@@ -1612,13 +1482,13 @@ class MainActivity : AppCompatActivity() {
 
 
                         } catch (e: JSONException) {
-                            makeToast("EXE7 - " + e.message)
+                            // makeToast("EXE7 - " + e.message)
                         }
 
 
                     }, object : Response.ErrorListener {
                         override fun onErrorResponse(error: VolleyError?) {
-                            makeToast("onErrorResponse - " + error.toString())
+                            // makeToast("onErrorResponse - " + error.toString())
                         }
                     }) {
                     @Throws(AuthFailureError::class)
@@ -1660,7 +1530,7 @@ class MainActivity : AppCompatActivity() {
         buttonAll.setOnClickListener {
             if (!nPermissions()) {
                 rawTweets(false)
-                getFavoriteContacts(mainActivityContext)
+                NewAppWidget().getFavoriteContacts()
                 iDV.dismiss()
             } else ActivityCompat.requestPermissions(
                 this,
@@ -1745,15 +1615,10 @@ class MainActivity : AppCompatActivity() {
         val imgUrls: ArrayList<String> = ArrayList()
         var imgDescs: ArrayList<String> = ArrayList()
 
-        fun BitmapRotated(angle: Int, contx: Context): Bitmap {
-            var needleBitmap = BitmapFactory.decodeResource(widgetContext.resources, R.drawable.s_needle)
-            val matrix = Matrix()
-            matrix.postRotate(angle.toFloat())
-            return Bitmap.createBitmap(needleBitmap, 0, 0, needleBitmap.width, needleBitmap.height, matrix, true)
-        }
 
         fun makeToast(s: String) {
-           //     Toast.makeText(applicationContext, s, Toast.LENGTH_SHORT).show()
+            if (NewAppWidget.isAppWidMInitialized())
+                Toast.makeText(widgetContext, s, Toast.LENGTH_SHORT).show()
             Log.d("makeToastinG", s)
         }
 
@@ -1769,7 +1634,7 @@ class MainActivity : AppCompatActivity() {
             try {
                 pickContactLauncher.launch(intent)
             } catch (ex: Exception) {
-                makeToast("Ex - ${ex.message}")
+                // makeToast("Ex - ${ex.message}")
             }
         }
 

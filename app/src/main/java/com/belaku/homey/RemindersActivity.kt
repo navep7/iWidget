@@ -178,7 +178,7 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
             object : TimePickerDialog.OnTimeSetListener {
                 override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
 
-                    makeToast("onTimeSet - $hourOfDay")
+                    // makeToast("onTimeSet - $hourOfDay")
                     // logic to properly handle
                     // the picked timings by user
                     val formattedTime = "$hourOfDay:$minute"

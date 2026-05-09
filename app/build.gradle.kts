@@ -3,9 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
- //   id("com.chaquo.python")
 }
-
 
 android {
     namespace = "com.belaku.homey"
@@ -14,9 +12,9 @@ android {
     defaultConfig {
         applicationId = "com.belaku.homey"
         minSdk = 28
-        targetSdk = 36
-        versionCode = 137
-        versionName = "137.0"
+        targetSdk = 35
+        versionCode = 141
+        versionName = "141.0"
 
         renderscriptTargetApi = 18
         renderscriptSupportModeEnabled = true
@@ -24,12 +22,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
-            // On Apple silicon, you can omit x86_64.
             abiFilters += listOf("arm64-v8a", "x86_64")
         }
-
-
-
     }
 
     buildTypes {
@@ -53,28 +47,19 @@ android {
     }
 }
 
-
-
 dependencies {
-
-  //  implementation(libs.androidx.activity.ktx)
-
     implementation(libs.androidx.media)
     implementation(libs.zxing.android.embedded)
     implementation(libs.androidx.viewpager2)
-    implementation(libs.material.v1130) // Or the latest version
+    implementation(libs.material.v1130) // Use 1.13.0 exclusively
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.crashlytics.ndk)
     implementation(libs.firebase.analytics)
-
     implementation(libs.firebase.ai)
-
     implementation(libs.android.maps.utils)
     implementation(libs.android.gif.drawable)
-    implementation(libs.material.v120alpha01) // Replace X.Y.Z with the latest stable version
     implementation(libs.picasso)
     implementation(libs.gson.v288)
-  //  implementation(libs.androidx.multidex)
     implementation(libs.gms.play.services.location)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
@@ -84,10 +69,9 @@ dependencies {
     implementation(libs.glide)
     implementation(libs.androidx.media3.exoplayer)
 
-    annotationProcessor(libs.compiler) // Use the same version
+    annotationProcessor(libs.compiler)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
@@ -100,5 +84,4 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.play.services.ads)
-
 }

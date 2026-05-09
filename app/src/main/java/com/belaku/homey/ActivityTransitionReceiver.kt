@@ -1,5 +1,6 @@
 package com.belaku.homey
 
+import android.Manifest
 import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -11,11 +12,9 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Handler
 import android.os.Looper
-import android.view.View
 import android.widget.RemoteViews
 import android.widget.Toast
-import com.belaku.homey.MainActivity.Companion.BitmapRotated
-import com.belaku.homey.MainActivity.Companion.makeToast
+import androidx.annotation.RequiresPermission
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
@@ -32,7 +31,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
 
-     //   makeToast("!onReceiveAR ${intent.action}")
+        //   // makeToast("!onReceiveAR ${intent.action}")
         if (ActivityTransitionResult.hasResult(intent)) {
             val result = ActivityTransitionResult.extractResult(intent)
             result?.let {
@@ -43,33 +42,25 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                                 " (" + toTransitionType(event.transitionType) + ")" + "   " +
                                 SimpleDateFormat("HH:mm:ss", Locale.US).format(Date())
 
-                    makeToast("!onReceiveAR ${toActivityString(event.activityType)}")
+                //     makeToast("${toActivityString(event.activityType)}")
 
                     appWidM = AppWidgetManager.getInstance(context)
                     remoteViews =
                         RemoteViews(context.packageName, R.layout.new_app_widget)
                     newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
-               /*     remoteViews?.setTextViewText(R.id.tx_activity_state, toActivityString(event.activityType))
+                         remoteViews?.setTextViewText(R.id.tx_activity_state, toActivityString(event.activityType))
 
-                    if (toActivityString(event.activityType).trim() == "STILL") {
-                        StepsService.presentActivityState = "STILL"
-                        remoteViews?.setViewVisibility(R.id.rl_still_state, View.VISIBLE)
-                        remoteViews?.setViewVisibility(R.id.rl_walking_state, View.INVISIBLE)
-                        remoteViews?.setViewVisibility(R.id.fl_speed, View.INVISIBLE)
-                    } else if (toActivityString(event.activityType).trim() == "WALKING") {
-                        StepsService.presentActivityState = "WALKING"
-                        remoteViews?.setViewVisibility(R.id.rl_still_state, View.INVISIBLE)
-                        remoteViews?.setViewVisibility(R.id.rl_walking_state, View.VISIBLE)
-                        remoteViews?.setViewVisibility(R.id.fl_speed, View.INVISIBLE)
-                    } else if (toActivityString(event.activityType).trim() == "INVEHICLE") {
-                        StepsService.presentActivityState = "INVEHICLE"
-                        remoteViews?.setViewVisibility(R.id.rl_still_state, View.INVISIBLE)
-                        remoteViews?.setViewVisibility(R.id.rl_walking_state, View.INVISIBLE)
-                        remoteViews?.setViewVisibility(R.id.fl_speed, View.VISIBLE)
-
-                        speedTracking()
-                    }*/
+                         if (toActivityString(event.activityType).trim() == "STILL") {
+                             StepsService.presentActivityState = "STILL"
+                             remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.still)
+                         } else if (toActivityString(event.activityType).trim() == "WALKING") {
+                             StepsService.presentActivityState = "WALKING"
+                             remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.steps)
+                         } else if (toActivityString(event.activityType).trim() == "INVEHICLE") {
+                             StepsService.presentActivityState = "INVEHICLE"
+                             remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.in_a_vehicle)
+                         }
 
 
                     appWidM.updateAppWidget(newAppWidget, remoteViews)
@@ -79,14 +70,15 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
         }
     }
 
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun speedTracking() {
         Toast.makeText(widgetContext, "!speedTracking", Toast.LENGTH_SHORT).show()
 
-        StepsService.locationListenerSpeed =
+        locationListenerSpeed =
             LocationListener() { location ->
                 run {
 
-                    makeToast("!locationRrd")
+                    // makeToast("!locationRrd")
 
                     if (location.hasSpeed()) {
                         val speedInMps = location.speed // Speed in meters/second
@@ -95,12 +87,12 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                         val speedInKmph = (speedInMps * 3.6).toInt()
 
 
-                       /* var rBitmap = Bitmap.createScaledBitmap(
-                            BitmapRotated(speedInKmph, widgetContext),
-                            95,
-                            95,
-                            true
-                        )*/
+                        /* var rBitmap = Bitmap.createScaledBitmap(
+                             BitmapRotated(speedInKmph, widgetContext),
+                             95,
+                             95,
+                             true
+                         )*/
 
 
                         speedR(speedInKmph.toString())
@@ -119,12 +111,12 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
     private fun speedR(strSpeed: String) {
 
-        makeToast("!speedR")
+        // makeToast("!speedR")
 
-  //      remoteViews?.setImageViewBitmap(R.id.needle, rBit)
-   /*     remoteViews?.setTextViewText(R.id.tx_speed, strSpeed)
-        remoteViews?.setViewVisibility(R.id.needle, View.VISIBLE)
-        remoteViews?.setViewVisibility(R.id.tx_speed, View.VISIBLE)*/
+        //      remoteViews?.setImageViewBitmap(R.id.needle, rBit)
+        /*     remoteViews?.setTextViewText(R.id.tx_speed, strSpeed)
+             remoteViews?.setViewVisibility(R.id.needle, View.VISIBLE)
+             remoteViews?.setViewVisibility(R.id.tx_speed, View.VISIBLE)*/
         appWidM.updateAppWidget(newAppWidget, remoteViews)
 
         //    StepsService.locationManager.removeUpdates(locationListenerSpeed)
@@ -180,10 +172,10 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
     // types of activities
     fun toActivityString(activity: Int): String {
         return when (activity) {
-            DetectedActivity.STILL -> " STILL "
-            DetectedActivity.WALKING -> " WALKING "
-            DetectedActivity.IN_VEHICLE -> " IN VEHICLE "
-            DetectedActivity.RUNNING -> " RUNNING "
+            DetectedActivity.STILL -> "STILL"
+            DetectedActivity.WALKING -> "WALKING"
+            DetectedActivity.IN_VEHICLE -> "IN VEHICLE"
+            DetectedActivity.RUNNING -> "RUNNING"
             else -> "UNKNOWN"
         }
     }

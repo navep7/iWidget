@@ -1,5 +1,8 @@
 package com.belaku.homey
 
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
@@ -18,7 +21,6 @@ import android.content.pm.PackageManager.NameNotFoundException
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -44,13 +46,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.beginCal
-import com.belaku.homey.MainActivity.Companion.cityLat
-import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.makeToast
@@ -63,14 +63,12 @@ import com.belaku.homey.MusicActivity.Companion.dataListSongs
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
 import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.NewAppWidget.Companion.appWidM
-import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
-import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
+import com.belaku.homey.NewAppWidget.Companion.hashSetAppUsage
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.getScreenTime
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
-import com.belaku.homey.NewAppWidget.Companion.primaryColor
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
@@ -89,12 +87,6 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -111,28 +103,26 @@ import okhttp3.Request
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import java.io.IOException
 import java.net.URL
 import java.util.Calendar
-import java.util.Locale
-import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
 import kotlin.random.Random
 
 
-class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
+class DialogActivity : AppCompatActivity() {
 
+    private lateinit var stepsAdapter: StepsAdapter
     private var boolFetchingTweets: Boolean = false
     private lateinit var dialogActContext: Context
     private lateinit var parentLayoutDialog: View
     private val barcodeLauncher =
         registerForActivityResult(ScanContract()) { result: ScanIntentResult? ->
             if (result?.contents == null) {
-                makeToast("Cancelled")
+                // makeToast("Cancelled")
             } else {
                 // Handle the scan result
                 var scannedUrl = result.contents
-                makeToast("Scanned: ${result}")
+                // makeToast("Scanned: ${result}")
                 val upiUri = Uri.parse(scannedUrl)
                 val upiIntent = Intent(Intent.ACTION_VIEW)
                 upiIntent.setData(upiUri)
@@ -141,7 +131,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                     startActivity(chooser);
                 } else {
                     // Handle the case where no UPI apps are installed
-                    makeToast("No UPI app found. Please install one to proceed.")
+                    // makeToast("No UPI app found. Please install one to proceed.")
                 }
             }
         }
@@ -159,7 +149,6 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var txAppName: TextView
     private lateinit var txAppUsageTime: TextView
     private lateinit var vpSteps: ViewPager2
-    private lateinit var stepsMapsFragment: SupportMapFragment
 
     private lateinit var edtxDialog: EditText
 
@@ -180,6 +169,19 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         parentLayoutDialog = findViewById(android.R.id.content)
 
         dialogActContext = applicationContext
+
+        val stepsData: ArrayList<String> = ArrayList()
+
+
+        stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
+        stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
+        stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
+        stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
+        stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
+        stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
+        stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
+
+
 
         rewardedInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
@@ -217,12 +219,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
         var bluetoothLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode == AppCompatActivity.RESULT_OK) {
-                    if (blE) makeToast("Bluetooth ON")
-                    else makeToast("Bluetooth OFF")
-                } else {
-                    // Bluetooth not enabled by user
-                }
+
             }
 
 
@@ -239,19 +236,20 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         btnCancel = findViewById<Button>(R.id.btn_dialog_cancel)
         imgbtnShare = findViewById<ImageButton>(R.id.imgbtn_dialog_share)
         vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
-        stepsMapsFragment =
-            supportFragmentManager.findFragmentById(R.id.steps_map) as SupportMapFragment
 
-        stepsMapsFragment.view?.visibility = View.GONE
 
 
         var dialogIntentStr = intent.getStringExtra("DialogIntent")
 
 
+
         if (dialogIntentStr != null) {
 
+            if (dialogIntentStr == "stepsInfo")
+                stepsMapsAdapter(stepsData)
+
             if (dialogIntentStr == "SongCover") {
-                //     makeToast("yet2Impl")
+                //     // makeToast("yet2Impl")
             //    llDialog.setBackgroundColor(android.R.color.transparent)
                 edtxDialog.visibility = View.GONE
                 btnOk.visibility = View.GONE
@@ -307,11 +305,11 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                         AdRequest.Builder().build(),
                         object : RewardedInterstitialAdLoadCallback() {
                             override fun onAdLoaded(rewardedAd: RewardedInterstitialAd) {
-                                makeToast("Ad was loaded.")
+                                // makeToast("Ad was loaded.")
                                 rewardedInterstitialAd = rewardedAd
 
                                 rewardedInterstitialAd?.show(this@DialogActivity) { rewardItem ->
-                                    makeToast("User earned the reward.")
+                                    // makeToast("User earned the reward.")
                                     // Handle the reward.
                                     val rewardAmount = rewardItem.amount
                                     val rewardType = rewardItem.type
@@ -325,7 +323,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
                             override fun onAdFailedToLoad(adError: LoadAdError) {
                                 dialogActContext = applicationContext
-                                makeToast("onAdFailedToLoad: ${adError.message}")
+                                // makeToast("onAdFailedToLoad: ${adError.message}")
                                 rewardedInterstitialAd = null
                             }
                         },
@@ -334,7 +332,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
             } else if (dialogIntentStr == "PC") {
                 llDialog.visibility = View.GONE
-                getFavoriteContacts(applicationContext)
+                NewAppWidget().getFavoriteContacts()
                 pickContactLauncher =
                     registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                         if (result.resultCode == Activity.RESULT_OK) {
@@ -349,7 +347,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 try {
                     pickContactLauncher.launch(intent)
                 } catch (ex: Exception) {
-                    makeToast("Ex - ${ex.message}")
+                    // makeToast("Ex - ${ex.message}")
                 }
             } else if (dialogIntentStr == "StT") {
                 edtxDialog.visibility = View.GONE
@@ -517,10 +515,11 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             } else if (dialogIntentStr == "stepsInfo") {
 
-                stepsMapsFragment.getMapAsync(this)
+                stepsData[Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1] = stepsToday.toString()
+                stepsAdapter.notifyDataSetChanged()
+
                 getScreenTime(applicationContext)
-                findViewById<CardView>(R.id.card_map).visibility = View.VISIBLE
-                makeToast(dayOfTheWeek)
+
                 window.setLayout(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
                 );
@@ -532,7 +531,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 btnCancel.visibility = View.GONE
                 imgbtnShare.visibility = View.GONE
                 vpSteps.visibility = View.VISIBLE
-
+                findViewById<TabLayout>(R.id.tab_layout).visibility = View.VISIBLE
 
             } else if (dialogIntentStr == "screenTimeInfo") {
 
@@ -559,14 +558,16 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 appUsageStats(applicationContext)
 
-                var b = arrayListUsageStats.distinctBy { it.usageTime }
+                hashSetAppUsage.removeIf { Integer.parseInt(it.usageTime.split(":")[0]) > 300 }
+
+                var b = hashSetAppUsage.distinctBy { it.usageTime }
                 var c = b.sortedBy { it.usageTime }
 
 
                 for (i in c)
                     myAppUsages.add(i.usageTime)
 
-                totalUsage = sumTimeArray(myAppUsages)
+                totalUsage = sumTimes(myAppUsages)
                 myAppUsages.clear()
 
                 for (i in c) {
@@ -577,7 +578,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                             )
                         )
                         myAppUsages.add("\n" + i.usageTime)
-                        arrayListUsageStats.remove(i)
+                        hashSetAppUsage.remove(i)
                     }
                 }
 
@@ -596,7 +597,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 txAppName.append("\n\n")
                 txAppUsageTime.append("\n\n")
 
-                b = arrayListUsageStats.distinctBy { it.usageTime }
+                b = hashSetAppUsage.distinctBy { it.usageTime }
                 c = b.sortedBy { it.usageTime }
 
 
@@ -612,7 +613,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                             )
                         )
                         myAppUsages.add("\n" + c[i].usageTime)
-                        arrayListUsageStats.remove(c[i])
+                        hashSetAppUsage.remove(c[i])
                     }
                 }
 
@@ -626,7 +627,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 txAppName.append("\n\n")
                 txAppUsageTime.append("\n\n")
 
-                b = arrayListUsageStats.distinctBy { it.usageTime }
+                b = hashSetAppUsage.distinctBy { it.usageTime }
                 c = b.sortedBy { it.usageTime }
 
 
@@ -641,7 +642,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                             )
                         )
                         myAppUsages.add("\n" + c[i].usageTime)
-                        arrayListUsageStats.remove(c[i])
+                        hashSetAppUsage.remove(c[i])
                     }
                 }
 
@@ -655,7 +656,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 txAppName.append("\n\n")
                 txAppUsageTime.append("\n\n")
 
-                b = arrayListUsageStats.distinctBy { it.usageTime }
+                b = hashSetAppUsage.distinctBy { it.usageTime }
                 c = b.sortedBy { it.usageTime }
 
 
@@ -668,7 +669,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                             )
                         )
                         myAppUsages.add("\n" + c[i].usageTime)
-                        arrayListUsageStats.remove(c[i])
+                        hashSetAppUsage.remove(c[i])
                     }
                 }
 
@@ -685,28 +686,47 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 txAppUsageTime.append("\n\n")
 
                 var sT = totalUsage.split(":")
-                var hour = ""
+                var hour = sT[0]
+                var min = sT[1]
 
-                if (sT[0][0] == '0')
-                    hour = sT[0].drop(1)
-                else hour = sT[0]
-
-                txAppName.append("Avg Usage/Day ~ $hour Hours : ${sT[1]} Mins ")
+                txAppName.append("Avg Usage/Day ~ $hour Hours : $min Mins ")
 
                 edtxDialog.visibility = View.GONE
                 vpSteps.visibility = View.VISIBLE
 
                 remoteViews?.setTextViewText(
                     R.id.tx_screentime,
-                    "$hour+ H"
+                    "$hour+ Hours"
                 )
+
+                if (Integer.parseInt(hour) < 2)
+                    remoteViews?.setTextViewText(
+                        R.id.tx_screenusage_state,
+                        "LOW"
+                    )
+                else if ((Integer.parseInt(hour) > 2) && (Integer.parseInt(hour) < 4))
+                    remoteViews?.setTextViewText(
+                        R.id.tx_screenusage_state,
+                        "MODERATE"
+                    )
+                else if ((Integer.parseInt(hour) > 4) && (Integer.parseInt(hour) < 6))
+                    remoteViews?.setTextViewText(
+                        R.id.tx_screenusage_state,
+                        "HIGH"
+                    )
+                else if (Integer.parseInt(hour) > 6)
+                    remoteViews?.setTextViewText(
+                        R.id.tx_screenusage_state,
+                        "EXCESSIVE"
+                    )
+
 
 
                 appWidM = AppWidgetManager.getInstance(dialogActContext)
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
 
             } else if (dialogIntentStr == "liveWall") {
-                makeToast("LIVEWALL!")
+                // makeToast("LIVEWALL!")
                 val p: String = WallService::class.java.getPackage().getName()
                 val c: String = WallService::class.java.getCanonicalName()
 
@@ -787,52 +807,26 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    /*  private fun pythonTimpl() {
-
-          // 1. Initialize Python (if not already done in Application)
-          if (!Python.isStarted()) {
-              Python.start(AndroidPlatform(this))
-          }
-
-          // 2. Get the Python instance
-          val py = Python.getInstance()
-
-          // 3. Get the module (script.py)
-          val module = py.getModule("python")
-
-          makeToast("Py ~ ${module.callAttr("wrapped_function", "KotlinUser")}")
-
-      }*/
 
 
-    private fun sumTimeArray(myAppUsages: ArrayList<String>): String {
-        // 1. Calculate total seconds from all "mm:ss" strings
-        var totalSeconds = 0L
-        for (time in myAppUsages) {
-            val parts = time.split(":")
-            if (parts.size == 2) {
-                val minutes = parts[0].toLong()
-                val seconds = parts[1].toLong()
-                totalSeconds += minutes * 60 + seconds
-            }
+    fun sumTimes(times: List<String>): String {
+        val totalDuration = times.fold(Duration.ZERO) { acc, time ->
+            val parts = time.split(":").map { it.toInt() }
+            acc + parts[0].minutes + parts[1].seconds
         }
 
-        // 2. Format the total seconds to "hh:mm"
-        // TimeUnit handles the conversion to hours and minutes
-        val hours = TimeUnit.SECONDS.toHours(totalSeconds)
-        val minutes = TimeUnit.SECONDS.toMinutes(totalSeconds) % 60
-
-        // Use String.format for consistent "hh:mm" formatting, including leading zeros for minutes
-        // Note: The hour part can be > 23, which is correct for a duration
-        return String.format(Locale.getDefault(), "%02d:%02d", hours, minutes)
+        return totalDuration.toComponents { hours, minutes, _, _ ->
+            "%02d:%02d".format(hours, minutes)
+        }
     }
+
 
     private fun stepsMapsAdapter(
         stepsData: ArrayList<String>,
-        stepsLocInfo: ArrayList<LatLng>
     ) {
 
-        val stepsAdapter = StepsAdapter(stepsData, stepsLocInfo)
+        stepsAdapter = StepsAdapter(stepsData)
+        vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
         vpSteps.adapter = stepsAdapter
         vpSteps.currentItem = vpStepsPos
 
@@ -865,12 +859,8 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 position: Int, positionOffset: Float, positionOffsetPixels: Int
             ) {
 
-                //   makeToast("$currentOffset VS $positionOffset")
-                addMarker(
-                    stepsLocInfo[position],
-                    days[position] + " - " + stepsData[position] + " steps",
-                    getAddress(stepsLocInfo[position])
-                )
+                //   // makeToast("$currentOffset VS $positionOffset")
+
 
                 if (currentOffset == positionOffset) if (myState == ViewPager2.SCROLL_STATE_DRAGGING && currentPosition == position && currentPosition == 0) vpSteps.setCurrentItem(
                     6
@@ -884,30 +874,6 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 super.onPageScrolled(position, positionOffset, positionOffsetPixels)
             }
 
-            private fun getAddress(latLng: LatLng): String {
-                val gcd = Geocoder(applicationContext)
-                Locale.getDefault()
-                var lat = latLng.latitude
-                var lng = latLng.longitude
-                var cityname = "unKnown"
-                try {
-                    var cAddrs = gcd.getFromLocation(lat, lng, 1)!!
-                    //   makeToast(cAddrs?.get(0)!!.subLocality)
-
-                    cityname = cAddrs?.get(0)!!.subLocality
-                    //        if (MainActivity.cityname.length > 15)
-                    //          MainActivity.cityname = cityname.substring(0, 12) + "..,"
-
-
-                } catch (e: IOException) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace()
-                    makeToast("GCD - IOException \n $e")
-                }
-
-                return cityname
-
-            }
 
             override fun onPageSelected(position: Int) {
 
@@ -925,27 +891,6 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         })
     }
 
-    private fun addMarker(markerLocationn: LatLng, mTitle: String, mDesc: String) {
-
-        stepsMaps.clear()
-        val markerLocation = markerLocationn//LatLng(37.7749, -122.4194)
-        val marker = stepsMaps.addMarker(
-            MarkerOptions()
-                .position(markerLocation)
-                .title(mTitle)
-                .snippet(mDesc)
-        )
-
-        // Show the info window for the marker immediately
-        marker?.showInfoWindow()
-
-        stepsMaps.moveCamera(
-            CameraUpdateFactory.newLatLngZoom(
-                markerLocation,
-                19f
-            )
-        )
-    }
 
     fun makeSnack(s: String) {
         sN = Snackbar.make(parentLayoutDialog, s, Snackbar.LENGTH_LONG)
@@ -1035,87 +980,9 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
             arrayOf<String>(contactId.toString())
         )
 
-        getFavoriteContacts(applicationContext)
+        NewAppWidget().getFavoriteContacts()
     }
 
-    @SuppressLint("Range", "UseCompatLoadingForDrawables")
-    fun getFavoriteContacts(context: Context) {
-
-        favContacts = ArrayList()
-
-        val queryUri = ContactsContract.Contacts.CONTENT_URI.buildUpon()
-            .appendQueryParameter(ContactsContract.Contacts.EXTRA_ADDRESS_BOOK_INDEX, "true")
-            .build()
-
-        val projection = arrayOf(
-            ContactsContract.Contacts._ID,
-            ContactsContract.Contacts.DISPLAY_NAME,
-            ContactsContract.Contacts.STARRED,
-            ContactsContract.Contacts.HAS_PHONE_NUMBER
-        )
-
-        val selection = ContactsContract.Contacts.STARRED + "='1'"
-
-        val cursor = context.contentResolver.query(
-            queryUri, projection, selection, null, null
-        )
-
-        while (cursor!!.moveToNext()) {
-            val contactID = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
-            var phoneNumber: String = "7"
-
-            if (Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
-
-                val phones: Cursor? = context.getContentResolver().query(
-                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                    null,
-                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactID,
-                    null,
-                    null
-                )
-                while (phones!!.moveToNext()) {
-                    phoneNumber =
-                        phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                    phoneNumber = phoneNumber.filter { !it.isWhitespace() }
-                }
-            }
-            val colorText: Int = if (ColorUtil().isColorDark(primaryColor))
-                android.R.color.holo_green_light
-            else android.R.color.holo_green_dark
-
-            var contactBitmap: Bitmap?
-
-            contactBitmap =
-                ContactPhotoHelper.retrieveContactPhoto(dialogActContext, contactID.toLong())
-            val cNme = cursor.getString(
-                cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
-            )
-
-            if (contactBitmap == null)
-                contactBitmap = CharacterToBitmapConverter.getBitmapFromCharacter(
-                    cNme[0], 100, 100, 70, R.color.light_blue_900
-                )
-
-            val c = Contact(contactID, cNme, phoneNumber, contactBitmap)
-
-
-            //     var c = Contact(contactID, cNme, phoneNumber, cPhUri)
-
-            if (c.number.length > 7)
-                favContacts.add(c)
-
-        }
-
-
-
-        if (favContacts.size > 0)
-            saveContacts()
-
-
-        cursor.close()
-
-
-    }
 
     private fun saveContacts() {
         val key = "CTS"
@@ -1147,7 +1014,7 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (phoneNumberIndex != -1) {
                     val phoneNumber = phoneCursor.getString(phoneNumberIndex)
                     // Process phone number
-                    makeToast("Contct - $displayName : $phoneNumber")
+                    // makeToast("Contct - $displayName : $phoneNumber")
                 }
             }
 
@@ -1363,14 +1230,14 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
             val bitmap = getBitmapFromUrl(imageUrl)
             // Now you have the bitmap, you can display it in an ImageView or process it further
             if (bitmap != null) {
-                //     makeToast("TwiPic")
+                //     // makeToast("TwiPic")
                 try {
                     /*remoteViews?.setTextViewText(
                         R.id.tx_tweets, "@" + twitterProfileName + "\t ~ \t" + listTweets[1]
                     )
                     remoteViews?.setImageViewBitmap(R.id.twSettings, bitmap)*/
                 } catch (ex: Exception) {
-                    makeToast("TwiEx - ${ex.message}")
+                    // makeToast("TwiEx - ${ex.message}")
                 }
             }
         }
@@ -1413,56 +1280,6 @@ class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    override fun onMapReady(p0: GoogleMap) {
-
-        stepsMaps = p0
-
-        val stepsData: ArrayList<String> = ArrayList()
-        stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
-
-        val stepsLocInfo: ArrayList<LatLng> = ArrayList()
-        stepsLocInfo.add(LatLng(-34.0, 151.0))
-        stepsLocInfo.add(LatLng(35.69, 139.69))
-        stepsLocInfo.add(LatLng(19.08, 72.88))
-        stepsLocInfo.add(LatLng(19.43, -99.13))
-        stepsLocInfo.add(LatLng(52.30, 13.40))
-        stepsLocInfo.add(LatLng(23.55, 46.63))
-        stepsLocInfo.add(LatLng(40.71, -74.00))
-
-        stepsMapsAdapter(stepsData, stepsLocInfo)
-
-        // Example: Setting a location for Sydney, Australia
-        val presentLoc = LatLng(cityLat, cityLng)
-
-
-        // Add a marker at the specified location
-        //    stepsMaps.addMarker(MarkerOptions().position(presentLoc).title(cityname))
-
-
-        // Move the camera to the specified location with a zoom level
-        /*stepsMaps.moveCamera(
-            CameraUpdateFactory.newLatLngZoom(
-                presentLoc,
-                21f
-            )
-        )*/ // Zoom level 10 is a good starting point
-
-
-    }
-
-    companion object {
-        lateinit var stepsMaps: GoogleMap
-
-        fun isStepsMapsInitialized(): Boolean {
-            return this::stepsMaps.isInitialized
-        }
-    }
 
 
 }

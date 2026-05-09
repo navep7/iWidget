@@ -35,6 +35,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
+import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
@@ -51,12 +52,9 @@ import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.isAppWidMInitialized
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
-import com.belaku.homey.NewAppWidget.Companion.widgetContext
 import com.belaku.homey.SetWallWorker.Companion.TAG
-import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
-import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -72,6 +70,7 @@ import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
+import java.time.LocalDate
 import java.util.Locale
 
 
@@ -90,6 +89,7 @@ class StepsService : Service() {
     override fun onCreate() {
         super.onCreate()
 
+//        makeToast("!StepsServiceStarted")
 
 
             if (!isLocationEnabled(applicationContext)) {
@@ -97,8 +97,8 @@ class StepsService : Service() {
                 applicationContext.startActivity(intent.setFlags(FLAG_ACTIVITY_NEW_TASK))
             }
 
-            var locationRequest = LocationRequest.create()
-            locationRequest.setInterval(30000)
+            val locationRequest = LocationRequest.create()
+            locationRequest.setInterval(60000)
             locationRequest.setSmallestDisplacement(1f)
             locationRequest.setFastestInterval(10000)
             locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
@@ -131,7 +131,7 @@ class StepsService : Service() {
                         Locale.getDefault()
                         try {
                             var cAddrs = gcd.getFromLocation(lat, lng, 1)!!
-                            //   makeToast(cAddrs?.get(0)!!.subLocality)
+                            //   // makeToast(cAddrs?.get(0)!!.subLocality)
 
                             cityLat = lat
                             cityLng = lng
@@ -147,14 +147,14 @@ class StepsService : Service() {
                         } catch (e: IOException) {
                             // TODO Auto-generated catch block
                             e.printStackTrace()
-                            makeToast("GCD - IOException \n $e")
+                            // makeToast("GCD - IOException \n $e")
                         }
 
                     }
 
 
                     override fun onMarkerClick(p0: Marker): Boolean {
-                        makeToast("nothin")
+                        // makeToast("nothin")
                         return true
                     }
                 },
@@ -166,7 +166,7 @@ class StepsService : Service() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 if (intent?.action == Intent.ACTION_USER_PRESENT) {
                     // Handle the screen unlock event here
-                    //    makeToast("Screen unlocked!")
+                    //    // makeToast("Screen unlocked!")
                     // You can update UI, start a task, etc.
                 }
             }
@@ -202,29 +202,30 @@ class StepsService : Service() {
 
         mSensorEventListener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent) {
-                Log.d("onSensorChanged", stepsToday.toString())
+                if (presentActivityState != "INVEHICLE") {
+                    Log.d("onSensorChanged", stepsToday.toString())
                 stepsToday++
 
-             /*   if (presentActivityState == "WALKING") {
-                    remoteViews?.setTextViewText(R.id.tx_stepstoday, "Steps ~ $stepsToday")
-                    remoteViews?.setTextViewText(R.id.tx_steps_km_today, "Distance ~ " + String.format("%.1f",  stepsToday * 74f / 100000f) + " Km")
-                }*/
 
-                if (stepsToday % 10 == 0) {
+                    if (stepsToday < 10) {
+                        remoteViews?.setTextViewText(
+                            R.id.tx_steps,
+                            "$stepsToday Steps"
+                        )
+                        if (isAppWidMInitialized())
+                            appWidM.updateAppWidget(newAppWidget, remoteViews)
+                    } else if (stepsToday % 10 == 0) {
+                        sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
                     remoteViews?.setTextViewText(
                         R.id.tx_steps,
-                        "$stepsToday / " + String.format("%.1f",  stepsToday * 74f / 100000f) + " Km"
+                        "$stepsToday Steps"
                     )
-                    sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
-                    boolNewLap = sharedPreferences.getBoolean("newLap", false)
-
+                        if (isAppWidMInitialized())
+                            appWidM.updateAppWidget(newAppWidget, remoteViews)
                 }
 
-
-                if (isAppWidMInitialized())
-                appWidM.updateAppWidget(newAppWidget, remoteViews)
-
             }
+        }
 
             override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {
                 Log.d("MY_APP", "$sensor - $accuracy")
@@ -370,9 +371,9 @@ class StepsService : Service() {
 
         Log.d("Service Status", "Starting Service")
 
+        dayOfTheWeek = LocalDate.now().dayOfWeek.name
+        sharedPreferencesEditor.putString("day", dayOfTheWeek).apply()
 
-
-        stepsToday = 0
         sharedPreferencesEditor.putInt("breatheCount", 0).apply()
         sharedPreferencesEditor.putInt("drinkCount", 0).apply()
         sensorManager.registerListener(
@@ -380,7 +381,7 @@ class StepsService : Service() {
             stepCounterSensor,
             SensorManager.SENSOR_DELAY_NORMAL
         )
-        //    makeToast("step UP!")
+        //    // makeToast("step UP!")
 
 
         //    stopSelf()
@@ -408,7 +409,7 @@ class StepsService : Service() {
         lateinit var locationListenerSpeed: LocationListener
         lateinit var locationManager: LocationManager
         var twitterProfileName: String = "Fact"
-        lateinit var mLocationResult: LocationResult
+        var mLocationResult: LocationResult? = null
         var totalUsage: String = ""
         var choosenApps: ArrayList<App> = ArrayList()
 
@@ -445,7 +446,7 @@ class StepsService : Service() {
 
                         remoteViews?.setTextViewText(
                             R.id.tx_weather,
-                            tempC.split(".")[0] + "°C, " + tempKind
+                            tempC.split(".")[0] + "°C " + tempKind
                         )
                         if (weatherIconID.startsWith("5"))
                             remoteViews?.setImageViewResource(
@@ -477,10 +478,10 @@ class StepsService : Service() {
                 }
             } catch (ex: Exception) {
                 Log.d("WD Excep7 - ", ex.toString())
-                makeToast("Weather EXP - ${ex.message}")
+                 makeToast("Weather EXP - ${ex.message}")
             }
 
-            //   makeToast(tempC)
+            //   // makeToast(tempC)
 
         }
 

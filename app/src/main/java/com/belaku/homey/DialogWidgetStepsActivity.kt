@@ -11,8 +11,8 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.NewAppWidget.Companion.lapCount
-import com.belaku.homey.SetWallWorker.Companion.stepsToday
 
 
 class DialogWidgetStepsActivity : Activity() {

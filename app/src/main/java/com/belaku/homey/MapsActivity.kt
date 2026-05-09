@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
@@ -22,7 +23,9 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.OnMapsSdkInitializedCallback
 import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback
 import com.google.android.gms.maps.StreetViewPanorama
 import com.google.android.gms.maps.StreetViewPanoramaView
@@ -63,6 +66,15 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
 
         setSupportActionBar(binding.toolbar)
 
+
+        MapsInitializer.initialize(
+            applicationContext,
+            MapsInitializer.Renderer.LATEST,
+            OnMapsSdkInitializedCallback { renderer ->
+                Log.d("MapsSDK", "Renderer initialized: ${renderer.name}")
+            }
+        )
+
         mStreetViewPanoramaView = findViewById(R.id.streetviewpanorama)
         mSupportMapFragment =
             (supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?)!!
@@ -91,7 +103,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
     @SuppressLint("MissingPermission")
     private fun locationUpdates() {
 
-                val location = mLocationResult.lastLocation
+                val location = mLocationResult?.lastLocation
                 if (location != null) {
                     getAddress(location.latitude, location.longitude)
 
@@ -142,7 +154,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
         Locale.getDefault()
         try {
             cAddrs = gcd.getFromLocation(lat, lng, 1)!!
-            //   makeToast(cAddrs?.get(0)!!.subLocality)
+            //   // makeToast(cAddrs?.get(0)!!.subLocality)
             Snackbar.make(
                 window.decorView.rootView,
                 cAddrs?.get(0)!!.subLocality,
@@ -151,7 +163,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
         } catch (e: IOException) {
             // TODO Auto-generated catch block
             e.printStackTrace()
-            makeToast("GCD - IOException \n $e")
+            // makeToast("GCD - IOException \n $e")
         }
 
     }
@@ -165,7 +177,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
     private fun streetUpdates() {
         if (boolstreetViewPanorama) {
 
-            val location = mLocationResult.lastLocation
+            val location = mLocationResult?.lastLocation
 
             if (location != null) {
             if (!boolStreetMarkerClicked)
@@ -218,7 +230,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
     }
 
     override fun onMarkerClick(p0: Marker): Boolean {
-        makeToast(p0.title.toString())
+        // makeToast(p0.title.toString())
         val anim: Animation = AlphaAnimation(0.0f, 1.0f)
         anim.duration = 50 //You can manage the blinking time with this parameter
         anim.startOffset = 20

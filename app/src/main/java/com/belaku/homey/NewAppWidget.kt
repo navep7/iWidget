@@ -3,6 +3,8 @@ package com.belaku.homey
 
 // Weather Key - 9fa8e101240ab18615e3133b051e767e
 
+
+import com.belaku.homey.Constants.Companion.stepsToday
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
@@ -12,6 +14,7 @@ import android.app.usage.UsageStatsManager
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.content.Context.LOCATION_SERVICE
@@ -40,34 +43,26 @@ import android.graphics.drawable.shapes.RectShape
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.icu.text.SimpleDateFormat
-import android.icu.util.Calendar
+import java.util.Calendar
 import android.location.LocationManager
-import android.net.ConnectivityManager
 import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.BatteryManager
 import android.os.Build
+import android.provider.AlarmClock
+import android.provider.CalendarContract
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
-import android.renderscript.Allocation
-import android.renderscript.Element
-import android.renderscript.RenderScript
-import android.renderscript.ScriptIntrinsicBlur
 import android.text.Html
-import android.text.SpannableString
-import android.text.style.UnderlineSpan
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.accessibility.AccessibilityManager
 import android.widget.AdapterView
-import android.widget.AnalogClock
-import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.RemoteViews
-import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity.RECEIVER_NOT_EXPORTED
 import androidx.appcompat.content.res.AppCompatResources
@@ -104,10 +99,8 @@ import com.belaku.homey.SetWallWorker.Companion.screenHeight
 import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
-import com.belaku.homey.SetWallWorker.Companion.stepsToday
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.belaku.homey.StepsService.Companion.choosenApps
-import com.belaku.homey.StepsService.Companion.presentActivityState
 import com.belaku.homey.StepsService.Companion.totalUsage
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityTransition
@@ -118,6 +111,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.squareup.picasso.Picasso
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -129,6 +123,8 @@ import java.util.Locale
 class NewAppWidget : AppWidgetProvider() {
 
 
+    private var boolKm: Boolean = false
+    private lateinit var cName: String
     private val TAG: String = "NewAppWidget"
     private var wallpColors: ArrayList<Int> = ArrayList()
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
@@ -146,21 +142,24 @@ class NewAppWidget : AppWidgetProvider() {
         widgetContext = context!!
         onEn = true
 
-        makeToast("Expand the widget to full screen dimens for better visibility")
+        // makeToast("Expand the widget to full screen dimens for better visibility")
         sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
         if (ismActInitialized())
             fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
 
-       // recognizeActivityTransitions()
+        recognizeActivityTransitions()
+
+        readApps()
+        getFavoriteContacts()
     }
 
- /*   @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @SuppressLint("MissingPermission")
     private fun recognizeActivityTransitions() {
 
-        makeToast("!recognizeActivityTransitions")
+        // makeToast("!recognizeActivityTransitions")
         val receiver = ActivityTransitionReceiver()
         val filter = IntentFilter("com.belaku.homey.CUSTOM_ACTION") // Use a unique action string
         widgetContext.registerReceiver(receiver, filter, RECEIVER_NOT_EXPORTED)
@@ -227,15 +226,15 @@ class NewAppWidget : AppWidgetProvider() {
 
         task.addOnSuccessListener {
             // Handle success
-            //    makeToast("Task added successfully")
+            //    // makeToast("Task added successfully")
         }
 
         task.addOnFailureListener {
             // Handle error
-            //    makeToast("Error adding task")
+            //    // makeToast("Error adding task")
         }
 
-    }*/
+    }
 
     override fun onDisabled(context: Context?) {
         super.onDisabled(context)
@@ -261,16 +260,18 @@ class NewAppWidget : AppWidgetProvider() {
 
         i_appWidgetIds = appWidgetIds
 
+
         for (appWidgetId in appWidgetIds) {
 
             widgetContext = context
 
-        //    recognizeActivityTransitions()
+            recognizeActivityTransitions()
             setUI()
-            readApps()
-            getFavoriteContacts()
-            setACAdapter()
 
+            if (!Constants.boolACadapterSet) {
+                setACAdapter()
+                Constants.boolACadapterSet = true
+            }
 
             //  Create an intent to launch MainActivity
 
@@ -284,29 +285,16 @@ class NewAppWidget : AppWidgetProvider() {
 
 
 
+
+
         super.onUpdate(context, appWidgetManager, appWidgetIds)
 
     }
 
 
     private fun setOnClickPendingIntents(context: Context) {
-        // Create a PendingIntent
 
 
-      /*  remoteViews?.setOnClickPendingIntent(
-            R.id.tx_nextstate,
-            getPendingSelfIntent(context, NEXT_STATE)
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.tx_prevstate,
-            getPendingSelfIntent(context, PREV_STATE)
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.fl_speed,
-            getPendingSelfIntent(context, SPEED_INFO)
-        )*/
 
         val intentMain = Intent(context, MainActivity::class.java)
         val pendingIntentMain = PendingIntent.getActivity(
@@ -318,6 +306,20 @@ class NewAppWidget : AppWidgetProvider() {
 
         // Set the click listener on the widget button
         remoteViews?.setOnClickPendingIntent(R.id.imgv_conf, pendingIntentMain)
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_steps,
+            getPendingSelfIntent(context, STEPS_CLICK)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.clock,
+            getPendingSelfIntent(context, TIME_CLICK)
+        )
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_day_date,
+            getPendingSelfIntent(context, DATE_CLICK)
+        )
 
         remoteViews?.setOnClickPendingIntent(
             R.id.tx_battery,
@@ -339,7 +341,7 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_p_album,
+            R.id.imgv_albumcover,
             getPendingSelfIntent(context, P_THUMBNAIL_CLICK)
         )
 
@@ -353,15 +355,6 @@ class NewAppWidget : AppWidgetProvider() {
             getPendingSelfIntent(context, PS_CLICK)
         )
 
-        remoteViews?.setOnClickPendingIntent(
-            R.id.clock,
-            getPendingSelfIntent(context, TIME_CLICKED)
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.a_clock,
-            getPendingSelfIntent(context, TIME_CLICKED)
-        )
 
         remoteViews?.setOnClickPendingIntent(
             R.id.imgv_contacts,
@@ -409,6 +402,11 @@ class NewAppWidget : AppWidgetProvider() {
             4,
             remindersIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_reminders,
+            remindersPendingIntent
         )
 
       /*  remoteViews?.setOnClickPendingIntent(
@@ -549,14 +547,8 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_steps, PendingIntent.getActivity(
-                context, 15,
-                Intent(context, DialogActivity::class.java).putExtra(
-                    "DialogIntent",
-                    "stepsInfo"
-                ),
-                PendingIntent.FLAG_IMMUTABLE
-            )
+            R.id.imgv_steps,
+            getPendingSelfIntent(context, STEPSINFO_CLICK)
         )
 
 
@@ -612,8 +604,13 @@ class NewAppWidget : AppWidgetProvider() {
             )
         } else {
 
-            remoteViews?.setTextViewText(R.id.tx_place, cityname)
-            remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "°C, " + tempKind)
+            if (::cName.isInitialized)
+                if (cName != cityname)
+                    cName = cityname
+            cName = cityname
+
+            remoteViews?.setTextViewText(R.id.tx_place, cName)
+            remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "°C " + tempKind)
             if (weatherIconID.startsWith("5"))
                 remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.rain)
             if (weatherIconID.equals("800"))
@@ -640,16 +637,19 @@ class NewAppWidget : AppWidgetProvider() {
     private fun setUI() {
 
         val spkServiceRunning = sharedPreferences.getBoolean("SPKSERVICE", false)
-        //   makeToast("spkServiceRunning : $spkServiceRunning")
+        //   // makeToast("spkServiceRunning : $spkServiceRunning")
         if (spkServiceRunning)
             remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
         else remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
 
-        if (isDataListInitialized() && pDatalistSongs.size > songIndex) {
+        if (isDataListInitialized() && isPinNoteInitialized() && pDatalistSongs.size > songIndex) {
             remoteViews?.setTextViewText(
                 R.id.tx_music_details,
                 pDatalistSongs[songIndex].title + " | " + pDatalistSongs[songIndex].album.title + " | " + pDatalistSongs[songIndex].artist.name
             )
+            Picasso.get()
+                .load(pDatalistSongs[songIndex].md5_image)
+                .into(remoteViews!!, R.id.imgv_albumcover, NewAppWidget.i_appWidgetIds)
 
             mMediaPlayer?.let {
                 if (it.isPlaying)
@@ -688,7 +688,7 @@ class NewAppWidget : AppWidgetProvider() {
            val allAccounts = accountManager.accounts
            for (account in googleAccounts) {
                val accountName = account.name
-            //   makeToast(accountName)
+            //   // makeToast(accountName)
            }
 
        }*/
@@ -862,16 +862,22 @@ class NewAppWidget : AppWidgetProvider() {
                 )
             }
 
-            //  findViewById<View>(R.id.myLayout).background = gradientDrawable
 
 
             if (ColorUtil().isColorDark(primaryColor)) {
 
-                makeToast("Dark")
+                // makeToast("Dark")
 
-                remoteViews?.setImageViewBitmap(R.id.imgv_rl_controls, drawableToBitmap(widgetContext,
-                    widgetContext.getDrawable(R.drawable.gradient_glass_list)!!
-                ))
+                remoteViews?.setInt(R.id.imgv_conf, "setColorFilter", Color.BLACK)
+                remoteViews?.setInt(R.id.imgbtn_speech, "setColorFilter", Color.BLACK)
+                remoteViews?.setInt(R.id.imgbtn_qr, "setColorFilter", Color.BLACK)
+                remoteViews?.setInt(R.id.imgbtn_set, "setColorFilter", Color.BLACK)
+                remoteViews?.setInt(R.id.imgbtn_lock, "setColorFilter", Color.BLACK)
+                remoteViews?.setInt(R.id.imgv_ps, "setColorFilter", Color.BLACK)
+                remoteViews?.setTextColor(R.id.tx_myspace, Color.BLACK)
+                remoteViews?.setTextColor(R.id.tx_rewards_count, Color.WHITE)
+                remoteViews?.setInt(R.id.imgv_dialler, "setColorFilter", Color.BLACK)
+
 
 
                 if (isWallBitmapInitialized()) {
@@ -899,73 +905,6 @@ class NewAppWidget : AppWidgetProvider() {
                     )
                 }
 
-                remoteViews?.setInt(
-                    R.id.tx_myspace,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_light
-                )
-                remoteViews?.setInt(
-                    R.id.imgbtn_lock,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_light
-                )
-                remoteViews?.setInt(
-                    R.id.imgbtn_qr,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_light
-                )
-                remoteViews?.setInt(
-                    R.id.rl_setwall,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_light
-                )
-                remoteViews?.setInt(
-                    R.id.imgv_conf,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_light
-                )
-
-                remoteViews?.setInt(
-                    R.id.imgv_ps,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_dark
-                )
-                remoteViews?.setInt(
-                    R.id.imgbtn_g_apps,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_dark
-                )
-                remoteViews?.setInt(
-                    R.id.imgbtn_speech,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_dark
-                )
-                remoteViews?.setInt(
-                    R.id.imgv_dialler,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_dark
-                )
-
-
-                remoteViews?.setColorInt(
-                    R.id.imgv_ps,
-                    "setColorFilter",
-                    Color.WHITE,
-                    Color.WHITE
-                )
-
-                remoteViews?.setColorInt(
-                    R.id.imgbtn_speech,
-                    "setColorFilter",
-                    Color.WHITE,
-                    Color.WHITE
-                )
-                remoteViews?.setColorInt(
-                    R.id.imgv_dialler,
-                    "setColorFilter",
-                    Color.WHITE,
-                    Color.WHITE
-                )
 
                 remoteViews?.setTextColor(
                     R.id.clock,
@@ -974,11 +913,18 @@ class NewAppWidget : AppWidgetProvider() {
 
             } else {
 
-                makeToast("Light")
+                // makeToast("Light")
 
-                remoteViews?.setImageViewBitmap(R.id.imgv_rl_controls, drawableToBitmap(widgetContext,
-                    widgetContext.getDrawable(R.drawable.gradient_glass_dark)!!
-                ))
+                remoteViews?.setInt(R.id.imgv_conf, "setColorFilter", Color.WHITE)
+                remoteViews?.setInt(R.id.imgbtn_speech, "setColorFilter", Color.WHITE)
+                remoteViews?.setInt(R.id.imgbtn_qr, "setColorFilter", Color.WHITE)
+                remoteViews?.setInt(R.id.imgbtn_set, "setColorFilter", Color.WHITE)
+                remoteViews?.setInt(R.id.imgbtn_lock, "setColorFilter", Color.WHITE)
+                remoteViews?.setInt(R.id.imgv_ps, "setColorFilter", Color.WHITE)
+                remoteViews?.setTextColor(R.id.tx_myspace, Color.WHITE)
+                remoteViews?.setTextColor(R.id.tx_rewards_count, Color.BLACK)
+                remoteViews?.setInt(R.id.imgv_dialler, "setColorFilter", Color.WHITE)
+
 
                 if (isWallBitmapInitialized()) {
                     scaledBitmap =
@@ -1005,73 +951,6 @@ class NewAppWidget : AppWidgetProvider() {
                     )
                 }
 
-                remoteViews?.setInt(
-                    R.id.tx_myspace,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_dark
-                )
-                remoteViews?.setInt(
-                    R.id.imgbtn_lock,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_dark
-                )
-                remoteViews?.setInt(
-                    R.id.imgbtn_qr,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_dark
-                )
-                remoteViews?.setInt(
-                    R.id.rl_setwall,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_dark
-                )
-                remoteViews?.setInt(
-                    R.id.imgv_conf,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_dark
-                )
-
-                remoteViews?.setInt(
-                    R.id.imgv_ps,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_light
-                )
-                remoteViews?.setInt(
-                    R.id.imgbtn_g_apps,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_light
-                )
-                remoteViews?.setInt(
-                    R.id.imgbtn_speech,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_light
-                )
-                remoteViews?.setInt(
-                    R.id.imgv_dialler,
-                    "setBackgroundResource",
-                    R.drawable.gradient_glass_light
-                )
-
-
-                remoteViews?.setColorInt(
-                    R.id.imgv_ps,
-                    "setColorFilter",
-                    Color.BLACK,
-                    Color.BLACK
-                )
-
-                remoteViews?.setColorInt(
-                    R.id.imgbtn_speech,
-                    "setColorFilter",
-                    Color.BLACK,
-                    Color.BLACK
-                )
-                remoteViews?.setColorInt(
-                    R.id.imgv_dialler,
-                    "setColorFilter",
-                    Color.BLACK,
-                    Color.BLACK
-                )
 
                 remoteViews?.setTextColor(
                     R.id.clock,
@@ -1221,6 +1100,39 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleIntentActions(intent: Intent) {
 
+        if (TIME_CLICK == intent.action) {
+
+            val mClockIntent = Intent(AlarmClock.ACTION_SHOW_ALARMS).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            widgetContext.startActivity(mClockIntent)
+
+        }
+        if (DATE_CLICK == intent.action) {
+
+            val startMillis = System.currentTimeMillis()
+            val builder = CalendarContract.CONTENT_URI.buildUpon()
+                .appendPath("time")
+            ContentUris.appendId(builder, startMillis)
+
+            val intentCalendar = Intent(Intent.ACTION_VIEW)
+                .setData(builder.build())
+            intentCalendar.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            widgetContext.startActivity(intentCalendar)
+        }
+
+        if (STEPSINFO_CLICK == intent.action) {
+
+            widgetContext.startActivity(
+                Intent(widgetContext, DialogActivity::class.java)
+                    .putExtra("DialogIntent", "stepsInfo")
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        }
+        if (STEPS_CLICK == intent.action) {
+
+            remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday Steps")
+            Toast.makeText(widgetContext,"$stepsToday ~ " + String.format("%.1f", stepsToday * 74f / 100000f) + " Km", Toast.LENGTH_LONG).show()
+            }
         if (BATTERY_INFO == intent.action) {
             val powerUsageIntent = Intent("android.intent.action.POWER_USAGE_SUMMARY")
             if (powerUsageIntent.resolveActivity(widgetContext.getPackageManager()) != null) {
@@ -1311,7 +1223,7 @@ class NewAppWidget : AppWidgetProvider() {
             if (position != AdapterView.INVALID_POSITION) {
 
                 if (viewID == 0) {
-                    makeToast(choosenApps[position].name)
+                    // makeToast(choosenApps[position].name)
                     val launchIntent: Intent =
                         widgetContext.packageManager.getLaunchIntentForPackage(
                             choosenApps[position].pName
@@ -1321,15 +1233,15 @@ class NewAppWidget : AppWidgetProvider() {
                     launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     widgetContext.startActivity(launchIntent)
                 } else if (viewID == 1)
-                    makeToast("Remove App - ${apps[position].name}")
-            } else makeToast("INvalid Pos - $position")
+                     makeToast("Remove App - ${apps[position].name}")
+            } else  makeToast("INvalid Pos - $position")
         } else if (FAB_SHARE == intent.action) {
 
             val inflater =
                 widgetContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             val appWidgetView: View = inflater.inflate(R.layout.new_app_widget, null)
 
-            makeToast("Yet2IMPL")
+            // makeToast("Yet2IMPL")
             //     loadWidgetToShare(appWidgetView)
             appWidgetView.measure(
                 View.MeasureSpec.makeMeasureSpec(screenWidth, View.MeasureSpec.EXACTLY),
@@ -1406,15 +1318,15 @@ class NewAppWidget : AppWidgetProvider() {
             sharedPreferencesEditor.putBoolean("newLap", boolNewLap).apply()
 
         } /* else if (BREATHE_INC == intent.action) {
-            makeToast("!BREATHE_INC")
+            // makeToast("!BREATHE_INC")
             var bC = sharedPreferences.getInt("breatheCount", 0)
             bC++
             sharedPreferencesEditor.putInt("breatheCount", bC).apply()
             sharedPreferencesEditor.commit()
-            makeToast("setting $bC")
+            // makeToast("setting $bC")
             remoteViews?.setTextViewText(R.id.tx_breathe_count, bC.toString())
         } else if (DRINK_INC == intent.action) {
-            makeToast("!DRINK_INC")
+            // makeToast("!DRINK_INC")
             var dC = sharedPreferences.getInt("drinkCount", 0)
             dC++
             sharedPreferencesEditor.putInt("drinkCount", dC).apply()
@@ -1449,64 +1361,6 @@ class NewAppWidget : AppWidgetProvider() {
             val intentContacts = Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI)
             intentContacts.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             widgetContext.startActivity(intentContacts)
-        }/* else if (NEXT_STATE == intent.action) {
-
-            if (sharedPreferences.getString("actState", "STILL") == "STILL") {
-                sharedPreferencesEditor.putString("actState", "WALKING").commit()
-                remoteViews?.setTextViewText(R.id.tx_activity_state, "WALKING")
-                remoteViews?.setViewVisibility(R.id.rl_still_state, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.rl_walking_state, View.VISIBLE)
-                remoteViews?.setTextViewText(R.id.tx_stepstoday, "Steps ~ $stepsToday")
-                remoteViews?.setTextViewText(R.id.tx_steps_km_today, "Distance ~ " + String.format("%.1f",  stepsToday * 74f / 100000f) + " Km")
-                remoteViews?.setViewVisibility(R.id.fl_speed, View.INVISIBLE)
-            } else if (sharedPreferences.getString("actState", "STILL") == "WALKING") {
-                sharedPreferencesEditor.putString("actState", "INVEHICLE").commit()
-                remoteViews?.setTextViewText(R.id.tx_activity_state, "IN VEHICLE")
-                remoteViews?.setViewVisibility(R.id.rl_still_state, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.rl_walking_state, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.fl_speed, View.VISIBLE)
-            } else if (sharedPreferences.getString("actState", "STILL") == "INVEHICLE") {
-                sharedPreferencesEditor.putString("actState", "STILL").commit()
-                remoteViews?.setTextViewText(R.id.tx_activity_state, "STILL")
-                var dC = sharedPreferences.getInt("drinkCount", 0)
-                remoteViews?.setTextViewText(R.id.tx_drink_count, dC.toString())
-                var bC = sharedPreferences.getInt("breatheCount", 0)
-                remoteViews?.setTextViewText(R.id.tx_breathe_count, bC.toString())
-                remoteViews?.setViewVisibility(R.id.rl_still_state, View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.rl_walking_state, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.fl_speed, View.INVISIBLE)
-            }
-
-        } else if (PREV_STATE == intent.action) {
-
-            if (presentActivityState == "STILL") {
-                remoteViews?.setViewVisibility(R.id.rl_still_state, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.rl_walking_state, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.fl_speed, View.VISIBLE)
-            } else if (presentActivityState == "WALKING") {
-                remoteViews?.setViewVisibility(R.id.rl_still_state, View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.rl_walking_state, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.fl_speed, View.INVISIBLE)
-            } else if (presentActivityState == "INVEHICLE") {
-                remoteViews?.setViewVisibility(R.id.rl_still_state, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.rl_walking_state, View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.fl_speed, View.INVISIBLE)
-            }
-
-        }*/ else if (TIME_CLICKED == intent.action) {
-
-            if (sharedPreferences.getBoolean("AnalogV", true)) {
-                sharedPreferencesEditor.putBoolean("AnalogV", false).apply()
-
-                remoteViews?.setViewVisibility(R.id.a_clock, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.clock, View.VISIBLE)
-            } else {
-                sharedPreferencesEditor.putBoolean("AnalogV", true).apply()
-
-                remoteViews?.setViewVisibility(R.id.a_clock, View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.clock, View.INVISIBLE)
-            }
-
         } else if (DIAL_CLICK == intent.action) {
             val intentDial = Intent(Intent.ACTION_DIAL)
             intentDial.data = Uri.parse("tel:") // Replace with the desired number
@@ -1522,17 +1376,17 @@ class NewAppWidget : AppWidgetProvider() {
         } else if (Time_A_CLICKED == intent.action) {
 
             var boolSpkService = sharedPreferences.getBoolean("SPKSERVICE", false)
-            //    makeToast("TIME_A_CLICKED, spkServiceState : $boolSpkService")
+            //    // makeToast("TIME_A_CLICKED, spkServiceState : $boolSpkService")
             val speakIntent = Intent(widgetContext, SpeakService::class.java)
             if (!boolSpkService) {
                 widgetContext.startService(speakIntent)
                 remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
-                makeToast("Change in Hour & notification app name will be announced!")
+                // makeToast("Change in Hour & notification app name will be announced!")
                 sharedPreferencesEditor.putBoolean("SPKSERVICE", true).apply()
             } else {
                 widgetContext.stopService(speakIntent)
                 remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
-                //    makeToast("stopingSPKservice")
+                //    // makeToast("stopingSPKservice")
                 sharedPreferencesEditor.putBoolean("SPKSERVICE", false).apply()
             }
 
@@ -1556,7 +1410,7 @@ class NewAppWidget : AppWidgetProvider() {
     private fun startMusicActivity(songIndex: Int) {
         var intentMusic = Intent(widgetContext, MusicActivity::class.java)
         intentMusic.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        makeToast("songIndex ~ " + songIndex)
+        // makeToast("songIndex ~ " + songIndex)
         intentMusic.putExtra("songIndex", songIndex)
         widgetContext.startActivity(intentMusic)
     }
@@ -1580,7 +1434,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     @SuppressLint("Range")
-    private fun getFavoriteContacts() {
+    fun getFavoriteContacts() {
 
         favContacts = ArrayList()
 
@@ -1638,6 +1492,7 @@ class NewAppWidget : AppWidgetProvider() {
         }
         saveContacts()
         cursor.close()
+
     }
 
     private fun saveContacts() {
@@ -1654,7 +1509,7 @@ class NewAppWidget : AppWidgetProvider() {
     fun getPreciseEnergyCounter(context: Context): Long {
         val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
         val energy = batteryManager.getLongProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
-        //     makeToast("Juice ~ $energy")
+        //     // makeToast("Juice ~ $energy")
 
         remoteViews?.setTextViewText(R.id.tx_battery, energy.toString())
         remoteViews?.setProgressBar(R.id.progressBar_battery, 100, energy.toInt(), false)
@@ -1715,110 +1570,6 @@ class NewAppWidget : AppWidgetProvider() {
         return false // Handle the case where WifiManager is null
     }
 
-    fun isWifiConnected(context: Context): Boolean {
-        val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        if (connectivityManager != null) {
-            val wifiInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
-            return wifiInfo != null && wifiInfo.isConnected
-        }
-        return false
-    }
-
-    @SuppressLint("SetTextI18n")
-    private fun loadWidgetToShare(appWidgetView: View) {
-
-
-        appWidgetView.findViewById<ImageView>(R.id.imgv_widget_layout).setImageBitmap(
-            applyThinFilmOverlay(
-                drawableToBitmap(
-                    widgetContext, RoundedBitmapDrawableFactory.create(
-                        widgetContext.resources, BitmapBlurHelper.blurBitmap(
-                            widgetContext,
-                            Bitmap.createBitmap(
-                                scaledBitmap,
-                                10,
-                                25,
-                                screenWidth - 20,
-                                screenHeight - 150
-                            )
-                        )
-                    )
-                ), Color.WHITE, 50
-            )
-        )
-
-        appWidgetView.findViewById<TextView>(
-            R.id.tx_screentime
-        ).text = "${totalUsage}"
-        greeting()
-        appWidgetView.findViewById<TextView>(R.id.tx_wish).text = timelyWish
-        var ampm = Calendar.getInstance()[Calendar.AM_PM].toString()
-
-        when (ampm) {
-            "0" -> ampm = "AM"
-            "1" -> ampm = "PM"
-        }
-        appWidgetView.findViewById<TextView>(R.id.clock).text = "${
-            java.util.Calendar.getInstance().get(Calendar.HOUR)
-        }:${java.util.Calendar.getInstance().get(Calendar.MINUTE)} $ampm"
-        val mSpannableStringLoc = SpannableString(cityname)
-        mSpannableStringLoc.setSpan(UnderlineSpan(), 0, mSpannableStringLoc.length, 0)
-        appWidgetView.findViewById<TextView>(R.id.tx_place).text = "⚲ " + cityname
-        appWidgetView.findViewById<TextView>(R.id.tx_steps).text = "$stepsToday / " + String.format("%.1f",  stepsToday * 74f / 100000f) + " Km"
-        //    appWidgetView.findViewById<TextView>(R.id.tx_weather).text = tempC.substring(0, 2) + "°C, " + weatherIconState
-
-        appWidgetView.findViewById<LinearLayout>(R.id.ll_apps).visibility = View.INVISIBLE
-        appWidgetView.findViewById<LinearLayout>(R.id.ll_contacts).visibility = View.INVISIBLE
-        appWidgetView.findViewById<TextView>(R.id.tx_apps).visibility = View.VISIBLE
-        appWidgetView.findViewById<TextView>(R.id.tx_calls).visibility = View.VISIBLE
-
-        /* appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_temp).setText(
-             MainActivity.tempC.substring(
-                 0,
-                 2
-             ) + "°C"
-         )
-         appWidgetView.findViewById<TextView>(R.id.tx_weather_icon_state).text =
-             MainActivity.weatherIconState */
-        appWidgetView.findViewById<TextView>(R.id.tx_day_date).text =
-            SimpleDateFormat("EEE", Locale.getDefault()).format(Calendar.getInstance().time) +
-                    ", " + formattedDate
-
-        readApps()
-
-        appWidgetView.findViewById<TextView>(R.id.tx_walldesc).text = wD
-        appWidgetView.findViewById<TextView>(R.id.tx_walltype_updateinfo).setText(
-            Html.fromHtml(
-                qT.split(" ")[0].substring(0, 1)
-                    .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
-                Html.FROM_HTML_MODE_LEGACY
-            )
-        )
-
-
-        appWidgetView.findViewById<AnalogClock>(R.id.a_clock).visibility = View.INVISIBLE
-    }
-
-    fun blurBitmap(context: Context, bitmap: Bitmap, radius: Float): Bitmap {
-        val rs = RenderScript.create(context)
-        val input = Allocation.createFromBitmap(rs, bitmap)
-        val output = Allocation.createTyped(rs, input.type)
-        val script = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
-        script.setRadius(radius) // Set the blur radius (0 < radius <= 25)
-        script.setInput(input)
-        script.forEach(output)
-        output.copyTo(bitmap)
-        rs.destroy() // Release RenderScript resources
-        return bitmap
-    }
-
-    fun getBitmapFromView(view: View): Bitmap {
-        val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        view.draw(canvas)
-        return bitmap
-    }
 
 
     private fun shareBitmap(bitmapWidget: Bitmap) {
@@ -1860,7 +1611,7 @@ class NewAppWidget : AppWidgetProvider() {
 
     private fun selectContact() {
 
-        makeToast("pickContact!")
+        // makeToast("pickContact!")
         MainActivity.pickContact()
 
     }
@@ -1977,7 +1728,7 @@ class NewAppWidget : AppWidgetProvider() {
         lateinit var timeOfDay: String
         var timelyWish: String = ""
         var gpName: String = ""
-        var arrayListUsageStats: HashSet<AppUsage> = HashSet()
+        var hashSetAppUsage: HashSet<AppUsage> = HashSet()
         lateinit var dayOfTheWeek: String
         var vpStepsPos: Int = 0
         var noRewards: Int = 0
@@ -2104,31 +1855,85 @@ class NewAppWidget : AppWidgetProvider() {
             c!!.close()
 
             if (timeOfDay == "Morni!")
-                timelyWish = "\uD83C\uDF3B$timeOfDay "//, ${gpName.split(" ").get(0)}!"
+                timelyWish = "$timeOfDay \uD83C\uDF3B "//, ${gpName.split(" ").get(0)}!"
             else if (timeOfDay == "Noon!")
-                timelyWish = "☀\uFE0F$timeOfDay "//, ${gpName.split(" ").get(0)}!"
+                timelyWish = "$timeOfDay ☀\uFE0F "//, ${gpName.split(" ").get(0)}!"
             else if (timeOfDay == "Eve!")
-                timelyWish = "\uD83C\uDF41$timeOfDay "//, ${gpName.split(" ").get(0)}!"
+                timelyWish = "$timeOfDay \uD83C\uDF41 "//, ${gpName.split(" ").get(0)}!"
             else if (timeOfDay == "Night!")
-                timelyWish = "\uD83D\uDCA4$timeOfDay "//, ${gpName.split(" ").get(0)}!"
+                timelyWish = "$timeOfDay \uD83D\uDCA4 "//, ${gpName.split(" ").get(0)}!"
 
         }
 
         fun getScreenTime(applicationContext: Context) {
 
-            if (sharedPreferences == null)
-                sharedPreferences =
-                    widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
-            if (sharedPreferencesEditor == null)
-                sharedPreferencesEditor = sharedPreferences.edit()
-
             val usageStatsManager =
                 applicationContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-            val calendar = Calendar.getInstance()
-            val endTime = calendar.timeInMillis
-            calendar.add(Calendar.DAY_OF_YEAR, -1) // Query for the last 24 hours
-            val startTime = calendar.timeInMillis
 
+            dayListener(Calendar.getInstance())
+
+            // Get a map of package names to UsageStats objects
+            val usageStatsMap = usageStatsManager.queryAndAggregateUsageStats(
+                beginCal.timeInMillis,
+                endCal.timeInMillis
+            )
+
+            var totalScreenTimeInMillis: Long = 0
+            for (usageStats in usageStatsMap.values) {
+                totalScreenTimeInMillis += usageStats.totalTimeInForeground
+            }
+
+            // Convert to desired units (e.g., minutes, hours)
+            totalScreenTimeInHours = totalScreenTimeInMillis / (1000 * 60 * 60) / 6
+
+            val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
+            var ampm = Calendar.getInstance()[Calendar.AM_PM].toString()
+
+            when (ampm) {
+                "0" -> ampm = "AM"
+                "1" -> ampm = "PM"
+            }
+
+            if (totalUsage.split(":")[0].isNotEmpty()) {
+                var sT = totalUsage.split(":")
+                var hour = ""
+
+                if (sT[0][0] == '0')
+                    hour = sT[0].drop(1)
+                else hour = sT[0]
+
+                remoteViews?.setTextViewText(
+                    R.id.tx_screentime,
+                    "$hour+ Hours"
+                )
+
+                if (Integer.parseInt(hour) < 2)
+                    remoteViews?.setTextViewText(
+                        R.id.tx_screenusage_state,
+                        "LOW"
+                    )
+                else if ((Integer.parseInt(hour) > 2) && (Integer.parseInt(hour) < 4))
+                    remoteViews?.setTextViewText(
+                        R.id.tx_screenusage_state,
+                        "MODERATE"
+                    )
+                else if ((Integer.parseInt(hour) > 4) && (Integer.parseInt(hour) < 6))
+                    remoteViews?.setTextViewText(
+                        R.id.tx_screenusage_state,
+                        "HIGH"
+                    )
+                else if (Integer.parseInt(hour) > 6)
+                    remoteViews?.setTextViewText(
+                        R.id.tx_screenusage_state,
+                        "EXCESSIVE"
+                    )
+            }
+
+
+        }
+
+
+        fun dayListener(calendar: java.util.Calendar) {
             when (calendar.get(Calendar.DAY_OF_WEEK)) {
                 1 -> {
                     dayOfTheWeek = "Monday"
@@ -2157,7 +1962,6 @@ class NewAppWidget : AppWidgetProvider() {
                     vpStepsPos = 2
                     dayOfTheWeek = "Wednesday"
                     sharedPreferencesEditor.putInt("Wednesday", stepsToday).apply()
-
                     sharedPreferencesEditor.putInt("Thursday", 0).apply()
                     sharedPreferencesEditor.putInt("Friday", 0).apply()
                     sharedPreferencesEditor.putInt("Saturday", 0).apply()
@@ -2199,9 +2003,8 @@ class NewAppWidget : AppWidgetProvider() {
             }
 
             if (sharedPreferences.getString("day", "someday") != dayOfTheWeek) {
-                stepsToday = 0
-                sharedPreferencesEditor.putInt("breatheCount", 0).apply()
-                sharedPreferencesEditor.putInt("drinkCount", 0).apply()
+             //   stepsToday = 0
+
                 dayIndex = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
 
                 if (arrayListHabits.size > 0) {
@@ -2212,44 +2015,6 @@ class NewAppWidget : AppWidgetProvider() {
                 dayChange = true
                 sharedPreferencesEditor.putString("day", dayOfTheWeek).apply()
             }
-
-            // Get a map of package names to UsageStats objects
-            val usageStatsMap = usageStatsManager.queryAndAggregateUsageStats(
-                beginCal.timeInMillis,
-                endCal.timeInMillis
-            )
-
-            var totalScreenTimeInMillis: Long = 0
-            for (usageStats in usageStatsMap.values) {
-                totalScreenTimeInMillis += usageStats.totalTimeInForeground
-            }
-
-            // Convert to desired units (e.g., minutes, hours)
-            totalScreenTimeInHours = totalScreenTimeInMillis / (1000 * 60 * 60) / 6
-
-            val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
-            var ampm = Calendar.getInstance()[Calendar.AM_PM].toString()
-
-            when (ampm) {
-                "0" -> ampm = "AM"
-                "1" -> ampm = "PM"
-            }
-
-            if (totalUsage.split(":")[0].isNotEmpty()) {
-                var sT = totalUsage.split(":")
-                var hour = ""
-
-                if (sT[0][0] == '0')
-                    hour = sT[0].drop(1)
-                else hour = sT[0]
-
-                remoteViews?.setTextViewText(
-                    R.id.tx_screentime,
-                    "$hour+ H"
-                )
-            }
-
-
         }
 
         fun todaysDate() {
@@ -2282,14 +2047,22 @@ class NewAppWidget : AppWidgetProvider() {
             }
 
 
+            if (!::formattedDate.isInitialized)
             formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
+            else if (formattedDate != dfDate.format(c) + postFixDate + " " + dfMonth.format(c)) {
+
+                //AnotherDay...
+                stepsToday = 0
+            }
 
 
             // remoteViews?.setTextViewText(R.id.tx_date, formattedDate)
             sharedPreferencesEditor.putBoolean("DateSet", true).apply()
             sharedPreferencesEditor.putString("fD", formattedDate).apply()
-            if (stepsToday != 0)
-                remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday / " + String.format("%.1f",  stepsToday * 74f / 100000f) + " Km")
+
+       //     if (stepsToday != 0)
+         //       remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday Steps")
+
             //   remoteViews?.setTextViewText(R.id.n_tx_steps, "Now, $newLapSteps")
             remoteViews?.setTextViewText(
                 R.id.tx_day_date,
@@ -2333,6 +2106,10 @@ class NewAppWidget : AppWidgetProvider() {
         private const val NEXT_STATE = "nextState"
         private const val PREV_STATE = "nextState"
         private const val SPEED_INFO = "sppedInfo"
+        private const val TIME_CLICK = "timeClick"
+        private const val DATE_CLICK = "dateClick"
+        private const val STEPSINFO_CLICK = "stepsinfoClick"
+        private const val STEPS_CLICK = "stepsClick"
         private const val BATTERY_INFO = "batteryInfo"
         private const val GET_WEATHER = "getWeather"
         private const val STEPS_NOW = "newSteps"
@@ -2346,7 +2123,6 @@ class NewAppWidget : AppWidgetProvider() {
         private const val Time_A_CLICKED = "ta_click"
         private const val PS_CLICK = "psClick"
         private const val DIAL_CLICK = "dialClick"
-        private const val TIME_CLICKED = "timeClick"
         private const val C_CLICKED = "CClicked"
         private const val A_CLICKED = "AClicked"
         private const val ACTION_LIST_CONTACTITEM_CLICK = "Contact_Item_Click"

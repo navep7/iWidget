@@ -18,7 +18,7 @@ class TimeChangedReceiver : BroadcastReceiver() {
             val currentMin = calendar.get(Calendar.MINUTE)
 
             Log.d("TimeChangedReceiver", "Time tick received. Current Min : $currentMin")
-         //   makeToast("NOW - $currentMin")
+         //   // makeToast("NOW - $currentMin")
 
             if (currentMin == 0)
             if (isMyServiceRunning( context, SpeakService::class.java))

@@ -1,11 +1,10 @@
 <resources>
 
-    <style name="Widget.Homey.AppWidget.Container" parent="ThemeOverlay.Material3.DynamicColors.DayNight">
+    <style name="Widget.Homey.AppWidget.Container" parent="android:Widget">
         <item name="android:id">@android:id/background</item>
-        <item name="android:background">?android:attr/colorBackground</item>
     </style>
 
-    <style name="Widget.Homey.AppWidget.InnerView" parent="ThemeOverlay.Material3.DynamicColors.DayNight">
+    <style name="Widget.Homey.AppWidget.InnerView" parent="android:Widget">
         <item name="android:background">@android:color/holo_red_light</item>
         <item name="android:textColor">@android:color/holo_red_dark</item>
     </style>

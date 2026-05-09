@@ -15,7 +15,6 @@ import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.location.Address
 import android.net.ConnectivityManager
@@ -23,12 +22,15 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.text.Html
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
+import android.view.WindowManager
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.cDate
 import com.belaku.homey.MainActivity.Companion.cMonth
@@ -36,7 +38,6 @@ import com.belaku.homey.MainActivity.Companion.cYear
 import com.belaku.homey.MainActivity.Companion.delayUnit
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.fabMain
-import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.queryType
 import com.belaku.homey.MainActivity.Companion.randomWallIndex
@@ -45,27 +46,23 @@ import com.belaku.homey.MainActivity.Companion.txStatus
 import com.belaku.homey.MainActivity.Companion.updateTime
 import com.belaku.homey.MainActivity.Companion.wallDelay
 import com.belaku.homey.NewAppWidget.Companion.appWidM
-import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
+import com.belaku.homey.NewAppWidget.Companion.hashSetAppUsage
 import com.belaku.homey.NewAppWidget.Companion.dU
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
-import com.belaku.homey.NewAppWidget.Companion.formattedDate
 import com.belaku.homey.NewAppWidget.Companion.getScreenTime
 import com.belaku.homey.NewAppWidget.Companion.greeting
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
 import com.belaku.homey.NewAppWidget.Companion.qT
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
-import com.belaku.homey.NewAppWidget.Companion.tW
-import com.belaku.homey.NewAppWidget.Companion.timelyWish
 import com.belaku.homey.NewAppWidget.Companion.uT
 import com.belaku.homey.NewAppWidget.Companion.wD
 import com.belaku.homey.StepsService.Companion.choosenApps
-import com.belaku.homey.StepsService.Companion.twitterProfileName
 import com.google.gson.Gson
 import java.io.IOException
 import java.net.URL
+import java.time.LocalDate
 import java.util.Collections
-import java.util.Locale
 import kotlin.properties.Delegates
 import kotlin.random.Random
 
@@ -97,7 +94,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
         if (isNetConnected)
         setWall(true, wallWorkerContext)
-        else makeToast("Check INTERNET!")
+        else // makeToast("Check INTERNET!")
      //   getCity()
         greeting()
 
@@ -137,9 +134,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
         var boolNewLap: Boolean = false
 
-        @kotlin.jvm.JvmField
-        var stepsToday = 0
-
         val TAG: String = "SetWallWorkerLOG7"
         var wallDesc: String = ""
         var wallDescs: ArrayList<String> = ArrayList()
@@ -158,7 +152,17 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             getScreenTime(wallWorkerContext)
             greeting()
 
-            wm.suggestDesiredDimensions(screenWidth, screenHeight)
+            try {
+                wm.suggestDesiredDimensions(screenWidth, screenHeight)
+            } catch (ex: IllegalStateException) {
+                val metrics = DisplayMetrics()
+                if (ismActInitialized()) {
+                    mAct.windowManager.getDefaultDisplay().getMetrics(metrics)
+                    screenHeight = metrics.heightPixels
+                    screenWidth = metrics.widthPixels
+                    wm.suggestDesiredDimensions(screenWidth, screenHeight)
+                }
+            }
 
             try {
 
@@ -182,6 +186,13 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                             )
                         ).openConnection().getInputStream()
                     )
+
+                    val metrics = DisplayMetrics()
+                    val windowManager = wallWorkerContext.applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+
+                    windowManager.getDefaultDisplay().getMetrics(metrics)
+                    screenHeight = metrics.heightPixels
+                    screenWidth = metrics.widthPixels
 
                     scaledBitmap =
                         Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
@@ -214,7 +225,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 dU = delayUnit
                 uT = updateTime
 
-                if (MainActivity.mainWindow.decorView.rootView.isShown)
+                try {
                     if (pD.isShowing) {
                         pD.dismiss()
                         Handler(Looper.getMainLooper()).postDelayed({
@@ -229,26 +240,10 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
                         }, 1000)
                     }
+                } catch (ex: Exception) {
 
+                }
 
-
-                /*remoteViews?.setTextViewText(
-                    R.id.tx_tweets,
-                    "@" + twitterProfileName + "\t ~ \t" + tW
-                )
-                //🖍
-                remoteViews?.setTextViewText(R.id.tx_tweets, tW)*/
-                NewAppWidget.greeting()
-                remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
-                NewAppWidget.todaysDate()
-                remoteViews?.setTextViewText(
-                    R.id.tx_day_date,
-                    SimpleDateFormat(
-                        "EEE",
-                        Locale.getDefault()
-                    ).format(Calendar.getInstance().time) +
-                            ", " + formattedDate
-                )
                 remoteViews?.setTextViewText(R.id.tx_walldesc, wD)
                 remoteViews?.setTextViewText(
                     R.id.tx_walltype_updateinfo,
@@ -273,7 +268,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 Log.d(TAG, "setWallEx2 - $e")
             }
 
-            DayChanges(wallWorkerContext)
+        //    DayChanges(wallWorkerContext)
             updateWidget(wallWorkerContext)
 
         }
@@ -291,8 +286,9 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 sharedPreferencesEditor.putInt("drinkCount", 0).apply()
 
                 dayChange = true
+                stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
                 sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
-                stepsToday = 0
+             //   stepsToday = 0
                 updateWidget(wallWorkerContext)
 
             }
@@ -330,59 +326,62 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             beginCal.set(cYear, cMonth, cDate - 7, 0, 0)
             endCal.set(cYear, cMonth, cDate - 1, 0, 0)
 
-            val queryUsageStats = usageStatsManager.queryUsageStats(
-                UsageStatsManager.INTERVAL_DAILY,
-                beginCal.timeInMillis,
-                endCal.timeInMillis
-            )
-            println("results for " + beginCal.time + " - " + endCal.time)
-            println("QUS SWW - " + queryUsageStats.size)
-            sortApps(queryUsageStats)
-
-            choosenApps.clear()
-
-            val appNames = HashSet<String>()
-            for (i in 0 until queryUsageStats.size) {
-
-                val appName =
-                    getAppNameFromPkg(applicationContext, queryUsageStats.get(i).packageName)
-                val appPname = queryUsageStats.get(i).packageName
-                val appUsage =
-                    formatMilliseconds(queryUsageStats[i].totalTimeInForeground).substring(0, 2)
-                //    var appUsage = arrayListUsageStats.elementAt(i).usageTime
-
-                Log.d(
-                    "queryUsageStats",
-                    "$appName ... - $i : " + queryUsageStats.get(i).totalTimeInForeground
+            try {
+                val queryUsageStats = usageStatsManager.queryUsageStats(
+                    UsageStatsManager.INTERVAL_DAILY,
+                    beginCal.timeInMillis,
+                    endCal.timeInMillis
                 )
 
-                if (queryUsageStats.get(i).totalTimeInForeground > 0)
-                    if (!appName.contains("Launcher") || !appName.equals("Home"))
-                        if (applicationContext.packageManager.getLaunchIntentForPackage(
-                                queryUsageStats[i].packageName
-                            ) != null
+                if (queryUsageStats != null) {
+                    println("results for " + beginCal.time + " - " + endCal.time)
+                    println("QUS SWW - " + queryUsageStats.size)
+                    sortApps(queryUsageStats)
+
+                    choosenApps.clear()
+
+                    val appNames = HashSet<String>()
+                    for (i in 0 until queryUsageStats.size) {
+
+                        val appName =
+                            getAppNameFromPkg(applicationContext!!, queryUsageStats.get(i).packageName)
+                        val appPname = queryUsageStats.get(i).packageName
+                        val appUsage =
+                            formatMilliseconds(queryUsageStats[i].totalTimeInForeground)
+
+                        Log.d(
+                            "queryUsageStats",
+                            "$appName ... - $i : " + queryUsageStats.get(i).totalTimeInForeground
                         )
-                            if (appNames.add(appName)) {
-                                arrayListUsageStats.add(
-                                    AppUsage(
-                                        queryUsageStats[i].packageName,
-                                        formatMilliseconds(queryUsageStats[i].totalTimeInForeground)
-                                    )
+
+                        if (queryUsageStats.get(i).totalTimeInForeground > 0)
+                            if (!appName.contains("Launcher") || !appName.equals("Home"))
+                                if (applicationContext.packageManager.getLaunchIntentForPackage(
+                                        queryUsageStats[i].packageName
+                                    ) != null
                                 )
+                                    if (appNames.add(appName)) {
+                                        hashSetAppUsage.add(
+                                            AppUsage(
+                                                queryUsageStats[i].packageName,
+                                                formatMilliseconds(queryUsageStats[i].totalTimeInForeground)
+                                            )
+                                        )
 
-
-
-                                choosenApps.add(
-                                    App(
-                                        appName, appPname, appUsage
-                                    )
-                                )
-                            }
-                //  }
+                                        choosenApps.add(
+                                            App(
+                                                appName, appPname, appUsage
+                                            )
+                                        )
+                                    }
+                    }
+                    saveApps(choosenApps)
+                }
+            } catch (e: Exception) {
+                // This catches the AppSearchException "Invalid cycle detected" which is a system bug
+                // in the AppsIndexer when processing Digital Wellbeing metadata.
+                Log.e(TAG, "System indexing error during UsageStats query: ${e.message}")
             }
-
-            saveApps(choosenApps)
-
         }
 
         private fun saveApps(apps: java.util.ArrayList<App>) {
@@ -404,6 +403,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         }
 
         private fun getAppNameFromPkg(context: Context, packageName: String?): String {
+
             val pm: PackageManager = context.getPackageManager()
             var ai = try {
                 pm.getApplicationInfo(packageName.toString(), 0)
@@ -429,5 +429,3 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
     }
 
 }
-
-

@@ -51,7 +51,7 @@ class GapsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
         val googleLaunchableAppsResolveInfo = getGoogleLaunchableApps()
 
-        makeToast("GoogleApps - ${googleLaunchableAppsResolveInfo.size}")
+        // makeToast("GoogleApps - ${googleLaunchableAppsResolveInfo.size}")
 
         gapps = ArrayList()
 

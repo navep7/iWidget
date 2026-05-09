@@ -3,22 +3,17 @@ package com.belaku.homey
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
-import com.belaku.homey.DialogActivity.Companion.isStepsMapsInitialized
-import com.belaku.homey.DialogActivity.Companion.stepsMaps
-import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
+import java.time.LocalDate
 
 
 class StepsAdapter(
     private val stepsData: ArrayList<String>,
-    private val stepsLocInfo: ArrayList<LatLng>
 ) : RecyclerView.Adapter<StepsViewHolder>() {
     private var km: String = ""
 
@@ -31,25 +26,36 @@ class StepsAdapter(
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: StepsViewHolder, position: Int) {
 
-        remoteViews?.setTextViewText(R.id.tx_steps, stepsData[position])
+        stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
+        remoteViews?.setTextViewText(R.id.txsteps, "$stepsToday Steps")
         appWidM.updateAppWidget(newAppWidget, remoteViews)
 
-        if (isStepsMapsInitialized())
+
             when (position) {
                 0 -> {
-                    stepsMaps.clear()
+
                     if (stepsData[position].toInt() != 0)
                         km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
-                    holder.txSteps.text = "Monday \n ${stepsData[position]} steps... \n ~ $km km!"
-
+                    holder.txSteps.text = "Sunday \n ${stepsData[position]} steps... \n ~ $km km!"
                     if (stepsData[position].toInt() > 1000)
                         holder.progressSteps.progress = stepsData[position].toInt() / 100
                     else holder.progressSteps.progress = stepsData[position].toInt() / 10
                 }
 
                 1 -> {
-                    stepsMaps.clear()
+
+                    if (stepsData[position].toInt() != 0)
+                        km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
+                    else km = "0"
+                    holder.txSteps.text = "Monday \n ${stepsData[position]} steps... \n ~ $km km!"
+                    if (stepsData[position].toInt() > 1000)
+                        holder.progressSteps.progress = stepsData[position].toInt() / 100
+                    else holder.progressSteps.progress = stepsData[position].toInt() / 10
+                }
+
+                2 -> {
+
                     if (stepsData[position].toInt() != 0)
                         km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
@@ -59,8 +65,8 @@ class StepsAdapter(
                     else holder.progressSteps.progress = stepsData[position].toInt() / 10
                 }
 
-                2 -> {
-                    stepsMaps.clear()
+                3 -> {
+
                     if (stepsData[position].toInt() != 0)
                         km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
@@ -70,8 +76,8 @@ class StepsAdapter(
                     else holder.progressSteps.progress = stepsData[position].toInt() / 10
                 }
 
-                3 -> {
-                    stepsMaps.clear()
+                4 -> {
+
                     if (stepsData[position].toInt() != 0)
                         km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
@@ -81,8 +87,8 @@ class StepsAdapter(
                     else holder.progressSteps.progress = stepsData[position].toInt() / 10
                 }
 
-                4 -> {
-                    stepsMaps.clear()
+                5 -> {
+
                     if (stepsData[position].toInt() != 0)
                         km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
@@ -92,23 +98,12 @@ class StepsAdapter(
                     else holder.progressSteps.progress = stepsData[position].toInt() / 10
                 }
 
-                5 -> {
-                    stepsMaps.clear()
-                    if (stepsData[position].toInt() != 0)
-                        km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
-                    else km = "0"
-                    holder.txSteps.text = "Saturday \n ${stepsData[position]} steps... \n ~ $km km!"
-                    if (stepsData[position].toInt() > 1000)
-                        holder.progressSteps.progress = stepsData[position].toInt() / 100
-                    else holder.progressSteps.progress = stepsData[position].toInt() / 10
-                }
-
                 6 -> {
-                    stepsMaps.clear()
+
                     if (Integer.parseInt(stepsData[position]) != 0)
                      km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
                     else km = "0"
-                    holder.txSteps.text = "Sunday \n ${stepsData[position]} steps... \n ~ $km km!"
+                    holder.txSteps.text = "Saturday \n ${stepsData[position]} steps... \n ~ $km km!"
                     if (stepsData[position].toInt() > 1000)
                         holder.progressSteps.progress = stepsData[position].toInt() / 100
                     else holder.progressSteps.progress = stepsData[position].toInt() / 10

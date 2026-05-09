@@ -59,7 +59,7 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         setContentView(binding.root)
 
         mySpaceActivityContext = applicationContext
-        makeToast("MySpace - apps, contacts, web links, etc .., of my Own!")
+        // makeToast("MySpace - apps, contacts, web links, etc .., of my Own!")
 
         val rootLayout = findViewById<RelativeLayout>(R.id.my_space_layout)
         try {
@@ -70,7 +70,7 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
                 )
             )
         } catch (exp: Exception) {
-            makeToast("exp - $exp")
+            // makeToast("exp - $exp")
         }
 
         fabAdd = findViewById<FloatingActionButton>(R.id.fab_myspace)
@@ -177,9 +177,9 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
                 rvAdapter.notifyDataSetChanged()
             } else if (addType == "Contact") {
-                makeToast("yet2ImplC")
+                // makeToast("yet2ImplC")
             } else if (addType == "Web link") {
-                makeToast("yet2ImplWL")
+                // makeToast("yet2ImplWL")
             }
             dialog.dismiss()
         }

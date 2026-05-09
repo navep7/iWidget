@@ -15,14 +15,12 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import android.widget.RemoteViews
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
-import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
 import com.belaku.homey.MusicActivity.Companion.pDatalistSongs
 import com.belaku.homey.MusicActivity.Companion.recyclerViewSongs
@@ -71,7 +69,7 @@ class MusicService : Service() {
                     }
                 txPlayingSong.text = mediaMetadata.title
             } catch (ex: Exception) {
-                makeToast("EXP updating MusicActivity ~ ${ex.message}")
+                // makeToast("EXP updating MusicActivity ~ ${ex.message}")
             }
 
 
@@ -92,7 +90,7 @@ class MusicService : Service() {
             if (isAppWidMInitialized() && mediaMetadata.artworkUri != null)
                 Picasso.get()
                     .load(mediaMetadata.artworkUri)
-                    .into(remoteViews!!, R.id.imgv_p_album, NewAppWidget.i_appWidgetIds)
+                    .into(remoteViews!!, R.id.imgv_albumcover, NewAppWidget.i_appWidgetIds)
             txPlayingSong.text = mediaMetadata.title
 
 
@@ -298,17 +296,17 @@ class MusicService : Service() {
 
     private fun trackSeek() {
 
-        //  makeToast("!trackSeek")
+        //  // makeToast("!trackSeek")
 
-        //  makeToast("!increaseVol ~ ${mMediaPlayer!!.currentPosition}")
+        //  // makeToast("!increaseVol ~ ${mMediaPlayer!!.currentPosition}")
         increaseVol()
 
         val handler = Handler(Looper.getMainLooper())
         handler.postDelayed(object : Runnable {
             override fun run() {
                 // Code to run after the delay
-                //   makeToast("50secs ~ ${mPlayer.currentPosition}")
-                //   makeToast("!decreaseVol ~ ${mMediaPlayer!!.currentPosition}")
+                //   // makeToast("50secs ~ ${mPlayer.currentPosition}")
+                //   // makeToast("!decreaseVol ~ ${mMediaPlayer!!.currentPosition}")
                 reduceVolume()
             }
 

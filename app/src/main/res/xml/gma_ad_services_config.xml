@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ad-services-config>
+    <attribution allowAdIdAccess="true" />
+    <fledge allowAdIdAccess="true" />
+    <measurement allowAdIdAccess="true" />
+</ad-services-config>
