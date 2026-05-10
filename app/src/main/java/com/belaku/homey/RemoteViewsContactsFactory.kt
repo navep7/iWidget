@@ -26,7 +26,7 @@ class RemoteViewsContactsFactory(private val mContext: Context) :
         if (favContacts.isEmpty())
             NewAppWidget().getFavoriteContacts()
 
-        makeToast("favContactsSZ : ${favContacts.size}")
+        makeToast("Favorite Contacts : ${favContacts.size}")
     }
 
     override fun onDataSetChanged() {

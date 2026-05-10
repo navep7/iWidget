@@ -21,7 +21,7 @@ class RemoteViewsAppsFactory(private val mContext: Context) :
         if (choosenApps.isEmpty())
             appUsageStats(mContext)
 
-        makeToast("choosenAppsSZ : ${choosenApps.size}")
+        makeToast("Most Used Apps : ${choosenApps.size}")
     }
 
     override fun onDataSetChanged() {

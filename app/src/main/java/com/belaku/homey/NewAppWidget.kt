@@ -1983,6 +1983,7 @@ class NewAppWidget : AppWidgetProvider() {
 
                 //AnotherDay...
                 makeToast("AnotherDay... $stepsToday")
+                formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
                 stepsToday = 0
             }
 
