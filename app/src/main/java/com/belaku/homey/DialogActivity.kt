@@ -620,7 +620,17 @@ class DialogActivity : AppCompatActivity() {
                 //     txContent.movementMethod = ScrollingMovementMethod()
                 //     txContent.append(Html.fromHtml("\n\n<b><u> Most Used Apps.. > 10 mins</u></b>"))
 
-                txAppName.append("Most Used Apps.\n")
+
+                txAppName.append( "Screen Time Analysis : Based on App Usage stats from a Week(" + "${
+                    beginCal.get(
+                        Calendar.DAY_OF_MONTH
+                    )
+                }/${beginCal.get(Calendar.MONTH) + 1}/${beginCal.get(Calendar.YEAR)} : " +
+                        "${endCal.get(Calendar.DAY_OF_MONTH)}/${endCal.get(Calendar.MONTH) + 1}/${
+                            endCal.get(
+                                Calendar.YEAR
+                            )
+                        })" + ", below is the App data, every day (mm:ss)..  \n\n" + "Most Used Apps.\n")
                 txAppUsageTime.append("> 10 mins/day\n")
                 for (i in muApps) txAppName.append(i)
                 for (i in myAppUsages) txAppUsageTime.append(i)

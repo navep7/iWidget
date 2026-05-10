@@ -6,13 +6,12 @@
 
     <ImageView
         android:id="@+id/contact_imgv"
-        android:src="@drawable/contacts"
-        android:layout_above="@+id/contact_tx_name"
+        android:src="@drawable/launch_e"
         android:background="@drawable/rounded_corner_white"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
-        android:layout_centerInParent="true"
-        android:scaleType="fitXY"
+        android:layout_above="@+id/contact_tx_name"
+        android:layout_centerHorizontal="true"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         tools:ignore="ContentDescription" />
 
     <TextView
@@ -27,7 +26,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:padding="@dimen/padding_5"
+        android:padding="@dimen/padding_3"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:src="@drawable/contacts"
@@ -38,7 +37,7 @@
     <TextView
         android:id="@+id/contact_tx_close"
         android:tag="APP"
-        android:text=" x "
+        android:text="x"
         android:padding="3sp"
         android:background="@drawable/circular_white"
         android:textSize="10sp"
@@ -48,10 +47,9 @@
         android:layout_height="wrap_content"
         android:gravity="end"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="-10dp"
         android:layout_toEndOf="@+id/contact_imgv"
         android:src="@drawable/contacts"
-        tools:ignore="HardcodedText,SmallSp" />
+        tools:ignore="HardcodedText" />
 
 
 </RelativeLayout>

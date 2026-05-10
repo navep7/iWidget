@@ -66,7 +66,7 @@ class RemoteViewsContactsFactory(private val mContext: Context) :
                         favContacts[position].contactBitmap
                     )
                 val cornerRadius =
-                    (favContacts[position].contactBitmap.width / 0.5) // Example radius in pixels
+                    (favContacts[position].contactBitmap.width / 0.25) // Example radius in pixels
                 roundedBitmapDrawable.cornerRadius = cornerRadius.toFloat()
 
                 // Create the fill-in intent

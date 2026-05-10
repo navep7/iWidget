@@ -1815,6 +1815,11 @@ class NewAppWidget : AppWidgetProvider() {
             // Convert to desired units (e.g., minutes, hours)
             totalScreenTimeInHours = totalScreenTimeInMillis / (1000 * 60 * 60) / 6
 
+            remoteViews?.setTextViewText(
+                R.id.tx_screentime,
+                "$totalScreenTimeInHours+ Hours"
+            )
+
             val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
             var ampm = Calendar.getInstance()[Calendar.AM_PM].toString()
 

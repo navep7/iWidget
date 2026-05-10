@@ -93,9 +93,6 @@ class StepsService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        makeToast("!StepsServiceStarted")
-
-
             if (!isLocationEnabled(applicationContext)) {
                 val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                 applicationContext.startActivity(intent.setFlags(FLAG_ACTIVITY_NEW_TASK))
@@ -153,8 +150,6 @@ class StepsService : Service() {
                             e.printStackTrace()
                              makeToast("GCD - IOException \n $e")
                         }
-
-                        makeToast("!getAddress ~ $cityname")
 
                     }
 
