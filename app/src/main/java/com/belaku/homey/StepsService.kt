@@ -93,7 +93,7 @@ class StepsService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-//        makeToast("!StepsServiceStarted")
+        makeToast("!StepsServiceStarted")
 
 
             if (!isLocationEnabled(applicationContext)) {
@@ -151,8 +151,10 @@ class StepsService : Service() {
                         } catch (e: IOException) {
                             // TODO Auto-generated catch block
                             e.printStackTrace()
-                            // makeToast("GCD - IOException \n $e")
+                             makeToast("GCD - IOException \n $e")
                         }
+
+                        makeToast("!getAddress ~ $cityname")
 
                     }
 

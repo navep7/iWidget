@@ -26,18 +26,21 @@
         android:paddingBottom="@dimen/padding_5">
 
 
-        <RelativeLayout
+        <LinearLayout
             android:id="@+id/ll_top"
+            android:weightSum="10"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:background="@drawable/gradient_glass_flatbottom"
-            android:padding="@dimen/padding_5">
+            android:padding="@dimen/padding_7">
 
 
             <RelativeLayout
                 android:id="@+id/rl_battery"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_marginStart="@dimen/padding_5"
+                android:layout_height="match_parent"
                 android:gravity="center">
 
                 <ProgressBar
@@ -66,12 +69,12 @@
 
             <TextView
                 android:id="@+id/tx_wish"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:text="..Greet!"
+                android:layout_marginStart="@dimen/padding_3"
                 android:gravity="center"
-                android:layout_toEndOf="@+id/rl_battery"
-                android:layout_toStartOf="@+id/imgbtn_reminders"
+                android:layout_weight="4"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
                 android:textColor="@android:color/black"
                 android:textSize="25sp"
                 android:textStyle="bold"
@@ -80,11 +83,10 @@
 
             <ImageButton
                 android:id="@+id/imgbtn_reminders"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_marginStart="@dimen/padding_5"
-                android:layout_toStartOf="@+id/fab_torch"
-                android:layout_centerVertical="true"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/padding_3"
                 android:background="@drawable/rounded_corner_gray"
                 android:padding="@dimen/padding_5"
                 android:scaleType="fitXY"
@@ -95,11 +97,10 @@
 
             <ImageButton
                 android:id="@+id/fab_torch"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_marginStart="@dimen/padding_5"
-                android:layout_toStartOf="@+id/fab_wifi"
-                android:layout_centerVertical="true"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/padding_3"
                 android:background="@drawable/rounded_corner_gray"
                 android:padding="@dimen/padding_5"
                 android:scaleType="fitXY"
@@ -108,11 +109,10 @@
 
             <ImageButton
                 android:id="@+id/fab_wifi"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_marginStart="@dimen/padding_5"
-                android:layout_toStartOf="@+id/fab_blue"
-                android:layout_centerVertical="true"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/padding_3"
                 android:background="@drawable/rounded_corner_gray"
                 android:gravity="center"
                 android:padding="@dimen/padding_5"
@@ -123,11 +123,10 @@
 
             <ImageButton
                 android:id="@+id/fab_blue"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_marginStart="@dimen/padding_5"
-                android:layout_toStartOf="@+id/fab_ai"
-                android:layout_centerVertical="true"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_marginStart="@dimen/padding_3"
+                android:layout_height="match_parent"
                 android:background="@drawable/rounded_corner_gray"
                 android:gravity="center"
                 android:padding="@dimen/padding_5"
@@ -136,18 +135,18 @@
 
             <ImageButton
                 android:id="@+id/fab_ai"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_marginStart="@dimen/padding_5"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_marginStart="@dimen/padding_3"
+                android:layout_marginEnd="@dimen/padding_5"
+                android:layout_height="match_parent"
                 android:background="@drawable/rounded_corner_gray"
                 android:gravity="center"
                 android:padding="@dimen/padding_5"
                 android:scaleType="fitXY"
                 android:src="@drawable/ai" />
 
-        </RelativeLayout>
+        </LinearLayout>
 
 
         <RelativeLayout
@@ -166,7 +165,7 @@
                 android:layout_marginStart="@dimen/padding_5"
                 android:layout_marginTop="@dimen/padding_5"
                 android:layout_toStartOf="@+id/frame_texts"
-                android:gravity="center"
+                android:gravity="start"
                 android:orientation="vertical">
 
                 <TextView
@@ -296,7 +295,7 @@
                 android:layout_toEndOf="@+id/frame_texts"
                 android:layout_marginEnd="@dimen/fab_margin"
                 android:layout_marginTop="@dimen/padding_5"
-                android:gravity="center"
+                android:gravity="end"
                 android:orientation="vertical">
 
                 <TextView
@@ -680,7 +679,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="@dimen/fab_margin"
+        android:layout_margin="@dimen/padding_5"
         android:layout_below="@+id/tx_runner"
         android:layout_above="@+id/tx_walldesc"
         android:layout_toEndOf="@+id/ll_apps"

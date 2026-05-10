@@ -1308,14 +1308,14 @@ class MainActivity : AppCompatActivity() {
             if (grantResults.isNotEmpty())
                 if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("ARP", true).apply()
-                    startStepsService()
+                //    startStepsService()
                     btnAR.text = "Granted"
                 }
         } else if (requestCode == READ_CONTACTS_P) {
             if (grantResults.isNotEmpty())
                 if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("RCP", true).apply()
-                    NewAppWidget().getFavoriteContacts()
+               //     NewAppWidget().getFavoriteContacts()
                     btnRC.text = "Granted"
                 }
         } else if (requestCode == BLUETOOTH_P) {
@@ -1371,6 +1371,7 @@ class MainActivity : AppCompatActivity() {
                 buttonAll.setOnClickListener {
                     if (!nPermissions()) {
                         rawTweets(false)
+                        startStepsService()
                         NewAppWidget().getFavoriteContacts()
                         iDV.dismiss()
                     } else ActivityCompat.requestPermissions(
@@ -1394,10 +1395,10 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun startStepsService() {
-        if (!isMyServiceRunning(applicationContext, StepsService::class.java)) {
+     //   if (!isMyServiceRunning(applicationContext, StepsService::class.java)) {
             val intentSteps = Intent(this, StepsService::class.java)
             startForegroundService(intentSteps)
-        }
+      //  }
 
     }
 
@@ -1498,6 +1499,7 @@ class MainActivity : AppCompatActivity() {
         buttonAll.setOnClickListener {
             if (!nPermissions()) {
                 rawTweets(false)
+                startStepsService()
                 NewAppWidget().getFavoriteContacts()
                 iDV.dismiss()
             } else ActivityCompat.requestPermissions(
