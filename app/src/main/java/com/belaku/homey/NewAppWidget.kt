@@ -1838,25 +1838,25 @@ class NewAppWidget : AppWidgetProvider() {
 
                 remoteViews?.setTextViewText(
                     R.id.tx_screentime,
-                    "$hour+ Hours"
+                    "$totalScreenTimeInHours+ Hours"
                 )
 
-                if (Integer.parseInt(hour) < 2)
+                if (totalScreenTimeInHours < 2)
                     remoteViews?.setTextViewText(
                         R.id.tx_screenusage_state,
                         "LOW"
                     )
-                else if ((Integer.parseInt(hour) > 2) && (Integer.parseInt(hour) < 4))
+                else if (totalScreenTimeInHours > 2 && totalScreenTimeInHours < 4)
                     remoteViews?.setTextViewText(
                         R.id.tx_screenusage_state,
                         "MODERATE"
                     )
-                else if ((Integer.parseInt(hour) > 4) && (Integer.parseInt(hour) < 6))
+                else if (totalScreenTimeInHours > 4 && totalScreenTimeInHours < 6)
                     remoteViews?.setTextViewText(
                         R.id.tx_screenusage_state,
                         "HIGH"
                     )
-                else if (Integer.parseInt(hour) > 6)
+                else if (totalScreenTimeInHours > 6)
                     remoteViews?.setTextViewText(
                         R.id.tx_screenusage_state,
                         "EXCESSIVE"

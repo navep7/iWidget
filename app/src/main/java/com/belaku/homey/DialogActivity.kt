@@ -71,6 +71,7 @@ import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
+import com.belaku.homey.NewAppWidget.Companion.totalScreenTimeInHours
 import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.pinNote
@@ -620,8 +621,7 @@ class DialogActivity : AppCompatActivity() {
                 //     txContent.movementMethod = ScrollingMovementMethod()
                 //     txContent.append(Html.fromHtml("\n\n<b><u> Most Used Apps.. > 10 mins</u></b>"))
 
-
-                txAppName.append( "Screen Time Analysis : Based on App Usage stats from a Week(" + "${
+                findViewById<TextView>(R.id.tx_heading).setText( "Screen Time Analysis : Based on App Usage stats from a Week(" + "${
                     beginCal.get(
                         Calendar.DAY_OF_MONTH
                     )
@@ -630,7 +630,20 @@ class DialogActivity : AppCompatActivity() {
                             endCal.get(
                                 Calendar.YEAR
                             )
-                        })" + ", below is the App data, every day (mm:ss)..  \n\n" + "Most Used Apps.\n")
+                        })" + ", below is the App data, every day (mm:ss)..  \n\n")
+
+
+               /* txAppName.append( "Screen Time Analysis : Based on App Usage stats from a Week(" + "${
+                    beginCal.get(
+                        Calendar.DAY_OF_MONTH
+                    )
+                }/${beginCal.get(Calendar.MONTH) + 1}/${beginCal.get(Calendar.YEAR)} : " +
+                        "${endCal.get(Calendar.DAY_OF_MONTH)}/${endCal.get(Calendar.MONTH) + 1}/${
+                            endCal.get(
+                                Calendar.YEAR
+                            )
+                        })" + ", below is the App data, every day (mm:ss)..  \n\n" + "Most Used Apps.\n")*/
+                txAppName.append("Most Used Apps.\n")
                 txAppUsageTime.append("> 10 mins/day\n")
                 for (i in muApps) txAppName.append(i)
                 for (i in myAppUsages) txAppUsageTime.append(i)
@@ -741,25 +754,25 @@ class DialogActivity : AppCompatActivity() {
 
                 remoteViews?.setTextViewText(
                     R.id.tx_screentime,
-                    "$hour+ Hours"
+                    "$totalScreenTimeInHours+ Hours"
                 )
 
-                if (Integer.parseInt(hour) < 2)
+                if (totalScreenTimeInHours < 2)
                     remoteViews?.setTextViewText(
                         R.id.tx_screenusage_state,
                         "LOW"
                     )
-                else if ((Integer.parseInt(hour) > 2) && (Integer.parseInt(hour) < 4))
+                else if (totalScreenTimeInHours in 3..<4)
                     remoteViews?.setTextViewText(
                         R.id.tx_screenusage_state,
                         "MODERATE"
                     )
-                else if ((Integer.parseInt(hour) > 4) && (Integer.parseInt(hour) < 6))
+                else if (totalScreenTimeInHours in 5..<6)
                     remoteViews?.setTextViewText(
                         R.id.tx_screenusage_state,
                         "HIGH"
                     )
-                else if (Integer.parseInt(hour) > 6)
+                else if (totalScreenTimeInHours > 6)
                     remoteViews?.setTextViewText(
                         R.id.tx_screenusage_state,
                         "EXCESSIVE"
