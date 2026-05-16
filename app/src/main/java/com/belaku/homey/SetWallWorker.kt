@@ -52,7 +52,6 @@ import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.hashSetAppUsage
 import com.belaku.homey.NewAppWidget.Companion.dU
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
-import com.belaku.homey.NewAppWidget.Companion.getScreenTime
 import com.belaku.homey.NewAppWidget.Companion.greeting
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
@@ -107,6 +106,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
     companion object {
 
+        var hour: Int = 0
         var screenWidth by Delegates.notNull<Int>()
         var screenHeight by Delegates.notNull<Int>()
 
@@ -151,7 +151,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             wm.setWallpaperOffsetSteps(1F, 1F)
 
 
-            getScreenTime(wallWorkerContext)
             greeting()
 
             try {
@@ -282,7 +281,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         private fun DayChanges(wallWorkerContext: Context) {
 
 
-            getScreenTime(wallWorkerContext)
             if (sharedPreferences.getString("day", "someday").equals(dayOfTheWeek)) {
                 Log.d("DayChange?", "same Day")
             } else {

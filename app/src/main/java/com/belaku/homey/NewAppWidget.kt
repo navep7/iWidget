@@ -89,6 +89,7 @@ import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.dayChange
 import com.belaku.homey.SetWallWorker.Companion.dayIndex
+import com.belaku.homey.SetWallWorker.Companion.hour
 import com.belaku.homey.SetWallWorker.Companion.isPinNoteInitialized
 import com.belaku.homey.SetWallWorker.Companion.isWallBitmapInitialized
 import com.belaku.homey.SetWallWorker.Companion.ismActInitialized
@@ -646,6 +647,34 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setUI() {
 
+        if (hour != 0) {
+            remoteViews?.setTextViewText(
+                R.id.tx_screentime,
+                "$hour+ Hours"
+            )
+
+            if (hour < 2)
+                remoteViews?.setTextViewText(
+                    R.id.tx_screenusage_state,
+                    "LOW"
+                )
+            else if (hour in 3..<4)
+                remoteViews?.setTextViewText(
+                    R.id.tx_screenusage_state,
+                    "MODERATE"
+                )
+            else if (hour in 5..<6)
+                remoteViews?.setTextViewText(
+                    R.id.tx_screenusage_state,
+                    "HIGH"
+                )
+            else if (hour > 6)
+                remoteViews?.setTextViewText(
+                    R.id.tx_screenusage_state,
+                    "EXCESSIVE"
+                )
+        }
+
         val spkServiceRunning = sharedPreferences.getBoolean("SPKSERVICE", false)
         //   // makeToast("spkServiceRunning : $spkServiceRunning")
         if (spkServiceRunning)
@@ -675,7 +704,6 @@ class NewAppWidget : AppWidgetProvider() {
 
         seekWifiState()
         seekBluetoothState()
-        getScreenTime(widgetContext)
         todaysDate()
         locationTxUpdate(widgetContext)
         wallColors()
@@ -1794,77 +1822,6 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
-        fun getScreenTime(applicationContext: Context) {
-
-            val usageStatsManager =
-                applicationContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-
-            dayListener(Calendar.getInstance())
-
-            // Get a map of package names to UsageStats objects
-            val usageStatsMap = usageStatsManager.queryAndAggregateUsageStats(
-                beginCal.timeInMillis,
-                endCal.timeInMillis
-            )
-
-            var totalScreenTimeInMillis: Long = 0
-            for (usageStats in usageStatsMap.values) {
-                totalScreenTimeInMillis += usageStats.totalTimeInForeground
-            }
-
-            // Convert to desired units (e.g., minutes, hours)
-            totalScreenTimeInHours = totalScreenTimeInMillis / (1000 * 60 * 60) / 6
-
-            remoteViews?.setTextViewText(
-                R.id.tx_screentime,
-                "$totalScreenTimeInHours+ Hours"
-            )
-
-            val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
-            var ampm = Calendar.getInstance()[Calendar.AM_PM].toString()
-
-            when (ampm) {
-                "0" -> ampm = "AM"
-                "1" -> ampm = "PM"
-            }
-
-            if (totalUsage.split(":")[0].isNotEmpty()) {
-                var sT = totalUsage.split(":")
-                var hour = ""
-
-                if (sT[0][0] == '0')
-                    hour = sT[0].drop(1)
-                else hour = sT[0]
-
-                remoteViews?.setTextViewText(
-                    R.id.tx_screentime,
-                    "$totalScreenTimeInHours+ Hours"
-                )
-
-                if (totalScreenTimeInHours < 2)
-                    remoteViews?.setTextViewText(
-                        R.id.tx_screenusage_state,
-                        "LOW"
-                    )
-                else if (totalScreenTimeInHours > 2 && totalScreenTimeInHours < 4)
-                    remoteViews?.setTextViewText(
-                        R.id.tx_screenusage_state,
-                        "MODERATE"
-                    )
-                else if (totalScreenTimeInHours > 4 && totalScreenTimeInHours < 6)
-                    remoteViews?.setTextViewText(
-                        R.id.tx_screenusage_state,
-                        "HIGH"
-                    )
-                else if (totalScreenTimeInHours > 6)
-                    remoteViews?.setTextViewText(
-                        R.id.tx_screenusage_state,
-                        "EXCESSIVE"
-                    )
-            }
-
-
-        }
 
 
         fun dayListener(calendar: java.util.Calendar) {

@@ -66,7 +66,6 @@ import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.hashSetAppUsage
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
-import com.belaku.homey.NewAppWidget.Companion.getScreenTime
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
@@ -74,6 +73,7 @@ import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.NewAppWidget.Companion.totalScreenTimeInHours
 import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
+import com.belaku.homey.SetWallWorker.Companion.hour
 import com.belaku.homey.SetWallWorker.Companion.pinNote
 import com.belaku.homey.SetWallWorker.Companion.screenHeight
 import com.belaku.homey.SetWallWorker.Companion.screenWidth
@@ -554,8 +554,6 @@ class DialogActivity : AppCompatActivity() {
                 stepsData[Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1] = stepsToday.toString()
                 stepsAdapter.notifyDataSetChanged()
 
-                getScreenTime(applicationContext)
-
                 window.setLayout(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
                 );
@@ -744,7 +742,7 @@ class DialogActivity : AppCompatActivity() {
                 txAppUsageTime.append("\n\n")
 
                 var sT = totalUsage.split(":")
-                var hour = sT[0]
+                hour = Integer.parseInt(sT[0])
                 var min = sT[1]
 
                 txAppName.append("Avg Usage/Day ~ $hour Hours : $min Mins ")
@@ -754,25 +752,25 @@ class DialogActivity : AppCompatActivity() {
 
                 remoteViews?.setTextViewText(
                     R.id.tx_screentime,
-                    "$totalScreenTimeInHours+ Hours"
+                    "$hour+ Hours"
                 )
 
-                if (totalScreenTimeInHours < 2)
+                if (hour < 2)
                     remoteViews?.setTextViewText(
                         R.id.tx_screenusage_state,
                         "LOW"
                     )
-                else if (totalScreenTimeInHours in 3..<4)
+                else if (hour in 3..<4)
                     remoteViews?.setTextViewText(
                         R.id.tx_screenusage_state,
                         "MODERATE"
                     )
-                else if (totalScreenTimeInHours in 5..<6)
+                else if (hour in 5..<6)
                     remoteViews?.setTextViewText(
                         R.id.tx_screenusage_state,
                         "HIGH"
                     )
-                else if (totalScreenTimeInHours > 6)
+                else if (hour > 6)
                     remoteViews?.setTextViewText(
                         R.id.tx_screenusage_state,
                         "EXCESSIVE"
