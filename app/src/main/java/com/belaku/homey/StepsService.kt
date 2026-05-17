@@ -57,6 +57,7 @@ import com.belaku.homey.NewAppWidget.Companion.isAppWidMInitialized
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.TAG
+import com.belaku.homey.SetWallWorker.Companion.ismActInitialized
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.google.android.gms.location.LocationCallback
@@ -206,6 +207,11 @@ class StepsService : Service() {
                 if (presentActivityState != "INVEHICLE") {
                     Log.d("onSensorChanged", stepsToday.toString())
                 stepsToday++
+
+                    if (!ismActInitialized()) {
+                    sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+                    sharedPreferencesEditor = sharedPreferences.edit()
+                        }
 
 
                     if (stepsToday < 10) {
