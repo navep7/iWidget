@@ -37,8 +37,10 @@
     <TextView
         android:id="@+id/contact_tx_close"
         android:tag="APP"
-        android:text="x"
-        android:padding="3sp"
+        android:text="X"
+        android:layout_marginStart="-5dp"
+        android:paddingStart="5sp"
+        android:paddingEnd="5sp"
         android:background="@drawable/circular_white"
         android:textSize="10sp"
         android:textColor="@android:color/holo_red_dark"
@@ -47,6 +49,7 @@
         android:layout_height="wrap_content"
         android:gravity="end"
         android:layout_alignParentTop="true"
+        android:layout_marginEnd="-25dp"
         android:layout_toEndOf="@+id/contact_imgv"
         android:src="@drawable/contacts"
         tools:ignore="HardcodedText" />

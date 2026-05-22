@@ -26,7 +26,7 @@ class RemoteViewsContactsFactory(private val mContext: Context) :
         if (favContacts.isEmpty())
             NewAppWidget().getFavoriteContacts()
 
-        makeToast("Favorite Contacts : ${favContacts.size}")
+    //    makeToast("Favorite Contacts : ${favContacts.size}")
     }
 
     override fun onDataSetChanged() {
@@ -45,14 +45,15 @@ class RemoteViewsContactsFactory(private val mContext: Context) :
     override fun getViewAt(position: Int): RemoteViews {
         val rvContacts = RemoteViews(mContext.packageName, R.layout.remote_view_layout_contact)
 
-        if (favContacts.size == position) {
 
-                rvContacts.setViewVisibility(R.id.contact_tx_close, View.INVISIBLE)
+        if (position == count - 1) {
+
                 rvContacts.setImageViewResource(
                     R.id.contact_imgv,
                     android.R.drawable.ic_menu_add
                 )
                 rvContacts.setTextViewText(R.id.contact_tx_name, "Add NEW")
+                rvContacts.setViewVisibility(R.id.contact_tx_close, View.INVISIBLE)
 
                 val pickContact = Intent(mContext, DialogActivity::class.java).putExtra("DialogIntent", "PC")
                 rvContacts.setOnClickFillInIntent(
@@ -97,6 +98,7 @@ class RemoteViewsContactsFactory(private val mContext: Context) :
                     drawableToBitmap(mContext, roundedBitmapDrawable)
                 )
                 rvContacts.setTextViewText(R.id.contact_tx_name, favContacts[position].name)
+                rvContacts.setViewVisibility(R.id.contact_tx_close, View.VISIBLE)
                 rvContacts.setOnClickFillInIntent(R.id.contact_imgv, fillInIntentDial)
                 rvContacts.setOnClickFillInIntent(R.id.contact_tx_close, fillInIntentRemove)
             }

@@ -79,6 +79,8 @@ import com.belaku.homey.SetWallWorker.Companion.screenHeight
 import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
+import com.belaku.homey.StepsService.Companion.stepsAdapter
+import com.belaku.homey.StepsService.Companion.stepsData
 import com.belaku.homey.StepsService.Companion.totalUsage
 //import com.chaquo.python.Python
 //import com.chaquo.python.android.AndroidPlatform
@@ -112,7 +114,7 @@ import kotlin.random.Random
 
 class DialogActivity : AppCompatActivity() {
 
-    private lateinit var stepsAdapter: StepsAdapter
+ //   private lateinit var stepsAdapter: StepsAdapter
     private var boolFetchingTweets: Boolean = false
     private lateinit var dialogActContext: Context
     private lateinit var parentLayoutDialog: View
@@ -171,17 +173,18 @@ class DialogActivity : AppCompatActivity() {
 
         dialogActContext = applicationContext
 
-        val stepsData: ArrayList<String> = ArrayList()
+    //    val stepsData: ArrayList<String> = ArrayList()
 
 
-        stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
-
+        if (stepsData.size == 0) {
+            stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
+            stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
+            stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
+            stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
+            stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
+            stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
+            stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
+        }
 
 
         rewardedInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
@@ -552,7 +555,8 @@ class DialogActivity : AppCompatActivity() {
             } else if (dialogIntentStr == "stepsInfo") {
 
                 stepsData[Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1] = stepsToday.toString()
-                stepsAdapter.notifyDataSetChanged()
+                vpSteps.currentItem = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1
+                StepsService.stepsAdapter.notifyDataSetChanged()
 
                 window.setLayout(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT

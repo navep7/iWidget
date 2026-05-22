@@ -372,7 +372,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                                             )
                                         )
 
-                                        if (Integer.parseInt(appUsage.split(":")[0]) > 10) {
+                                        if (Integer.parseInt(appUsage.split(":")[0]) > 11) {
 
                                             val iconBitmap: Bitmap = applicationContext.packageManager.getApplicationIcon(appPname).toBitmap()
 

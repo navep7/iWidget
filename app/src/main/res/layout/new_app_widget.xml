@@ -173,7 +173,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="middle"
-                    android:maxLines="2"
+                    android:maxLines="1"
                     android:gravity="center"
                     android:layout_marginTop="@dimen/padding_5"
                     android:text="Place Info.."
@@ -592,33 +592,12 @@
         android:layout_alignParentStart="true"
         android:orientation="vertical">
 
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/gradient_glass_rounded_ss"
-            android:gravity="center">
-
-            <ImageView
-                android:id="@+id/imgv_apps"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/launch_e" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:padding="@dimen/padding_5"
-                android:text="Apps"
-                android:textColor="@android:color/holo_red_dark"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-
-
-        </LinearLayout>
-
+        <ImageView
+            android:id="@+id/imgv_apps"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/launch_e" />
 
         <ListView
             android:id="@+id/list_apps"
@@ -639,32 +618,12 @@
         android:layout_alignParentEnd="true"
         android:orientation="vertical">
 
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/gradient_glass_rounded_ss"
-            android:gravity="center">
-
-            <ImageView
-                android:id="@+id/imgv_contacts"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/contacts" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:padding="@dimen/padding_5"
-                android:text="Calls"
-                android:textColor="@android:color/holo_red_dark"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-
-
-        </LinearLayout>
+        <ImageView
+            android:id="@+id/imgv_contacts"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/contacts" />
 
 
         <ListView

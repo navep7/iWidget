@@ -408,6 +408,8 @@ class StepsService : Service() {
 
     companion object {
 
+        lateinit var stepsAdapter: StepsAdapter
+        val stepsData: ArrayList<String> = ArrayList()
         var presentActivityState = ""
         lateinit var locationListenerSpeed: LocationListener
         lateinit var locationManager: LocationManager

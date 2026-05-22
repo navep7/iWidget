@@ -102,6 +102,8 @@ import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.belaku.homey.StepsService.Companion.choosenApps
+import com.belaku.homey.StepsService.Companion.stepsAdapter
+import com.belaku.homey.StepsService.Companion.stepsData
 import com.belaku.homey.StepsService.Companion.totalUsage
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityTransition
@@ -1109,7 +1111,7 @@ class NewAppWidget : AppWidgetProvider() {
             widgetContext.startActivity(
                 Intent(widgetContext, DialogActivity::class.java)
                     .putExtra("DialogIntent", "stepsInfo")
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }
         if (STEPS_CLICK == intent.action) {
             Toast.makeText(widgetContext,"$stepsToday ~ " + String.format("%.1f", stepsToday * 74f / 100000f) + " Km", Toast.LENGTH_LONG).show()
@@ -1181,6 +1183,7 @@ class NewAppWidget : AppWidgetProvider() {
                 if (viewID == 0)
                     dialPhoneNumber(widgetContext, favContacts[position].number)
                 else if (viewID == 1) {
+                    if (favContacts.size != position)
                     unMarkAsFav(favContacts[position].id)
                 }
             } else {
@@ -1946,7 +1949,20 @@ class NewAppWidget : AppWidgetProvider() {
                 //AnotherDay...
                 makeToast("AnotherDay... $stepsToday")
                 formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
+
+                if (stepsData.isNotEmpty())
+                stepsData[Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1] = stepsToday.toString()
+                stepsAdapter.notifyDataSetChanged()
+
                 stepsToday = 0
+
+
+
+                if (arrayListHabits.size > 0) {
+                    for (i in arrayListHabits)
+                        i.isChecked = false
+                    adapterHabits.notifyDataSetChanged()
+                }
             }
 
 
