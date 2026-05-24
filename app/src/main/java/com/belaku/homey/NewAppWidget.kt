@@ -102,6 +102,7 @@ import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.belaku.homey.StepsService.Companion.choosenApps
+import com.belaku.homey.StepsService.Companion.isStepsAdapterInitialized
 import com.belaku.homey.StepsService.Companion.stepsAdapter
 import com.belaku.homey.StepsService.Companion.stepsData
 import com.belaku.homey.StepsService.Companion.totalUsage
@@ -1941,18 +1942,47 @@ class NewAppWidget : AppWidgetProvider() {
                 }
             }
 
+            var day = SimpleDateFormat("EEE", Locale.getDefault()).format(c)
+
+            if (day == "Mon") {
+
+                stepsData.clear()
+                stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
+
+                for (i in arrayListHabits) {
+                    i.isChecked = false
+                    sharedPreferencesEditor.putBoolean("${i.name}StateSu", false).apply()
+                    sharedPreferencesEditor.putBoolean("${i.name}StateM", false).apply()
+                    sharedPreferencesEditor.putBoolean("${i.name}StateTu", false).apply()
+                    sharedPreferencesEditor.putBoolean("${i.name}StateW", false).apply()
+                    sharedPreferencesEditor.putBoolean("${i.name}StateTh", false).apply()
+                    sharedPreferencesEditor.putBoolean("${i.name}StateF", false).apply()
+                    sharedPreferencesEditor.putBoolean("${i.name}StateS", false).apply()
+                }
+                adapterHabits.notifyDataSetChanged()
+
+
+            }
 
             if (!::formattedDate.isInitialized)
-            formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
+                formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
             else if (formattedDate != dfDate.format(c) + postFixDate + " " + dfMonth.format(c)) {
 
                 //AnotherDay...
-                makeToast("AnotherDay... $stepsToday")
+                makeToast("AnotherDay... $day")
                 formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
 
-                if (stepsData.isNotEmpty())
-                stepsData[Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1] = stepsToday.toString()
-                stepsAdapter.notifyDataSetChanged()
+                if (stepsData.isNotEmpty()) {
+                    stepsData[Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1] = stepsToday.toString()
+                    if (isStepsAdapterInitialized())
+                    stepsAdapter.notifyDataSetChanged()
+                }
 
                 stepsToday = 0
 

@@ -114,7 +114,6 @@ import kotlin.random.Random
 
 class DialogActivity : AppCompatActivity() {
 
- //   private lateinit var stepsAdapter: StepsAdapter
     private var boolFetchingTweets: Boolean = false
     private lateinit var dialogActContext: Context
     private lateinit var parentLayoutDialog: View
@@ -554,9 +553,12 @@ class DialogActivity : AppCompatActivity() {
                 }
             } else if (dialogIntentStr == "stepsInfo") {
 
-                stepsData[Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1] = stepsToday.toString()
-                vpSteps.currentItem = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1
-                StepsService.stepsAdapter.notifyDataSetChanged()
+                var i = (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) + 5) % 7
+                makeToast("CItem" + i)
+                stepsData[i] = stepsToday.toString()
+                vpSteps.currentItem = i
+                makeToast("CItem" + vpSteps.currentItem)
+                stepsAdapter.notifyDataSetChanged()
 
                 window.setLayout(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT

@@ -418,6 +418,13 @@ class StepsService : Service() {
         var totalUsage: String = ""
         var choosenApps: ArrayList<App> = ArrayList()
 
+        fun isStepsAdapterInitialized(): Boolean {
+            if (::stepsAdapter.isInitialized)
+                return true
+            else
+                return false
+
+        }
 
         @OptIn(DelicateCoroutinesApi::class)
         fun getWeatherData(latLng: LatLng) {

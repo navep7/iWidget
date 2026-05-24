@@ -89,8 +89,10 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         val listViewHabits = findViewById<ListView>(R.id.rv_habits)
         adapterHabits = HabitsAdapter(this, arrayListHabits)
         listViewHabits.adapter = adapterHabits
+        dayIndex =  Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
 
         listViewHabits.setOnItemClickListener(OnItemClickListener { parent, view, position, id ->
+            makeToast("" + dayIndex)
             if ((parent.getItemAtPosition(position) as Habit).isChecked) {
                 (parent.getItemAtPosition(position) as Habit).isChecked = false
                 when(dayIndex) {
