@@ -774,7 +774,7 @@ class DialogActivity : AppCompatActivity() {
                         R.id.tx_screenusage_state,
                         "HIGH"
                     )
-                else if (hour > 10)
+                else if (hour > 8)
                     remoteViews?.setTextViewText(
                         R.id.tx_screenusage_state,
                         "EXCESSIVE"

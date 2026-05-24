@@ -119,6 +119,7 @@ import com.squareup.picasso.Picasso
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.time.LocalDate
 import java.util.Calendar
 import java.util.Collections
 import java.util.Date
@@ -650,6 +651,9 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setUI() {
 
+
+        remoteViews?.setTextViewText(R.id.tx_steps, "${sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)} Steps")
+
         if (hour != 0) {
             remoteViews?.setTextViewText(
                 R.id.tx_screentime,
@@ -671,7 +675,7 @@ class NewAppWidget : AppWidgetProvider() {
                     R.id.tx_screenusage_state,
                     "HIGH"
                 )
-            else if (hour > 10)
+            else if (hour > 8)
                 remoteViews?.setTextViewText(
                     R.id.tx_screenusage_state,
                     "EXCESSIVE"
