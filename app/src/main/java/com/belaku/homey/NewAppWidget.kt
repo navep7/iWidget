@@ -661,17 +661,17 @@ class NewAppWidget : AppWidgetProvider() {
                     R.id.tx_screenusage_state,
                     "LOW"
                 )
-            else if (hour in 3..<4)
+            else if (hour in 3..<5)
                 remoteViews?.setTextViewText(
                     R.id.tx_screenusage_state,
                     "MODERATE"
                 )
-            else if (hour in 5..<6)
+            else if (hour in 6..<8)
                 remoteViews?.setTextViewText(
                     R.id.tx_screenusage_state,
                     "HIGH"
                 )
-            else if (hour > 6)
+            else if (hour > 10)
                 remoteViews?.setTextViewText(
                     R.id.tx_screenusage_state,
                     "EXCESSIVE"
@@ -1392,6 +1392,11 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         getFavoriteContacts()
+        //   val appWidgetIds = appWidM.getAppWidgetIds(newAppWidget)
+        //   appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)
+
+        widgetContext.startActivity(Intent(widgetContext, DialogActivity::class.java).putExtra("DialogIntent", "WCh").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+
     }
 
     @SuppressLint("Range")
@@ -1975,7 +1980,7 @@ class NewAppWidget : AppWidgetProvider() {
             else if (formattedDate != dfDate.format(c) + postFixDate + " " + dfMonth.format(c)) {
 
                 //AnotherDay...
-                makeToast("AnotherDay... $day")
+             //   makeToast("AnotherDay... $day")
                 formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
 
                 if (stepsData.isNotEmpty()) {

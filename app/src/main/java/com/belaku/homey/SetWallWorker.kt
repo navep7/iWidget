@@ -327,7 +327,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             cMonth = Calendar.getInstance().get(Calendar.MONTH)
             cDate = Calendar.getInstance().get(Calendar.DATE)
 
-            beginCal.set(cYear, cMonth, cDate - 7, 0, 0)
+            beginCal.set(cYear, cMonth, cDate - 6, 0, 0)
             endCal.set(cYear, cMonth, cDate - 1, 0, 0)
 
             try {

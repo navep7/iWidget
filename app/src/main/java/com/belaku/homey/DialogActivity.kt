@@ -554,10 +554,8 @@ class DialogActivity : AppCompatActivity() {
             } else if (dialogIntentStr == "stepsInfo") {
 
                 var i = (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) + 5) % 7
-                makeToast("CItem" + i)
                 stepsData[i] = stepsToday.toString()
                 vpSteps.currentItem = i
-                makeToast("CItem" + vpSteps.currentItem)
                 stepsAdapter.notifyDataSetChanged()
 
                 window.setLayout(
@@ -634,7 +632,7 @@ class DialogActivity : AppCompatActivity() {
                             endCal.get(
                                 Calendar.YEAR
                             )
-                        })" + ", below is the App data, every day (mm:ss)..  \n\n")
+                        })" + ", below is the App usage data, every day (mm:ss)..  \n\n")
 
 
                /* txAppName.append( "Screen Time Analysis : Based on App Usage stats from a Week(" + "${
@@ -766,17 +764,17 @@ class DialogActivity : AppCompatActivity() {
                         R.id.tx_screenusage_state,
                         "LOW"
                     )
-                else if (hour in 3..<4)
+                else if (hour in 3..<5)
                     remoteViews?.setTextViewText(
                         R.id.tx_screenusage_state,
                         "MODERATE"
                     )
-                else if (hour in 5..<6)
+                else if (hour in 6..<8)
                     remoteViews?.setTextViewText(
                         R.id.tx_screenusage_state,
                         "HIGH"
                     )
-                else if (hour > 6)
+                else if (hour > 10)
                     remoteViews?.setTextViewText(
                         R.id.tx_screenusage_state,
                         "EXCESSIVE"
