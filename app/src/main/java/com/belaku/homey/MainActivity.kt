@@ -10,6 +10,7 @@ import android.app.Dialog
 import android.app.PendingIntent
 import android.app.ProgressDialog
 import android.app.usage.UsageStats
+import android.app.usage.UsageStatsManager
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
@@ -1264,6 +1265,7 @@ class MainActivity : AppCompatActivity() {
             }
             if (allGranted) {
 
+
                 usageStatsPermissionDialog()
 
                 sharedPreferencesEditor.putBoolean("LP", true).apply()
@@ -1275,6 +1277,8 @@ class MainActivity : AppCompatActivity() {
                 startStepsService()
                 btnAR.text = "Granted"
 
+                StepsService.usageStatsManager =
+                    applicationContext?.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager // Context.USAGE_STATS_SERVICE);
 
                 sharedPreferencesEditor.putBoolean("RCP", true).apply()
                 NewAppWidget().getFavoriteContacts()

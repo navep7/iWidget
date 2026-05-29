@@ -130,6 +130,11 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         lateinit var cAddrs: List<Address>
         lateinit var wallBitmap: Bitmap
         lateinit var scaledBitmap: Bitmap
+
+        fun isSharedPreferencesInitialized(): Boolean {
+            return this::sharedPreferences.isInitialized
+        }
+
         fun isWallBitmapInitialized(): Boolean {
             return this::wallBitmap.isInitialized
         }
@@ -319,19 +324,15 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         fun appUsageStats(applicationContext: Context?) {
 
 
-            val usageStatsManager =
-                applicationContext?.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager // Context.USAGE_STATS_SERVICE);
-
-
             cYear = Calendar.getInstance().get(Calendar.YEAR)
             cMonth = Calendar.getInstance().get(Calendar.MONTH)
             cDate = Calendar.getInstance().get(Calendar.DATE)
 
-            beginCal.set(cYear, cMonth, cDate - 6, 0, 0)
+            beginCal.set(cYear, cMonth, cDate - 7, 0, 0)
             endCal.set(cYear, cMonth, cDate - 1, 0, 0)
 
             try {
-                val queryUsageStats = usageStatsManager.queryUsageStats(
+                val queryUsageStats = StepsService.usageStatsManager.queryUsageStats(
                     UsageStatsManager.INTERVAL_DAILY,
                     beginCal.timeInMillis,
                     endCal.timeInMillis

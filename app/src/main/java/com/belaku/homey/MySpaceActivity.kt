@@ -26,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.SetWallWorker.Companion.isSharedPreferencesInitialized
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.databinding.ActivityMySpaceBinding
@@ -78,9 +79,6 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
         listeners()
 
-        sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
-        sharedPreferencesEditor = sharedPreferences.edit()
-
 
         val launchableAppsResolveInfo = getLaunchableApps()
 
@@ -101,6 +99,11 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         }
 
         recyclerView = findViewById(R.id.rv_my_space)
+
+        if (!isSharedPreferencesInitialized()) {
+            sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+            sharedPreferencesEditor = sharedPreferences.edit()
+        }
         sharedPreferences.getStringSet("mySpaceApps", null)?.let { mySpaceAppsString.addAll(it) }
 
         var SZ = mySpaceAppsString.size

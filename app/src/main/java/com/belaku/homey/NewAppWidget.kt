@@ -1956,7 +1956,7 @@ class NewAppWidget : AppWidgetProvider() {
             if (day == "Mon") {
 
                 stepsData.clear()
-                stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Monday", stepsToday).toString())
                 stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
                 stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
                 stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
@@ -1967,7 +1967,7 @@ class NewAppWidget : AppWidgetProvider() {
                 for (i in arrayListHabits) {
                     i.isChecked = false
                     sharedPreferencesEditor.putBoolean("${i.name}StateSu", false).apply()
-                    sharedPreferencesEditor.putBoolean("${i.name}StateM", false).apply()
+                 //   sharedPreferencesEditor.putBoolean("${i.name}StateM", false).apply()
                     sharedPreferencesEditor.putBoolean("${i.name}StateTu", false).apply()
                     sharedPreferencesEditor.putBoolean("${i.name}StateW", false).apply()
                     sharedPreferencesEditor.putBoolean("${i.name}StateTh", false).apply()
@@ -1988,9 +1988,9 @@ class NewAppWidget : AppWidgetProvider() {
                 formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
 
                 if (stepsData.isNotEmpty()) {
-                    stepsData[Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1] = stepsToday.toString()
+                    stepsData[(Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 3) % 7] = stepsToday.toString()
                     if (isStepsAdapterInitialized())
-                    stepsAdapter.notifyDataSetChanged()
+                        stepsAdapter.notifyDataSetChanged()
                 }
 
                 stepsToday = 0

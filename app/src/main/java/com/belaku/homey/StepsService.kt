@@ -6,6 +6,7 @@ import android.app.ActivityManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
+import android.app.usage.UsageStatsManager
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothA2dp
 import android.bluetooth.BluetoothAdapter
@@ -408,6 +409,7 @@ class StepsService : Service() {
 
     companion object {
 
+        lateinit var usageStatsManager: UsageStatsManager
         lateinit var stepsAdapter: StepsAdapter
         val stepsData: ArrayList<String> = ArrayList()
         var presentActivityState = ""
