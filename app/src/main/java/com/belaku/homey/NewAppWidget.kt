@@ -157,7 +157,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         recognizeActivityTransitions()
 
-        appUsageStats(context)
+   //     appUsageStats(context)
         getFavoriteContacts()
     }
 
@@ -779,8 +779,11 @@ class NewAppWidget : AppWidgetProvider() {
 
     private fun setACAdapter() {
 
-        appUsageStats(widgetContext)
-        getFavoriteContacts()
+        if (sharedPreferences.getBoolean("anotherDay", false)) {
+            makeToast("gettng appUsageStats and getFavoriteContacts")
+            appUsageStats(widgetContext)
+            getFavoriteContacts()
+        }
 
         setContactsAdapter()
         setContactsClick()
@@ -1979,12 +1982,14 @@ class NewAppWidget : AppWidgetProvider() {
 
             }
 
-            if (!::formattedDate.isInitialized)
+            if (!::formattedDate.isInitialized) {
+                sharedPreferencesEditor.putBoolean("anotherDay", true).apply()
                 formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
-            else if (formattedDate != dfDate.format(c) + postFixDate + " " + dfMonth.format(c)) {
+            } else if (formattedDate != dfDate.format(c) + postFixDate + " " + dfMonth.format(c)) {
 
                 //AnotherDay...
              //   makeToast("AnotherDay... $day")
+                sharedPreferencesEditor.putBoolean("anotherDay", true).apply()
                 formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
 
                 if (stepsData.isNotEmpty()) {
@@ -2002,10 +2007,9 @@ class NewAppWidget : AppWidgetProvider() {
                         i.isChecked = false
                     adapterHabits.notifyDataSetChanged()
                 }
-            }
+            } else sharedPreferencesEditor.putBoolean("anotherDay", false).apply()
 
 
-            // remoteViews?.setTextViewText(R.id.tx_date, formattedDate)
             sharedPreferencesEditor.putBoolean("DateSet", true).apply()
             sharedPreferencesEditor.putString("fD", formattedDate).apply()
 

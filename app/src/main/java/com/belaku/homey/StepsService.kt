@@ -101,10 +101,12 @@ class StepsService : Service() {
             }
 
             val locationRequest = LocationRequest.create()
-            locationRequest.setInterval(60000)
-            locationRequest.setSmallestDisplacement(1f)
+            locationRequest.setInterval(10000)
+            locationRequest.setSmallestDisplacement(3f)
             locationRequest.setFastestInterval(10000)
             locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
+
+
 
             //instantiating the LocationCallBack
 

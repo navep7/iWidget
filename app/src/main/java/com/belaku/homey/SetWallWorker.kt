@@ -359,13 +359,14 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                             "$appName ... - $i : " + queryUsageStats.get(i).totalTimeInForeground
                         )
 
-                        if (queryUsageStats.get(i).totalTimeInForeground > 0)
+                     //   if (queryUsageStats.get(i).totalTimeInForeground > 0)
                             if (!appName.contains("Launcher") || !appName.equals("Home"))
                                 if (applicationContext.packageManager.getLaunchIntentForPackage(
                                         queryUsageStats[i].packageName
                                     ) != null
                                 )
                                     if (appNames.add(appName)) {
+                                        if (!hashSetAppUsage.any { it.appName == appName })
                                         hashSetAppUsage.add(
                                             AppUsage(
                                                 queryUsageStats[i].packageName,
@@ -373,28 +374,59 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                                             )
                                         )
 
-                                        if (Integer.parseInt(appUsage.split(":")[0]) > 11) {
-
-                                            val iconBitmap: Bitmap = applicationContext.packageManager.getApplicationIcon(appPname).toBitmap()
-
-                                            choosenApps.add(
-                                            App(
-                                                appName, appPname, appUsage, iconBitmap
-                                                )
-                                            )
-
-                                        }
-
                                     }
+
                     }
+
+                     hashSetAppUsage = hashSetAppUsage.sortedByDescending { it.usageTime }.toCollection(LinkedHashSet())
+
+                    for (i in hashSetAppUsage) {
+                     //   var appName = i.appName
+                     //   var appPname = getPackageNameFromAppName(applicationContext!!, appName)
+                        val appUsage = i.usageTime
+                        val iconBitmap: Bitmap =
+                            applicationContext!!.packageManager.getApplicationIcon(i.appName)
+                                .toBitmap()
+
+                        if (choosenApps.size < 10) {
+                            if (choosenApps.none { it.name == getAppNameFromPkg(applicationContext, i.appName) })
+                            choosenApps.add(
+                                App(
+                                    getAppNameFromPkg(applicationContext, i.appName), i.appName, appUsage, iconBitmap
+                                )
+                            )
+                        } else break
+                    }
+
+
                     saveApps(choosenApps)
                 }
             } catch (e: Exception) {
                 // This catches the AppSearchException "Invalid cycle detected" which is a system bug
                 // in the AppsIndexer when processing Digital Wellbeing metadata.
-                Log.e(TAG, "System indexing error during UsageStats query: ${e.message}")
+                Log.e(TAG, "System indexing error during UsageStats query: ${e}")
             }
         }
+
+
+        fun getPackageNameFromAppName(context: Context, appName: String): String? {
+            val packageManager = context.packageManager
+
+            // Retrieve all installed applications
+            val installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+
+            for (appInfo in installedApps) {
+                // Get the visible user-facing application name
+                val currentAppName = packageManager.getApplicationLabel(appInfo).toString()
+
+                // Check if the current app name matches the target name (case-insensitive)
+                if (currentAppName.equals(appName, ignoreCase = true)) {
+                    return appInfo.packageName
+                }
+            }
+            return null // Return null if no application matches
+        }
+
 
         private fun saveApps(apps: java.util.ArrayList<App>) {
 
