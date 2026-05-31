@@ -85,6 +85,7 @@ import com.belaku.homey.MusicService.Companion.mMediaPlayer
 import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.RemindersActivity.Companion.adapterHabits
 import com.belaku.homey.RemindersActivity.Companion.arrayListHabits
+import com.belaku.homey.RemindersActivity.Companion.isadapterHabitsInitialized
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.dayChange
@@ -778,12 +779,6 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     private fun setACAdapter() {
-
-        if (sharedPreferences.getBoolean("anotherDay", false)) {
-            makeToast("gettng appUsageStats and getFavoriteContacts")
-            appUsageStats(widgetContext)
-            getFavoriteContacts()
-        }
 
         setContactsAdapter()
         setContactsClick()
@@ -1977,23 +1972,38 @@ class NewAppWidget : AppWidgetProvider() {
                     sharedPreferencesEditor.putBoolean("${i.name}StateF", false).apply()
                     sharedPreferencesEditor.putBoolean("${i.name}StateS", false).apply()
                 }
+                if (isadapterHabitsInitialized())
                 adapterHabits.notifyDataSetChanged()
 
 
             }
 
             if (!::formattedDate.isInitialized) {
-                sharedPreferencesEditor.putBoolean("anotherDay", true).apply()
+            //    makeToast("AnotherDay... $day")
+                appUsageStats(widgetContext)
+
                 formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
             } else if (formattedDate != dfDate.format(c) + postFixDate + " " + dfMonth.format(c)) {
 
                 //AnotherDay...
-             //   makeToast("AnotherDay... $day")
-                sharedPreferencesEditor.putBoolean("anotherDay", true).apply()
+            //    makeToast("AnotherDay... $day")
+                appUsageStats(widgetContext)
+                if (day == "Mon") {
+                    stepsData.clear()
+                    stepsData.add(stepsToday.toString())
+                    stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
+                    stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
+                    stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
+                    stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
+                    stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
+                    stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
+                } else  stepsData[(Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1) % 7] = stepsToday.toString()
+
                 formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
 
                 if (stepsData.isNotEmpty()) {
-                    stepsData[(Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 3) % 7] = stepsToday.toString()
+                makeToast(Calendar.getInstance().get(Calendar.DAY_OF_WEEK).toString()  + " ~ " + day)
+                    //    stepsData[(Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 3) % 7] = stepsToday.toString()
                     if (isStepsAdapterInitialized())
                         stepsAdapter.notifyDataSetChanged()
                 }
@@ -2007,7 +2017,7 @@ class NewAppWidget : AppWidgetProvider() {
                         i.isChecked = false
                     adapterHabits.notifyDataSetChanged()
                 }
-            } else sharedPreferencesEditor.putBoolean("anotherDay", false).apply()
+            }
 
 
             sharedPreferencesEditor.putBoolean("DateSet", true).apply()

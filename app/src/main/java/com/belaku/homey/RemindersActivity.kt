@@ -39,6 +39,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.core.graphics.drawable.toDrawable
+import com.belaku.homey.MusicActivity.Companion.pDatalistSongs
 
 
 class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
@@ -188,6 +189,11 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
                 }
             }
         lateinit var adapterHabits: HabitsAdapter
+
+        fun isadapterHabitsInitialized(): Boolean {
+            return ::adapterHabits.isInitialized
+        }
+
         lateinit var adapterReminders: RemindersAdapter
         var arrayListHabits: ArrayList<Habit> = ArrayList()
         var arrayListReminders: ArrayList<Reminder> = ArrayList()
