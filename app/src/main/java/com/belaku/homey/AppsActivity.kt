@@ -25,6 +25,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.belaku.homey.MainActivity.Companion.apps
+import com.belaku.homey.NewAppWidget.Companion.primaryColor
 import com.belaku.homey.databinding.ActivityAppsBinding
 
 
@@ -43,13 +44,25 @@ class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         setContentView(binding.root)
 
         val recyclerView: RecyclerView = findViewById(R.id.rv_apps)
+        val rootLayout = findViewById<RelativeLayout>(R.id.apps_layout)
+
+        if (ColorUtil().isColorDark(primaryColor)) {
+            recyclerView.setBackgroundResource(R.drawable.gradient_glass_light)
+            rootLayout.findViewById<TextView>(R.id.tx_t).setTextColor(applicationContext.getColor(R.color.black))
+            rootLayout.setBackgroundResource(R.drawable.gradient_glass_light)
+        } else {
+            recyclerView.setBackgroundResource(R.drawable.gradient_glass_dark)
+            rootLayout.findViewById<TextView>(R.id.tx_t).setTextColor(applicationContext.getColor(R.color.white))
+            rootLayout.setBackgroundResource(R.drawable.gradient_glass_dark)
+        }
+
         val adapter = AppsAdapter(apps, this)
         val layoutManager = GridLayoutManager(this, 5)
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = adapter
 
 
-        val rootLayout = findViewById<RelativeLayout>(R.id.apps_layout)
+
 
         try {
             rootLayout.setBackgroundDrawable(
@@ -58,7 +71,6 @@ class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
                     blur(applicationContext, SetWallWorker.wallBitmap)
                 )
             )
-            rootLayout.findViewById<TextView>(R.id.tx_t).setTextColor(NewAppWidget.tertianaryColor)
         } catch (ex: Exception) {
 
         }

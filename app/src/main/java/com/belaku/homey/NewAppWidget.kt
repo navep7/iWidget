@@ -2009,8 +2009,7 @@ class NewAppWidget : AppWidgetProvider() {
                 }
 
                 stepsToday = 0
-
-
+                sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, 0).apply()
 
                 if (arrayListHabits.size > 0) {
                     for (i in arrayListHabits)

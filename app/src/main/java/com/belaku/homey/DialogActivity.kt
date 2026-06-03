@@ -594,6 +594,7 @@ class DialogActivity : AppCompatActivity() {
                 )
 
 
+                hashSetAppUsage.clear()
                 appUsageStats(applicationContext)
 
                 hashSetAppUsage.removeIf { Integer.parseInt(it.usageTime.split(":")[0]) > 300 }
