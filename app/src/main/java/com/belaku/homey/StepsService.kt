@@ -19,6 +19,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.IntentFilter
+import android.graphics.Bitmap
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -52,6 +53,8 @@ import com.belaku.homey.MainActivity.Companion.weatherData
 import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.MainActivity.Companion.weatherIconState
 import com.belaku.homey.MainActivity.Companion.weatherIconUrl
+import com.belaku.homey.MapsActivity.Companion.ismGoogleMapInitialized
+import com.belaku.homey.MapsActivity.Companion.mGoogleMap
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.isAppWidMInitialized
@@ -66,8 +69,12 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.maps.android.ui.IconGenerator
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -128,6 +135,24 @@ class StepsService : Service() {
 
                             currentLocation = location
                             getAddress(location.latitude, location.longitude)
+                            if (ismGoogleMapInitialized()) {
+                                getAddress(location.latitude, location.longitude)
+                                var icon: BitmapDescriptor? = null
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                    val icnGenerator = IconGenerator(applicationContext)
+                                    // Bitmap bmp = icnGenerator.makeIcon(Html.fromHtml("<b><font color=\"#000000\">" + mAddresses[0] + mAddresses[1] + mAddresses[2] + "\n" + mAddresses[3] + mAddresses[4] + "</font></b>"));
+                                    val bmp: Bitmap = icnGenerator.makeIcon(
+                                        cityname
+                                    )
+                                    icon = BitmapDescriptorFactory.fromBitmap(bmp)
+                                }
+                                mGoogleMap.clear()
+                                var mLatLng: LatLng = LatLng(location.latitude, location.longitude)
+                                var markerOptions = MarkerOptions().position(mLatLng).icon(icon).title(cityname)
+
+                                //    marker = googleMap.addMarker(markerOptions);
+                                var markerAddress = mGoogleMap.addMarker(markerOptions)
+                            }
                         }
                     }
 
@@ -207,9 +232,9 @@ class StepsService : Service() {
 
         mSensorEventListener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent) {
-                if (presentActivityState != "INVEHICLE") {
-                    Log.d("onSensorChanged", stepsToday.toString())
-                stepsToday++
+                if (presentActivityState == "WALKING") {
+
+                    stepsToday++
 
                     if (!ismActInitialized()) {
                     sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)

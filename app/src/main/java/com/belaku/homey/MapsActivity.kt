@@ -15,6 +15,7 @@ import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import androidx.appcompat.app.AppCompatActivity
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.MusicActivity.Companion.dataListSongs
 import com.belaku.homey.StepsService.Companion.mLocationResult
 import com.belaku.homey.databinding.ActivityMapsBinding
 import com.google.android.gms.location.LocationCallback
@@ -50,7 +51,6 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
     private var boolStreetMarkerClicked: Boolean = false
     private lateinit var cAddrs: MutableList<Address>
     private var boolMapReady: Boolean = false
-    private lateinit var mGoogleMap: GoogleMap
 
     private lateinit var mSupportMapFragment: SupportMapFragment
     private lateinit var mStreetViewPanorama: StreetViewPanorama
@@ -58,6 +58,13 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
     private lateinit var binding: ActivityMapsBinding
     private lateinit var mStreetViewPanoramaView: StreetViewPanoramaView
 
+    companion object {
+        lateinit var mGoogleMap: GoogleMap
+
+        fun ismGoogleMapInitialized(): Boolean {
+            return ::mGoogleMap.isInitialized
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -127,7 +134,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
 
     }
 
-    private fun addPresentMarker(ltlng: LatLng, addrs: String) {
+    fun addPresentMarker(ltlng: LatLng, addrs: String) {
         var icon: BitmapDescriptor? = null
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val icnGenerator: IconGenerator = IconGenerator(this)
