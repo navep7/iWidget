@@ -1986,7 +1986,7 @@ class NewAppWidget : AppWidgetProvider() {
             } else if (formattedDate != dfDate.format(c) + postFixDate + " " + dfMonth.format(c)) {
 
                 //AnotherDay...
-            //    makeToast("AnotherDay... $day")
+                makeToast("AnotherDay... $formattedDate : ${dfDate.format(c) + postFixDate + " " + dfMonth.format(c)}")
                 appUsageStats(widgetContext)
                 if (day == "Mon") {
                     stepsData.clear()
@@ -1997,16 +1997,28 @@ class NewAppWidget : AppWidgetProvider() {
                     stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
                     stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
                     stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
-                } else  stepsData[(Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1) % 7] = stepsToday.toString()
+                } else {
+                     if (day == "Tue")
+                        stepsData[0] = stepsToday.toString()
+                    else if (day == "Wed")
+                        stepsData[1] = stepsToday.toString()
+                    else if (day == "Thu")
+                        stepsData[2] = stepsToday.toString()
+                    else if (day == "Fri")
+                        stepsData[3] = stepsToday.toString()
+                    else if (day == "Sat")
+                        stepsData[4] = stepsToday.toString()
+                    else if (day == "Sun")
+                        stepsData[5] = stepsToday.toString()
+
+                }
 
                 formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
 
-                if (stepsData.isNotEmpty()) {
-                makeToast(Calendar.getInstance().get(Calendar.DAY_OF_WEEK).toString()  + " ~ " + day)
-                    //    stepsData[(Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 3) % 7] = stepsToday.toString()
+                if (stepsData.isNotEmpty())
                     if (isStepsAdapterInitialized())
                         stepsAdapter.notifyDataSetChanged()
-                }
+
 
                 stepsToday = 0
                 sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, 0).apply()

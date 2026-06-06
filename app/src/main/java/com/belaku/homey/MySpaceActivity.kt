@@ -100,10 +100,9 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
         recyclerView = findViewById(R.id.rv_my_space)
 
-        if (!isSharedPreferencesInitialized()) {
-            sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
-            sharedPreferencesEditor = sharedPreferences.edit()
-        }
+        sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        sharedPreferencesEditor = sharedPreferences.edit()
+
         sharedPreferences.getStringSet("mySpaceApps", null)?.let { mySpaceAppsString.addAll(it) }
 
         var SZ = mySpaceAppsString.size
