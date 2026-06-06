@@ -292,7 +292,7 @@ class DialogActivity : AppCompatActivity() {
                     Thread {
                         SetWallWorker.setWall(true, dialogActContext)
                     }.start()
-                } else {
+                } /*else {
 
                     makeSnack("loading Advertisement, please wait...")
                     txTitle.setText("loading Advertisement, please wait...")
@@ -319,6 +319,7 @@ class DialogActivity : AppCompatActivity() {
                                     val rewardType = rewardItem.type
                                     sharedPreferencesEditor.putInt("noRewards", 7).apply()
                                     noRewards = 7
+                                    remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
                                     remoteViews?.setTextViewText(R.id.tx_rewards_count, "" + 7)
                                     txTitle.setText("swipe outside to continue changing walls.")
                                     updateWidget()
@@ -332,7 +333,7 @@ class DialogActivity : AppCompatActivity() {
                             }
                         },
                     )
-                }
+                }*/
 
             } else if (dialogIntentStr == "AD") {
 
@@ -354,6 +355,7 @@ class DialogActivity : AppCompatActivity() {
                                 val rewardType = rewardItem.type
                                 sharedPreferencesEditor.putInt("noRewards", 7).apply()
                                 noRewards = 7
+                                remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
                                 remoteViews?.setTextViewText(R.id.tx_rewards_count, "" + 7)
                                 txTitle.setText("swipe outside to continue changing walls.")
                                 updateWidget()
