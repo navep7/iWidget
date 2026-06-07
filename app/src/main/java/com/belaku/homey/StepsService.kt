@@ -61,6 +61,7 @@ import com.belaku.homey.NewAppWidget.Companion.isAppWidMInitialized
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.TAG
+import com.belaku.homey.SetWallWorker.Companion.isSharedPreferencesInitialized
 import com.belaku.homey.SetWallWorker.Companion.ismActInitialized
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
@@ -115,6 +116,8 @@ class StepsService : Service() {
 
 
 
+
+
             //instantiating the LocationCallBack
 
 
@@ -127,6 +130,12 @@ class StepsService : Service() {
                         mLocationResult = locationResult
                         val location = locationResult.lastLocation
                         if (location != null) {
+
+
+                            if (!isSharedPreferencesInitialized()) {
+                                sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+                                sharedPreferencesEditor = sharedPreferences.edit()
+                            }
 
                             if (!sharedPreferences.getBoolean("boolWeather", false)) {
                                 sharedPreferencesEditor.putBoolean("boolWeather", true).apply()
