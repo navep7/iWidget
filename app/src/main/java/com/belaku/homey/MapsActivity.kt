@@ -119,10 +119,12 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
                         var addrs = ""
                         if (cAddrs[0].maxAddressLineIndex > 0)
                             for (i in 0 until cAddrs[0].maxAddressLineIndex) {
-                                addrs = addrs + cAddrs[0].getAddressLine(i)
+                                addrs += cAddrs[0].getAddressLine(i)
                             }
                         else addrs = cAddrs[0].subLocality
-                        addPresentMarker(LatLng(location.latitude, location.longitude), addrs)
+
+                        if (addrs.isNotEmpty())
+                            addPresentMarker(LatLng(location.latitude, location.longitude), addrs)
 
                         mGoogleMap.setOnMapClickListener(this@MapsActivity)
                         mGoogleMap.setOnMarkerClickListener(this)

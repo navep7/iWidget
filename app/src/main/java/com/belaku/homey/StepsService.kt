@@ -157,10 +157,12 @@ class StepsService : Service() {
                                 }
                                 mGoogleMap.clear()
                                 var mLatLng: LatLng = LatLng(location.latitude, location.longitude)
-                                var markerOptions = MarkerOptions().position(mLatLng).icon(icon).title(cityname)
 
-                                //    marker = googleMap.addMarker(markerOptions);
-                                var markerAddress = mGoogleMap.addMarker(markerOptions)
+                                if (cityname.isNotEmpty()) {
+                                    var markerOptions =
+                                        MarkerOptions().position(mLatLng).icon(icon).title(cityname)
+                                    var markerAddress = mGoogleMap.addMarker(markerOptions)
+                                }
                             }
                         }
                     }
