@@ -30,6 +30,10 @@ import java.util.*
 class ActivityTransitionReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
+        appWidM = AppWidgetManager.getInstance(context)
+        remoteViews =
+            RemoteViews(context.packageName, R.layout.new_app_widget)
+        newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
         //   // makeToast("!onReceiveAR ${intent.action}")
         if (ActivityTransitionResult.hasResult(intent)) {
@@ -37,34 +41,23 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
             result?.let {
                 result.transitionEvents.forEach { event ->
                     // Info about activity
-                    val info =
-                        "Transition: " + toActivityString(event.activityType) +
-                                " (" + toTransitionType(event.transitionType) + ")" + "   " +
-                                SimpleDateFormat("HH:mm:ss", Locale.US).format(Date())
-
-                //     makeToast("${toActivityString(event.activityType)}")
-
-                    appWidM = AppWidgetManager.getInstance(context)
-                    remoteViews =
-                        RemoteViews(context.packageName, R.layout.new_app_widget)
-                    newAppWidget = ComponentName(context, NewAppWidget::class.java)
-
-                         remoteViews?.setTextViewText(R.id.tx_activity_state, toActivityString(event.activityType))
 
                          if (toActivityString(event.activityType).trim() == "STILL") {
                              StepsService.presentActivityState = "STILL"
                              remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.still)
+                             remoteViews?.setTextViewText(R.id.tx_activity_state, "STILL")
+                             appWidM.updateAppWidget(newAppWidget, remoteViews)
                          } else if (toActivityString(event.activityType).trim() == "WALKING") {
                              StepsService.presentActivityState = "WALKING"
                              remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.steps)
+                             remoteViews?.setTextViewText(R.id.tx_activity_state, "WALKING")
+                             appWidM.updateAppWidget(newAppWidget, remoteViews)
                          } else if (toActivityString(event.activityType).trim() == "INVEHICLE") {
                              StepsService.presentActivityState = "INVEHICLE"
                              remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.in_a_vehicle)
+                             remoteViews?.setTextViewText(R.id.tx_activity_state, "IN A VEHICLE")
+                             appWidM.updateAppWidget(newAppWidget, remoteViews)
                          }
-
-
-                    appWidM.updateAppWidget(newAppWidget, remoteViews)
-
                 }
             }
         }
