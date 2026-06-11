@@ -122,8 +122,8 @@ class GapsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
     fun blur(context: Context?, image: Bitmap): Bitmap {
 
-        var BITMAP_SCALE = 0.4f; // Scale down bitmap for performance
-        var BLUR_RADIUS = 25f; // Adjust blur intensity
+        var BITMAP_SCALE = 0.125f; // Scale down bitmap for performance
+        var BLUR_RADIUS = 23f; // Adjust blur intensity
 
         val width = Math.round(image.width * BITMAP_SCALE).toInt()
         val height = Math.round(image.height * BITMAP_SCALE).toInt()
