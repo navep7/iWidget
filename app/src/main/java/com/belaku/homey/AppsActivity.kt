@@ -47,9 +47,9 @@ class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         val rootLayout = findViewById<RelativeLayout>(R.id.apps_layout)
 
         if (ColorUtil().isColorDark(primaryColor))
-            rootLayout.findViewById<TextView>(R.id.tx_t).setTextColor(applicationContext.getColor(R.color.black))
-         else
             rootLayout.findViewById<TextView>(R.id.tx_t).setTextColor(applicationContext.getColor(R.color.white))
+         else
+            rootLayout.findViewById<TextView>(R.id.tx_t).setTextColor(applicationContext.getColor(R.color.black))
 
 
         val adapter = AppsAdapter(apps, this)
@@ -83,7 +83,7 @@ class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
     fun blur(context: Context?, image: Bitmap): Bitmap {
 
-        var BITMAP_SCALE = 0.125f; // Scale down bitmap for performance
+        var BITMAP_SCALE = 0.0125f; // Scale down bitmap for performance
         var BLUR_RADIUS = 21f; // Adjust blur intensity
 
         val width = Math.round(image.width * BITMAP_SCALE).toInt()

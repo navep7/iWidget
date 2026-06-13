@@ -49,9 +49,9 @@ class AppsAdapter(private val dataList: List<InstalledApp>,
             try {
                 if (!ColorUtil().isColorDark(primaryColor))
                 itemView.findViewById<TextView>(R.id.tx_app_name)
-                    .setTextColor(contx.getColor(R.color.white))
-                else itemView.findViewById<TextView>(R.id.tx_app_name)
                     .setTextColor(contx.getColor(R.color.black))
+                else itemView.findViewById<TextView>(R.id.tx_app_name)
+                    .setTextColor(contx.getColor(R.color.white))
 
             } catch (ex: Exception) {
 

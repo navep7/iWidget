@@ -266,6 +266,11 @@ class DialogActivity : AppCompatActivity() {
                     Picasso.get()
                         .load(dataListSongs[songIndex].album.cover)
                         .into(imgvSongCover)
+                    Picasso.get()
+                        .load(dataListSongs[songIndex].album.cover)
+                        .into(remoteViews!!, R.id.imgv_albumcover, NewAppWidget.i_appWidgetIds)
+
+
                 }
             } else if (dialogIntentStr == "WCh") {
 

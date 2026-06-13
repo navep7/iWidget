@@ -40,6 +40,7 @@ import com.belaku.homey.MainActivity.Companion.cYear
 import com.belaku.homey.MainActivity.Companion.delayUnit
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.fabMain
+import com.belaku.homey.MainActivity.Companion.makeSnack
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.queryType
@@ -323,43 +324,50 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
         fun appUsageStats(applicationContext: Context?) {
 
+            if (UsageStatsChecker().hasUsageStatsPermission(applicationContext!!)) {
 
-            cYear = Calendar.getInstance().get(Calendar.YEAR)
-            cMonth = Calendar.getInstance().get(Calendar.MONTH)
-            cDate = Calendar.getInstance().get(Calendar.DATE)
+                cYear = Calendar.getInstance().get(Calendar.YEAR)
+                cMonth = Calendar.getInstance().get(Calendar.MONTH)
+                cDate = Calendar.getInstance().get(Calendar.DATE)
 
-            beginCal.set(cYear, cMonth, cDate - 7, 0, 0)
-            endCal.set(cYear, cMonth, cDate - 1, 0, 0)
+                beginCal.set(cYear, cMonth, cDate - 7, 0, 0)
+                endCal.set(cYear, cMonth, cDate - 1, 0, 0)
 
-            try {
-                val queryUsageStats = StepsService.usageStatsManager.queryUsageStats(
-                    UsageStatsManager.INTERVAL_DAILY,
-                    beginCal.timeInMillis,
-                    endCal.timeInMillis
-                )
+                try {
+                    StepsService.usageStatsManager =
+                        applicationContext?.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager // Context.USAGE_STATS_SERVICE);
 
-                if (queryUsageStats != null) {
-                    println("results for " + beginCal.time + " - " + endCal.time)
-                    println("QUS SWW - " + queryUsageStats.size)
-                    sortApps(queryUsageStats)
+                    val queryUsageStats = StepsService.usageStatsManager.queryUsageStats(
+                        UsageStatsManager.INTERVAL_DAILY,
+                        beginCal.timeInMillis,
+                        endCal.timeInMillis
+                    )
 
-                    choosenApps.clear()
+                    if (queryUsageStats != null) {
+                        println("results for " + beginCal.time + " - " + endCal.time)
+                        println("QUS SWW - " + queryUsageStats.size)
+                        sortApps(queryUsageStats)
 
-                    val appNames = HashSet<String>()
-                    for (i in 0 until queryUsageStats.size) {
+                        choosenApps.clear()
 
-                        val appName =
-                            getAppNameFromPkg(applicationContext!!, queryUsageStats.get(i).packageName)
-                        val appPname = queryUsageStats.get(i).packageName
-                        val appUsage =
-                            formatMilliseconds(queryUsageStats[i].totalTimeInForeground)
+                        val appNames = HashSet<String>()
+                        for (i in 0 until queryUsageStats.size) {
 
-                        Log.d(
-                            "queryUsageStats",
-                            "$appName ... - $i : " + queryUsageStats.get(i).totalTimeInForeground
-                        )
+                            val appName =
+                                getAppNameFromPkg(
+                                    applicationContext!!,
+                                    queryUsageStats.get(i).packageName
+                                )
+                            val appPname = queryUsageStats.get(i).packageName
+                            val appUsage =
+                                formatMilliseconds(queryUsageStats[i].totalTimeInForeground)
 
-                     //   if (queryUsageStats.get(i).totalTimeInForeground > 0)
+                            Log.d(
+                                "queryUsageStats",
+                                "$appName ... - $i : " + queryUsageStats.get(i).totalTimeInForeground
+                            )
+
+                            //   if (queryUsageStats.get(i).totalTimeInForeground > 0)
                             if (!appName.contains("Launcher") || !appName.equals("Home"))
                                 if (applicationContext.packageManager.getLaunchIntentForPackage(
                                         queryUsageStats[i].packageName
@@ -367,45 +375,56 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                                 )
                                     if (appNames.add(appName)) {
                                         if (!hashSetAppUsage.any { it.appName == appName })
-                                        hashSetAppUsage.add(
-                                            AppUsage(
-                                                queryUsageStats[i].packageName,
-                                                formatMilliseconds(queryUsageStats[i].totalTimeInForeground)
+                                            hashSetAppUsage.add(
+                                                AppUsage(
+                                                    queryUsageStats[i].packageName,
+                                                    formatMilliseconds(queryUsageStats[i].totalTimeInForeground)
+                                                )
                                             )
-                                        )
 
                                     }
 
+                        }
+
+                        hashSetAppUsage = hashSetAppUsage.sortedByDescending { it.usageTime }
+                            .toCollection(LinkedHashSet())
+
+                        for (i in hashSetAppUsage) {
+                            //   var appName = i.appName
+                            //   var appPname = getPackageNameFromAppName(applicationContext!!, appName)
+                            val appUsage = i.usageTime
+                            val iconBitmap: Bitmap =
+                                applicationContext!!.packageManager.getApplicationIcon(i.appName)
+                                    .toBitmap()
+
+                            if (choosenApps.size < 10) {
+                                if (choosenApps.none {
+                                        it.name == getAppNameFromPkg(
+                                            applicationContext,
+                                            i.appName
+                                        )
+                                    })
+                                    choosenApps.add(
+                                        App(
+                                            getAppNameFromPkg(applicationContext, i.appName),
+                                            i.appName,
+                                            appUsage,
+                                            iconBitmap
+                                        )
+                                    )
+                            } else break
+                        }
+
+
+                        saveApps(choosenApps)
                     }
-
-                     hashSetAppUsage = hashSetAppUsage.sortedByDescending { it.usageTime }.toCollection(LinkedHashSet())
-
-                    for (i in hashSetAppUsage) {
-                     //   var appName = i.appName
-                     //   var appPname = getPackageNameFromAppName(applicationContext!!, appName)
-                        val appUsage = i.usageTime
-                        val iconBitmap: Bitmap =
-                            applicationContext!!.packageManager.getApplicationIcon(i.appName)
-                                .toBitmap()
-
-                        if (choosenApps.size < 10) {
-                            if (choosenApps.none { it.name == getAppNameFromPkg(applicationContext, i.appName) })
-                            choosenApps.add(
-                                App(
-                                    getAppNameFromPkg(applicationContext, i.appName), i.appName, appUsage, iconBitmap
-                                )
-                            )
-                        } else break
-                    }
-
-
-                    saveApps(choosenApps)
+                } catch (e: Exception) {
+                    // This catches the AppSearchException "Invalid cycle detected" which is a system bug
+                    // in the AppsIndexer when processing Digital Wellbeing metadata.
+                    makeToast("System indexing error during UsageStats query: ${e}")
+                    Log.e(TAG, "System indexing error during UsageStats query: ${e}")
                 }
-            } catch (e: Exception) {
-                // This catches the AppSearchException "Invalid cycle detected" which is a system bug
-                // in the AppsIndexer when processing Digital Wellbeing metadata.
-                Log.e(TAG, "System indexing error during UsageStats query: ${e}")
-            }
+            } else makeToast("Usage Stats Permission revoked by System probably, you need to grant again")
         }
 
 
@@ -436,7 +455,9 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             val json = gson.toJson(apps)
 
             sharedPreferencesEditor.remove(key).commit()
-            sharedPreferencesEditor.putString(key, json).commit()
+
+            if (sharedPreferencesEditor.putString(key, json).commit())
+                makeToast("Showing Most Used Apps!")
         }
 
         fun formatMilliseconds(milliseconds: Long): String {

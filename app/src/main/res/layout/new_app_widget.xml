@@ -483,7 +483,6 @@
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:scaleType="fitXY"
-            android:src="@drawable/thumbnail"
             android:layout_alignBottom="@+id/rl_player"
             android:layout_alignParentEnd="true" />
 

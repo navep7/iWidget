@@ -1186,8 +1186,8 @@ class NewAppWidget : AppWidgetProvider() {
                 if (viewID == 0)
                     dialPhoneNumber(widgetContext, favContacts[position].number)
                 else if (viewID == 1) {
-                    if(favContacts.size != position)
-                        unMarkAsFav(favContacts[position].id)
+                    if (favContacts.size != position)
+                    unMarkAsFav(favContacts[position].id)
                 }
             } else {
                 val pickContactIntent =
@@ -1805,6 +1805,22 @@ class NewAppWidget : AppWidgetProvider() {
             timelyWish = timeOfDay
 
 
+            val c: Cursor? = widgetContext.contentResolver
+                .query(ContactsContract.Profile.CONTENT_URI, null, null, null, null)
+            c?.moveToFirst()
+
+            Log.d("gpColNAmes", c?.columnNames.contentToString())
+
+            try {
+                gpName = c?.getString(c.getColumnIndex("display_name")).toString()
+            } catch (ex: Exception) {
+
+            }
+
+            //    remoteViews?.setImageViewBitmap(R.id.imgbtn_n_apps, gpBitmap)
+
+            Log.d("gpName - ", gpName)
+            c!!.close()
 
             if (timeOfDay == "Morni!")
                 timelyWish = "$timeOfDay \uD83C\uDF3B "//, ${gpName.split(" ").get(0)}!"

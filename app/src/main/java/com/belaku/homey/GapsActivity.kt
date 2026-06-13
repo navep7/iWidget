@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.NewAppWidget.Companion.primaryColor
 import com.belaku.homey.databinding.ActivityGapsBinding
 
 
@@ -87,7 +88,10 @@ class GapsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
                     blur(applicationContext, SetWallWorker.wallBitmap)
                 )
             )
-            rootLayout.findViewById<TextView>(R.id.tx_t).setTextColor(NewAppWidget.tertianaryColor)
+            if (ColorUtil().isColorDark(primaryColor))
+                rootLayout.findViewById<TextView>(R.id.tx_t).setTextColor(applicationContext.getColor(R.color.white))
+            else
+                rootLayout.findViewById<TextView>(R.id.tx_t).setTextColor(applicationContext.getColor(R.color.black))
         } catch (ex: Exception) {
 
         }
