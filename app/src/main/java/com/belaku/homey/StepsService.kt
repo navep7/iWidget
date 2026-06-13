@@ -55,6 +55,7 @@ import com.belaku.homey.MainActivity.Companion.weatherIconState
 import com.belaku.homey.MainActivity.Companion.weatherIconUrl
 import com.belaku.homey.MapsActivity.Companion.ismGoogleMapInitialized
 import com.belaku.homey.MapsActivity.Companion.mGoogleMap
+import com.belaku.homey.MapsActivity.Companion.mStreetViewPanorama
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.isAppWidMInitialized
@@ -143,6 +144,9 @@ class StepsService : Service() {
                             }
 
                             currentLocation = location
+
+
+
                             getAddress(location.latitude, location.longitude)
                             if (ismGoogleMapInitialized()) {
                                 getAddress(location.latitude, location.longitude)
@@ -162,6 +166,12 @@ class StepsService : Service() {
                                     var markerOptions =
                                         MarkerOptions().position(mLatLng).icon(icon).title(cityname)
                                     var markerAddress = mGoogleMap.addMarker(markerOptions)
+                                    mStreetViewPanorama.setPosition(
+                                        LatLng(
+                                            location.latitude,
+                                            location.longitude
+                                        )
+                                    )
                                 }
                             }
                         }

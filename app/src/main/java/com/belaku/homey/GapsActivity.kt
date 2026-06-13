@@ -97,15 +97,6 @@ class GapsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         }
 
 
-        /* val blurRadius = 20.0f
-         val blurEffect = RenderEffect.createBlurEffect(
-             blurRadius,
-             blurRadius,
-             Shader.TileMode.CLAMP
-         )
-         rootLayout.setRenderEffect(blurEffect);*/
-
-
     }
 
     private fun getGoogleLaunchableApps(): List<ResolveInfo> {
@@ -126,7 +117,7 @@ class GapsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
     fun blur(context: Context?, image: Bitmap): Bitmap {
 
-        var BITMAP_SCALE = 0.125f; // Scale down bitmap for performance
+        var BITMAP_SCALE = 0.001f; // Scale down bitmap for performance
         var BLUR_RADIUS = 23f; // Adjust blur intensity
 
         val width = Math.round(image.width * BITMAP_SCALE).toInt()

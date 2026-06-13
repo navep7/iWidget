@@ -53,13 +53,14 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
     private var boolMapReady: Boolean = false
 
     private lateinit var mSupportMapFragment: SupportMapFragment
-    private lateinit var mStreetViewPanorama: StreetViewPanorama
+
     private var boolstreetViewPanorama: Boolean = false
     private lateinit var binding: ActivityMapsBinding
     private lateinit var mStreetViewPanoramaView: StreetViewPanoramaView
 
     companion object {
         lateinit var mGoogleMap: GoogleMap
+        lateinit var mStreetViewPanorama: StreetViewPanorama
 
         fun ismGoogleMapInitialized(): Boolean {
             return ::mGoogleMap.isInitialized

@@ -1187,7 +1187,7 @@ class NewAppWidget : AppWidgetProvider() {
                     dialPhoneNumber(widgetContext, favContacts[position].number)
                 else if (viewID == 1) {
                     if (favContacts.size != position)
-                    unMarkAsFav(favContacts[position].id)
+                        unMarkAsFav(favContacts[position].id)
                 }
             } else {
                 val pickContactIntent =
@@ -1980,7 +1980,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             if (!::formattedDate.isInitialized) {
             //    makeToast("AnotherDay... $day")
-                appUsageStats(widgetContext)
+             //   appUsageStats(widgetContext)
 
                 formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
             } else if (formattedDate != dfDate.format(c) + postFixDate + " " + dfMonth.format(c)) {

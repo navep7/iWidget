@@ -457,7 +457,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             sharedPreferencesEditor.remove(key).commit()
 
             if (sharedPreferencesEditor.putString(key, json).commit())
-                makeToast("Showing Most Used Apps!")
+                makeToast("Showing Most Used Apps, And fav Contacts")
         }
 
         fun formatMilliseconds(milliseconds: Long): String {
