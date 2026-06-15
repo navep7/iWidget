@@ -2,8 +2,11 @@ package com.belaku.homey
 
 
 import AppsAdapter
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -135,12 +138,37 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         listviewReminders.setAdapter(adapterReminders)
 
         listviewReminders.setOnItemLongClickListener(AdapterView.OnItemLongClickListener { parent, view, position, id -> // Remove the item from the data source
+
+            cancelReminder()
+
             arrayListReminders.removeAt(position)
             // Notify the adapter that the data has changed
             adapterReminders.notifyDataSetChanged()
             true
         })
 
+
+    }
+
+    fun cancelReminder() {
+        val alarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+// 1. Create an Intent identical to the one used to set the alarm
+        val intent = Intent(applicationContext, AlarmBroadcastReceiver::class.java)
+
+// 2. Create the identical PendingIntent (Match the requestCode and Flags)
+        val pendingIntent = PendingIntent.getBroadcast(
+            applicationContext,
+            0, // Must match the code used when setting the alarm
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+// 3. Cancel the alarm
+        alarmManager.cancel(pendingIntent)
+
+// 4. (Optional) Remove the PendingIntent from the system's tracking
+        pendingIntent.cancel()
 
     }
 

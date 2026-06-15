@@ -333,6 +333,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 beginCal.set(cYear, cMonth, cDate - 7, 0, 0)
                 endCal.set(cYear, cMonth, cDate - 1, 0, 0)
 
+
                 try {
                     StepsService.usageStatsManager =
                         applicationContext?.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager // Context.USAGE_STATS_SERVICE);

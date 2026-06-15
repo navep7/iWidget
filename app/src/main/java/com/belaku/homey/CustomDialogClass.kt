@@ -122,8 +122,7 @@ class CustomDialogClass // TODO Auto-generated constructor stub
                     val rTimeSplits = rTime.split(":")
                     val h = rTimeSplits[0]
                     val m = rTimeSplits[1].split(" ")[0]
-                    //    var rType = findViewById<Spinner>(R.id.remindertype).selectedItem
-                    //  arrayListHorRs.add(rSubject + "\t@\t" + rTime + "\t\t\t:\t\t\t" + rType)
+
                     var rType: String
                     if (boolRepeating)
                         rType = "Repeating"

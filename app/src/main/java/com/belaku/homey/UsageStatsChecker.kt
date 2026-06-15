@@ -14,7 +14,8 @@ class UsageStatsChecker {
 
         val mode = try {
             val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
-            val uid = context.applicationInfo.uid
+          //  val uid = context.applicationInfo.uid
+            val uid = android.os.Process.myUid()
             val packageName = context.packageName
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 appOps.unsafeCheckOpNoThrow(

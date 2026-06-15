@@ -1506,8 +1506,8 @@ class MainActivity : AppCompatActivity() {
                 rawTweets(false)
                 startStepsService()
                 NewAppWidget().getFavoriteContacts()
-                if (iDV.isShowing)
-                iDV.dismiss()
+                if(iDV.isShowing)
+                    iDV.dismiss()
             } else ActivityCompat.requestPermissions(
                 this,
                 permissions,
