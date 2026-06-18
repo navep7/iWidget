@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.NewAppWidget.Companion.primaryColor
 import com.belaku.homey.databinding.ActivityGapsBinding
 
 
@@ -87,19 +88,13 @@ class GapsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
                     blur(applicationContext, SetWallWorker.wallBitmap)
                 )
             )
-            rootLayout.findViewById<TextView>(R.id.tx_t).setTextColor(NewAppWidget.tertianaryColor)
+            if (ColorUtil().isColorDark(primaryColor))
+                rootLayout.findViewById<TextView>(R.id.tx_t).setTextColor(applicationContext.getColor(R.color.white))
+            else
+                rootLayout.findViewById<TextView>(R.id.tx_t).setTextColor(applicationContext.getColor(R.color.black))
         } catch (ex: Exception) {
 
         }
-
-
-        /* val blurRadius = 20.0f
-         val blurEffect = RenderEffect.createBlurEffect(
-             blurRadius,
-             blurRadius,
-             Shader.TileMode.CLAMP
-         )
-         rootLayout.setRenderEffect(blurEffect);*/
 
 
     }
@@ -122,8 +117,8 @@ class GapsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
     fun blur(context: Context?, image: Bitmap): Bitmap {
 
-        var BITMAP_SCALE = 0.4f; // Scale down bitmap for performance
-        var BLUR_RADIUS = 25f; // Adjust blur intensity
+        var BITMAP_SCALE = 0.001f; // Scale down bitmap for performance
+        var BLUR_RADIUS = 23f; // Adjust blur intensity
 
         val width = Math.round(image.width * BITMAP_SCALE).toInt()
         val height = Math.round(image.height * BITMAP_SCALE).toInt()

@@ -66,18 +66,21 @@ import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.hashSetAppUsage
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
-import com.belaku.homey.NewAppWidget.Companion.getScreenTime
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
+import com.belaku.homey.NewAppWidget.Companion.totalScreenTimeInHours
 import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
+import com.belaku.homey.SetWallWorker.Companion.hour
 import com.belaku.homey.SetWallWorker.Companion.pinNote
 import com.belaku.homey.SetWallWorker.Companion.screenHeight
 import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
+import com.belaku.homey.StepsService.Companion.stepsAdapter
+import com.belaku.homey.StepsService.Companion.stepsData
 import com.belaku.homey.StepsService.Companion.totalUsage
 //import com.chaquo.python.Python
 //import com.chaquo.python.android.AndroidPlatform
@@ -111,7 +114,6 @@ import kotlin.random.Random
 
 class DialogActivity : AppCompatActivity() {
 
-    private lateinit var stepsAdapter: StepsAdapter
     private var boolFetchingTweets: Boolean = false
     private lateinit var dialogActContext: Context
     private lateinit var parentLayoutDialog: View
@@ -170,17 +172,18 @@ class DialogActivity : AppCompatActivity() {
 
         dialogActContext = applicationContext
 
-        val stepsData: ArrayList<String> = ArrayList()
+    //    val stepsData: ArrayList<String> = ArrayList()
 
 
-        stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
-
+        if (stepsData.size == 0) {
+            stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
+            stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
+            stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
+            stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
+            stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
+            stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
+            stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
+        }
 
 
         rewardedInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
@@ -263,72 +266,70 @@ class DialogActivity : AppCompatActivity() {
                     Picasso.get()
                         .load(dataListSongs[songIndex].album.cover)
                         .into(imgvSongCover)
+                    Picasso.get()
+                        .load(dataListSongs[songIndex].album.cover)
+                        .into(remoteViews!!, R.id.imgv_albumcover, NewAppWidget.i_appWidgetIds)
+
+
                 }
             } else if (dialogIntentStr == "WCh") {
 
-                if (noRewards > 1) {
-                    remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.VISIBLE)
-                    remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
-                    appWidM.updateAppWidget(newAppWidget, remoteViews)
-                } else {
-                    remoteViews?.setTextViewText(R.id.tx_rewards_count, "\uD83D\uDC41\uFE0FAD!")
-                    appWidM.updateAppWidget(newAppWidget, remoteViews)
-                }
-                sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
-                sharedPreferencesEditor = sharedPreferences.edit()
-
-                llDialog.visibility = View.GONE
                 noRewards = sharedPreferences.getInt("noRewards", 7)
-                noRewards--
-                sharedPreferencesEditor.putInt("noRewards", noRewards).apply()
 
-                if (noRewards > 0) {
-                    //   makeSnack("Changing Wall, please wait...")
-                    dialogActContext = applicationContext
+                if (noRewards > 1) {
+
+                    sharedPreferencesEditor.putInt("noRewards", --noRewards).apply()
+
+                    remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.VISIBLE)
+
+                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                    var ids = intArrayOf(R.id.imgbtn_set, R.id.progressBar_cyclic_wallchange, R.id.tx_rewards_count)
+
+                //    appWidM.partiallyUpdateAppWidget(ids, remoteViews)
+
                     Thread {
                         SetWallWorker.setWall(true, dialogActContext)
                     }.start()
-                } else {
 
-                    makeSnack("loading Advertisement, please wait...")
-                    txTitle.setText("loading Advertisement, please wait...")
-                    txContent.visibility = View.GONE
-                    edtxDialog.visibility = View.GONE
-                    imgbtnShare.visibility = View.GONE
-                    btnOk.visibility = View.GONE
-                    btnCancel.visibility = View.GONE
-                    vpSteps.visibility = View.GONE
 
-                    RewardedInterstitialAd.load(
-                        this,
-                        getString(R.string.admob_ri_ad),
-                        AdRequest.Builder().build(),
-                        object : RewardedInterstitialAdLoadCallback() {
-                            override fun onAdLoaded(rewardedAd: RewardedInterstitialAd) {
-                                // makeToast("Ad was loaded.")
-                                rewardedInterstitialAd = rewardedAd
-
-                                rewardedInterstitialAd?.show(this@DialogActivity) { rewardItem ->
-                                    // makeToast("User earned the reward.")
-                                    // Handle the reward.
-                                    val rewardAmount = rewardItem.amount
-                                    val rewardType = rewardItem.type
-                                    sharedPreferencesEditor.putInt("noRewards", 7).apply()
-                                    noRewards = 7
-                                    remoteViews?.setTextViewText(R.id.tx_rewards_count, "" + 7)
-                                    txTitle.setText("swipe outside to continue changing walls.")
-                                    updateWidget()
-                                }
-                            }
-
-                            override fun onAdFailedToLoad(adError: LoadAdError) {
-                                dialogActContext = applicationContext
-                                // makeToast("onAdFailedToLoad: ${adError.message}")
-                                rewardedInterstitialAd = null
-                            }
-                        },
-                    )
+                    finish()
                 }
+
+            } else if (dialogIntentStr == "AD") {
+
+                makeToast("loading Advertisement, please wait...")
+                llDialog.visibility = View.GONE
+                RewardedInterstitialAd.load(
+                    this,
+                    getString(R.string.admob_ri_ad),
+                    AdRequest.Builder().build(),
+                    object : RewardedInterstitialAdLoadCallback() {
+                        override fun onAdLoaded(rewardedAd: RewardedInterstitialAd) {
+                            // makeToast("Ad was loaded.")
+                            rewardedInterstitialAd = rewardedAd
+
+                            rewardedInterstitialAd?.show(this@DialogActivity) { rewardItem ->
+                                // makeToast("User earned the reward.")
+                                // Handle the reward.
+                                val rewardAmount = rewardItem.amount
+                                val rewardType = rewardItem.type
+                                sharedPreferencesEditor.putInt("noRewards", 7).apply()
+                                noRewards = 7
+                                remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
+                                remoteViews?.setTextViewText(R.id.tx_rewards_count, "" + 7)
+                                txTitle.setText("swipe outside to continue changing walls.")
+                                appWidM.updateAppWidget(newAppWidget, remoteViews)
+                            }
+                        }
+
+                        override fun onAdFailedToLoad(adError: LoadAdError) {
+                            dialogActContext = applicationContext
+                            // makeToast("onAdFailedToLoad: ${adError.message}")
+                            rewardedInterstitialAd = null
+                        }
+                    },
+                )
 
             } else if (dialogIntentStr == "PC") {
                 llDialog.visibility = View.GONE
@@ -515,10 +516,10 @@ class DialogActivity : AppCompatActivity() {
                 }
             } else if (dialogIntentStr == "stepsInfo") {
 
-                stepsData[Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1] = stepsToday.toString()
+                var i = (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) + 5) % 7
+                stepsData[i] = stepsToday.toString()
+                vpSteps.currentItem = i
                 stepsAdapter.notifyDataSetChanged()
-
-                getScreenTime(applicationContext)
 
                 window.setLayout(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
@@ -556,6 +557,7 @@ class DialogActivity : AppCompatActivity() {
                 )
 
 
+                hashSetAppUsage.clear()
                 appUsageStats(applicationContext)
 
                 hashSetAppUsage.removeIf { Integer.parseInt(it.usageTime.split(":")[0]) > 300 }
@@ -585,6 +587,28 @@ class DialogActivity : AppCompatActivity() {
                 //     txContent.movementMethod = ScrollingMovementMethod()
                 //     txContent.append(Html.fromHtml("\n\n<b><u> Most Used Apps.. > 10 mins</u></b>"))
 
+                findViewById<TextView>(R.id.tx_heading).setText( "Screen Time Analysis : Based on App Usage stats from a Week(" + "${
+                    beginCal.get(
+                        Calendar.DAY_OF_MONTH
+                    )
+                }/${beginCal.get(Calendar.MONTH) + 1}/${beginCal.get(Calendar.YEAR)} : " +
+                        "${endCal.get(Calendar.DAY_OF_MONTH)}/${endCal.get(Calendar.MONTH) + 1}/${
+                            endCal.get(
+                                Calendar.YEAR
+                            )
+                        })" + ", below is the App usage data, every day (mm:ss)..  \n\n")
+
+
+               /* txAppName.append( "Screen Time Analysis : Based on App Usage stats from a Week(" + "${
+                    beginCal.get(
+                        Calendar.DAY_OF_MONTH
+                    )
+                }/${beginCal.get(Calendar.MONTH) + 1}/${beginCal.get(Calendar.YEAR)} : " +
+                        "${endCal.get(Calendar.DAY_OF_MONTH)}/${endCal.get(Calendar.MONTH) + 1}/${
+                            endCal.get(
+                                Calendar.YEAR
+                            )
+                        })" + ", below is the App data, every day (mm:ss)..  \n\n" + "Most Used Apps.\n")*/
                 txAppName.append("Most Used Apps.\n")
                 txAppUsageTime.append("> 10 mins/day\n")
                 for (i in muApps) txAppName.append(i)
@@ -686,7 +710,7 @@ class DialogActivity : AppCompatActivity() {
                 txAppUsageTime.append("\n\n")
 
                 var sT = totalUsage.split(":")
-                var hour = sT[0]
+                hour = Integer.parseInt(sT[0])
                 var min = sT[1]
 
                 txAppName.append("Avg Usage/Day ~ $hour Hours : $min Mins ")
@@ -699,22 +723,22 @@ class DialogActivity : AppCompatActivity() {
                     "$hour+ Hours"
                 )
 
-                if (Integer.parseInt(hour) < 2)
+                if (hour < 2)
                     remoteViews?.setTextViewText(
                         R.id.tx_screenusage_state,
                         "LOW"
                     )
-                else if ((Integer.parseInt(hour) > 2) && (Integer.parseInt(hour) < 4))
+                else if (hour in 3..<5)
                     remoteViews?.setTextViewText(
                         R.id.tx_screenusage_state,
                         "MODERATE"
                     )
-                else if ((Integer.parseInt(hour) > 4) && (Integer.parseInt(hour) < 6))
+                else if (hour in 6..<8)
                     remoteViews?.setTextViewText(
                         R.id.tx_screenusage_state,
                         "HIGH"
                     )
-                else if (Integer.parseInt(hour) > 6)
+                else if (hour > 8)
                     remoteViews?.setTextViewText(
                         R.id.tx_screenusage_state,
                         "EXCESSIVE"
@@ -722,7 +746,7 @@ class DialogActivity : AppCompatActivity() {
 
 
 
-                appWidM = AppWidgetManager.getInstance(dialogActContext)
+                appWidM = AppWidgetManager.getInstance(applicationContext)
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
 
             } else if (dialogIntentStr == "liveWall") {
@@ -756,6 +780,7 @@ class DialogActivity : AppCompatActivity() {
                 imgbtnShare.visibility = View.GONE
                 btnOk.setOnClickListener {
 
+                    llDialog.visibility = View.GONE
                     if (edtxDialog.text.toString().isNotEmpty())
                         pinNote = edtxDialog.text.toString()
 

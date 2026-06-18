@@ -9,8 +9,8 @@ import android.renderscript.ScriptIntrinsicBlur
 
 
 object BitmapBlurHelper {
-    private const val BITMAP_SCALE = 0.75f // Scale down the bitmap for faster processing
-    private const val BLUR_RADIUS = 15f // Blur radius, max is 25f
+    private const val BITMAP_SCALE = 0.25f // Scale down the bitmap for faster processing
+    private const val BLUR_RADIUS = 21f // Blur radius, max is 25f
 
     fun blurBitmap(context: Context?, originalBitmap: Bitmap): Bitmap {
         // Scale down the bitmap for faster processing

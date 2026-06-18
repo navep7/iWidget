@@ -15,21 +15,23 @@ import android.os.Looper
 import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.annotation.RequiresPermission
+import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.widgetContext
-import com.belaku.homey.SetWallWorker.Companion.scaledBitmap
 import com.belaku.homey.StepsService.Companion.locationListenerSpeed
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
-import java.text.SimpleDateFormat
-import java.util.*
 
 class ActivityTransitionReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
+        appWidM = AppWidgetManager.getInstance(context)
+        remoteViews =
+            RemoteViews(context.packageName, R.layout.new_app_widget)
+        newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
         //   // makeToast("!onReceiveAR ${intent.action}")
         if (ActivityTransitionResult.hasResult(intent)) {
@@ -37,38 +39,52 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
             result?.let {
                 result.transitionEvents.forEach { event ->
                     // Info about activity
-                    val info =
-                        "Transition: " + toActivityString(event.activityType) +
-                                " (" + toTransitionType(event.transitionType) + ")" + "   " +
-                                SimpleDateFormat("HH:mm:ss", Locale.US).format(Date())
-
-                //     makeToast("${toActivityString(event.activityType)}")
-
-                    appWidM = AppWidgetManager.getInstance(context)
-                    remoteViews =
-                        RemoteViews(context.packageName, R.layout.new_app_widget)
-                    newAppWidget = ComponentName(context, NewAppWidget::class.java)
-
-                         remoteViews?.setTextViewText(R.id.tx_activity_state, toActivityString(event.activityType))
 
                          if (toActivityString(event.activityType).trim() == "STILL") {
                              StepsService.presentActivityState = "STILL"
-                             remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.still)
+                             StepsService.presentActivityStateImage = R.drawable.still
+
+                             performPartialUpdate(StepsService.presentActivityState, widgetContext, R.id.tx_activity_state)
+
                          } else if (toActivityString(event.activityType).trim() == "WALKING") {
                              StepsService.presentActivityState = "WALKING"
-                             remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.steps)
+                             StepsService.presentActivityStateImage = R.drawable.steps
+
+
+                             performPartialUpdate(
+                                 StepsService.presentActivityState,
+                                 widgetContext,
+                                 R.id.tx_activity_state
+                             )
                          } else if (toActivityString(event.activityType).trim() == "INVEHICLE") {
                              StepsService.presentActivityState = "INVEHICLE"
-                             remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.in_a_vehicle)
+                             StepsService.presentActivityStateImage = R.drawable.in_a_vehicle
+
+
+                             performPartialUpdate(
+                                 StepsService.presentActivityState,
+                                 widgetContext,
+                                 R.id.tx_activity_state
+                             )
                          }
-
-
-                    appWidM.updateAppWidget(newAppWidget, remoteViews)
-
                 }
             }
         }
     }
+
+    private fun performPartialUpdate(state: String, context: Context, appWidgetId: Int) {
+
+        // Target only the views you want to change
+        remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget).apply {
+            setTextViewText(R.id.tx_activity_state, StepsService.presentActivityState)
+            setImageViewResource(R.id.imgv_steps, StepsService.presentActivityStateImage)
+        }
+
+        // Send the partial update
+        appWidM.partiallyUpdateAppWidget(appWidgetId, remoteViews)
+    }
+
+
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun speedTracking() {

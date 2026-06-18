@@ -6,14 +6,20 @@ import android.app.ActivityManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
+import android.app.usage.UsageStatsManager
 import android.appwidget.AppWidgetManager
+import android.bluetooth.BluetoothA2dp
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothHeadset
+import android.bluetooth.BluetoothProfile
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.IntentFilter
+import android.graphics.Bitmap
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -47,12 +53,17 @@ import com.belaku.homey.MainActivity.Companion.weatherData
 import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.MainActivity.Companion.weatherIconState
 import com.belaku.homey.MainActivity.Companion.weatherIconUrl
+import com.belaku.homey.MapsActivity.Companion.ismGoogleMapInitialized
+import com.belaku.homey.MapsActivity.Companion.mGoogleMap
+import com.belaku.homey.MapsActivity.Companion.mStreetViewPanorama
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.isAppWidMInitialized
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.TAG
+import com.belaku.homey.SetWallWorker.Companion.isSharedPreferencesInitialized
+import com.belaku.homey.SetWallWorker.Companion.ismActInitialized
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.google.android.gms.location.LocationCallback
@@ -60,8 +71,12 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.maps.android.ui.IconGenerator
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -89,19 +104,20 @@ class StepsService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-//        makeToast("!StepsServiceStarted")
-
-
             if (!isLocationEnabled(applicationContext)) {
                 val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                 applicationContext.startActivity(intent.setFlags(FLAG_ACTIVITY_NEW_TASK))
             }
 
             val locationRequest = LocationRequest.create()
-            locationRequest.setInterval(60000)
-            locationRequest.setSmallestDisplacement(1f)
+            locationRequest.setInterval(10000)
+            locationRequest.setSmallestDisplacement(3f)
             locationRequest.setFastestInterval(10000)
             locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
+
+
+
+
 
             //instantiating the LocationCallBack
 
@@ -116,13 +132,48 @@ class StepsService : Service() {
                         val location = locationResult.lastLocation
                         if (location != null) {
 
+
+                            if (!isSharedPreferencesInitialized()) {
+                                sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+                                sharedPreferencesEditor = sharedPreferences.edit()
+                            }
+
                             if (!sharedPreferences.getBoolean("boolWeather", false)) {
                                 sharedPreferencesEditor.putBoolean("boolWeather", true).apply()
                                 getWeatherData(LatLng(location.latitude, location.longitude))
                             }
 
                             currentLocation = location
+
+
+
                             getAddress(location.latitude, location.longitude)
+                            if (ismGoogleMapInitialized()) {
+                                getAddress(location.latitude, location.longitude)
+                                var icon: BitmapDescriptor? = null
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                    val icnGenerator = IconGenerator(applicationContext)
+                                    // Bitmap bmp = icnGenerator.makeIcon(Html.fromHtml("<b><font color=\"#000000\">" + mAddresses[0] + mAddresses[1] + mAddresses[2] + "\n" + mAddresses[3] + mAddresses[4] + "</font></b>"));
+                                    val bmp: Bitmap = icnGenerator.makeIcon(
+                                        cityname
+                                    )
+                                    icon = BitmapDescriptorFactory.fromBitmap(bmp)
+                                }
+                                mGoogleMap.clear()
+                                var mLatLng: LatLng = LatLng(location.latitude, location.longitude)
+
+                                if (cityname.isNotEmpty()) {
+                                    var markerOptions =
+                                        MarkerOptions().position(mLatLng).icon(icon).title(cityname)
+                                    var markerAddress = mGoogleMap.addMarker(markerOptions)
+                                    mStreetViewPanorama.setPosition(
+                                        LatLng(
+                                            location.latitude,
+                                            location.longitude
+                                        )
+                                    )
+                                }
+                            }
                         }
                     }
 
@@ -147,7 +198,7 @@ class StepsService : Service() {
                         } catch (e: IOException) {
                             // TODO Auto-generated catch block
                             e.printStackTrace()
-                            // makeToast("GCD - IOException \n $e")
+                             makeToast("GCD - IOException \n $e")
                         }
 
                     }
@@ -202,9 +253,14 @@ class StepsService : Service() {
 
         mSensorEventListener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent) {
-                if (presentActivityState != "INVEHICLE") {
-                    Log.d("onSensorChanged", stepsToday.toString())
-                stepsToday++
+                if (presentActivityState != "IN VEHICLE") {
+
+                    stepsToday++
+
+                    if (!ismActInitialized()) {
+                    sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+                    sharedPreferencesEditor = sharedPreferences.edit()
+                        }
 
 
                     if (stepsToday < 10) {
@@ -212,17 +268,21 @@ class StepsService : Service() {
                             R.id.tx_steps,
                             "$stepsToday Steps"
                         )
-                        if (isAppWidMInitialized())
-                            appWidM.updateAppWidget(newAppWidget, remoteViews)
+                        sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
                     } else if (stepsToday % 10 == 0) {
-                        sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
                     remoteViews?.setTextViewText(
                         R.id.tx_steps,
                         "$stepsToday Steps"
                     )
-                        if (isAppWidMInitialized())
-                            appWidM.updateAppWidget(newAppWidget, remoteViews)
+                        sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
                 }
+
+
+                    sharedPreferencesEditor.putString("day", LocalDate.now().dayOfWeek.name).apply()
+
+
+                if (isAppWidMInitialized())
+                    appWidM.updateAppWidget(newAppWidget, remoteViews)
 
             }
         }
@@ -311,71 +371,63 @@ class StepsService : Service() {
 
     private fun BluetoothState(contx: StepsService) {
 
-        sharedPreferences = contx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
-        sharedPreferencesEditor = sharedPreferences.edit()
+   //     makeToast("!BluetoothState")
+        val mBluetoothStateReceiver = object : BroadcastReceiver() {
+            @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+            override fun onReceive(context: Context, intent: Intent) {
 
-
-        if (!sharedPreferences.getBoolean("BRd", false)) {
-            Log.d(TAG, "BlBrRd")
-            sharedPreferencesEditor.putBoolean("BRd", true).apply()
-
-            val mBluetoothReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-                @RequiresApi(Build.VERSION_CODES.S)
-                @SuppressLint("UnsafeIntentLaunch")
-                override fun onReceive(context: Context, intent: Intent) {
-
-                    val state = intent?.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
+                val action = intent?.action
+                if (action == BluetoothAdapter.ACTION_STATE_CHANGED) {
+                    val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
 
                     when (state) {
-
-                        BluetoothAdapter.STATE_CONNECTED -> {
-                            Log.d(TAG, "STATE_CONNECTED")
-                            sharedPreferencesEditor.putBoolean("BluetoothConnectionState", true)
-                                .apply()
-                            updateWidget()
-                        }
-
-                        BluetoothAdapter.STATE_DISCONNECTED -> {
-                            Log.d(TAG, "STATE_DISCONNECTED")
-                            sharedPreferencesEditor.putBoolean("BluetoothConnectionState", false)
-                                .apply()
-                            updateWidget()
-                        }
-
                         BluetoothAdapter.STATE_OFF -> {
-                            Log.d(TAG, "STATE_OFF")
+                            makeToast("Bluetooth OFF")
                             sharedPreferencesEditor.putBoolean("BluetoothState", false).apply()
-                            updateWidget()
                         }
-
+                        BluetoothAdapter.STATE_TURNING_OFF -> { /* Bluetooth is turning off */ }
                         BluetoothAdapter.STATE_ON -> {
-                            Log.d(TAG, "STATE_ON")
+                            makeToast("Bluetooth ON")
                             sharedPreferencesEditor.putBoolean("BluetoothState", true).apply()
-                            updateWidget()
+                        }
+                        BluetoothAdapter.STATE_TURNING_ON -> { /* Bluetooth is turning on */ }
+                    }
+                }
+
+                if (BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED == intent.action) {
+                    val state = intent.getIntExtra(BluetoothProfile.EXTRA_STATE, BluetoothProfile.STATE_DISCONNECTED)
+                    val device: BluetoothDevice? = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+
+                    when (state) {
+                        BluetoothProfile.STATE_CONNECTED -> {
+                            makeToast("Headset connected: ${device?.name}")
+                            sharedPreferencesEditor.putBoolean("BluetoothConnectionState", true).apply()
+                        }
+                        BluetoothProfile.STATE_DISCONNECTED -> {
+                            makeToast("Headset disconnected: ${device?.name}")
+                            sharedPreferencesEditor.putBoolean("BluetoothConnectionState", false).apply()
                         }
 
                     }
-
-
                 }
-            }
 
-            contx.registerReceiver(
-                mBluetoothReceiver,
-                IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-            )
+                updateWidget()
+
+            }
         }
+
+        val bluetoothFilter = IntentFilter()
+        bluetoothFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
+        bluetoothFilter.addAction(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)
+        registerReceiver(mBluetoothStateReceiver, bluetoothFilter)
+
+
+
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        Log.d("Service Status", "Starting Service")
 
-        dayOfTheWeek = LocalDate.now().dayOfWeek.name
-        sharedPreferencesEditor.putString("day", dayOfTheWeek).apply()
-
-        sharedPreferencesEditor.putInt("breatheCount", 0).apply()
-        sharedPreferencesEditor.putInt("drinkCount", 0).apply()
         sensorManager.registerListener(
             mSensorEventListener,
             stepCounterSensor,
@@ -405,7 +457,11 @@ class StepsService : Service() {
 
     companion object {
 
+        lateinit var usageStatsManager: UsageStatsManager
+        lateinit var stepsAdapter: StepsAdapter
+        val stepsData: ArrayList<String> = ArrayList()
         var presentActivityState = ""
+        var presentActivityStateImage = R.drawable.walp_icon
         lateinit var locationListenerSpeed: LocationListener
         lateinit var locationManager: LocationManager
         var twitterProfileName: String = "Fact"
@@ -413,6 +469,13 @@ class StepsService : Service() {
         var totalUsage: String = ""
         var choosenApps: ArrayList<App> = ArrayList()
 
+        fun isStepsAdapterInitialized(): Boolean {
+            if (::stepsAdapter.isInitialized)
+                return true
+            else
+                return false
+
+        }
 
         @OptIn(DelicateCoroutinesApi::class)
         fun getWeatherData(latLng: LatLng) {

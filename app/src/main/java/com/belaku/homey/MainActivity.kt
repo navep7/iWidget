@@ -10,6 +10,7 @@ import android.app.Dialog
 import android.app.PendingIntent
 import android.app.ProgressDialog
 import android.app.usage.UsageStats
+import android.app.usage.UsageStatsManager
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
@@ -416,9 +417,10 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        BluetoothState()
-        val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-        mainActivityContext.registerReceiver(mBluetoothReceiver, filter)
+        appWidM = AppWidgetManager.getInstance(applicationContext)
+        remoteViews =
+            RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
+        newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
 
 
     }
@@ -1263,6 +1265,7 @@ class MainActivity : AppCompatActivity() {
             }
             if (allGranted) {
 
+
                 usageStatsPermissionDialog()
 
                 sharedPreferencesEditor.putBoolean("LP", true).apply()
@@ -1274,6 +1277,8 @@ class MainActivity : AppCompatActivity() {
                 startStepsService()
                 btnAR.text = "Granted"
 
+                StepsService.usageStatsManager =
+                    applicationContext?.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager // Context.USAGE_STATS_SERVICE);
 
                 sharedPreferencesEditor.putBoolean("RCP", true).apply()
                 NewAppWidget().getFavoriteContacts()
@@ -1307,14 +1312,14 @@ class MainActivity : AppCompatActivity() {
             if (grantResults.isNotEmpty())
                 if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("ARP", true).apply()
-                    startStepsService()
+                //    startStepsService()
                     btnAR.text = "Granted"
                 }
         } else if (requestCode == READ_CONTACTS_P) {
             if (grantResults.isNotEmpty())
                 if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("RCP", true).apply()
-                    NewAppWidget().getFavoriteContacts()
+               //     NewAppWidget().getFavoriteContacts()
                     btnRC.text = "Granted"
                 }
         } else if (requestCode == BLUETOOTH_P) {
@@ -1370,7 +1375,9 @@ class MainActivity : AppCompatActivity() {
                 buttonAll.setOnClickListener {
                     if (!nPermissions()) {
                         rawTweets(false)
+                        startStepsService()
                         NewAppWidget().getFavoriteContacts()
+                        if (iDV.isShowing)
                         iDV.dismiss()
                     } else ActivityCompat.requestPermissions(
                         this,
@@ -1390,46 +1397,13 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun BluetoothState() {
-        var wTAG = "BluetoothState ~ "
-
-
-        mBluetoothReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent) {
-
-                val action = intent.action
-                makeSnack("onReceive BLT - " + action)
-                appWidM = AppWidgetManager.getInstance(mainActivityContext)
-
-
-                if (BluetoothAdapter.ACTION_STATE_CHANGED == action) {
-                    val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
-                    when (state) {
-                        BluetoothAdapter.STATE_OFF -> {
-                            remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_off)
-                            updateWidget()
-                        }
-
-                        BluetoothAdapter.STATE_TURNING_OFF -> {}
-                        BluetoothAdapter.STATE_ON -> {
-                            remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_on)
-                            updateWidget()
-                        }
-
-                        BluetoothAdapter.STATE_TURNING_ON -> {}
-                    }
-                }
-            }
-        }
-
-    }
 
 
     private fun startStepsService() {
-        if (!isMyServiceRunning(applicationContext, StepsService::class.java)) {
+     //   if (!isMyServiceRunning(applicationContext, StepsService::class.java)) {
             val intentSteps = Intent(this, StepsService::class.java)
             startForegroundService(intentSteps)
-        }
+      //  }
 
     }
 
@@ -1530,8 +1504,10 @@ class MainActivity : AppCompatActivity() {
         buttonAll.setOnClickListener {
             if (!nPermissions()) {
                 rawTweets(false)
+                startStepsService()
                 NewAppWidget().getFavoriteContacts()
-                iDV.dismiss()
+                if(iDV.isShowing)
+                    iDV.dismiss()
             } else ActivityCompat.requestPermissions(
                 this,
                 permissions,
@@ -1543,6 +1519,10 @@ class MainActivity : AppCompatActivity() {
             btnAUS.text = "Granted"
             sharedPreferencesEditor.putBoolean("AUS", true).apply()
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
     }
 
 

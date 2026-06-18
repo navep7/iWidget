@@ -282,10 +282,7 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
             MusicService::class.java
         )
 
-        val intentIndex = intent.getStringExtra("songIndex")
-        if (intentIndex != null) {
-            Toast.makeText(applicationContext, "iIn ${intentIndex.toString()}", Toast.LENGTH_LONG).show()
-        }
+
 
     }
 
@@ -376,9 +373,11 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                                         imgbtnFavAlbum.setImageResource(android.R.drawable.star_off)
                                         favAlbums.remove(query.trim())
                                         for (i in 0 until chipGroup.childCount) {
-                                            var ch = chipGroup.getChildAt(i) as Chip
-                                            if (query.trim() == ch.text)
-                                                chipGroup.removeView(ch)
+                                            if (chipGroup.getChildAt(i) != null) {
+                                                var ch = chipGroup.getChildAt(i) as Chip
+                                                if (query.trim() == ch.text)
+                                                    chipGroup.removeView(ch)
+                                            }
                                         }
                                     }
                                 }

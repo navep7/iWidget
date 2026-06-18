@@ -4,7 +4,6 @@ package com.belaku.homey
 // Weather Key - 9fa8e101240ab18615e3133b051e767e
 
 
-import com.belaku.homey.Constants.Companion.stepsToday
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
@@ -43,7 +42,6 @@ import android.graphics.drawable.shapes.RectShape
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.icu.text.SimpleDateFormat
-import java.util.Calendar
 import android.location.LocationManager
 import android.net.Uri
 import android.net.wifi.WifiManager
@@ -68,6 +66,7 @@ import androidx.appcompat.app.AppCompatActivity.RECEIVER_NOT_EXPORTED
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
+import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.cityLat
@@ -86,9 +85,12 @@ import com.belaku.homey.MusicService.Companion.mMediaPlayer
 import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.RemindersActivity.Companion.adapterHabits
 import com.belaku.homey.RemindersActivity.Companion.arrayListHabits
+import com.belaku.homey.RemindersActivity.Companion.isadapterHabitsInitialized
+import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.dayChange
 import com.belaku.homey.SetWallWorker.Companion.dayIndex
+import com.belaku.homey.SetWallWorker.Companion.hour
 import com.belaku.homey.SetWallWorker.Companion.isPinNoteInitialized
 import com.belaku.homey.SetWallWorker.Companion.isWallBitmapInitialized
 import com.belaku.homey.SetWallWorker.Companion.ismActInitialized
@@ -101,6 +103,9 @@ import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.belaku.homey.StepsService.Companion.choosenApps
+import com.belaku.homey.StepsService.Companion.isStepsAdapterInitialized
+import com.belaku.homey.StepsService.Companion.stepsAdapter
+import com.belaku.homey.StepsService.Companion.stepsData
 import com.belaku.homey.StepsService.Companion.totalUsage
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityTransition
@@ -115,6 +120,8 @@ import com.squareup.picasso.Picasso
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.time.LocalDate
+import java.util.Calendar
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
@@ -151,7 +158,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         recognizeActivityTransitions()
 
-        readApps()
+   //     appUsageStats(context)
         getFavoriteContacts()
     }
 
@@ -268,23 +275,20 @@ class NewAppWidget : AppWidgetProvider() {
             recognizeActivityTransitions()
             setUI()
 
-            if (!Constants.boolACadapterSet) {
+       //     if (!Constants.boolACadapterSet) {
                 setACAdapter()
-                Constants.boolACadapterSet = true
-            }
+      //          Constants.boolACadapterSet = true
+      //      }
 
             //  Create an intent to launch MainActivity
 
             setOnClickPendingIntents(context)
 
-
-
-            appWidM = AppWidgetManager.getInstance(context)
+            appWidM = AppWidgetManager.getInstance(widgetContext)
             appWidM.updateAppWidget(appWidgetId, remoteViews)
+            appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_apps)
+            appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)
         }
-
-
-
 
 
         super.onUpdate(context, appWidgetManager, appWidgetIds)
@@ -567,6 +571,18 @@ class NewAppWidget : AppWidgetProvider() {
             )
         )
 
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_rewards_count, PendingIntent.getActivity(
+                widgetContext,
+                18,
+                Intent(widgetContext, DialogActivity::class.java).putExtra(
+                    "DialogIntent",
+                    "AD"
+                ),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
 
         val mapsIntent = Intent(context, MapsActivity::class.java)
         val mapsPendingIntent = PendingIntent.getActivity(
@@ -636,6 +652,37 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setUI() {
 
+
+        remoteViews?.setTextViewText(R.id.tx_steps, "${sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)} Steps")
+
+        if (hour != 0) {
+            remoteViews?.setTextViewText(
+                R.id.tx_screentime,
+                "$hour+ Hours"
+            )
+
+            if (hour < 2)
+                remoteViews?.setTextViewText(
+                    R.id.tx_screenusage_state,
+                    "LOW"
+                )
+            else if (hour in 3..<5)
+                remoteViews?.setTextViewText(
+                    R.id.tx_screenusage_state,
+                    "MODERATE"
+                )
+            else if (hour in 6..<8)
+                remoteViews?.setTextViewText(
+                    R.id.tx_screenusage_state,
+                    "HIGH"
+                )
+            else if (hour > 8)
+                remoteViews?.setTextViewText(
+                    R.id.tx_screenusage_state,
+                    "EXCESSIVE"
+                )
+        }
+
         val spkServiceRunning = sharedPreferences.getBoolean("SPKSERVICE", false)
         //   // makeToast("spkServiceRunning : $spkServiceRunning")
         if (spkServiceRunning)
@@ -659,93 +706,20 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
- //       remoteViews?.setTextViewText(R.id.tx_breathe_count, sharedPreferences.getInt("breatheCount", 0).toString())
-   //     remoteViews?.setTextViewText(R.id.tx_drink_count, sharedPreferences.getInt("drinkCount", 0).toString())
-
-        //    googleAccountInfo()
-        if (isPinNoteInitialized())
+        if (isPinNoteInitialized()) {
             remoteViews?.setTextViewText(R.id.tx_runner, pinNote)
+        }
 
         seekWifiState()
         seekBluetoothState()
-        getScreenTime(widgetContext)
         todaysDate()
         locationTxUpdate(widgetContext)
         wallColors()
-        //   getWeatherDraws()
         setSomeTwAndWallDescUI()
 
 
     }
 
-    /*   private fun googleAccountInfo() {
-
-           val accountManager = AccountManager.get(widgetContext)
-
-           // To get all Google accounts
-           val googleAccounts = accountManager.getAccountsByType("com.google")
-           // To get all accounts of any type
-           val allAccounts = accountManager.accounts
-           for (account in googleAccounts) {
-               val accountName = account.name
-            //   // makeToast(accountName)
-           }
-
-       }*/
-
-
-    private fun glossyOverlay(
-        originalBitmap: Bitmap
-    ): Bitmap {
-        val resultBitmap =
-            originalBitmap.copy(Bitmap.Config.ARGB_8888, true) // Must be ARGB_8888 and mutable
-        val canvas = Canvas(resultBitmap)
-
-
-        // Define colors: Top (semi-transparent white), Middle (more transparent), Bottom (fully transparent)
-        val colors = intArrayOf(
-            Color.parseColor("#99FFFFFF"),  // Top: ~60% white transparency
-            Color.parseColor("#44FFFFFF"),  // Middle: ~25% white transparency
-            Color.TRANSPARENT // Bottom: fully transparent
-        )
-
-
-// Define positions for the colors (optional, can be null for even distribution)
-        val positions = floatArrayOf(0.0f, 0.5f, 1.0f)
-
-        val gradient = LinearGradient(
-            0f, 0f, 0f, canvas.height.toFloat(), // Start X, Y; End X, Y (vertical gradient)
-            colors,
-            positions,
-            Shader.TileMode.CLAMP
-        )
-
-        val paint = Paint()
-        paint.setShader(gradient)
-        canvas.drawRect(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat(), paint)
-
-        return resultBitmap
-
-    }
-
-    /*   private fun blurBitmap(originalBitmap: Bitmap) : Bitmap {
-
-           val rs = RenderScript.create(widgetContext)
-
-           val input = Allocation.createFromBitmap(
-               rs,
-               originalBitmap
-           ) //use this constructor for best performance, because it uses USAGE_SHARED mode which reuses memory
-           val output = Allocation.createTyped(rs, input.type)
-           val script = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
-           script.setRadius(8f);
-           script.setInput(input);
-           script.forEach(output);
-           output.copyTo(originalBitmap);
-
-           return originalBitmap
-
-       }*/
 
     private fun applyThinFilmOverlay(
         originalBitmap: Bitmap,
@@ -805,6 +779,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     private fun setACAdapter() {
+
         setContactsAdapter()
         setContactsClick()
         setAppsAdapter()
@@ -1009,8 +984,9 @@ class NewAppWidget : AppWidgetProvider() {
             if (noRewards > 1)
                 remoteViews?.setTextViewText(R.id.tx_rewards_count, "$noRewards")
             else {
+                remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
                 remoteViews?.setTextViewText(R.id.tx_rewards_count, "\uD83D\uDC41\uFE0FAD!")
-                remoteViews?.setOnClickPendingIntent(
+             /*   remoteViews?.setOnClickPendingIntent(
                     R.id.imgbtn_set, PendingIntent.getActivity(
                         widgetContext,
                         18,
@@ -1020,7 +996,7 @@ class NewAppWidget : AppWidgetProvider() {
                         ),
                         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                     )
-                )
+                )*/
             }
 
         }
@@ -1081,17 +1057,23 @@ class NewAppWidget : AppWidgetProvider() {
 
         widgetContext = context
 
+
         Log.d(TAG, "!onReceive")
         remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
         sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
-        //    setUI()
+        setUI()
+
         handleIntentActions(intent)
 
-        appWidM = AppWidgetManager.getInstance(widgetContext)
+
+        val appWidgetIds = appWidM.getAppWidgetIds(newAppWidget)
+      //  appWidM = AppWidgetManager.getInstance(context)
         appWidM.updateAppWidget(newAppWidget, remoteViews)
+        appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_apps)
+        appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)
 
     }
 
@@ -1099,6 +1081,13 @@ class NewAppWidget : AppWidgetProvider() {
     @SuppressLint("InflateParams", "ResourceAsColor")
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleIntentActions(intent: Intent) {
+
+        val appWidgetManager = AppWidgetManager.getInstance(widgetContext)
+        // 3. Get IDs for all active widgets of this provider
+        val thisAppWidget = ComponentName(widgetContext.getPackageName(), javaClass.getName())
+        val appWidgetIds = appWidgetManager.getAppWidgetIds(thisAppWidget)
+        // 4. Manually trigger onUpdate
+       // onUpdate(context, appWidgetManager, appWidgetIds!!)
 
         if (TIME_CLICK == intent.action) {
 
@@ -1126,13 +1115,13 @@ class NewAppWidget : AppWidgetProvider() {
             widgetContext.startActivity(
                 Intent(widgetContext, DialogActivity::class.java)
                     .putExtra("DialogIntent", "stepsInfo")
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }
         if (STEPS_CLICK == intent.action) {
-
-            remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday Steps")
             Toast.makeText(widgetContext,"$stepsToday ~ " + String.format("%.1f", stepsToday * 74f / 100000f) + " Km", Toast.LENGTH_LONG).show()
-            }
+            remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday Steps")
+
+        }
         if (BATTERY_INFO == intent.action) {
             val powerUsageIntent = Intent("android.intent.action.POWER_USAGE_SUMMARY")
             if (powerUsageIntent.resolveActivity(widgetContext.getPackageManager()) != null) {
@@ -1144,6 +1133,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setViewVisibility(R.id.tx_refresh_weather, View.INVISIBLE)
             appWidM.updateAppWidget(newAppWidget, remoteViews)
             StepsService.getWeatherData(LatLng(cityLat, cityLng))
+
         } else if (PLAYPAUSE_CLICK == intent.action) {
             if (boolMusicServiceRunning) {
                 try {
@@ -1168,6 +1158,7 @@ class NewAppWidget : AppWidgetProvider() {
             } else {
                 startMusicActivity(songIndex)
             }
+
 
         } else if (P_THUMBNAIL_CLICK == intent.action) {
             widgetContext.startActivity(
@@ -1196,7 +1187,8 @@ class NewAppWidget : AppWidgetProvider() {
                 if (viewID == 0)
                     dialPhoneNumber(widgetContext, favContacts[position].number)
                 else if (viewID == 1) {
-                    unMarkAsFav(favContacts[position].id)
+                    if (favContacts.size != position)
+                        unMarkAsFav(favContacts[position].id)
                 }
             } else {
                 val pickContactIntent =
@@ -1205,6 +1197,7 @@ class NewAppWidget : AppWidgetProvider() {
                 pickContactIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 widgetContext.startActivity(pickContactIntent)
             }
+
         } else if (ACTION_LIST_APPITEM_CLICK == intent.action) {
             // Extract the item position or ID from the intent extras
             val position = intent.getIntExtra(
@@ -1283,7 +1276,7 @@ class NewAppWidget : AppWidgetProvider() {
             val isFlashAvailable =
                 widgetContext.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)
             if (!isFlashAvailable) {
-                //  return
+                  return
             }
             val cameraManager =
                 widgetContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
@@ -1308,7 +1301,7 @@ class NewAppWidget : AppWidgetProvider() {
                     }
                 }
             } catch (e: CameraAccessException) {
-                e.printStackTrace()
+                makeToast(e.message.toString())
             }
 
 
@@ -1317,22 +1310,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             sharedPreferencesEditor.putBoolean("newLap", boolNewLap).apply()
 
-        } /* else if (BREATHE_INC == intent.action) {
-            // makeToast("!BREATHE_INC")
-            var bC = sharedPreferences.getInt("breatheCount", 0)
-            bC++
-            sharedPreferencesEditor.putInt("breatheCount", bC).apply()
-            sharedPreferencesEditor.commit()
-            // makeToast("setting $bC")
-            remoteViews?.setTextViewText(R.id.tx_breathe_count, bC.toString())
-        } else if (DRINK_INC == intent.action) {
-            // makeToast("!DRINK_INC")
-            var dC = sharedPreferences.getInt("drinkCount", 0)
-            dC++
-            sharedPreferencesEditor.putInt("drinkCount", dC).apply()
-            sharedPreferencesEditor.commit()
-            remoteViews?.setTextViewText(R.id.tx_drink_count, dC.toString())
-        }*/ else if (LOCK_PHONE == intent.action) {
+        } else if (LOCK_PHONE == intent.action) {
             if (widgetContext != null) {
                 if (isAccessibilityServiceEnabled(
                         widgetContext,
@@ -1393,19 +1371,6 @@ class NewAppWidget : AppWidgetProvider() {
         }
     }
 
-    fun RotateBitmap(source: Bitmap, angle: Float): Bitmap? {
-        val matrix: Matrix = Matrix()
-        matrix.postRotate(angle)
-        return Bitmap.createBitmap(
-            source,
-            0,
-            0,
-            90,
-            90,
-            matrix,
-            true
-        )
-    }
 
     private fun startMusicActivity(songIndex: Int) {
         var intentMusic = Intent(widgetContext, MusicActivity::class.java)
@@ -1430,6 +1395,10 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         getFavoriteContacts()
+        //   val appWidgetIds = appWidM.getAppWidgetIds(newAppWidget)
+        //   appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)
+
+  //      widgetContext.startActivity(Intent(widgetContext, DialogActivity::class.java).putExtra("DialogIntent", "WCh").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 
     }
 
@@ -1865,72 +1834,6 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
-        fun getScreenTime(applicationContext: Context) {
-
-            val usageStatsManager =
-                applicationContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-
-            dayListener(Calendar.getInstance())
-
-            // Get a map of package names to UsageStats objects
-            val usageStatsMap = usageStatsManager.queryAndAggregateUsageStats(
-                beginCal.timeInMillis,
-                endCal.timeInMillis
-            )
-
-            var totalScreenTimeInMillis: Long = 0
-            for (usageStats in usageStatsMap.values) {
-                totalScreenTimeInMillis += usageStats.totalTimeInForeground
-            }
-
-            // Convert to desired units (e.g., minutes, hours)
-            totalScreenTimeInHours = totalScreenTimeInMillis / (1000 * 60 * 60) / 6
-
-            val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
-            var ampm = Calendar.getInstance()[Calendar.AM_PM].toString()
-
-            when (ampm) {
-                "0" -> ampm = "AM"
-                "1" -> ampm = "PM"
-            }
-
-            if (totalUsage.split(":")[0].isNotEmpty()) {
-                var sT = totalUsage.split(":")
-                var hour = ""
-
-                if (sT[0][0] == '0')
-                    hour = sT[0].drop(1)
-                else hour = sT[0]
-
-                remoteViews?.setTextViewText(
-                    R.id.tx_screentime,
-                    "$hour+ Hours"
-                )
-
-                if (Integer.parseInt(hour) < 2)
-                    remoteViews?.setTextViewText(
-                        R.id.tx_screenusage_state,
-                        "LOW"
-                    )
-                else if ((Integer.parseInt(hour) > 2) && (Integer.parseInt(hour) < 4))
-                    remoteViews?.setTextViewText(
-                        R.id.tx_screenusage_state,
-                        "MODERATE"
-                    )
-                else if ((Integer.parseInt(hour) > 4) && (Integer.parseInt(hour) < 6))
-                    remoteViews?.setTextViewText(
-                        R.id.tx_screenusage_state,
-                        "HIGH"
-                    )
-                else if (Integer.parseInt(hour) > 6)
-                    remoteViews?.setTextViewText(
-                        R.id.tx_screenusage_state,
-                        "EXCESSIVE"
-                    )
-            }
-
-
-        }
 
 
         fun dayListener(calendar: java.util.Calendar) {
@@ -2019,6 +1922,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         fun todaysDate() {
 
+       //     makeToast("!todaysDate")
             val c: Date = Calendar.getInstance().time
             val dfDate = SimpleDateFormat("d", Locale.getDefault())
             val dfMonth = SimpleDateFormat("MMM", Locale.getDefault())
@@ -2046,24 +1950,92 @@ class NewAppWidget : AppWidgetProvider() {
                 }
             }
 
+            var day = SimpleDateFormat("EEE", Locale.getDefault()).format(c)
 
-            if (!::formattedDate.isInitialized)
-            formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
-            else if (formattedDate != dfDate.format(c) + postFixDate + " " + dfMonth.format(c)) {
+            if (day == "Mon") {
+
+                stepsData.clear()
+                stepsData.add(sharedPreferences.getInt("Monday", stepsToday).toString())
+                stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
+
+                for (i in arrayListHabits) {
+                    i.isChecked = false
+                    sharedPreferencesEditor.putBoolean("${i.name}StateSu", false).apply()
+                 //   sharedPreferencesEditor.putBoolean("${i.name}StateM", false).apply()
+                    sharedPreferencesEditor.putBoolean("${i.name}StateTu", false).apply()
+                    sharedPreferencesEditor.putBoolean("${i.name}StateW", false).apply()
+                    sharedPreferencesEditor.putBoolean("${i.name}StateTh", false).apply()
+                    sharedPreferencesEditor.putBoolean("${i.name}StateF", false).apply()
+                    sharedPreferencesEditor.putBoolean("${i.name}StateS", false).apply()
+                }
+                if (isadapterHabitsInitialized())
+                adapterHabits.notifyDataSetChanged()
+
+
+            }
+
+            if (!::formattedDate.isInitialized) {
+            //    makeToast("AnotherDay... $day")
+             //   appUsageStats(widgetContext)
+
+                formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
+            } else if (formattedDate != dfDate.format(c) + postFixDate + " " + dfMonth.format(c)) {
 
                 //AnotherDay...
+                makeToast("AnotherDay... $formattedDate : ${dfDate.format(c) + postFixDate + " " + dfMonth.format(c)}")
+                appUsageStats(widgetContext)
+                if (day == "Mon") {
+                    stepsData.clear()
+                    stepsData.add(stepsToday.toString())
+                    stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
+                    stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
+                    stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
+                    stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
+                    stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
+                    stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
+                } else {
+                     if (day == "Tue")
+                        stepsData[0] = stepsToday.toString()
+                    else if (day == "Wed")
+                        stepsData[1] = stepsToday.toString()
+                    else if (day == "Thu")
+                        stepsData[2] = stepsToday.toString()
+                    else if (day == "Fri")
+                        stepsData[3] = stepsToday.toString()
+                    else if (day == "Sat")
+                        stepsData[4] = stepsToday.toString()
+                    else if (day == "Sun")
+                        stepsData[5] = stepsToday.toString()
+
+                }
+
+                formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
+
+                if (stepsData.isNotEmpty())
+                    if (isStepsAdapterInitialized())
+                        stepsAdapter.notifyDataSetChanged()
+
+
                 stepsToday = 0
+                sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, 0).apply()
+
+                if (arrayListHabits.size > 0) {
+                    for (i in arrayListHabits)
+                        i.isChecked = false
+                    adapterHabits.notifyDataSetChanged()
+                }
             }
 
 
-            // remoteViews?.setTextViewText(R.id.tx_date, formattedDate)
             sharedPreferencesEditor.putBoolean("DateSet", true).apply()
             sharedPreferencesEditor.putString("fD", formattedDate).apply()
 
-       //     if (stepsToday != 0)
-         //       remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday Steps")
 
-            //   remoteViews?.setTextViewText(R.id.n_tx_steps, "Now, $newLapSteps")
             remoteViews?.setTextViewText(
                 R.id.tx_day_date,
                 SimpleDateFormat("EEE", Locale.getDefault()).format(c) +

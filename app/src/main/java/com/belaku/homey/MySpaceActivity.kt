@@ -26,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.SetWallWorker.Companion.isSharedPreferencesInitialized
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.databinding.ActivityMySpaceBinding
@@ -78,9 +79,6 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
         listeners()
 
-        sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
-        sharedPreferencesEditor = sharedPreferences.edit()
-
 
         val launchableAppsResolveInfo = getLaunchableApps()
 
@@ -101,6 +99,10 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         }
 
         recyclerView = findViewById(R.id.rv_my_space)
+
+        sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        sharedPreferencesEditor = sharedPreferences.edit()
+
         sharedPreferences.getStringSet("mySpaceApps", null)?.let { mySpaceAppsString.addAll(it) }
 
         var SZ = mySpaceAppsString.size
@@ -207,7 +209,7 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
     fun blur(context: Context?, image: Bitmap): Bitmap {
 
-        var BITMAP_SCALE = 0.4f; // Scale down bitmap for performance
+        var BITMAP_SCALE = 0.001f; // Scale down bitmap for performance
         var BLUR_RADIUS = 25f; // Adjust blur intensity
 
         val width = Math.round(image.width * BITMAP_SCALE).toInt()

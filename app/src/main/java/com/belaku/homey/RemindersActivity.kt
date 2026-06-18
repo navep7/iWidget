@@ -2,8 +2,11 @@ package com.belaku.homey
 
 
 import AppsAdapter
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -39,6 +42,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.core.graphics.drawable.toDrawable
+import com.belaku.homey.MusicActivity.Companion.pDatalistSongs
 
 
 class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
@@ -89,6 +93,7 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         val listViewHabits = findViewById<ListView>(R.id.rv_habits)
         adapterHabits = HabitsAdapter(this, arrayListHabits)
         listViewHabits.adapter = adapterHabits
+        dayIndex =  Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
 
         listViewHabits.setOnItemClickListener(OnItemClickListener { parent, view, position, id ->
             if ((parent.getItemAtPosition(position) as Habit).isChecked) {
@@ -133,12 +138,37 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         listviewReminders.setAdapter(adapterReminders)
 
         listviewReminders.setOnItemLongClickListener(AdapterView.OnItemLongClickListener { parent, view, position, id -> // Remove the item from the data source
+
+            cancelReminder()
+
             arrayListReminders.removeAt(position)
             // Notify the adapter that the data has changed
             adapterReminders.notifyDataSetChanged()
             true
         })
 
+
+    }
+
+    fun cancelReminder() {
+        val alarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+// 1. Create an Intent identical to the one used to set the alarm
+        val intent = Intent(applicationContext, AlarmBroadcastReceiver::class.java)
+
+// 2. Create the identical PendingIntent (Match the requestCode and Flags)
+        val pendingIntent = PendingIntent.getBroadcast(
+            applicationContext,
+            0, // Must match the code used when setting the alarm
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+// 3. Cancel the alarm
+        alarmManager.cancel(pendingIntent)
+
+// 4. (Optional) Remove the PendingIntent from the system's tracking
+        pendingIntent.cancel()
 
     }
 
@@ -187,6 +217,11 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
                 }
             }
         lateinit var adapterHabits: HabitsAdapter
+
+        fun isadapterHabitsInitialized(): Boolean {
+            return ::adapterHabits.isInitialized
+        }
+
         lateinit var adapterReminders: RemindersAdapter
         var arrayListHabits: ArrayList<Habit> = ArrayList()
         var arrayListReminders: ArrayList<Reminder> = ArrayList()

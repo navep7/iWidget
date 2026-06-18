@@ -4,17 +4,25 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.os.Bundle
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.util.Log
+import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SpeakService.Companion.speakOut
 
 
 class NotificationService : NotificationListenerService() {
 
+    private lateinit var speechRecognizer: SpeechRecognizer
+
     override fun onCreate() {
         super.onCreate()
+     //   setupSpeechRecognizer()
         Log.d("NoteServiceLOG", "onCreate")
     }
 
@@ -49,6 +57,54 @@ class NotificationService : NotificationListenerService() {
 
         if (prefs.getBoolean("SPKSERVICE", false)) {
              speakOut(appName)
+         //   speakOut("Would you like to hear the content?")
         }
     }
+
+    private fun setupSpeechRecognizer() {
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+        speechRecognizer.setRecognitionListener(object : RecognitionListener {
+            override fun onReadyForSpeech(params: Bundle?) {}
+            override fun onBeginningOfSpeech() {}
+            override fun onRmsChanged(rmsdB: Float) {}
+            override fun onBufferReceived(buffer: ByteArray?) {}
+            override fun onEndOfSpeech() {}
+            override fun onResults(results: Bundle?) {
+                val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                if (!matches.isNullOrEmpty()) {
+                    handleVoiceCommand(matches[0])
+                }
+            }
+            override fun onError(error: Int) {
+                Log.e("Speech", "Error: $error")
+            }
+
+            override fun onEvent(p0: Int, p1: Bundle?) {}
+
+            override fun onPartialResults(partialResults: Bundle?) {}
+
+        })
+    }
+
+    private fun handleVoiceCommand(command: String) {
+        makeToast("hello - $command")
+        when {
+            command.contains("yes", ignoreCase = true) || command.contains("yes", ignoreCase = true) -> {
+                speakOut("Ok, will do")
+            }
+            else -> {
+                speakOut("fine")
+            }
+        }
+    }
+
+    private fun listenForVoiceCommand() {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+        }
+        speechRecognizer.startListening(intent)
+    }
+
+
 }

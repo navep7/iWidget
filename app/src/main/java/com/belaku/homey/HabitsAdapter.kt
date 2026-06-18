@@ -28,6 +28,10 @@ class HabitsAdapter(context: Context, data: List<Habit>) :
         val textView = listItemView!!.findViewById<TextView>(R.id.item_text_name)
         textView.text = "${(position + 1)}. ${currentItem?.name}"
 
+        val textViewStreak = listItemView!!.findViewById<TextView>(R.id.item_text_streak)
+        textViewStreak.bringToFront()
+
+
         val checkBox = listItemView.findViewById<CheckBox>(R.id.item_checkbox)
         checkBox.isChecked = currentItem?.isChecked ?: false
 

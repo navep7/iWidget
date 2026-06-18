@@ -6,6 +6,8 @@ import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.IntentFilter
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import android.os.Bundle
@@ -25,6 +27,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.belaku.homey.MainActivity.Companion.apps
+import com.belaku.homey.NewAppWidget.Companion.primaryColor
 import com.belaku.homey.databinding.ActivityAppsBinding
 
 
@@ -43,13 +46,23 @@ class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         setContentView(binding.root)
 
         val recyclerView: RecyclerView = findViewById(R.id.rv_apps)
+        val rootLayout = findViewById<RelativeLayout>(R.id.apps_layout)
+
+        if (ColorUtil().isColorDark(primaryColor)) {
+            rootLayout.findViewById<TextView>(R.id.tx_t)
+                .setTextColor(applicationContext.getColor(R.color.white))
+        } else {
+            rootLayout.findViewById<TextView>(R.id.tx_t)
+                .setTextColor(applicationContext.getColor(R.color.black))
+        }
+
         val adapter = AppsAdapter(apps, this)
         val layoutManager = GridLayoutManager(this, 5)
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = adapter
 
 
-        val rootLayout = findViewById<RelativeLayout>(R.id.apps_layout)
+
 
         try {
             rootLayout.setBackgroundDrawable(
@@ -58,7 +71,6 @@ class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
                     blur(applicationContext, SetWallWorker.wallBitmap)
                 )
             )
-            rootLayout.findViewById<TextView>(R.id.tx_t).setTextColor(NewAppWidget.tertianaryColor)
         } catch (ex: Exception) {
 
         }
@@ -73,10 +85,44 @@ class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
     }
 
+    private fun applyThinFilmOverlay(
+        originalBitmap: Bitmap,
+        filmColor: Int,
+        filmAlpha: Int
+    ): Bitmap {
+        // Create a mutable bitmap for drawing
+        val resultBitmap = Bitmap.createBitmap(
+            originalBitmap.width,
+            originalBitmap.height,
+            Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(resultBitmap)
+
+        // Draw the original bitmap
+        canvas.drawBitmap(originalBitmap, 0f, 0f, null)
+
+        // Create a paint object for the "film" effect
+        val paint = Paint()
+        paint.color = filmColor
+        // Set the transparency (0 = fully transparent, 255 = fully opaque)
+        paint.alpha = filmAlpha
+
+        // Draw the semi-transparent color over the entire canvas
+        canvas.drawRect(
+            0f,
+            0f,
+            originalBitmap.width.toFloat(),
+            originalBitmap.height.toFloat(),
+            paint
+        )
+
+        return resultBitmap
+    }
+
     fun blur(context: Context?, image: Bitmap): Bitmap {
 
-        var BITMAP_SCALE = 0.4f; // Scale down bitmap for performance
-        var BLUR_RADIUS = 25f; // Adjust blur intensity
+        var BITMAP_SCALE = 0.001f; // Scale down bitmap for performance
+        var BLUR_RADIUS = 21f; // Adjust blur intensity
 
         val width = Math.round(image.width * BITMAP_SCALE).toInt()
         val height = Math.round(image.height * BITMAP_SCALE).toInt()

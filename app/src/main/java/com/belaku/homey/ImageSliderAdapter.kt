@@ -29,7 +29,7 @@ class ImageSliderAdapter(private val imageList: List<String>, private val contex
         var imgUrl = imageList[Random.Default.nextInt(imageList.size)]
         imgUrl = imgUrl.split("+ ")[1]
 
-        if (position != 0)
+     //   if (position != 0)
         Glide.with(context)
             .load(imgUrl)
             .override(holder.imageView.width, holder.imageView.height)
