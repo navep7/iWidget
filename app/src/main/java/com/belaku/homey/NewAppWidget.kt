@@ -984,8 +984,9 @@ class NewAppWidget : AppWidgetProvider() {
             if (noRewards > 1)
                 remoteViews?.setTextViewText(R.id.tx_rewards_count, "$noRewards")
             else {
+                remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
                 remoteViews?.setTextViewText(R.id.tx_rewards_count, "\uD83D\uDC41\uFE0FAD!")
-                remoteViews?.setOnClickPendingIntent(
+             /*   remoteViews?.setOnClickPendingIntent(
                     R.id.imgbtn_set, PendingIntent.getActivity(
                         widgetContext,
                         18,
@@ -995,7 +996,7 @@ class NewAppWidget : AppWidgetProvider() {
                         ),
                         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                     )
-                )
+                )*/
             }
 
         }
@@ -1397,7 +1398,7 @@ class NewAppWidget : AppWidgetProvider() {
         //   val appWidgetIds = appWidM.getAppWidgetIds(newAppWidget)
         //   appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)
 
-        widgetContext.startActivity(Intent(widgetContext, DialogActivity::class.java).putExtra("DialogIntent", "WCh").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+  //      widgetContext.startActivity(Intent(widgetContext, DialogActivity::class.java).putExtra("DialogIntent", "WCh").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 
     }
 

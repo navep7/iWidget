@@ -274,71 +274,27 @@ class DialogActivity : AppCompatActivity() {
                 }
             } else if (dialogIntentStr == "WCh") {
 
-                if (noRewards > 1) {
-                    remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.VISIBLE)
-                    remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
-                    appWidM.updateAppWidget(newAppWidget, remoteViews)
-                } else {
-                    remoteViews?.setTextViewText(R.id.tx_rewards_count, "\uD83D\uDC41\uFE0FAD!")
-                    remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
-                    appWidM.updateAppWidget(newAppWidget, remoteViews)
-                }
-                sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
-                sharedPreferencesEditor = sharedPreferences.edit()
-
-                llDialog.visibility = View.GONE
                 noRewards = sharedPreferences.getInt("noRewards", 7)
-                noRewards--
-                sharedPreferencesEditor.putInt("noRewards", noRewards).apply()
 
-                if (noRewards > 0) {
-                    //   makeSnack("Changing Wall, please wait...")
-                    dialogActContext = applicationContext
+                if (noRewards > 1) {
+
+                    sharedPreferencesEditor.putInt("noRewards", --noRewards).apply()
+
+                    remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.VISIBLE)
+
+                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                    var ids = intArrayOf(R.id.imgbtn_set, R.id.progressBar_cyclic_wallchange, R.id.tx_rewards_count)
+
+                //    appWidM.partiallyUpdateAppWidget(ids, remoteViews)
+
                     Thread {
                         SetWallWorker.setWall(true, dialogActContext)
                     }.start()
-                } /*else {
 
-                    makeSnack("loading Advertisement, please wait...")
-                    txTitle.setText("loading Advertisement, please wait...")
-                    txContent.visibility = View.GONE
-                    edtxDialog.visibility = View.GONE
-                    imgbtnShare.visibility = View.GONE
-                    btnOk.visibility = View.GONE
-                    btnCancel.visibility = View.GONE
-                    vpSteps.visibility = View.GONE
 
-                    RewardedInterstitialAd.load(
-                        this,
-                        getString(R.string.admob_ri_ad),
-                        AdRequest.Builder().build(),
-                        object : RewardedInterstitialAdLoadCallback() {
-                            override fun onAdLoaded(rewardedAd: RewardedInterstitialAd) {
-                                // makeToast("Ad was loaded.")
-                                rewardedInterstitialAd = rewardedAd
-
-                                rewardedInterstitialAd?.show(this@DialogActivity) { rewardItem ->
-                                    // makeToast("User earned the reward.")
-                                    // Handle the reward.
-                                    val rewardAmount = rewardItem.amount
-                                    val rewardType = rewardItem.type
-                                    sharedPreferencesEditor.putInt("noRewards", 7).apply()
-                                    noRewards = 7
-                                    remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
-                                    remoteViews?.setTextViewText(R.id.tx_rewards_count, "" + 7)
-                                    txTitle.setText("swipe outside to continue changing walls.")
-                                    updateWidget()
-                                }
-                            }
-
-                            override fun onAdFailedToLoad(adError: LoadAdError) {
-                                dialogActContext = applicationContext
-                                // makeToast("onAdFailedToLoad: ${adError.message}")
-                                rewardedInterstitialAd = null
-                            }
-                        },
-                    )
-                }*/
+                    finish()
+                }
 
             } else if (dialogIntentStr == "AD") {
 
@@ -363,7 +319,7 @@ class DialogActivity : AppCompatActivity() {
                                 remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
                                 remoteViews?.setTextViewText(R.id.tx_rewards_count, "" + 7)
                                 txTitle.setText("swipe outside to continue changing walls.")
-                                updateWidget()
+                                appWidM.updateAppWidget(newAppWidget, remoteViews)
                             }
                         }
 
@@ -824,6 +780,7 @@ class DialogActivity : AppCompatActivity() {
                 imgbtnShare.visibility = View.GONE
                 btnOk.setOnClickListener {
 
+                    llDialog.visibility = View.GONE
                     if (edtxDialog.text.toString().isNotEmpty())
                         pinNote = edtxDialog.text.toString()
 

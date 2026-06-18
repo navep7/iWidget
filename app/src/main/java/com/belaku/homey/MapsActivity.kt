@@ -124,8 +124,11 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
                             }
                         else addrs = cAddrs[0].subLocality
 
-                        if (addrs.isNotEmpty())
-                            addPresentMarker(LatLng(location.latitude, location.longitude), addrs)
+
+                        if (!(addrs?.isNotEmpty() ?: false))
+                            addrs = "unknown"
+
+                        addPresentMarker(LatLng(location.latitude, location.longitude), addrs)
 
                         mGoogleMap.setOnMapClickListener(this@MapsActivity)
                         mGoogleMap.setOnMarkerClickListener(this)

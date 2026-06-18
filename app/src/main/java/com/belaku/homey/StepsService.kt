@@ -461,6 +461,7 @@ class StepsService : Service() {
         lateinit var stepsAdapter: StepsAdapter
         val stepsData: ArrayList<String> = ArrayList()
         var presentActivityState = ""
+        var presentActivityStateImage = R.drawable.walp_icon
         lateinit var locationListenerSpeed: LocationListener
         lateinit var locationManager: LocationManager
         var twitterProfileName: String = "Fact"

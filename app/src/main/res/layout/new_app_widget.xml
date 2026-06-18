@@ -748,7 +748,8 @@
                     android:indeterminateTintMode="src_atop"
                     android:minWidth="5dp"
                     android:minHeight="5dp"
-                    android:visibility="invisible" />
+                    android:visibility="invisible"
+                    />
 
             </RelativeLayout>
 
