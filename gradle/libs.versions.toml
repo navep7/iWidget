@@ -13,7 +13,7 @@ googleMaterialVersion = "1.13.0"
 gson = "2.13.1"
 gsonVersion = "2.8.8"
 kotlin = "2.0.0"
-coreKtx = "1.16.0"
+coreKtx = "1.15.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
@@ -90,4 +90,3 @@ androidx-media3-exoplayer = { group = "androidx.media3", name = "media3-exoplaye
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-

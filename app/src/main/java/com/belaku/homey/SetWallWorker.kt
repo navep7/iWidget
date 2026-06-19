@@ -97,8 +97,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
         if(isNetConnected)
             setWall(true, wallWorkerContext)
-        else
-            greeting()
 
         return Result.success()
     }

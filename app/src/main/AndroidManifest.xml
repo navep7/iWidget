@@ -307,6 +307,8 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <!-- Mandatory action to listen for screen unlock -->
+                <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
 
             <meta-data

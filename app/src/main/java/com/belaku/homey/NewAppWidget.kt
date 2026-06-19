@@ -9,7 +9,6 @@ import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.WallpaperManager
-import android.app.usage.UsageStatsManager
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
@@ -29,7 +28,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.LinearGradient
-import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
@@ -68,11 +66,9 @@ import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.apps
-import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
-import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
@@ -106,7 +102,6 @@ import com.belaku.homey.StepsService.Companion.choosenApps
 import com.belaku.homey.StepsService.Companion.isStepsAdapterInitialized
 import com.belaku.homey.StepsService.Companion.stepsAdapter
 import com.belaku.homey.StepsService.Companion.stepsData
-import com.belaku.homey.StepsService.Companion.totalUsage
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionRequest
@@ -1368,6 +1363,20 @@ class NewAppWidget : AppWidgetProvider() {
                 sharedPreferencesEditor.putBoolean("SPKSERVICE", false).apply()
             }
 
+        }
+
+
+        // Check if the screen was just unlocked
+        if (Intent.ACTION_USER_PRESENT == intent.getAction()) {
+            // Trigger your widget update logic or background task here
+            // Example: Force a widget update
+
+            makeToast("ACTION_USER_PRESENT")
+
+
+            val appWidgetIds = appWidgetManager.getAppWidgetIds(ComponentName(widgetContext, NewAppWidget::class.java))
+
+            onUpdate(widgetContext, appWidM, appWidgetIds!!)
         }
     }
 
