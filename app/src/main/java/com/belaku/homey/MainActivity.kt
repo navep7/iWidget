@@ -99,6 +99,7 @@ import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.NewAppWidget.Companion.widgetContext
 import com.belaku.homey.SetWallWorker.Companion.dayIndex
+import com.belaku.homey.SetWallWorker.Companion.getFavoriteContacts
 import com.belaku.homey.SetWallWorker.Companion.mAct
 import com.belaku.homey.SetWallWorker.Companion.screenHeight
 import com.belaku.homey.SetWallWorker.Companion.screenWidth
@@ -839,7 +840,7 @@ class MainActivity : AppCompatActivity() {
             arrayOf<String>(contactId.toString())
         )
 
-        NewAppWidget().getFavoriteContacts()
+        getFavoriteContacts()
         updateWidget()
     }
 
@@ -1281,7 +1282,7 @@ class MainActivity : AppCompatActivity() {
                     applicationContext?.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager // Context.USAGE_STATS_SERVICE);
 
                 sharedPreferencesEditor.putBoolean("RCP", true).apply()
-                NewAppWidget().getFavoriteContacts()
+                getFavoriteContacts()
                 btnRC.text = "Granted"
 
 
@@ -1319,7 +1320,7 @@ class MainActivity : AppCompatActivity() {
             if (grantResults.isNotEmpty())
                 if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("RCP", true).apply()
-               //     NewAppWidget().getFavoriteContacts()
+               //     getFavoriteContacts()
                     btnRC.text = "Granted"
                 }
         } else if (requestCode == BLUETOOTH_P) {
@@ -1376,7 +1377,7 @@ class MainActivity : AppCompatActivity() {
                     if (!nPermissions()) {
                         rawTweets(false)
                         startStepsService()
-                        NewAppWidget().getFavoriteContacts()
+                        getFavoriteContacts()
                         if (iDV.isShowing)
                         iDV.dismiss()
                     } else ActivityCompat.requestPermissions(
@@ -1505,7 +1506,7 @@ class MainActivity : AppCompatActivity() {
             if (!nPermissions()) {
                 rawTweets(false)
                 startStepsService()
-                NewAppWidget().getFavoriteContacts()
+                getFavoriteContacts()
                 if(iDV.isShowing)
                     iDV.dismiss()
             } else ActivityCompat.requestPermissions(

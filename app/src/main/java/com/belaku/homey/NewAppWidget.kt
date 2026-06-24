@@ -12,6 +12,7 @@ import android.app.WallpaperManager
 import android.app.usage.UsageStatsManager
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.ContentUris
 import android.content.ContentValues
@@ -90,6 +91,7 @@ import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.dayChange
 import com.belaku.homey.SetWallWorker.Companion.dayIndex
+import com.belaku.homey.SetWallWorker.Companion.getFavoriteContacts
 import com.belaku.homey.SetWallWorker.Companion.hour
 import com.belaku.homey.SetWallWorker.Companion.isPinNoteInitialized
 import com.belaku.homey.SetWallWorker.Companion.isWallBitmapInitialized
@@ -153,13 +155,48 @@ class NewAppWidget : AppWidgetProvider() {
         sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
-        if (ismActInitialized())
-            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
+        if (unlockReceiver == null) {
+            unlockReceiver = object : BroadcastReceiver() {
+                override fun onReceive(ctx: Context, intent: Intent) {
+                    if (Intent.ACTION_USER_PRESENT == intent.action) {
+
+
+                        makeToast("ꗃ " + sharedPreferences.getInt("unlockCount", 1))
+
+                        sharedPreferencesEditor.putInt("unlockCount", sharedPreferences.getInt("unlockCount", 1) + 1).apply()
+
+
+                            widgetContext = context
+
+                            recognizeActivityTransitions()
+                            setUI()
+
+                            setACAdapter()
+
+                            setOnClickPendingIntents(context)
+
+                            appWidM = AppWidgetManager.getInstance(widgetContext)
+                            mAppWidgetIds = appWidM.getAppWidgetIds(ComponentName(widgetContext, NewAppWidget::class.java))
+                            appWidM.updateAppWidget(newAppWidget, remoteViews)
+                            appWidM.notifyAppWidgetViewDataChanged(mAppWidgetIds, R.id.list_apps)
+                            appWidM.notifyAppWidgetViewDataChanged(mAppWidgetIds, R.id.list_contacts)
+
+                    }
+                }
+            }
+
+            // Register the receiver programmatically to bypass manifest restrictions
+            val filter = IntentFilter(Intent.ACTION_USER_PRESENT)
+            context.applicationContext.registerReceiver(unlockReceiver, filter)
+
+        }
+            if(ismActInitialized())
+                fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
 
         recognizeActivityTransitions()
 
    //     appUsageStats(context)
-        getFavoriteContacts()
+   //     getFavoriteContacts()
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -285,6 +322,7 @@ class NewAppWidget : AppWidgetProvider() {
             setOnClickPendingIntents(context)
 
             appWidM = AppWidgetManager.getInstance(widgetContext)
+            mAppWidgetIds = appWidM.getAppWidgetIds(ComponentName(widgetContext, NewAppWidget::class.java))
             appWidM.updateAppWidget(appWidgetId, remoteViews)
             appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_apps)
             appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)
@@ -1065,6 +1103,7 @@ class NewAppWidget : AppWidgetProvider() {
         sharedPreferencesEditor = sharedPreferences.edit()
 
         setUI()
+      //  setACAdapter()
 
         handleIntentActions(intent)
 
@@ -1402,75 +1441,7 @@ class NewAppWidget : AppWidgetProvider() {
 
     }
 
-    @SuppressLint("Range")
-    fun getFavoriteContacts() {
 
-        favContacts = ArrayList()
-
-        val queryUri = ContactsContract.Contacts.CONTENT_URI.buildUpon()
-            .appendQueryParameter(ContactsContract.Contacts.EXTRA_ADDRESS_BOOK_INDEX, "true")
-            .build()
-
-        val projection = arrayOf(
-            ContactsContract.Contacts._ID,
-            ContactsContract.Contacts.DISPLAY_NAME,
-            ContactsContract.Contacts.STARRED,
-            ContactsContract.Contacts.HAS_PHONE_NUMBER
-        )
-
-        val selection = ContactsContract.Contacts.STARRED + "='1'"
-
-        val cursor = widgetContext.contentResolver.query(
-            queryUri, projection, selection, null, null
-        )
-
-        while (cursor!!.moveToNext()) {
-            val contactID = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
-            var phoneNumber: String = "7"
-
-            if (Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
-
-                val phones: Cursor? = widgetContext.getContentResolver().query(
-                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                    null,
-                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactID,
-                    null,
-                    null
-                )
-                while (phones!!.moveToNext()) {
-                    phoneNumber =
-                        phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                    phoneNumber = phoneNumber.filter { !it.isWhitespace() }
-                }
-            }
-
-            var contactBitmap: Bitmap?
-
-            contactBitmap =
-                ContactPhotoHelper.retrieveContactPhoto(widgetContext, contactID.toLong())
-            val cNme = cursor.getString(
-                cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
-            )
-            if (contactBitmap == null)
-                contactBitmap = CharacterToBitmapConverter.getBitmapFromCharacter(
-                    cNme[0], 100, 100, 70, Color.BLACK
-                )
-            val c = Contact(contactID, cNme, phoneNumber, contactBitmap)
-            if (c.number.length > 7)
-                favContacts.add(c)
-        }
-        saveContacts()
-        cursor.close()
-
-    }
-
-    private fun saveContacts() {
-        val key = "CTS"
-        val gson = Gson()
-        val json = gson.toJson(favContacts)
-        sharedPreferencesEditor.remove(key).commit()
-        sharedPreferencesEditor.putString(key, json).commit()
-    }
 
 
     @SuppressLint("ResourceAsColor")
@@ -1684,6 +1655,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     companion object {
+        private var unlockReceiver: BroadcastReceiver? = null
         lateinit var widgetContext: Context
         lateinit var i_appWidgetIds: IntArray
         lateinit var gpBitmap: Bitmap
@@ -1703,6 +1675,7 @@ class NewAppWidget : AppWidgetProvider() {
         var noRewards: Int = 0
         var tW: String = "..."
         lateinit var appWidM: AppWidgetManager
+        lateinit var mAppWidgetIds: IntArray
 
 
 
@@ -2023,6 +1996,7 @@ class NewAppWidget : AppWidgetProvider() {
 
                 stepsToday = 0
                 sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, 0).apply()
+                sharedPreferencesEditor.putInt("unlockCount", 0).apply()
 
                 if (arrayListHabits.size > 0) {
                     for (i in arrayListHabits)

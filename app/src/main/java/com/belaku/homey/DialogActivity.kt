@@ -73,6 +73,7 @@ import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.NewAppWidget.Companion.totalScreenTimeInHours
 import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
+import com.belaku.homey.SetWallWorker.Companion.getFavoriteContacts
 import com.belaku.homey.SetWallWorker.Companion.hour
 import com.belaku.homey.SetWallWorker.Companion.pinNote
 import com.belaku.homey.SetWallWorker.Companion.screenHeight
@@ -333,7 +334,7 @@ class DialogActivity : AppCompatActivity() {
 
             } else if (dialogIntentStr == "PC") {
                 llDialog.visibility = View.GONE
-                NewAppWidget().getFavoriteContacts()
+                getFavoriteContacts()
                 pickContactLauncher =
                     registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                         if (result.resultCode == Activity.RESULT_OK) {
@@ -1005,7 +1006,7 @@ class DialogActivity : AppCompatActivity() {
             arrayOf<String>(contactId.toString())
         )
 
-        NewAppWidget().getFavoriteContacts()
+        getFavoriteContacts()
     }
 
 
