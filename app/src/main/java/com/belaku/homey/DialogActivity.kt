@@ -269,7 +269,7 @@ class DialogActivity : AppCompatActivity() {
                         .into(imgvSongCover)
                     Picasso.get()
                         .load(dataListSongs[songIndex].album.cover)
-                        .into(remoteViews!!, R.id.imgv_albumcover, NewAppWidget.i_appWidgetIds)
+                        .into(remoteViews!!, R.id.imgbtn_albumcover, NewAppWidget.i_appWidgetIds)
 
 
                 }

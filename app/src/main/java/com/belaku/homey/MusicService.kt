@@ -21,6 +21,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import com.belaku.homey.MusicActivity.Companion.dataListSongs
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
 import com.belaku.homey.MusicActivity.Companion.pDatalistSongs
 import com.belaku.homey.MusicActivity.Companion.recyclerViewSongs
@@ -89,8 +90,8 @@ class MusicService : Service() {
 
         //    if (isAppWidMInitialized() && mediaMetadata.artworkUri != null)
                 Picasso.get()
-                    .load(mediaMetadata.artworkUri)
-                    .into(remoteViews!!, R.id.imgv_albumcover, NewAppWidget.i_appWidgetIds)
+                    .load(dataListSongs[songIndex].album.cover)
+                    .into(remoteViews!!, R.id.imgbtn_albumcover, NewAppWidget.i_appWidgetIds)
             txPlayingSong.text = mediaMetadata.title
 
 
@@ -257,6 +258,9 @@ class MusicService : Service() {
                         // The entire playlist has finished playing
                         remoteViews?.setImageViewResource(R.id.imgbtn_playpause, R.drawable.play_m)
                         remoteViews?.setTextViewText(R.id.tx_music_details, "End of Playback")
+                        Picasso.get()
+                            .load(dataListSongs[songIndex].album.cover)
+                            .into(remoteViews!!, R.id.imgbtn_albumcover, NewAppWidget.i_appWidgetIds)
                         appWidM.updateAppWidget(newAppWidget, remoteViews)
                     }
                 }

@@ -82,6 +82,10 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
         fun isDataListInitialized(): Boolean {
             return ::dataListSongs.isInitialized
         }
+
+        fun ispDataListInitialized(): Boolean {
+            return ::pDatalistSongs.isInitialized
+        }
     }
 
     private lateinit var binding: ActivityMusicBinding
@@ -402,8 +406,8 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                                                 pDatalistSongs[songIndex].title + " | " + pDatalistSongs[songIndex].album.title + " | " + pDatalistSongs[songIndex].artist.name
                                             )
                                             Picasso.get()
-                                                .load(pDatalistSongs[songIndex].md5_image)
-                                                .into(remoteViews!!, R.id.imgv_albumcover, NewAppWidget.i_appWidgetIds)
+                                                .load(dataListSongs[songIndex].album.cover)
+                                                .into(remoteViews!!, R.id.imgbtn_albumcover, NewAppWidget.i_appWidgetIds)
                                             appWidM.updateAppWidget(newAppWidget, remoteViews)
                                             fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
 

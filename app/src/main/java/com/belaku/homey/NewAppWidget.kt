@@ -79,7 +79,9 @@ import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
 import com.belaku.homey.MainActivity.Companion.tempKind
 import com.belaku.homey.MainActivity.Companion.weatherIconID
+import com.belaku.homey.MusicActivity.Companion.dataListSongs
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
+import com.belaku.homey.MusicActivity.Companion.ispDataListInitialized
 import com.belaku.homey.MusicActivity.Companion.pDatalistSongs
 import com.belaku.homey.MusicService.Companion.boolMusicServiceRunning
 import com.belaku.homey.MusicService.Companion.mMediaPlayer
@@ -175,6 +177,7 @@ class NewAppWidget : AppWidgetProvider() {
 
                             setOnClickPendingIntents(context)
 
+                        if (!isAppWidMInitialized())
                             appWidM = AppWidgetManager.getInstance(widgetContext)
                             mAppWidgetIds = appWidM.getAppWidgetIds(ComponentName(widgetContext, NewAppWidget::class.java))
                             appWidM.updateAppWidget(newAppWidget, remoteViews)
@@ -321,7 +324,8 @@ class NewAppWidget : AppWidgetProvider() {
 
             setOnClickPendingIntents(context)
 
-            appWidM = AppWidgetManager.getInstance(widgetContext)
+            if (!isAppWidMInitialized())
+                appWidM = AppWidgetManager.getInstance(widgetContext)
             mAppWidgetIds = appWidM.getAppWidgetIds(ComponentName(widgetContext, NewAppWidget::class.java))
             appWidM.updateAppWidget(appWidgetId, remoteViews)
             appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_apps)
@@ -383,7 +387,7 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_albumcover,
+            R.id.imgbtn_albumcover,
             getPendingSelfIntent(context, P_THUMBNAIL_CLICK)
         )
 
@@ -727,14 +731,14 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
         else remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
 
-        if (isDataListInitialized() && pDatalistSongs.size > songIndex) {
+        if (ispDataListInitialized() && pDatalistSongs.size > songIndex) {
             remoteViews?.setTextViewText(
                 R.id.tx_music_details,
                 pDatalistSongs[songIndex].title + " | " + pDatalistSongs[songIndex].album.title + " | " + pDatalistSongs[songIndex].artist.name
             )
             Picasso.get()
-                .load(pDatalistSongs[songIndex].md5_image)
-                .into(remoteViews!!, R.id.imgv_albumcover, NewAppWidget.i_appWidgetIds)
+                .load(dataListSongs[songIndex].album.cover)
+                .into(remoteViews!!, R.id.imgbtn_albumcover, NewAppWidget.i_appWidgetIds)
 
             mMediaPlayer?.let {
                 if (it.isPlaying)
