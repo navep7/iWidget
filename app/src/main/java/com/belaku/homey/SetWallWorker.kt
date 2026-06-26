@@ -452,13 +452,15 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                                     ) != null
                                 )
                                     if (appNames.add(appName)) {
-                                        if (!hashSetAppUsage.any { it.appName == appName })
+                                        if (!hashSetAppUsage.any { it.appName == appName }) {
+                                            Log.d("AddedAPP", queryUsageStats[i].packageName)
                                             hashSetAppUsage.add(
                                                 AppUsage(
                                                     queryUsageStats[i].packageName,
                                                     formatMilliseconds(queryUsageStats[i].totalTimeInForeground)
                                                 )
                                             )
+                                        }
 
                                     }
 

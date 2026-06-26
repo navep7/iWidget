@@ -561,11 +561,16 @@ class DialogActivity : AppCompatActivity() {
                 hashSetAppUsage.clear()
                 appUsageStats(applicationContext)
 
-                hashSetAppUsage.removeIf { Integer.parseInt(it.usageTime.split(":")[0]) > 300 }
+                hashSetAppUsage.forEach { app ->
+                    Log.d("appUsage ~ ", app.toString())
+                }
+                hashSetAppUsage.removeIf { Integer.parseInt(it.usageTime.split(":")[0]) > 500 }
 
                 var b = hashSetAppUsage.distinctBy { it.usageTime }
-                var c = b.sortedBy { it.usageTime }
 
+                Log.d("b4sort", b.toString())
+                var c = b.sortedBy { it.usageTime.split(":")[0].toInt() }
+                Log.d("a4sort", c.toString())
 
                 for (i in c)
                     myAppUsages.add(i.usageTime)
@@ -574,7 +579,8 @@ class DialogActivity : AppCompatActivity() {
                 myAppUsages.clear()
 
                 for (i in c) {
-                    if (i.usageTime.substring(0, 2).toInt() > 10) {
+
+                    if (i.usageTime.split(":")[0].toInt() >= 10) {
                         muApps.add(
                             "\n" + getAppNameFromPkg(
                                 dialogActContext, i.appName
@@ -584,9 +590,6 @@ class DialogActivity : AppCompatActivity() {
                         hashSetAppUsage.remove(i)
                     }
                 }
-
-                //     txContent.movementMethod = ScrollingMovementMethod()
-                //     txContent.append(Html.fromHtml("\n\n<b><u> Most Used Apps.. > 10 mins</u></b>"))
 
                 findViewById<TextView>(R.id.tx_heading).setText( "Screen Time Analysis : Based on App Usage stats from a Week(" + "${
                     beginCal.get(
@@ -600,22 +603,21 @@ class DialogActivity : AppCompatActivity() {
                         })" + ", below is the App usage data, every day (mm:ss)..  \n\n")
 
 
-               /* txAppName.append( "Screen Time Analysis : Based on App Usage stats from a Week(" + "${
-                    beginCal.get(
-                        Calendar.DAY_OF_MONTH
-                    )
-                }/${beginCal.get(Calendar.MONTH) + 1}/${beginCal.get(Calendar.YEAR)} : " +
-                        "${endCal.get(Calendar.DAY_OF_MONTH)}/${endCal.get(Calendar.MONTH) + 1}/${
-                            endCal.get(
-                                Calendar.YEAR
-                            )
-                        })" + ", below is the App data, every day (mm:ss)..  \n\n" + "Most Used Apps.\n")*/
+
                 txAppName.append("Most Used Apps.\n")
                 txAppUsageTime.append("> 10 mins/day\n")
-                for (i in muApps) txAppName.append(i)
-                for (i in myAppUsages) txAppUsageTime.append(i)
 
-                //   txAppName.append("\n\n\n ${sumTimeArray(myAppUsages)}")
+                var mApps = ArrayList<AppUsage>()
+                for (i in muApps)
+                mApps.add(AppUsage(i, myAppUsages[muApps.indexOf(i)]))
+
+                mApps.sortBy { it.usageTime.split(":")[0].trim().toInt() }
+
+                for (i in mApps) {
+                    txAppName.append(i.appName)
+                    txAppUsageTime.append(i.usageTime)
+                }
+                mApps.clear()
                 muApps.clear()
                 myAppUsages.clear()
 
@@ -644,10 +646,17 @@ class DialogActivity : AppCompatActivity() {
 
                 txAppName.append("Moderately Used Apps.\n")
                 txAppUsageTime.append("> 5 mins/day\n")
-                for (i in muApps) txAppName.append(i)
-                for (i in myAppUsages) txAppUsageTime.append(i)
-                muApps.clear()
-                myAppUsages.clear()
+
+                for (i in muApps)
+                    mApps.add(AppUsage(i, myAppUsages[muApps.indexOf(i)]))
+
+                mApps.sortBy { it.usageTime }
+
+                for (i in mApps) {
+                    txAppName.append(i.appName)
+                    txAppUsageTime.append(i.usageTime)
+                }
+                mApps.clear()
 
                 txAppName.append("\n\n")
                 txAppUsageTime.append("\n\n")
@@ -673,8 +682,18 @@ class DialogActivity : AppCompatActivity() {
 
                 txAppName.append("Least Used Apps.\n")
                 txAppUsageTime.append("> 1 mins/day\n")
-                for (i in muApps) txAppName.append(i)
-                for (i in myAppUsages) txAppUsageTime.append(i)
+
+                for (i in muApps)
+                    mApps.add(AppUsage(i, myAppUsages[muApps.indexOf(i)]))
+
+                mApps.sortBy { it.usageTime }
+
+                for (i in mApps) {
+                    txAppName.append(i.appName)
+                    txAppUsageTime.append(i.usageTime)
+                }
+                mApps.clear()
+
                 muApps.clear()
                 myAppUsages.clear()
 
@@ -702,8 +721,17 @@ class DialogActivity : AppCompatActivity() {
 
                 txAppName.append("Rarely Used Apps.\n")
                 txAppUsageTime.append("> 0 mins/day\n")
-                for (i in muApps) txAppName.append(i)
-                for (i in myAppUsages) txAppUsageTime.append(i)
+
+                for (i in muApps)
+                    mApps.add(AppUsage(i, myAppUsages[muApps.indexOf(i)]))
+
+                mApps.sortBy { it.usageTime }
+
+                for (i in mApps) {
+                    txAppName.append(i.appName)
+                    txAppUsageTime.append(i.usageTime)
+                }
+                mApps.clear()
                 muApps.clear()
                 myAppUsages.clear()
 

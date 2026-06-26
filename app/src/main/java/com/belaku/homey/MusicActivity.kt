@@ -47,6 +47,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.net.URL
 import androidx.core.view.isEmpty
+import com.squareup.picasso.Picasso
 
 class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
@@ -80,10 +81,6 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
 
         fun isDataListInitialized(): Boolean {
             return ::dataListSongs.isInitialized
-        }
-
-        fun ispDataListInitialized(): Boolean {
-            return ::pDatalistSongs.isInitialized
         }
     }
 
@@ -397,9 +394,16 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                                         } else {
                                             mMediaPlayer!!.play()
                                             remoteViews?.setImageViewResource(
-                                                com.belaku.homey.R.id.imgbtn_playpause,
+                                                R.id.imgbtn_playpause,
                                                 R.drawable.pause_m
                                             )
+                                            remoteViews?.setTextViewText(
+                                                R.id.tx_music_details,
+                                                pDatalistSongs[songIndex].title + " | " + pDatalistSongs[songIndex].album.title + " | " + pDatalistSongs[songIndex].artist.name
+                                            )
+                                            Picasso.get()
+                                                .load(pDatalistSongs[songIndex].md5_image)
+                                                .into(remoteViews!!, R.id.imgv_albumcover, NewAppWidget.i_appWidgetIds)
                                             appWidM.updateAppWidget(newAppWidget, remoteViews)
                                             fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
 

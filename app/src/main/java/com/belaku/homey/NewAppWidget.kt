@@ -727,7 +727,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
         else remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
 
-        if (isDataListInitialized() && isPinNoteInitialized() && pDatalistSongs.size > songIndex) {
+        if (isDataListInitialized() && pDatalistSongs.size > songIndex) {
             remoteViews?.setTextViewText(
                 R.id.tx_music_details,
                 pDatalistSongs[songIndex].title + " | " + pDatalistSongs[songIndex].album.title + " | " + pDatalistSongs[songIndex].artist.name
@@ -1192,6 +1192,7 @@ class NewAppWidget : AppWidgetProvider() {
                             mMediaPlayer!!.play()
                         }
                 } catch (ex: Exception) {
+                    showException(ex.message.toString())
                     startMusicActivity(0)
                 }
             } else {
@@ -1322,9 +1323,8 @@ class NewAppWidget : AppWidgetProvider() {
             var cameraId: String? = null
             try {
                 cameraId = cameraManager.cameraIdList[0] // Typically the back camera
-            } catch (e: CameraAccessException) {
-                e.printStackTrace()
-                //   return
+            } catch (ex: CameraAccessException) {
+                showException(ex.message.toString())
             }
 
             try {
@@ -1339,8 +1339,8 @@ class NewAppWidget : AppWidgetProvider() {
                         sharedPreferencesEditor.putBoolean("Torch", false).apply()
                     }
                 }
-            } catch (e: CameraAccessException) {
-                makeToast(e.message.toString())
+            } catch (ex: CameraAccessException) {
+                showException(ex.message.toString())
             }
 
 
@@ -1409,6 +1409,8 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
     }
+
+
 
 
     private fun startMusicActivity(songIndex: Int) {
@@ -1527,8 +1529,8 @@ class NewAppWidget : AppWidgetProvider() {
             ) // Adjust format and quality as needed
             outputStream.flush()
             outputStream.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
+        } catch (ex: IOException) {
+            showException(ex.message.toString())
             return  // Handle the error appropriately
         }
 
@@ -1701,31 +1703,6 @@ class NewAppWidget : AppWidgetProvider() {
         var lapCount: Int = 0
 
 
-        private fun Bitmap.getCircledBitmap(): Bitmap {
-            val output = Bitmap.createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(output)
-            val paint = Paint()
-            val rect = Rect(0, 0, this.width, this.height)
-            paint.isAntiAlias = true
-            canvas.drawARGB(0, 0, 0, 0)
-            canvas.drawCircle(this.width / 2f, this.height / 2f, this.width / 2f, paint)
-            paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
-            canvas.drawBitmap(this, rect, rect, paint)
-            return output
-        }
-
-        fun getAppIconFromPkg(context: Context, packageName: String?): Drawable {
-            try {
-                val icon: Drawable =
-                    context.packageManager.getApplicationIcon(packageName.toString())
-                return icon
-            } catch (e: NameNotFoundException) {
-                e.printStackTrace()
-                return AppCompatResources.getDrawable(context, R.drawable.calls)!!
-            }
-        }
-
-
         fun drawableToBitmap(context: Context, drawable: Drawable): Bitmap {
 
             if (drawable is BitmapDrawable) {
@@ -1788,7 +1765,7 @@ class NewAppWidget : AppWidgetProvider() {
             try {
                 gpName = c?.getString(c.getColumnIndex("display_name")).toString()
             } catch (ex: Exception) {
-
+                showException(ex.message.toString())
             }
 
             //    remoteViews?.setImageViewBitmap(R.id.imgbtn_n_apps, gpBitmap)
@@ -1807,91 +1784,12 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
-
-
-        fun dayListener(calendar: java.util.Calendar) {
-            when (calendar.get(Calendar.DAY_OF_WEEK)) {
-                1 -> {
-                    dayOfTheWeek = "Monday"
-                    vpStepsPos = 0
-                    sharedPreferencesEditor.putInt("Monday", stepsToday).apply()
-                    sharedPreferencesEditor.putInt("Tuesday", 0).apply()
-                    sharedPreferencesEditor.putInt("Wednesday", 0).apply()
-                    sharedPreferencesEditor.putInt("Thursday", 0).apply()
-                    sharedPreferencesEditor.putInt("Friday", 0).apply()
-                    sharedPreferencesEditor.putInt("Saturday", 0).apply()
-                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
-                }
-
-                2 -> {
-                    vpStepsPos = 1
-                    dayOfTheWeek = "Tuesday"
-                    sharedPreferencesEditor.putInt("Tuesday", stepsToday).apply()
-                    sharedPreferencesEditor.putInt("Wednesday", 0).apply()
-                    sharedPreferencesEditor.putInt("Thursday", 0).apply()
-                    sharedPreferencesEditor.putInt("Friday", 0).apply()
-                    sharedPreferencesEditor.putInt("Saturday", 0).apply()
-                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
-                }
-
-                3 -> {
-                    vpStepsPos = 2
-                    dayOfTheWeek = "Wednesday"
-                    sharedPreferencesEditor.putInt("Wednesday", stepsToday).apply()
-                    sharedPreferencesEditor.putInt("Thursday", 0).apply()
-                    sharedPreferencesEditor.putInt("Friday", 0).apply()
-                    sharedPreferencesEditor.putInt("Saturday", 0).apply()
-                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
-                }
-
-                4 -> {
-                    vpStepsPos = 3
-                    dayOfTheWeek = "Thursday"
-                    sharedPreferencesEditor.putInt("Thursday", stepsToday).apply()
-
-                    sharedPreferencesEditor.putInt("Friday", 0).apply()
-                    sharedPreferencesEditor.putInt("Saturday", 0).apply()
-                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
-                }
-
-                5 -> {
-                    vpStepsPos = 4
-                    dayOfTheWeek = "Friday"
-                    sharedPreferencesEditor.putInt("Friday", stepsToday).apply()
-
-                    sharedPreferencesEditor.putInt("Saturday", 0).apply()
-                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
-                }
-
-                6 -> {
-                    vpStepsPos = 5
-                    dayOfTheWeek = "Saturday"
-                    sharedPreferencesEditor.putInt("Saturday", stepsToday).apply()
-
-                    sharedPreferencesEditor.putInt("Sunday", 0).apply()
-                }
-
-                7 -> {
-                    vpStepsPos = 6
-                    dayOfTheWeek = "Sunday"
-                    sharedPreferencesEditor.putInt("Sunday", stepsToday).apply()
-                }
-            }
-
-            if (sharedPreferences.getString("day", "someday") != dayOfTheWeek) {
-             //   stepsToday = 0
-
-                dayIndex = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
-
-                if (arrayListHabits.size > 0) {
-                    for (i in arrayListHabits)
-                        i.isChecked = false
-                    adapterHabits.notifyDataSetChanged()
-                }
-                dayChange = true
-                sharedPreferencesEditor.putString("day", dayOfTheWeek).apply()
-            }
+        private fun showException(exp: String) {
+            remoteViews?.setTextViewText(R.id.tx_runner, exp)
+            appWidM.updateAppWidget(newAppWidget, remoteViews)
         }
+
+
 
         fun todaysDate() {
 
@@ -2029,6 +1927,7 @@ class NewAppWidget : AppWidgetProvider() {
                     )
             } catch (ex: Exception) {
                 gpName = ""
+                showException(ex.message.toString())
             }
         }
 

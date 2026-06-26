@@ -87,7 +87,7 @@ class MusicService : Service() {
                 mediaMetadata.title.toString() + " | " + mediaMetadata.albumTitle + " | " + mediaMetadata.artist
             )
 
-            if (isAppWidMInitialized() && mediaMetadata.artworkUri != null)
+        //    if (isAppWidMInitialized() && mediaMetadata.artworkUri != null)
                 Picasso.get()
                     .load(mediaMetadata.artworkUri)
                     .into(remoteViews!!, R.id.imgv_albumcover, NewAppWidget.i_appWidgetIds)
