@@ -466,12 +466,14 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
                         }
 
-                        hashSetAppUsage = hashSetAppUsage.sortedByDescending { it.usageTime }
+                        hashSetAppUsage = hashSetAppUsage.sortedByDescending { it.usageTime.split(":")[0].toInt() }
                             .toCollection(LinkedHashSet())
 
+                        Log.d("hashSetAppUsagez ~ ", hashSetAppUsage.toString())
                         for (i in hashSetAppUsage) {
                             //   var appName = i.appName
                             //   var appPname = getPackageNameFromAppName(applicationContext!!, appName)
+
                             val appUsage = i.usageTime
                             val iconBitmap: Bitmap =
                                 applicationContext!!.packageManager.getApplicationIcon(i.appName)
@@ -492,7 +494,9 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                                             iconBitmap
                                         )
                                     )
-                            } else break
+                            } else {
+                                break
+                            }
                         }
 
 
