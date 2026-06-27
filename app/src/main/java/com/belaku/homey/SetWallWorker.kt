@@ -260,6 +260,29 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     remoteViews?.setTextViewText(R.id.tx_runner, pinNote)
                 }
 
+                if (stepsToday < 10) {
+                    remoteViews?.setTextViewText(
+                        R.id.tx_steps,
+                        "$stepsToday Steps"
+                    )
+                    sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
+                } else if(stepsToday < 131) {
+                    if (stepsToday % 10 == 0) {
+                        remoteViews?.setTextViewText(
+                            R.id.tx_steps,
+                            "$stepsToday steps"
+                        )
+                        sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
+                    }
+                } else if (stepsToday % 131 == 0) {
+
+                    remoteViews?.setTextViewText(
+                        R.id.tx_steps,
+                        "${String.format("%.1f",  (Integer.parseInt(stepsToday.toString()) * 74f) / 100000f)} km"
+                    )
+                    sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
+                }
+
                 remoteViews?.setTextViewText(R.id.tx_walldesc, wD)
                 remoteViews?.setTextViewText(
                     R.id.tx_walltype_updateinfo,

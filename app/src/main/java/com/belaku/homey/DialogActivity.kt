@@ -609,7 +609,7 @@ class DialogActivity : AppCompatActivity() {
 
                 var mApps = ArrayList<AppUsage>()
                 for (i in muApps)
-                mApps.add(AppUsage(i, myAppUsages[muApps.indexOf(i)]))
+                    mApps.add(AppUsage(i, myAppUsages[muApps.indexOf(i)]))
 
                 mApps.sortBy { it.usageTime.split(":")[0].trim().toInt() }
 
@@ -650,7 +650,7 @@ class DialogActivity : AppCompatActivity() {
                 for (i in muApps)
                     mApps.add(AppUsage(i, myAppUsages[muApps.indexOf(i)]))
 
-                mApps.sortBy { it.usageTime }
+                mApps.sortBy { it.usageTime.split(":")[0].trim().toInt() }
 
                 for (i in mApps) {
                     txAppName.append(i.appName)
@@ -686,7 +686,7 @@ class DialogActivity : AppCompatActivity() {
                 for (i in muApps)
                     mApps.add(AppUsage(i, myAppUsages[muApps.indexOf(i)]))
 
-                mApps.sortBy { it.usageTime }
+                mApps.sortBy { it.usageTime.split(":")[0].trim().toInt() }
 
                 for (i in mApps) {
                     txAppName.append(i.appName)
@@ -725,7 +725,7 @@ class DialogActivity : AppCompatActivity() {
                 for (i in muApps)
                     mApps.add(AppUsage(i, myAppUsages[muApps.indexOf(i)]))
 
-                mApps.sortBy { it.usageTime }
+                mApps.sortBy { it.usageTime.split(":")[0].trim().toInt() }
 
                 for (i in mApps) {
                     txAppName.append(i.appName)

@@ -1,14 +1,12 @@
 package com.belaku.homey
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.app.usage.UsageStatsManager
 import android.appwidget.AppWidgetManager
-import android.bluetooth.BluetoothA2dp
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothHeadset
@@ -36,7 +34,6 @@ import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.view.View
-import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
@@ -57,7 +54,6 @@ import com.belaku.homey.MapsActivity.Companion.ismGoogleMapInitialized
 import com.belaku.homey.MapsActivity.Companion.mGoogleMap
 import com.belaku.homey.MapsActivity.Companion.mStreetViewPanorama
 import com.belaku.homey.NewAppWidget.Companion.appWidM
-import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.isAppWidMInitialized
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
@@ -263,16 +259,26 @@ class StepsService : Service() {
                         }
 
 
+
                     if (stepsToday < 10) {
                         remoteViews?.setTextViewText(
                             R.id.tx_steps,
                             "$stepsToday Steps"
                         )
                         sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
-                    } else if (stepsToday % 10 == 0) {
-                    remoteViews?.setTextViewText(
+                    } else if (stepsToday % 10 == 0)  {
+                        if(stepsToday < 131) {
+                            remoteViews?.setTextViewText(
+                                R.id.tx_steps,
+                                "$stepsToday steps"
+                            )
+                        }
+                        sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
+                    } else if (stepsToday % 131 == 0) {
+
+                        remoteViews?.setTextViewText(
                         R.id.tx_steps,
-                        "$stepsToday Steps"
+                        "${String.format("%.1f",  (Integer.parseInt(stepsToday.toString()) * 74f) / 100000f)} km"
                     )
                         sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
                 }
@@ -509,7 +515,7 @@ class StepsService : Service() {
 
                         remoteViews?.setTextViewText(
                             R.id.tx_weather,
-                            tempC.split(".")[0] + "°C " + tempKind
+                            tempC.split(".")[0] + "°"
                         )
                         if (weatherIconID.startsWith("5"))
                             remoteViews?.setImageViewResource(

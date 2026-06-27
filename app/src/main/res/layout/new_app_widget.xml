@@ -157,16 +157,21 @@
             android:background="@drawable/gradient_glass_dark">
 
 
+
+
             <LinearLayout
                 android:id="@+id/ll_place"
                 android:layout_alignParentStart="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/gradient_glass_place"
                 android:layout_marginStart="@dimen/padding_5"
                 android:layout_marginTop="@dimen/padding_5"
                 android:layout_toStartOf="@+id/frame_texts"
+                android:layout_marginEnd="@dimen/fab_margin"
                 android:gravity="start"
                 android:orientation="vertical">
+
 
                 <TextView
                     android:id="@+id/tx_place"
@@ -174,14 +179,15 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="middle"
                     android:maxLines="1"
-                    android:gravity="center"
+                    android:layout_gravity="start"
                     android:layout_marginTop="@dimen/padding_5"
                     android:text="Place Info.."
-                    android:textColor="@android:color/white"
+                    android:textColor="@android:color/darker_gray"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
                 <FrameLayout
+                    android:layout_gravity="end"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
 
@@ -285,51 +291,55 @@
             </FrameLayout>
 
 
-
-
             <LinearLayout
                 android:id="@+id/ll_weather"
                 android:layout_alignParentEnd="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toEndOf="@+id/frame_texts"
-                android:layout_marginEnd="@dimen/fab_margin"
+                android:background="@drawable/gradient_glass_weather"
+                android:layout_marginEnd="@dimen/padding_5"
                 android:layout_marginTop="@dimen/padding_5"
-                android:gravity="end"
+                android:layout_toEndOf="@+id/frame_texts"
+                android:layout_marginStart="@dimen/fab_margin"
+                android:gravity="start"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tx_weather"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:ellipsize="end"
+                    android:ellipsize="middle"
                     android:maxLines="1"
+                    android:gravity="end"
+                    android:layout_gravity="end"
                     android:layout_marginTop="@dimen/padding_5"
-                    android:text="Weather Info.."
-                    android:textColor="@android:color/white"
-                    android:textSize="15sp"
+                    android:text="Weather Info "
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="35sp"
                     android:textStyle="bold" />
 
                 <FrameLayout
+                    android:layout_marginTop="-25dp"
+                    android:layout_gravity="start"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
 
                     <ImageButton
                         android:id="@+id/imgv_weather_icon"
-                        android:layout_gravity="center"
+                        android:background="@android:color/transparent"
+                        android:layout_gravity="start"
                         android:layout_width="75dp"
                         android:layout_height="75dp"
-                        android:background="@android:color/transparent"
                         android:scaleType="fitXY"
                         android:src="@drawable/weather_info" />
 
 
                     <TextView
                         android:id="@+id/tx_refresh_weather"
-                        android:layout_gravity="top|center"
+                        android:text="↺"
+                        android:layout_gravity="top|end"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="↺"
                         android:textColor="@android:color/holo_green_light"
                         android:textSize="25sp"
                         android:textStyle="bold" />
@@ -337,7 +347,7 @@
                     <ProgressBar
                         android:id="@+id/progressBar_cyclic_weather"
                         android:visibility="invisible"
-                        android:layout_gravity="top|center"
+                        android:layout_gravity="top|end"
                         android:layout_marginEnd="7dp"
                         android:layout_marginTop="@dimen/padding_5"
                         android:layout_width="25dp"
@@ -348,11 +358,88 @@
                         android:minWidth="25dp"
                         android:minHeight="25dp" />
 
-
                 </FrameLayout>
 
 
+
             </LinearLayout>
+
+
+
+            <!--
+                        <LinearLayout
+                            android:id="@+id/ll_weather"
+                            android:layout_alignParentEnd="true"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/gradient_glass_weather"
+                            android:layout_toEndOf="@+id/frame_texts"
+                            android:layout_marginEnd="@dimen/fab_margin"
+                            android:layout_marginTop="@dimen/padding_5"
+                            android:gravity="end"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tx_weather"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="end"
+                                android:maxLines="1"
+                                android:layout_marginTop="@dimen/padding_5"
+                                android:text="21"
+                                android:layout_gravity="end"
+                                android:textColor="@android:color/white"
+                                android:textSize="35sp"
+                                android:textStyle="bold" />
+
+                            <FrameLayout
+                                android:layout_gravity="start"
+                                android:layout_marginTop="-10dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                                <ImageButton
+                                    android:id="@+id/imgv_weather_icon"
+                                    android:layout_gravity="center"
+                                    android:layout_width="75dp"
+                                    android:layout_height="75dp"
+                                    android:id="@+id/imgv_weather_icon"
+                                    android:background="@android:color/transparent"
+                                    android:scaleType="fitXY"
+                                    android:src="@drawable/weather_info" />
+
+
+                                <TextView
+                                    android:id="@+id/tx_refresh_weather"
+                                    android:layout_gravity="top|start"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:id="@+id/tx_refresh_weather"
+                                    android:text="↺"
+                                    android:textColor="@android:color/holo_green_light"
+                                    android:textSize="25sp"
+                                    android:textStyle="bold" />
+
+                                <ProgressBar
+                                    android:id="@+id/progressBar_cyclic_weather"
+                                    android:visibility="invisible"
+                                    android:layout_gravity="top|center"
+                                    android:layout_marginEnd="7dp"
+                                    android:layout_marginTop="@dimen/padding_5"
+                                    android:layout_width="25dp"
+                                    android:layout_height="25dp"
+                                    android:indeterminate="true"
+                                    android:indeterminateTint="?attr/colorSecondary"
+                                    android:indeterminateTintMode="src_atop"
+                                    android:minWidth="25dp"
+                                    android:minHeight="25dp" />
+
+
+                            </FrameLayout>
+
+
+                        </LinearLayout>
+            -->
 
 
 

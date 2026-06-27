@@ -9,7 +9,6 @@ import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.WallpaperManager
-import android.app.usage.UsageStatsManager
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.BroadcastReceiver
@@ -22,7 +21,6 @@ import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.content.pm.PackageManager.NameNotFoundException
 import android.content.pm.ServiceInfo
 import android.content.res.ColorStateList
 import android.database.Cursor
@@ -30,11 +28,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.LinearGradient
-import android.graphics.Matrix
 import android.graphics.Paint
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffXfermode
-import android.graphics.Rect
 import android.graphics.Shader
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -69,18 +63,14 @@ import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.apps
-import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
-import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
-import com.belaku.homey.MainActivity.Companion.tempKind
 import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.MusicActivity.Companion.dataListSongs
-import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
 import com.belaku.homey.MusicActivity.Companion.ispDataListInitialized
 import com.belaku.homey.MusicActivity.Companion.pDatalistSongs
 import com.belaku.homey.MusicService.Companion.boolMusicServiceRunning
@@ -91,8 +81,6 @@ import com.belaku.homey.RemindersActivity.Companion.arrayListHabits
 import com.belaku.homey.RemindersActivity.Companion.isadapterHabitsInitialized
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
-import com.belaku.homey.SetWallWorker.Companion.dayChange
-import com.belaku.homey.SetWallWorker.Companion.dayIndex
 import com.belaku.homey.SetWallWorker.Companion.getFavoriteContacts
 import com.belaku.homey.SetWallWorker.Companion.hour
 import com.belaku.homey.SetWallWorker.Companion.isPinNoteInitialized
@@ -110,7 +98,6 @@ import com.belaku.homey.StepsService.Companion.choosenApps
 import com.belaku.homey.StepsService.Companion.isStepsAdapterInitialized
 import com.belaku.homey.StepsService.Companion.stepsAdapter
 import com.belaku.homey.StepsService.Companion.stepsData
-import com.belaku.homey.StepsService.Companion.totalUsage
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionRequest
@@ -179,10 +166,11 @@ class NewAppWidget : AppWidgetProvider() {
 
                         if (!isAppWidMInitialized())
                             appWidM = AppWidgetManager.getInstance(widgetContext)
-                            mAppWidgetIds = appWidM.getAppWidgetIds(ComponentName(widgetContext, NewAppWidget::class.java))
-                            appWidM.updateAppWidget(newAppWidget, remoteViews)
-                            appWidM.notifyAppWidgetViewDataChanged(mAppWidgetIds, R.id.list_apps)
-                            appWidM.notifyAppWidgetViewDataChanged(mAppWidgetIds, R.id.list_contacts)
+
+                        mAppWidgetIds = appWidM.getAppWidgetIds(ComponentName(widgetContext, NewAppWidget::class.java))
+                        appWidM.updateAppWidget(newAppWidget, remoteViews)
+                        appWidM.notifyAppWidgetViewDataChanged(mAppWidgetIds, R.id.list_apps)
+                        appWidM.notifyAppWidgetViewDataChanged(mAppWidgetIds, R.id.list_contacts)
 
                     }
                 }
@@ -340,6 +328,15 @@ class NewAppWidget : AppWidgetProvider() {
 
     private fun setOnClickPendingIntents(context: Context) {
 
+
+        val dummyIntent = PendingIntent.getActivity(
+            context,
+            100,
+            Intent(), // Empty intent does nothing
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        remoteViews?.setOnClickPendingIntent(R.id.rl_widget_layout, dummyIntent)
 
 
         val intentMain = Intent(context, MainActivity::class.java)
@@ -668,7 +665,7 @@ class NewAppWidget : AppWidgetProvider() {
             cName = cityname
 
             remoteViews?.setTextViewText(R.id.tx_place, cName)
-            remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "°C " + tempKind)
+            remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "°")
             if (weatherIconID.startsWith("5"))
                 remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.rain)
             if (weatherIconID.equals("800"))
@@ -694,8 +691,31 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setUI() {
 
+        stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
+        if (stepsToday < 10) {
+            remoteViews?.setTextViewText(
+                R.id.tx_steps,
+                "$stepsToday Steps"
+            )
+            sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
+        } else if(stepsToday < 131) {
+            if (stepsToday % 10 == 0) {
+                remoteViews?.setTextViewText(
+                    R.id.tx_steps,
+                    "$stepsToday steps"
+                )
+                sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
+            }
+        } else if (stepsToday % 131 == 0) {
 
-        remoteViews?.setTextViewText(R.id.tx_steps, "${sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)} Steps")
+            remoteViews?.setTextViewText(
+                R.id.tx_steps,
+                "${String.format("%.1f",  (Integer.parseInt(stepsToday.toString()) * 74f) / 100000f)} km"
+            )
+            sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
+        }
+
+    //    remoteViews?.setTextViewText(R.id.tx_steps, "${sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)} Steps")
 
         if (hour != 0) {
             remoteViews?.setTextViewText(
@@ -877,6 +897,8 @@ class NewAppWidget : AppWidgetProvider() {
                     R.id.imgv_player,
                     createGradientBitmap(screenWidth, 100, primaryColor, tertianaryColor)
                 )
+
+
             }
 
 
@@ -884,6 +906,7 @@ class NewAppWidget : AppWidgetProvider() {
             if (ColorUtil().isColorDark(primaryColor)) {
 
                 // makeToast("Dark")
+
 
                 remoteViews?.setInt(R.id.imgv_conf, "setColorFilter", Color.BLACK)
                 remoteViews?.setInt(R.id.imgbtn_speech, "setColorFilter", Color.BLACK)
