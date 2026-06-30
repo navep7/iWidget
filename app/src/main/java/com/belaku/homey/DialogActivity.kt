@@ -115,6 +115,7 @@ import kotlin.random.Random
 
 class DialogActivity : AppCompatActivity() {
 
+    private lateinit var dialogAct: AlertDialog
     private var boolFetchingTweets: Boolean = false
     private lateinit var dialogActContext: Context
     private lateinit var parentLayoutDialog: View
@@ -809,14 +810,14 @@ class DialogActivity : AppCompatActivity() {
                 imgbtnShare.visibility = View.GONE
                 btnOk.setOnClickListener {
 
-                    llDialog.visibility = View.GONE
                     if (edtxDialog.text.toString().isNotEmpty())
                         pinNote = edtxDialog.text.toString()
 
-                    llDialog.visibility = View.GONE
                     Thread {
                         SetWallWorker.setWall(true, dialogActContext)
                     }.start()
+
+                    llDialog.visibility = View.GONE
                     //  appWidM.updateAppWidget(newAppWidget, remoteViews)
                 }
             } else if (dialogIntentStr == "AccessibilityPermDialog") {
@@ -852,8 +853,8 @@ class DialogActivity : AppCompatActivity() {
 
 
                 // Create the AlertDialog object and show it
-                val dialog = builder.create()
-                dialog.show()
+                dialogAct = builder.create()
+                dialogAct.show()
 
             }
 
