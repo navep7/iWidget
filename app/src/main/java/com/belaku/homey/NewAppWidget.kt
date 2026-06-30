@@ -692,13 +692,14 @@ class NewAppWidget : AppWidgetProvider() {
     private fun setUI() {
 
         stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
-        if (stepsToday < 10) {
+   //     if (stepsToday < 10) {
             remoteViews?.setTextViewText(
                 R.id.tx_steps,
                 "$stepsToday Steps"
             )
             sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
-        } else if(stepsToday < 131) {
+
+        if(stepsToday < 131) {
             if (stepsToday % 10 == 0) {
                 remoteViews?.setTextViewText(
                     R.id.tx_steps,

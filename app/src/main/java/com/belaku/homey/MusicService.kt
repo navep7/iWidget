@@ -1,5 +1,8 @@
 package com.belaku.homey
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -43,6 +46,7 @@ class MusicService : Service() {
     private lateinit var runnableVolume: Runnable
     private lateinit var serviceNotification: Notification
     private lateinit var sendIntent: Intent
+    private var volumeAnimator: ValueAnimator? = null
 
 
     companion object {
@@ -142,7 +146,7 @@ class MusicService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-
+        handlerVolume = Handler(Looper.getMainLooper())
         boolMusicServiceRunning = true
 
         if (MusicActivity.isDataListInitialized())
@@ -176,7 +180,7 @@ class MusicService : Service() {
 
 
     override fun onBind(p0: Intent?): IBinder? {
-        TODO("Not yet implemented")
+        return null
     }
 
 
@@ -198,100 +202,109 @@ class MusicService : Service() {
 
 
             audioManager = sContext.getSystemService(AUDIO_SERVICE) as AudioManager
-            //    songsUrlList = intent.getStringArrayListExtra("songsUrl")!!
-
-
-            /*for (i in 0 until 30) {
-                if (intent.extras?.get(i.toString()) != null)
-                    songsUrlList.add(intent.extras?.get(i.toString()).toString())
-                else break
-
-            }*/
-
 
             if (isDataListInitialized()) {
-
                 playSong(0)
-
             }
 
-
             sendIntent = intent
-
-
         }
 
         return START_STICKY
     }
 
 
-    private fun playSong(index: Int) {
+    private fun playSong(index: Int, isCrossfade: Boolean = false) {
         if (index in 0 until pDatalistSongs.size) {
+            val oldPlayer = mMediaPlayer
 
-
-            mMediaPlayer = ExoPlayer.Builder(applicationContext).build()
-
-            for (i in pDatalistSongs) {
-
-                val metadata = MediaMetadata.Builder()
-                    .setTitle(i.title)
-                    .setArtworkUri(i.album.cover.toUri())
-                    .setAlbumTitle(i.album.title)
-                    .setArtist(i.artist.name) // Optional
-                    .build()
-
-                val mItem = MediaItem.Builder()
-                    .setUri(i.preview)
-                    .setMediaMetadata(metadata)
-                    .build()
-
-
-                mediaItems.add(mItem)
-                mMediaPlayer!!.addMediaItem(mItem)
+            if (!isCrossfade) {
+                volumeAnimator?.cancel()
+                handlerVolume.removeCallbacksAndMessages(null)
+                oldPlayer?.stop()
+                oldPlayer?.release()
+                mMediaPlayer = null
             }
 
+            val newPlayer = ExoPlayer.Builder(applicationContext).build()
+            newPlayer.volume = 0f
 
-            mMediaPlayer!!.addListener(object : Player.Listener {
+            val song = pDatalistSongs[index]
+            val metadata = MediaMetadata.Builder()
+                .setTitle(song.title)
+                .setArtworkUri(song.album.cover.toUri())
+                .setAlbumTitle(song.album.title)
+                .setArtist(song.artist.name)
+                .build()
 
+            val mItem = MediaItem.Builder()
+                .setUri(song.preview)
+                .setMediaMetadata(metadata)
+                .build()
+
+            newPlayer.setMediaItem(mItem)
+
+            newPlayer.addListener(object : Player.Listener {
                 override fun onPlaybackStateChanged(playbackState: Int) {
+                    if (playbackState == Player.STATE_READY) {
+                        if (newPlayer == mMediaPlayer) trackSeek()
+                    }
                     if (playbackState == Player.STATE_ENDED) {
-                        // The entire playlist has finished playing
-                        remoteViews?.setImageViewResource(R.id.imgbtn_playpause, R.drawable.play_m)
-                        remoteViews?.setTextViewText(R.id.tx_music_details, "End of Playback")
-                        Picasso.get()
-                            .load(dataListSongs[songIndex].album.cover)
-                            .into(remoteViews!!, R.id.imgbtn_albumcover, NewAppWidget.i_appWidgetIds)
-                        appWidM.updateAppWidget(newAppWidget, remoteViews)
+                        if (newPlayer == mMediaPlayer && index == pDatalistSongs.size - 1) {
+                             remoteViews?.setImageViewResource(R.id.imgbtn_playpause, R.drawable.play_m)
+                             remoteViews?.setTextViewText(R.id.tx_music_details, "End of Playback")
+                             appWidM.updateAppWidget(newAppWidget, remoteViews)
+                        }
+                        newPlayer.release()
                     }
                 }
 
-                override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                    super.onMediaItemTransition(mediaItem, reason)
-                    // Get media info when a new media item starts
-                    songIndex++
-                    if (mediaItem != null)
-                        notifySong(mediaItem)
+                override fun onIsPlayingChanged(isPlaying: Boolean) {
+                    if (newPlayer == mMediaPlayer) {
+                        if (isPlaying) trackSeek()
+                        else handlerVolume.removeCallbacksAndMessages(null)
+                    }
                 }
             })
 
+            newPlayer.prepare()
+            newPlayer.play()
 
+            mMediaPlayer = newPlayer
+            songIndex = index
+            notifySong(mItem)
 
-            mMediaPlayer!!.prepare()
-            mMediaPlayer!!.play()
-            songIndex = 0
-            notifySong(mediaItems[songIndex])
-
-
+            if (isCrossfade && oldPlayer != null) {
+                volumeAnimator?.cancel()
+                volumeAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
+                    duration = 5000
+                    addUpdateListener { animator ->
+                        val v = animator.animatedValue as Float
+                        newPlayer.volume = v
+                        try {
+                            if (oldPlayer.isPlaying) oldPlayer.volume = 1f - v
+                        } catch (e: Exception) {}
+                    }
+                    addListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator) {
+                            if (isCrossfade) {
+                                oldPlayer?.stop()
+                                oldPlayer?.release()
+                            }
+                        }
+                    })
+                    start()
+                }
+            } else {
+                increaseVol()
+            }
         }
     }
 
     private fun playNextSong() {
         if (songIndex < pDatalistSongs.size - 1) {
-            songIndex++
-            playSong(songIndex)
+            playSong(songIndex + 1)
         } else {
-            // Handle end of playlist (e.g., stop playback or loop to the beginning)
-            // For example, you can release the player and set it to null
             mMediaPlayer?.release()
             mMediaPlayer = null
         }
@@ -299,61 +312,64 @@ class MusicService : Service() {
 
 
     private fun trackSeek() {
+        val player = mMediaPlayer ?: return
+        val duration = player.duration
+        val position = player.currentPosition
 
-        //  // makeToast("!trackSeek")
+        if (duration <= 0) return
 
-        //  // makeToast("!increaseVol ~ ${mMediaPlayer!!.currentPosition}")
-        increaseVol()
+        handlerVolume.removeCallbacksAndMessages(null)
 
-        val handler = Handler(Looper.getMainLooper())
-        handler.postDelayed(object : Runnable {
-            override fun run() {
-                // Code to run after the delay
-                //   // makeToast("50secs ~ ${mPlayer.currentPosition}")
-                //   // makeToast("!decreaseVol ~ ${mMediaPlayer!!.currentPosition}")
-                reduceVolume()
-            }
+        val timeToCrossfade = duration - 5000L
+        val delay = timeToCrossfade - position
 
-
-        }, (mMediaPlayer!!.duration - 5000).toLong())
-
+        if (delay > 0) {
+            handlerVolume.postDelayed({
+                if (mMediaPlayer == player && player.isPlaying) {
+                    if (songIndex < pDatalistSongs.size - 1) {
+                        playSong(songIndex + 1, isCrossfade = true)
+                    } else {
+                        reduceVolume()
+                    }
+                }
+            }, delay)
+        } else if (position < duration) {
+            // Already within the last 5 seconds, should crossfade now if not end of playlist
+             if (songIndex < pDatalistSongs.size - 1) {
+                 playSong(songIndex + 1, isCrossfade = true)
+             } else {
+                 reduceVolume()
+             }
+        }
     }
 
     private fun increaseVol() {
-        val handler = Handler(Looper.getMainLooper())
-        val steps = 5
-
-        // Total maximum steps might vary, but this lowers 5 times
-        for (i in 0 until steps) {
-            handler.postDelayed({
-                audioManager.adjustStreamVolume(
-                    AudioManager.STREAM_MUSIC, // Or STREAM_RING, etc.
-                    AudioManager.ADJUST_RAISE, // Decrease
-                    0 // Show UI feedback
-                )
-            }, (i * 300).toLong()) // 300ms delay between steps
+        volumeAnimator?.cancel()
+        volumeAnimator = ValueAnimator.ofFloat(mMediaPlayer?.volume ?: 0f, 1f).apply {
+            duration = 5000
+            addUpdateListener { animator ->
+                mMediaPlayer?.volume = animator.animatedValue as Float
+            }
+            start()
         }
     }
 
     private fun reduceVolume() {
-        val handler = Handler(Looper.getMainLooper())
-        val steps = 5
-
-        // Total maximum steps might vary, but this lowers 5 times
-        for (i in 0 until steps) {
-            handler.postDelayed({
-                audioManager.adjustStreamVolume(
-                    AudioManager.STREAM_MUSIC, // Or STREAM_RING, etc.
-                    AudioManager.ADJUST_LOWER, // Decrease
-                    AudioManager.FLAG_SHOW_UI // Show UI feedback
-                )
-            }, (i * 300).toLong()) // 300ms delay between steps
+        volumeAnimator?.cancel()
+        volumeAnimator = ValueAnimator.ofFloat(mMediaPlayer?.volume ?: 1f, 0f).apply {
+            duration = 5000
+            addUpdateListener { animator ->
+                mMediaPlayer?.volume = animator.animatedValue as Float
+            }
+            start()
         }
     }
 
 
     override fun onDestroy() {
         super.onDestroy()
+        volumeAnimator?.cancel()
+        handlerVolume.removeCallbacksAndMessages(null)
 
         if (mMediaPlayer != null) {
             mMediaPlayer!!.release(); // Release resources when done
