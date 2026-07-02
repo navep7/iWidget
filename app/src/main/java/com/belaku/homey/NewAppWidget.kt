@@ -260,8 +260,7 @@ class NewAppWidget : AppWidgetProvider() {
             .requestActivityTransitionUpdates(transitionRequest, pendingIntent)
 
         task.addOnSuccessListener {
-            // Handle success
-            //    // makeToast("Task added successfully")
+            ActivityTransitionReceiver().speedTracking()
         }
 
         task.addOnFailureListener {

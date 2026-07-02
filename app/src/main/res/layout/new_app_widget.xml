@@ -651,6 +651,17 @@
         android:layout_toEndOf="@+id/ll_apps"
         android:layout_toStartOf="@+id/ll_contacts">
 
+
+        <TextView
+            android:id="@+id/tx_speed"
+            android:gravity="center"
+            android:padding="@dimen/padding_5"
+            android:layout_centerHorizontal="true"
+            android:textColor="@android:color/holo_red_dark"
+            android:layout_below="@+id/rl_controls"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
         <RelativeLayout
             android:id="@+id/rl_controls"
             android:layout_width="wrap_content"

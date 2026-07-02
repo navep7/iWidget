@@ -21,6 +21,7 @@ import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.widgetContext
 import com.belaku.homey.StepsService.Companion.locationListenerSpeed
+import com.belaku.homey.StepsService.Companion.presentActivityState
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
@@ -29,66 +30,43 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         appWidM = AppWidgetManager.getInstance(context)
-        remoteViews =
-            RemoteViews(context.packageName, R.layout.new_app_widget)
+        remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget).apply {
+            setTextViewText(R.id.tx_activity_state, StepsService.presentActivityState)
+            setImageViewResource(R.id.imgv_steps, StepsService.presentActivityStateImage)
+        }
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
-        //   // makeToast("!onReceiveAR ${intent.action}")
         if (ActivityTransitionResult.hasResult(intent)) {
             val result = ActivityTransitionResult.extractResult(intent)
             result?.let {
                 result.transitionEvents.forEach { event ->
                     // Info about activity
 
-                         if (toActivityString(event.activityType).trim() == "STILL") {
-                             StepsService.presentActivityState = "STILL"
-                             StepsService.presentActivityStateImage = R.drawable.still
+                    presentActivityState = toActivityString(event.activityType).trim()
 
-                             performPartialUpdate(StepsService.presentActivityState, widgetContext, R.id.tx_activity_state)
-
-                         } else if (toActivityString(event.activityType).trim() == "WALKING") {
-                             StepsService.presentActivityState = "WALKING"
-                             StepsService.presentActivityStateImage = R.drawable.steps
-
-
-                             performPartialUpdate(
-                                 StepsService.presentActivityState,
-                                 widgetContext,
-                                 R.id.tx_activity_state
-                             )
-                         } else if (toActivityString(event.activityType).trim() == "INVEHICLE") {
-                             StepsService.presentActivityState = "INVEHICLE"
-                             StepsService.presentActivityStateImage = R.drawable.in_a_vehicle
-
-
-                             performPartialUpdate(
-                                 StepsService.presentActivityState,
-                                 widgetContext,
-                                 R.id.tx_activity_state
-                             )
+                         if (presentActivityState == "STILL") {
+                             remoteViews?.setTextViewText(R.id.tx_activity_state, "STILL")
+                             remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.still)
+                             appWidM.updateAppWidget(intArrayOf(R.id.tx_activity_state, R.id.imgv_steps), remoteViews)
+                         } else if (presentActivityState == "WALKING") {
+                             remoteViews?.setTextViewText(R.id.tx_activity_state, "WALKING")
+                             remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.steps)
+                             appWidM.updateAppWidget(intArrayOf(R.id.tx_activity_state, R.id.imgv_steps), remoteViews)
+                         } else if (presentActivityState == "INVEHICLE") {
+                             remoteViews?.setTextViewText(R.id.tx_activity_state, "IN A VEHICLE")
+                             remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.in_a_vehicle)
+                             appWidM.updateAppWidget(intArrayOf(R.id.tx_activity_state, R.id.imgv_steps), remoteViews)
                          }
                 }
             }
         }
     }
 
-    private fun performPartialUpdate(state: String, context: Context, appWidgetId: Int) {
-
-        // Target only the views you want to change
-        remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget).apply {
-            setTextViewText(R.id.tx_activity_state, StepsService.presentActivityState)
-            setImageViewResource(R.id.imgv_steps, StepsService.presentActivityStateImage)
-        }
-
-        // Send the partial update
-        appWidM.partiallyUpdateAppWidget(appWidgetId, remoteViews)
-    }
 
 
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-    private fun speedTracking() {
-        Toast.makeText(widgetContext, "!speedTracking", Toast.LENGTH_SHORT).show()
+    fun speedTracking() {
 
         locationListenerSpeed =
             LocationListener() { location ->
@@ -127,21 +105,13 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
     private fun speedR(strSpeed: String) {
 
-        // makeToast("!speedR")
-
-        //      remoteViews?.setImageViewBitmap(R.id.needle, rBit)
-        /*     remoteViews?.setTextViewText(R.id.tx_speed, strSpeed)
-             remoteViews?.setViewVisibility(R.id.needle, View.VISIBLE)
-             remoteViews?.setViewVisibility(R.id.tx_speed, View.VISIBLE)*/
-        appWidM.updateAppWidget(newAppWidget, remoteViews)
-
-        //    StepsService.locationManager.removeUpdates(locationListenerSpeed)
-
-        Handler(Looper.getMainLooper()).postDelayed(Runnable {
-            StepsService.locationManager.removeUpdates(locationListenerSpeed)
-        }, 600000)
-
-
+        if (strSpeed.split(" ")[0].trim().toInt() > 5) {
+            remoteViews?.setTextViewText(R.id.tx_speed, strSpeed + " Kmph")
+            appWidM.updateAppWidget(R.id.tx_speed, remoteViews)
+        } else {
+            remoteViews?.setTextViewText(R.id.tx_speed, "")
+            appWidM.updateAppWidget(R.id.tx_speed, remoteViews)
+        }
     }
 
     fun decodeSampledBitmapFromResource(
