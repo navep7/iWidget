@@ -489,7 +489,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
                         }
 
-                        hashSetAppUsage = hashSetAppUsage.sortedByDescending { it.usageTime.split(":")[0].toInt() }
+                        hashSetAppUsage = hashSetAppUsage.sortedByDescending { it.usageTime.split(":")[0].trim().toInt() }
                             .toCollection(LinkedHashSet())
 
                         Log.d("hashSetAppUsagez ~ ", hashSetAppUsage.toString())

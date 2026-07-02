@@ -570,7 +570,7 @@ class DialogActivity : AppCompatActivity() {
                 var b = hashSetAppUsage.distinctBy { it.usageTime }
 
                 Log.d("b4sort", b.toString())
-                var c = b.sortedBy { it.usageTime.split(":")[0].toInt() }
+                var c = b.sortedBy { it.usageTime.split(":")[0].trim().toInt() }
                 Log.d("a4sort", c.toString())
 
                 for (i in c)
@@ -581,7 +581,7 @@ class DialogActivity : AppCompatActivity() {
 
                 for (i in c) {
 
-                    if (i.usageTime.split(":")[0].toInt() >= 10) {
+                    if (i.usageTime.split(":")[0].trim().toInt() >= 10) {
                         muApps.add(
                             "\n" + getAppNameFromPkg(
                                 dialogActContext, i.appName
@@ -612,7 +612,7 @@ class DialogActivity : AppCompatActivity() {
                 for (i in muApps)
                     mApps.add(AppUsage(i, myAppUsages[muApps.indexOf(i)]))
 
-                mApps.sortBy { it.usageTime.split(":")[0].trim().toInt() }
+                mApps.sortBy { it.usageTime.split(":")[0].trim().trim().toInt() }
 
                 for (i in mApps) {
                     txAppName.append(i.appName)
@@ -631,9 +631,9 @@ class DialogActivity : AppCompatActivity() {
 
 
                 for (i in 0 until c.size) {
-                    if ((c[i].usageTime.substring(0, 2).toInt() > 5) && (c[i].usageTime.substring(
+                    if ((c[i].usageTime.substring(0, 2).trim().toInt() > 5) && (c[i].usageTime.substring(
                             0, 2
-                        ).toInt() < 10)
+                        ).trim().toInt() < 10)
                     ) {
                         muApps.add(
                             "\n" + getAppNameFromPkg(
@@ -651,7 +651,7 @@ class DialogActivity : AppCompatActivity() {
                 for (i in muApps)
                     mApps.add(AppUsage(i, myAppUsages[muApps.indexOf(i)]))
 
-                mApps.sortBy { it.usageTime.split(":")[0].trim().toInt() }
+                mApps.sortBy { it.usageTime.split(":")[0].trim().trim().toInt() }
 
                 for (i in mApps) {
                     txAppName.append(i.appName)
@@ -667,9 +667,9 @@ class DialogActivity : AppCompatActivity() {
 
 
                 for (i in 0 until c.size) {
-                    if ((c[i].usageTime.substring(0, 2).toInt() > 1) && (c[i].usageTime.substring(
+                    if ((c[i].usageTime.substring(0, 2).trim().toInt() > 1) && (c[i].usageTime.substring(
                             0, 2
-                        ).toInt() < 5)
+                        ).trim().toInt() < 5)
                     ) {
                         muApps.add(
                             "\n" + getAppNameFromPkg(
@@ -687,7 +687,7 @@ class DialogActivity : AppCompatActivity() {
                 for (i in muApps)
                     mApps.add(AppUsage(i, myAppUsages[muApps.indexOf(i)]))
 
-                mApps.sortBy { it.usageTime.split(":")[0].trim().toInt() }
+                mApps.sortBy { it.usageTime.split(":")[0].trim().trim().toInt() }
 
                 for (i in mApps) {
                     txAppName.append(i.appName)
@@ -706,7 +706,7 @@ class DialogActivity : AppCompatActivity() {
 
 
                 for (i in 0 until c.size) {
-                    if ((c[i].usageTime.substring(0, 2).toInt() == 0)
+                    if ((c[i].usageTime.substring(0, 2).trim().toInt() == 0)
                     ) {
                         muApps.add(
                             "\n" + getAppNameFromPkg(
@@ -726,7 +726,7 @@ class DialogActivity : AppCompatActivity() {
                 for (i in muApps)
                     mApps.add(AppUsage(i, myAppUsages[muApps.indexOf(i)]))
 
-                mApps.sortBy { it.usageTime.split(":")[0].trim().toInt() }
+                mApps.sortBy { it.usageTime.split(":")[0].trim().trim().toInt() }
 
                 for (i in mApps) {
                     txAppName.append(i.appName)
@@ -866,7 +866,7 @@ class DialogActivity : AppCompatActivity() {
 
     fun sumTimes(times: List<String>): String {
         val totalDuration = times.fold(Duration.ZERO) { acc, time ->
-            val parts = time.split(":").map { it.toInt() }
+            val parts = time.split(":").map { it.trim().toInt() }
             acc + parts[0].minutes + parts[1].seconds
         }
 

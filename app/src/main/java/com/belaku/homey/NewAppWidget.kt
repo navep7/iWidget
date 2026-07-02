@@ -1831,7 +1831,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
             if (dfDate.format(c).length == 1) {
-                when (dfDate.format(c).toInt()) {
+                when (dfDate.format(c).trim().toInt()) {
                     1 -> postFixDate = "ˢᵗ"
                     2 -> postFixDate = "ⁿᵈ"
                     3 -> postFixDate = "ʳᵈ"
@@ -1839,7 +1839,7 @@ class NewAppWidget : AppWidgetProvider() {
 
                 }
             } else {
-                when (dfDate.format(c).toInt()) {
+                when (dfDate.format(c).trim().toInt()) {
                     in 11..20 -> postFixDate = "ᵗʰ"
                     21, 31 -> postFixDate = "ˢᵗ"
                     22 -> postFixDate = "ⁿᵈ"

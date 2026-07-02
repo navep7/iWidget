@@ -130,7 +130,7 @@ class CustomDialogClass // TODO Auto-generated constructor stub
                     arrayListReminders.add(Reminder(rSubject, "$h:$m", rType))
                     adapterReminders.notifyDataSetChanged()
 
-                    addAlarm(rSubject, h.toInt(), m.toInt())
+                    addAlarm(rSubject, h.trim().toInt(), m.trim().toInt())
 
                 } else makeToast("Add a subject and time!")
             }
