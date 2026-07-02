@@ -44,6 +44,8 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
                     presentActivityState = toActivityString(event.activityType).trim()
 
+                    makeToast(presentActivityState)
+
                          if (presentActivityState == "STILL") {
                              if (StepsService.isLocationManagerInitialized())
                              StepsService.locationManager.removeUpdates(locationListenerSpeed)
@@ -57,7 +59,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                              remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.steps)
                              appWidM.updateAppWidget(intArrayOf(R.id.tx_activity_state, R.id.imgv_steps), remoteViews)
                          } else if (presentActivityState == "INVEHICLE") {
-                         //    ActivityTransitionReceiver().speedTracking()
+                             ActivityTransitionReceiver().speedTracking()
                              remoteViews?.setTextViewText(R.id.tx_activity_state, "IN A VEHICLE")
                              remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.in_a_vehicle)
                              appWidM.updateAppWidget(intArrayOf(R.id.tx_activity_state, R.id.imgv_steps), remoteViews)
@@ -74,7 +76,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
     fun speedTracking() {
 
 
-        makeToast("!speedTracking")
+     //   makeToast("!speedTracking")
         locationListenerSpeed =
             LocationListener() { location ->
                 run {
@@ -102,7 +104,17 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
     }
 
     private fun speedR(strSpeed: String) {
+
+        var speed = 0
+
+        if (strSpeed.contains("."))
+            speed = strSpeed.split(".")[0].trim().toInt()
+        else speed = strSpeed.trim().toInt()
+
+        if (speed > 5)
         remoteViews?.setTextViewText(R.id.tx_speed, strSpeed + " Kmph")
+        else remoteViews?.setTextViewText(R.id.tx_speed, "")
+
         appWidM.updateAppWidget(R.id.tx_speed, remoteViews)
     }
 

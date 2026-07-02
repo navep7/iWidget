@@ -268,6 +268,7 @@ class NewAppWidget : AppWidgetProvider() {
             //    // makeToast("Error adding task")
         }
 
+
     }
 
     override fun onDisabled(context: Context?) {
