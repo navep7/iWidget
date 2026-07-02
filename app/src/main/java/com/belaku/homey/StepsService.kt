@@ -470,6 +470,14 @@ class StepsService : Service() {
         var presentActivityStateImage = R.drawable.walp_icon
         lateinit var locationListenerSpeed: LocationListener
         lateinit var locationManager: LocationManager
+
+        fun isLocationManagerInitialized(): Boolean {
+            if (::locationManager.isInitialized && ::locationListenerSpeed.isInitialized)
+                return true
+            else
+                return false
+
+        }
         var twitterProfileName: String = "Fact"
         var mLocationResult: LocationResult? = null
         var totalUsage: String = ""

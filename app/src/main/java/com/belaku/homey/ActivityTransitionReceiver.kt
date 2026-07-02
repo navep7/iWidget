@@ -45,14 +45,19 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     presentActivityState = toActivityString(event.activityType).trim()
 
                          if (presentActivityState == "STILL") {
+                             if (StepsService.isLocationManagerInitialized())
+                             StepsService.locationManager.removeUpdates(locationListenerSpeed)
+                             remoteViews?.setTextViewText(R.id.tx_speed, "")
                              remoteViews?.setTextViewText(R.id.tx_activity_state, "STILL")
                              remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.still)
-                             appWidM.updateAppWidget(intArrayOf(R.id.tx_activity_state, R.id.imgv_steps), remoteViews)
+                             appWidM.updateAppWidget(intArrayOf(R.id.tx_activity_state, R.id.imgv_steps, R.id.tx_speed), remoteViews)
                          } else if (presentActivityState == "WALKING") {
+                             ActivityTransitionReceiver().speedTracking()
                              remoteViews?.setTextViewText(R.id.tx_activity_state, "WALKING")
                              remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.steps)
                              appWidM.updateAppWidget(intArrayOf(R.id.tx_activity_state, R.id.imgv_steps), remoteViews)
                          } else if (presentActivityState == "INVEHICLE") {
+                         //    ActivityTransitionReceiver().speedTracking()
                              remoteViews?.setTextViewText(R.id.tx_activity_state, "IN A VEHICLE")
                              remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.in_a_vehicle)
                              appWidM.updateAppWidget(intArrayOf(R.id.tx_activity_state, R.id.imgv_steps), remoteViews)
@@ -68,6 +73,8 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     fun speedTracking() {
 
+
+        makeToast("!speedTracking")
         locationListenerSpeed =
             LocationListener() { location ->
                 run {
@@ -80,15 +87,6 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                         // Convert to km/h (optional)
                         val speedInKmph = (speedInMps * 3.6).toInt()
 
-
-                        /* var rBitmap = Bitmap.createScaledBitmap(
-                             BitmapRotated(speedInKmph, widgetContext),
-                             95,
-                             95,
-                             true
-                         )*/
-
-
                         speedR(speedInKmph.toString())
                     } else speedR("0.0")
 
@@ -96,7 +94,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
             }
 
         StepsService.locationManager.requestLocationUpdates(
-            LocationManager.GPS_PROVIDER,
+            LocationManager.FUSED_PROVIDER,
             0,
             0f,
             locationListenerSpeed
@@ -104,56 +102,10 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
     }
 
     private fun speedR(strSpeed: String) {
-
-        if (strSpeed.split(" ")[0].trim().toInt() > 5) {
-            remoteViews?.setTextViewText(R.id.tx_speed, strSpeed + " Kmph")
-            appWidM.updateAppWidget(R.id.tx_speed, remoteViews)
-        } else {
-            remoteViews?.setTextViewText(R.id.tx_speed, "")
-            appWidM.updateAppWidget(R.id.tx_speed, remoteViews)
-        }
+        remoteViews?.setTextViewText(R.id.tx_speed, strSpeed + " Kmph")
+        appWidM.updateAppWidget(R.id.tx_speed, remoteViews)
     }
 
-    fun decodeSampledBitmapFromResource(
-        resId: Int,
-        reqWidth: Int,
-        reqHeight: Int,
-        context: Context
-    ): Bitmap {
-
-        // First decode with inJustDecodeBounds=true to check dimensions
-        val options = BitmapFactory.Options().apply {
-            inJustDecodeBounds = true
-        }
-        BitmapFactory.decodeResource(context.resources, resId, options)
-
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight)
-
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false
-        return BitmapFactory.decodeResource(context.resources, resId, options)
-    }
-
-    fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
-        // Raw height and width of image
-        val (height: Int, width: Int) = options.run { outHeight to outWidth }
-        var inSampleSize = 1
-
-        if (height > reqHeight || width > reqWidth) {
-
-            val halfHeight: Int = height / 2
-            val halfWidth: Int = width / 2
-
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps
-            // both height and width larger than the requested height and width.
-            while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
-                inSampleSize *= 2
-            }
-        }
-
-        return inSampleSize
-    }
 
     // types of activities
     fun toActivityString(activity: Int): String {

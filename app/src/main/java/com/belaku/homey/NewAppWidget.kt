@@ -260,7 +260,7 @@ class NewAppWidget : AppWidgetProvider() {
             .requestActivityTransitionUpdates(transitionRequest, pendingIntent)
 
         task.addOnSuccessListener {
-            ActivityTransitionReceiver().speedTracking()
+            //yet2
         }
 
         task.addOnFailureListener {

@@ -654,13 +654,19 @@
 
         <TextView
             android:id="@+id/tx_speed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center"
-            android:padding="@dimen/padding_5"
-            android:layout_centerHorizontal="true"
-            android:textColor="@android:color/holo_red_dark"
             android:layout_below="@+id/rl_controls"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:textColor="@android:color/holo_red_light"
+            android:textSize="35sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-condensed"
+            android:includeFontPadding="false"
+            app:autoSizeTextType="uniform"
+            app:autoSizeMinTextSize="35sp"
+            app:autoSizeMaxTextSize="40sp" />
+
 
         <RelativeLayout
             android:id="@+id/rl_controls"
