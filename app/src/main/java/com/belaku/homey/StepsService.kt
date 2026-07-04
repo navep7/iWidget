@@ -194,32 +194,18 @@ class StepsService : Service() {
                         } catch (e: IOException) {
                             // TODO Auto-generated catch block
                             e.printStackTrace()
-                             makeToast("GCD - IOException \n $e")
+                             makeToast(applicationContext, "GCD - IOException \n $e")
                         }
 
                     }
 
 
                     override fun onMarkerClick(p0: Marker): Boolean {
-                        // makeToast("nothin")
                         return true
                     }
                 },
                 Looper.getMainLooper()
             )
-
-
-        val userPresentReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                if (intent?.action == Intent.ACTION_USER_PRESENT) {
-                    // Handle the screen unlock event here
-                    //    // makeToast("Screen unlocked!")
-                    // You can update UI, start a task, etc.
-                }
-            }
-        }
-        registerReceiver(userPresentReceiver, IntentFilter(Intent.ACTION_USER_PRESENT))
-
 
 
         if (Build.VERSION.SDK_INT >= 26) {
@@ -377,7 +363,6 @@ class StepsService : Service() {
 
     private fun BluetoothState(contx: StepsService) {
 
-   //     makeToast("!BluetoothState")
         val mBluetoothStateReceiver = object : BroadcastReceiver() {
             @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
             override fun onReceive(context: Context, intent: Intent) {
@@ -388,12 +373,10 @@ class StepsService : Service() {
 
                     when (state) {
                         BluetoothAdapter.STATE_OFF -> {
-                            makeToast("Bluetooth OFF")
                             sharedPreferencesEditor.putBoolean("BluetoothState", false).apply()
                         }
                         BluetoothAdapter.STATE_TURNING_OFF -> { /* Bluetooth is turning off */ }
                         BluetoothAdapter.STATE_ON -> {
-                            makeToast("Bluetooth ON")
                             sharedPreferencesEditor.putBoolean("BluetoothState", true).apply()
                         }
                         BluetoothAdapter.STATE_TURNING_ON -> { /* Bluetooth is turning on */ }
@@ -406,11 +389,11 @@ class StepsService : Service() {
 
                     when (state) {
                         BluetoothProfile.STATE_CONNECTED -> {
-                            makeToast("Headset connected: ${device?.name}")
+                            makeToast(applicationContext, "Headset connected: ${device?.name}")
                             sharedPreferencesEditor.putBoolean("BluetoothConnectionState", true).apply()
                         }
                         BluetoothProfile.STATE_DISCONNECTED -> {
-                            makeToast("Headset disconnected: ${device?.name}")
+                            makeToast(applicationContext, "Headset disconnected: ${device?.name}")
                             sharedPreferencesEditor.putBoolean("BluetoothConnectionState", false).apply()
                         }
 
@@ -439,7 +422,6 @@ class StepsService : Service() {
             stepCounterSensor,
             SensorManager.SENSOR_DELAY_NORMAL
         )
-        //    // makeToast("step UP!")
 
 
         //    stopSelf()
@@ -555,7 +537,7 @@ class StepsService : Service() {
                 }
             } catch (ex: Exception) {
                 Log.d("WD Excep7 - ", ex.toString())
-                 makeToast("Weather EXP - ${ex.message}")
+
             }
 
             //   // makeToast(tempC)

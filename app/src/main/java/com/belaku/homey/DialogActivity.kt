@@ -122,11 +122,10 @@ class DialogActivity : AppCompatActivity() {
     private val barcodeLauncher =
         registerForActivityResult(ScanContract()) { result: ScanIntentResult? ->
             if (result?.contents == null) {
-                // makeToast("Cancelled")
+
             } else {
                 // Handle the scan result
                 var scannedUrl = result.contents
-                // makeToast("Scanned: ${result}")
                 val upiUri = Uri.parse(scannedUrl)
                 val upiIntent = Intent(Intent.ACTION_VIEW)
                 upiIntent.setData(upiUri)
@@ -135,7 +134,7 @@ class DialogActivity : AppCompatActivity() {
                     startActivity(chooser);
                 } else {
                     // Handle the case where no UPI apps are installed
-                    // makeToast("No UPI app found. Please install one to proceed.")
+                     makeToast(applicationContext, "No UPI app found. Please install one to proceed.")
                 }
             }
         }
@@ -254,8 +253,6 @@ class DialogActivity : AppCompatActivity() {
                 stepsMapsAdapter(stepsData)
 
             if (dialogIntentStr == "SongCover") {
-                //     // makeToast("yet2Impl")
-            //    llDialog.setBackgroundColor(android.R.color.transparent)
                 edtxDialog.visibility = View.GONE
                 btnOk.visibility = View.GONE
                 btnCancel.visibility = View.GONE
@@ -300,7 +297,7 @@ class DialogActivity : AppCompatActivity() {
 
             } else if (dialogIntentStr == "AD") {
 
-                makeToast("loading Advertisement, please wait...")
+                makeToast(applicationContext, "loading Advertisement, please wait...")
                 llDialog.visibility = View.GONE
                 RewardedInterstitialAd.load(
                     this,
@@ -308,11 +305,10 @@ class DialogActivity : AppCompatActivity() {
                     AdRequest.Builder().build(),
                     object : RewardedInterstitialAdLoadCallback() {
                         override fun onAdLoaded(rewardedAd: RewardedInterstitialAd) {
-                            // makeToast("Ad was loaded.")
                             rewardedInterstitialAd = rewardedAd
 
                             rewardedInterstitialAd?.show(this@DialogActivity) { rewardItem ->
-                                // makeToast("User earned the reward.")
+
                                 // Handle the reward.
                                 val rewardAmount = rewardItem.amount
                                 val rewardType = rewardItem.type
@@ -327,7 +323,6 @@ class DialogActivity : AppCompatActivity() {
 
                         override fun onAdFailedToLoad(adError: LoadAdError) {
                             dialogActContext = applicationContext
-                            // makeToast("onAdFailedToLoad: ${adError.message}")
                             rewardedInterstitialAd = null
                         }
                     },
@@ -350,7 +345,7 @@ class DialogActivity : AppCompatActivity() {
                 try {
                     pickContactLauncher.launch(intent)
                 } catch (ex: Exception) {
-                    // makeToast("Ex - ${ex.message}")
+
                 }
             } else if (dialogIntentStr == "StT") {
                 edtxDialog.visibility = View.GONE
@@ -780,7 +775,6 @@ class DialogActivity : AppCompatActivity() {
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
 
             } else if (dialogIntentStr == "liveWall") {
-                // makeToast("LIVEWALL!")
                 val p: String = WallService::class.java.getPackage().getName()
                 val c: String = WallService::class.java.getCanonicalName()
 
@@ -847,7 +841,7 @@ class DialogActivity : AppCompatActivity() {
                 builder.setNegativeButton("Not Now") { dialog, id ->
                     // User clicked OK button
                     dialog.dismiss() // Dismiss the dialog
-                    makeToast("Lock Screen cannot work without access to Accessibility Service!")
+                    makeToast(applicationContext, "Lock Screen cannot work without access to Accessibility Service!")
                     finish()
                 }
 
@@ -913,9 +907,6 @@ class DialogActivity : AppCompatActivity() {
             override fun onPageScrolled(
                 position: Int, positionOffset: Float, positionOffsetPixels: Int
             ) {
-
-                //   // makeToast("$currentOffset VS $positionOffset")
-
 
                 if (currentOffset == positionOffset) if (myState == ViewPager2.SCROLL_STATE_DRAGGING && currentPosition == position && currentPosition == 0) vpSteps.setCurrentItem(
                     6
@@ -1066,11 +1057,7 @@ class DialogActivity : AppCompatActivity() {
             if (phoneCursor != null && phoneCursor.moveToFirst()) {
                 val phoneNumberIndex =
                     phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-                if (phoneNumberIndex != -1) {
-                    val phoneNumber = phoneCursor.getString(phoneNumberIndex)
-                    // Process phone number
-                    // makeToast("Contct - $displayName : $phoneNumber")
-                }
+
             }
 
             // Get email addresses

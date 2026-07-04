@@ -44,7 +44,6 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
                     presentActivityState = toActivityString(event.activityType).trim()
 
-                    makeToast(presentActivityState)
 
                          if (presentActivityState == "STILL") {
                              if (StepsService.isLocationManagerInitialized())
@@ -75,13 +74,9 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     fun speedTracking() {
 
-
-     //   makeToast("!speedTracking")
         locationListenerSpeed =
             LocationListener() { location ->
                 run {
-
-                    // makeToast("!locationRrd")
 
                     if (location.hasSpeed()) {
                         val speedInMps = location.speed // Speed in meters/second

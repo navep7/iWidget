@@ -528,10 +528,10 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 } catch (e: Exception) {
                     // This catches the AppSearchException "Invalid cycle detected" which is a system bug
                     // in the AppsIndexer when processing Digital Wellbeing metadata.
-                    makeToast("System indexing error during UsageStats query: ${e}")
+                    makeToast(widgetContext, "System indexing error during UsageStats query: ${e}")
                     Log.e(TAG, "System indexing error during UsageStats query: ${e}")
                 }
-            } else makeToast("Usage Stats Permission revoked by System probably, you need to grant again")
+            } else makeToast(widgetContext, "Usage Stats Permission revoked by System probably, you need to grant again")
         }
 
 

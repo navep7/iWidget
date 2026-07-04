@@ -41,7 +41,6 @@ class SpeedService : Service(), LocationListener {
         val speedMps = location.speed
         val speedKmh = speedMps * 3.6 // Convert to km/h
 
-        makeToast("!onLocationChanged $speedKmh")
         // Update the App Widget
 
         remoteViews?.setTextViewText(R.id.tx_speed, "${speedKmh.toInt()} KmpH")

@@ -140,7 +140,6 @@ class NewAppWidget : AppWidgetProvider() {
         widgetContext = context!!
         onEn = true
 
-        // makeToast("Expand the widget to full screen dimens for better visibility")
         sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
@@ -149,13 +148,9 @@ class NewAppWidget : AppWidgetProvider() {
                 override fun onReceive(ctx: Context, intent: Intent) {
                     if (Intent.ACTION_USER_PRESENT == intent.action) {
 
-
-                        makeToast("ꗃ " + sharedPreferences.getInt("unlockCount", 1))
-
-                        sharedPreferencesEditor.putInt("unlockCount", sharedPreferences.getInt("unlockCount", 1) + 1).apply()
-
-
                             widgetContext = context
+
+
 
                             recognizeActivityTransitions()
                             setUI()
@@ -166,6 +161,9 @@ class NewAppWidget : AppWidgetProvider() {
 
                         if (!isAppWidMInitialized())
                             appWidM = AppWidgetManager.getInstance(widgetContext)
+
+                        makeToast(widgetContext, "ꗃ " + sharedPreferences.getInt("unlockCount", 1))
+                        sharedPreferencesEditor.putInt("unlockCount", sharedPreferences.getInt("unlockCount", 1) + 1).apply()
 
                         mAppWidgetIds = appWidM.getAppWidgetIds(ComponentName(widgetContext, NewAppWidget::class.java))
                         appWidM.updateAppWidget(newAppWidget, remoteViews)
@@ -194,7 +192,6 @@ class NewAppWidget : AppWidgetProvider() {
     @SuppressLint("MissingPermission")
     private fun recognizeActivityTransitions() {
 
-        // makeToast("!recognizeActivityTransitions")
         val receiver = ActivityTransitionReceiver()
         val filter = IntentFilter("com.belaku.homey.CUSTOM_ACTION") // Use a unique action string
         widgetContext.registerReceiver(receiver, filter, RECEIVER_NOT_EXPORTED)
@@ -265,7 +262,6 @@ class NewAppWidget : AppWidgetProvider() {
 
         task.addOnFailureListener {
             // Handle error
-            //    // makeToast("Error adding task")
         }
 
 
@@ -745,7 +741,6 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
         val spkServiceRunning = sharedPreferences.getBoolean("SPKSERVICE", false)
-        //   // makeToast("spkServiceRunning : $spkServiceRunning")
         if (spkServiceRunning)
             remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
         else remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
@@ -905,9 +900,6 @@ class NewAppWidget : AppWidgetProvider() {
 
             if (ColorUtil().isColorDark(primaryColor)) {
 
-                // makeToast("Dark")
-
-
                 remoteViews?.setInt(R.id.imgv_conf, "setColorFilter", Color.BLACK)
                 remoteViews?.setInt(R.id.imgbtn_speech, "setColorFilter", Color.BLACK)
                 remoteViews?.setInt(R.id.imgbtn_qr, "setColorFilter", Color.BLACK)
@@ -952,8 +944,6 @@ class NewAppWidget : AppWidgetProvider() {
                 )
 
             } else {
-
-                // makeToast("Light")
 
                 remoteViews?.setInt(R.id.imgv_conf, "setColorFilter", Color.WHITE)
                 remoteViews?.setInt(R.id.imgbtn_speech, "setColorFilter", Color.WHITE)
@@ -1184,7 +1174,7 @@ class NewAppWidget : AppWidgetProvider() {
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }
         if (STEPS_CLICK == intent.action) {
-            Toast.makeText(widgetContext,"$stepsToday ~ " + String.format("%.1f", stepsToday * 74f / 100000f) + " Km", Toast.LENGTH_LONG).show()
+            makeToast(widgetContext, "$stepsToday ~ " + String.format("%.1f", stepsToday * 74f / 100000f) + " Km")
             remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday Steps")
 
         }
@@ -1283,7 +1273,6 @@ class NewAppWidget : AppWidgetProvider() {
             if (position != AdapterView.INVALID_POSITION) {
 
                 if (viewID == 0) {
-                    // makeToast(choosenApps[position].name)
                     val launchIntent: Intent =
                         widgetContext.packageManager.getLaunchIntentForPackage(
                             choosenApps[position].pName
@@ -1292,17 +1281,14 @@ class NewAppWidget : AppWidgetProvider() {
                     // Optional: Add flags for desired behavior (e.g., to ensure a new task is created)
                     launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     widgetContext.startActivity(launchIntent)
-                } else if (viewID == 1)
-                     makeToast("Remove App - ${apps[position].name}")
-            } else  makeToast("INvalid Pos - $position")
+                }
+            }
         } else if (FAB_SHARE == intent.action) {
 
             val inflater =
                 widgetContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             val appWidgetView: View = inflater.inflate(R.layout.new_app_widget, null)
 
-            // makeToast("Yet2IMPL")
-            //     loadWidgetToShare(appWidgetView)
             appWidgetView.measure(
                 View.MeasureSpec.makeMeasureSpec(screenWidth, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(screenHeight - 725, View.MeasureSpec.EXACTLY)
@@ -1420,17 +1406,14 @@ class NewAppWidget : AppWidgetProvider() {
         } else if (Time_A_CLICKED == intent.action) {
 
             var boolSpkService = sharedPreferences.getBoolean("SPKSERVICE", false)
-            //    // makeToast("TIME_A_CLICKED, spkServiceState : $boolSpkService")
             val speakIntent = Intent(widgetContext, SpeakService::class.java)
             if (!boolSpkService) {
                 widgetContext.startService(speakIntent)
                 remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
-                // makeToast("Change in Hour & notification app name will be announced!")
                 sharedPreferencesEditor.putBoolean("SPKSERVICE", true).apply()
             } else {
                 widgetContext.stopService(speakIntent)
                 remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
-                //    // makeToast("stopingSPKservice")
                 sharedPreferencesEditor.putBoolean("SPKSERVICE", false).apply()
             }
 
@@ -1443,7 +1426,6 @@ class NewAppWidget : AppWidgetProvider() {
     private fun startMusicActivity(songIndex: Int) {
         var intentMusic = Intent(widgetContext, MusicActivity::class.java)
         intentMusic.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        // makeToast("songIndex ~ " + songIndex)
         intentMusic.putExtra("songIndex", songIndex)
         widgetContext.startActivity(intentMusic)
     }
@@ -1478,7 +1460,6 @@ class NewAppWidget : AppWidgetProvider() {
     fun getPreciseEnergyCounter(context: Context) {
         val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
         val energy = batteryManager.getLongProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
-        //     // makeToast("Juice ~ $energy")
 
         remoteViews?.setTextViewText(R.id.tx_battery, energy.toString())
         remoteViews?.setProgressBar(R.id.progressBar_battery, 100, energy.toInt(), false)
@@ -1578,29 +1559,8 @@ class NewAppWidget : AppWidgetProvider() {
         )
     }
 
-    private fun selectContact() {
-
-        // makeToast("pickContact!")
-        MainActivity.pickContact()
-
-    }
 
 
-    private fun shareWidget(context: Context, bitmap: Bitmap) {
-        val bitmapPath = MediaStore.Images.Media.insertImage(
-            widgetContext.getContentResolver(), bitmap, "title", ""
-        )
-        val uri = Uri.parse(bitmapPath)
-        val shareIntent = Intent(Intent.ACTION_SEND)
-        shareIntent.setType("image/*")
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "App")
-        shareIntent.putExtra(Intent.EXTRA_TEXT, "Currently a new version of KiKi app is available.")
-        shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
-        shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(
-            Intent.createChooser(shareIntent, "Share").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        )
-    }
 
     fun isAccessibilityServiceEnabled(
         context: Context,
@@ -1819,7 +1779,6 @@ class NewAppWidget : AppWidgetProvider() {
 
         fun todaysDate() {
 
-       //     makeToast("!todaysDate")
             val c: Date = Calendar.getInstance().time
             val dfDate = SimpleDateFormat("d", Locale.getDefault())
             val dfMonth = SimpleDateFormat("MMM", Locale.getDefault())
@@ -1877,14 +1836,11 @@ class NewAppWidget : AppWidgetProvider() {
             }
 
             if (!::formattedDate.isInitialized) {
-            //    makeToast("AnotherDay... $day")
-             //   appUsageStats(widgetContext)
-
                 formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
             } else if (formattedDate != dfDate.format(c) + postFixDate + " " + dfMonth.format(c)) {
 
                 //AnotherDay...
-                makeToast("AnotherDay... $formattedDate : ${dfDate.format(c) + postFixDate + " " + dfMonth.format(c)}")
+                makeToast(widgetContext, "AnotherDay... $formattedDate : ${dfDate.format(c) + postFixDate + " " + dfMonth.format(c)}")
                 appUsageStats(widgetContext)
                 if (day == "Mon") {
                     stepsData.clear()

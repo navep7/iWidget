@@ -233,6 +233,8 @@ class MainActivity : AppCompatActivity() {
         mainWindow = this.window
 
         mAct = this@MainActivity
+
+
         mainActivityContext = applicationContext
         widgetContext = applicationContext
 
@@ -273,17 +275,12 @@ class MainActivity : AppCompatActivity() {
 
         var bluetoothLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode == RESULT_OK) {
-                    // makeToast("Bluetooth enabled by user")
-                } else {
-                    // Bluetooth not enabled by user
-                }
+
             }
 
         if (intent != null) {
             var intentStr = intent.getStringExtra("intent2Main")
             if (intentStr != null)
-                // makeToast(intentStr)
 
             if (intentStr.equals("BLUEDisable")) {
                 val disableintent = Intent("android.bluetooth.adapter.action.REQUEST_DISABLE")
@@ -873,15 +870,7 @@ class MainActivity : AppCompatActivity() {
                 null
             )
 
-            if (phoneCursor != null && phoneCursor.moveToFirst()) {
-                val phoneNumberIndex =
-                    phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-                if (phoneNumberIndex != -1) {
-                    val phoneNumber = phoneCursor.getString(phoneNumberIndex)
-                    // Process phone number
-                    // makeToast("Contct - $displayName : $phoneNumber")
-                }
-            }
+
 
             // Get email addresses
             emailCursor = contentResolver.query(
@@ -1056,18 +1045,6 @@ class MainActivity : AppCompatActivity() {
                 "https://pbs.twimg.com/profile_images/1244657050275151872/BRycNabV_normal.jpg" // Replace with your image URL
             val bitmap = getBitmapFromUrl(imageUrl)
             // Now you have the bitmap, you can display it in an ImageView or process it further
-            if (bitmap != null) {
-                //     // makeToast("TwiPic")
-                try {
-                    /*remoteViews?.setTextViewText(
-                        R.id.tx_tweets,
-                        "@" + twitterProfileName + "\t ~ \t" + listTweets[1]
-                    )
-                    remoteViews?.setImageViewBitmap(R.id.twSettings, bitmap)*/
-                } catch (ex: Exception) {
-                    // makeToast("TwiEx - ${ex.message}")
-                }
-            }
         }
 
         newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
@@ -1477,7 +1454,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 val requestQueue = Volley.newRequestQueue(context)
                 requestQueue.add(request)
-            } else makeToast("Please Search for the Walls using the above search bar..")
+            } else makeToast(context, "Please Search for the Walls using the above search bar..")
         }
     }
 
@@ -1597,9 +1574,8 @@ class MainActivity : AppCompatActivity() {
         var imgDescs: ArrayList<String> = ArrayList()
 
 
-        fun makeToast(s: String) {
-            if (NewAppWidget.isAppWidMInitialized())
-                Toast.makeText(widgetContext, s, Toast.LENGTH_SHORT).show()
+        fun makeToast(contxToast: Context, s: String) {
+            Toast.makeText(contxToast, s, Toast.LENGTH_SHORT).show()
             Log.d("makeToastinG", s)
         }
 

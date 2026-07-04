@@ -42,6 +42,7 @@ import java.util.Locale
 class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInitListener {
 
 
+    private lateinit var aiContx: Context
     private val generativeModel: GenerativeModel get() = generativeModelInstance
     private val REQUEST_CODE_SPEECH_INPUT: Int = 1
     private lateinit var tts: TextToSpeech
@@ -60,6 +61,8 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
         binding = ActivityAiBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
+
+        aiContx = applicationContext
 
         tts = TextToSpeech(this, this)
 
@@ -101,7 +104,7 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
                 try {
                     generateAIresponse(generativeModel, edtxAi.text.toString())
                 } catch (ex: Exception) {
-                     makeToast("Gemini Exception - $ex")
+                     makeToast(aiContx, "Gemini Exception - $ex")
                 }
             }
             false
@@ -130,7 +133,7 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
                     }
                 })
             } catch (ex: Exception) {
-                 makeToast("Gemini AI exception - $ex")
+                 makeToast(aiContx,"Gemini AI exception - $ex")
             }
 
 
@@ -168,12 +171,11 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
                 val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                 if (result != null && !result.isEmpty()) {
                     val recognizedText = result[0] // Get the most likely recognized phrase
-                    // makeToast(recognizedText)
                     edtxAi.setText(recognizedText)
                     try {
                         generateAIresponse(generativeModel, recognizedText)
                     } catch (ex: Exception) {
-                         makeToast("Gemini Exception - $ex")
+                         makeToast(aiContx, "Gemini Exception - $ex")
                     }
                 }
             }
