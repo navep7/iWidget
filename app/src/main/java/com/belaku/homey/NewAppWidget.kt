@@ -291,8 +291,6 @@ class NewAppWidget : AppWidgetProvider() {
         sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
-        getPreciseEnergyCounter(widgetContext)
-
         i_appWidgetIds = appWidgetIds
 
 
@@ -773,6 +771,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setTextViewText(R.id.tx_runner, pinNote)
         }
 
+        getPreciseEnergyCounter(widgetContext)
         seekWifiState()
         seekBluetoothState()
         todaysDate()
@@ -1476,7 +1475,7 @@ class NewAppWidget : AppWidgetProvider() {
 
     @SuppressLint("ResourceAsColor")
     @RequiresApi(Build.VERSION_CODES.S)
-    fun getPreciseEnergyCounter(context: Context): Long {
+    fun getPreciseEnergyCounter(context: Context) {
         val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
         val energy = batteryManager.getLongProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
         //     // makeToast("Juice ~ $energy")
@@ -1524,11 +1523,11 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
 
-        return if (energy != Long.MIN_VALUE) {
+      /*  return if (energy != Long.MIN_VALUE) {
             energy // Energy remaining in microampere-hours (µAh)
         } else {
             0L
-        }
+        }*/
     }
 
     fun isWifiEnabled(context: Context): Boolean {
@@ -1814,7 +1813,6 @@ class NewAppWidget : AppWidgetProvider() {
 
         private fun showException(exp: String) {
             remoteViews?.setTextViewText(R.id.tx_runner, exp)
-            appWidM.updateAppWidget(newAppWidget, remoteViews)
         }
 
 
