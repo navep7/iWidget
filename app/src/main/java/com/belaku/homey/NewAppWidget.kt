@@ -96,6 +96,7 @@ import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.belaku.homey.StepsService.Companion.choosenApps
 import com.belaku.homey.StepsService.Companion.isStepsAdapterInitialized
+import com.belaku.homey.StepsService.Companion.speedInKmph
 import com.belaku.homey.StepsService.Companion.stepsAdapter
 import com.belaku.homey.StepsService.Companion.stepsData
 import com.google.android.gms.location.ActivityRecognition
@@ -365,6 +366,11 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setOnClickPendingIntent(
             R.id.tx_refresh_weather,
             getPendingSelfIntent(context, GET_WEATHER)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_speed,
+            getPendingSelfIntent(context, SPEED_CHECK)
         )
 
         remoteViews?.setOnClickPendingIntent(
@@ -1190,6 +1196,8 @@ class NewAppWidget : AppWidgetProvider() {
             appWidM.updateAppWidget(newAppWidget, remoteViews)
             StepsService.getWeatherData(LatLng(cityLat, cityLng))
 
+        } else if (SPEED_CHECK == intent.action) {
+            makeToast(widgetContext, speedInKmph.toString())
         } else if (PLAYPAUSE_CLICK == intent.action) {
             if (boolMusicServiceRunning) {
                 try {
@@ -1939,6 +1947,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val STEPS_CLICK = "stepsClick"
         private const val BATTERY_INFO = "batteryInfo"
         private const val GET_WEATHER = "getWeather"
+        private const val SPEED_CHECK = "speedCheck"
         private const val STEPS_NOW = "newSteps"
         private const val LOCK_PHONE = "lockPhone"
         private const val SET_CLICKED = "setButtonClick"

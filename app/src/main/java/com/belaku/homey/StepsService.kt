@@ -111,13 +111,6 @@ class StepsService : Service() {
             locationRequest.setFastestInterval(10000)
             locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
 
-
-
-
-
-            //instantiating the LocationCallBack
-
-
             var fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
             fusedLocationProviderClient.requestLocationUpdates(
@@ -127,6 +120,14 @@ class StepsService : Service() {
                         mLocationResult = locationResult
                         val location = locationResult.lastLocation
                         if (location != null) {
+
+                            if (location.hasSpeed()) {
+                                val speedInMps = location.speed // Speed in meters/second
+
+                                // Convert to km/h (optional)
+                                speedInKmph = (speedInMps * 3.6).toInt()
+                            //    speedR(speedInKmph.toString())
+                            }
 
 
                             if (!isSharedPreferencesInitialized()) {
@@ -170,6 +171,23 @@ class StepsService : Service() {
                                     )
                                 }
                             }
+                        }
+                    }
+
+                    private fun speedR(strSpeed: String) {
+
+                        var speed = 0
+
+                        if (strSpeed.contains("."))
+                            speed = strSpeed.split(".")[0].trim().toInt()
+                        else speed = strSpeed.trim().toInt()
+
+                        if (speed > 5) {
+                            remoteViews?.setTextViewText(R.id.tx_speed, speed.toString() + " KmpH")
+                            appWidM.partiallyUpdateAppWidget(R.id.tx_speed, remoteViews)
+                        } else {
+                            remoteViews?.setTextViewText(R.id.tx_speed, "")
+                            appWidM.partiallyUpdateAppWidget(R.id.tx_speed, remoteViews)
                         }
                     }
 
@@ -445,6 +463,7 @@ class StepsService : Service() {
 
     companion object {
 
+        var speedInKmph: Int = 0
         lateinit var usageStatsManager: UsageStatsManager
         lateinit var stepsAdapter: StepsAdapter
         val stepsData: ArrayList<String> = ArrayList()

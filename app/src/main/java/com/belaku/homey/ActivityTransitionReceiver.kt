@@ -20,6 +20,7 @@ import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.widgetContext
+import com.belaku.homey.StepsService.Companion.isLocationManagerInitialized
 import com.belaku.homey.StepsService.Companion.locationListenerSpeed
 import com.belaku.homey.StepsService.Companion.presentActivityState
 import com.google.android.gms.location.ActivityTransition
@@ -46,23 +47,30 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
 
                          if (presentActivityState == "STILL") {
-                             if (StepsService.isLocationManagerInitialized())
-                             StepsService.locationManager.removeUpdates(locationListenerSpeed)
+                        //     if (isLocationManagerInitialized())
+                        //     StepsService.locationManager.removeUpdates(locationListenerSpeed)
                              remoteViews?.setTextViewText(R.id.tx_speed, "")
+                             appWidM.partiallyUpdateAppWidget(R.id.tx_speed, remoteViews)
                              remoteViews?.setTextViewText(R.id.tx_activity_state, "STILL")
                              remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.still)
-                             appWidM.updateAppWidget(intArrayOf(R.id.tx_activity_state, R.id.imgv_steps, R.id.tx_speed), remoteViews)
+
                          } else if (presentActivityState == "WALKING") {
-                             ActivityTransitionReceiver().speedTracking()
+                          //   ActivityTransitionReceiver().speedTracking()
+                         //    if (isLocationManagerInitialized())
+                           //  StepsService.locationManager.removeUpdates(locationListenerSpeed)
+                             remoteViews?.setTextViewText(R.id.tx_speed, "")
+                             appWidM.partiallyUpdateAppWidget(R.id.tx_speed, remoteViews)
                              remoteViews?.setTextViewText(R.id.tx_activity_state, "WALKING")
                              remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.steps)
-                             appWidM.updateAppWidget(intArrayOf(R.id.tx_activity_state, R.id.imgv_steps), remoteViews)
+
                          } else if (presentActivityState == "INVEHICLE") {
-                             ActivityTransitionReceiver().speedTracking()
+                          //   ActivityTransitionReceiver().speedTracking()
                              remoteViews?.setTextViewText(R.id.tx_activity_state, "IN A VEHICLE")
                              remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.in_a_vehicle)
-                             appWidM.updateAppWidget(intArrayOf(R.id.tx_activity_state, R.id.imgv_steps), remoteViews)
                          }
+
+                    appWidM.partiallyUpdateAppWidget(R.id.tx_activity_state, remoteViews)
+                    appWidM.partiallyUpdateAppWidget(R.id.imgv_steps, remoteViews)
                 }
             }
         }
@@ -85,13 +93,13 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                         val speedInKmph = (speedInMps * 3.6).toInt()
 
                         speedR(speedInKmph.toString())
-                    } else speedR("0.0")
+                    }
 
                 }
             }
 
         StepsService.locationManager.requestLocationUpdates(
-            LocationManager.FUSED_PROVIDER,
+            LocationManager.GPS_PROVIDER,
             0,
             0f,
             locationListenerSpeed
@@ -106,12 +114,16 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
             speed = strSpeed.split(".")[0].trim().toInt()
         else speed = strSpeed.trim().toInt()
 
-        if (speed > 5)
-        remoteViews?.setTextViewText(R.id.tx_speed, strSpeed + " Kmph")
-        else remoteViews?.setTextViewText(R.id.tx_speed, "")
-
-        appWidM.updateAppWidget(R.id.tx_speed, remoteViews)
+        if (speed > 5) {
+            remoteViews?.setTextViewText(R.id.tx_speed, speed.toString() + " KmpH")
+            appWidM.partiallyUpdateAppWidget(R.id.tx_speed, remoteViews)
+        } else {
+            remoteViews?.setTextViewText(R.id.tx_speed, "")
+            appWidM.partiallyUpdateAppWidget(R.id.tx_speed, remoteViews)
+        }
     }
+
+
 
 
     // types of activities
