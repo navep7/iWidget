@@ -1848,7 +1848,6 @@ class NewAppWidget : AppWidgetProvider() {
             } else if (formattedDate != dfDate.format(c) + postFixDate + " " + dfMonth.format(c)) {
 
                 //AnotherDay...
-                makeToast(widgetContext, "AnotherDay... $formattedDate : ${dfDate.format(c) + postFixDate + " " + dfMonth.format(c)}")
                 appUsageStats(widgetContext)
                 if (day == "Mon") {
                     stepsData.clear()
