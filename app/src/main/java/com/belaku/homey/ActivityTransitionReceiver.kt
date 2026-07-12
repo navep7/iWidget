@@ -15,6 +15,7 @@ import android.os.Looper
 import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.annotation.RequiresPermission
+import androidx.core.content.ContextCompat
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
@@ -47,6 +48,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
 
                          if (presentActivityState == "STILL") {
+                             stopSpeedService()
                         //     if (isLocationManagerInitialized())
                         //     StepsService.locationManager.removeUpdates(locationListenerSpeed)
                              remoteViews?.setTextViewText(R.id.tx_speed, "")
@@ -55,6 +57,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                              remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.still)
 
                          } else if (presentActivityState == "WALKING") {
+                             stopSpeedService()
                           //   ActivityTransitionReceiver().speedTracking()
                          //    if (isLocationManagerInitialized())
                            //  StepsService.locationManager.removeUpdates(locationListenerSpeed)
@@ -65,6 +68,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
                          } else if (presentActivityState == "INVEHICLE") {
                           //   ActivityTransitionReceiver().speedTracking()
+                             triggerSpeedService()
                              remoteViews?.setTextViewText(R.id.tx_activity_state, "IN A VEHICLE")
                              remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.in_a_vehicle)
                          }
@@ -77,54 +81,16 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
     }
 
 
-
-
-    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-    fun speedTracking() {
-
-        locationListenerSpeed =
-            LocationListener() { location ->
-                run {
-
-                    if (location.hasSpeed()) {
-                        val speedInMps = location.speed // Speed in meters/second
-
-                        // Convert to km/h (optional)
-                        val speedInKmph = (speedInMps * 3.6).toInt()
-
-                        speedR(speedInKmph.toString())
-                    }
-
-                }
-            }
-
-        StepsService.locationManager.requestLocationUpdates(
-            LocationManager.GPS_PROVIDER,
-            0,
-            0f,
-            locationListenerSpeed
-        )
+    private fun stopSpeedService() {
+        val intent = Intent(widgetContext, SpeedService::class.java)
+        widgetContext.stopService(intent)
     }
 
-    private fun speedR(strSpeed: String) {
-
-        var speed = 0
-
-        if (strSpeed.contains("."))
-            speed = strSpeed.split(".")[0].trim().toInt()
-        else speed = strSpeed.trim().toInt()
-
-        if (speed > 5) {
-            remoteViews?.setTextViewText(R.id.tx_speed, speed.toString() + " KmpH")
-            appWidM.partiallyUpdateAppWidget(R.id.tx_speed, remoteViews)
-        } else {
-            remoteViews?.setTextViewText(R.id.tx_speed, "")
-            appWidM.partiallyUpdateAppWidget(R.id.tx_speed, remoteViews)
-        }
+    private fun triggerSpeedService() {
+        val intent = Intent(widgetContext, SpeedService::class.java)
+        // Required for Foreground Services on Android 8.0 (API 26) and above
+        ContextCompat.startForegroundService(widgetContext, intent)
     }
-
-
-
 
     // types of activities
     fun toActivityString(activity: Int): String {

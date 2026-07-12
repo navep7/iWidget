@@ -136,7 +136,10 @@
         </receiver>
 
 
-
+        <service
+            android:name=".SpeedService"
+            android:foregroundServiceType="location"
+            android:exported="false" />
 
         <service
             android:name=".RemoteViewsContactsService"

@@ -217,6 +217,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
 
+
     @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("MissingPermission", "SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)

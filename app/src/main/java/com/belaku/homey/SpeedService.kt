@@ -1,24 +1,21 @@
 package com.belaku.homey
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
+import android.content.Context
 import android.content.Intent
-import android.os.IBinder
-
-import android.Manifest
-
-import android.content.pm.PackageManager
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
-import androidx.core.app.ActivityCompat
-import android.appwidget.AppWidgetManager
-import android.content.ComponentName
-import android.widget.RemoteViews
+import android.os.IBinder
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.belaku.homey.MainActivity.Companion.makeToast
-import com.belaku.homey.NewAppWidget.Companion.appWidM
-import com.belaku.homey.NewAppWidget.Companion.newAppWidget
-import com.belaku.homey.NewAppWidget.Companion.remoteViews
 
 class SpeedService : Service(), LocationListener {
 
@@ -26,35 +23,60 @@ class SpeedService : Service(), LocationListener {
 
     override fun onCreate() {
         super.onCreate()
-        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
-        startLocationUpdates()
-    }
+        startForegroundService()
+        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
-    private fun startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            locationManager.requestLocationUpdates(LocationManager.FUSED_PROVIDER, 2000L, 0f, this)
+        try {
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                2000L, // 2 seconds interval
+                1f,    // 1 meter minimum distance
+                this
+            )
+        } catch (e: SecurityException) {
+            makeToast(applicationContext, "speedEx - ${e.message}")
+            e.printStackTrace()
         }
     }
 
     override fun onLocationChanged(location: Location) {
-        // location.getSpeed() returns speed in meters per second (m/s)
-        val speedMps = location.speed
-        val speedKmh = speedMps * 3.6 // Convert to km/h
+        // location.speed is in m/s, multiply by 3.6 for km/h
+        var speedKmh = location.speed * 3.6
+      //  makeToast(applicationContext, "speedKmh - $speedKmh")
 
-        // Update the App Widget
+        if (speedKmh < 5)
+            speedKmh = 0.0
+        // Broadcast speed to the AppWidgetProvider
+        val intent = Intent(this, NewAppWidget::class.java).apply {
+            action = "ACTION_UPDATE_SPEED"
+            putExtra("EXTRA_SPEED", speedKmh)
+        }
 
-        remoteViews?.setTextViewText(R.id.tx_speed, "${speedKmh.toInt()} KmpH")
-        appWidM.updateAppWidget(newAppWidget, remoteViews)
+        sendBroadcast(intent)
     }
 
-    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-    override fun onProviderEnabled(provider: String) {}
-    override fun onProviderDisabled(provider: String) {}
-
     override fun onDestroy() {
-        super.onDestroy()
         locationManager.removeUpdates(this)
+        super.onDestroy()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
+
+    private fun startForegroundService() {
+        val channelId = "SpeedServiceChannel"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                channelId, "Speed Tracker", NotificationManager.IMPORTANCE_LOW
+            )
+            val manager = getSystemService(NotificationManager::class.java)
+            manager.createNotificationChannel(channel)
+        }
+
+        val notification: Notification = NotificationCompat.Builder(this, channelId)
+            .setContentTitle("Tracking Vehicle Speed")
+            .setContentText("Reading real-time GPS data for widget")
+            .build()
+
+        startForeground(1, notification, FOREGROUND_SERVICE_TYPE_LOCATION)
+    }
 }

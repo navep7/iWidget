@@ -122,6 +122,7 @@ import java.util.Locale
 class NewAppWidget : AppWidgetProvider() {
 
 
+    private var speedReading: String = ""
     private var boolKm: Boolean = false
     private lateinit var cName: String
     private val TAG: String = "NewAppWidget"
@@ -691,6 +692,14 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setUI() {
 
+
+        if (speedReading != "0.0")
+            if (speedReading.contains(".")) {
+                speedReading = speedReading.split(".")[0] + "KmpH"
+                remoteViews?.setTextViewText(R.id.tx_speed, speedReading)
+            }
+        else remoteViews?.setTextViewText(R.id.tx_speed, "")
+
         stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
    //     if (stepsToday < 10) {
             remoteViews?.setTextViewText(
@@ -1115,6 +1124,20 @@ class NewAppWidget : AppWidgetProvider() {
         // TODO Auto-generated method stub
 
         super.onReceive(context, intent)
+
+        if (intent.action == "ACTION_UPDATE_SPEED") {
+            speedReading = intent.getDoubleExtra("EXTRA_SPEED", 0.0).toString()
+
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val ids = appWidgetManager.getAppWidgetIds(
+                android.content.ComponentName(context, NewAppWidget::class.java)
+            )
+
+            for (id in ids) {
+                setUI()
+                setACAdapter()
+            }
+        }
 
         widgetContext = context
 
