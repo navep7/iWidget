@@ -69,6 +69,7 @@ import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
+import com.belaku.homey.MainActivity.Companion.tempKind
 import com.belaku.homey.MainActivity.Companion.weatherIconID
 import com.belaku.homey.MusicActivity.Companion.dataListSongs
 import com.belaku.homey.MusicActivity.Companion.ispDataListInitialized
@@ -663,7 +664,7 @@ class NewAppWidget : AppWidgetProvider() {
             cName = cityname
 
             remoteViews?.setTextViewText(R.id.tx_place, cName)
-            remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "°")
+            remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "° " + tempKind)
             if (weatherIconID.startsWith("5"))
                 remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.rain)
             if (weatherIconID.equals("800"))

@@ -152,7 +152,7 @@ class DialogActivity : AppCompatActivity() {
     private lateinit var txAppName: TextView
     private lateinit var txAppUsageTime: TextView
     private lateinit var vpSteps: ViewPager2
-
+    private lateinit var imgbtnTwConfig: ImageButton
     private lateinit var edtxDialog: EditText
 
     private lateinit var btnOk: Button
@@ -230,6 +230,7 @@ class DialogActivity : AppCompatActivity() {
         llDialog = findViewById<RelativeLayout>(R.id.dialog_layout)
         imgvSongCover = findViewById<ImageView>(R.id.dialog_imgv_cover)
         txTitle = findViewById<TextView>(R.id.tx_dialog_title)
+        imgbtnTwConfig = findViewById<ImageButton>(R.id.tw_config)
         txContent = findViewById<TextView>(R.id.tx_dialog_content)
         txContent.movementMethod = ScrollingMovementMethod()
 
@@ -249,10 +250,12 @@ class DialogActivity : AppCompatActivity() {
 
         if (dialogIntentStr != null) {
 
-            if (dialogIntentStr == "stepsInfo")
+            if (dialogIntentStr == "stepsInfo") {
                 stepsMapsAdapter(stepsData)
+            }
 
             if (dialogIntentStr == "SongCover") {
+                txTitle.visibility = View.GONE
                 edtxDialog.visibility = View.GONE
                 btnOk.visibility = View.GONE
                 btnCancel.visibility = View.GONE
@@ -352,6 +355,7 @@ class DialogActivity : AppCompatActivity() {
                 btnOk.visibility = View.GONE
                 btnCancel.visibility = View.GONE
                 vpSteps.visibility = View.GONE
+                txTitle.visibility = View.GONE
                 txTitle.setText("Speech to Text")
                 txContent.setText("listening...")
 
@@ -378,27 +382,22 @@ class DialogActivity : AppCompatActivity() {
                 })
 
             } else if (dialogIntentStr == "ST") {
-
                 edtxDialog.visibility = View.GONE
                 btnOk.visibility = View.GONE
+                imgbtnTwConfig.visibility = View.VISIBLE
                 btnCancel.visibility = View.GONE
                 imgbtnShare.visibility = View.GONE
                 txTitle.setText(twitterProfileName)
                 txTitle.visibility = View.VISIBLE
 
-                parentLayout = findViewById(android.R.id.content);
-                val snackbar =  Snackbar.make(
-                    parentLayout,
-                    "${listTweets[Random.nextInt(0, listTweets.size)]}",
-                    Snackbar.LENGTH_INDEFINITE
-                )
+                // Fix: Show tweet in txContent instead of a Snackbar to avoid overlapping
+                if (listTweets.isNotEmpty()) {
+                    txContent.visibility = View.VISIBLE
+                    txContent.text = listTweets[Random.nextInt(0, listTweets.size)]
+                }
 
-                findViewById<ImageButton>(R.id.tw_config).setOnClickListener {
-                    Snackbar.make(
-                        parentLayout,
-                        "Paid Feature, coming soon!",
-                        Snackbar.LENGTH_SHORT
-                    ).show()
+                imgbtnTwConfig.setOnClickListener {
+                    makeToast(applicationContext, "Paid Feature, coming soon!")
                     txTitle.setText("Twitter")
                     txContent.visibility = View.INVISIBLE
                     edtxDialog.visibility = View.VISIBLE
@@ -408,7 +407,7 @@ class DialogActivity : AppCompatActivity() {
                     btnOk.setText("Set")
                     btnOk.setOnClickListener(View.OnClickListener {
                         boolFetchingTweets = true
-                        if (edtxDialog.text.toString().equals("Fact")) {
+                        if (edtxDialog.text.toString() == "Fact") {
                             twitterProfileName = "Fact"
                             listTweets.clear()
                             rawTweets(false)
@@ -417,12 +416,6 @@ class DialogActivity : AppCompatActivity() {
                         }
                     })
                 }
-
-                val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-                textView?.maxLines = 10
-
-                snackbar.show()
-
             } else if (dialogIntentStr == "STH") {
                 llDialog.visibility = View.GONE
                 Snackbar.make(parentLayoutDialog, "Paid Feature!", Snackbar.LENGTH_LONG)
@@ -465,6 +458,7 @@ class DialogActivity : AppCompatActivity() {
                 );
 
                 txTitle.setText("Steps...")
+                imgbtnTwConfig.visibility = View.GONE
                 txContent.visibility = View.GONE
                 edtxDialog.visibility = View.GONE
                 btnOk.visibility = View.GONE
@@ -528,18 +522,6 @@ class DialogActivity : AppCompatActivity() {
                         hashSetAppUsage.remove(i)
                     }
                 }
-
-                findViewById<TextView>(R.id.tx_heading).setText( "Screen Time Analysis : Based on App Usage stats from a Week(" + "${
-                    beginCal.get(
-                        Calendar.DAY_OF_MONTH
-                    )
-                }/${beginCal.get(Calendar.MONTH) + 1}/${beginCal.get(Calendar.YEAR)} : " +
-                        "${endCal.get(Calendar.DAY_OF_MONTH)}/${endCal.get(Calendar.MONTH) + 1}/${
-                            endCal.get(
-                                Calendar.YEAR
-                            )
-                        })" + ", below is the App usage data, every day (mm:ss)..  \n\n")
-
 
 
                 txAppName.append("Most Used Apps.\n")
@@ -753,7 +735,7 @@ class DialogActivity : AppCompatActivity() {
                         SetWallWorker.setWall(true, dialogActContext)
                     }.start()
 
-                    dialogAct.dismiss()
+                    finish()
                 }
             } else if (dialogIntentStr == "AccessibilityPermDialog") {
                 llDialog.visibility = View.INVISIBLE
