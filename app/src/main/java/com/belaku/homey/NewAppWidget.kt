@@ -142,6 +142,8 @@ class NewAppWidget : AppWidgetProvider() {
         widgetContext = context!!
         onEn = true
 
+        appUsageStats(widgetContext)
+
         sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
@@ -151,12 +153,8 @@ class NewAppWidget : AppWidgetProvider() {
                     if (Intent.ACTION_USER_PRESENT == intent.action) {
 
                             widgetContext = context
-
-
-
                             recognizeActivityTransitions()
                             setUI()
-
                             setACAdapter()
 
                             setOnClickPendingIntents(context)
@@ -186,8 +184,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         recognizeActivityTransitions()
 
-   //     appUsageStats(context)
-   //     getFavoriteContacts()
+
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -692,6 +689,7 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setUI() {
 
+        locationTxUpdate(widgetContext)
 
         if (speedReading != "0.0")
             if (speedReading.contains(".")) {
@@ -701,31 +699,13 @@ class NewAppWidget : AppWidgetProvider() {
         else remoteViews?.setTextViewText(R.id.tx_speed, "")
 
         stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
-   //     if (stepsToday < 10) {
+
             remoteViews?.setTextViewText(
                 R.id.tx_steps,
                 "$stepsToday Steps"
             )
             sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
 
-        if(stepsToday < 131) {
-            if (stepsToday % 10 == 0) {
-                remoteViews?.setTextViewText(
-                    R.id.tx_steps,
-                    "$stepsToday steps"
-                )
-                sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
-            }
-        } else if (stepsToday % 131 == 0) {
-
-            remoteViews?.setTextViewText(
-                R.id.tx_steps,
-                "${String.format("%.1f",  (Integer.parseInt(stepsToday.toString()) * 74f) / 100000f)} km"
-            )
-            sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
-        }
-
-    //    remoteViews?.setTextViewText(R.id.tx_steps, "${sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)} Steps")
 
         if (hour != 0) {
             remoteViews?.setTextViewText(
@@ -1219,8 +1199,6 @@ class NewAppWidget : AppWidgetProvider() {
             appWidM.updateAppWidget(newAppWidget, remoteViews)
             StepsService.getWeatherData(LatLng(cityLat, cityLng))
 
-        } else if (SPEED_CHECK == intent.action) {
-            makeToast(widgetContext, speedInKmph.toString())
         } else if (PLAYPAUSE_CLICK == intent.action) {
             if (boolMusicServiceRunning) {
                 try {

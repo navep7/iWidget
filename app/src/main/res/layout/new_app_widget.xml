@@ -183,7 +183,7 @@
                     android:layout_marginTop="@dimen/padding_5"
                     android:text="Place Info.."
                     android:textColor="@android:color/white"
-                    android:textSize="15sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
 
                 <FrameLayout
@@ -194,8 +194,9 @@
                     <ImageButton
                         android:id="@+id/imgv_map_icon"
                         android:layout_gravity="center"
-                        android:layout_width="75dp"
-                        android:layout_height="75dp"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_marginBottom="@dimen/padding_10"
                         android:background="@android:color/transparent"
                         android:scaleType="fitXY"
                         android:src="@drawable/map_logo" />
@@ -203,9 +204,9 @@
 
                     <TextView
                         android:id="@+id/tx_open_maps"
-                        android:layout_gravity="top|center"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="top|center"
                         android:text="⚲"
                         android:textColor="@android:color/holo_green_light"
                         android:textSize="25sp"
@@ -552,7 +553,7 @@
         android:maxLines="3"
         android:orientation="horizontal"
         android:padding="7dp"
-        android:text=" Pin a Note! "
+        android:text=" Pin a Note! ✏️ "
         android:textColor="@android:color/white"
         android:textStyle="bold" />
 

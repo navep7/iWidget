@@ -49,25 +49,17 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
                          if (presentActivityState == "STILL") {
                              stopSpeedService()
-                        //     if (isLocationManagerInitialized())
-                        //     StepsService.locationManager.removeUpdates(locationListenerSpeed)
                              remoteViews?.setTextViewText(R.id.tx_speed, "")
                              appWidM.partiallyUpdateAppWidget(R.id.tx_speed, remoteViews)
                              remoteViews?.setTextViewText(R.id.tx_activity_state, "STILL")
                              remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.still)
 
                          } else if (presentActivityState == "WALKING") {
-                             stopSpeedService()
-                          //   ActivityTransitionReceiver().speedTracking()
-                         //    if (isLocationManagerInitialized())
-                           //  StepsService.locationManager.removeUpdates(locationListenerSpeed)
-                             remoteViews?.setTextViewText(R.id.tx_speed, "")
-                             appWidM.partiallyUpdateAppWidget(R.id.tx_speed, remoteViews)
+                             triggerSpeedService()
                              remoteViews?.setTextViewText(R.id.tx_activity_state, "WALKING")
                              remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.steps)
 
                          } else if (presentActivityState == "INVEHICLE") {
-                          //   ActivityTransitionReceiver().speedTracking()
                              triggerSpeedService()
                              remoteViews?.setTextViewText(R.id.tx_activity_state, "IN A VEHICLE")
                              remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.in_a_vehicle)

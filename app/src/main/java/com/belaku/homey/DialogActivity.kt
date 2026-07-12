@@ -379,91 +379,49 @@ class DialogActivity : AppCompatActivity() {
 
             } else if (dialogIntentStr == "ST") {
 
+                edtxDialog.visibility = View.GONE
+                btnOk.visibility = View.GONE
+                btnCancel.visibility = View.GONE
+                imgbtnShare.visibility = View.GONE
+                txTitle.setText(twitterProfileName)
+                txTitle.visibility = View.VISIBLE
+
                 parentLayout = findViewById(android.R.id.content);
-                Snackbar.make(
+                val snackbar =  Snackbar.make(
                     parentLayout,
-                    "Showing Tweets from $twitterProfileName",
-                    Snackbar.LENGTH_SHORT
+                    "${listTweets[Random.nextInt(0, listTweets.size)]}",
+                    Snackbar.LENGTH_INDEFINITE
                 )
-                    .setAction("Customize") { view ->
-                        // Code to undo the user's last action
-                        // For example, showing another snackbar:
-                        Snackbar.make(
-                            parentLayout,
-                            "Paid Feature, coming soon!",
-                            Snackbar.LENGTH_SHORT
-                        ).show()
-                        txTitle.setText("Twitter")
-                        txContent.visibility = View.INVISIBLE
-                        edtxDialog.visibility = View.VISIBLE
-                        vpSteps.visibility = View.GONE
-                        imgbtnShare.visibility = View.GONE
-                        btnOk.visibility = View.VISIBLE
-                        btnOk.setText("Set")
-                        btnOk.setOnClickListener(View.OnClickListener {
-                            boolFetchingTweets = true
-                            if (edtxDialog.text.toString().equals("Fact")) {
-                                twitterProfileName = "Fact"
-                                listTweets.clear()
-                                rawTweets(false)
-                            } else {
-                                getTweetID(edtxDialog.text.toString())
-                            }
-                            //   llDialog.visibility = View.GONE
-                        })
 
-                    }
-                    .setActionTextColor(
-                        resources.getColor(
-                            android.R.color.holo_red_dark,
-                            theme
-                        )
-                    ) // Optional: set custom color
-                    .show()
-
-
-
-                if (boolFetchingTweets) {
-                    Handler(Looper.getMainLooper()).postDelayed( {
-                        tW = listTweets[Random.nextInt(0, listTweets.size)]
-                        edtxDialog.visibility = View.GONE
-                        btnOk.visibility = View.GONE
-                        btnCancel.visibility = View.GONE
-                        vpSteps.visibility = View.GONE
-                        txContent.visibility = View.VISIBLE
-                        imgbtnShare.visibility = View.VISIBLE
-                        txTitle.setText(twitterProfileName)
-                        txContent.setText(tW)
-                        imgbtnShare.setOnClickListener(View.OnClickListener {
-                            startActivity(
-                                Intent.createChooser(
-                                    Intent(Intent.ACTION_SEND).setType("text/plain")
-                                        .putExtra(Intent.EXTRA_TEXT, tW)
-                                        .putExtra(Intent.EXTRA_SUBJECT, "Sharing via nHome!"),
-                                    "Share via..."
-                                )
-                            )
-                        })
-                    }, 3000)
-                } else if (listTweets.size > 0) {
-                    tW = listTweets[Random.nextInt(0, listTweets.size)]
-                    edtxDialog.visibility = View.GONE
-                    btnOk.visibility = View.GONE
-                    btnCancel.visibility = View.GONE
+                findViewById<ImageButton>(R.id.tw_config).setOnClickListener {
+                    Snackbar.make(
+                        parentLayout,
+                        "Paid Feature, coming soon!",
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                    txTitle.setText("Twitter")
+                    txContent.visibility = View.INVISIBLE
+                    edtxDialog.visibility = View.VISIBLE
                     vpSteps.visibility = View.GONE
-                    txTitle.setText(twitterProfileName)
-                    txContent.setText(tW)
-                    imgbtnShare.setOnClickListener(View.OnClickListener {
-                        startActivity(
-                            Intent.createChooser(
-                                Intent(Intent.ACTION_SEND).setType("text/plain")
-                                    .putExtra(Intent.EXTRA_TEXT, tW)
-                                    .putExtra(Intent.EXTRA_SUBJECT, "Sharing via nHome!"),
-                                "Share via..."
-                            )
-                        )
+                    imgbtnShare.visibility = View.GONE
+                    btnOk.visibility = View.VISIBLE
+                    btnOk.setText("Set")
+                    btnOk.setOnClickListener(View.OnClickListener {
+                        boolFetchingTweets = true
+                        if (edtxDialog.text.toString().equals("Fact")) {
+                            twitterProfileName = "Fact"
+                            listTweets.clear()
+                            rawTweets(false)
+                        } else {
+                            getTweetID(edtxDialog.text.toString())
+                        }
                     })
-                } else rawTweets(false)
+                }
+
+                val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+                textView?.maxLines = 10
+
+                snackbar.show()
 
             } else if (dialogIntentStr == "STH") {
                 llDialog.visibility = View.GONE
@@ -472,22 +430,6 @@ class DialogActivity : AppCompatActivity() {
                     }
                     .show()
 
-
-                /* txTitle.setText("Twitter")
-                 txContent.visibility = View.INVISIBLE
-                 edtxDialog.visibility = View.VISIBLE
-                 vpSteps.visibility = View.GONE
-                 imgbtnShare.visibility = View.GONE
-                 btnOk.setText("Set")
-                 btnOk.setOnClickListener(View.OnClickListener {
-                     if (edtxDialog.text.toString().equals("Fact")) {
-                         twitterProfileName = "Fact"
-                         listTweets.clear()
-                         rawTweets(false)
-                     } else {
-                         getTweetID(edtxDialog.text.toString(), false)
-                     }
-                 })*/
             } else if (dialogIntentStr == "BLUEEnable") {
                 blE = true
                 llDialog.visibility = View.GONE
@@ -811,8 +753,7 @@ class DialogActivity : AppCompatActivity() {
                         SetWallWorker.setWall(true, dialogActContext)
                     }.start()
 
-                    llDialog.visibility = View.GONE
-                    //  appWidM.updateAppWidget(newAppWidget, remoteViews)
+                    dialogAct.dismiss()
                 }
             } else if (dialogIntentStr == "AccessibilityPermDialog") {
                 llDialog.visibility = View.INVISIBLE
