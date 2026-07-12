@@ -785,7 +785,7 @@ class NewAppWidget : AppWidgetProvider() {
         seekWifiState()
         seekBluetoothState()
         todaysDate()
-        locationTxUpdate(widgetContext)
+        loadStepsData() // Always refresh stepsData from disk to ensure persistence
         wallColors()
         setSomeTwAndWallDescUI()
 
@@ -1807,6 +1807,16 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
 
+        fun loadStepsData() {
+            stepsData.clear()
+            val days = listOf("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY")
+            val currentDay = LocalDate.now().dayOfWeek.name
+            for (dayKey in days) {
+                val count = if (dayKey == currentDay) stepsToday else sharedPreferences.getInt(dayKey, 0)
+                stepsData.add(count.toString())
+            }
+        }
+
 
         fun todaysDate() {
 
@@ -1837,82 +1847,47 @@ class NewAppWidget : AppWidgetProvider() {
                 }
             }
 
-            var day = SimpleDateFormat("EEE", Locale.getDefault()).format(c)
-
-            if (day == "Mon") {
-
-                stepsData.clear()
-                stepsData.add(sharedPreferences.getInt("Monday", stepsToday).toString())
-                stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
-                stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
-                stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
-                stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
-                stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
-                stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
-
-                for (i in arrayListHabits) {
-                    i.isChecked = false
-                    sharedPreferencesEditor.putBoolean("${i.name}StateSu", false).apply()
-                 //   sharedPreferencesEditor.putBoolean("${i.name}StateM", false).apply()
-                    sharedPreferencesEditor.putBoolean("${i.name}StateTu", false).apply()
-                    sharedPreferencesEditor.putBoolean("${i.name}StateW", false).apply()
-                    sharedPreferencesEditor.putBoolean("${i.name}StateTh", false).apply()
-                    sharedPreferencesEditor.putBoolean("${i.name}StateF", false).apply()
-                    sharedPreferencesEditor.putBoolean("${i.name}StateS", false).apply()
-                }
-                if (isadapterHabitsInitialized())
-                adapterHabits.notifyDataSetChanged()
-
-
-            }
+            val now = LocalDate.now()
+            val dayName = now.dayOfWeek.name
 
             if (!::formattedDate.isInitialized) {
                 formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
+                loadStepsData()
             } else if (formattedDate != dfDate.format(c) + postFixDate + " " + dfMonth.format(c)) {
 
-                //AnotherDay...
+                // Midnight transition detected
                 appUsageStats(widgetContext)
-                if (day == "Mon") {
-                    stepsData.clear()
-                    stepsData.add(stepsToday.toString())
-                    stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
-                    stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
-                    stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
-                    stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
-                    stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
-                    stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
-                } else {
-                     if (day == "Tue")
-                        stepsData[0] = stepsToday.toString()
-                    else if (day == "Wed")
-                        stepsData[1] = stepsToday.toString()
-                    else if (day == "Thu")
-                        stepsData[2] = stepsToday.toString()
-                    else if (day == "Fri")
-                        stepsData[3] = stepsToday.toString()
-                    else if (day == "Sat")
-                        stepsData[4] = stepsToday.toString()
-                    else if (day == "Sun")
-                        stepsData[5] = stepsToday.toString()
 
+                // 1. Ensure current count is saved to disk before resetting
+                sharedPreferencesEditor.putInt(dayName, stepsToday).apply()
+
+                // 2. Reset counter for the NEW day
+                stepsToday = 0
+                sharedPreferencesEditor.putInt(dayName, 0).apply()
+                sharedPreferencesEditor.putInt("unlockCount", 0).apply()
+
+                // 3. Weekly reset logic (Monday)
+                if (now.dayOfWeek == java.time.DayOfWeek.MONDAY) {
+                    val days = listOf("TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY")
+                    days.forEach { sharedPreferencesEditor.putInt(it, 0) }
+                    
+                    for (i in arrayListHabits) {
+                        i.isChecked = false
+                        sharedPreferencesEditor.putBoolean("${i.name}StateSu", false).apply()
+                        sharedPreferencesEditor.putBoolean("${i.name}StateTu", false).apply()
+                        sharedPreferencesEditor.putBoolean("${i.name}StateW", false).apply()
+                        sharedPreferencesEditor.putBoolean("${i.name}StateTh", false).apply()
+                        sharedPreferencesEditor.putBoolean("${i.name}StateF", false).apply()
+                        sharedPreferencesEditor.putBoolean("${i.name}StateS", false).apply()
+                    }
+                    if (isadapterHabitsInitialized()) adapterHabits.notifyDataSetChanged()
                 }
 
                 formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
-
-                if (stepsData.isNotEmpty())
-                    if (isStepsAdapterInitialized())
-                        stepsAdapter.notifyDataSetChanged()
-
-
-                stepsToday = 0
-                sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, 0).apply()
-                sharedPreferencesEditor.putInt("unlockCount", 0).apply()
-
-                if (arrayListHabits.size > 0) {
-                    for (i in arrayListHabits)
-                        i.isChecked = false
-                    adapterHabits.notifyDataSetChanged()
-                }
+                
+                // 4. Synchronize the history list and notify adapter
+                loadStepsData()
+                if (isStepsAdapterInitialized()) stepsAdapter.notifyDataSetChanged()
             }
 
 
