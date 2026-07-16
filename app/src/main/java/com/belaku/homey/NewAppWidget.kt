@@ -59,6 +59,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity.RECEIVER_NOT_EXPORTED
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.belaku.homey.Constants.Companion.stepsToday
@@ -96,6 +97,7 @@ import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.belaku.homey.StepsService.Companion.choosenApps
+import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.belaku.homey.StepsService.Companion.isStepsAdapterInitialized
 import com.belaku.homey.StepsService.Companion.speedInKmph
 import com.belaku.homey.StepsService.Companion.stepsAdapter
@@ -154,7 +156,6 @@ class NewAppWidget : AppWidgetProvider() {
                     if (Intent.ACTION_USER_PRESENT == intent.action) {
 
                             widgetContext = context
-                            recognizeActivityTransitions()
                             setUI()
                             setACAdapter()
 
@@ -294,7 +295,6 @@ class NewAppWidget : AppWidgetProvider() {
 
             widgetContext = context
 
-            recognizeActivityTransitions()
             setUI()
 
        //     if (!Constants.boolACadapterSet) {
@@ -368,7 +368,7 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.tx_speed,
+            R.id.imgbtn_speed,
             getPendingSelfIntent(context, SPEED_CHECK)
         )
 
@@ -1130,8 +1130,6 @@ class NewAppWidget : AppWidgetProvider() {
         sharedPreferencesEditor = sharedPreferences.edit()
 
         setUI()
-      //  setACAdapter()
-
         handleIntentActions(intent)
 
 
@@ -1194,6 +1192,22 @@ class NewAppWidget : AppWidgetProvider() {
                 powerUsageIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 widgetContext.startActivity(powerUsageIntent)
             }
+        } else if(SPEED_CHECK == intent.action) {
+
+            if (isMyServiceRunning(widgetContext, SpeedService::class.java)) {
+                if(widgetContext.stopService(Intent(widgetContext, SpeedService::class.java))) {
+                    makeToast(widgetContext, " ⃠")
+                    remoteViews?.setImageViewResource(R.id.imgbtn_speed, R.drawable.start_speedservice)
+                    }
+            } else {
+                remoteViews?.setImageViewResource(R.id.imgbtn_speed, R.drawable.transparent_bg)
+                    widgetContext.startForegroundService(
+                    Intent(
+                        widgetContext,
+                        SpeedService::class.java
+                    ))
+            }
+
         } else if (GET_WEATHER == intent.action) {
             remoteViews?.setViewVisibility(R.id.progressBar_cyclic_weather, View.VISIBLE)
             remoteViews?.setViewVisibility(R.id.tx_refresh_weather, View.INVISIBLE)

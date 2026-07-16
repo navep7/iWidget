@@ -28,14 +28,15 @@ import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
 
+
 class ActivityTransitionReceiver : BroadcastReceiver() {
 
+    private lateinit var applicationContext: Context
+
     override fun onReceive(context: Context, intent: Intent) {
+        applicationContext = context.applicationContext
         appWidM = AppWidgetManager.getInstance(context)
-        remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget).apply {
-            setTextViewText(R.id.tx_activity_state, StepsService.presentActivityState)
-            setImageViewResource(R.id.imgv_steps, StepsService.presentActivityStateImage)
-        }
+        remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
         newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
         if (ActivityTransitionResult.hasResult(intent)) {
@@ -46,43 +47,42 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
                     presentActivityState = toActivityString(event.activityType).trim()
 
-
-                         if (presentActivityState == "STILL") {
-                             stopSpeedService()
-                             remoteViews?.setTextViewText(R.id.tx_speed, "")
-                             appWidM.partiallyUpdateAppWidget(R.id.tx_speed, remoteViews)
-                             remoteViews?.setTextViewText(R.id.tx_activity_state, "STILL")
-                             remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.still)
-
-                         } else if (presentActivityState == "WALKING") {
-                             triggerSpeedService()
-                             remoteViews?.setTextViewText(R.id.tx_activity_state, "WALKING")
-                             remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.steps)
-
-                         } else if (presentActivityState == "INVEHICLE") {
-                             triggerSpeedService()
-                             remoteViews?.setTextViewText(R.id.tx_activity_state, "IN A VEHICLE")
-                             remoteViews?.setImageViewResource(R.id.imgv_steps, R.drawable.in_a_vehicle)
-                         }
-
-                    appWidM.partiallyUpdateAppWidget(R.id.tx_activity_state, remoteViews)
-                    appWidM.partiallyUpdateAppWidget(R.id.imgv_steps, remoteViews)
+                    updateActivityState(presentActivityState)
                 }
             }
         }
     }
 
 
-    private fun stopSpeedService() {
-        val intent = Intent(widgetContext, SpeedService::class.java)
-        widgetContext.stopService(intent)
+    private fun updateActivityState(presentActivityState: String) {
+
+    //    makeToast(applicationContext, presentActivityState)
+
+        // Define your specific widget component and the Context
+        val provider = ComponentName(applicationContext, NewAppWidget::class.java)
+        val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
+
+
+        // Create the RemoteViews object targeting your widget's XML layout
+        val remoteViews = RemoteViews(applicationContext.getPackageName(), R.layout.new_app_widget)
+
+        if (presentActivityState == "STILL") {
+            remoteViews.setTextViewText(R.id.tx_activity_state, "STILL")
+            remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.still)
+        } else if (presentActivityState == "WALKING") {
+            remoteViews.setTextViewText(R.id.tx_activity_state, "WALKING")
+            remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.steps)
+        } else if (presentActivityState == "INVEHICLE") {
+            remoteViews.setTextViewText(R.id.tx_activity_state, "IN A VEHICLE")
+            remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.in_a_vehicle)
+        }
+
+
+        // Push the update for all instances of the widget
+        appWidgetManager.updateAppWidget(provider, remoteViews)
+
     }
 
-    private fun triggerSpeedService() {
-        val intent = Intent(widgetContext, SpeedService::class.java)
-        // Required for Foreground Services on Android 8.0 (API 26) and above
-        ContextCompat.startForegroundService(widgetContext, intent)
-    }
 
     // types of activities
     fun toActivityString(activity: Int): String {

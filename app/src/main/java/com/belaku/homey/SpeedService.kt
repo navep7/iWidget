@@ -17,6 +17,7 @@ import android.widget.RemoteViews
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.NewAppWidget.Companion.widgetContext
 
 
 class SpeedService : Service(), LocationListener {
@@ -27,7 +28,7 @@ class SpeedService : Service(), LocationListener {
         super.onCreate()
         startForegroundService()
 
-        makeToast(applicationContext, "sp33D !onCreate")
+        makeToast(applicationContext, "⚡")
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         try {
@@ -60,21 +61,21 @@ class SpeedService : Service(), LocationListener {
         // Define your specific widget component and the Context
         val provider: ComponentName = ComponentName(applicationContext, NewAppWidget::class.java)
         val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
-        val appWidgetIds = appWidgetManager.getAppWidgetIds(provider)
 
 
-// Create the RemoteViews object targeting your widget's XML layout
-        val views: RemoteViews = RemoteViews(applicationContext.getPackageName(), R.layout.new_app_widget)
+        // Create the RemoteViews object targeting your widget's XML layout
+        val views = RemoteViews(applicationContext.getPackageName(), R.layout.new_app_widget)
+
+        // Update only the speed TextView with the new text
 
         if (speedKmh < 5.0)
             views.setTextViewText(R.id.tx_speed, "")
         else views.setTextViewText(R.id.tx_speed, String.format("%.1f", speedKmh) + " KmpH")
 
-// Update only the speed TextView with the new text
 
 
 
-// Push the update for all instances of the widget
+        // Push the update for all instances of the widget
         appWidgetManager.updateAppWidget(provider, views)
 
     }
