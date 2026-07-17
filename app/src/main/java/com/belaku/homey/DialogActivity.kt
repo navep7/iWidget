@@ -382,6 +382,8 @@ class DialogActivity : AppCompatActivity() {
                 })
 
             } else if (dialogIntentStr == "ST") {
+
+                makeSnack("Showing Tweets of Fact")
                 edtxDialog.visibility = View.GONE
                 btnOk.visibility = View.GONE
                 imgbtnTwConfig.visibility = View.VISIBLE
@@ -1137,7 +1139,7 @@ class DialogActivity : AppCompatActivity() {
 
                     if (tw.optString("itemContent").isNotEmpty()) {
                         val actTw = tw.getJSONObject("itemContent").getJSONObject("tweet_results")
-                            .getJSONObject("result").getJSONObject("legacy").get("full_text")
+                            .getJSONObject("result")//.getJSONObject("legacy").get("full_text")
 
                         Log.d("Twwtt $i", actTw.toString())
                         listTweets.add(actTw.toString())

@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/dialog_layout"
+    android:background="@drawable/gradient_glass_rounded_ss"
     android:adjustViewBounds="true"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"

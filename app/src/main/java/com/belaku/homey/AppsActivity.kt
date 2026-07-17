@@ -74,15 +74,6 @@ class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         } catch (ex: Exception) {
 
         }
-       /* val blurRadius = 20.0f
-        val blurEffect = RenderEffect.createBlurEffect(
-            blurRadius,
-            blurRadius,
-            Shader.TileMode.CLAMP
-        )
-        rootLayout.setRenderEffect(blurEffect);*/
-
-
     }
 
     private fun applyThinFilmOverlay(
