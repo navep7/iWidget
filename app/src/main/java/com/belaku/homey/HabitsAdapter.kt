@@ -28,8 +28,12 @@ class HabitsAdapter(context: Context, data: List<Habit>) :
         val textView = listItemView!!.findViewById<TextView>(R.id.item_text_name)
         textView.text = "${(position + 1)}. ${currentItem?.name}"
 
-        val textViewStreak = listItemView!!.findViewById<TextView>(R.id.item_text_streak)
+        val textViewStreak = listItemView.findViewById<TextView>(R.id.item_text_streak)
         textViewStreak.bringToFront()
+        
+        // Show streak count
+        val streak = currentItem?.streak ?: 0
+        textViewStreak.text = if (streak > 0) "🔥 $streak" else ""
 
 
         val checkBox = listItemView.findViewById<CheckBox>(R.id.item_checkbox)
@@ -78,37 +82,30 @@ class HabitsAdapter(context: Context, data: List<Habit>) :
 
         when (suState) {
             "✓" -> textViewSu.setTextColor(Color.GREEN)
-            "x" -> textViewSu.setTextColor(Color.RED)
             else -> textViewSu.setTextColor(Color.BLACK)
         }
         when (mState) {
             "✓" -> textViewM.setTextColor(Color.GREEN)
-            "x" -> textViewM.setTextColor(Color.RED)
             else -> textViewM.setTextColor(Color.BLACK)
         }
         when (tuState) {
             "✓" -> textViewTu.setTextColor(Color.GREEN)
-            "x" -> textViewTu.setTextColor(Color.RED)
             else -> textViewTu.setTextColor(Color.BLACK)
         }
         when (wState) {
             "✓" -> textViewW.setTextColor(Color.GREEN)
-            "x" -> textViewW.setTextColor(Color.RED)
             else -> textViewW.setTextColor(Color.BLACK)
         }
         when (thState) {
             "✓" -> textViewTh.setTextColor(Color.GREEN)
-            "x" -> textViewTh.setTextColor(Color.RED)
             else -> textViewTh.setTextColor(Color.BLACK)
         }
         when (fState) {
             "✓" -> textViewF.setTextColor(Color.GREEN)
-            "x" -> textViewF.setTextColor(Color.RED)
             else -> textViewF.setTextColor(Color.BLACK)
         }
         when (sState) {
             "✓" -> textViewS.setTextColor(Color.GREEN)
-            "x" -> textViewS.setTextColor(Color.RED)
             else -> textViewS.setTextColor(Color.BLACK)
         }
 

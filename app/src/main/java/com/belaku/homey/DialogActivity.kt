@@ -73,6 +73,7 @@ import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.NewAppWidget.Companion.totalScreenTimeInHours
 import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
+import com.belaku.homey.SetWallWorker.Companion.getFavoriteContacts
 import com.belaku.homey.SetWallWorker.Companion.hour
 import com.belaku.homey.SetWallWorker.Companion.pinNote
 import com.belaku.homey.SetWallWorker.Companion.screenHeight
@@ -114,17 +115,17 @@ import kotlin.random.Random
 
 class DialogActivity : AppCompatActivity() {
 
+    private lateinit var dialogAct: AlertDialog
     private var boolFetchingTweets: Boolean = false
     private lateinit var dialogActContext: Context
     private lateinit var parentLayoutDialog: View
     private val barcodeLauncher =
         registerForActivityResult(ScanContract()) { result: ScanIntentResult? ->
             if (result?.contents == null) {
-                // makeToast("Cancelled")
+
             } else {
                 // Handle the scan result
                 var scannedUrl = result.contents
-                // makeToast("Scanned: ${result}")
                 val upiUri = Uri.parse(scannedUrl)
                 val upiIntent = Intent(Intent.ACTION_VIEW)
                 upiIntent.setData(upiUri)
@@ -133,7 +134,7 @@ class DialogActivity : AppCompatActivity() {
                     startActivity(chooser);
                 } else {
                     // Handle the case where no UPI apps are installed
-                    // makeToast("No UPI app found. Please install one to proceed.")
+                     makeToast(applicationContext, "No UPI app found. Please install one to proceed.")
                 }
             }
         }
@@ -151,7 +152,7 @@ class DialogActivity : AppCompatActivity() {
     private lateinit var txAppName: TextView
     private lateinit var txAppUsageTime: TextView
     private lateinit var vpSteps: ViewPager2
-
+    private lateinit var imgbtnTwConfig: ImageButton
     private lateinit var edtxDialog: EditText
 
     private lateinit var btnOk: Button
@@ -229,6 +230,7 @@ class DialogActivity : AppCompatActivity() {
         llDialog = findViewById<RelativeLayout>(R.id.dialog_layout)
         imgvSongCover = findViewById<ImageView>(R.id.dialog_imgv_cover)
         txTitle = findViewById<TextView>(R.id.tx_dialog_title)
+        imgbtnTwConfig = findViewById<ImageButton>(R.id.tw_config)
         txContent = findViewById<TextView>(R.id.tx_dialog_content)
         txContent.movementMethod = ScrollingMovementMethod()
 
@@ -248,12 +250,12 @@ class DialogActivity : AppCompatActivity() {
 
         if (dialogIntentStr != null) {
 
-            if (dialogIntentStr == "stepsInfo")
+            if (dialogIntentStr == "stepsInfo") {
                 stepsMapsAdapter(stepsData)
+            }
 
             if (dialogIntentStr == "SongCover") {
-                //     // makeToast("yet2Impl")
-            //    llDialog.setBackgroundColor(android.R.color.transparent)
+                txTitle.visibility = View.GONE
                 edtxDialog.visibility = View.GONE
                 btnOk.visibility = View.GONE
                 btnCancel.visibility = View.GONE
@@ -268,7 +270,7 @@ class DialogActivity : AppCompatActivity() {
                         .into(imgvSongCover)
                     Picasso.get()
                         .load(dataListSongs[songIndex].album.cover)
-                        .into(remoteViews!!, R.id.imgv_albumcover, NewAppWidget.i_appWidgetIds)
+                        .into(remoteViews!!, R.id.imgbtn_albumcover, NewAppWidget.i_appWidgetIds)
 
 
                 }
@@ -298,7 +300,7 @@ class DialogActivity : AppCompatActivity() {
 
             } else if (dialogIntentStr == "AD") {
 
-                makeToast("loading Advertisement, please wait...")
+                makeToast(applicationContext, "loading Advertisement, please wait...")
                 llDialog.visibility = View.GONE
                 RewardedInterstitialAd.load(
                     this,
@@ -306,11 +308,10 @@ class DialogActivity : AppCompatActivity() {
                     AdRequest.Builder().build(),
                     object : RewardedInterstitialAdLoadCallback() {
                         override fun onAdLoaded(rewardedAd: RewardedInterstitialAd) {
-                            // makeToast("Ad was loaded.")
                             rewardedInterstitialAd = rewardedAd
 
                             rewardedInterstitialAd?.show(this@DialogActivity) { rewardItem ->
-                                // makeToast("User earned the reward.")
+
                                 // Handle the reward.
                                 val rewardAmount = rewardItem.amount
                                 val rewardType = rewardItem.type
@@ -325,7 +326,6 @@ class DialogActivity : AppCompatActivity() {
 
                         override fun onAdFailedToLoad(adError: LoadAdError) {
                             dialogActContext = applicationContext
-                            // makeToast("onAdFailedToLoad: ${adError.message}")
                             rewardedInterstitialAd = null
                         }
                     },
@@ -333,7 +333,7 @@ class DialogActivity : AppCompatActivity() {
 
             } else if (dialogIntentStr == "PC") {
                 llDialog.visibility = View.GONE
-                NewAppWidget().getFavoriteContacts()
+                getFavoriteContacts()
                 pickContactLauncher =
                     registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                         if (result.resultCode == Activity.RESULT_OK) {
@@ -348,13 +348,14 @@ class DialogActivity : AppCompatActivity() {
                 try {
                     pickContactLauncher.launch(intent)
                 } catch (ex: Exception) {
-                    // makeToast("Ex - ${ex.message}")
+
                 }
             } else if (dialogIntentStr == "StT") {
                 edtxDialog.visibility = View.GONE
                 btnOk.visibility = View.GONE
                 btnCancel.visibility = View.GONE
                 vpSteps.visibility = View.GONE
+                txTitle.visibility = View.GONE
                 txTitle.setText("Speech to Text")
                 txContent.setText("listening...")
 
@@ -382,92 +383,41 @@ class DialogActivity : AppCompatActivity() {
 
             } else if (dialogIntentStr == "ST") {
 
-                parentLayout = findViewById(android.R.id.content);
-                Snackbar.make(
-                    parentLayout,
-                    "Showing Tweets from $twitterProfileName",
-                    Snackbar.LENGTH_SHORT
-                )
-                    .setAction("Customize") { view ->
-                        // Code to undo the user's last action
-                        // For example, showing another snackbar:
-                        Snackbar.make(
-                            parentLayout,
-                            "Paid Feature, coming soon!",
-                            Snackbar.LENGTH_SHORT
-                        ).show()
-                        txTitle.setText("Twitter")
-                        txContent.visibility = View.INVISIBLE
-                        edtxDialog.visibility = View.VISIBLE
-                        vpSteps.visibility = View.GONE
-                        imgbtnShare.visibility = View.GONE
-                        btnOk.visibility = View.VISIBLE
-                        btnOk.setText("Set")
-                        btnOk.setOnClickListener(View.OnClickListener {
-                            boolFetchingTweets = true
-                            if (edtxDialog.text.toString().equals("Fact")) {
-                                twitterProfileName = "Fact"
-                                listTweets.clear()
-                                rawTweets(false)
-                            } else {
-                                getTweetID(edtxDialog.text.toString())
-                            }
-                            //   llDialog.visibility = View.GONE
-                        })
+                makeSnack("Showing Tweets of Fact")
+                edtxDialog.visibility = View.GONE
+                btnOk.visibility = View.GONE
+                imgbtnTwConfig.visibility = View.VISIBLE
+                btnCancel.visibility = View.GONE
+                imgbtnShare.visibility = View.GONE
+                txTitle.setText(twitterProfileName)
+                txTitle.visibility = View.VISIBLE
 
-                    }
-                    .setActionTextColor(
-                        resources.getColor(
-                            android.R.color.holo_red_dark,
-                            theme
-                        )
-                    ) // Optional: set custom color
-                    .show()
+                // Fix: Show tweet in txContent instead of a Snackbar to avoid overlapping
+                if (listTweets.isNotEmpty()) {
+                    txContent.visibility = View.VISIBLE
+                    txContent.text = listTweets[Random.nextInt(0, listTweets.size)]
+                }
 
-
-
-                if (boolFetchingTweets) {
-                    Handler(Looper.getMainLooper()).postDelayed( {
-                        tW = listTweets[Random.nextInt(0, listTweets.size)]
-                        edtxDialog.visibility = View.GONE
-                        btnOk.visibility = View.GONE
-                        btnCancel.visibility = View.GONE
-                        vpSteps.visibility = View.GONE
-                        txContent.visibility = View.VISIBLE
-                        imgbtnShare.visibility = View.VISIBLE
-                        txTitle.setText(twitterProfileName)
-                        txContent.setText(tW)
-                        imgbtnShare.setOnClickListener(View.OnClickListener {
-                            startActivity(
-                                Intent.createChooser(
-                                    Intent(Intent.ACTION_SEND).setType("text/plain")
-                                        .putExtra(Intent.EXTRA_TEXT, tW)
-                                        .putExtra(Intent.EXTRA_SUBJECT, "Sharing via nHome!"),
-                                    "Share via..."
-                                )
-                            )
-                        })
-                    }, 3000)
-                } else if (listTweets.size > 0) {
-                    tW = listTweets[Random.nextInt(0, listTweets.size)]
-                    edtxDialog.visibility = View.GONE
-                    btnOk.visibility = View.GONE
-                    btnCancel.visibility = View.GONE
+                imgbtnTwConfig.setOnClickListener {
+                    makeToast(applicationContext, "Paid Feature, coming soon!")
+                    txTitle.setText("Twitter")
+                    txContent.visibility = View.INVISIBLE
+                    edtxDialog.visibility = View.VISIBLE
                     vpSteps.visibility = View.GONE
-                    txTitle.setText(twitterProfileName)
-                    txContent.setText(tW)
-                    imgbtnShare.setOnClickListener(View.OnClickListener {
-                        startActivity(
-                            Intent.createChooser(
-                                Intent(Intent.ACTION_SEND).setType("text/plain")
-                                    .putExtra(Intent.EXTRA_TEXT, tW)
-                                    .putExtra(Intent.EXTRA_SUBJECT, "Sharing via nHome!"),
-                                "Share via..."
-                            )
-                        )
+                    imgbtnShare.visibility = View.GONE
+                    btnOk.visibility = View.VISIBLE
+                    btnOk.setText("Set")
+                    btnOk.setOnClickListener(View.OnClickListener {
+                        boolFetchingTweets = true
+                        if (edtxDialog.text.toString() == "Fact") {
+                            twitterProfileName = "Fact"
+                            listTweets.clear()
+                            rawTweets(false)
+                        } else {
+                            getTweetID(edtxDialog.text.toString())
+                        }
                     })
-                } else rawTweets(false)
-
+                }
             } else if (dialogIntentStr == "STH") {
                 llDialog.visibility = View.GONE
                 Snackbar.make(parentLayoutDialog, "Paid Feature!", Snackbar.LENGTH_LONG)
@@ -475,22 +425,6 @@ class DialogActivity : AppCompatActivity() {
                     }
                     .show()
 
-
-                /* txTitle.setText("Twitter")
-                 txContent.visibility = View.INVISIBLE
-                 edtxDialog.visibility = View.VISIBLE
-                 vpSteps.visibility = View.GONE
-                 imgbtnShare.visibility = View.GONE
-                 btnOk.setText("Set")
-                 btnOk.setOnClickListener(View.OnClickListener {
-                     if (edtxDialog.text.toString().equals("Fact")) {
-                         twitterProfileName = "Fact"
-                         listTweets.clear()
-                         rawTweets(false)
-                     } else {
-                         getTweetID(edtxDialog.text.toString(), false)
-                     }
-                 })*/
             } else if (dialogIntentStr == "BLUEEnable") {
                 blE = true
                 llDialog.visibility = View.GONE
@@ -526,6 +460,7 @@ class DialogActivity : AppCompatActivity() {
                 );
 
                 txTitle.setText("Steps...")
+                imgbtnTwConfig.visibility = View.GONE
                 txContent.visibility = View.GONE
                 edtxDialog.visibility = View.GONE
                 btnOk.visibility = View.GONE
@@ -560,11 +495,16 @@ class DialogActivity : AppCompatActivity() {
                 hashSetAppUsage.clear()
                 appUsageStats(applicationContext)
 
-                hashSetAppUsage.removeIf { Integer.parseInt(it.usageTime.split(":")[0]) > 300 }
+                hashSetAppUsage.forEach { app ->
+                    Log.d("appUsage ~ ", app.toString())
+                }
+                hashSetAppUsage.removeIf { Integer.parseInt(it.usageTime.split(":")[0]) > 500 }
 
                 var b = hashSetAppUsage.distinctBy { it.usageTime }
-                var c = b.sortedBy { it.usageTime }
 
+                Log.d("b4sort", b.toString())
+                var c = b.sortedBy { it.usageTime.split(":")[0].trim().toInt() }
+                Log.d("a4sort", c.toString())
 
                 for (i in c)
                     myAppUsages.add(i.usageTime)
@@ -573,7 +513,8 @@ class DialogActivity : AppCompatActivity() {
                 myAppUsages.clear()
 
                 for (i in c) {
-                    if (i.usageTime.substring(0, 2).toInt() > 10) {
+
+                    if (i.usageTime.split(":")[0].trim().toInt() >= 10) {
                         muApps.add(
                             "\n" + getAppNameFromPkg(
                                 dialogActContext, i.appName
@@ -584,37 +525,21 @@ class DialogActivity : AppCompatActivity() {
                     }
                 }
 
-                //     txContent.movementMethod = ScrollingMovementMethod()
-                //     txContent.append(Html.fromHtml("\n\n<b><u> Most Used Apps.. > 10 mins</u></b>"))
 
-                findViewById<TextView>(R.id.tx_heading).setText( "Screen Time Analysis : Based on App Usage stats from a Week(" + "${
-                    beginCal.get(
-                        Calendar.DAY_OF_MONTH
-                    )
-                }/${beginCal.get(Calendar.MONTH) + 1}/${beginCal.get(Calendar.YEAR)} : " +
-                        "${endCal.get(Calendar.DAY_OF_MONTH)}/${endCal.get(Calendar.MONTH) + 1}/${
-                            endCal.get(
-                                Calendar.YEAR
-                            )
-                        })" + ", below is the App usage data, every day (mm:ss)..  \n\n")
-
-
-               /* txAppName.append( "Screen Time Analysis : Based on App Usage stats from a Week(" + "${
-                    beginCal.get(
-                        Calendar.DAY_OF_MONTH
-                    )
-                }/${beginCal.get(Calendar.MONTH) + 1}/${beginCal.get(Calendar.YEAR)} : " +
-                        "${endCal.get(Calendar.DAY_OF_MONTH)}/${endCal.get(Calendar.MONTH) + 1}/${
-                            endCal.get(
-                                Calendar.YEAR
-                            )
-                        })" + ", below is the App data, every day (mm:ss)..  \n\n" + "Most Used Apps.\n")*/
                 txAppName.append("Most Used Apps.\n")
                 txAppUsageTime.append("> 10 mins/day\n")
-                for (i in muApps) txAppName.append(i)
-                for (i in myAppUsages) txAppUsageTime.append(i)
 
-                //   txAppName.append("\n\n\n ${sumTimeArray(myAppUsages)}")
+                var mApps = ArrayList<AppUsage>()
+                for (i in muApps)
+                    mApps.add(AppUsage(i, myAppUsages[muApps.indexOf(i)]))
+
+                mApps.sortBy { it.usageTime.split(":")[0].trim().trim().toInt() }
+
+                for (i in mApps) {
+                    txAppName.append(i.appName)
+                    txAppUsageTime.append(i.usageTime)
+                }
+                mApps.clear()
                 muApps.clear()
                 myAppUsages.clear()
 
@@ -627,9 +552,9 @@ class DialogActivity : AppCompatActivity() {
 
 
                 for (i in 0 until c.size) {
-                    if ((c[i].usageTime.substring(0, 2).toInt() > 5) && (c[i].usageTime.substring(
+                    if ((c[i].usageTime.substring(0, 2).trim().toInt() > 5) && (c[i].usageTime.substring(
                             0, 2
-                        ).toInt() < 10)
+                        ).trim().toInt() < 10)
                     ) {
                         muApps.add(
                             "\n" + getAppNameFromPkg(
@@ -643,10 +568,17 @@ class DialogActivity : AppCompatActivity() {
 
                 txAppName.append("Moderately Used Apps.\n")
                 txAppUsageTime.append("> 5 mins/day\n")
-                for (i in muApps) txAppName.append(i)
-                for (i in myAppUsages) txAppUsageTime.append(i)
-                muApps.clear()
-                myAppUsages.clear()
+
+                for (i in muApps)
+                    mApps.add(AppUsage(i, myAppUsages[muApps.indexOf(i)]))
+
+                mApps.sortBy { it.usageTime.split(":")[0].trim().trim().toInt() }
+
+                for (i in mApps) {
+                    txAppName.append(i.appName)
+                    txAppUsageTime.append(i.usageTime)
+                }
+                mApps.clear()
 
                 txAppName.append("\n\n")
                 txAppUsageTime.append("\n\n")
@@ -656,9 +588,9 @@ class DialogActivity : AppCompatActivity() {
 
 
                 for (i in 0 until c.size) {
-                    if ((c[i].usageTime.substring(0, 2).toInt() > 1) && (c[i].usageTime.substring(
+                    if ((c[i].usageTime.substring(0, 2).trim().toInt() > 1) && (c[i].usageTime.substring(
                             0, 2
-                        ).toInt() < 5)
+                        ).trim().toInt() < 5)
                     ) {
                         muApps.add(
                             "\n" + getAppNameFromPkg(
@@ -672,8 +604,18 @@ class DialogActivity : AppCompatActivity() {
 
                 txAppName.append("Least Used Apps.\n")
                 txAppUsageTime.append("> 1 mins/day\n")
-                for (i in muApps) txAppName.append(i)
-                for (i in myAppUsages) txAppUsageTime.append(i)
+
+                for (i in muApps)
+                    mApps.add(AppUsage(i, myAppUsages[muApps.indexOf(i)]))
+
+                mApps.sortBy { it.usageTime.split(":")[0].trim().trim().toInt() }
+
+                for (i in mApps) {
+                    txAppName.append(i.appName)
+                    txAppUsageTime.append(i.usageTime)
+                }
+                mApps.clear()
+
                 muApps.clear()
                 myAppUsages.clear()
 
@@ -685,7 +627,7 @@ class DialogActivity : AppCompatActivity() {
 
 
                 for (i in 0 until c.size) {
-                    if ((c[i].usageTime.substring(0, 2).toInt() == 0)
+                    if ((c[i].usageTime.substring(0, 2).trim().toInt() == 0)
                     ) {
                         muApps.add(
                             "\n" + getAppNameFromPkg(
@@ -701,8 +643,17 @@ class DialogActivity : AppCompatActivity() {
 
                 txAppName.append("Rarely Used Apps.\n")
                 txAppUsageTime.append("> 0 mins/day\n")
-                for (i in muApps) txAppName.append(i)
-                for (i in myAppUsages) txAppUsageTime.append(i)
+
+                for (i in muApps)
+                    mApps.add(AppUsage(i, myAppUsages[muApps.indexOf(i)]))
+
+                mApps.sortBy { it.usageTime.split(":")[0].trim().trim().toInt() }
+
+                for (i in mApps) {
+                    txAppName.append(i.appName)
+                    txAppUsageTime.append(i.usageTime)
+                }
+                mApps.clear()
                 muApps.clear()
                 myAppUsages.clear()
 
@@ -718,31 +669,33 @@ class DialogActivity : AppCompatActivity() {
                 edtxDialog.visibility = View.GONE
                 vpSteps.visibility = View.VISIBLE
 
-                remoteViews?.setTextViewText(
-                    R.id.tx_screentime,
-                    "$hour+ Hours"
-                )
 
-                if (hour < 2)
                     remoteViews?.setTextViewText(
-                        R.id.tx_screenusage_state,
-                        "LOW"
+                        R.id.tx_screentime,
+                        "$hour+ Hours"
                     )
-                else if (hour in 3..<5)
-                    remoteViews?.setTextViewText(
-                        R.id.tx_screenusage_state,
-                        "MODERATE"
-                    )
-                else if (hour in 6..<8)
-                    remoteViews?.setTextViewText(
-                        R.id.tx_screenusage_state,
-                        "HIGH"
-                    )
-                else if (hour > 8)
-                    remoteViews?.setTextViewText(
-                        R.id.tx_screenusage_state,
-                        "EXCESSIVE"
-                    )
+
+                    if (hour < 2)
+                        remoteViews?.setTextViewText(
+                            R.id.tx_screenusage_state,
+                            "LOW"
+                        )
+                    else if (hour in 2..< 5)
+                        remoteViews?.setTextViewText(
+                            R.id.tx_screenusage_state,
+                            "MODERATE"
+                        )
+                    else if (hour in 5..< 8)
+                        remoteViews?.setTextViewText(
+                            R.id.tx_screenusage_state,
+                            "HIGH"
+                        )
+                    else if (hour >= 8)
+                        remoteViews?.setTextViewText(
+                            R.id.tx_screenusage_state,
+                            "EXCESSIVE"
+                        )
+
 
 
 
@@ -750,7 +703,6 @@ class DialogActivity : AppCompatActivity() {
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
 
             } else if (dialogIntentStr == "liveWall") {
-                // makeToast("LIVEWALL!")
                 val p: String = WallService::class.java.getPackage().getName()
                 val c: String = WallService::class.java.getCanonicalName()
 
@@ -780,15 +732,14 @@ class DialogActivity : AppCompatActivity() {
                 imgbtnShare.visibility = View.GONE
                 btnOk.setOnClickListener {
 
-                    llDialog.visibility = View.GONE
                     if (edtxDialog.text.toString().isNotEmpty())
                         pinNote = edtxDialog.text.toString()
 
-                    llDialog.visibility = View.GONE
                     Thread {
                         SetWallWorker.setWall(true, dialogActContext)
                     }.start()
-                    //  appWidM.updateAppWidget(newAppWidget, remoteViews)
+
+                    finish()
                 }
             } else if (dialogIntentStr == "AccessibilityPermDialog") {
                 llDialog.visibility = View.INVISIBLE
@@ -817,14 +768,14 @@ class DialogActivity : AppCompatActivity() {
                 builder.setNegativeButton("Not Now") { dialog, id ->
                     // User clicked OK button
                     dialog.dismiss() // Dismiss the dialog
-                    makeToast("Lock Screen cannot work without access to Accessibility Service!")
+                    makeToast(applicationContext, "Lock Screen cannot work without access to Accessibility Service!")
                     finish()
                 }
 
 
                 // Create the AlertDialog object and show it
-                val dialog = builder.create()
-                dialog.show()
+                dialogAct = builder.create()
+                dialogAct.show()
 
             }
 
@@ -836,7 +787,7 @@ class DialogActivity : AppCompatActivity() {
 
     fun sumTimes(times: List<String>): String {
         val totalDuration = times.fold(Duration.ZERO) { acc, time ->
-            val parts = time.split(":").map { it.toInt() }
+            val parts = time.split(":").map { it.trim().toInt() }
             acc + parts[0].minutes + parts[1].seconds
         }
 
@@ -883,9 +834,6 @@ class DialogActivity : AppCompatActivity() {
             override fun onPageScrolled(
                 position: Int, positionOffset: Float, positionOffsetPixels: Int
             ) {
-
-                //   // makeToast("$currentOffset VS $positionOffset")
-
 
                 if (currentOffset == positionOffset) if (myState == ViewPager2.SCROLL_STATE_DRAGGING && currentPosition == position && currentPosition == 0) vpSteps.setCurrentItem(
                     6
@@ -1005,7 +953,7 @@ class DialogActivity : AppCompatActivity() {
             arrayOf<String>(contactId.toString())
         )
 
-        NewAppWidget().getFavoriteContacts()
+        getFavoriteContacts()
     }
 
 
@@ -1036,11 +984,7 @@ class DialogActivity : AppCompatActivity() {
             if (phoneCursor != null && phoneCursor.moveToFirst()) {
                 val phoneNumberIndex =
                     phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-                if (phoneNumberIndex != -1) {
-                    val phoneNumber = phoneCursor.getString(phoneNumberIndex)
-                    // Process phone number
-                    // makeToast("Contct - $displayName : $phoneNumber")
-                }
+
             }
 
             // Get email addresses
@@ -1197,7 +1141,7 @@ class DialogActivity : AppCompatActivity() {
 
                     if (tw.optString("itemContent").isNotEmpty()) {
                         val actTw = tw.getJSONObject("itemContent").getJSONObject("tweet_results")
-                            .getJSONObject("result").getJSONObject("legacy").get("full_text")
+                            .getJSONObject("result")//.getJSONObject("legacy").get("full_text")
 
                         Log.d("Twwtt $i", actTw.toString())
                         listTweets.add(actTw.toString())

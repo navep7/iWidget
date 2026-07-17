@@ -13,8 +13,10 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
+import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.icu.util.Calendar
 import android.location.Address
@@ -22,6 +24,7 @@ import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.provider.ContactsContract
 import android.text.Html
 import android.util.DisplayMetrics
 import android.util.Log
@@ -53,6 +56,7 @@ import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.hashSetAppUsage
 import com.belaku.homey.NewAppWidget.Companion.dU
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
+import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.greeting
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
@@ -60,6 +64,7 @@ import com.belaku.homey.NewAppWidget.Companion.qT
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.uT
 import com.belaku.homey.NewAppWidget.Companion.wD
+import com.belaku.homey.NewAppWidget.Companion.widgetContext
 import com.belaku.homey.StepsService.Companion.choosenApps
 import com.google.gson.Gson
 import java.io.IOException
@@ -255,6 +260,29 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     remoteViews?.setTextViewText(R.id.tx_runner, pinNote)
                 }
 
+                if (stepsToday < 10) {
+                    remoteViews?.setTextViewText(
+                        R.id.tx_steps,
+                        "$stepsToday Steps"
+                    )
+                    sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
+                } else if(stepsToday < 131) {
+                    if (stepsToday % 10 == 0) {
+                        remoteViews?.setTextViewText(
+                            R.id.tx_steps,
+                            "$stepsToday steps"
+                        )
+                        sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
+                    }
+                } else if (stepsToday % 131 == 0) {
+
+                    remoteViews?.setTextViewText(
+                        R.id.tx_steps,
+                        "${String.format("%.1f",  (Integer.parseInt(stepsToday.toString()) * 74f) / 100000f)} km"
+                    )
+                    sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
+                }
+
                 remoteViews?.setTextViewText(R.id.tx_walldesc, wD)
                 remoteViews?.setTextViewText(
                     R.id.tx_walltype_updateinfo,
@@ -322,6 +350,78 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         }
 
 
+        @SuppressLint("Range")
+        fun getFavoriteContacts() {
+
+            favContacts = ArrayList()
+
+            val queryUri = ContactsContract.Contacts.CONTENT_URI.buildUpon()
+                .appendQueryParameter(ContactsContract.Contacts.EXTRA_ADDRESS_BOOK_INDEX, "true")
+                .build()
+
+            val projection = arrayOf(
+                ContactsContract.Contacts._ID,
+                ContactsContract.Contacts.DISPLAY_NAME,
+                ContactsContract.Contacts.STARRED,
+                ContactsContract.Contacts.HAS_PHONE_NUMBER
+            )
+
+            val selection = ContactsContract.Contacts.STARRED + "='1'"
+
+            val cursor = widgetContext.contentResolver.query(
+                queryUri, projection, selection, null, null
+            )
+
+            while (cursor!!.moveToNext()) {
+                val contactID = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
+                var phoneNumber: String = "7"
+
+                if (Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
+
+                    val phones: Cursor? = widgetContext.getContentResolver().query(
+                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                        null,
+                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactID,
+                        null,
+                        null
+                    )
+                    while (phones!!.moveToNext()) {
+                        phoneNumber =
+                            phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                        phoneNumber = phoneNumber.filter { !it.isWhitespace() }
+                    }
+                }
+
+                var contactBitmap: Bitmap?
+
+                contactBitmap =
+                    ContactPhotoHelper.retrieveContactPhoto(widgetContext, contactID.toLong())
+                val cNme = cursor.getString(
+                    cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
+                )
+                if (contactBitmap == null)
+                    contactBitmap = CharacterToBitmapConverter.getBitmapFromCharacter(
+                        cNme[0], 100, 100, 70, Color.BLACK
+                    )
+                val c = Contact(contactID, cNme, phoneNumber, contactBitmap)
+                if (c.number.length > 7)
+                    favContacts.add(c)
+            }
+            saveContacts()
+            cursor.close()
+
+        }
+
+        private fun saveContacts() {
+            val key = "CTS"
+            val gson = Gson()
+            val json = gson.toJson(favContacts)
+            sharedPreferencesEditor.remove(key).commit()
+            sharedPreferencesEditor.putString(key, json).commit()
+
+        }
+
+
         fun appUsageStats(applicationContext: Context?) {
 
             if (UsageStatsChecker().hasUsageStatsPermission(applicationContext!!)) {
@@ -375,24 +475,28 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                                     ) != null
                                 )
                                     if (appNames.add(appName)) {
-                                        if (!hashSetAppUsage.any { it.appName == appName })
+                                        if (!hashSetAppUsage.any { it.appName == appName }) {
+                                            Log.d("AddedAPP", queryUsageStats[i].packageName)
                                             hashSetAppUsage.add(
                                                 AppUsage(
                                                     queryUsageStats[i].packageName,
                                                     formatMilliseconds(queryUsageStats[i].totalTimeInForeground)
                                                 )
                                             )
+                                        }
 
                                     }
 
                         }
 
-                        hashSetAppUsage = hashSetAppUsage.sortedByDescending { it.usageTime }
+                        hashSetAppUsage = hashSetAppUsage.sortedByDescending { it.usageTime.split(":")[0].trim().toInt() }
                             .toCollection(LinkedHashSet())
 
+                        Log.d("hashSetAppUsagez ~ ", hashSetAppUsage.toString())
                         for (i in hashSetAppUsage) {
                             //   var appName = i.appName
                             //   var appPname = getPackageNameFromAppName(applicationContext!!, appName)
+
                             val appUsage = i.usageTime
                             val iconBitmap: Bitmap =
                                 applicationContext!!.packageManager.getApplicationIcon(i.appName)
@@ -413,7 +517,9 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                                             iconBitmap
                                         )
                                     )
-                            } else break
+                            } else {
+                                break
+                            }
                         }
 
 
@@ -422,10 +528,10 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 } catch (e: Exception) {
                     // This catches the AppSearchException "Invalid cycle detected" which is a system bug
                     // in the AppsIndexer when processing Digital Wellbeing metadata.
-                    makeToast("System indexing error during UsageStats query: ${e}")
+                    makeToast(widgetContext, "System indexing error during UsageStats query: ${e}")
                     Log.e(TAG, "System indexing error during UsageStats query: ${e}")
                 }
-            } else makeToast("Usage Stats Permission revoked by System probably, you need to grant again")
+            } else makeToast(widgetContext, "Usage Stats Permission revoked by System probably, you need to grant again")
         }
 
 
@@ -457,8 +563,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
             sharedPreferencesEditor.remove(key).commit()
 
-            if (sharedPreferencesEditor.putString(key, json).commit())
-                makeToast("Showing Most Used Apps, And fav Contacts")
+            sharedPreferencesEditor.putString(key, json).commit()
         }
 
         fun formatMilliseconds(milliseconds: Long): String {

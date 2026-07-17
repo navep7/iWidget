@@ -32,7 +32,7 @@ class UsageStatsChecker {
                 )
             }
         } catch (e: Exception) {
-            makeToast("exception ~ Handle cases where the system throws a SecurityException due to UID/package mismatch or other issues")
+            makeToast(context, "exception ~ Handle cases where the system throws a SecurityException due to UID/package mismatch or other issues")
             AppOpsManager.MODE_ERRORED
         }
 

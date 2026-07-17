@@ -43,6 +43,8 @@ import java.util.Date
 import java.util.Locale
 import androidx.core.graphics.drawable.toDrawable
 import com.belaku.homey.MusicActivity.Companion.pDatalistSongs
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 
 class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
@@ -95,35 +97,39 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         listViewHabits.adapter = adapterHabits
         dayIndex =  Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
 
+        loadHabits()
+        checkHabitStreaks()
+
         listViewHabits.setOnItemClickListener(OnItemClickListener { parent, view, position, id ->
-            if ((parent.getItemAtPosition(position) as Habit).isChecked) {
-                (parent.getItemAtPosition(position) as Habit).isChecked = false
-                when(dayIndex) {
-                    1 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateSu", false).apply()
-                    2 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateM", false).apply()
-                    3 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateTu", false).apply()
-                    4 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateW", false).apply()
-                    5 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateTh", false).apply()
-                    6 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateF", false).apply()
-                    7 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateS", false).apply()
-                }
+            val habit = parent.getItemAtPosition(position) as Habit
+            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val today = sdf.format(Date())
+            val yesterday = getYesterdayDateString()
+
+            if (habit.isChecked) {
+                habit.isChecked = false
+                updateHabitDayState(habit.name, false)
             } else {
-                (parent.getItemAtPosition(position) as Habit).isChecked = true
-                when(dayIndex) {
-                    1 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateSu", true).apply()
-                    2 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateM", true).apply()
-                    3 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateTu", true).apply()
-                    4 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateW", true).apply()
-                    5 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateTh", true).apply()
-                    6 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateF", true).apply()
-                    7 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateS", true).apply()
+                habit.isChecked = true
+                updateHabitDayState(habit.name, true)
+
+                // Streak Logic
+                if (habit.lastUpdatedDate == yesterday) {
+                    habit.streak++
+                } else if (habit.lastUpdatedDate != today) {
+                    habit.streak = 1
                 }
+                habit.lastUpdatedDate = today
+                // Save specific streak to SharedPreferences for immediate persistence/UI consistency
+                sharedPreferencesEditor.putInt("${habit.name}_streak", habit.streak).apply()
             }
+            saveHabits()
             adapterHabits.notifyDataSetChanged()
         })
 
         listViewHabits.setOnItemLongClickListener { adapterView, view, i, l ->
             arrayListHabits.removeAt(i)
+            saveHabits()
             adapterHabits.notifyDataSetChanged()
             true
         }
@@ -148,6 +154,63 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         })
 
 
+    }
+
+    private fun getYesterdayDateString(): String {
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val cal = Calendar.getInstance()
+        cal.add(Calendar.DAY_OF_YEAR, -1)
+        return sdf.format(cal.time)
+    }
+
+    private fun updateHabitDayState(name: String, value: Boolean) {
+        val keySuffix = when(dayIndex) {
+            1 -> "StateSu"
+            2 -> "StateM"
+            3 -> "StateTu"
+            4 -> "StateW"
+            5 -> "StateTh"
+            6 -> "StateF"
+            7 -> "StateS"
+            else -> ""
+        }
+        if (keySuffix.isNotEmpty()) {
+            sharedPreferencesEditor.putBoolean("$name$keySuffix", value).apply()
+        }
+    }
+
+    private fun checkHabitStreaks() {
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val today = sdf.format(Date())
+        val yesterday = getYesterdayDateString()
+        var changed = false
+
+        for (habit in arrayListHabits) {
+            // If missed yesterday AND not done today, reset streak to 0
+            if (habit.lastUpdatedDate != today && habit.lastUpdatedDate != yesterday) {
+                if (habit.streak != 0) {
+                    habit.streak = 0
+                    sharedPreferencesEditor.putInt("${habit.name}_streak", 0)
+                    changed = true
+                }
+            }
+            // Sync isChecked with the daily state in SharedPreferences
+            val keySuffix = when(dayIndex) {
+                1 -> "StateSu"
+                2 -> "StateM"
+                3 -> "StateTu"
+                4 -> "StateW"
+                5 -> "StateTh"
+                6 -> "StateF"
+                7 -> "StateS"
+                else -> ""
+            }
+            habit.isChecked = sharedPreferences.getBoolean("${habit.name}$keySuffix", false)
+        }
+        if (changed) {
+            saveHabits()
+        }
+        adapterHabits.notifyDataSetChanged()
     }
 
     fun cancelReminder() {
@@ -225,6 +288,25 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         lateinit var adapterReminders: RemindersAdapter
         var arrayListHabits: ArrayList<Habit> = ArrayList()
         var arrayListReminders: ArrayList<Reminder> = ArrayList()
+
+        fun saveHabits() {
+            val gson = Gson()
+            val json = gson.toJson(arrayListHabits)
+            sharedPreferencesEditor.putString("habits_list", json).apply()
+        }
+
+        fun loadHabits() {
+            val json = sharedPreferences.getString("habits_list", null)
+            if (json != null) {
+                val gson = Gson()
+                val type = object : TypeToken<ArrayList<Habit>>() {}.type
+                val habits: ArrayList<Habit> = gson.fromJson(json, type)
+                arrayListHabits.clear()
+                arrayListHabits.addAll(habits)
+            }
+            if (isadapterHabitsInitialized())
+                adapterHabits.notifyDataSetChanged()
+        }
     }
 
     fun timePicker(view: View) {

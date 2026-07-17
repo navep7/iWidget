@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Layer 1: The Outer Gradient Background (Acts as the border) -->
+    <item>
+        <shape android:shape="rectangle">
+            <!-- Smooth diagonal transition using modern neon colors -->
+            <gradient
+                android:angle="45"
+                android:startColor="@color/black"
+                android:centerColor="@color/white"
+                android:endColor="@android:color/darker_gray"
+                android:type="linear" />
+
+            <!-- Corner radius for the outside frame -->
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+
+    <!-- Layer 2: The Inner Content Background -->
+    <!-- The padding offsets (top, bottom, left, right) dictate the border width -->
+    <item
+        android:left="3dp"
+        android:top="3dp"
+        android:right="3dp"
+        android:bottom="3dp">
+        <shape android:shape="rectangle">
+            <!-- Match this color to your screen's background color -->
+            <solid android:color="#121212" />
+
+            <!-- Slightly smaller radius to match the outer curve nicely -->
+            <corners android:radius="13dp" />
+        </shape>
+    </item>
+
+</layer-list>

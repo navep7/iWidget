@@ -130,9 +130,9 @@ class CustomDialogClass // TODO Auto-generated constructor stub
                     arrayListReminders.add(Reminder(rSubject, "$h:$m", rType))
                     adapterReminders.notifyDataSetChanged()
 
-                    addAlarm(rSubject, h.toInt(), m.toInt())
+                    addAlarm(rSubject, h.trim().toInt(), m.trim().toInt())
 
-                } else makeToast("Add a subject and time!")
+                } else makeToast(context, "Add a subject and time!")
             }
         }
         dismiss()
@@ -177,9 +177,9 @@ class CustomDialogClass // TODO Auto-generated constructor stub
                 calendar.timeInMillis,
                 pendingIntent
             )
-             makeToast("AlarmSET @ ${calendar.time}")
+             makeToast(context, "AlarmSET @ ${calendar.time}")
         } catch (ex: Exception) {
-             makeToast("AlarmEx - ${ex.message}")
+             makeToast(context, "AlarmEx - ${ex.message}")
         }
         else
             try {
@@ -189,9 +189,9 @@ class CustomDialogClass // TODO Auto-generated constructor stub
                     AlarmManager.INTERVAL_DAY,        // Repeat interval (built-in constant for efficiency)
                     pendingIntent
                 )
-                 makeToast("AlarmSET @ ${calendar.time}, everyday!")
+                 makeToast(context, "AlarmSET @ ${calendar.time}, everyday!")
             } catch (ex: Exception) {
-                 makeToast("AlarmEx - ${ex.message}")
+                 makeToast(context, "AlarmEx - ${ex.message}")
             }
 
 

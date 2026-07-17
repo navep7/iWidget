@@ -111,8 +111,8 @@
             android:textSize="18sp" />
 
         <RelativeLayout
-            android:visibility="invisible"
             android:layout_marginBottom="@dimen/fab_margin"
+            android:layout_marginEnd="@dimen/fab_margin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
@@ -121,18 +121,11 @@
             android:layout_centerInParent="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/black"
+            android:textColor="@android:color/holo_red_light"
             android:textStyle="italic|bold"
             android:textSize="25dp"
             android:text="X"/>
 
-        <pl.droidsonroids.gif.GifImageView
-            android:id="@+id/imgv_streak"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_centerInParent="true"
-            android:scaleType="fitXY"
-            android:src="@drawable/streak_gif"/>
 
         </RelativeLayout>
 

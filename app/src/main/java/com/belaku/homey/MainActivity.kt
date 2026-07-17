@@ -99,6 +99,7 @@ import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.NewAppWidget.Companion.widgetContext
 import com.belaku.homey.SetWallWorker.Companion.dayIndex
+import com.belaku.homey.SetWallWorker.Companion.getFavoriteContacts
 import com.belaku.homey.SetWallWorker.Companion.mAct
 import com.belaku.homey.SetWallWorker.Companion.screenHeight
 import com.belaku.homey.SetWallWorker.Companion.screenWidth
@@ -216,6 +217,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
 
+
     @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("MissingPermission", "SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -232,6 +234,8 @@ class MainActivity : AppCompatActivity() {
         mainWindow = this.window
 
         mAct = this@MainActivity
+
+
         mainActivityContext = applicationContext
         widgetContext = applicationContext
 
@@ -272,17 +276,12 @@ class MainActivity : AppCompatActivity() {
 
         var bluetoothLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode == RESULT_OK) {
-                    // makeToast("Bluetooth enabled by user")
-                } else {
-                    // Bluetooth not enabled by user
-                }
+
             }
 
         if (intent != null) {
             var intentStr = intent.getStringExtra("intent2Main")
             if (intentStr != null)
-                // makeToast(intentStr)
 
             if (intentStr.equals("BLUEDisable")) {
                 val disableintent = Intent("android.bluetooth.adapter.action.REQUEST_DISABLE")
@@ -839,7 +838,7 @@ class MainActivity : AppCompatActivity() {
             arrayOf<String>(contactId.toString())
         )
 
-        NewAppWidget().getFavoriteContacts()
+        getFavoriteContacts()
         updateWidget()
     }
 
@@ -872,15 +871,7 @@ class MainActivity : AppCompatActivity() {
                 null
             )
 
-            if (phoneCursor != null && phoneCursor.moveToFirst()) {
-                val phoneNumberIndex =
-                    phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-                if (phoneNumberIndex != -1) {
-                    val phoneNumber = phoneCursor.getString(phoneNumberIndex)
-                    // Process phone number
-                    // makeToast("Contct - $displayName : $phoneNumber")
-                }
-            }
+
 
             // Get email addresses
             emailCursor = contentResolver.query(
@@ -1055,18 +1046,6 @@ class MainActivity : AppCompatActivity() {
                 "https://pbs.twimg.com/profile_images/1244657050275151872/BRycNabV_normal.jpg" // Replace with your image URL
             val bitmap = getBitmapFromUrl(imageUrl)
             // Now you have the bitmap, you can display it in an ImageView or process it further
-            if (bitmap != null) {
-                //     // makeToast("TwiPic")
-                try {
-                    /*remoteViews?.setTextViewText(
-                        R.id.tx_tweets,
-                        "@" + twitterProfileName + "\t ~ \t" + listTweets[1]
-                    )
-                    remoteViews?.setImageViewBitmap(R.id.twSettings, bitmap)*/
-                } catch (ex: Exception) {
-                    // makeToast("TwiEx - ${ex.message}")
-                }
-            }
         }
 
         newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
@@ -1191,6 +1170,7 @@ class MainActivity : AppCompatActivity() {
         fabHour.setOnClickListener {
             updateInterval = "hour"
             //       // makeToast("Wallpaper updates every 30 Mins!")
+            wallDelay = 30
             setWalls(30)
             sharedPreferencesEditor.putStringSet("walls", HashSet(imgUrls)).apply()
             sharedPreferencesEditor.putStringSet("wallDescs", HashSet(imgDescs)).apply()
@@ -1199,6 +1179,7 @@ class MainActivity : AppCompatActivity() {
         fabDay.setOnClickListener {
             updateInterval = "day"
             //        // makeToast("Wallpaper updates every 60 Mins!")
+            wallDelay = 60
             setWalls(60)
             sharedPreferencesEditor.putStringSet("walls", HashSet(imgUrls)).apply()
             sharedPreferencesEditor.putStringSet("wallDescs", HashSet(imgDescs)).apply()
@@ -1281,7 +1262,7 @@ class MainActivity : AppCompatActivity() {
                     applicationContext?.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager // Context.USAGE_STATS_SERVICE);
 
                 sharedPreferencesEditor.putBoolean("RCP", true).apply()
-                NewAppWidget().getFavoriteContacts()
+                getFavoriteContacts()
                 btnRC.text = "Granted"
 
 
@@ -1319,7 +1300,7 @@ class MainActivity : AppCompatActivity() {
             if (grantResults.isNotEmpty())
                 if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("RCP", true).apply()
-               //     NewAppWidget().getFavoriteContacts()
+               //     getFavoriteContacts()
                     btnRC.text = "Granted"
                 }
         } else if (requestCode == BLUETOOTH_P) {
@@ -1376,7 +1357,7 @@ class MainActivity : AppCompatActivity() {
                     if (!nPermissions()) {
                         rawTweets(false)
                         startStepsService()
-                        NewAppWidget().getFavoriteContacts()
+                        getFavoriteContacts()
                         if (iDV.isShowing)
                         iDV.dismiss()
                     } else ActivityCompat.requestPermissions(
@@ -1476,7 +1457,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 val requestQueue = Volley.newRequestQueue(context)
                 requestQueue.add(request)
-            } else makeToast("Please Search for the Walls using the above search bar..")
+            } else makeToast(context, "Please Search for the Walls using the above search bar..")
         }
     }
 
@@ -1505,7 +1486,7 @@ class MainActivity : AppCompatActivity() {
             if (!nPermissions()) {
                 rawTweets(false)
                 startStepsService()
-                NewAppWidget().getFavoriteContacts()
+                getFavoriteContacts()
                 if(iDV.isShowing)
                     iDV.dismiss()
             } else ActivityCompat.requestPermissions(
@@ -1596,9 +1577,8 @@ class MainActivity : AppCompatActivity() {
         var imgDescs: ArrayList<String> = ArrayList()
 
 
-        fun makeToast(s: String) {
-            if (NewAppWidget.isAppWidMInitialized())
-                Toast.makeText(widgetContext, s, Toast.LENGTH_SHORT).show()
+        fun makeToast(contxToast: Context, s: String) {
+            Toast.makeText(contxToast, s, Toast.LENGTH_SHORT).show()
             Log.d("makeToastinG", s)
         }
 

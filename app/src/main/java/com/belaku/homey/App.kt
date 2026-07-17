@@ -9,4 +9,11 @@ class App(
     var usage: String,
     var iconBitmap: Bitmap
 
-)
+
+
+
+) {
+    override fun toString(): String {
+        return "App(name='$name', pName='$pName', usage='$usage', iconBitmap=$iconBitmap)"
+    }
+}

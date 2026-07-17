@@ -3,5 +3,5 @@
     <!-- The item below applies 50% opacity (alpha 0.5) to ?attr/colorPrimary -->
     <item
         android:alpha="0.5"
-        android:color="?attr/colorPrimaryInverse" />
+        android:color="?attr/colorPrimary" />
 </selector>

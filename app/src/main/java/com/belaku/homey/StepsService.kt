@@ -1,14 +1,12 @@
 package com.belaku.homey
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.app.usage.UsageStatsManager
 import android.appwidget.AppWidgetManager
-import android.bluetooth.BluetoothA2dp
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothHeadset
@@ -36,7 +34,6 @@ import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.view.View
-import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
@@ -57,7 +54,6 @@ import com.belaku.homey.MapsActivity.Companion.ismGoogleMapInitialized
 import com.belaku.homey.MapsActivity.Companion.mGoogleMap
 import com.belaku.homey.MapsActivity.Companion.mStreetViewPanorama
 import com.belaku.homey.NewAppWidget.Companion.appWidM
-import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
 import com.belaku.homey.NewAppWidget.Companion.isAppWidMInitialized
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
@@ -115,13 +111,6 @@ class StepsService : Service() {
             locationRequest.setFastestInterval(10000)
             locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
 
-
-
-
-
-            //instantiating the LocationCallBack
-
-
             var fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
             fusedLocationProviderClient.requestLocationUpdates(
@@ -131,6 +120,14 @@ class StepsService : Service() {
                         mLocationResult = locationResult
                         val location = locationResult.lastLocation
                         if (location != null) {
+
+                            if (location.hasSpeed()) {
+                                val speedInMps = location.speed // Speed in meters/second
+
+                                // Convert to km/h (optional)
+                                speedInKmph = (speedInMps * 3.6).toInt()
+                            //    speedR(speedInKmph.toString())
+                            }
 
 
                             if (!isSharedPreferencesInitialized()) {
@@ -177,6 +174,23 @@ class StepsService : Service() {
                         }
                     }
 
+                    private fun speedR(strSpeed: String) {
+
+                        var speed = 0
+
+                        if (strSpeed.contains("."))
+                            speed = strSpeed.split(".")[0].trim().toInt()
+                        else speed = strSpeed.trim().toInt()
+
+                        if (speed > 5) {
+                            remoteViews?.setTextViewText(R.id.tx_speed, speed.toString() + " KmpH")
+                            appWidM.partiallyUpdateAppWidget(R.id.tx_speed, remoteViews)
+                        } else {
+                            remoteViews?.setTextViewText(R.id.tx_speed, "")
+                            appWidM.partiallyUpdateAppWidget(R.id.tx_speed, remoteViews)
+                        }
+                    }
+
                     fun getAddress(lat: Double, lng: Double) {
                         val gcd = Geocoder(applicationContext)
                         Locale.getDefault()
@@ -198,32 +212,18 @@ class StepsService : Service() {
                         } catch (e: IOException) {
                             // TODO Auto-generated catch block
                             e.printStackTrace()
-                             makeToast("GCD - IOException \n $e")
+                             makeToast(applicationContext, "GCD - IOException \n $e")
                         }
 
                     }
 
 
                     override fun onMarkerClick(p0: Marker): Boolean {
-                        // makeToast("nothin")
                         return true
                     }
                 },
                 Looper.getMainLooper()
             )
-
-
-        val userPresentReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                if (intent?.action == Intent.ACTION_USER_PRESENT) {
-                    // Handle the screen unlock event here
-                    //    // makeToast("Screen unlocked!")
-                    // You can update UI, start a task, etc.
-                }
-            }
-        }
-        registerReceiver(userPresentReceiver, IntentFilter(Intent.ACTION_USER_PRESENT))
-
 
 
         if (Build.VERSION.SDK_INT >= 26) {
@@ -263,16 +263,26 @@ class StepsService : Service() {
                         }
 
 
+
                     if (stepsToday < 10) {
                         remoteViews?.setTextViewText(
                             R.id.tx_steps,
                             "$stepsToday Steps"
                         )
                         sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
-                    } else if (stepsToday % 10 == 0) {
-                    remoteViews?.setTextViewText(
+                    } else if (stepsToday % 10 == 0)  {
+                        if(stepsToday < 131) {
+                            remoteViews?.setTextViewText(
+                                R.id.tx_steps,
+                                "$stepsToday steps"
+                            )
+                        }
+                        sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
+                    } else if (stepsToday % 131 == 0) {
+
+                        remoteViews?.setTextViewText(
                         R.id.tx_steps,
-                        "$stepsToday Steps"
+                        "${String.format("%.1f",  (Integer.parseInt(stepsToday.toString()) * 74f) / 100000f)} km"
                     )
                         sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
                 }
@@ -371,7 +381,6 @@ class StepsService : Service() {
 
     private fun BluetoothState(contx: StepsService) {
 
-   //     makeToast("!BluetoothState")
         val mBluetoothStateReceiver = object : BroadcastReceiver() {
             @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
             override fun onReceive(context: Context, intent: Intent) {
@@ -382,12 +391,10 @@ class StepsService : Service() {
 
                     when (state) {
                         BluetoothAdapter.STATE_OFF -> {
-                            makeToast("Bluetooth OFF")
                             sharedPreferencesEditor.putBoolean("BluetoothState", false).apply()
                         }
                         BluetoothAdapter.STATE_TURNING_OFF -> { /* Bluetooth is turning off */ }
                         BluetoothAdapter.STATE_ON -> {
-                            makeToast("Bluetooth ON")
                             sharedPreferencesEditor.putBoolean("BluetoothState", true).apply()
                         }
                         BluetoothAdapter.STATE_TURNING_ON -> { /* Bluetooth is turning on */ }
@@ -400,11 +407,11 @@ class StepsService : Service() {
 
                     when (state) {
                         BluetoothProfile.STATE_CONNECTED -> {
-                            makeToast("Headset connected: ${device?.name}")
+                            makeToast(applicationContext, "Headset connected: ${device?.name}")
                             sharedPreferencesEditor.putBoolean("BluetoothConnectionState", true).apply()
                         }
                         BluetoothProfile.STATE_DISCONNECTED -> {
-                            makeToast("Headset disconnected: ${device?.name}")
+                            makeToast(applicationContext, "Headset disconnected: ${device?.name}")
                             sharedPreferencesEditor.putBoolean("BluetoothConnectionState", false).apply()
                         }
 
@@ -433,7 +440,6 @@ class StepsService : Service() {
             stepCounterSensor,
             SensorManager.SENSOR_DELAY_NORMAL
         )
-        //    // makeToast("step UP!")
 
 
         //    stopSelf()
@@ -457,6 +463,7 @@ class StepsService : Service() {
 
     companion object {
 
+        var speedInKmph: Int = 0
         lateinit var usageStatsManager: UsageStatsManager
         lateinit var stepsAdapter: StepsAdapter
         val stepsData: ArrayList<String> = ArrayList()
@@ -464,6 +471,14 @@ class StepsService : Service() {
         var presentActivityStateImage = R.drawable.walp_icon
         lateinit var locationListenerSpeed: LocationListener
         lateinit var locationManager: LocationManager
+
+        fun isLocationManagerInitialized(): Boolean {
+            if (::locationManager.isInitialized && ::locationListenerSpeed.isInitialized)
+                return true
+            else
+                return false
+
+        }
         var twitterProfileName: String = "Fact"
         var mLocationResult: LocationResult? = null
         var totalUsage: String = ""
@@ -509,7 +524,7 @@ class StepsService : Service() {
 
                         remoteViews?.setTextViewText(
                             R.id.tx_weather,
-                            tempC.split(".")[0] + "°C " + tempKind
+                            tempC.split(".")[0] + "° " + tempKind
                         )
                         if (weatherIconID.startsWith("5"))
                             remoteViews?.setImageViewResource(
@@ -541,7 +556,7 @@ class StepsService : Service() {
                 }
             } catch (ex: Exception) {
                 Log.d("WD Excep7 - ", ex.toString())
-                 makeToast("Weather EXP - ${ex.message}")
+
             }
 
             //   // makeToast(tempC)

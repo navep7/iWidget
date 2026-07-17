@@ -9,4 +9,8 @@ class AppUsage {
         this.appName = appName
         this.usageTime = usageTime
     }
+
+    override fun toString(): String {
+        return "User(appN=$appName, appUsage='$usageTime')"
+    }
 }

@@ -87,7 +87,6 @@ class NotificationService : NotificationListenerService() {
     }
 
     private fun handleVoiceCommand(command: String) {
-        makeToast("hello - $command")
         when {
             command.contains("yes", ignoreCase = true) || command.contains("yes", ignoreCase = true) -> {
                 speakOut("Ok, will do")
