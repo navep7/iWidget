@@ -39,7 +39,7 @@
         android:background="@android:color/transparent"
         android:layout_alignBottom="@+id/tx_dialog_title"
         android:layout_toRightOf="@+id/tx_dialog_title"
-        android:src="@drawable/conf"/>
+        android:src="@drawable/fact"/>
 
     <TextView
         android:id="@+id/tx_dialog_content"

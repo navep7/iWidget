@@ -37,6 +37,9 @@ class LockAccessibilityService : AccessibilityService() {
     fun isUpiApp(context: Context, targetPackageName: String): Boolean {
         val packageManager = context.packageManager
 
+        if (targetPackageName.equals("in.org.npci.upiapp") || targetPackageName.equals("net.one97.paytm") || targetPackageName.equals("com.naviapp"))
+            return true
+
         // Create the standard mock UPI payment intent
         val upiIntent = Intent(Intent.ACTION_VIEW).apply {
             data = Uri.parse("upi://pay")
