@@ -57,10 +57,12 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
         mySpaceActivityContext = applicationContext
 
-        // Set immediate background to avoid grey screen
-        if (SetWallWorker.isWallBitmapInitialized()) {
-            binding.mySpaceLayout.background = BitmapDrawable(resources, SetWallWorker.wallBitmap)
-        }
+        // Set immediate background to avoid grey screen while loading
+        try {
+            if (SetWallWorker.isWallBitmapInitialized()) {
+                binding.mySpaceLayout.background = BitmapDrawable(resources, SetWallWorker.wallBitmap)
+            }
+        } catch (e: Exception) {}
 
         recyclerView = binding.rvMySpace
         rvAdapter = AppsAdapter(appsShown, this)
@@ -83,31 +85,32 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         mySpaceAppsString.addAll(savedAppNames)
 
         lifecycleScope.launch {
-            // Task 1: Background Blur (Parallel)
+            // Task 1: Background Blur (Parallel) - Updates background when ready
             launch(Dispatchers.IO) {
-                if (SetWallWorker.isWallBitmapInitialized()) {
-                    try {
+                try {
+                    if (SetWallWorker.isWallBitmapInitialized()) {
                         val blurredBitmap = blur(applicationContext, SetWallWorker.wallBitmap)
                         withContext(Dispatchers.Main) {
                             binding.mySpaceLayout.background = BitmapDrawable(resources, blurredBitmap)
                         }
-                    } catch (e: Exception) {}
-                }
+                    }
+                } catch (e: Exception) {}
             }
 
             // Task 2: Incremental Apps Loading
             launch(Dispatchers.IO) {
                 val launchableApps = getLaunchableApps()
-                val loadedMySpaceApps = ArrayList<InstalledApp>()
-                
-                // Priority pass: Only load icons for choice MySpace apps for instant display
+
+                // First pass: Only load icons for choice MySpace apps for instant display
+                val priorityApps = ArrayList<InstalledApp>()
                 if (savedAppNames.isNotEmpty()) {
                     for (info in launchableApps) {
+                        if (info.activityInfo == null) continue
                         val label = info.loadLabel(packageManager).toString()
                         if (savedAppNames.contains(label)) {
                             try {
                                 val appInfo = packageManager.getApplicationInfo(info.activityInfo.packageName, 0)
-                                loadedMySpaceApps.add(
+                                priorityApps.add(
                                     InstalledApp(label, info.activityInfo.packageName, packageManager.getApplicationIcon(appInfo))
                                 )
                             } catch (e: Exception) {}
@@ -117,14 +120,14 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
                 withContext(Dispatchers.Main) {
                     mySpaceApps.clear()
-                    mySpaceApps.addAll(loadedMySpaceApps)
+                    mySpaceApps.addAll(priorityApps)
                     appsShown.clear()
                     appsShown.addAll(mySpaceApps)
                     boolSelectOrLaunch = false
                     rvAdapter.notifyDataSetChanged()
                 }
 
-                // Full background pass: Load all other apps (needed only for selection dialog)
+                // Second pass: Load all other apps in background (needed only for selection spinner)
                 val allLoadedApps = ArrayList<InstalledApp>()
                 for (i in launchableApps) {
                     if (i.activityInfo != null) {
@@ -140,17 +143,11 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
                         } catch (e: Exception) {}
                     }
                 }
-                allLoadedApps.sortWith { s1: InstalledApp, s2: InstalledApp ->
-                    s1.name.compareTo(s2.name, true)
-                }
+                allLoadedApps.sortWith { s1, s2 -> s1.name.compareTo(s2.name, true) }
 
                 withContext(Dispatchers.Main) {
                     allApps.clear()
                     allApps.addAll(allLoadedApps)
-                    // If no chosen apps, notify loading finished
-                    if (savedAppNames.isEmpty()) {
-                        rvAdapter.notifyDataSetChanged()
-                    }
                 }
             }
         }
@@ -227,8 +224,8 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
     fun blur(context: Context?, image: Bitmap): Bitmap {
 
-        val BITMAP_SCALE = 0.1f; 
-        val BLUR_RADIUS = 25f;
+        var BITMAP_SCALE = 0.1f; // Increased scale slightly for better quality/stability
+        var BLUR_RADIUS = 25f; // Adjust blur intensity
 
         val width = Math.max(1, Math.round(image.width * BITMAP_SCALE).toInt())
         val height = Math.max(1, Math.round(image.height * BITMAP_SCALE).toInt())

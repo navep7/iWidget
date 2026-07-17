@@ -669,31 +669,33 @@ class DialogActivity : AppCompatActivity() {
                 edtxDialog.visibility = View.GONE
                 vpSteps.visibility = View.VISIBLE
 
-                remoteViews?.setTextViewText(
-                    R.id.tx_screentime,
-                    "$hour+ Hours"
-                )
 
-                if (hour < 2)
                     remoteViews?.setTextViewText(
-                        R.id.tx_screenusage_state,
-                        "LOW"
+                        R.id.tx_screentime,
+                        "$hour+ Hours"
                     )
-                else if (hour in 3..<5)
-                    remoteViews?.setTextViewText(
-                        R.id.tx_screenusage_state,
-                        "MODERATE"
-                    )
-                else if (hour in 6..<8)
-                    remoteViews?.setTextViewText(
-                        R.id.tx_screenusage_state,
-                        "HIGH"
-                    )
-                else if (hour > 8)
-                    remoteViews?.setTextViewText(
-                        R.id.tx_screenusage_state,
-                        "EXCESSIVE"
-                    )
+
+                    if (hour < 2)
+                        remoteViews?.setTextViewText(
+                            R.id.tx_screenusage_state,
+                            "LOW"
+                        )
+                    else if (hour in 2..< 5)
+                        remoteViews?.setTextViewText(
+                            R.id.tx_screenusage_state,
+                            "MODERATE"
+                        )
+                    else if (hour in 5..< 8)
+                        remoteViews?.setTextViewText(
+                            R.id.tx_screenusage_state,
+                            "HIGH"
+                        )
+                    else if (hour >= 8)
+                        remoteViews?.setTextViewText(
+                            R.id.tx_screenusage_state,
+                            "EXCESSIVE"
+                        )
+
 
 
 

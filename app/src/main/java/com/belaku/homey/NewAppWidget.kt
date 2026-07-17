@@ -719,17 +719,17 @@ class NewAppWidget : AppWidgetProvider() {
                     R.id.tx_screenusage_state,
                     "LOW"
                 )
-            else if (hour in 3..<5)
+            else if (hour in 2..< 5)
                 remoteViews?.setTextViewText(
                     R.id.tx_screenusage_state,
                     "MODERATE"
                 )
-            else if (hour in 6..<8)
+            else if (hour in 5..< 8)
                 remoteViews?.setTextViewText(
                     R.id.tx_screenusage_state,
                     "HIGH"
                 )
-            else if (hour > 8)
+            else if (hour >= 8)
                 remoteViews?.setTextViewText(
                     R.id.tx_screenusage_state,
                     "EXCESSIVE"
@@ -1848,6 +1848,11 @@ class NewAppWidget : AppWidgetProvider() {
                 loadStepsData()
             } else if (formattedDate != dfDate.format(c) + postFixDate + " " + dfMonth.format(c)) {
 
+
+                for (i in arrayListHabits)
+                    i.isChecked = false
+
+                if (isadapterHabitsInitialized()) adapterHabits.notifyDataSetChanged()
                 // Midnight transition detected
                 appUsageStats(widgetContext)
 
