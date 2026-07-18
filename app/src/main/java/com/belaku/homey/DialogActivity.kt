@@ -495,9 +495,9 @@ class DialogActivity : AppCompatActivity() {
                 hashSetAppUsage.clear()
                 appUsageStats(applicationContext)
 
-                hashSetAppUsage.forEach { app ->
+                /*hashSetAppUsage.forEach { app ->
                     Log.d("appUsage ~ ", app.toString())
-                }
+                }*/
                 hashSetAppUsage.removeIf { Integer.parseInt(it.usageTime.split(":")[0]) > 500 }
 
                 var b = hashSetAppUsage.distinctBy { it.usageTime }

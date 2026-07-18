@@ -62,21 +62,7 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
 
         val rootLayout = findViewById<RelativeLayout>(R.id.reminders_layout)
-        try {
-            rootLayout.setBackgroundDrawable(
-                BitmapDrawable(
-                    getResources(),
-                    blur(applicationContext, wallBitmap)
-                )
-            )
-        } catch (ex: Exception) {
 
-            wallBitmap = BitmapFactory.decodeResource(applicationContext.resources, R.drawable.gradient_glass)
-
-            rootLayout.setBackgroundDrawable(
-                blur(applicationContext, wallBitmap).toDrawable(getResources())
-            )
-        }
 
 
         binding.txAddHabits.setOnClickListener(View.OnClickListener {
@@ -152,6 +138,17 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
             adapterReminders.notifyDataSetChanged()
             true
         })
+
+        try {
+            rootLayout.setBackgroundDrawable(
+                BitmapDrawable(
+                    getResources(),
+                    blur(applicationContext, SetWallWorker.wallBitmap)
+                )
+            )
+        } catch (ex: Exception) {
+
+        }
 
 
     }

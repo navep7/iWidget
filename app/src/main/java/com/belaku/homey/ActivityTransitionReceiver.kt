@@ -45,9 +45,10 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                 result.transitionEvents.forEach { event ->
                     // Info about activity
 
-                    presentActivityState = toActivityString(event.activityType).trim()
-
-                    updateActivityState(presentActivityState)
+                    if (toTransitionType(event.transitionType) == "ENTER") {
+                        presentActivityState = toActivityString(event.activityType).trim()
+                        updateActivityState(presentActivityState)
+                    }
                 }
             }
         }
@@ -56,7 +57,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
     private fun updateActivityState(presentActivityState: String) {
 
-    //    makeToast(applicationContext, presentActivityState)
+        makeToast(applicationContext, presentActivityState)
 
         // Define your specific widget component and the Context
         val provider = ComponentName(applicationContext, NewAppWidget::class.java)
