@@ -12,6 +12,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.annotation.RequiresPermission
@@ -57,7 +58,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
     private fun updateActivityState(presentActivityState: String) {
 
-        makeToast(applicationContext, presentActivityState)
+        Log.d("applicationContext", presentActivityState)
 
         // Define your specific widget component and the Context
         val provider = ComponentName(applicationContext, NewAppWidget::class.java)

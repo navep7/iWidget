@@ -1196,11 +1196,15 @@ class NewAppWidget : AppWidgetProvider() {
 
             if (isMyServiceRunning(widgetContext, SpeedService::class.java)) {
                 if(widgetContext.stopService(Intent(widgetContext, SpeedService::class.java))) {
-                    makeToast(widgetContext, " ⃠")
+                    makeToast(widgetContext, "  ⃠  ")
+                    remoteViews?.setViewLayoutHeight(R.id.imgbtn_speed, 35.0f, android.util.TypedValue.COMPLEX_UNIT_DIP)
+                    remoteViews?.setViewLayoutWidth(R.id.imgbtn_speed, 35.0f, android.util.TypedValue.COMPLEX_UNIT_DIP)
                     remoteViews?.setImageViewResource(R.id.imgbtn_speed, R.drawable.start_speedservice)
                     }
             } else {
-                remoteViews?.setImageViewResource(R.id.imgbtn_speed, R.drawable.transparent_bg)
+                remoteViews?.setImageViewResource(R.id.imgbtn_speed, R.drawable.stop_speedservice)
+                remoteViews?.setViewLayoutHeight(R.id.imgbtn_speed, 15.0f, android.util.TypedValue.COMPLEX_UNIT_DIP)
+                remoteViews?.setViewLayoutWidth(R.id.imgbtn_speed, 15.0f, android.util.TypedValue.COMPLEX_UNIT_DIP)
                     widgetContext.startForegroundService(
                     Intent(
                         widgetContext,

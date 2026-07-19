@@ -741,14 +741,7 @@
             android:gravity="center"
             android:layout_below="@+id/rl_controls"
             android:layout_centerHorizontal="true"
-            android:textColor="@android:color/holo_red_light"
-            android:textSize="35sp"
-            android:textStyle="bold"
-            android:fontFamily="sans-serif-condensed"
-            android:includeFontPadding="false"
-            app:autoSizeTextType="uniform"
-            app:autoSizeMinTextSize="35sp"
-            app:autoSizeMaxTextSize="40sp" />
+           />
 
 
         <RelativeLayout

@@ -28,7 +28,7 @@ class SpeedService : Service(), LocationListener {
         super.onCreate()
         startForegroundService()
 
-        makeToast(applicationContext, "⚡")
+        makeToast(applicationContext, "⚡ Speed > 3KmPH will be displayed!")
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         try {
@@ -68,7 +68,7 @@ class SpeedService : Service(), LocationListener {
 
         // Update only the speed TextView with the new text
 
-        if (speedKmh < 5.0)
+        if (speedKmh < 3.0)
             views.setTextViewText(R.id.tx_speed, "")
         else views.setTextViewText(R.id.tx_speed, String.format("%.1f", speedKmh) + " KmpH")
 
