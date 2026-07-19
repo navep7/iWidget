@@ -47,6 +47,10 @@ import android.provider.CalendarContract
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
+import android.renderscript.Allocation
+import android.renderscript.Element
+import android.renderscript.RenderScript
+import android.renderscript.ScriptIntrinsicBlur
 import android.text.Html
 import android.util.DisplayMetrics
 import android.util.Log
@@ -928,6 +932,8 @@ class NewAppWidget : AppWidgetProvider() {
                             ), android.R.color.white, 75
                         )
                     )
+
+                    blurWallBitmap = blur(widgetContext, wallBitmap)
                 }
 
 
@@ -972,6 +978,8 @@ class NewAppWidget : AppWidgetProvider() {
                             ), android.R.color.black, 75
                         )
                     )
+
+                    blurWallBitmap = blur(widgetContext, wallBitmap)
                 }
 
 
@@ -985,6 +993,32 @@ class NewAppWidget : AppWidgetProvider() {
         } else Log.d("wallColors", "NULL")
 
 
+    }
+
+    fun blur(context: Context?, image: Bitmap): Bitmap {
+
+        var BITMAP_SCALE = 0.1f; // Increased scale slightly for better quality/stability
+        var BLUR_RADIUS = 25f; // Adjust blur intensity
+
+        val width = Math.max(1, Math.round(image.width * BITMAP_SCALE).toInt())
+        val height = Math.max(1, Math.round(image.height * BITMAP_SCALE).toInt())
+
+        val inputBitmap = Bitmap.createScaledBitmap(image, width, height, false)
+        val outputBitmap = Bitmap.createBitmap(inputBitmap)
+
+        val rs = RenderScript.create(context)
+        val theIntrinsic = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
+        val tmpIn = Allocation.createFromBitmap(rs, inputBitmap)
+        val tmpOut = Allocation.createFromBitmap(rs, outputBitmap)
+
+        theIntrinsic.setRadius(BLUR_RADIUS)
+        theIntrinsic.setInput(tmpIn)
+        theIntrinsic.forEach(tmpOut)
+        tmpOut.copyTo(outputBitmap)
+
+        rs.destroy()
+
+        return outputBitmap
     }
 
 
@@ -1669,6 +1703,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     companion object {
+        lateinit var blurWallBitmap: Bitmap
         private var unlockReceiver: BroadcastReceiver? = null
         lateinit var widgetContext: Context
         lateinit var i_appWidgetIds: IntArray
