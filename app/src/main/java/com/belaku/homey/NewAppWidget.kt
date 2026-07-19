@@ -125,6 +125,12 @@ import java.util.Locale
 class NewAppWidget : AppWidgetProvider() {
 
 
+    private lateinit var activityTransitionRequest: ActivityTransitionRequest
+    private lateinit var pendingIntentActivityTransitions: PendingIntent
+    private lateinit var activityTransitions: ArrayList<ActivityTransition>
+    private var requestCodeAT: Int = 57
+    private lateinit var intentActivityTransitionReceiver: Intent
+    private lateinit var activityTransitionReceiver: ActivityTransitionReceiver
     private var speedReading: String = ""
     private var boolKm: Boolean = false
     private lateinit var cName: String
@@ -184,30 +190,27 @@ class NewAppWidget : AppWidgetProvider() {
             if(ismActInitialized())
                 fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
 
-        recognizeActivityTransitions()
-
-
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @SuppressLint("MissingPermission")
     private fun recognizeActivityTransitions() {
 
-        val receiver = ActivityTransitionReceiver()
-        val filter = IntentFilter("com.belaku.homey.CUSTOM_ACTION") // Use a unique action string
-        widgetContext.registerReceiver(receiver, filter, RECEIVER_NOT_EXPORTED)
+        activityTransitionReceiver = ActivityTransitionReceiver()
+        val intentFilterActivityTransitionReceiver = IntentFilter("com.belaku.homey.CUSTOM_ACTION") // Use a unique action string
+        widgetContext.registerReceiver(activityTransitionReceiver, intentFilterActivityTransitionReceiver, RECEIVER_NOT_EXPORTED)
 
-        val intent = Intent(widgetContext, ActivityTransitionReceiver::class.java)
-        val requestCodeAT = 57
-        val pendingIntent = PendingIntent.getBroadcast(
+        intentActivityTransitionReceiver = Intent(widgetContext, ActivityTransitionReceiver::class.java)
+        requestCodeAT = 57
+        pendingIntentActivityTransitions = PendingIntent.getBroadcast(
             widgetContext,
             requestCodeAT,
-            intent,
+            intentActivityTransitionReceiver,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
         )
 
-        val transitions = ArrayList<ActivityTransition>()
-        transitions.apply {
+        activityTransitions = ArrayList<ActivityTransition>()
+        activityTransitions.apply {
             add(
                 ActivityTransition.Builder()
                     .setActivityType(DetectedActivity.STILL)
@@ -251,19 +254,11 @@ class NewAppWidget : AppWidgetProvider() {
             )
         }
 
-        val transitionRequest = ActivityTransitionRequest(transitions)
+        activityTransitionRequest = ActivityTransitionRequest(activityTransitions)
 
         // myPendingIntent is the instance of PendingIntent where the app receives callbacks.
-        val task = ActivityRecognition.getClient(widgetContext)
-            .requestActivityTransitionUpdates(transitionRequest, pendingIntent)
-
-        task.addOnSuccessListener {
-            //yet2
-        }
-
-        task.addOnFailureListener {
-            // Handle error
-        }
+        ActivityRecognition.getClient(widgetContext)
+            .requestActivityTransitionUpdates(activityTransitionRequest, pendingIntentActivityTransitions)
 
 
     }
@@ -769,6 +764,8 @@ class NewAppWidget : AppWidgetProvider() {
         loadStepsData() // Always refresh stepsData from disk to ensure persistence
         wallColors()
         setSomeTwAndWallDescUI()
+
+        recognizeActivityTransitions()
 
 
     }
