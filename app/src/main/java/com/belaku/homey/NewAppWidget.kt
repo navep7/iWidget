@@ -367,7 +367,12 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.imgbtn_speed,
+            R.id.imgbtn_startspeed,
+            getPendingSelfIntent(context, SPEED_CHECK)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_stopspeed,
             getPendingSelfIntent(context, SPEED_CHECK)
         )
 
@@ -693,7 +698,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (speedReading != "0.0")
             if (speedReading.contains(".")) {
-                speedReading = speedReading.split(".")[0] + "KmpH"
+                speedReading = speedReading.split(".")[0]
                 remoteViews?.setTextViewText(R.id.tx_speed, speedReading)
             }
         else remoteViews?.setTextViewText(R.id.tx_speed, "")
@@ -1228,14 +1233,14 @@ class NewAppWidget : AppWidgetProvider() {
             if (isMyServiceRunning(widgetContext, SpeedService::class.java)) {
                 if(widgetContext.stopService(Intent(widgetContext, SpeedService::class.java))) {
                     makeToast(widgetContext, "  ⃠  ")
-                    remoteViews?.setViewLayoutHeight(R.id.imgbtn_speed, 35.0f, android.util.TypedValue.COMPLEX_UNIT_DIP)
-                    remoteViews?.setViewLayoutWidth(R.id.imgbtn_speed, 35.0f, android.util.TypedValue.COMPLEX_UNIT_DIP)
-                    remoteViews?.setImageViewResource(R.id.imgbtn_speed, R.drawable.start_speedservice)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_startspeed, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.frame_speed, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_stopspeed, View.INVISIBLE)
                     }
             } else {
-                remoteViews?.setImageViewResource(R.id.imgbtn_speed, R.drawable.stop_speedservice)
-                remoteViews?.setViewLayoutHeight(R.id.imgbtn_speed, 15.0f, android.util.TypedValue.COMPLEX_UNIT_DIP)
-                remoteViews?.setViewLayoutWidth(R.id.imgbtn_speed, 15.0f, android.util.TypedValue.COMPLEX_UNIT_DIP)
+                remoteViews?.setViewVisibility(R.id.imgbtn_startspeed, View.INVISIBLE)
+                remoteViews?.setViewVisibility(R.id.frame_speed, View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.imgbtn_stopspeed, View.VISIBLE)
                     widgetContext.startForegroundService(
                     Intent(
                         widgetContext,

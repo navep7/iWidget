@@ -174,22 +174,6 @@ class StepsService : Service() {
                         }
                     }
 
-                    private fun speedR(strSpeed: String) {
-
-                        var speed = 0
-
-                        if (strSpeed.contains("."))
-                            speed = strSpeed.split(".")[0].trim().toInt()
-                        else speed = strSpeed.trim().toInt()
-
-                        if (speed > 5) {
-                            remoteViews?.setTextViewText(R.id.tx_speed, speed.toString() + " KmpH")
-                            appWidM.partiallyUpdateAppWidget(R.id.tx_speed, remoteViews)
-                        } else {
-                            remoteViews?.setTextViewText(R.id.tx_speed, "")
-                            appWidM.partiallyUpdateAppWidget(R.id.tx_speed, remoteViews)
-                        }
-                    }
 
                     fun getAddress(lat: Double, lng: Double) {
                         val gcd = Geocoder(applicationContext)

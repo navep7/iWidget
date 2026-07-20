@@ -46,16 +46,16 @@ class SpeedService : Service(), LocationListener {
 
     override fun onLocationChanged(location: Location) {
         // location.speed is in m/s, multiply by 3.6 for km/h
-        var speedKmh = location.speed * 3.6
+        var speedKmh = (location.speed * 3.6).toInt()
 
         if (speedKmh < 1)
-            speedKmh = 0.0
+            speedKmh = 0
 
         updateSpeed(speedKmh)
 
     }
 
-    private fun updateSpeed(speedKmh: Double) {
+    private fun updateSpeed(speedKmh: Int) {
 
 
         // Define your specific widget component and the Context
@@ -68,9 +68,7 @@ class SpeedService : Service(), LocationListener {
 
         // Update only the speed TextView with the new text
 
-        if (speedKmh < 3.0)
-            views.setTextViewText(R.id.tx_speed, "")
-        else views.setTextViewText(R.id.tx_speed, String.format("%.1f", speedKmh) + " KmpH")
+     views.setTextViewText(R.id.tx_speed, speedKmh.toString())
 
 
 

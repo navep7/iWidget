@@ -91,7 +91,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
         return when (activity) {
             DetectedActivity.STILL -> "STILL"
             DetectedActivity.WALKING -> "WALKING"
-            DetectedActivity.IN_VEHICLE -> "IN VEHICLE"
+            DetectedActivity.IN_VEHICLE -> "INVEHICLE"
             DetectedActivity.RUNNING -> "RUNNING"
             else -> "UNKNOWN"
         }
