@@ -13,6 +13,7 @@ import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.widgetContext
+import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.belaku.homey.StepsService.Companion.presentActivityState
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionEvent
@@ -79,6 +80,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     R.id.frame_time_speed,
                     View.VISIBLE
                 )
+                if (!isMyServiceRunning(widgetContext, SpeedService::class.java))
                 widgetContext.startForegroundService(
                     Intent(
                         widgetContext,
