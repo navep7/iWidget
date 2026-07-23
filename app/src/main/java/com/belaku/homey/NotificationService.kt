@@ -5,6 +5,8 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.speech.RecognitionListener
@@ -35,8 +37,15 @@ class NotificationService : NotificationListenerService() {
         super.onListenerDisconnected()
         Log.d("NoteServiceLOG", "onListenerDisconnected")
 
-        // Request rebind to ensure the service stays active
-        requestRebind(ComponentName(this, NotificationService::class.java))
+        // Delay rebind to avoid "Service not registered" IllegalArgumentException
+        // which happens if we request rebind while the system is still unbinding.
+        Handler(Looper.getMainLooper()).postDelayed({
+            try {
+                requestRebind(ComponentName(this, NotificationService::class.java))
+            } catch (e: Exception) {
+                Log.e("NoteServiceLOG", "Failed to request rebind", e)
+            }
+        }, 1000)
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {

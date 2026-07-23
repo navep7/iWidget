@@ -1,31 +1,21 @@
 package com.belaku.homey
 
-import android.Manifest
 import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.location.LocationListener
-import android.location.LocationManager
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
+import android.view.View
 import android.widget.RemoteViews
-import android.widget.Toast
-import androidx.annotation.RequiresPermission
-import androidx.core.content.ContextCompat
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.widgetContext
-import com.belaku.homey.StepsService.Companion.isLocationManagerInitialized
-import com.belaku.homey.StepsService.Companion.locationListenerSpeed
 import com.belaku.homey.StepsService.Companion.presentActivityState
 import com.google.android.gms.location.ActivityTransition
+import com.google.android.gms.location.ActivityTransitionEvent
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
 
@@ -48,7 +38,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
                     if (toTransitionType(event.transitionType) == "ENTER") {
                         presentActivityState = toActivityString(event.activityType).trim()
-                        updateActivityState(presentActivityState)
+                        updateActivityState(event, presentActivityState)
                     }
                 }
             }
@@ -56,7 +46,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
     }
 
 
-    private fun updateActivityState(presentActivityState: String) {
+    private fun updateActivityState(event: ActivityTransitionEvent, presentActivityState: String) {
 
         Log.d("applicationContext", presentActivityState)
 
@@ -75,8 +65,38 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
             remoteViews.setTextViewText(R.id.tx_activity_state, "WALKING")
             remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.steps)
         } else if (presentActivityState == "INVEHICLE") {
-            remoteViews.setTextViewText(R.id.tx_activity_state, "IN A VEHICLE")
-            remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.in_a_vehicle)
+
+            if (toTransitionType(event.transitionType) == "ENTER") {
+                NewAppWidget.Companion.remoteViews?.setViewVisibility(
+                    R.id.imgbtn_startspeed,
+                    View.INVISIBLE
+                )
+                NewAppWidget.Companion.remoteViews?.setViewVisibility(
+                    R.id.frame_speed,
+                    View.VISIBLE
+                )
+                NewAppWidget.Companion.remoteViews?.setViewVisibility(
+                    R.id.frame_time_speed,
+                    View.VISIBLE
+                )
+                widgetContext.startForegroundService(
+                    Intent(
+                        widgetContext,
+                        SpeedService::class.java
+                    )
+                )
+
+
+                remoteViews.setTextViewText(R.id.tx_activity_state, "IN A VEHICLE")
+                remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.in_a_vehicle)
+            } else if (toTransitionType(event.transitionType) == "EXIT") {
+                if(widgetContext.stopService(Intent(widgetContext, SpeedService::class.java))) {
+                 //   makeToast(widgetContext, "  ⃠  ")
+                    NewAppWidget.Companion.remoteViews?.setViewVisibility(R.id.imgbtn_startspeed, View.VISIBLE)
+                    NewAppWidget.Companion.remoteViews?.setViewVisibility(R.id.frame_speed, View.INVISIBLE)
+                    NewAppWidget.Companion.remoteViews?.setViewVisibility(R.id.frame_time_speed, View.INVISIBLE)
+                }
+            }
         }
 
 

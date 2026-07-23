@@ -42,6 +42,7 @@ import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.BatteryManager
 import android.os.Build
+import android.os.SystemClock
 import android.provider.AlarmClock
 import android.provider.CalendarContract
 import android.provider.ContactsContract
@@ -372,11 +373,6 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.imgbtn_stopspeed,
-            getPendingSelfIntent(context, SPEED_CHECK)
-        )
-
-        remoteViews?.setOnClickPendingIntent(
             R.id.tx_time_announcement,
             getPendingSelfIntent(context, Time_A_CLICKED)
         )
@@ -691,6 +687,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
 
+    @SuppressLint("SuspiciousIndentation")
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setUI() {
 
@@ -703,7 +700,17 @@ class NewAppWidget : AppWidgetProvider() {
             }
         else remoteViews?.setTextViewText(R.id.tx_speed, "")
 
-        stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
+        val maxSpeed = sharedPreferences.getInt("maxSpeedToday", 0)
+        if (maxSpeed > 0) {
+            remoteViews?.setTextViewText(R.id.tx_max_speed, maxSpeed.toString())
+      //      remoteViews?.setViewVisibility(R.id.tx_max_speed_label, View.VISIBLE)
+       //     remoteViews?.setViewVisibility(R.id.frame_max_speed, View.VISIBLE)
+        } else {
+       //     remoteViews?.setViewVisibility(R.id.tx_max_speed_label, View.INVISIBLE)
+       //     remoteViews?.setViewVisibility(R.id.frame_max_speed, View.INVISIBLE)
+        }
+
+            stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
 
             remoteViews?.setTextViewText(
                 R.id.tx_steps,
@@ -1233,14 +1240,22 @@ class NewAppWidget : AppWidgetProvider() {
             if (isMyServiceRunning(widgetContext, SpeedService::class.java)) {
                 if(widgetContext.stopService(Intent(widgetContext, SpeedService::class.java))) {
                     makeToast(widgetContext, "  ⃠  ")
-                    remoteViews?.setViewVisibility(R.id.imgbtn_startspeed, View.VISIBLE)
+                    remoteViews?.setChronometer(R.id.speed_chronometer, 0L, null, false)
+                    remoteViews?.setImageViewResource(R.id.imgbtn_startspeed, R.drawable.start_speedservice)
+                    remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
                     remoteViews?.setViewVisibility(R.id.frame_speed, View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.imgbtn_stopspeed, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.frame_max_speed, android.view.View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.frame_time_speed, View.INVISIBLE)
                     }
             } else {
-                remoteViews?.setViewVisibility(R.id.imgbtn_startspeed, View.INVISIBLE)
+                val baseTime = SystemClock.elapsedRealtime()
+                remoteViews?.setChronometer(R.id.speed_chronometer, baseTime, null, true)
+                remoteViews?.setImageViewResource(R.id.imgbtn_startspeed, R.drawable.stop_speedservice)
+                remoteViews?.setViewVisibility(R.id.speed_chronometer, View.VISIBLE)
+            //    remoteViews?.setViewVisibility(R.id.tx_max_speed_label, View.VISIBLE)
                 remoteViews?.setViewVisibility(R.id.frame_speed, View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgbtn_stopspeed, View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.frame_max_speed, android.view.View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.frame_time_speed, View.VISIBLE)
                     widgetContext.startForegroundService(
                     Intent(
                         widgetContext,
@@ -1904,6 +1919,9 @@ class NewAppWidget : AppWidgetProvider() {
                 stepsToday = 0
                 sharedPreferencesEditor.putInt(dayName, 0).apply()
                 sharedPreferencesEditor.putInt("unlockCount", 0).apply()
+                
+                sharedPreferencesEditor.putInt("maxSpeedToday", 0).apply()
+                sharedPreferencesEditor.putString("maxSpeedDate", LocalDate.now().toString()).apply()
 
                 // 3. Weekly reset logic (Monday)
                 if (now.dayOfWeek == java.time.DayOfWeek.MONDAY) {

@@ -18,6 +18,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.NewAppWidget.Companion.widgetContext
+import java.time.LocalDate
 
 
 class SpeedService : Service(), LocationListener {
@@ -28,7 +29,7 @@ class SpeedService : Service(), LocationListener {
         super.onCreate()
         startForegroundService()
 
-        makeToast(applicationContext, "⚡ Speed > 3KmPH will be displayed!")
+        makeToast(applicationContext, "⚡")
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         try {
@@ -62,15 +63,38 @@ class SpeedService : Service(), LocationListener {
         val provider: ComponentName = ComponentName(applicationContext, NewAppWidget::class.java)
         val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
 
+        val sharedPreferences = applicationContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        val sharedPreferencesEditor = sharedPreferences.edit()
+        
+        val today = LocalDate.now().toString()
+        val lastSavedDate = sharedPreferences.getString("maxSpeedDate", "")
+        
+        var maxSpeed = 0
+        if (today == lastSavedDate) {
+            maxSpeed = sharedPreferences.getInt("maxSpeedToday", 0)
+        } else {
+            // New day, reset max speed
+            sharedPreferencesEditor.putString("maxSpeedDate", today)
+            sharedPreferencesEditor.putInt("maxSpeedToday", 0)
+            sharedPreferencesEditor.apply()
+        }
+
+        if (speedKmh > maxSpeed) {
+            maxSpeed = speedKmh
+            sharedPreferencesEditor.putInt("maxSpeedToday", maxSpeed).apply()
+        }
+
 
         // Create the RemoteViews object targeting your widget's XML layout
         val views = RemoteViews(applicationContext.getPackageName(), R.layout.new_app_widget)
 
         // Update only the speed TextView with the new text
 
-     views.setTextViewText(R.id.tx_speed, speedKmh.toString())
+        if (speedKmh > 0)
+            views.setTextViewText(R.id.tx_speed, "")
+        else views.setTextViewText(R.id.tx_speed, speedKmh.toString())
 
-
+        views.setTextViewText(R.id.tx_max_speed, maxSpeed.toString())
 
 
         // Push the update for all instances of the widget
