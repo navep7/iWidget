@@ -87,7 +87,7 @@ class SpeedService : Service(), LocationListener {
         // Update only the speed TextView with the new text
 
 
-       views.setTextViewText(R.id.tx_speed, speedKmh.toString())
+        views.setTextViewText(R.id.tx_speed, speedKmh.toString())
 
         views.setTextViewText(R.id.tx_max_speed, maxSpeed.toString())
 

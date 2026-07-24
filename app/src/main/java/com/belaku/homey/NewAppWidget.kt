@@ -1262,6 +1262,7 @@ class NewAppWidget : AppWidgetProvider() {
                 remoteViews?.setViewVisibility(R.id.frame_speed, View.VISIBLE)
                 remoteViews?.setViewVisibility(R.id.frame_max_speed, android.view.View.VISIBLE)
                 remoteViews?.setViewVisibility(R.id.frame_time_speed, View.VISIBLE)
+                remoteViews?.setTextViewText(R.id.tx_max_speed, "MAX")
                     widgetContext.startForegroundService(
                     Intent(
                         widgetContext,
