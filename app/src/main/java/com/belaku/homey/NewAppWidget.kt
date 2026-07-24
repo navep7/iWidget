@@ -1175,6 +1175,8 @@ class NewAppWidget : AppWidgetProvider() {
         setUI()
         handleIntentActions(intent)
 
+        if (!isAppWidMInitialized())
+            appWidM = AppWidgetManager.getInstance(widgetContext)
 
         val appWidgetIds = appWidM.getAppWidgetIds(newAppWidget)
       //  appWidM = AppWidgetManager.getInstance(context)
