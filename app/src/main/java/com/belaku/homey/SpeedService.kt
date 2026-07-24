@@ -49,11 +49,7 @@ class SpeedService : Service(), LocationListener {
         // location.speed is in m/s, multiply by 3.6 for km/h
         var speedKmh = (location.speed * 3.6).toInt()
 
-        if (speedKmh < 1)
-            speedKmh = 0
-
         updateSpeed(speedKmh)
-
     }
 
     private fun updateSpeed(speedKmh: Int) {
@@ -90,9 +86,8 @@ class SpeedService : Service(), LocationListener {
 
         // Update only the speed TextView with the new text
 
-        if (speedKmh > 0)
-            views.setTextViewText(R.id.tx_speed, "")
-        else views.setTextViewText(R.id.tx_speed, speedKmh.toString())
+
+       views.setTextViewText(R.id.tx_speed, speedKmh.toString())
 
         views.setTextViewText(R.id.tx_max_speed, maxSpeed.toString())
 

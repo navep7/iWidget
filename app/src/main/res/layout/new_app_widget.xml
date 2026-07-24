@@ -734,14 +734,13 @@
 
             <TextView
                 android:id="@+id/tx_kmp_"
-                android:layout_below="@+id/tx_sp_"
-                android:layout_alignEnd="@+id/tx_sp_"
-                android:layout_marginTop="-5dp"
+                android:layout_toEndOf="@+id/frame_speed"
+                android:layout_alignParentTop="true"
                 android:textStyle="bold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/holo_red_light"
-                android:textSize="@dimen/padding_15"
+                android:textSize="@dimen/padding_20"
                 android:text="km/h"/>
 
 
@@ -756,12 +755,13 @@
 
                 <TextView
                     android:id="@+id/tx_max_speed"
+                    android:text="Max"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:background="@drawable/speed_sign_bg"
                     android:gravity="center"
-                    android:textColor="@android:color/holo_red_dark"
+                    android:textColor="@android:color/holo_red_light"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
@@ -791,8 +791,8 @@
 
             <ImageButton
                 android:id="@+id/imgbtn_startspeed"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:layout_centerHorizontal="true"
                 android:layout_alignParentBottom="true"
                 android:scaleType="fitXY"
@@ -818,7 +818,7 @@
                     android:layout_gravity="center"
                     android:background="@drawable/speed_sign_bg"
                     android:gravity="center"
-                    android:text="90"
+                    android:text="⚡"
                     android:textColor="@android:color/holo_red_light"
                     android:textSize="35sp"
                     android:textStyle="bold" />

@@ -55,6 +55,7 @@ import android.renderscript.ScriptIntrinsicBlur
 import android.text.Html
 import android.util.DisplayMetrics
 import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.accessibility.AccessibilityManager
@@ -117,6 +118,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.squareup.picasso.Picasso
+import org.checkerframework.checker.units.qual.UnitsMultiple
+import org.checkerframework.checker.units.qual.UnitsRelations
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -693,22 +696,11 @@ class NewAppWidget : AppWidgetProvider() {
 
         locationTxUpdate(widgetContext)
 
-        if (speedReading != "0.0")
-            if (speedReading.contains(".")) {
-                speedReading = speedReading.split(".")[0]
-                remoteViews?.setTextViewText(R.id.tx_speed, speedReading)
-            }
-        else remoteViews?.setTextViewText(R.id.tx_speed, "")
-
+        remoteViews?.setTextViewText(R.id.tx_speed, speedReading)
         val maxSpeed = sharedPreferences.getInt("maxSpeedToday", 0)
-        if (maxSpeed > 0) {
+        if (maxSpeed > 0)
             remoteViews?.setTextViewText(R.id.tx_max_speed, maxSpeed.toString())
-      //      remoteViews?.setViewVisibility(R.id.tx_max_speed_label, View.VISIBLE)
-       //     remoteViews?.setViewVisibility(R.id.frame_max_speed, View.VISIBLE)
-        } else {
-       //     remoteViews?.setViewVisibility(R.id.tx_max_speed_label, View.INVISIBLE)
-       //     remoteViews?.setViewVisibility(R.id.frame_max_speed, View.INVISIBLE)
-        }
+
 
             stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
 
@@ -1244,6 +1236,8 @@ class NewAppWidget : AppWidgetProvider() {
                     makeToast(widgetContext, "  ⃠  ")
                     remoteViews?.setChronometer(R.id.speed_chronometer, 0L, null, false)
                     remoteViews?.setImageViewResource(R.id.imgbtn_startspeed, R.drawable.start_speedservice)
+                    remoteViews?.setViewLayoutWidth(R.id.imgbtn_startspeed, 100.0F, TypedValue.COMPLEX_UNIT_DIP)
+                    remoteViews?.setViewLayoutHeight(R.id.imgbtn_startspeed, 100.0F, TypedValue.COMPLEX_UNIT_DIP)
                     remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
                     remoteViews?.setViewVisibility(R.id.frame_speed, View.INVISIBLE)
                     remoteViews?.setViewVisibility(R.id.frame_max_speed, android.view.View.INVISIBLE)
@@ -1253,6 +1247,8 @@ class NewAppWidget : AppWidgetProvider() {
                 val baseTime = SystemClock.elapsedRealtime()
                 remoteViews?.setChronometer(R.id.speed_chronometer, baseTime, null, true)
                 remoteViews?.setImageViewResource(R.id.imgbtn_startspeed, R.drawable.stop_speedservice)
+                remoteViews?.setViewLayoutWidth(R.id.imgbtn_startspeed, 25.0F, TypedValue.COMPLEX_UNIT_DIP)
+                remoteViews?.setViewLayoutHeight(R.id.imgbtn_startspeed, 25.0F, TypedValue.COMPLEX_UNIT_DIP)
                 remoteViews?.setViewVisibility(R.id.speed_chronometer, View.VISIBLE)
             //    remoteViews?.setViewVisibility(R.id.tx_max_speed_label, View.VISIBLE)
                 remoteViews?.setViewVisibility(R.id.frame_speed, View.VISIBLE)
