@@ -775,6 +775,17 @@ class NewAppWidget : AppWidgetProvider() {
 
         recognizeActivityTransitions()
 
+        if (isMyServiceRunning(widgetContext, SpeedService::class.java)) {
+            remoteViews?.setViewVisibility(R.id.frame_speed, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.frame_max_speed, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.frame_time_speed, View.VISIBLE)
+            remoteViews?.setImageViewResource(R.id.imgbtn_startspeed, R.drawable.stop_speedservice)
+            remoteViews?.setViewLayoutWidth(R.id.imgbtn_startspeed, 25.0F, TypedValue.COMPLEX_UNIT_DIP)
+            remoteViews?.setViewLayoutHeight(R.id.imgbtn_startspeed, 25.0F, TypedValue.COMPLEX_UNIT_DIP)
+
+        }
+
+
 
     }
 
@@ -1238,7 +1249,6 @@ class NewAppWidget : AppWidgetProvider() {
                     remoteViews?.setImageViewResource(R.id.imgbtn_startspeed, R.drawable.start_speedservice)
                     remoteViews?.setViewLayoutWidth(R.id.imgbtn_startspeed, 100.0F, TypedValue.COMPLEX_UNIT_DIP)
                     remoteViews?.setViewLayoutHeight(R.id.imgbtn_startspeed, 100.0F, TypedValue.COMPLEX_UNIT_DIP)
-                    remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
                     remoteViews?.setViewVisibility(R.id.frame_speed, View.INVISIBLE)
                     remoteViews?.setViewVisibility(R.id.frame_max_speed, android.view.View.INVISIBLE)
                     remoteViews?.setViewVisibility(R.id.frame_time_speed, View.INVISIBLE)
@@ -1249,8 +1259,6 @@ class NewAppWidget : AppWidgetProvider() {
                 remoteViews?.setImageViewResource(R.id.imgbtn_startspeed, R.drawable.stop_speedservice)
                 remoteViews?.setViewLayoutWidth(R.id.imgbtn_startspeed, 25.0F, TypedValue.COMPLEX_UNIT_DIP)
                 remoteViews?.setViewLayoutHeight(R.id.imgbtn_startspeed, 25.0F, TypedValue.COMPLEX_UNIT_DIP)
-                remoteViews?.setViewVisibility(R.id.speed_chronometer, View.VISIBLE)
-            //    remoteViews?.setViewVisibility(R.id.tx_max_speed_label, View.VISIBLE)
                 remoteViews?.setViewVisibility(R.id.frame_speed, View.VISIBLE)
                 remoteViews?.setViewVisibility(R.id.frame_max_speed, android.view.View.VISIBLE)
                 remoteViews?.setViewVisibility(R.id.frame_time_speed, View.VISIBLE)
