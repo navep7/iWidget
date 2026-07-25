@@ -200,7 +200,6 @@ class NewAppWidget : AppWidgetProvider() {
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @SuppressLint("MissingPermission")
     private fun recognizeActivityTransitions() {
 
