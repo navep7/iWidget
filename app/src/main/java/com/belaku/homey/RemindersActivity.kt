@@ -43,6 +43,7 @@ import java.util.Date
 import java.util.Locale
 import androidx.core.graphics.drawable.toDrawable
 import com.belaku.homey.MusicActivity.Companion.pDatalistSongs
+import com.belaku.homey.NewAppWidget.Companion.blurWallBitmap
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -62,21 +63,7 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
 
         val rootLayout = findViewById<RelativeLayout>(R.id.reminders_layout)
-        try {
-            rootLayout.setBackgroundDrawable(
-                BitmapDrawable(
-                    getResources(),
-                    blur(applicationContext, wallBitmap)
-                )
-            )
-        } catch (ex: Exception) {
 
-            wallBitmap = BitmapFactory.decodeResource(applicationContext.resources, R.drawable.gradient_glass)
-
-            rootLayout.setBackgroundDrawable(
-                blur(applicationContext, wallBitmap).toDrawable(getResources())
-            )
-        }
 
 
         binding.txAddHabits.setOnClickListener(View.OnClickListener {
@@ -152,6 +139,17 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
             adapterReminders.notifyDataSetChanged()
             true
         })
+
+        try {
+            rootLayout.setBackgroundDrawable(
+                BitmapDrawable(
+                    getResources(),
+                    blurWallBitmap
+                )
+            )
+        } catch (ex: Exception) {
+
+        }
 
 
     }
@@ -235,29 +233,6 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
     }
 
-    fun blur(context: Context?, image: Bitmap): Bitmap {
-
-        var BITMAP_SCALE = 0.4f; // Scale down bitmap for performance
-        var BLUR_RADIUS = 25f; // Adjust blur intensity
-
-        val width = Math.round(image.width * BITMAP_SCALE).toInt()
-        val height = Math.round(image.height * BITMAP_SCALE).toInt()
-
-        val inputBitmap = Bitmap.createScaledBitmap(image, width, height, false)
-        val outputBitmap = Bitmap.createBitmap(inputBitmap)
-
-        val rs = RenderScript.create(context)
-        val theIntrinsic = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
-        val tmpIn = Allocation.createFromBitmap(rs, inputBitmap)
-        val tmpOut = Allocation.createFromBitmap(rs, outputBitmap)
-
-        theIntrinsic.setRadius(BLUR_RADIUS)
-        theIntrinsic.setInput(tmpIn)
-        theIntrinsic.forEach(tmpOut)
-        tmpOut.copyTo(outputBitmap)
-
-        return outputBitmap
-    }
 
     override fun onItemClick(pos: Int) {
         val launchIntent = packageManager.getLaunchIntentForPackage(apps[pos].pName)

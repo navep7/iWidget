@@ -4,42 +4,67 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.provider.Settings
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.util.Log
-import com.belaku.homey.MainActivity.Companion.makeToast
-import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SpeakService.Companion.speakOut
 
 
 class NotificationService : NotificationListenerService() {
 
-    private lateinit var speechRecognizer: SpeechRecognizer
+    private var speechRecognizer: SpeechRecognizer? = null
+    private var isConnected = false
 
     override fun onCreate() {
         super.onCreate()
-     //   setupSpeechRecognizer()
         Log.d("NoteServiceLOG", "onCreate")
     }
 
     override fun onListenerConnected() {
         super.onListenerConnected()
+        isConnected = true
         Log.d("NoteServiceLOG", "onListenerConnected")
     }
 
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
+        isConnected = false
         Log.d("NoteServiceLOG", "onListenerDisconnected")
 
-        // Request rebind to ensure the service stays active
-        requestRebind(ComponentName(this, NotificationService::class.java))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val componentName = ComponentName(this, NotificationService::class.java)
+            val enabledListeners = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
+            val isEnabled = enabledListeners?.contains(componentName.flattenToString()) == true
+
+            if (isEnabled) {
+                // Delay rebind to avoid "Service not registered" IllegalArgumentException
+                // which happens if we request rebind while the system is still unbinding.
+                // Increasing delay to 5s to give the system more time to clean up.
+                Handler(Looper.getMainLooper()).postDelayed({
+                    if (!isConnected) {
+                        try {
+                            Log.d("NoteServiceLOG", "Requesting rebind...")
+                            requestRebind(componentName)
+                        } catch (e: Exception) {
+                            Log.e("NoteServiceLOG", "Failed to request rebind", e)
+                        }
+                    }
+                }, 5000)
+            }
+        }
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
+        if (!isConnected) return
+        
         val packageName = sbn?.packageName ?: return
         val extras = sbn.notification?.extras ?: return
 
@@ -57,13 +82,12 @@ class NotificationService : NotificationListenerService() {
 
         if (prefs.getBoolean("SPKSERVICE", false)) {
              speakOut(appName)
-         //   speakOut("Would you like to hear the content?")
         }
     }
 
     private fun setupSpeechRecognizer() {
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
-        speechRecognizer.setRecognitionListener(object : RecognitionListener {
+        speechRecognizer?.setRecognitionListener(object : RecognitionListener {
             override fun onReadyForSpeech(params: Bundle?) {}
             override fun onBeginningOfSpeech() {}
             override fun onRmsChanged(rmsdB: Float) {}
@@ -88,7 +112,7 @@ class NotificationService : NotificationListenerService() {
 
     private fun handleVoiceCommand(command: String) {
         when {
-            command.contains("yes", ignoreCase = true) || command.contains("yes", ignoreCase = true) -> {
+            command.contains("yes", ignoreCase = true) -> {
                 speakOut("Ok, will do")
             }
             else -> {
@@ -102,8 +126,12 @@ class NotificationService : NotificationListenerService() {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
         }
-        speechRecognizer.startListening(intent)
+        speechRecognizer?.startListening(intent)
     }
 
-
+    override fun onDestroy() {
+        speechRecognizer?.destroy()
+        speechRecognizer = null
+        super.onDestroy()
+    }
 }

@@ -30,6 +30,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.ui.AppBarConfiguration
 import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.NewAppWidget.Companion.blurWallBitmap
 import com.belaku.homey.databinding.ActivityAiBinding
 import com.google.firebase.Firebase
 import com.google.firebase.ai.GenerativeModel
@@ -68,7 +69,7 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
 
 
         val rootLayout = findViewById<RelativeLayout>(R.id.ai_layout)
-        rootLayout.setBackgroundDrawable(BitmapDrawable(getResources(), blur(applicationContext, SetWallWorker.wallBitmap)))
+        rootLayout.setBackgroundDrawable(BitmapDrawable(getResources(), blurWallBitmap))
 
 
         voiceAI = findViewById<ImageView>(R.id.imgv_mic)
@@ -182,35 +183,6 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
         }
     }
 
-    fun blur(context: Context?, image: Bitmap): Bitmap {
-
-        var BITMAP_SCALE = 0.4f; // Scale down bitmap for performance
-        var BLUR_RADIUS = 25f; // Adjust blur intensity
-
-        val width = Math.round(image.width * BITMAP_SCALE).toInt()
-        val height = Math.round(image.height * BITMAP_SCALE).toInt()
-
-        val inputBitmap = Bitmap.createScaledBitmap(image, width, height, false)
-        val outputBitmap = Bitmap.createBitmap(inputBitmap)
-
-        val rs = RenderScript.create(context)
-        val theIntrinsic = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
-        val tmpIn = Allocation.createFromBitmap(rs, inputBitmap)
-        val tmpOut = Allocation.createFromBitmap(rs, outputBitmap)
-
-        theIntrinsic.setRadius(BLUR_RADIUS)
-        theIntrinsic.setInput(tmpIn)
-        theIntrinsic.forEach(tmpOut)
-        tmpOut.copyTo(outputBitmap)
-
-        // Cleanup RenderScript resources to avoid memory leaks
-        rs.destroy()
-        theIntrinsic.destroy()
-        tmpIn.destroy()
-        tmpOut.destroy()
-
-        return outputBitmap
-    }
 
     override fun onItemClick(pos: Int) {
         val launchIntent = packageManager.getLaunchIntentForPackage(apps[pos].pName)

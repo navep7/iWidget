@@ -48,77 +48,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <TextView
-        android:id="@+id/tx_heading"
-        android:layout_below="@+id/ll_buttons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tx_heading"
-        >
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
-
-        <!-- Left Word TextView -->
-        <TextView
-            android:id="@+id/tx_app_left"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/holo_red_light"
-            android:textSize="16sp" />
-
-        <!-- A 'spacer' view or an empty textview to push the next text to the right -->
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <!-- Right Word TextView -->
-        <TextView
-            android:id="@+id/tx_appusage_right"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/holo_red_dark"
-            android:textSize="16sp" />
-
-    </LinearLayout>
-    </ScrollView>
-
-    <EditText
-        android:id="@+id/edtx_dialog"
-        android:hint="Set"
-        tools:ignore="Autofill,HardcodedText,TextFields"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/tx_dialog_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/vp_dialog"
-        android:visibility="gone"
-        android:layout_marginTop="50dp"
-        android:layout_width="match_parent"
-        android:layout_height="350dp"/>
-
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tab_layout"
-        android:visibility="gone"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/vp_dialog"
-        app:tabBackground="@drawable/tab_selector"
-        app:tabGravity="center"
-        app:tabIndicatorHeight="0dp" />
-
-
-
 
     <LinearLayout
         android:id="@+id/ll_buttons"
@@ -150,5 +79,74 @@
             android:layout_height="wrap_content"/>
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/tx_heading"
+        android:layout_below="@+id/ll_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tx_heading"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <!-- Left Word TextView -->
+            <TextView
+                android:id="@+id/tx_app_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/holo_red_light"
+                android:textSize="16sp" />
+
+            <!-- A 'spacer' view or an empty textview to push the next text to the right -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <!-- Right Word TextView -->
+            <TextView
+                android:id="@+id/tx_appusage_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/holo_red_dark"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <EditText
+        android:id="@+id/edtx_dialog"
+        android:hint="Set"
+        tools:ignore="Autofill,HardcodedText,TextFields"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/tx_dialog_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/vp_dialog"
+        android:visibility="gone"
+        android:layout_marginTop="50dp"
+        android:layout_width="match_parent"
+        android:layout_height="350dp"/>
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab_layout"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/vp_dialog"
+        app:tabBackground="@drawable/tab_selector"
+        app:tabGravity="center"
+        app:tabIndicatorHeight="0dp" />
 
 </RelativeLayout>
