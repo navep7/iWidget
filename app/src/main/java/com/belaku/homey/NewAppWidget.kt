@@ -46,7 +46,6 @@ import android.os.SystemClock
 import android.provider.AlarmClock
 import android.provider.CalendarContract
 import android.provider.ContactsContract
-import android.provider.MediaStore
 import android.provider.Settings
 import android.renderscript.Allocation
 import android.renderscript.Element
@@ -55,21 +54,17 @@ import android.renderscript.ScriptIntrinsicBlur
 import android.text.Html
 import android.util.DisplayMetrics
 import android.util.Log
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.accessibility.AccessibilityManager
 import android.widget.AdapterView
 import android.widget.RemoteViews
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity.RECEIVER_NOT_EXPORTED
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.belaku.homey.Constants.Companion.stepsToday
-import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
@@ -105,7 +100,6 @@ import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.belaku.homey.StepsService.Companion.choosenApps
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.belaku.homey.StepsService.Companion.isStepsAdapterInitialized
-import com.belaku.homey.StepsService.Companion.speedInKmph
 import com.belaku.homey.StepsService.Companion.stepsAdapter
 import com.belaku.homey.StepsService.Companion.stepsData
 import com.google.android.gms.location.ActivityRecognition
@@ -117,9 +111,8 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.google.maps.android.ui.IconGenerator
 import com.squareup.picasso.Picasso
-import org.checkerframework.checker.units.qual.UnitsMultiple
-import org.checkerframework.checker.units.qual.UnitsRelations
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -270,6 +263,27 @@ class NewAppWidget : AppWidgetProvider() {
 
     }
 
+    fun calculateCaloriesFromSteps(steps: Int, weightKg: Double, heightCm: Double): Double {
+        if (steps <= 0 || weightKg <= 0.0 || heightCm <= 0.0) return 0.0
+
+        // 1. Estimate stride length (average multiplier is 0.414 for men, 0.413 for women)
+        val strideLengthCm = heightCm * 0.414
+
+        // 2. Convert total steps to total distance in kilometers
+        val distanceKm = (steps * strideLengthCm) / 100_000.0
+
+        // 3. Convert kilometers to miles (Standard MET formulas use miles)
+        val distanceMiles = distanceKm * 0.621371
+
+        // 4. Convert weight to pounds
+        val weightLbs = weightKg * 2.20462
+
+        // 5. Apply the standard walking metabolic constant (approx. 0.57 calories per pound per mile)
+        val caloriesPerMilePerLb = 0.57
+
+        return distanceMiles * weightLbs * caloriesPerMilePerLb
+    }
+
     override fun onDisabled(context: Context?) {
         super.onDisabled(context)
         widgetContext = context!!
@@ -369,10 +383,7 @@ class NewAppWidget : AppWidgetProvider() {
             getPendingSelfIntent(context, GET_WEATHER)
         )
 
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgbtn_startspeed,
-            getPendingSelfIntent(context, SPEED_CHECK)
-        )
+
 
         remoteViews?.setOnClickPendingIntent(
             R.id.tx_time_announcement,
@@ -641,6 +652,14 @@ class NewAppWidget : AppWidgetProvider() {
             R.id.imgv_map_icon,
             mapsPendingIntent
         )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_add_r_todos, PendingIntent.getActivity(
+                context, 19,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "addRtodo"),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
     }
 
     private fun locationTxUpdate(context: Context) {
@@ -707,6 +726,11 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.tx_steps,
                 "$stepsToday Steps"
             )
+            remoteViews?.setTextViewText(
+                R.id.rl_tx_steps,
+                "$stepsToday"
+            )
+            remoteViews?.setTextViewText(R.id.rl_tx_cals, (stepsToday * 0.04 * (80 / 70)).toInt().toString())
             sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
 
 
@@ -778,9 +802,6 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setViewVisibility(R.id.frame_speed, View.VISIBLE)
             remoteViews?.setViewVisibility(R.id.frame_max_speed, View.VISIBLE)
             remoteViews?.setViewVisibility(R.id.frame_time_speed, View.VISIBLE)
-            remoteViews?.setImageViewResource(R.id.imgbtn_startspeed, R.drawable.stop_speedservice)
-            remoteViews?.setViewLayoutWidth(R.id.imgbtn_startspeed, 25.0F, TypedValue.COMPLEX_UNIT_DIP)
-            remoteViews?.setViewLayoutHeight(R.id.imgbtn_startspeed, 25.0F, TypedValue.COMPLEX_UNIT_DIP)
 
         }
 
@@ -1151,6 +1172,42 @@ class NewAppWidget : AppWidgetProvider() {
 
         super.onReceive(context, intent)
 
+        if (intent.hasExtra("rToDoClick")) {
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+
+            // Target your AppWidgetProvider class
+            val thisWidget = ComponentName(context, NewAppWidget::class.java)
+            val allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
+
+            for (widgetId in allWidgetIds) {
+                // 1. Reference the main root widget layout
+                val mainViews = RemoteViews(context.packageName, R.layout.new_app_widget)
+
+                // 2. Inflate the child view layout as a separate RemoteViews object
+                val childView = RemoteViews(context.packageName, R.layout.item_r_todo)
+
+                childView.setImageViewBitmap(R.id.img_r1, IconGenerator(context).makeIcon(intent.getStringExtra("rToDoClick")))
+                childView?.setOnClickPendingIntent(
+                    R.id.img_r1,
+                    getPendingSelfIntent(context, TODO_CLICK)
+                )
+                // Optional: Modify components inside your child layout before appending
+                childView.setTextViewText(R.id.r1_count, "0")
+
+                // 3. Append the child RemoteViews to the main LinearLayout container ID
+                mainViews.addView(R.id.list_r_todos, childView)
+                appWidgetManager.updateAppWidget(widgetId, mainViews)
+
+            }
+        }
+       /* if (intent.hasExtra("rToDoClick")) {
+            val myValue = intent.getIntExtra("rToDoClick", 0)
+
+            makeToast(widgetContext, "! " + myValue)
+
+            // Update your RemoteViews and refresh the widget here...
+        }*/
+
         if (intent.action == "ACTION_UPDATE_SPEED") {
             speedReading = intent.getDoubleExtra("EXTRA_SPEED", 0.0).toString()
 
@@ -1200,6 +1257,11 @@ class NewAppWidget : AppWidgetProvider() {
         // 4. Manually trigger onUpdate
        // onUpdate(context, appWidgetManager, appWidgetIds!!)
 
+        if (TODO_CLICK == intent.action) {
+            makeToast(widgetContext,"inc")
+            sharedPreferencesEditor.putInt()
+        }
+
         if (TIME_CLICK == intent.action) {
 
             val mClockIntent = Intent(AlarmClock.ACTION_SHOW_ALARMS).apply {
@@ -1233,6 +1295,10 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday Steps")
 
         }
+
+
+
+
         if (BATTERY_INFO == intent.action) {
             val powerUsageIntent = Intent("android.intent.action.POWER_USAGE_SUMMARY")
             if (powerUsageIntent.resolveActivity(widgetContext.getPackageManager()) != null) {
@@ -1245,9 +1311,6 @@ class NewAppWidget : AppWidgetProvider() {
                 if(widgetContext.stopService(Intent(widgetContext, SpeedService::class.java))) {
                     makeToast(widgetContext, "  ⃠  ")
                     remoteViews?.setChronometer(R.id.speed_chronometer, 0L, null, false)
-                    remoteViews?.setImageViewResource(R.id.imgbtn_startspeed, R.drawable.start_speedservice)
-                    remoteViews?.setViewLayoutWidth(R.id.imgbtn_startspeed, 100.0F, TypedValue.COMPLEX_UNIT_DIP)
-                    remoteViews?.setViewLayoutHeight(R.id.imgbtn_startspeed, 100.0F, TypedValue.COMPLEX_UNIT_DIP)
                     remoteViews?.setViewVisibility(R.id.frame_speed, View.INVISIBLE)
                     remoteViews?.setViewVisibility(R.id.frame_max_speed, android.view.View.INVISIBLE)
                     remoteViews?.setViewVisibility(R.id.frame_time_speed, View.INVISIBLE)
@@ -1255,9 +1318,6 @@ class NewAppWidget : AppWidgetProvider() {
             } else {
                 val baseTime = SystemClock.elapsedRealtime()
                 remoteViews?.setChronometer(R.id.speed_chronometer, baseTime, null, true)
-                remoteViews?.setImageViewResource(R.id.imgbtn_startspeed, R.drawable.stop_speedservice)
-                remoteViews?.setViewLayoutWidth(R.id.imgbtn_startspeed, 25.0F, TypedValue.COMPLEX_UNIT_DIP)
-                remoteViews?.setViewLayoutHeight(R.id.imgbtn_startspeed, 25.0F, TypedValue.COMPLEX_UNIT_DIP)
                 remoteViews?.setViewVisibility(R.id.frame_speed, View.VISIBLE)
                 remoteViews?.setViewVisibility(R.id.frame_max_speed, android.view.View.VISIBLE)
                 remoteViews?.setViewVisibility(R.id.frame_time_speed, View.VISIBLE)
@@ -1503,6 +1563,8 @@ class NewAppWidget : AppWidgetProvider() {
                 sharedPreferencesEditor.putBoolean("SPKSERVICE", false).apply()
             }
 
+        } else if (ADD_TODO_CLICK == intent.action) {
+            makeToast(widgetContext, "Add Todo Clicked!")
         }
     }
 
@@ -2002,6 +2064,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val NEXT_STATE = "nextState"
         private const val PREV_STATE = "nextState"
         private const val SPEED_INFO = "sppedInfo"
+        private const val TODO_CLICK = "todo1Click"
         private const val TIME_CLICK = "timeClick"
         private const val DATE_CLICK = "dateClick"
         private const val STEPSINFO_CLICK = "stepsinfoClick"
@@ -2022,6 +2085,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val DIAL_CLICK = "dialClick"
         private const val C_CLICKED = "CClicked"
         private const val A_CLICKED = "AClicked"
+        private const val ADD_TODO_CLICK = "addTodoClick"
         private const val ACTION_LIST_CONTACTITEM_CLICK = "Contact_Item_Click"
         private const val ACTION_LIST_APPITEM_CLICK = "App_Item_Click"
         const val EXTRA_CONTACTITEM_POSITION = "Contact_Item_Pos"
