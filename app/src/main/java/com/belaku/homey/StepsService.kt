@@ -260,6 +260,11 @@ class StepsService : Service() {
                                 R.id.tx_steps,
                                 "$stepsToday steps"
                             )
+                            remoteViews?.setTextViewText(
+                                R.id.rl_tx_steps,
+                                "$stepsToday"
+                            )
+                            remoteViews?.setTextViewText(R.id.rl_tx_cals, (stepsToday * 0.04 * (80 / 70)).toInt().toString())
                         }
                         sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
                     } else if (stepsToday % 131 == 0) {
@@ -268,6 +273,11 @@ class StepsService : Service() {
                         R.id.tx_steps,
                         "${String.format("%.1f",  (Integer.parseInt(stepsToday.toString()) * 74f) / 100000f)} km"
                     )
+                        remoteViews?.setTextViewText(
+                            R.id.rl_tx_steps,
+                            "$stepsToday"
+                        )
+                        remoteViews?.setTextViewText(R.id.rl_tx_cals, (stepsToday * 0.04 * (80 / 70)).toInt().toString())
                         sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
                 }
 

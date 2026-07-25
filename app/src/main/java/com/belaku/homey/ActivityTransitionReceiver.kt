@@ -59,19 +59,30 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
         // Create the RemoteViews object targeting your widget's XML layout
         val remoteViews = RemoteViews(applicationContext.getPackageName(), R.layout.new_app_widget)
 
+    //    makeToast(applicationContext, presentActivityState)
+
         if (presentActivityState == "STILL") {
+            remoteViews.setViewVisibility(R.id.rl_still, View.VISIBLE)
+            remoteViews.setViewVisibility(R.id.rl_walking, View.GONE)
+            remoteViews.setViewVisibility(R.id.rl_speed, View.GONE)
+
             remoteViews.setTextViewText(R.id.tx_activity_state, "STILL")
             remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.still)
         } else if (presentActivityState == "WALKING") {
+            remoteViews.setViewVisibility(R.id.rl_walking, View.VISIBLE)
+            remoteViews.setViewVisibility(R.id.rl_still, View.GONE)
+            remoteViews.setViewVisibility(R.id.rl_speed, View.GONE)
+
             remoteViews.setTextViewText(R.id.tx_activity_state, "WALKING")
             remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.steps)
         } else if (presentActivityState == "INVEHICLE") {
+            remoteViews.setViewVisibility(R.id.rl_speed, View.VISIBLE)
+            remoteViews.setViewVisibility(R.id.rl_still, View.GONE)
+            remoteViews.setViewVisibility(R.id.rl_walking, View.GONE)
+
 
             if (toTransitionType(event.transitionType) == "ENTER") {
-                NewAppWidget.Companion.remoteViews?.setViewVisibility(
-                    R.id.imgbtn_startspeed,
-                    View.INVISIBLE
-                )
+
                 NewAppWidget.Companion.remoteViews?.setViewVisibility(
                     R.id.frame_speed,
                     View.VISIBLE
@@ -94,7 +105,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
             } else if (toTransitionType(event.transitionType) == "EXIT") {
                 if(widgetContext.stopService(Intent(widgetContext, SpeedService::class.java))) {
                  //   makeToast(widgetContext, "  ⃠  ")
-                    NewAppWidget.Companion.remoteViews?.setViewVisibility(R.id.imgbtn_startspeed, View.VISIBLE)
+
                     NewAppWidget.Companion.remoteViews?.setViewVisibility(R.id.frame_speed, View.INVISIBLE)
                     NewAppWidget.Companion.remoteViews?.setViewVisibility(R.id.frame_time_speed, View.INVISIBLE)
                 }
