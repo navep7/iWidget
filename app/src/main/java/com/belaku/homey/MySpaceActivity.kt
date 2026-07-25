@@ -19,15 +19,12 @@ import android.renderscript.ScriptIntrinsicBlur
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Spinner
-import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.belaku.homey.NewAppWidget.Companion.blurWallBitmap
-import com.belaku.homey.NewAppWidget.Companion.primaryColor
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.databinding.ActivityMySpaceBinding
@@ -59,15 +56,6 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         setContentView(binding.root)
 
         mySpaceActivityContext = applicationContext
-
-
-        if (ColorUtil().isColorDark(primaryColor)) {
-            findViewById<TextView>(R.id.tx_t)
-                .setTextColor(applicationContext.getColor(R.color.white))
-        } else {
-            findViewById<TextView>(R.id.tx_t)
-                .setTextColor(applicationContext.getColor(R.color.black))
-        }
 
         // Set immediate background to avoid grey screen while loading
         try {
@@ -101,10 +89,9 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
             launch(Dispatchers.IO) {
                 try {
                     if (SetWallWorker.isWallBitmapInitialized()) {
-                      //  val blurredBitmap = blur(applicationContext, SetWallWorker.wallBitmap)
+                        val blurredBitmap = blur(applicationContext, SetWallWorker.wallBitmap)
                         withContext(Dispatchers.Main) {
-                            binding.mySpaceLayout.background = BitmapDrawable(resources,
-                                blurWallBitmap)
+                            binding.mySpaceLayout.background = BitmapDrawable(resources, blurredBitmap)
                         }
                     }
                 } catch (e: Exception) {}
@@ -235,6 +222,31 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         return packageManager.queryIntentActivities(mainIntent, 0)
     }
 
+    fun blur(context: Context?, image: Bitmap): Bitmap {
+
+        var BITMAP_SCALE = 0.1f; // Increased scale slightly for better quality/stability
+        var BLUR_RADIUS = 25f; // Adjust blur intensity
+
+        val width = Math.max(1, Math.round(image.width * BITMAP_SCALE).toInt())
+        val height = Math.max(1, Math.round(image.height * BITMAP_SCALE).toInt())
+
+        val inputBitmap = Bitmap.createScaledBitmap(image, width, height, false)
+        val outputBitmap = Bitmap.createBitmap(inputBitmap)
+
+        val rs = RenderScript.create(context)
+        val theIntrinsic = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
+        val tmpIn = Allocation.createFromBitmap(rs, inputBitmap)
+        val tmpOut = Allocation.createFromBitmap(rs, outputBitmap)
+
+        theIntrinsic.setRadius(BLUR_RADIUS)
+        theIntrinsic.setInput(tmpIn)
+        theIntrinsic.forEach(tmpOut)
+        tmpOut.copyTo(outputBitmap)
+        
+        rs.destroy()
+
+        return outputBitmap
+    }
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onItemClick(pos: Int) {
