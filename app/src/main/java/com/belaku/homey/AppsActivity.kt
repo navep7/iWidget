@@ -27,7 +27,6 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.belaku.homey.MainActivity.Companion.apps
-import com.belaku.homey.NewAppWidget.Companion.blurWallBitmap
 import com.belaku.homey.NewAppWidget.Companion.primaryColor
 import com.belaku.homey.databinding.ActivityAppsBinding
 
@@ -69,7 +68,7 @@ class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
             rootLayout.setBackgroundDrawable(
                 BitmapDrawable(
                     getResources(),
-                    blurWallBitmap
+                    blur(applicationContext, SetWallWorker.wallBitmap)
                 )
             )
         } catch (ex: Exception) {
@@ -111,6 +110,29 @@ class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         return resultBitmap
     }
 
+    fun blur(context: Context?, image: Bitmap): Bitmap {
+
+        var BITMAP_SCALE = 0.001f; // Scale down bitmap for performance
+        var BLUR_RADIUS = 21f; // Adjust blur intensity
+
+        val width = Math.round(image.width * BITMAP_SCALE).toInt()
+        val height = Math.round(image.height * BITMAP_SCALE).toInt()
+
+        val inputBitmap = Bitmap.createScaledBitmap(image, width, height, false)
+        val outputBitmap = Bitmap.createBitmap(inputBitmap)
+
+        val rs = RenderScript.create(context)
+        val theIntrinsic = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
+        val tmpIn = Allocation.createFromBitmap(rs, inputBitmap)
+        val tmpOut = Allocation.createFromBitmap(rs, outputBitmap)
+
+        theIntrinsic.setRadius(BLUR_RADIUS)
+        theIntrinsic.setInput(tmpIn)
+        theIntrinsic.forEach(tmpOut)
+        tmpOut.copyTo(outputBitmap)
+
+        return outputBitmap
+    }
 
     override fun onItemClick(pos: Int) {
         val launchIntent = packageManager.getLaunchIntentForPackage(apps[pos].pName)

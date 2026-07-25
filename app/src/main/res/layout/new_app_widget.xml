@@ -357,7 +357,7 @@
 -->
 
             <LinearLayout
-                android:id="@+id/id_weather"
+                android:id="@+id/ll_weather"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="@dimen/padding_5"
@@ -706,9 +706,7 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:weightSum="6"
-        android:orientation="vertical"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="@dimen/padding_5"
@@ -717,13 +715,47 @@
         android:layout_toEndOf="@+id/ll_apps"
         android:layout_toStartOf="@+id/ll_contacts">
 
+
+        <TextView
+            android:id="@+id/tx_speed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_below="@+id/rl_controls"
+            android:textColor="@android:color/holo_red_light"
+            android:textSize="35sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-condensed"
+            android:includeFontPadding="false"
+            app:autoSizeTextType="uniform"
+            app:autoSizeMinTextSize="35sp"
+            app:autoSizeMaxTextSize="40sp" />
+
+        <ImageButton
+            android:id="@+id/imgbtn_speed"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:background="@android:color/transparent"
+            android:scaleType="fitXY"
+            android:src="@drawable/start_speedservice"
+            android:gravity="center"
+            android:layout_below="@+id/rl_controls"
+            android:layout_centerHorizontal="true"
+            android:textColor="@android:color/holo_red_light"
+            android:textSize="35sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-condensed"
+            android:includeFontPadding="false"
+            app:autoSizeTextType="uniform"
+            app:autoSizeMinTextSize="35sp"
+            app:autoSizeMaxTextSize="40sp" />
+
+
         <RelativeLayout
             android:id="@+id/rl_controls"
-            android:layout_weight="4"
             android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_marginBottom="@dimen/padding_3"
-            android:layout_alignParentTop="true"
+            android:layout_height="190dp"
+            android:layout_centerInParent="true"
             android:background="@drawable/gradient_glass_light">
 
             <ImageView
@@ -881,229 +913,7 @@
 
         </RelativeLayout>
 
-        <RelativeLayout
-            android:id="@+id/rl_still"
-
-            android:gravity="center"
-            android:layout_gravity="center"
-            android:layout_weight="2"
-            android:background="@drawable/gradient_glass_rounded"
-            android:layout_width="match_parent"
-            android:layout_height="0dp">
-
-
-            <LinearLayout
-                android:id="@+id/ll_stilltitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-            <TextView
-                android:id="@+id/rl_tx_still_"
-                android:layout_alignParentTop="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/padding_5"
-                android:textColor="@android:color/black"
-                android:textStyle="bold"
-                android:textSize="25dp"
-                android:text="Still"/>
-
-            <ImageButton
-                android:id="@+id/imgbtn_add_r_todos"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/padding_5"
-                android:background="@android:color/transparent"
-                android:src="@android:drawable/ic_input_add"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/list_r_todos"
-                android:layout_below="@+id/ll_stilltitle"
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-
-        </RelativeLayout>
-
-
-        <RelativeLayout
-            android:id="@+id/rl_walking"
-            android:visibility="gone"
-            android:gravity="center"
-            android:layout_gravity="center"
-            android:layout_weight="2"
-            android:background="@drawable/gradient_glass_rounded"
-            android:layout_width="match_parent"
-            android:layout_height="0dp">
-
-            <TextView
-                android:id="@+id/rl_tx_walking_"
-                android:layout_alignParentTop="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/padding_5"
-                android:textColor="@android:color/black"
-                android:textStyle="bold"
-                android:textSize="25dp"
-                android:text="Walking"/>
-
-            <LinearLayout
-                android:id="@+id/ll_steps"
-                android:gravity="center"
-                android:layout_below="@+id/rl_tx_walking_"
-                android:layout_centerHorizontal="true"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/rl_tx_steps"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/black"
-                android:textStyle="bold"
-                android:textSize="20dp"
-                android:text="12500"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@android:color/black"
-                    android:textStyle="italic"
-                    android:textSize="15dp"
-                    android:text="   steps"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_below="@+id/ll_steps"
-                android:layout_centerHorizontal="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/rl_tx_cals"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@android:color/black"
-                    android:textStyle="bold"
-                    android:textSize="20dp"
-                    android:text="52.07"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@android:color/black"
-                    android:textStyle="italic"
-                    android:textSize="15dp"
-                    android:text="   kcal"/>
-
-            </LinearLayout>
-
-        </RelativeLayout>
-
-
-        <RelativeLayout
-            android:id="@+id/rl_speed"
-            android:visibility="gone"
-            android:layout_weight="2"
-            android:background="@drawable/gradient_glass_dark_flat"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_below="@+id/rl_controls">
-
-            <TextView
-                android:id="@+id/tx_sp_"
-                android:layout_alignParentTop="true"
-                android:layout_toStartOf="@+id/frame_speed"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/white"
-                android:textSize="@dimen/padding_20"
-                android:text="Speed "/>
-
-            <TextView
-                android:id="@+id/tx_kmp_"
-                android:layout_toEndOf="@+id/frame_speed"
-                android:layout_alignParentTop="true"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/holo_red_light"
-                android:textSize="@dimen/padding_20"
-                android:text="km/h"/>
-
-
-            <FrameLayout
-                android:id="@+id/frame_max_speed"
-                android:layout_alignParentBottom="true"
-                android:layout_width="55dp"
-                android:layout_height="55dp"
-                android:layout_toStartOf="@+id/frame_speed"
-                >
-
-                <TextView
-                    android:id="@+id/tx_max_speed"
-                    android:text="Max"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:background="@drawable/speed_sign_bg"
-                    android:gravity="center"
-                    android:textColor="@android:color/holo_red_light"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-            </FrameLayout>
-
-            <FrameLayout
-                android:id="@+id/frame_time_speed"
-                android:layout_alignParentBottom="true"
-                android:layout_width="55dp"
-                android:layout_height="55dp"
-                android:layout_toEndOf="@+id/frame_speed"
-                >
-
-                <Chronometer
-                    android:id="@+id/speed_chronometer"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:background="@drawable/speed_sign_bg"
-                    android:textSize="12sp"
-                    android:textColor="@android:color/holo_red_dark"
-                    android:textStyle="bold" />
-
-            </FrameLayout>
-
-
-            <FrameLayout
-                android:id="@+id/frame_speed"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:layout_centerHorizontal="true"
-                android:layout_alignParentTop="true"
-                >
-
-                <TextView
-                    android:id="@+id/tx_speed"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:background="@drawable/speed_sign_bg"
-                    android:gravity="center"
-                    android:text="⚡"
-                    android:textColor="@android:color/holo_red_light"
-                    android:textSize="35sp"
-                    android:textStyle="bold" />
-
-            </FrameLayout>
-
-        </RelativeLayout>
-
-
-
-    </LinearLayout>
+    </RelativeLayout>
 
 
     <TextView

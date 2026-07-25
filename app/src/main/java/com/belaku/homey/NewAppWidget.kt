@@ -42,15 +42,11 @@ import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.BatteryManager
 import android.os.Build
-import android.os.SystemClock
 import android.provider.AlarmClock
 import android.provider.CalendarContract
 import android.provider.ContactsContract
+import android.provider.MediaStore
 import android.provider.Settings
-import android.renderscript.Allocation
-import android.renderscript.Element
-import android.renderscript.RenderScript
-import android.renderscript.ScriptIntrinsicBlur
 import android.text.Html
 import android.util.DisplayMetrics
 import android.util.Log
@@ -59,12 +55,15 @@ import android.view.View
 import android.view.accessibility.AccessibilityManager
 import android.widget.AdapterView
 import android.widget.RemoteViews
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity.RECEIVER_NOT_EXPORTED
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.belaku.homey.Constants.Companion.stepsToday
+import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
@@ -100,6 +99,7 @@ import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.belaku.homey.StepsService.Companion.choosenApps
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.belaku.homey.StepsService.Companion.isStepsAdapterInitialized
+import com.belaku.homey.StepsService.Companion.speedInKmph
 import com.belaku.homey.StepsService.Companion.stepsAdapter
 import com.belaku.homey.StepsService.Companion.stepsData
 import com.google.android.gms.location.ActivityRecognition
@@ -111,7 +111,6 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.google.maps.android.ui.IconGenerator
 import com.squareup.picasso.Picasso
 import java.io.File
 import java.io.FileOutputStream
@@ -126,12 +125,6 @@ import java.util.Locale
 class NewAppWidget : AppWidgetProvider() {
 
 
-    private lateinit var activityTransitionRequest: ActivityTransitionRequest
-    private lateinit var pendingIntentActivityTransitions: PendingIntent
-    private lateinit var activityTransitions: ArrayList<ActivityTransition>
-    private var requestCodeAT: Int = 57
-    private lateinit var intentActivityTransitionReceiver: Intent
-    private lateinit var activityTransitionReceiver: ActivityTransitionReceiver
     private var speedReading: String = ""
     private var boolKm: Boolean = false
     private lateinit var cName: String
@@ -191,26 +184,30 @@ class NewAppWidget : AppWidgetProvider() {
             if(ismActInitialized())
                 fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
 
+        recognizeActivityTransitions()
+
+
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @SuppressLint("MissingPermission")
     private fun recognizeActivityTransitions() {
 
-        activityTransitionReceiver = ActivityTransitionReceiver()
-        val intentFilterActivityTransitionReceiver = IntentFilter("com.belaku.homey.CUSTOM_ACTION") // Use a unique action string
-        widgetContext.registerReceiver(activityTransitionReceiver, intentFilterActivityTransitionReceiver, RECEIVER_NOT_EXPORTED)
+        val receiver = ActivityTransitionReceiver()
+        val filter = IntentFilter("com.belaku.homey.CUSTOM_ACTION") // Use a unique action string
+        widgetContext.registerReceiver(receiver, filter, RECEIVER_NOT_EXPORTED)
 
-        intentActivityTransitionReceiver = Intent(widgetContext, ActivityTransitionReceiver::class.java)
-        requestCodeAT = 57
-        pendingIntentActivityTransitions = PendingIntent.getBroadcast(
+        val intent = Intent(widgetContext, ActivityTransitionReceiver::class.java)
+        val requestCodeAT = 57
+        val pendingIntent = PendingIntent.getBroadcast(
             widgetContext,
             requestCodeAT,
-            intentActivityTransitionReceiver,
+            intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
         )
 
-        activityTransitions = ArrayList<ActivityTransition>()
-        activityTransitions.apply {
+        val transitions = ArrayList<ActivityTransition>()
+        transitions.apply {
             add(
                 ActivityTransition.Builder()
                     .setActivityType(DetectedActivity.STILL)
@@ -254,34 +251,21 @@ class NewAppWidget : AppWidgetProvider() {
             )
         }
 
-        activityTransitionRequest = ActivityTransitionRequest(activityTransitions)
+        val transitionRequest = ActivityTransitionRequest(transitions)
 
         // myPendingIntent is the instance of PendingIntent where the app receives callbacks.
-        ActivityRecognition.getClient(widgetContext)
-            .requestActivityTransitionUpdates(activityTransitionRequest, pendingIntentActivityTransitions)
+        val task = ActivityRecognition.getClient(widgetContext)
+            .requestActivityTransitionUpdates(transitionRequest, pendingIntent)
+
+        task.addOnSuccessListener {
+            //yet2
+        }
+
+        task.addOnFailureListener {
+            // Handle error
+        }
 
 
-    }
-
-    fun calculateCaloriesFromSteps(steps: Int, weightKg: Double, heightCm: Double): Double {
-        if (steps <= 0 || weightKg <= 0.0 || heightCm <= 0.0) return 0.0
-
-        // 1. Estimate stride length (average multiplier is 0.414 for men, 0.413 for women)
-        val strideLengthCm = heightCm * 0.414
-
-        // 2. Convert total steps to total distance in kilometers
-        val distanceKm = (steps * strideLengthCm) / 100_000.0
-
-        // 3. Convert kilometers to miles (Standard MET formulas use miles)
-        val distanceMiles = distanceKm * 0.621371
-
-        // 4. Convert weight to pounds
-        val weightLbs = weightKg * 2.20462
-
-        // 5. Apply the standard walking metabolic constant (approx. 0.57 calories per pound per mile)
-        val caloriesPerMilePerLb = 0.57
-
-        return distanceMiles * weightLbs * caloriesPerMilePerLb
     }
 
     override fun onDisabled(context: Context?) {
@@ -383,7 +367,10 @@ class NewAppWidget : AppWidgetProvider() {
             getPendingSelfIntent(context, GET_WEATHER)
         )
 
-
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_speed,
+            getPendingSelfIntent(context, SPEED_CHECK)
+        )
 
         remoteViews?.setOnClickPendingIntent(
             R.id.tx_time_announcement,
@@ -652,14 +639,6 @@ class NewAppWidget : AppWidgetProvider() {
             R.id.imgv_map_icon,
             mapsPendingIntent
         )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgbtn_add_r_todos, PendingIntent.getActivity(
-                context, 19,
-                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "addRtodo"),
-                PendingIntent.FLAG_IMMUTABLE
-            )
-        )
     }
 
     private fun locationTxUpdate(context: Context) {
@@ -708,29 +687,24 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
 
-    @SuppressLint("SuspiciousIndentation")
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setUI() {
 
         locationTxUpdate(widgetContext)
 
-        remoteViews?.setTextViewText(R.id.tx_speed, speedReading)
-        val maxSpeed = sharedPreferences.getInt("maxSpeedToday", 0)
-        if (maxSpeed > 0)
-            remoteViews?.setTextViewText(R.id.tx_max_speed, maxSpeed.toString())
+        if (speedReading != "0.0")
+            if (speedReading.contains(".")) {
+                speedReading = speedReading.split(".")[0] + "KmpH"
+                remoteViews?.setTextViewText(R.id.tx_speed, speedReading)
+            }
+        else remoteViews?.setTextViewText(R.id.tx_speed, "")
 
-
-            stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
+        stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
 
             remoteViews?.setTextViewText(
                 R.id.tx_steps,
                 "$stepsToday Steps"
             )
-            remoteViews?.setTextViewText(
-                R.id.rl_tx_steps,
-                "$stepsToday"
-            )
-            remoteViews?.setTextViewText(R.id.rl_tx_cals, (stepsToday * 0.04 * (80 / 70)).toInt().toString())
             sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
 
 
@@ -795,16 +769,6 @@ class NewAppWidget : AppWidgetProvider() {
         loadStepsData() // Always refresh stepsData from disk to ensure persistence
         wallColors()
         setSomeTwAndWallDescUI()
-
-        recognizeActivityTransitions()
-
-        if (isMyServiceRunning(widgetContext, SpeedService::class.java)) {
-            remoteViews?.setViewVisibility(R.id.frame_speed, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.frame_max_speed, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.frame_time_speed, View.VISIBLE)
-
-        }
-
 
 
     }
@@ -967,8 +931,6 @@ class NewAppWidget : AppWidgetProvider() {
                             ), android.R.color.white, 75
                         )
                     )
-
-                    blurWallBitmap = blur(widgetContext, wallBitmap)
                 }
 
 
@@ -1013,8 +975,6 @@ class NewAppWidget : AppWidgetProvider() {
                             ), android.R.color.black, 75
                         )
                     )
-
-                    blurWallBitmap = blur(widgetContext, wallBitmap)
                 }
 
 
@@ -1028,32 +988,6 @@ class NewAppWidget : AppWidgetProvider() {
         } else Log.d("wallColors", "NULL")
 
 
-    }
-
-    fun blur(context: Context?, image: Bitmap): Bitmap {
-
-        var BITMAP_SCALE = 0.1f; // Increased scale slightly for better quality/stability
-        var BLUR_RADIUS = 25f; // Adjust blur intensity
-
-        val width = Math.max(1, Math.round(image.width * BITMAP_SCALE).toInt())
-        val height = Math.max(1, Math.round(image.height * BITMAP_SCALE).toInt())
-
-        val inputBitmap = Bitmap.createScaledBitmap(image, width, height, false)
-        val outputBitmap = Bitmap.createBitmap(inputBitmap)
-
-        val rs = RenderScript.create(context)
-        val theIntrinsic = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
-        val tmpIn = Allocation.createFromBitmap(rs, inputBitmap)
-        val tmpOut = Allocation.createFromBitmap(rs, outputBitmap)
-
-        theIntrinsic.setRadius(BLUR_RADIUS)
-        theIntrinsic.setInput(tmpIn)
-        theIntrinsic.forEach(tmpOut)
-        tmpOut.copyTo(outputBitmap)
-
-        rs.destroy()
-
-        return outputBitmap
     }
 
 
@@ -1172,42 +1106,6 @@ class NewAppWidget : AppWidgetProvider() {
 
         super.onReceive(context, intent)
 
-        if (intent.hasExtra("rToDoClick")) {
-            val appWidgetManager = AppWidgetManager.getInstance(context)
-
-            // Target your AppWidgetProvider class
-            val thisWidget = ComponentName(context, NewAppWidget::class.java)
-            val allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
-
-            for (widgetId in allWidgetIds) {
-                // 1. Reference the main root widget layout
-                val mainViews = RemoteViews(context.packageName, R.layout.new_app_widget)
-
-                // 2. Inflate the child view layout as a separate RemoteViews object
-                val childView = RemoteViews(context.packageName, R.layout.item_r_todo)
-
-                childView.setImageViewBitmap(R.id.img_r1, IconGenerator(context).makeIcon(intent.getStringExtra("rToDoClick")))
-                childView?.setOnClickPendingIntent(
-                    R.id.img_r1,
-                    getPendingSelfIntent(context, TODO_CLICK)
-                )
-                // Optional: Modify components inside your child layout before appending
-                childView.setTextViewText(R.id.r1_count, "0")
-
-                // 3. Append the child RemoteViews to the main LinearLayout container ID
-                mainViews.addView(R.id.list_r_todos, childView)
-                appWidgetManager.updateAppWidget(widgetId, mainViews)
-
-            }
-        }
-       /* if (intent.hasExtra("rToDoClick")) {
-            val myValue = intent.getIntExtra("rToDoClick", 0)
-
-            makeToast(widgetContext, "! " + myValue)
-
-            // Update your RemoteViews and refresh the widget here...
-        }*/
-
         if (intent.action == "ACTION_UPDATE_SPEED") {
             speedReading = intent.getDoubleExtra("EXTRA_SPEED", 0.0).toString()
 
@@ -1234,8 +1132,6 @@ class NewAppWidget : AppWidgetProvider() {
         setUI()
         handleIntentActions(intent)
 
-        if (!isAppWidMInitialized())
-            appWidM = AppWidgetManager.getInstance(widgetContext)
 
         val appWidgetIds = appWidM.getAppWidgetIds(newAppWidget)
       //  appWidM = AppWidgetManager.getInstance(context)
@@ -1256,11 +1152,6 @@ class NewAppWidget : AppWidgetProvider() {
         val appWidgetIds = appWidgetManager.getAppWidgetIds(thisAppWidget)
         // 4. Manually trigger onUpdate
        // onUpdate(context, appWidgetManager, appWidgetIds!!)
-
-        if (TODO_CLICK == intent.action) {
-            makeToast(widgetContext,"inc")
-            sharedPreferencesEditor.putInt()
-        }
 
         if (TIME_CLICK == intent.action) {
 
@@ -1295,10 +1186,6 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday Steps")
 
         }
-
-
-
-
         if (BATTERY_INFO == intent.action) {
             val powerUsageIntent = Intent("android.intent.action.POWER_USAGE_SUMMARY")
             if (powerUsageIntent.resolveActivity(widgetContext.getPackageManager()) != null) {
@@ -1309,20 +1196,11 @@ class NewAppWidget : AppWidgetProvider() {
 
             if (isMyServiceRunning(widgetContext, SpeedService::class.java)) {
                 if(widgetContext.stopService(Intent(widgetContext, SpeedService::class.java))) {
-                    makeToast(widgetContext, "  ⃠  ")
-                    remoteViews?.setChronometer(R.id.speed_chronometer, 0L, null, false)
-                    remoteViews?.setViewVisibility(R.id.frame_speed, View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.frame_max_speed, android.view.View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.frame_time_speed, View.INVISIBLE)
+                    makeToast(widgetContext, " ⃠")
+                    remoteViews?.setImageViewResource(R.id.imgbtn_speed, R.drawable.start_speedservice)
                     }
             } else {
-                val baseTime = SystemClock.elapsedRealtime()
-                remoteViews?.setChronometer(R.id.speed_chronometer, baseTime, null, true)
-                remoteViews?.setViewVisibility(R.id.frame_speed, View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.frame_max_speed, android.view.View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.frame_time_speed, View.VISIBLE)
-                remoteViews?.setTextViewText(R.id.tx_max_speed, "MAX")
-                sharedPreferencesEditor.putInt("maxSpeedToday", 0).apply()
+                remoteViews?.setImageViewResource(R.id.imgbtn_speed, R.drawable.transparent_bg)
                     widgetContext.startForegroundService(
                     Intent(
                         widgetContext,
@@ -1563,8 +1441,6 @@ class NewAppWidget : AppWidgetProvider() {
                 sharedPreferencesEditor.putBoolean("SPKSERVICE", false).apply()
             }
 
-        } else if (ADD_TODO_CLICK == intent.action) {
-            makeToast(widgetContext, "Add Todo Clicked!")
         }
     }
 
@@ -1792,7 +1668,6 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     companion object {
-        lateinit var blurWallBitmap: Bitmap
         private var unlockReceiver: BroadcastReceiver? = null
         lateinit var widgetContext: Context
         lateinit var i_appWidgetIds: IntArray
@@ -1988,9 +1863,6 @@ class NewAppWidget : AppWidgetProvider() {
                 stepsToday = 0
                 sharedPreferencesEditor.putInt(dayName, 0).apply()
                 sharedPreferencesEditor.putInt("unlockCount", 0).apply()
-                
-                sharedPreferencesEditor.putInt("maxSpeedToday", 0).apply()
-                sharedPreferencesEditor.putString("maxSpeedDate", LocalDate.now().toString()).apply()
 
                 // 3. Weekly reset logic (Monday)
                 if (now.dayOfWeek == java.time.DayOfWeek.MONDAY) {
@@ -2064,7 +1936,6 @@ class NewAppWidget : AppWidgetProvider() {
         private const val NEXT_STATE = "nextState"
         private const val PREV_STATE = "nextState"
         private const val SPEED_INFO = "sppedInfo"
-        private const val TODO_CLICK = "todo1Click"
         private const val TIME_CLICK = "timeClick"
         private const val DATE_CLICK = "dateClick"
         private const val STEPSINFO_CLICK = "stepsinfoClick"
@@ -2085,7 +1956,6 @@ class NewAppWidget : AppWidgetProvider() {
         private const val DIAL_CLICK = "dialClick"
         private const val C_CLICKED = "CClicked"
         private const val A_CLICKED = "AClicked"
-        private const val ADD_TODO_CLICK = "addTodoClick"
         private const val ACTION_LIST_CONTACTITEM_CLICK = "Contact_Item_Click"
         private const val ACTION_LIST_APPITEM_CLICK = "App_Item_Click"
         const val EXTRA_CONTACTITEM_POSITION = "Contact_Item_Pos"

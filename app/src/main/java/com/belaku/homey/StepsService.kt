@@ -174,6 +174,22 @@ class StepsService : Service() {
                         }
                     }
 
+                    private fun speedR(strSpeed: String) {
+
+                        var speed = 0
+
+                        if (strSpeed.contains("."))
+                            speed = strSpeed.split(".")[0].trim().toInt()
+                        else speed = strSpeed.trim().toInt()
+
+                        if (speed > 5) {
+                            remoteViews?.setTextViewText(R.id.tx_speed, speed.toString() + " KmpH")
+                            appWidM.partiallyUpdateAppWidget(R.id.tx_speed, remoteViews)
+                        } else {
+                            remoteViews?.setTextViewText(R.id.tx_speed, "")
+                            appWidM.partiallyUpdateAppWidget(R.id.tx_speed, remoteViews)
+                        }
+                    }
 
                     fun getAddress(lat: Double, lng: Double) {
                         val gcd = Geocoder(applicationContext)
@@ -260,11 +276,6 @@ class StepsService : Service() {
                                 R.id.tx_steps,
                                 "$stepsToday steps"
                             )
-                            remoteViews?.setTextViewText(
-                                R.id.rl_tx_steps,
-                                "$stepsToday"
-                            )
-                            remoteViews?.setTextViewText(R.id.rl_tx_cals, (stepsToday * 0.04 * (80 / 70)).toInt().toString())
                         }
                         sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
                     } else if (stepsToday % 131 == 0) {
@@ -273,11 +284,6 @@ class StepsService : Service() {
                         R.id.tx_steps,
                         "${String.format("%.1f",  (Integer.parseInt(stepsToday.toString()) * 74f) / 100000f)} km"
                     )
-                        remoteViews?.setTextViewText(
-                            R.id.rl_tx_steps,
-                            "$stepsToday"
-                        )
-                        remoteViews?.setTextViewText(R.id.rl_tx_cals, (stepsToday * 0.04 * (80 / 70)).toInt().toString())
                         sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
                 }
 
