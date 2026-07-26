@@ -293,8 +293,8 @@ class DialogActivity : AppCompatActivity() {
                             inflater.inflate(R.layout.item_r_todo, listRTodosContainer, false)
 
 // 3. (Optional) Customize the inflated view, e.g., setting the count or image
-                        val countTextView = todoItemView.findViewById<TextView>(R.id.r1_count)
-                        val actionButton = todoItemView.findViewById<ImageButton>(R.id.img_r1)
+                        val countTextView = todoItemView.findViewById<TextView>(R.id.r_count)
+                        val actionButton = todoItemView.findViewById<ImageButton>(R.id.img_r)
 
                         actionButton.setImageBitmap(
                             IconGenerator(applicationContext).makeIcon(
@@ -874,13 +874,13 @@ class DialogActivity : AppCompatActivity() {
             // 2. Inflate the child view layout as a separate RemoteViews object
             val childView = RemoteViews(context.packageName, R.layout.item_r_todo)
 
-            childView.setImageViewBitmap(R.id.img_r1, IconGenerator(context).makeIcon(edtxDialog.text.toString()))
+            childView.setImageViewBitmap(R.id.img_r, IconGenerator(context).makeIcon(edtxDialog.text.toString()))
             childView?.setOnClickPendingIntent(
-                R.id.img_r1,
+                R.id.img_r,
                 getPendingSelfIntent(context, "rTodoClick")
             )
             // Optional: Modify components inside your child layout before appending
-            childView.setTextViewText(R.id.r1_count, "0")
+            childView.setTextViewText(R.id.r_count, "0")
 
             // 3. Append the child RemoteViews to the main LinearLayout container ID
             mainViews.addView(R.id.list_r_todos, childView)

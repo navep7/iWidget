@@ -218,6 +218,8 @@ class MainActivity : AppCompatActivity() {
 
 
 
+
+
     @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("MissingPermission", "SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -1218,6 +1220,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+
+        if (iDV.isShowing) {
+            iDV.dismiss()
+        }
 
         if (pD.isShowing()) {
             pD.dismiss()

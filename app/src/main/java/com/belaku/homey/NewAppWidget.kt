@@ -932,6 +932,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             if (ColorUtil().isColorDark(primaryColor)) {
 
+
                 remoteViews?.setInt(R.id.imgv_conf, "setColorFilter", Color.BLACK)
                 remoteViews?.setInt(R.id.imgbtn_speech, "setColorFilter", Color.BLACK)
                 remoteViews?.setInt(R.id.imgbtn_qr, "setColorFilter", Color.BLACK)
@@ -978,6 +979,8 @@ class NewAppWidget : AppWidgetProvider() {
                 )
 
             } else {
+
+
 
                 remoteViews?.setInt(R.id.imgv_conf, "setColorFilter", Color.WHITE)
                 remoteViews?.setInt(R.id.imgbtn_speech, "setColorFilter", Color.WHITE)
@@ -1186,13 +1189,13 @@ class NewAppWidget : AppWidgetProvider() {
                 // 2. Inflate the child view layout as a separate RemoteViews object
                 val childView = RemoteViews(context.packageName, R.layout.item_r_todo)
 
-                childView.setImageViewBitmap(R.id.img_r1, IconGenerator(context).makeIcon(intent.getStringExtra("rToDoClick")))
+                childView.setImageViewBitmap(R.id.img_r, IconGenerator(context).makeIcon(intent.getStringExtra("rToDoClick")))
                 childView?.setOnClickPendingIntent(
-                    R.id.img_r1,
+                    R.id.img_r,
                     getPendingSelfIntent(context, TODO_CLICK)
                 )
                 // Optional: Modify components inside your child layout before appending
-                childView.setTextViewText(R.id.r1_count, "0")
+                childView.setTextViewText(R.id.r_count, "0")
 
                 // 3. Append the child RemoteViews to the main LinearLayout container ID
                 mainViews.addView(R.id.list_r_todos, childView)
