@@ -275,55 +275,7 @@ class DialogActivity : AppCompatActivity() {
 
 
                 }
-            } else if(dialogIntentStr == "addRtodo") {
-
-                edtxDialog.setHint("Reminder name")
-                imgbtnShare.visibility = View.GONE
-
-                btnOk.setOnClickListener {
-                    // 1. Get a reference to your container (e.g., a LinearLayout or RelativeLayout in activity_dialog.xml)
-
-
-                    if (edtxDialog.text.toString().isNotEmpty()) {
-                        val listRTodosContainer = findViewById<LinearLayout>(R.id.list_r_todos)
-
-// 2. Inflate the item_r_todo layout
-                        val inflater = LayoutInflater.from(this)
-                        val todoItemView =
-                            inflater.inflate(R.layout.item_r_todo, listRTodosContainer, false)
-
-// 3. (Optional) Customize the inflated view, e.g., setting the count or image
-                        val countTextView = todoItemView.findViewById<TextView>(R.id.r_count)
-                        val actionButton = todoItemView.findViewById<ImageButton>(R.id.img_r)
-
-                        actionButton.setImageBitmap(
-                            IconGenerator(applicationContext).makeIcon(
-                                edtxDialog.text.toString()
-                            )
-                        )
-
-                        countTextView.text = "0" // Example dynamic data
-                        actionButton.setOnClickListener {
-
-                            makeToast(applicationContext, "Reminder yet2!")
-
-                        // Handle click on the individual todo item button if needed
-                        }
-
-
-                        addTodoR(edtxDialog.text.toString())
-
-                        finish()
-
-                  //      addRtodoToWidget(applicationContext)
-
-                    }
-
-                }
-
-                btnCancel.setOnClickListener { finish() }
-
-            } else if (dialogIntentStr == "WCh") {
+            }  else if (dialogIntentStr == "WCh") {
 
                 noRewards = sharedPreferences.getInt("noRewards", 7)
 
@@ -858,39 +810,6 @@ class DialogActivity : AppCompatActivity() {
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
 
         sendBroadcast(intent)
-    }
-    // Inside your Activity class (e.g., MainActivity.kt)
-    fun addRtodoToWidget(context: Context) {
-        val appWidgetManager = AppWidgetManager.getInstance(context)
-
-        // Target your AppWidgetProvider class
-        val thisWidget = ComponentName(context, NewAppWidget::class.java)
-        val allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
-
-        for (widgetId in allWidgetIds) {
-            // 1. Reference the main root widget layout
-            val mainViews = RemoteViews(context.packageName, R.layout.new_app_widget)
-
-            // 2. Inflate the child view layout as a separate RemoteViews object
-            val childView = RemoteViews(context.packageName, R.layout.item_r_todo)
-
-            childView.setImageViewBitmap(R.id.img_r, IconGenerator(context).makeIcon(edtxDialog.text.toString()))
-            childView?.setOnClickPendingIntent(
-                R.id.img_r,
-                getPendingSelfIntent(context, "rTodoClick")
-            )
-            // Optional: Modify components inside your child layout before appending
-            childView.setTextViewText(R.id.r_count, "0")
-
-            // 3. Append the child RemoteViews to the main LinearLayout container ID
-            mainViews.addView(R.id.list_r_todos, childView)
-            appWidgetManager.updateAppWidget(widgetId, mainViews)
-
-            finish()
-
-            // 4. Instruct the AppWidgetManager to refresh the target widget
-
-        }
     }
 
     protected fun getPendingSelfIntent(context: Context?, action: String?): PendingIntent {
