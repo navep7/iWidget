@@ -653,6 +653,16 @@ class NewAppWidget : AppWidgetProvider() {
             mapsPendingIntent
         )
 
+        remoteViews?.setOnClickPendingIntent(
+            R.id.rl_water_reminder,
+            getPendingSelfIntent(context, WATER_REMINDER_CLICK)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_water_count,
+            getPendingSelfIntent(context, WATER_REMINDER_CLICK)
+        )
+
     }
 
     private fun locationTxUpdate(context: Context) {
@@ -798,6 +808,8 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
+        val waterCount = sharedPreferences.getInt("waterCountToday", 0)
+        remoteViews?.setTextViewText(R.id.tx_water_count, waterCount.toString())
 
 
     }
@@ -1526,6 +1538,10 @@ class NewAppWidget : AppWidgetProvider() {
 
         } else if (ADD_TODO_CLICK == intent.action) {
             makeToast(widgetContext, "Add Todo Clicked!")
+        } else if (WATER_REMINDER_CLICK == intent.action) {
+            val waterCount = sharedPreferences.getInt("waterCountToday", 0) + 1
+            sharedPreferencesEditor.putInt("waterCountToday", waterCount).apply()
+            remoteViews?.setTextViewText(R.id.tx_water_count, waterCount.toString())
         }
     }
 
@@ -1949,6 +1965,7 @@ class NewAppWidget : AppWidgetProvider() {
                 stepsToday = 0
                 sharedPreferencesEditor.putInt(dayName, 0).apply()
                 sharedPreferencesEditor.putInt("unlockCount", 0).apply()
+                sharedPreferencesEditor.putInt("waterCountToday", 0).apply()
                 
                 sharedPreferencesEditor.putInt("maxSpeedToday", 0).apply()
                 sharedPreferencesEditor.putString("maxSpeedDate", LocalDate.now().toString()).apply()
@@ -1997,7 +2014,7 @@ class NewAppWidget : AppWidgetProvider() {
                 if (gpName.length > 0)
                     remoteViews?.setTextViewText(
                         R.id.tx_myspace,
-                        gpName.split(" ")[0].substring(0, 1) + gpName.split(" ")[1].substring(0, 1)
+                        gpName.split(" ").get(0).substring(0, 1) + gpName.split(" ").get(1).substring(0, 1)
                     )
             } catch (ex: Exception) {
                 gpName = ""
@@ -2047,6 +2064,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val C_CLICKED = "CClicked"
         private const val A_CLICKED = "AClicked"
         private const val ADD_TODO_CLICK = "addTodoClick"
+        private const val WATER_REMINDER_CLICK = "waterReminderClick"
         private const val ACTION_LIST_CONTACTITEM_CLICK = "Contact_Item_Click"
         private const val ACTION_LIST_APPITEM_CLICK = "App_Item_Click"
         const val EXTRA_CONTACTITEM_POSITION = "Contact_Item_Pos"
