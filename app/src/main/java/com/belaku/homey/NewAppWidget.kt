@@ -1259,7 +1259,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (TODO_CLICK == intent.action) {
             makeToast(widgetContext,"inc")
-            sharedPreferencesEditor.putInt()
+         //   sharedPreferencesEditor.putInt()
         }
 
         if (TIME_CLICK == intent.action) {
