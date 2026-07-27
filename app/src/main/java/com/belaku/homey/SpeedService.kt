@@ -6,38 +6,51 @@ import android.app.NotificationManager
 import android.app.Service
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
 import android.os.Build
 import android.os.IBinder
+import android.os.Looper
 import android.widget.RemoteViews
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.belaku.homey.MainActivity.Companion.makeToast
-import com.belaku.homey.NewAppWidget.Companion.widgetContext
+import com.google.android.gms.location.*
 import java.time.LocalDate
 
 
-class SpeedService : Service(), LocationListener {
+class SpeedService : Service() {
 
-    private lateinit var locationManager: LocationManager
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationCallback: LocationCallback
 
     override fun onCreate() {
         super.onCreate()
         startForegroundService()
 
         makeToast(applicationContext, "⚡")
-        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        // Using FusedLocationProviderClient with High Accuracy is significantly more battery-efficient than raw GPS_PROVIDER.
+        // It manages GPS activation intelligently and leverages sensor fusion.
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000L)
+            .setMinUpdateIntervalMillis(1000L)
+            .setMinUpdateDistanceMeters(1f) // 1 meter for precision as requested
+            .build()
+
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                locationResult.lastLocation?.let { location ->
+                    onLocationChanged(location)
+                }
+            }
+        }
 
         try {
-            locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                2000L, // 2 seconds interval
-                1f,    // 1 meter minimum distance
-                this
+            fusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                locationCallback,
+                Looper.getMainLooper()
             )
         } catch (e: SecurityException) {
             makeToast(applicationContext, "speedEx - ${e.message}")
@@ -45,18 +58,14 @@ class SpeedService : Service(), LocationListener {
         }
     }
 
-    override fun onLocationChanged(location: Location) {
+    private fun onLocationChanged(location: Location) {
         // location.speed is in m/s, multiply by 3.6 for km/h
-        var speedKmh = (location.speed * 3.6).toInt()
-
+        val speedKmh = (location.speed * 3.6).toInt()
         updateSpeed(speedKmh)
     }
 
     private fun updateSpeed(speedKmh: Int) {
-
-
-        // Define your specific widget component and the Context
-        val provider: ComponentName = ComponentName(applicationContext, NewAppWidget::class.java)
+        val provider = ComponentName(applicationContext, NewAppWidget::class.java)
         val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
 
         val sharedPreferences = applicationContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
@@ -80,25 +89,17 @@ class SpeedService : Service(), LocationListener {
             sharedPreferencesEditor.putInt("maxSpeedToday", maxSpeed).apply()
         }
 
-
-        // Create the RemoteViews object targeting your widget's XML layout
-        val views = RemoteViews(applicationContext.getPackageName(), R.layout.new_app_widget)
-
-        // Update only the speed TextView with the new text
-
-
+        val views = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
         views.setTextViewText(R.id.tx_speed, speedKmh.toString())
-
         views.setTextViewText(R.id.tx_max_speed, maxSpeed.toString())
 
-
-        // Push the update for all instances of the widget
         appWidgetManager.updateAppWidget(provider, views)
-
     }
 
     override fun onDestroy() {
-        locationManager.removeUpdates(this)
+        if (::fusedLocationClient.isInitialized && ::locationCallback.isInitialized) {
+            fusedLocationClient.removeLocationUpdates(locationCallback)
+        }
         super.onDestroy()
     }
 
@@ -117,6 +118,7 @@ class SpeedService : Service(), LocationListener {
         val notification: Notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("Tracking Vehicle Speed")
             .setContentText("Reading real-time GPS data for widget")
+            .setSmallIcon(R.drawable.in_a_vehicle) // Added small icon which is mandatory for foreground notifications
             .build()
 
         try {
