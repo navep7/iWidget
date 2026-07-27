@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.SystemClock
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
@@ -99,13 +100,16 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     )
                 )
 
+                val baseTime = SystemClock.elapsedRealtime()
+                NewAppWidget.Companion.remoteViews?.setChronometer(R.id.speed_chronometer, baseTime, null, true)
+
 
                 remoteViews.setTextViewText(R.id.tx_activity_state, "IN A VEHICLE")
                 remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.in_a_vehicle)
             } else if (toTransitionType(event.transitionType) == "EXIT") {
                 if(widgetContext.stopService(Intent(widgetContext, SpeedService::class.java))) {
                  //   makeToast(widgetContext, "  ⃠  ")
-
+                    NewAppWidget.Companion.remoteViews?.setChronometer(R.id.speed_chronometer, 0L, null, false)
                     NewAppWidget.Companion.remoteViews?.setViewVisibility(R.id.frame_speed, View.INVISIBLE)
                     NewAppWidget.Companion.remoteViews?.setViewVisibility(R.id.frame_time_speed, View.INVISIBLE)
                 }
