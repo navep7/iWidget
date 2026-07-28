@@ -21,7 +21,7 @@ class LockAccessibilityService : AccessibilityService() {
 
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
-        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+        /*if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             val currentAppPackage = event.packageName?.toString()
 
             if (isUpiApp(applicationContext, currentAppPackage.toString())) {
@@ -31,7 +31,7 @@ class LockAccessibilityService : AccessibilityService() {
                 // 2. Safe app detected: Restore screen lock functionality
                 resumeAccessibilityService()
             }
-        }
+        }*/
     }
 
     fun isUpiApp(context: Context, targetPackageName: String): Boolean {
