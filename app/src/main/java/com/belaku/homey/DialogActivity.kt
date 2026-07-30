@@ -78,6 +78,7 @@ import com.belaku.homey.SetWallWorker.Companion.screenHeight
 import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
+import com.belaku.homey.StepsService.Companion.speedInKmph
 import com.belaku.homey.StepsService.Companion.stepsAdapter
 import com.belaku.homey.StepsService.Companion.stepsData
 import com.belaku.homey.StepsService.Companion.totalUsage
@@ -91,6 +92,7 @@ import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoa
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback
 import com.google.gson.Gson
 import com.google.maps.android.ui.IconGenerator
 import com.journeyapps.barcodescanner.ScanContract
@@ -778,6 +780,64 @@ class DialogActivity : AppCompatActivity() {
                 dialogAct = builder.create()
                 dialogAct.show()
 
+            } else if (dialogIntentStr == "activitiesInfo") {
+                txTitle.text = "Activity Details"
+                val container = findViewById<LinearLayout>(R.id.ll_activity_container)
+                container.visibility = View.VISIBLE
+
+                imgbtnShare.visibility = View.GONE
+                btnOk.visibility = View.GONE
+                btnCancel.visibility = View.GONE
+                vpSteps.visibility = View.GONE
+                val inflater = LayoutInflater.from(this)
+                val widgetView = inflater.inflate(R.layout.new_app_widget, container, false)
+
+                val stillLayout = widgetView.findViewById<RelativeLayout>(R.id.rl_still)
+                val walkingLayout = widgetView.findViewById<RelativeLayout>(R.id.rl_walking)
+                val speedLayout = widgetView.findViewById<RelativeLayout>(R.id.rl_speed)
+
+                // Remove from parent to move to container
+                (stillLayout.parent as ViewGroup).removeView(stillLayout)
+                (walkingLayout.parent as ViewGroup).removeView(walkingLayout)
+                (speedLayout.parent as ViewGroup).removeView(speedLayout)
+
+                val params = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                params.setMargins(0, 10, 0, 10)
+
+                stillLayout.layoutParams = params
+                walkingLayout.layoutParams = params
+                speedLayout.layoutParams = params
+
+                stillLayout.visibility = View.VISIBLE
+                walkingLayout.visibility = View.VISIBLE
+                speedLayout.visibility = View.VISIBLE
+
+                container.addView(stillLayout)
+                container.addView(walkingLayout)
+                container.addView(speedLayout)
+
+                // Update data
+                val txSteps = walkingLayout.findViewById<TextView>(R.id.rl_tx_steps)
+                val txCals = walkingLayout.findViewById<TextView>(R.id.rl_tx_cals)
+                val txSpeed = speedLayout.findViewById<TextView>(R.id.tx_speed)
+                val txMaxSpeed = speedLayout.findViewById<TextView>(R.id.tx_max_speed)
+                val txWater = stillLayout.findViewById<TextView>(R.id.tx_water_count)
+
+                txSteps.text = stepsToday.toString()
+                txCals.text = (stepsToday * 0.04 * (80 / 70)).toInt().toString()
+                txSpeed.text = speedInKmph.toString()
+                txMaxSpeed.text = sharedPreferences.getInt("maxSpeedToday", 0).toString()
+                txWater.text = sharedPreferences.getInt("waterCount", 0).toString()
+
+                // Hide other things
+                txContent.visibility = View.GONE
+                edtxDialog.visibility = View.GONE
+                btnOk.visibility = View.GONE
+                btnCancel.visibility = View.GONE
+                vpSteps.visibility = View.GONE
             }
 
 

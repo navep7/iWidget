@@ -100,6 +100,7 @@ import com.belaku.homey.SetWallWorker.Companion.wallBitmap
 import com.belaku.homey.StepsService.Companion.choosenApps
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.belaku.homey.StepsService.Companion.isStepsAdapterInitialized
+import com.belaku.homey.StepsService.Companion.presentActivityState
 import com.belaku.homey.StepsService.Companion.stepsAdapter
 import com.belaku.homey.StepsService.Companion.stepsData
 import com.google.android.gms.location.ActivityRecognition
@@ -111,7 +112,6 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.google.maps.android.ui.IconGenerator
 import com.squareup.picasso.Picasso
 import java.io.File
 import java.io.FileOutputStream
@@ -363,6 +363,11 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setOnClickPendingIntent(
             R.id.tx_steps,
             getPendingSelfIntent(context, STEPS_CLICK)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_more_activities,
+            getPendingSelfIntent(context, NEXT_ACT_CLICK)
         )
 
         remoteViews?.setOnClickPendingIntent(
@@ -1269,8 +1274,16 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
-
-
+        if (NEXT_ACT_CLICK == intent.action) {
+            makeToast(widgetContext, "  $presentActivityState")
+            widgetContext.startActivity(
+                Intent(
+                    widgetContext,
+                    DialogActivity::class.java
+                ).putExtra("DialogIntent", "activitiesInfo")
+                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }
 
         if (BATTERY_INFO == intent.action) {
             val powerUsageIntent = Intent("android.intent.action.POWER_USAGE_SUMMARY")
@@ -1966,7 +1979,7 @@ class NewAppWidget : AppWidgetProvider() {
                 sharedPreferencesEditor.putInt(dayName, 0).apply()
                 sharedPreferencesEditor.putInt("unlockCount", 0).apply()
                 sharedPreferencesEditor.putInt("waterCountToday", 0).apply()
-                
+
                 sharedPreferencesEditor.putInt("maxSpeedToday", 0).apply()
                 sharedPreferencesEditor.putString("maxSpeedDate", LocalDate.now().toString()).apply()
 
@@ -1974,7 +1987,7 @@ class NewAppWidget : AppWidgetProvider() {
                 if (now.dayOfWeek == java.time.DayOfWeek.MONDAY) {
                     val days = listOf("TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY")
                     days.forEach { sharedPreferencesEditor.putInt(it, 0) }
-                    
+
                     for (i in arrayListHabits) {
                         i.isChecked = false
                         sharedPreferencesEditor.putBoolean("${i.name}StateSu", false).apply()
@@ -1988,7 +2001,7 @@ class NewAppWidget : AppWidgetProvider() {
                 }
 
                 formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
-                
+
                 // 4. Synchronize the history list and notify adapter
                 loadStepsData()
                 if (isStepsAdapterInitialized()) stepsAdapter.notifyDataSetChanged()
@@ -2047,6 +2060,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val DATE_CLICK = "dateClick"
         private const val STEPSINFO_CLICK = "stepsinfoClick"
         private const val STEPS_CLICK = "stepsClick"
+        private const val NEXT_ACT_CLICK = "nextActlick"
         private const val BATTERY_INFO = "batteryInfo"
         private const val GET_WEATHER = "getWeather"
         private const val SPEED_CHECK = "speedCheck"

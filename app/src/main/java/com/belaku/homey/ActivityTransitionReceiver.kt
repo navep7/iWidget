@@ -76,7 +76,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
             remoteViews.setTextViewText(R.id.tx_activity_state, "WALKING")
             remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.steps)
-        } else if (presentActivityState == "INVEHICLE") {
+        } else if (presentActivityState == "TRAVEL") {
             remoteViews.setViewVisibility(R.id.rl_speed, View.VISIBLE)
             remoteViews.setViewVisibility(R.id.rl_still, View.GONE)
             remoteViews.setViewVisibility(R.id.rl_walking, View.GONE)
@@ -92,20 +92,25 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     R.id.frame_time_speed,
                     View.VISIBLE
                 )
-                if (!isMyServiceRunning(widgetContext, SpeedService::class.java))
-                widgetContext.startForegroundService(
-                    Intent(
-                        widgetContext,
-                        SpeedService::class.java
+                if (!isMyServiceRunning(widgetContext, SpeedService::class.java)) {
+                    widgetContext.startForegroundService(
+                        Intent(
+                            widgetContext,
+                            SpeedService::class.java
+                        )
                     )
-                )
 
-                val baseTime = SystemClock.elapsedRealtime()
-                NewAppWidget.Companion.remoteViews?.setChronometer(R.id.speed_chronometer, baseTime, null, true)
+                    val baseTime = SystemClock.elapsedRealtime()
+                    NewAppWidget.Companion.remoteViews?.setChronometer(
+                        R.id.speed_chronometer,
+                        baseTime,
+                        null,
+                        true
+                    )
 
-
-                remoteViews.setTextViewText(R.id.tx_activity_state, "IN A VEHICLE")
-                remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.in_a_vehicle)
+                    remoteViews.setTextViewText(R.id.tx_activity_state, "IN A VEHICLE")
+                    remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.in_a_vehicle)
+                }
             } else if (toTransitionType(event.transitionType) == "EXIT") {
                 if(widgetContext.stopService(Intent(widgetContext, SpeedService::class.java))) {
                  //   makeToast(widgetContext, "  ⃠  ")
@@ -128,7 +133,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
         return when (activity) {
             DetectedActivity.STILL -> "STILL"
             DetectedActivity.WALKING -> "WALKING"
-            DetectedActivity.IN_VEHICLE -> "INVEHICLE"
+            DetectedActivity.IN_VEHICLE -> "TRAVEL"
             DetectedActivity.RUNNING -> "RUNNING"
             else -> "UNKNOWN"
         }
