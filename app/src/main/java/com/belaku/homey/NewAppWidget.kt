@@ -380,7 +380,7 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.tx_battery,
+            R.id.rl_battery,
             getPendingSelfIntent(context, BATTERY_INFO)
         )
         remoteViews?.setOnClickPendingIntent(
@@ -1543,6 +1543,7 @@ class NewAppWidget : AppWidgetProvider() {
                 widgetContext.startService(speakIntent)
                 remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
                 sharedPreferencesEditor.putBoolean("SPKSERVICE", true).apply()
+                makeToast(widgetContext, "Incoming notifications and hour changes will be read out loud.")
             } else {
                 widgetContext.stopService(speakIntent)
                 remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")

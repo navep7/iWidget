@@ -237,7 +237,7 @@ class StepsService : Service() {
 
         mSensorEventListener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent) {
-                if (presentActivityState != "IN VEHICLE") {
+                if (presentActivityState != "TRAVEL") {
 
                     stepsToday++
 

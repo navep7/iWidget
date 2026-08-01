@@ -31,6 +31,8 @@ class RemoteViewsContactsFactory(private val mContext: Context) :
     }
 
     override fun onDataSetChanged() {
+        if (favContacts.isEmpty())
+            getFavoriteContacts()
         // Called when the data needs to be updated (e.g., after notifyAppWidgetViewDataChanged)
     }
 

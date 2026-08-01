@@ -25,6 +25,8 @@ class RemoteViewsAppsFactory(private val mContext: Context) :
     }
 
     override fun onDataSetChanged() {
+        if (choosenApps.isEmpty())
+            appUsageStats(mContext)
         // Called when the data needs to be updated (e.g., after notifyAppWidgetViewDataChanged)
     }
 
