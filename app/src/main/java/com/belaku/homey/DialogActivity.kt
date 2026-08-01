@@ -245,6 +245,9 @@ class DialogActivity : AppCompatActivity() {
         imgbtnShare = findViewById<ImageButton>(R.id.imgbtn_dialog_share)
         vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
 
+        btnCancel.setOnClickListener {
+            finish()
+        }
 
 
         var dialogIntentStr = intent.getStringExtra("DialogIntent")

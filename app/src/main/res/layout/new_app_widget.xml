@@ -894,7 +894,7 @@
                 android:background="@drawable/gradient_glass_rounded"
                 android:visibility="gone"
                 android:layout_width="0dp"
-                android:layout_weight="4"
+                android:layout_weight="5"
                 android:layout_height="match_parent">
 
                 <TextView
@@ -953,7 +953,7 @@
                 android:layout_gravity="center"
                 android:background="@drawable/gradient_glass_rounded"
                 android:layout_width="0dp"
-                android:layout_weight="4"
+                android:layout_weight="5"
                 android:layout_height="match_parent">
 
                 <TextView
@@ -1025,7 +1025,8 @@
                 android:id="@+id/rl_speed"
                 android:background="@drawable/gradient_glass_dark_flat"
                 android:layout_width="0dp"
-                android:layout_weight="4"
+                android:visibility="gone"
+                android:layout_weight="5"
                 android:layout_height="match_parent"
                 android:layout_below="@+id/rl_controls">
 
@@ -1122,7 +1123,7 @@
                 android:id="@+id/tx_more_activities"
                 android:background="@drawable/gradient_glass_dark"
                 android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_weight="0"
                 android:text="M\no\nr\ne"
                 android:gravity="center"
                 android:textColor="@color/white"
