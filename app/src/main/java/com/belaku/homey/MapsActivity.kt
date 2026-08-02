@@ -150,11 +150,11 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
             )
             icon = BitmapDescriptorFactory.fromBitmap(bmp)
         }
-        var mLatLng: LatLng = LatLng(ltlng.latitude, ltlng.longitude)
+        var mLatLng = LatLng(ltlng.latitude, ltlng.longitude)
         var markerOptions = MarkerOptions().position(mLatLng).icon(icon).title(addrs)
 
         //    marker = googleMap.addMarker(markerOptions);
-        var markerAddress = mGoogleMap.addMarker(markerOptions)
+        mGoogleMap.addMarker(markerOptions)
         val cameraPosition =
             CameraPosition.Builder().target(mLatLng).tilt(55f).zoom(20f).bearing(0f)
                 .build()

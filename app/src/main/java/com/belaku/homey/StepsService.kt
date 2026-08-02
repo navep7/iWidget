@@ -66,9 +66,11 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
@@ -157,19 +159,23 @@ class StepsService : Service() {
                                     icon = BitmapDescriptorFactory.fromBitmap(bmp)
                                 }
                                 mGoogleMap.clear()
-                                var mLatLng: LatLng = LatLng(location.latitude, location.longitude)
+                                val mLatLng = LatLng(location.latitude, location.longitude)
 
                                 if (cityname.isNotEmpty()) {
                                     var markerOptions =
                                         MarkerOptions().position(mLatLng).icon(icon).title(cityname)
-                                    var markerAddress = mGoogleMap.addMarker(markerOptions)
+                                    mGoogleMap.addMarker(markerOptions)
                                     mStreetViewPanorama.setPosition(
-                                        LatLng(
-                                            location.latitude,
-                                            location.longitude
-                                        )
+                                        mLatLng
                                     )
                                 }
+
+                                val cameraPosition =
+                                    CameraPosition.Builder().target(mLatLng).tilt(55f).zoom(20f).bearing(0f)
+                                        .build()
+
+                                mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+
                             }
                         }
                     }
