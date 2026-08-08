@@ -93,9 +93,14 @@ class MusicService : Service() {
             )
 
         //    if (isAppWidMInitialized() && mediaMetadata.artworkUri != null)
+            
+            val albumArtPath = dataListSongs[songIndex].album.cover
+            if (!albumArtPath.isNullOrBlank())
                 Picasso.get()
-                    .load(dataListSongs[songIndex].album.cover)
+                    .load(albumArtPath)
                     .into(remoteViews!!, R.id.imgbtn_albumcover, NewAppWidget.i_appWidgetIds)
+            else remoteViews?.setImageViewResource(R.id.imgbtn_albumcover, R.drawable.launch)
+
             txPlayingSong.text = mediaMetadata.title
 
 

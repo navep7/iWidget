@@ -31,6 +31,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.NewAppWidget.Companion.blurWallBitmap
+import com.belaku.homey.NewAppWidget.Companion.isblurWallBitmapInitialized
 import com.belaku.homey.databinding.ActivityAiBinding
 import com.google.firebase.Firebase
 import com.google.firebase.ai.GenerativeModel
@@ -69,6 +70,8 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
 
 
         val rootLayout = findViewById<RelativeLayout>(R.id.ai_layout)
+
+        if (isblurWallBitmapInitialized())
         rootLayout.setBackgroundDrawable(BitmapDrawable(getResources(), blurWallBitmap))
 
 

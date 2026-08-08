@@ -44,6 +44,7 @@ import java.util.Locale
 import androidx.core.graphics.drawable.toDrawable
 import com.belaku.homey.MusicActivity.Companion.pDatalistSongs
 import com.belaku.homey.NewAppWidget.Companion.blurWallBitmap
+import com.belaku.homey.SetWallWorker.Companion.isSharedPreferencesInitialized
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -271,16 +272,18 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         }
 
         fun loadHabits() {
-            val json = sharedPreferences.getString("habits_list", null)
-            if (json != null) {
-                val gson = Gson()
-                val type = object : TypeToken<ArrayList<Habit>>() {}.type
-                val habits: ArrayList<Habit> = gson.fromJson(json, type)
-                arrayListHabits.clear()
-                arrayListHabits.addAll(habits)
+            if (isSharedPreferencesInitialized()) {
+                val json = sharedPreferences.getString("habits_list", null)
+                if (json != null) {
+                    val gson = Gson()
+                    val type = object : TypeToken<ArrayList<Habit>>() {}.type
+                    val habits: ArrayList<Habit> = gson.fromJson(json, type)
+                    arrayListHabits.clear()
+                    arrayListHabits.addAll(habits)
+                }
+                if (isadapterHabitsInitialized())
+                    adapterHabits.notifyDataSetChanged()
             }
-            if (isadapterHabitsInitialized())
-                adapterHabits.notifyDataSetChanged()
         }
     }
 

@@ -977,15 +977,19 @@ class MainActivity : AppCompatActivity() {
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
         val resolveInfoList = packageManager.queryIntentActivities(mainIntent, 0)
         for (i in resolveInfoList) {
-            if (i.activityInfo != null) {
-                val appInfo = packageManager.getApplicationInfo(i.activityInfo.packageName, 0)
-                apps.add(
-                    InstalledApp(
-                        i.activityInfo.loadLabel(packageManager).toString(),
-                        i.activityInfo.packageName,
-                        packageManager.getApplicationIcon(appInfo)
+            try {
+                if (i.activityInfo != null) {
+                    val appInfo = packageManager.getApplicationInfo(i.activityInfo.packageName, 0)
+                    apps.add(
+                        InstalledApp(
+                            i.activityInfo.loadLabel(packageManager).toString(),
+                            i.activityInfo.packageName,
+                            packageManager.getApplicationIcon(appInfo)
+                        )
                     )
-                )
+                }
+            } catch (ex : Exception) {
+
             }
         }
         apps.sortWith { s1: InstalledApp, s2: InstalledApp ->

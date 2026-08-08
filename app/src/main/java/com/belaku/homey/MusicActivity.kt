@@ -405,9 +405,13 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                                                 R.id.tx_music_details,
                                                 pDatalistSongs[songIndex].title + " | " + pDatalistSongs[songIndex].album.title + " | " + pDatalistSongs[songIndex].artist.name
                                             )
-                                            Picasso.get()
-                                                .load(dataListSongs[songIndex].album.cover)
-                                                .into(remoteViews!!, R.id.imgbtn_albumcover, NewAppWidget.i_appWidgetIds)
+                                            val albumArtPath = dataListSongs[songIndex].album.cover
+                                            if (!albumArtPath.isNullOrBlank())
+                                                Picasso.get()
+                                                    .load(dataListSongs[songIndex].album.cover)
+                                                    .into(remoteViews!!, R.id.imgbtn_albumcover, NewAppWidget.i_appWidgetIds)
+                                            else remoteViews?.setImageViewResource(R.id.imgbtn_albumcover, R.drawable.launch)
+
                                             appWidM.updateAppWidget(newAppWidget, remoteViews)
                                             fabPlayPause.setImageResource(android.R.drawable.ic_media_pause)
 

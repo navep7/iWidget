@@ -52,8 +52,10 @@ class MusicAdapter(
         holder.aname.text = songdata.album.title
         holder.uname.text = songdata.preview
      //   holder.dur.text = songdata.duration.toString()
-        if (songdata.album.cover.isNotEmpty())
-        Picasso.get().load(songdata.album.cover).into(holder.imageView)
+        if (!songdata.album.cover.isNullOrBlank())
+            Picasso.get().load(songdata.album.cover).into(holder.imageView)
+        else
+            holder.imageView.setImageResource(R.drawable.launch)
     }
 
 

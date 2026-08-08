@@ -780,9 +780,12 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.tx_music_details,
                 pDatalistSongs[songIndex].title + " | " + pDatalistSongs[songIndex].album.title + " | " + pDatalistSongs[songIndex].artist.name
             )
-            Picasso.get()
-                .load(dataListSongs[songIndex].album.cover)
-                .into(remoteViews!!, R.id.imgbtn_albumcover, NewAppWidget.i_appWidgetIds)
+            val albumArtPath = dataListSongs[songIndex].album.cover
+            if (!albumArtPath.isNullOrBlank())
+                Picasso.get()
+                    .load(albumArtPath)
+                    .into(remoteViews!!, R.id.imgbtn_albumcover, NewAppWidget.i_appWidgetIds)
+            else remoteViews?.setImageViewResource(R.id.imgbtn_albumcover, R.drawable.launch)
 
             mMediaPlayer?.let {
                 if (it.isPlaying)
@@ -1806,6 +1809,13 @@ class NewAppWidget : AppWidgetProvider() {
         lateinit var appWidM: AppWidgetManager
         lateinit var mAppWidgetIds: IntArray
 
+        fun isblurWallBitmapInitialized(): Boolean {
+            if (::blurWallBitmap.isInitialized)
+                return true
+            else
+                return false
+
+        }
 
 
         fun isAppWidMInitialized(): Boolean {

@@ -271,12 +271,24 @@ class DialogActivity : AppCompatActivity() {
                 txTitle.visibility = View.VISIBLE
                 if (isDataListInitialized()) {
                     txTitle.text = dataListSongs[songIndex].title
-                    Picasso.get()
-                        .load(dataListSongs[songIndex].album.cover)
-                        .into(imgvSongCover)
-                    Picasso.get()
-                        .load(dataListSongs[songIndex].album.cover)
-                        .into(remoteViews!!, R.id.imgbtn_albumcover, NewAppWidget.i_appWidgetIds)
+
+                    val albumArtPath = dataListSongs[songIndex].album.cover
+                    if (!albumArtPath.isNullOrBlank()) {
+                        Picasso.get()
+                            .load(albumArtPath)
+                            .into(
+                                remoteViews!!,
+                                R.id.imgbtn_albumcover,
+                                NewAppWidget.i_appWidgetIds
+                            )
+                        Picasso.get()
+                            .load(albumArtPath)
+                            .into(imgvSongCover)
+                    } else {
+                        remoteViews?.setImageViewResource(R.id.imgbtn_albumcover, R.drawable.launch)
+                        imgvSongCover.setImageResource(R.drawable.launch)
+                    }
+
 
 
                 }
