@@ -71,7 +71,7 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
         // Set immediate background to avoid grey screen while loading
         try {
-            if (SetWallWorker.isWallBitmapInitialized()) {
+            if (SetWallWorker.isWallBitmapInitialized(applicationContext)) {
                 binding.mySpaceLayout.background = BitmapDrawable(resources, SetWallWorker.wallBitmap)
             }
         } catch (e: Exception) {}
@@ -100,7 +100,7 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
             // Task 1: Background Blur (Parallel) - Updates background when ready
             launch(Dispatchers.IO) {
                 try {
-                    if (SetWallWorker.isWallBitmapInitialized()) {
+                    if (SetWallWorker.isWallBitmapInitialized(applicationContext)) {
                       //  val blurredBitmap = blur(applicationContext, SetWallWorker.wallBitmap)
                         withContext(Dispatchers.Main) {
                             binding.mySpaceLayout.background = BitmapDrawable(resources,

@@ -67,6 +67,8 @@ import com.belaku.homey.NewAppWidget.Companion.wD
 import com.belaku.homey.NewAppWidget.Companion.widgetContext
 import com.belaku.homey.StepsService.Companion.choosenApps
 import com.google.gson.Gson
+import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.net.URL
 import java.time.LocalDate
@@ -88,10 +90,15 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
         Log.d(TAG, "doWork!")
         wallWorkerContext = applicationContext
+        widgetContext = applicationContext
         sharedPreferences = wallWorkerContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
-        urls = ArrayList(sharedPreferences.getStringSet("walls", null)!!)
+        val wallSet = sharedPreferences.getStringSet("walls", null)
+        if (wallSet == null || wallSet.isEmpty()) {
+            return Result.failure()
+        }
+        urls = ArrayList(wallSet)
         urls.sort()
 
         wm = WallpaperManager.getInstance(wallWorkerContext)
@@ -113,8 +120,8 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
     companion object {
 
         var hour: Int = 0
-        var screenWidth by Delegates.notNull<Int>()
-        var screenHeight by Delegates.notNull<Int>()
+        var screenWidth: Int = 0
+        var screenHeight: Int = 0
 
         lateinit var pinNote: String
         fun isPinNoteInitialized(): Boolean {
@@ -141,8 +148,23 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             return this::sharedPreferences.isInitialized
         }
 
-        fun isWallBitmapInitialized(): Boolean {
-            return this::wallBitmap.isInitialized
+        fun isWallBitmapInitialized(context: Context): Boolean {
+            if (this::wallBitmap.isInitialized) return true
+            val loaded = loadWallBitmap(context)
+            if (loaded != null) {
+                wallBitmap = loaded
+                scaledBitmap = loaded
+                return true
+            }
+            return false
+        }
+
+        fun ensureDimensions(context: Context) {
+            if (screenWidth == 0 || screenHeight == 0) {
+                val metrics = context.resources.displayMetrics
+                screenWidth = metrics.widthPixels
+                screenHeight = metrics.heightPixels
+            }
         }
 
         var boolNewLap: Boolean = false
@@ -161,32 +183,37 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             wm = WallpaperManager.getInstance(wallWorkerContext)
             wm.setWallpaperOffsetSteps(1F, 1F)
 
+            ensureDimensions(wallWorkerContext)
 
             greeting()
 
             try {
                 wm.suggestDesiredDimensions(screenWidth, screenHeight)
-            } catch (ex: IllegalStateException) {
-                val metrics = DisplayMetrics()
-                if (ismActInitialized()) {
-                    mAct.windowManager.getDefaultDisplay().getMetrics(metrics)
-                    screenHeight = metrics.heightPixels
-                    screenWidth = metrics.widthPixels
-                    wm.suggestDesiredDimensions(screenWidth, screenHeight)
-                }
+            } catch (ex: Exception) {
+                Log.e(TAG, "Error suggesting dimensions", ex)
             }
 
             try {
 
-                urls = ArrayList(sharedPreferences.getStringSet("walls", null)!!)
-                urls.sort()
-                wallDescs = ArrayList(sharedPreferences.getStringSet("wallDescs", null)!!)
-                wallDescs.sort()
+                val wallSet = sharedPreferences.getStringSet("walls", null)
+                val descSet = sharedPreferences.getStringSet("wallDescs", null)
+                
+                if (wallSet != null) {
+                    urls = ArrayList(wallSet)
+                    urls.sort()
+                }
+                
+                if (descSet != null) {
+                    wallDescs = ArrayList(descSet)
+                    wallDescs.sort()
+                }
 
 
                 if (urls.isNotEmpty()) {
                     randomWallIndex = Random.Default.nextInt(urls.size)
-                    wallDesc = wallDescs.get(randomWallIndex)
+                    if (randomWallIndex < wallDescs.size) {
+                        wallDesc = wallDescs.get(randomWallIndex)
+                    }
                     Log.d("settingWD", urls[randomWallIndex])
 
 
@@ -199,18 +226,13 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                         ).openConnection().getInputStream()
                     )
 
-                    val metrics = DisplayMetrics()
-                    val windowManager = wallWorkerContext.applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-
-                    windowManager.getDefaultDisplay().getMetrics(metrics)
-                    screenHeight = metrics.heightPixels
-                    screenWidth = metrics.widthPixels
-
                     scaledBitmap =
                         Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
+                        
+                    saveBitmapToInternalStorage(wallWorkerContext, scaledBitmap)
                 }
 
-                if (b)
+                if (b && ::scaledBitmap.isInitialized)
                     wm.setBitmap(scaledBitmap)
 
                 val c = Calendar.getInstance()
@@ -221,7 +243,13 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     )
 
                 if (b) {
-                    sharedPreferencesEditor.putString("wD", wallDesc.split("+")[1]).apply()
+                    if (wallDesc.contains("+")) {
+                        sharedPreferencesEditor.putString("wD", wallDesc.split("+")[1]).apply()
+                        wD = wallDesc.split("+")[1]
+                    } else {
+                        sharedPreferencesEditor.putString("wD", wallDesc).apply()
+                        wD = wallDesc
+                    }
                     sharedPreferencesEditor.putString("uT", updateTime).apply()
                 }
                 Log.d(TAG, "Set successfully $noRewards")
@@ -229,10 +257,12 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
                 remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.INVISIBLE)
                 remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
+                
+                newAppWidget = ComponentName(wallWorkerContext, NewAppWidget::class.java)
+                appWidM = AppWidgetManager.getInstance(wallWorkerContext)
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
 
 
-                wD = wallDesc.split("+")[1]
                 qT = queryType
                 dU = delayUnit
                 uT = updateTime
@@ -260,29 +290,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     remoteViews?.setTextViewText(R.id.tx_runner, pinNote)
                 }
 
-              /*  if (stepsToday < 10) {
-                    remoteViews?.setTextViewText(
-                        R.id.tx_steps,
-                        "$stepsToday Steps"
-                    )
-                    sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
-                } else if(stepsToday < 131) {
-                    if (stepsToday % 10 == 0) {
-                        remoteViews?.setTextViewText(
-                            R.id.tx_steps,
-                            "$stepsToday steps"
-                        )
-                        sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
-                    }
-                } else if (stepsToday % 131 == 0) {
-
-                    remoteViews?.setTextViewText(
-                        R.id.tx_steps,
-                        "${String.format("%.1f",  (Integer.parseInt(stepsToday.toString()) * 74f) / 100000f)} km"
-                    )
-                    sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
-                }*/
-
                 remoteViews?.setTextViewText(R.id.tx_walldesc, wD)
                 remoteViews?.setTextViewText(
                     R.id.tx_walltype_updateinfo,
@@ -293,23 +300,40 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     )
                 )
 
-                val intent = Intent(wallWorkerContext, NewAppWidget::class.java)
-                intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
-                newAppWidget = ComponentName(wallWorkerContext, NewAppWidget::class.java)
-                //   intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, newAppWidget)
-
-                wallWorkerContext.sendBroadcast(intent)
+                updateWidget(wallWorkerContext)
 
 
-            } catch (e: IOException) {
-            //    remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.INVISIBLE)
+            } catch (e: Exception) {
                 remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
                 Log.d(TAG, "setWallEx2 - $e")
             }
 
-        //    DayChanges(wallWorkerContext)
             updateWidget(wallWorkerContext)
 
+        }
+
+        private fun saveBitmapToInternalStorage(context: Context, bitmap: Bitmap) {
+            val file = File(context.filesDir, "wall_bitmap.png")
+            try {
+                FileOutputStream(file).use { out ->
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                }
+                Log.d(TAG, "Bitmap saved to internal storage")
+            } catch (e: IOException) {
+                Log.e(TAG, "Error saving bitmap", e)
+            }
+        }
+
+        fun loadWallBitmap(context: Context): Bitmap? {
+            val file = File(context.filesDir, "wall_bitmap.png")
+            return if (file.exists()) {
+                try {
+                    BitmapFactory.decodeFile(file.absolutePath)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error loading bitmap", e)
+                    null
+                }
+            } else null
         }
 
         private fun DayChanges(wallWorkerContext: Context) {
@@ -326,7 +350,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 dayChange = true
                 stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
                 sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
-             //   stepsToday = 0
                 updateWidget(wallWorkerContext)
 
             }
@@ -345,8 +368,10 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                         NewAppWidget::class.java
                     )
                 )
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
-            wallWorkerContext.sendBroadcast(intent)
+            if (ids.isNotEmpty()) {
+                intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+                wallWorkerContext.sendBroadcast(intent)
+            }
         }
 
 
@@ -390,6 +415,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                             phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
                         phoneNumber = phoneNumber.filter { !it.isWhitespace() }
                     }
+                    phones?.close()
                 }
 
                 var contactBitmap: Bitmap?
@@ -489,7 +515,10 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
                         }
 
-                        hashSetAppUsage = hashSetAppUsage.sortedByDescending { it.usageTime.split(":")[0].trim().toInt() }
+                        hashSetAppUsage = hashSetAppUsage.sortedByDescending { 
+                            val parts = it.usageTime.split(":")
+                            if (parts.size >= 1) parts[0].trim().toIntOrNull() ?: 0 else 0
+                        }
                             .toCollection(LinkedHashSet())
 
                         Log.d("hashSetAppUsagez ~ ", hashSetAppUsage.toString())
@@ -528,10 +557,9 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 } catch (e: Exception) {
                     // This catches the AppSearchException "Invalid cycle detected" which is a system bug
                     // in the AppsIndexer when processing Digital Wellbeing metadata.
-                    makeToast(widgetContext, "System indexing error during UsageStats query: ${e}")
                     Log.e(TAG, "System indexing error during UsageStats query: ${e}")
                 }
-            } else makeToast(widgetContext, "Usage Stats Permission revoked by System probably, you need to grant again")
+            }
         }
 
 
