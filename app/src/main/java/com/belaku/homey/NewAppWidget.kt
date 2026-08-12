@@ -1006,7 +1006,8 @@ class NewAppWidget : AppWidgetProvider() {
                 remoteViews?.setInt(R.id.imgv_dialler, "setColorFilter", Color.WHITE)
 
 
-                if (isWallBitmapInitialized(widgetContext)) {
+
+                if (isWallBitmapInitialized(widgetContext) && !wallBitmap.isRecycled) {
                     scaledBitmap =
                         Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
 

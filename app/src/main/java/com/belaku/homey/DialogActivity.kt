@@ -73,6 +73,7 @@ import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.getFavoriteContacts
 import com.belaku.homey.SetWallWorker.Companion.hour
+import com.belaku.homey.SetWallWorker.Companion.isSharedPreferencesInitialized
 import com.belaku.homey.SetWallWorker.Companion.pinNote
 import com.belaku.homey.SetWallWorker.Companion.screenHeight
 import com.belaku.homey.SetWallWorker.Companion.screenWidth
@@ -179,7 +180,8 @@ class DialogActivity : AppCompatActivity() {
     //    val stepsData: ArrayList<String> = ArrayList()
 
 
-        if (stepsData.size == 0) {
+        if (isSharedPreferencesInitialized())
+        if (stepsData.isEmpty()) {
             stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
             stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
             stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
