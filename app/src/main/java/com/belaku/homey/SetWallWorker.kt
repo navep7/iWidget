@@ -144,15 +144,37 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         lateinit var wallBitmap: Bitmap
         lateinit var scaledBitmap: Bitmap
 
+        fun recycleBitmap(bitmap: Bitmap?) {
+            if (bitmap != null && !bitmap.isRecycled) {
+                bitmap.recycle()
+            }
+        }
+
+        fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
+            val (height: Int, width: Int) = options.outHeight to options.outWidth
+            var inSampleSize = 1
+
+            if (height > reqHeight || width > reqWidth) {
+                val halfHeight: Int = height / 2
+                val halfWidth: Int = width / 2
+                while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
+                    inSampleSize *= 2
+                }
+            }
+            return inSampleSize
+        }
+
         fun isSharedPreferencesInitialized(): Boolean {
             return this::sharedPreferences.isInitialized
         }
 
         fun isWallBitmapInitialized(context: Context): Boolean {
-            if (this::wallBitmap.isInitialized) return true
+            if (this::wallBitmap.isInitialized && !wallBitmap.isRecycled) return true
             val loaded = loadWallBitmap(context)
             if (loaded != null) {
+                if (::wallBitmap.isInitialized) recycleBitmap(wallBitmap)
                 wallBitmap = loaded
+                if (::scaledBitmap.isInitialized && scaledBitmap != wallBitmap) recycleBitmap(scaledBitmap)
                 scaledBitmap = loaded
                 return true
             }
@@ -214,25 +236,45 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     if (randomWallIndex < wallDescs.size) {
                         wallDesc = wallDescs.get(randomWallIndex)
                     }
-                    Log.d("settingWD", urls[randomWallIndex])
+                    val wallUrl = urls[randomWallIndex].substring(4)
+                    Log.d("settingWD", wallUrl)
 
+                    val tempFile = File(wallWorkerContext.cacheDir, "temp_wall")
+                    try {
+                        URL(wallUrl).openStream().use { input ->
+                            tempFile.outputStream().use { output ->
+                                input.copyTo(output)
+                            }
+                        }
 
-                    wallBitmap = BitmapFactory.decodeStream(
-                        URL(
-                            urls[randomWallIndex].substring(
-                                4,
-                                urls[randomWallIndex].length
-                            )
-                        ).openConnection().getInputStream()
-                    )
-
-                    scaledBitmap =
-                        Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
+                        val options = BitmapFactory.Options().apply {
+                            inJustDecodeBounds = true
+                        }
+                        BitmapFactory.decodeFile(tempFile.absolutePath, options)
+                        options.inSampleSize = calculateInSampleSize(options, screenWidth, screenHeight)
+                        options.inJustDecodeBounds = false
                         
-                    saveBitmapToInternalStorage(wallWorkerContext, scaledBitmap)
+                        val newWallBitmap = BitmapFactory.decodeFile(tempFile.absolutePath, options)
+                        if (newWallBitmap != null) {
+                            if (::wallBitmap.isInitialized) recycleBitmap(wallBitmap)
+                            wallBitmap = newWallBitmap
+
+                            val newScaledBitmap = Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
+                            if (::scaledBitmap.isInitialized && scaledBitmap != newScaledBitmap && scaledBitmap != wallBitmap) {
+                                recycleBitmap(scaledBitmap)
+                            }
+                            scaledBitmap = newScaledBitmap
+                            
+                            saveBitmapToInternalStorage(wallWorkerContext, scaledBitmap)
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error setting wallpaper bitmap", e)
+                    } finally {
+                        if (tempFile.exists()) tempFile.delete()
+                    }
                 }
 
-                if (b && ::scaledBitmap.isInitialized)
+                if (b && ::scaledBitmap.isInitialized && !scaledBitmap.isRecycled)
                     wm.setBitmap(scaledBitmap)
 
                 val c = Calendar.getInstance()
@@ -378,6 +420,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         @SuppressLint("Range")
         fun getFavoriteContacts() {
 
+            favContacts.forEach { recycleBitmap(it.contactBitmap) }
             favContacts = ArrayList()
 
             val queryUri = ContactsContract.Contacts.CONTENT_URI.buildUpon()
@@ -475,6 +518,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                         println("QUS SWW - " + queryUsageStats.size)
                         sortApps(queryUsageStats)
 
+                        choosenApps.forEach { recycleBitmap(it.iconBitmap) }
                         choosenApps.clear()
 
                         val appNames = HashSet<String>()
