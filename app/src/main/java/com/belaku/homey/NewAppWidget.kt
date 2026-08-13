@@ -1212,8 +1212,12 @@ class NewAppWidget : AppWidgetProvider() {
                 ComponentName(context, NewAppWidget::class.java)
             )
 
+
             // Trigger the standard update logic
             onUpdate(context, appWidgetManager, ids)
+
+            val intentSteps = Intent(context, StepsService::class.java)
+            context.startForegroundService(intentSteps)
         }
 
         if (intent.action == "ACTION_UPDATE_SPEED") {

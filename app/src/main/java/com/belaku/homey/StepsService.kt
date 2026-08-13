@@ -301,6 +301,9 @@ class StepsService : Service() {
                 Log.d("MY_APP", "$sensor - $accuracy")
             }
         }
+
+        stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
+
     }
 
     fun isLocationEnabled(context: Context): Boolean {

@@ -1391,11 +1391,8 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun startStepsService() {
-     //   if (!isMyServiceRunning(applicationContext, StepsService::class.java)) {
             val intentSteps = Intent(this, StepsService::class.java)
             startForegroundService(intentSteps)
-      //  }
-
     }
 
 
