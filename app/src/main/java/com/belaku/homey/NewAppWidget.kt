@@ -29,6 +29,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Paint
+import android.graphics.Rect
 import android.graphics.Shader
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -56,6 +57,8 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.WindowManager
+import android.view.WindowMetrics
 import android.view.accessibility.AccessibilityManager
 import android.widget.AdapterView
 import android.widget.RemoteViews
@@ -307,6 +310,8 @@ class NewAppWidget : AppWidgetProvider() {
         i_appWidgetIds = appWidgetIds
 
 
+        getScreenDimens()
+
         for (appWidgetId in appWidgetIds) {
 
             widgetContext = context
@@ -332,6 +337,16 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         super.onUpdate(context, appWidgetManager, appWidgetIds)
+
+    }
+
+    private fun getScreenDimens() {
+
+        val wm = widgetContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val metrics: WindowMetrics = wm.currentWindowMetrics
+        val bounds: Rect = metrics.bounds
+        screenWidth = bounds.width()
+        screenHeight = bounds.height()
 
     }
 
@@ -1189,6 +1204,17 @@ class NewAppWidget : AppWidgetProvider() {
 
         super.onReceive(context, intent)
 
+        getScreenDimens()
+
+        if (Intent.ACTION_BOOT_COMPLETED == intent.action) {
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val ids = appWidgetManager.getAppWidgetIds(
+                ComponentName(context, NewAppWidget::class.java)
+            )
+
+            // Trigger the standard update logic
+            onUpdate(context, appWidgetManager, ids)
+        }
 
         if (intent.action == "ACTION_UPDATE_SPEED") {
             speedReading = intent.getDoubleExtra("EXTRA_SPEED", 0.0).toString()
