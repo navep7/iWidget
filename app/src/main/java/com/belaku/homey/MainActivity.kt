@@ -402,15 +402,22 @@ class MainActivity : AppCompatActivity() {
                 val myProvider = ComponentName(applicationContext, NewAppWidget::class.java)
 
                 if (appWidgetManager.isRequestPinAppWidgetSupported) {
-                    // Optional: Success callback intent when the widget is pinned
+                    // 1. Define a specific intent for the success callback
+                    val callbackIntent = Intent(applicationContext, NewAppWidget::class.java).apply {
+                        action = NewAppWidget.ACTION_WIDGET_PINNED
+                    }
+
+                    // 2. Use FLAG_MUTABLE so the system can add EXTRA_APPWIDGET_ID
                     val successCallback = PendingIntent.getBroadcast(
-                        applicationContext, 0, Intent(applicationContext, NewAppWidget::class.java),
-                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                        applicationContext,
+                        0,
+                        callbackIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
                     )
 
-                    // Launch the system request to pin the widget
-                    appWidgetManager.requestPinAppWidget(myProvider, null, successCallback)
-                    finish()
+                    // 3. Check the return value
+                    val isRequestSent = appWidgetManager.requestPinAppWidget(myProvider, null, successCallback)
+
 
                 }
 

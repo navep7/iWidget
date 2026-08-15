@@ -241,6 +241,12 @@ class StepsService : Service() {
         sensorManager = this.getSystemService(SENSOR_SERVICE) as SensorManager
         stepCounterSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)!!
 
+        if (!isSharedPreferencesInitialized()) {
+            sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+            sharedPreferencesEditor = sharedPreferences.edit()
+        }
+        stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
+
         mSensorEventListener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent) {
                 if (presentActivityState != "TRAVEL") {
@@ -301,8 +307,6 @@ class StepsService : Service() {
                 Log.d("MY_APP", "$sensor - $accuracy")
             }
         }
-
-        stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
 
     }
 

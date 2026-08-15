@@ -1274,6 +1274,33 @@ class NewAppWidget : AppWidgetProvider() {
          //   sharedPreferencesEditor.putInt()
         }
 
+        if (ACTION_WIDGET_PINNED == intent.action) {
+            val widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
+            makeToast(widgetContext, "Widget pinned successfully!")
+
+            if (presentActivityState == "STILL") {
+                remoteViews!!.setViewVisibility(R.id.rl_still, View.VISIBLE)
+                remoteViews!!.setViewVisibility(R.id.rl_walking, View.GONE)
+                remoteViews!!.setViewVisibility(R.id.rl_speed, View.GONE)
+
+                remoteViews!!.setTextViewText(R.id.tx_activity_state, "STILL")
+                remoteViews!!.setImageViewResource(R.id.imgv_steps, R.drawable.still)
+            } else if (presentActivityState == "WALKING") {
+                remoteViews!!.setViewVisibility(R.id.rl_walking, View.VISIBLE)
+                remoteViews!!.setViewVisibility(R.id.rl_still, View.GONE)
+                remoteViews!!.setViewVisibility(R.id.rl_speed, View.GONE)
+
+                remoteViews!!.setTextViewText(R.id.tx_activity_state, "WALKING")
+                remoteViews!!.setImageViewResource(R.id.imgv_steps, R.drawable.steps)
+            } else if (presentActivityState == "TRAVEL") {
+                remoteViews!!.setViewVisibility(R.id.rl_speed, View.VISIBLE)
+                remoteViews!!.setViewVisibility(R.id.rl_still, View.GONE)
+                remoteViews!!.setViewVisibility(R.id.rl_walking, View.GONE)
+            }
+
+            // Perform any specific initialization for the new widget here
+        }
+
         if (TIME_CLICK == intent.action) {
 
             val mClockIntent = Intent(AlarmClock.ACTION_SHOW_ALARMS).apply {
@@ -1817,6 +1844,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     companion object {
+        const val ACTION_WIDGET_PINNED = "com.belaku.homey.ACTION_WIDGET_PINNED"
         lateinit var blurWallBitmap: Bitmap
         private var unlockReceiver: BroadcastReceiver? = null
         lateinit var widgetContext: Context
