@@ -416,7 +416,7 @@ class DialogActivity : AppCompatActivity() {
                 if (listTweets.isNotEmpty()) {
                     txContent.visibility = View.VISIBLE
                     txContent.text = listTweets[Random.nextInt(0, listTweets.size)]
-                }
+                } else rawTweets(false)
 
                 imgbtnTwConfig.setOnClickListener {
                     makeToast(applicationContext, "Paid Feature, coming soon!")

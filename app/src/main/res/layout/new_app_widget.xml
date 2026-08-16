@@ -982,7 +982,7 @@
                         android:textColor="@android:color/black"
                         android:textStyle="bold"
                         android:textSize="20dp"
-                        android:text="12500"/>
+                        android:text="0"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -991,6 +991,23 @@
                         android:textStyle="italic"
                         android:textSize="15dp"
                         android:text="   steps"/>
+
+                    <TextView
+                        android:id="@+id/rl_tx_steps_in_km"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/black"
+                        android:textStyle="bold"
+                        android:textSize="20dp"
+                        android:text="km"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/black"
+                        android:textStyle="italic"
+                        android:textSize="15dp"
+                        android:text="   km"/>
 
                 </LinearLayout>
 

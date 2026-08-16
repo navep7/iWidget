@@ -72,6 +72,8 @@ import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
+import com.belaku.homey.MainActivity.Companion.makeLongToast
+import com.belaku.homey.MainActivity.Companion.makeSnack
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
 import com.belaku.homey.MainActivity.Companion.tempKind
@@ -174,7 +176,7 @@ class NewAppWidget : AppWidgetProvider() {
                         if (!isAppWidMInitialized())
                             appWidM = AppWidgetManager.getInstance(widgetContext)
 
-                        makeToast(widgetContext, "ꗃ " + sharedPreferences.getInt("unlockCount", 1))
+                        makeLongToast(widgetContext, "ꗃ " + sharedPreferences.getInt("unlockCount", 1))
                         sharedPreferencesEditor.putInt("unlockCount", sharedPreferences.getInt("unlockCount", 1) + 1).apply()
 
                         mAppWidgetIds = appWidM.getAppWidgetIds(ComponentName(widgetContext, NewAppWidget::class.java))
@@ -753,6 +755,10 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.rl_tx_steps,
                 "$stepsToday"
             )
+        remoteViews?.setTextViewText(
+            R.id.rl_tx_steps_in_km,
+            " ~ " + String.format("%.1f",  (Integer.parseInt(stepsToday.toString()) * 74f) / 100000f)
+        )
             remoteViews?.setTextViewText(R.id.rl_tx_cals, (stepsToday * 0.04 * (80 / 70)).toInt().toString())
             sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
 

@@ -1589,9 +1589,13 @@ class MainActivity : AppCompatActivity() {
             Log.d("makeToastinG", s)
         }
 
+        fun makeLongToast(contxToast: Context, s: String) {
+            Toast.makeText(contxToast, s, Toast.LENGTH_LONG).show()
+            Log.d("makeLongToastinG", s)
+        }
+
         fun makeSnack(s: String) {
-            sN = Snackbar.make(parentLayout, s, Snackbar.LENGTH_LONG)
-            sN.show()
+            Snackbar.make(parentLayout, s, Snackbar.LENGTH_LONG).show()
             Log.d("makeToastinG", s)
         }
 
