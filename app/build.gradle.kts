@@ -49,6 +49,13 @@ android {
 }
 
 dependencies {
+
+    // Add dependency for App Check Play Integrity provider
+    implementation("com.google.firebase:firebase-appcheck-playintegrity")
+
+    // Add dependency for App Check Debug provider (for local testing)
+    debugImplementation("com.google.firebase:firebase-appcheck-debug")
+
     implementation(libs.androidx.media)
     implementation(libs.zxing.android.embedded)
     implementation(libs.androidx.viewpager2)
