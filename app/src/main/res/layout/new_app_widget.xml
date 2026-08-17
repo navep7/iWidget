@@ -27,6 +27,53 @@
 
 
         <LinearLayout
+            android:id="@+id/ll_timedate_info"
+            android:padding="@dimen/padding_5"
+            android:gravity="center"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/gradient_glass_rounded"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ll_top">
+
+            <TextView
+                android:id="@+id/tx_day_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/padding_5"
+                android:text="Fri, 24th Apr"
+                android:textColor="@android:color/white"
+                android:layout_marginEnd="@dimen/padding_5"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_glowing_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="│"
+                android:textColor="#FFFFFF"
+                android:textSize="24sp"
+                android:shadowColor="#00FFCC"
+                android:shadowRadius="12"
+                android:shadowDx="0" android:shadowDy="0"
+                android:padding="8dp" />
+
+            <android.widget.TextClock
+                android:id="@+id/clock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/padding_5"
+                android:format12Hour=" h:mm:ss "
+                android:textColor="@android:color/white"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+
+
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/ll_top"
             android:weightSum="10"
             android:layout_width="match_parent"
@@ -75,10 +122,12 @@
                 android:layout_weight="4"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:textColor="@android:color/black"
-                android:textSize="25sp"
-                android:textStyle="bold"
-                tools:ignore="HardcodedText" />
+                android:textColor="#FFFFFF"
+                android:textSize="24sp"
+                android:shadowColor="@android:color/holo_green_light"
+                android:shadowRadius="5"
+                android:shadowDx="0" android:shadowDy="0"
+                android:padding="3dp" />
 
 
             <ImageButton
@@ -155,17 +204,19 @@
             android:id="@+id/rl_clocks_weather"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/ll_top"
+            android:layout_below="@id/ll_timedate_info"
             android:background="@drawable/gradient_glass_dark">
 
             <LinearLayout
                 android:id="@+id/ll_place"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingTop="@dimen/padding_5"
+                android:background="@drawable/gradient_glass_light"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:layout_margin="@dimen/padding_5"
-                android:layout_alignBottom="@+id/frame_texts"
-                android:layout_toStartOf="@+id/frame_texts"
+                android:padding="@dimen/padding_5"
+                android:layout_above="@+id/tx_screenusage_state"
+                android:layout_alignParentStart="true"
+                android:gravity="center"
                 android:orientation="vertical">
 
                 <TextView
@@ -175,9 +226,10 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="Place Information"
-                    android:layout_gravity="start"
+                    android:layout_gravity="center"
+                    android:gravity="center"
                     android:textColor="@android:color/white"
-                    android:textSize="15sp"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
                 <FrameLayout
@@ -215,13 +267,12 @@
 
             <AnalogClock
                 android:id="@+id/a_clock"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
                 android:layout_marginTop="-25dp"
                 android:layout_marginBottom="-25dp"
                 android:layout_centerHorizontal="true"
                 android:dial="@drawable/dial_transparent"
-                android:dialTint="@color/alpha_primary_color"
                 android:hand_second="@drawable/s_hand"
                 android:hand_minuteTint="@android:color/holo_green_light"
                 android:hand_hourTint="@android:color/holo_orange_light"
@@ -259,111 +310,23 @@
                         android:textSize="25sp"
                         android:textStyle="bold" />
 
-                    <TextView
-                        android:id="@+id/tx_day_date"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:text="Fri, 13th Apr"
-                        android:textColor="@android:color/white"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
 
-                    <android.widget.TextClock
-                        android:id="@+id/clock"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="25dp"
-                        android:layout_marginStart="@dimen/padding_5"
-                        android:layout_marginEnd="@dimen/padding_5"
-                        android:format12Hour="h:mm:ss"
-                        android:textColor="@android:color/holo_red_light"
-                        android:textSize="35sp"
-                        android:textStyle="bold" />
 
                 </LinearLayout>
 
             </FrameLayout>
 
 
-<!--
-                        <LinearLayout
-                            android:id="@+id/ll_weather"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_margin="@dimen/fab_margin"
-                            android:layout_alignBottom="@+id/frame_texts"
-                            android:layout_toEndOf="@+id/frame_texts"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/tx_weather"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:ellipsize="end"
-                                android:maxLines="1"
-                                android:layout_marginTop="@dimen/padding_5"
-                                android:layout_marginStart="-25dp"
-                                android:text="Weather Info"
-                                android:textColor="@android:color/white"
-                                android:textSize="15sp"
-                                android:textStyle="bold" />
-
-                            <FrameLayout
-                                android:layout_gravity="start"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content">
-
-                                <ImageButton
-                                    android:id="@+id/imgv_weather_icon"
-                                    android:layout_gravity="center"
-                                    android:layout_width="75dp"
-                                    android:layout_height="75dp"
-                                    android:background="@android:color/transparent"
-                                    android:scaleType="fitXY"
-                                    android:src="@drawable/weather_info" />
-
-
-                                <TextView
-                                    android:id="@+id/tx_refresh_weather"
-                                    android:layout_gravity="top|center"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="↺"
-                                    android:textColor="@android:color/holo_green_light"
-                                    android:textSize="25sp"
-                                    android:textStyle="bold" />
-
-                                <ProgressBar
-                                    android:id="@+id/progressBar_cyclic_weather"
-                                    android:visibility="invisible"
-                                    android:layout_gravity="top|end"
-                                    android:layout_marginEnd="-15dp"
-                                    android:layout_marginTop="-15dp"
-                                    android:layout_width="25dp"
-                                    android:layout_height="25dp"
-                                    android:indeterminate="true"
-                                    android:indeterminateTint="?attr/colorSecondary"
-                                    android:indeterminateTintMode="src_atop"
-                                    android:minWidth="25dp"
-                                    android:minHeight="25dp" />
-
-
-                            </FrameLayout>
-
-
-                        </LinearLayout>
--->
-
             <LinearLayout
                 android:id="@+id/id_weather"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:background="@drawable/gradient_glass_light"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:layout_margin="@dimen/padding_5"
-                android:paddingTop="@dimen/padding_5"
-                android:layout_alignBottom="@+id/frame_texts"
-                android:layout_toEndOf="@+id/frame_texts"
+                android:padding="@dimen/padding_5"
+                android:layout_above="@+id/tx_screenusage_state"
+                android:layout_alignParentEnd="true"
+                android:gravity="center"
                 android:orientation="vertical">
 
                 <TextView
@@ -372,8 +335,9 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:text="Weather Information"
-                    android:layout_gravity="start"
+                    android:text="Xx° \nCloudy"
+                    android:layout_gravity="center"
+                    android:gravity="center"
                     android:textColor="@android:color/white"
                     android:textSize="15sp"
                     android:textStyle="bold" />
@@ -424,20 +388,6 @@
 
             </LinearLayout>
 
-
-
-
-            <TextView
-                android:id="@+id/tx_activity_state"
-                android:layout_above="@+id/ll_steps_screentime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/fab_margin"
-                android:layout_marginBottom="@dimen/padding_3"
-                android:text="STILL"
-                android:textSize="10sp"
-                android:textColor="@color/white"/>
-
             <TextView
                 android:id="@+id/tx_screenusage_state"
                 android:layout_alignParentEnd="true"
@@ -455,7 +405,7 @@
                 android:id="@+id/ll_steps_screentime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/frame_texts"
+                android:layout_below="@+id/a_clock"
                 android:layout_marginTop="-4dp"
                 android:orientation="horizontal">
 
@@ -579,10 +529,10 @@
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="@dimen/padding_5"
                 android:layout_marginEnd="@dimen/padding_5"
-                android:tint="@android:color/white"
                 android:background="@android:color/transparent"
                 android:scaleType="fitXY"
-                android:src="@drawable/play_m" />
+                android:src="@drawable/play_m"
+                app:tint="@android:color/white" />
 
             <TextView
                 android:id="@+id/tx_music_details"
@@ -662,16 +612,36 @@
         android:layout_alignParentStart="true"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/imgv_apps"
+
+        <FrameLayout
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:layout_marginBottom="@dimen/padding_5"
-            android:scaleType="centerCrop"
-            android:src="@drawable/launch_e" />
+            android:layout_gravity="top|center">
+
+            <ImageView
+                android:id="@+id/imgv_apps"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="top|center"
+                android:foregroundGravity="top|center"
+                android:scaleType="centerCrop"
+                android:src="@drawable/launch_e" />
+
+            <TextView
+                android:id="@+id/tx_apps_dropdown"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
+                android:text="▼"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+        </FrameLayout>
+
 
         <ListView
             android:id="@+id/list_apps"
+            android:visibility="invisible"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fadeScrollbars="false" />
@@ -689,17 +659,35 @@
         android:layout_alignParentEnd="true"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/imgv_contacts"
+        <FrameLayout
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:layout_marginBottom="@dimen/padding_5"
-            android:scaleType="centerCrop"
-            android:src="@drawable/contacts" />
+            android:layout_gravity="top|center">
+
+            <ImageView
+                android:id="@+id/imgv_contacts"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="top|center"
+                android:foregroundGravity="top|center"
+                android:scaleType="centerCrop"
+                android:src="@drawable/contacts" />
+
+            <TextView
+                android:id="@+id/tx_contacts_dropdown"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
+                android:text="▼"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+        </FrameLayout>
 
 
         <ListView
             android:id="@+id/list_contacts"
+            android:visibility="invisible"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fadeScrollbars="false"

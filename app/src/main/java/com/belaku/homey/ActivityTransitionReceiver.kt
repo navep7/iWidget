@@ -39,7 +39,20 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     // Info about activity
 
                     if (toTransitionType(event.transitionType) == "ENTER") {
-                        presentActivityState = toActivityString(event.activityType).trim()
+                        val detectedState = toActivityString(event.activityType).trim()
+                        
+                        // Fix: If we get a STILL event but SpeedService is running with non-zero speed, 
+                        // ignore the STILL event as it's likely just a traffic stop.
+                        if (detectedState == "STILL" && isMyServiceRunning(applicationContext, SpeedService::class.java)) {
+                            val sharedPreferences = applicationContext.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
+                            val currentSpeed = sharedPreferences.getInt("currentSpeed", 0)
+                            if (currentSpeed > 3) { // If speed > 3 km/h, it's definitely not a real "STILL" state for the user
+                                Log.d("ActivityTransition", "Ignoring STILL event because vehicle is moving at $currentSpeed km/h")
+                                return@forEach
+                            }
+                        }
+
+                        presentActivityState = detectedState
                         updateActivityState(event, presentActivityState)
                     }
                 }
@@ -67,15 +80,28 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
             remoteViews.setViewVisibility(R.id.rl_walking, View.GONE)
             remoteViews.setViewVisibility(R.id.rl_speed, View.GONE)
 
-            remoteViews.setTextViewText(R.id.tx_activity_state, "STILL")
+        //    remoteViews.setTextViewText(R.id.tx_activity_state, "STILL")
             remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.still)
+            
+            // If we transitioned to STILL, stop the SpeedService if it was running
+            if (isMyServiceRunning(applicationContext, SpeedService::class.java)) {
+                applicationContext.stopService(Intent(applicationContext, SpeedService::class.java))
+                NewAppWidget.Companion.remoteViews?.setChronometer(R.id.speed_chronometer, 0L, null, false)
+                NewAppWidget.Companion.remoteViews?.setViewVisibility(R.id.frame_speed, View.INVISIBLE)
+                NewAppWidget.Companion.remoteViews?.setViewVisibility(R.id.frame_time_speed, View.INVISIBLE)
+            }
         } else if (presentActivityState == "WALKING") {
             remoteViews.setViewVisibility(R.id.rl_walking, View.VISIBLE)
             remoteViews.setViewVisibility(R.id.rl_still, View.GONE)
             remoteViews.setViewVisibility(R.id.rl_speed, View.GONE)
 
-            remoteViews.setTextViewText(R.id.tx_activity_state, "WALKING")
+     //       remoteViews.setTextViewText(R.id.tx_activity_state, "WALKING")
             remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.steps)
+            
+            // If walking, also stop speed service
+            if (isMyServiceRunning(applicationContext, SpeedService::class.java)) {
+                applicationContext.stopService(Intent(applicationContext, SpeedService::class.java))
+            }
         } else if (presentActivityState == "TRAVEL") {
             remoteViews.setViewVisibility(R.id.rl_speed, View.VISIBLE)
             remoteViews.setViewVisibility(R.id.rl_still, View.GONE)
@@ -92,10 +118,10 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     R.id.frame_time_speed,
                     View.VISIBLE
                 )
-                if (!isMyServiceRunning(widgetContext, SpeedService::class.java)) {
-                    widgetContext.startForegroundService(
+                if (!isMyServiceRunning(applicationContext, SpeedService::class.java)) {
+                    applicationContext.startForegroundService(
                         Intent(
-                            widgetContext,
+                            applicationContext,
                             SpeedService::class.java
                         )
                     )
@@ -108,15 +134,8 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                         true
                     )
 
-                    remoteViews.setTextViewText(R.id.tx_activity_state, "IN A VEHICLE")
+             //       remoteViews.setTextViewText(R.id.tx_activity_state, "IN A VEHICLE")
                     remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.in_a_vehicle)
-                }
-            } else if (toTransitionType(event.transitionType) == "EXIT") {
-                if(widgetContext.stopService(Intent(widgetContext, SpeedService::class.java))) {
-                 //   makeToast(widgetContext, "  ⃠  ")
-                    NewAppWidget.Companion.remoteViews?.setChronometer(R.id.speed_chronometer, 0L, null, false)
-                    NewAppWidget.Companion.remoteViews?.setViewVisibility(R.id.frame_speed, View.INVISIBLE)
-                    NewAppWidget.Companion.remoteViews?.setViewVisibility(R.id.frame_time_speed, View.INVISIBLE)
                 }
             }
         }

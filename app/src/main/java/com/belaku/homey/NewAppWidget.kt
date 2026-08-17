@@ -53,6 +53,9 @@ import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicBlur
 import android.text.Html
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
@@ -73,7 +76,6 @@ import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeLongToast
-import com.belaku.homey.MainActivity.Companion.makeSnack
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
 import com.belaku.homey.MainActivity.Companion.tempKind
@@ -1007,10 +1009,6 @@ class NewAppWidget : AppWidgetProvider() {
                 }
 
 
-                remoteViews?.setTextColor(
-                    R.id.clock,
-                    widgetContext.resources.getColor(android.R.color.holo_red_light)
-                )
 
             } else {
 
@@ -1055,11 +1053,6 @@ class NewAppWidget : AppWidgetProvider() {
                     blurWallBitmap = blur(widgetContext, wallBitmap)
                 }
 
-
-                remoteViews?.setTextColor(
-                    R.id.clock,
-                    widgetContext.resources.getColor(android.R.color.holo_red_dark)
-                )
 
             }
 
@@ -1974,6 +1967,7 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
 
+        @SuppressLint("ResourceAsColor")
         fun todaysDate() {
 
             val c: Date = Calendar.getInstance().time
@@ -2066,6 +2060,29 @@ class NewAppWidget : AppWidgetProvider() {
                         ", " + formattedDate
             )
 
+            if (ColorUtil().isColorDark(primaryColor)) {
+
+
+           //     remoteViews?.setInt(R.id.a_clock,    "setDialTint", widgetContext.resources.getColor(android.R.color.holo_red_light))
+
+                remoteViews?.setTextColor(
+                    R.id.tx_day_date,
+                    widgetContext.resources.getColor(R.color.black)
+                )
+                remoteViews?.setTextColor(
+                    R.id.clock,
+                    widgetContext.resources.getColor(R.color.white)
+                )
+            } else {
+                remoteViews?.setTextColor(
+                    R.id.tx_day_date,
+                    widgetContext.resources.getColor(R.color.white)
+                )
+                remoteViews?.setTextColor(
+                    R.id.clock,
+                    widgetContext.resources.getColor(R.color.black)
+                )
+            }
 
             greeting()
             remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
@@ -2081,6 +2098,14 @@ class NewAppWidget : AppWidgetProvider() {
                 gpName = ""
                 showException(ex.message.toString())
             }
+        }
+
+
+        fun interpolateColor(color1: Int, color2: Int, ratio: Float): Int {
+            val r = (Color.red(color1) + ratio * (Color.red(color2) - Color.red(color1))).toInt()
+            val g = (Color.green(color1) + ratio * (Color.green(color2) - Color.green(color1))).toInt()
+            val b = (Color.blue(color1) + ratio * (Color.blue(color2) - Color.blue(color1))).toInt()
+            return Color.rgb(r, g, b)
         }
 
         fun checkCompanionVariable(): Boolean {

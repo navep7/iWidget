@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.app.Service
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.os.Build
@@ -31,11 +32,9 @@ class SpeedService : Service() {
         makeToast(applicationContext, "⚡")
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        // Using FusedLocationProviderClient with High Accuracy is significantly more battery-efficient than raw GPS_PROVIDER.
-        // It manages GPS activation intelligently and leverages sensor fusion.
         val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000L)
             .setMinUpdateIntervalMillis(1000L)
-            .setMinUpdateDistanceMeters(1f) // 1 meter for precision as requested
+            .setMinUpdateDistanceMeters(1f)
             .build()
 
         locationCallback = object : LocationCallback() {
@@ -59,7 +58,6 @@ class SpeedService : Service() {
     }
 
     private fun onLocationChanged(location: Location) {
-        // location.speed is in m/s, multiply by 3.6 for km/h
         val speedKmh = (location.speed * 3.6).toInt()
         updateSpeed(speedKmh)
     }
@@ -68,8 +66,11 @@ class SpeedService : Service() {
         val provider = ComponentName(applicationContext, NewAppWidget::class.java)
         val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
 
-        val sharedPreferences = applicationContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        val sharedPreferences = applicationContext.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
         val sharedPreferencesEditor = sharedPreferences.edit()
+        
+        // Save current speed so ActivityTransitionReceiver can check it
+        sharedPreferencesEditor.putInt("current_speed", speedKmh)
         
         val today = LocalDate.now().toString()
         val lastSavedDate = sharedPreferences.getString("maxSpeedDate", "")
@@ -78,16 +79,15 @@ class SpeedService : Service() {
         if (today == lastSavedDate) {
             maxSpeed = sharedPreferences.getInt("maxSpeedToday", 0)
         } else {
-            // New day, reset max speed
             sharedPreferencesEditor.putString("maxSpeedDate", today)
             sharedPreferencesEditor.putInt("maxSpeedToday", 0)
-            sharedPreferencesEditor.apply()
         }
 
         if (speedKmh > maxSpeed) {
             maxSpeed = speedKmh
-            sharedPreferencesEditor.putInt("maxSpeedToday", maxSpeed).apply()
+            sharedPreferencesEditor.putInt("maxSpeedToday", maxSpeed)
         }
+        sharedPreferencesEditor.apply()
 
         val views = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
         views.setTextViewText(R.id.tx_speed, speedKmh.toString())
@@ -100,6 +100,9 @@ class SpeedService : Service() {
         if (::fusedLocationClient.isInitialized && ::locationCallback.isInitialized) {
             fusedLocationClient.removeLocationUpdates(locationCallback)
         }
+        // Reset speed on stop
+        applicationContext.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
+            .edit().putInt("current_speed", 0).apply()
         super.onDestroy()
     }
 
@@ -118,16 +121,10 @@ class SpeedService : Service() {
         val notification: Notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("Tracking Vehicle Speed")
             .setContentText("Reading real-time GPS data for widget")
-            .setSmallIcon(R.drawable.in_a_vehicle) // Added small icon which is mandatory for foreground notifications
+            .setSmallIcon(R.drawable.in_a_vehicle)
             .build()
 
         try {
-            if (ActivityCompat.checkSelfPermission(applicationContext,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION) == android.content.pm.PackageManager.PERMISSION_GRANTED)
-                if (ActivityCompat.checkSelfPermission(applicationContext,
-                        android.Manifest.permission.ACCESS_COARSE_LOCATION) == android.content.pm.PackageManager.PERMISSION_GRANTED)
-                    if (ActivityCompat.checkSelfPermission(applicationContext,
-                            android.Manifest.permission.FOREGROUND_SERVICE_LOCATION) == android.content.pm.PackageManager.PERMISSION_GRANTED)
             startForeground(3, notification)
         } catch (ex: Exception) {
             makeToast(applicationContext, "SpeedServiceEXP - ${ex.message}")

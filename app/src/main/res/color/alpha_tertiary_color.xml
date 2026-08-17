@@ -2,6 +2,6 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- The item below applies 50% opacity (alpha 0.5) to ?attr/colorPrimary -->
     <item
-        android:alpha="0.95"
+        android:alpha="0.75"
         android:color="?attr/colorTertiary" />
 </selector>
