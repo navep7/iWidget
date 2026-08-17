@@ -44,7 +44,7 @@
                 android:text="Fri, 24th Apr"
                 android:textColor="@android:color/white"
                 android:layout_marginEnd="@dimen/padding_5"
-                android:textSize="30sp"
+                android:textSize="25sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -66,7 +66,7 @@
                 android:padding="@dimen/padding_5"
                 android:format12Hour=" h:mm:ss "
                 android:textColor="@android:color/white"
-                android:textSize="30sp"
+                android:textSize="25sp"
                 android:textStyle="bold" />
 
 
@@ -140,8 +140,8 @@
                 android:padding="@dimen/padding_5"
                 android:scaleType="fitXY"
                 android:src="@drawable/bell_hr"
-                app:tint="@android:color/darker_gray"
-                tools:ignore="HardcodedText" />
+                android:tint="@android:color/darker_gray"
+                tools:ignore="HardcodedText,UseAppTint" />
 
 
             <ImageButton
@@ -532,7 +532,8 @@
                 android:background="@android:color/transparent"
                 android:scaleType="fitXY"
                 android:src="@drawable/play_m"
-                app:tint="@android:color/white" />
+                android:tint="@android:color/white"
+                tools:ignore="UseAppTint" />
 
             <TextView
                 android:id="@+id/tx_music_details"
@@ -709,7 +710,7 @@
         <RelativeLayout
             android:id="@+id/rl_controls"
             android:layout_weight="4"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginBottom="@dimen/padding_3"
             android:layout_alignParentTop="true"
@@ -719,11 +720,11 @@
                 android:id="@+id/imgbtn_g_apps"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_marginStart="@dimen/padding_5"
-                android:layout_marginTop="@dimen/padding_5"
+                android:background="@drawable/rounded_corner_gray"
+                android:padding="@dimen/padding_5"
                 android:adjustViewBounds="true"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@+id/rl_setwall"
+                android:layout_above="@+id/rl_setwall"
                 android:scaleType="fitXY"
                 android:src="@drawable/google" />
 
@@ -731,47 +732,52 @@
                 android:id="@+id/imgv_conf"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_marginEnd="@dimen/padding_5"
-                android:layout_marginTop="@dimen/padding_5"
-                android:background="@android:color/transparent"
+                android:background="@drawable/rounded_corner_gray"
+                android:padding="@dimen/padding_5"
+                android:layout_toEndOf="@+id/rl_setwall"
+                android:layout_above="@+id/rl_setwall"
                 android:adjustViewBounds="true"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
                 android:scaleType="fitXY"
-                app:tint="@color/white"
+                android:tint="@color/white"
                 android:src="@drawable/conf"
-                />
+                tools:ignore="UseAppTint" />
 
 
             <ImageButton
                 android:id="@+id/imgbtn_speech"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_marginTop="@dimen/padding_5"
-                android:background="@android:color/transparent"
+                android:background="@drawable/rounded_corner_gray"
+                android:padding="@dimen/padding_5"
                 android:adjustViewBounds="true"
-                android:layout_alignParentTop="true"
+                android:layout_above="@+id/rl_setwall"
                 android:layout_centerHorizontal="true"
                 android:scaleType="fitXY"
                 android:src="@android:drawable/ic_btn_speak_now"
-                app:tint="@color/white" />
+                android:tint="@color/white"
+                tools:ignore="UseAppTint" />
 
             <ImageView
                 android:id="@+id/imgbtn_qr"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_marginStart="@dimen/padding_5"
                 android:adjustViewBounds="true"
+                android:background="@drawable/rounded_corner_gray"
+                android:padding="@dimen/padding_5"
                 android:layout_centerVertical="true"
-                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@+id/rl_setwall"
                 android:scaleType="fitXY"
                 android:src="@drawable/qr"
-                app:tint="@color/white" />
+                android:tint="@color/white"
+                tools:ignore="UseAppTint" />
 
             <RelativeLayout
                 android:id="@+id/rl_setwall"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
+                android:background="@drawable/rounded_corner_gray"
+                android:padding="@dimen/padding_5"
+                android:layout_margin="@dimen/fab_margin"
                 android:layout_centerInParent="true"
                 android:adjustViewBounds="true">
 
@@ -782,7 +788,7 @@
                     android:layout_centerInParent="true"
                     android:gravity="center"
                     android:text="5"
-                    android:textColor="@android:color/black"
+                    android:textColor="@android:color/holo_green_light"
                     android:textSize="21sp"
                     android:textStyle="bold"
                     tools:ignore="HardcodedText" />
@@ -798,7 +804,8 @@
                     android:padding="@dimen/padding_3"
                     android:scaleType="fitXY"
                     android:src="@android:drawable/ic_popup_sync"
-                    app:tint="@android:color/white" />
+                    android:tint="@android:color/white"
+                    tools:ignore="UseAppTint" />
 
                 <ProgressBar
                     android:id="@+id/progressBar_cyclic_wallchange"
@@ -819,38 +826,40 @@
                 android:id="@+id/imgbtn_lock"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_marginEnd="@dimen/padding_5"
-                android:background="@android:color/transparent"
+                android:layout_toEndOf="@+id/rl_setwall"
+                android:background="@drawable/rounded_corner_gray"
+                android:padding="@dimen/padding_5"
                 android:adjustViewBounds="true"
                 android:layout_centerVertical="true"
-                android:layout_alignParentEnd="true"
                 android:scaleType="fitXY"
-                app:tint="@color/white"
-                android:src="@android:drawable/ic_lock_lock" />
+                android:src="@android:drawable/ic_lock_lock"
+                android:tint="@color/white"
+                tools:ignore="UseAppTint" />
 
             <ImageView
                 android:id="@+id/imgv_ps"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_marginStart="@dimen/padding_5"
-                android:layout_marginBottom="@dimen/padding_5"
-                android:background="@android:color/transparent"
+                android:background="@drawable/rounded_corner_gray"
+                android:padding="@dimen/padding_5"
                 android:adjustViewBounds="true"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentStart="true"
+                android:layout_below="@+id/rl_setwall"
+                android:layout_toStartOf="@+id/rl_setwall"
                 android:scaleType="fitXY"
-                app:tint="@color/white"
-                android:src="@android:drawable/ic_media_play" />
+                android:tint="@color/white"
+                android:src="@android:drawable/ic_media_play"
+                tools:ignore="UseAppTint" />
 
             <TextView
                 android:id="@+id/tx_myspace"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/padding_5"
-                android:layout_alignParentBottom="true"
+                android:layout_below="@+id/rl_setwall"
                 android:layout_centerHorizontal="true"
                 android:gravity="center"
                 android:text="User \nSpace"
+                android:background="@drawable/rounded_corner_gray"
+                android:padding="@dimen/padding_5"
                 android:textColor="@android:color/white"
                 android:textSize="15sp"
                 android:textStyle="bold" />
@@ -859,15 +868,15 @@
                 android:id="@+id/imgv_dialler"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_marginBottom="@dimen/padding_5"
-                android:layout_marginEnd="@dimen/padding_5"
-                android:background="@android:color/transparent"
+                android:background="@drawable/rounded_corner_gray"
+                android:padding="@dimen/padding_5"
                 android:adjustViewBounds="true"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentEnd="true"
+                android:layout_below="@+id/rl_setwall"
+                android:layout_toEndOf="@+id/rl_setwall"
                 android:scaleType="fitXY"
-                app:tint="@color/white"
-                android:src="@drawable/dial" />
+                android:tint="@color/white"
+                android:src="@drawable/dial"
+                tools:ignore="UseAppTint" />
 
         </RelativeLayout>
 

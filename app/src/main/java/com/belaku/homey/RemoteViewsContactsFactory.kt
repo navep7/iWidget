@@ -1,22 +1,16 @@
 package com.belaku.homey
 
 import android.annotation.SuppressLint
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.view.View
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService.RemoteViewsFactory
 import androidx.core.graphics.drawable.RoundedBitmapDrawable
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
-import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
-import com.belaku.homey.NewAppWidget.Companion.remoteViews
-import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.getFavoriteContacts
-import com.belaku.homey.StepsService.Companion.choosenApps
 
 
 class RemoteViewsContactsFactory(private val mContext: Context) :
@@ -25,14 +19,14 @@ class RemoteViewsContactsFactory(private val mContext: Context) :
     override fun onCreate() {
         // Initialize your data source here
         if (favContacts.isEmpty())
-            getFavoriteContacts()
+            getFavoriteContacts(mContext)
 
     //    makeToast("Favorite Contacts : ${favContacts.size}")
     }
 
     override fun onDataSetChanged() {
         if (favContacts.isEmpty())
-            getFavoriteContacts()
+            getFavoriteContacts(mContext)
         // Called when the data needs to be updated (e.g., after notifyAppWidgetViewDataChanged)
     }
 

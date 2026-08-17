@@ -1,15 +1,12 @@
 package com.belaku.homey
 
 import android.Manifest
-import android.accessibilityservice.AccessibilityService
-import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
 import android.app.PendingIntent
 import android.app.ProgressDialog
-import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
@@ -17,30 +14,21 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.ContentValues
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.IntentFilter
-import android.content.pm.PackageManager
-import android.content.pm.PackageManager.NameNotFoundException
 import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.content.pm.ServiceInfo
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
-import android.graphics.Matrix
 import android.graphics.Typeface
 import android.icu.util.Calendar
-import android.location.Geocoder
 import android.location.Location
-import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.os.Looper
 import android.provider.ContactsContract
 import android.provider.Settings
 import android.speech.RecognizerIntent
@@ -55,7 +43,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import android.view.Window
-import android.view.accessibility.AccessibilityManager
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
@@ -76,7 +63,6 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
@@ -97,7 +83,6 @@ import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
-import com.belaku.homey.NewAppWidget.Companion.widgetContext
 import com.belaku.homey.SetWallWorker.Companion.dayIndex
 import com.belaku.homey.SetWallWorker.Companion.getFavoriteContacts
 import com.belaku.homey.SetWallWorker.Companion.mAct
@@ -105,36 +90,21 @@ import com.belaku.homey.SetWallWorker.Companion.screenHeight
 import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
-import com.belaku.homey.StepsService.Companion.getWeatherData
-import com.belaku.homey.StepsService.Companion.isMyServiceRunning
-import com.belaku.homey.StepsService.Companion.mLocationResult
-import com.belaku.homey.StepsService.Companion.twitterProfileName
 import com.belaku.homey.databinding.ActivityMainBinding
 import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.material.color.DynamicColors
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import java.io.IOException
 import java.net.URL
 import java.util.Collections
 import java.util.Locale
@@ -142,7 +112,6 @@ import java.util.concurrent.TimeUnit
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.properties.Delegates
-import kotlin.random.Random
 import kotlin.system.exitProcess
 
 
@@ -239,7 +208,7 @@ class MainActivity : AppCompatActivity() {
 
 
         mainActivityContext = applicationContext
-        widgetContext = applicationContext
+
 
         sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
@@ -840,7 +809,7 @@ class MainActivity : AppCompatActivity() {
             arrayOf<String>(contactId.toString())
         )
 
-        getFavoriteContacts()
+        getFavoriteContacts(applicationContext)
         updateWidget()
     }
 
@@ -1272,7 +1241,7 @@ class MainActivity : AppCompatActivity() {
                     applicationContext?.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager // Context.USAGE_STATS_SERVICE);
 
                 sharedPreferencesEditor.putBoolean("RCP", true).apply()
-                getFavoriteContacts()
+                getFavoriteContacts(applicationContext)
                 btnRC.text = "Granted"
 
 
@@ -1367,9 +1336,9 @@ class MainActivity : AppCompatActivity() {
                     if (!nPermissions()) {
                         rawTweets(false)
                         startStepsService()
-                        getFavoriteContacts()
+                        getFavoriteContacts(applicationContext)
                         if (iDV.isShowing)
-                        iDV.dismiss()
+                            iDV.dismiss()
                     } else ActivityCompat.requestPermissions(
                         this,
                         permissions,
@@ -1493,7 +1462,7 @@ class MainActivity : AppCompatActivity() {
             if (!nPermissions()) {
                 rawTweets(false)
                 startStepsService()
-                getFavoriteContacts()
+                getFavoriteContacts(applicationContext)
                 if(iDV.isShowing)
                     iDV.dismiss()
             } else ActivityCompat.requestPermissions(

@@ -53,9 +53,6 @@ import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicBlur
 import android.text.Html
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.ForegroundColorSpan
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
@@ -133,6 +130,7 @@ import java.util.Locale
 class NewAppWidget : AppWidgetProvider() {
 
 
+    private lateinit var widgetContext: Context
     private lateinit var activityTransitionRequest: ActivityTransitionRequest
     private lateinit var pendingIntentActivityTransitions: PendingIntent
     private lateinit var activityTransitions: ArrayList<ActivityTransition>
@@ -825,7 +823,7 @@ class NewAppWidget : AppWidgetProvider() {
         getPreciseEnergyCounter(widgetContext)
         seekWifiState()
         seekBluetoothState()
-        todaysDate()
+        todaysDate(widgetContext)
         loadStepsData() // Always refresh stepsData from disk to ensure persistence
         wallColors()
         setSomeTwAndWallDescUI()
@@ -942,13 +940,6 @@ class NewAppWidget : AppWidgetProvider() {
             wallpColors.add(secondaryColor)
             wallpColors.add(tertianaryColor)
 
-            remoteViews?.setColorInt(
-                R.id.imgbtn_lock,
-                "setColorFilter",
-                Color.RED,
-                Color.RED
-            )
-
 
             val metrics = DisplayMetrics()
 
@@ -966,18 +957,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
 
-            if (ColorUtil().isColorDark(primaryColor)) {
-
-
-                remoteViews?.setInt(R.id.imgv_conf, "setColorFilter", Color.BLACK)
-                remoteViews?.setInt(R.id.imgbtn_speech, "setColorFilter", Color.BLACK)
-                remoteViews?.setInt(R.id.imgbtn_qr, "setColorFilter", Color.BLACK)
-                remoteViews?.setInt(R.id.imgbtn_set, "setColorFilter", Color.BLACK)
-                remoteViews?.setInt(R.id.imgbtn_lock, "setColorFilter", Color.BLACK)
-                remoteViews?.setInt(R.id.imgv_ps, "setColorFilter", Color.BLACK)
-                remoteViews?.setTextColor(R.id.tx_myspace, Color.BLACK)
-                remoteViews?.setTextColor(R.id.tx_rewards_count, Color.WHITE)
-                remoteViews?.setInt(R.id.imgv_dialler, "setColorFilter", Color.BLACK)
+            if (!ColorUtil().isColorDark(primaryColor)) {
 
 
 
@@ -1011,19 +991,6 @@ class NewAppWidget : AppWidgetProvider() {
 
 
             } else {
-
-
-
-                remoteViews?.setInt(R.id.imgv_conf, "setColorFilter", Color.WHITE)
-                remoteViews?.setInt(R.id.imgbtn_speech, "setColorFilter", Color.WHITE)
-                remoteViews?.setInt(R.id.imgbtn_qr, "setColorFilter", Color.WHITE)
-                remoteViews?.setInt(R.id.imgbtn_set, "setColorFilter", Color.WHITE)
-                remoteViews?.setInt(R.id.imgbtn_lock, "setColorFilter", Color.WHITE)
-                remoteViews?.setInt(R.id.imgv_ps, "setColorFilter", Color.WHITE)
-                remoteViews?.setTextColor(R.id.tx_myspace, Color.WHITE)
-                remoteViews?.setTextColor(R.id.tx_rewards_count, Color.BLACK)
-                remoteViews?.setInt(R.id.imgv_dialler, "setColorFilter", Color.WHITE)
-
 
 
                 if (isWallBitmapInitialized(widgetContext) && !wallBitmap.isRecycled) {
@@ -1202,6 +1169,8 @@ class NewAppWidget : AppWidgetProvider() {
         // TODO Auto-generated method stub
 
         super.onReceive(context, intent)
+
+        widgetContext = context
 
         getScreenDimens()
 
@@ -1393,7 +1362,7 @@ class NewAppWidget : AppWidgetProvider() {
         } else if (ACTION_LIST_CONTACTITEM_CLICK == intent.action) {
             // Extract the item position or ID from the intent extras
 
-            getFavoriteContacts()
+            getFavoriteContacts(widgetContext)
             val position = intent.getIntExtra(
                 EXTRA_CONTACTITEM_POSITION,
                 AdapterView.INVALID_POSITION
@@ -1616,7 +1585,7 @@ class NewAppWidget : AppWidgetProvider() {
             arrayOf<String>(contactId.toString())
         )
 
-        getFavoriteContacts()
+        getFavoriteContacts(widgetContext)
         //   val appWidgetIds = appWidM.getAppWidgetIds(newAppWidget)
         //   appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)
 
@@ -1818,7 +1787,6 @@ class NewAppWidget : AppWidgetProvider() {
     companion object {
         lateinit var blurWallBitmap: Bitmap
         private var unlockReceiver: BroadcastReceiver? = null
-        lateinit var widgetContext: Context
         lateinit var i_appWidgetIds: IntArray
         lateinit var gpBitmap: Bitmap
         var totalScreenTimeInHours: Long = 0
@@ -1903,7 +1871,7 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
         @SuppressLint("Range")
-        fun greeting() {
+        fun greeting(context: Context) {
 
             val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
 
@@ -1923,7 +1891,7 @@ class NewAppWidget : AppWidgetProvider() {
             timelyWish = timeOfDay
 
 
-            val c: Cursor? = widgetContext.contentResolver
+            val c: Cursor? = context.contentResolver
                 .query(ContactsContract.Profile.CONTENT_URI, null, null, null, null)
             c?.moveToFirst()
 
@@ -1968,7 +1936,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         @SuppressLint("ResourceAsColor")
-        fun todaysDate() {
+        fun todaysDate(context: Context) {
 
             val c: Date = Calendar.getInstance().time
             val dfDate = SimpleDateFormat("d", Locale.getDefault())
@@ -2011,7 +1979,7 @@ class NewAppWidget : AppWidgetProvider() {
 
                 if (isadapterHabitsInitialized()) adapterHabits.notifyDataSetChanged()
                 // Midnight transition detected
-                appUsageStats(widgetContext)
+                appUsageStats(context)
 
                 // 1. Ensure current count is saved to disk before resetting
                 sharedPreferencesEditor.putInt(dayName, stepsToday).apply()
@@ -2067,24 +2035,24 @@ class NewAppWidget : AppWidgetProvider() {
 
                 remoteViews?.setTextColor(
                     R.id.tx_day_date,
-                    widgetContext.resources.getColor(R.color.black)
+                    context.resources.getColor(R.color.black)
                 )
                 remoteViews?.setTextColor(
                     R.id.clock,
-                    widgetContext.resources.getColor(R.color.white)
+                    context.resources.getColor(R.color.white)
                 )
             } else {
                 remoteViews?.setTextColor(
                     R.id.tx_day_date,
-                    widgetContext.resources.getColor(R.color.white)
+                    context.resources.getColor(R.color.white)
                 )
                 remoteViews?.setTextColor(
                     R.id.clock,
-                    widgetContext.resources.getColor(R.color.black)
+                    context.resources.getColor(R.color.black)
                 )
             }
 
-            greeting()
+            greeting(context)
             remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
 
             try {

@@ -93,9 +93,7 @@ import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoa
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback
 import com.google.gson.Gson
-import com.google.maps.android.ui.IconGenerator
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
@@ -353,7 +351,7 @@ class DialogActivity : AppCompatActivity() {
 
             } else if (dialogIntentStr == "PC") {
                 llDialog.visibility = View.GONE
-                getFavoriteContacts()
+                getFavoriteContacts(applicationContext)
                 pickContactLauncher =
                     registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                         if (result.resultCode == Activity.RESULT_OK) {
@@ -1052,7 +1050,7 @@ class DialogActivity : AppCompatActivity() {
             arrayOf<String>(contactId.toString())
         )
 
-        getFavoriteContacts()
+        getFavoriteContacts(applicationContext)
     }
 
 

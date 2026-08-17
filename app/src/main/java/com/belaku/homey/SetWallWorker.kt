@@ -17,7 +17,6 @@ import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.icu.util.Calendar
 import android.location.Address
 import android.net.ConnectivityManager
@@ -26,10 +25,8 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.ContactsContract
 import android.text.Html
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
-import android.view.WindowManager
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.drawable.toBitmap
@@ -43,8 +40,6 @@ import com.belaku.homey.MainActivity.Companion.cYear
 import com.belaku.homey.MainActivity.Companion.delayUnit
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.fabMain
-import com.belaku.homey.MainActivity.Companion.makeSnack
-import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.queryType
 import com.belaku.homey.MainActivity.Companion.randomWallIndex
@@ -64,7 +59,6 @@ import com.belaku.homey.NewAppWidget.Companion.qT
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.uT
 import com.belaku.homey.NewAppWidget.Companion.wD
-import com.belaku.homey.NewAppWidget.Companion.widgetContext
 import com.belaku.homey.StepsService.Companion.choosenApps
 import com.google.gson.Gson
 import java.io.File
@@ -73,7 +67,6 @@ import java.io.IOException
 import java.net.URL
 import java.time.LocalDate
 import java.util.Collections
-import kotlin.properties.Delegates
 import kotlin.random.Random
 
 
@@ -82,6 +75,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
     private lateinit var wallWorkerContext: Context
 
+    lateinit var widgetContext: Context
     private var isNetConnected: Boolean = false
 
     @RequiresApi(Build.VERSION_CODES.S)
@@ -110,7 +104,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         if(isNetConnected)
             setWall(true, wallWorkerContext)
         else
-            greeting()
+            greeting(widgetContext)
 
         return Result.success()
     }
@@ -207,7 +201,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
             ensureDimensions(wallWorkerContext)
 
-            greeting()
+            greeting(wallWorkerContext)
 
             try {
                 wm.suggestDesiredDimensions(screenWidth, screenHeight)
@@ -418,7 +412,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
 
         @SuppressLint("Range")
-        fun getFavoriteContacts() {
+        fun getFavoriteContacts(widgetContext: Context) {
 
             favContacts.forEach { recycleBitmap(it.contactBitmap) }
             favContacts = ArrayList()
