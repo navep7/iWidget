@@ -12,4 +12,5 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     <dimen name="padding_10">10dp</dimen>
     <dimen name="padding_15">15dp</dimen>
     <dimen name="padding_20">20dp</dimen>
+    <dimen name="padding_1">1dp</dimen>
 </resources>

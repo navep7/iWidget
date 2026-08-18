@@ -176,7 +176,8 @@ class NewAppWidget : AppWidgetProvider() {
                         if (!isAppWidMInitialized())
                             appWidM = AppWidgetManager.getInstance(widgetContext)
 
-                        makeLongToast(widgetContext, "ꗃ " + sharedPreferences.getInt("unlockCount", 1))
+                   //     makeLongToast(widgetContext, "ꗃ " + sharedPreferences.getInt("unlockCount", 1))
+                        remoteViews?.setTextViewText(R.id.tx_unlocks, sharedPreferences.getInt("unlockCount", 1).toString())
                         sharedPreferencesEditor.putInt("unlockCount", sharedPreferences.getInt("unlockCount", 1) + 1).apply()
 
                         mAppWidgetIds = appWidM.getAppWidgetIds(ComponentName(widgetContext, NewAppWidget::class.java))
@@ -749,7 +750,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             remoteViews?.setTextViewText(
                 R.id.tx_steps,
-                "$stepsToday Steps"
+                "$stepsToday"
             )
             remoteViews?.setTextViewText(
                 R.id.rl_tx_steps,
@@ -766,10 +767,10 @@ class NewAppWidget : AppWidgetProvider() {
         if (hour != 0) {
             remoteViews?.setTextViewText(
                 R.id.tx_screentime,
-                "$hour+ Hours"
+                "$hour+"
             )
 
-            if (hour < 2)
+           /* if (hour < 2)
                 remoteViews?.setTextViewText(
                     R.id.tx_screenusage_state,
                     "LOW"
@@ -788,7 +789,7 @@ class NewAppWidget : AppWidgetProvider() {
                 remoteViews?.setTextViewText(
                     R.id.tx_screenusage_state,
                     "EXCESSIVE"
-                )
+                )*/
         }
 
         val spkServiceRunning = sharedPreferences.getBoolean("SPKSERVICE", false)
@@ -993,7 +994,8 @@ class NewAppWidget : AppWidgetProvider() {
             } else {
 
 
-                if (isWallBitmapInitialized(widgetContext) && !wallBitmap.isRecycled) {
+                if (isWallBitmapInitialized(widgetContext))
+                if (!wallBitmap.isRecycled){
                     scaledBitmap =
                         Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
 
@@ -1272,7 +1274,7 @@ class NewAppWidget : AppWidgetProvider() {
         }
         if (STEPS_CLICK == intent.action) {
             makeToast(widgetContext, "$stepsToday ~ " + String.format("%.1f", stepsToday * 74f / 100000f) + " Km")
-            remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday Steps")
+            remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday")
 
         }
 

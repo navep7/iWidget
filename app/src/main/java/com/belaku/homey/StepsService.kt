@@ -257,14 +257,14 @@ class StepsService : Service() {
                     if (stepsToday < 10) {
                         remoteViews?.setTextViewText(
                             R.id.tx_steps,
-                            "$stepsToday Steps"
+                            "$stepsToday"
                         )
                         sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
                     } else if (stepsToday % 10 == 0)  {
                         if(stepsToday < 131) {
                             remoteViews?.setTextViewText(
                                 R.id.tx_steps,
-                                "$stepsToday steps"
+                                "$stepsToday"
                             )
                             remoteViews?.setTextViewText(
                                 R.id.rl_tx_steps,
@@ -277,23 +277,7 @@ class StepsService : Service() {
                             remoteViews?.setTextViewText(R.id.rl_tx_cals, (stepsToday * 0.04 * (80 / 70)).toInt().toString())
                         }
                         sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
-                    } else if (stepsToday % 131 == 0) {
-
-                        remoteViews?.setTextViewText(
-                        R.id.tx_steps,
-                        "${String.format("%.1f",  (Integer.parseInt(stepsToday.toString()) * 74f) / 100000f)} km"
-                    )
-                        remoteViews?.setTextViewText(
-                            R.id.rl_tx_steps,
-                            "$stepsToday"
-                        )
-                        remoteViews?.setTextViewText(
-                            R.id.rl_tx_steps_in_km,
-                            " ~ " + String.format("%.1f",  (Integer.parseInt(stepsToday.toString()) * 74f) / 100000f)
-                        )
-                        remoteViews?.setTextViewText(R.id.rl_tx_cals, (stepsToday * 0.04 * (80 / 70)).toInt().toString())
-                        sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
-                }
+                    }
 
 
                     sharedPreferencesEditor.putString("day", LocalDate.now().dayOfWeek.name).apply()

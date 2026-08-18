@@ -40,12 +40,16 @@
                 android:id="@+id/tx_day_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/padding_5"
                 android:text="Fri, 24th Apr"
                 android:textColor="@android:color/white"
                 android:layout_marginEnd="@dimen/padding_5"
                 android:textSize="25sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:shadowColor="@android:color/black"
+                android:shadowRadius="5"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:padding="3dp"/>
 
             <TextView
                 android:id="@+id/widget_glowing_text"
@@ -63,11 +67,15 @@
                 android:id="@+id/clock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/padding_5"
                 android:format12Hour=" h:mm:ss "
                 android:textColor="@android:color/white"
                 android:textSize="25sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:shadowColor="@android:color/white"
+                android:shadowRadius="5"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:padding="3dp"/>
 
 
 
@@ -123,10 +131,11 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:textColor="#FFFFFF"
-                android:textSize="24sp"
+                android:textSize="30sp"
                 android:shadowColor="@android:color/holo_green_light"
                 android:shadowRadius="5"
-                android:shadowDx="0" android:shadowDy="0"
+                android:shadowDx="0"
+                android:shadowDy="0"
                 android:padding="3dp" />
 
 
@@ -267,10 +276,8 @@
 
             <AnalogClock
                 android:id="@+id/a_clock"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:layout_marginTop="-25dp"
-                android:layout_marginBottom="-25dp"
+                android:layout_width="125dp"
+                android:layout_height="125dp"
                 android:layout_centerHorizontal="true"
                 android:dial="@drawable/dial_transparent"
                 android:hand_second="@drawable/s_hand"
@@ -283,38 +290,17 @@
 
 
 
-            <FrameLayout
-                android:id="@+id/frame_texts"
+
+            <TextView
+                android:id="@+id/tx_time_announcement"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true">
-
-
-
-                <LinearLayout
-                    android:id="@+id/ll_time_day"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="@dimen/padding_3"
-                    android:orientation="vertical"
-                    android:padding="@dimen/padding_5">
-
-
-                    <TextView
-                        android:id="@+id/tx_time_announcement"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:text="⊘"
-                        android:textColor="@android:color/holo_green_light"
-                        android:textSize="25sp"
-                        android:textStyle="bold" />
-
-
-
-                </LinearLayout>
-
-            </FrameLayout>
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center"
+                android:text="⊘"
+                android:textColor="@android:color/holo_green_light"
+                android:textSize="25sp"
+                android:textStyle="bold" />
 
 
             <LinearLayout
@@ -388,17 +374,6 @@
 
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tx_screenusage_state"
-                android:layout_alignParentEnd="true"
-                android:layout_above="@+id/ll_steps_screentime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/fab_margin"
-                android:layout_marginBottom="@dimen/padding_3"
-                android:text="USAGE"
-                android:textSize="10sp"
-                android:textColor="@color/white"/>
 
 
             <RelativeLayout
@@ -406,21 +381,32 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/a_clock"
-                android:layout_marginTop="-4dp"
                 android:orientation="horizontal">
 
 
-                <ImageButton
-                    android:id="@+id/imgbtn_twitter"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+
+                <TextView
+                    android:id="@+id/tx_runner"
+                    android:visibility="invisible"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
                     android:layout_alignBottom="@id/rl_steps"
-                    android:layout_centerHorizontal="true"
-                    android:background="@android:color/transparent"
+                    android:layout_toEndOf="@+id/rl_steps"
+                    android:layout_toStartOf="@+id/rl_scrtime"
+                    android:background="@drawable/gradient_glass_rounded_go"
+                    android:clickable="true"
+                    android:ellipsize="end"
+                    android:focusable="true"
+                    android:fontFamily="sans-serif-condensed"
                     android:gravity="center"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/tw"
-                    tools:ignore="HardcodedText" />
+                    android:maxLines="1"
+                    android:orientation="horizontal"
+                    android:text=" Pin a Note! ✏️ "
+                    android:textSize="21sp"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold" />
+
 
 
                 <RelativeLayout
@@ -441,7 +427,7 @@
                         android:layout_centerVertical="true"
                         android:background="@android:color/transparent"
                         android:scaleType="fitXY"
-                        android:src="@drawable/still" />
+                        android:src="@drawable/steps" />
 
                     <TextView
                         android:id="@+id/tx_steps"
@@ -451,7 +437,41 @@
                         android:layout_marginStart="5dp"
                         android:layout_toEndOf="@+id/imgv_steps"
                         android:paddingEnd="@dimen/padding_3"
-                        android:text="Steps, today."
+                        android:text="Steps."
+                        android:textColor="@android:color/black"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/rl_unlocks"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="@dimen/padding_5"
+                    android:background="@drawable/gradient_glass_rounded">
+
+
+                    <ImageButton
+                        android:id="@+id/imgv_unlocks"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:background="@android:color/transparent"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/unlock" />
+
+                    <TextView
+                        android:id="@+id/tx_unlocks"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="5dp"
+                        android:layout_toEndOf="@+id/imgv_unlocks"
+                        android:paddingEnd="@dimen/padding_3"
+                        android:text="Unlocks."
                         android:textColor="@android:color/black"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -474,7 +494,7 @@
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="5dp"
                         android:paddingStart="@dimen/padding_3"
-                        android:text="Screen Time"
+                        android:text="Usage"
                         android:textColor="@android:color/black"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -507,12 +527,18 @@
             android:layout_alignParentEnd="true" />
 
 
+        <ImageButton
+            android:id="@+id/imgbtn_twitter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+
         <RelativeLayout
             android:id="@+id/rl_player"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/rl_clocks_weather"
-            android:layout_marginTop="@dimen/padding_3"
+            android:layout_marginTop="@dimen/padding_1"
             android:layout_toStartOf="@+id/imgbtn_albumcover"
             android:background="@drawable/gradient_glass_flat">
 
@@ -553,24 +579,6 @@
     </RelativeLayout>
 
 
-    <TextView
-        android:id="@+id/tx_runner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/rl_clocks"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/gradient_glass_rounded_go"
-        android:clickable="true"
-        android:ellipsize="middle"
-        android:focusable="true"
-        android:fontFamily="sans-serif-condensed"
-        android:gravity="center"
-        android:maxLines="3"
-        android:orientation="horizontal"
-        android:padding="7dp"
-        android:text=" Pin a Note! ✏️ "
-        android:textColor="@android:color/white"
-        android:textStyle="bold" />
 
 
     <TextView
@@ -578,7 +586,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/tx_walldesc"
-        android:layout_below="@+id/tx_runner"
+        android:layout_below="@+id/rl_clocks"
         android:layout_alignParentStart="true"
         android:layout_toStartOf="@+id/ll_apps"
         android:gravity="center"
@@ -593,7 +601,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/tx_walldesc"
-        android:layout_below="@+id/tx_runner"
+        android:layout_below="@+id/rl_clocks"
         android:layout_alignParentEnd="true"
         android:layout_toStartOf="@+id/ll_contacts"
         android:gravity="center"
@@ -609,40 +617,23 @@
         android:layout_height="wrap_content"
         android:padding="@dimen/padding_5"
         android:layout_above="@+id/tx_walldesc"
-        android:layout_alignTop="@+id/tx_runner"
+        android:layout_below="@+id/rl_clocks"
         android:layout_alignParentStart="true"
         android:orientation="vertical">
 
 
-        <FrameLayout
+        <ImageView
+            android:id="@+id/imgv_apps"
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:layout_gravity="top|center">
-
-            <ImageView
-                android:id="@+id/imgv_apps"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="top|center"
-                android:foregroundGravity="top|center"
-                android:scaleType="centerCrop"
-                android:src="@drawable/launch_e" />
-
-            <TextView
-                android:id="@+id/tx_apps_dropdown"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|center_horizontal"
-                android:text="▼"
-                android:textColor="@android:color/white"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-        </FrameLayout>
+            android:layout_gravity="top|center"
+            android:foregroundGravity="top|center"
+            android:scaleType="centerCrop"
+            android:src="@drawable/launch_e" />
 
 
         <ListView
             android:id="@+id/list_apps"
-            android:visibility="invisible"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fadeScrollbars="false" />
@@ -656,39 +647,22 @@
         android:layout_height="wrap_content"
         android:padding="@dimen/padding_5"
         android:layout_above="@+id/tx_walldesc"
-        android:layout_alignTop="@+id/tx_runner"
+        android:layout_below="@+id/rl_clocks"
         android:layout_alignParentEnd="true"
         android:orientation="vertical">
 
-        <FrameLayout
+        <ImageView
+            android:id="@+id/imgv_contacts"
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:layout_gravity="top|center">
-
-            <ImageView
-                android:id="@+id/imgv_contacts"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="top|center"
-                android:foregroundGravity="top|center"
-                android:scaleType="centerCrop"
-                android:src="@drawable/contacts" />
-
-            <TextView
-                android:id="@+id/tx_contacts_dropdown"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|center_horizontal"
-                android:text="▼"
-                android:textColor="@android:color/white"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-        </FrameLayout>
+            android:layout_gravity="top|center"
+            android:foregroundGravity="top|center"
+            android:scaleType="centerCrop"
+            android:src="@drawable/contacts" />
 
 
         <ListView
             android:id="@+id/list_contacts"
-            android:visibility="invisible"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fadeScrollbars="false"
@@ -702,7 +676,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="@dimen/padding_5"
-        android:layout_below="@+id/tx_runner"
+        android:layout_below="@+id/rl_clocks"
         android:layout_above="@+id/tx_walldesc"
         android:layout_toEndOf="@+id/ll_apps"
         android:layout_toStartOf="@+id/ll_contacts">
@@ -712,6 +686,8 @@
             android:layout_weight="4"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:paddingTop="@dimen/padding_10"
+            android:paddingBottom="@dimen/padding_10"
             android:layout_marginBottom="@dimen/padding_3"
             android:layout_alignParentTop="true"
             android:background="@drawable/gradient_glass_light">

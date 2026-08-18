@@ -80,7 +80,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
             remoteViews.setViewVisibility(R.id.rl_speed, View.GONE)
 
         //    remoteViews.setTextViewText(R.id.tx_activity_state, "STILL")
-            remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.still)
+        //    remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.still)
             
             // If we transitioned to STILL, stop the SpeedService if it was running
             if (isMyServiceRunning(applicationContext, SpeedService::class.java)) {
@@ -95,7 +95,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
             remoteViews.setViewVisibility(R.id.rl_speed, View.GONE)
 
      //       remoteViews.setTextViewText(R.id.tx_activity_state, "WALKING")
-            remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.steps)
+      //      remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.steps)
             
             // If walking, also stop speed service
             if (isMyServiceRunning(applicationContext, SpeedService::class.java)) {
@@ -134,7 +134,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     )
 
              //       remoteViews.setTextViewText(R.id.tx_activity_state, "IN A VEHICLE")
-                    remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.in_a_vehicle)
+          //          remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.in_a_vehicle)
                 }
             }
         }

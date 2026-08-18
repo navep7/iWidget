@@ -690,10 +690,10 @@ class DialogActivity : AppCompatActivity() {
 
                     remoteViews?.setTextViewText(
                         R.id.tx_screentime,
-                        "$hour+ Hours"
+                        "$hour+"
                     )
 
-                    if (hour < 2)
+                   /* if (hour < 2)
                         remoteViews?.setTextViewText(
                             R.id.tx_screenusage_state,
                             "LOW"
@@ -712,7 +712,7 @@ class DialogActivity : AppCompatActivity() {
                         remoteViews?.setTextViewText(
                             R.id.tx_screenusage_state,
                             "EXCESSIVE"
-                        )
+                        )*/
 
 
 

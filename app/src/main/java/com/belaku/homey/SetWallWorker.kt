@@ -60,6 +60,7 @@ import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.uT
 import com.belaku.homey.NewAppWidget.Companion.wD
 import com.belaku.homey.StepsService.Companion.choosenApps
+import com.belaku.homey.StepsService.Companion.totalUsage
 import com.google.gson.Gson
 import java.io.File
 import java.io.FileOutputStream
@@ -68,6 +69,9 @@ import java.net.URL
 import java.time.LocalDate
 import java.util.Collections
 import kotlin.random.Random
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 
 class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
@@ -597,9 +601,40 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     // in the AppsIndexer when processing Digital Wellbeing metadata.
                     Log.e(TAG, "System indexing error during UsageStats query: ${e}")
                 }
+
+                hashSetAppUsage.removeIf { Integer.parseInt(it.usageTime.split(":")[0]) > 500 }
+
+                var b = hashSetAppUsage.distinctBy { it.usageTime }
+
+                Log.d("b4sort", b.toString())
+                var c = b.sortedBy { it.usageTime.split(":")[0].trim().toInt() }
+                Log.d("a4sort", c.toString())
+
+                var myAppUsages: ArrayList<String> = ArrayList()
+
+                for (i in c)
+                    myAppUsages.add(i.usageTime)
+
+                totalUsage = sumTimes(myAppUsages)
+                myAppUsages.clear()
+
+                var sT = totalUsage.split(":")
+                hour = Integer.parseInt(sT[0])
+                var min = sT[1]
             }
         }
 
+
+        fun sumTimes(times: List<String>): String {
+            val totalDuration = times.fold(Duration.ZERO) { acc, time ->
+                val parts = time.split(":").map { it.trim().toInt() }
+                acc + parts[0].minutes + parts[1].seconds
+            }
+
+            return totalDuration.toComponents { hours, minutes, _, _ ->
+                "%02d:%02d".format(hours, minutes)
+            }
+        }
 
         fun getPackageNameFromAppName(context: Context, appName: String): String? {
             val packageManager = context.packageManager

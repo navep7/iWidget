@@ -42,6 +42,7 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
+import android.view.ViewGroup
 import android.view.Window
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
@@ -80,16 +81,20 @@ import com.android.volley.toolbox.Volley
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
+import com.belaku.homey.NewAppWidget.Companion.hashSetAppUsage
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
+import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.dayIndex
 import com.belaku.homey.SetWallWorker.Companion.getFavoriteContacts
+import com.belaku.homey.SetWallWorker.Companion.hour
 import com.belaku.homey.SetWallWorker.Companion.mAct
 import com.belaku.homey.SetWallWorker.Companion.screenHeight
 import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
+import com.belaku.homey.StepsService.Companion.totalUsage
 import com.belaku.homey.databinding.ActivityMainBinding
 import com.google.android.gms.ads.MobileAds
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
@@ -1474,9 +1479,11 @@ class MainActivity : AppCompatActivity() {
 
         if (UsageStatsChecker().hasUsageStatsPermission(applicationContext)) {
             btnAUS.text = "Granted"
+            appUsageStats(applicationContext)
             sharedPreferencesEditor.putBoolean("AUS", true).apply()
         }
     }
+
 
     override fun onPause() {
         super.onPause()
