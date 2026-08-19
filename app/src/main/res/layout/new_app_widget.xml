@@ -41,11 +41,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Fri, 24th Apr"
-                android:textColor="@android:color/white"
+                android:textColor="@android:color/black"
                 android:layout_marginEnd="@dimen/padding_5"
                 android:textSize="25sp"
                 android:textStyle="bold"
-                android:shadowColor="@android:color/black"
+                android:shadowColor="@android:color/white"
                 android:shadowRadius="5"
                 android:shadowDx="0"
                 android:shadowDy="0"
@@ -58,9 +58,10 @@
                 android:text="│"
                 android:textColor="#FFFFFF"
                 android:textSize="24sp"
-                android:shadowColor="#00FFCC"
+                android:shadowColor="@android:color/white"
                 android:shadowRadius="12"
-                android:shadowDx="0" android:shadowDy="0"
+                android:shadowDx="0"
+                android:shadowDy="0"
                 android:padding="8dp" />
 
             <android.widget.TextClock
@@ -68,7 +69,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:format12Hour=" h:mm:ss "
-                android:textColor="@android:color/white"
+                android:textColor="@android:color/black"
                 android:textSize="25sp"
                 android:textStyle="bold"
                 android:shadowColor="@android:color/white"
@@ -124,19 +125,17 @@
 
             <TextView
                 android:id="@+id/tx_wish"
-                android:text="..Greet!"
-                android:layout_marginStart="@dimen/padding_3"
+                android:text="..Greeting!"
                 android:gravity="center"
                 android:layout_weight="4"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:textColor="#FFFFFF"
                 android:textSize="30sp"
-                android:shadowColor="@android:color/holo_green_light"
+                android:shadowColor="@android:color/black"
                 android:shadowRadius="5"
                 android:shadowDx="0"
-                android:shadowDy="0"
-                android:padding="3dp" />
+                android:shadowDy="0" />
 
 
             <ImageButton
@@ -279,7 +278,7 @@
                 android:layout_width="125dp"
                 android:layout_height="125dp"
                 android:layout_centerHorizontal="true"
-                android:dial="@drawable/dial_transparent"
+                android:dial="@drawable/ggd"
                 android:hand_second="@drawable/s_hand"
                 android:hand_minuteTint="@android:color/holo_green_light"
                 android:hand_hourTint="@android:color/holo_orange_light"
@@ -471,7 +470,7 @@
                         android:layout_marginStart="5dp"
                         android:layout_toEndOf="@+id/imgv_unlocks"
                         android:paddingEnd="@dimen/padding_3"
-                        android:text="Unlocks."
+                        android:text="1"
                         android:textColor="@android:color/black"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -613,7 +612,7 @@
 
     <LinearLayout
         android:id="@+id/ll_apps"
-        android:layout_width="wrap_content"
+        android:layout_width="75dp"
         android:layout_height="wrap_content"
         android:padding="@dimen/padding_5"
         android:layout_above="@+id/tx_walldesc"
@@ -624,8 +623,8 @@
 
         <ImageView
             android:id="@+id/imgv_apps"
-            android:layout_width="75dp"
-            android:layout_height="75dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_gravity="top|center"
             android:foregroundGravity="top|center"
             android:scaleType="centerCrop"
@@ -643,7 +642,7 @@
 
     <LinearLayout
         android:id="@+id/ll_contacts"
-        android:layout_width="wrap_content"
+        android:layout_width="75dp"
         android:layout_height="wrap_content"
         android:padding="@dimen/padding_5"
         android:layout_above="@+id/tx_walldesc"
@@ -653,8 +652,8 @@
 
         <ImageView
             android:id="@+id/imgv_contacts"
-            android:layout_width="75dp"
-            android:layout_height="75dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_gravity="top|center"
             android:foregroundGravity="top|center"
             android:scaleType="centerCrop"
@@ -675,7 +674,6 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="@dimen/padding_5"
         android:layout_below="@+id/rl_clocks"
         android:layout_above="@+id/tx_walldesc"
         android:layout_toEndOf="@+id/ll_apps"
@@ -684,6 +682,8 @@
         <RelativeLayout
             android:id="@+id/rl_controls"
             android:layout_weight="4"
+            android:layout_marginStart="@dimen/padding_5"
+            android:layout_marginEnd="@dimen/padding_5"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:paddingTop="@dimen/padding_10"
@@ -859,15 +859,13 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:weightSum="5"
             android:layout_weight="2">
 
             <RelativeLayout
                 android:id="@+id/rl_still"
                 android:background="@drawable/gradient_glass_rounded"
                 android:visibility="gone"
-                android:layout_width="0dp"
-                android:layout_weight="5"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
                 <TextView
@@ -921,12 +919,12 @@
 
             <RelativeLayout
                 android:id="@+id/rl_walking"
-                android:visibility="gone"
+
                 android:gravity="center"
+                android:paddingBottom="@dimen/padding_5"
                 android:layout_gravity="center"
                 android:background="@drawable/gradient_glass_rounded"
-                android:layout_width="0dp"
-                android:layout_weight="5"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
                 <TextView
@@ -972,7 +970,7 @@
                         android:textColor="@android:color/black"
                         android:textStyle="bold"
                         android:textSize="20dp"
-                        android:text="km"/>
+                        android:text="X.x"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -1003,7 +1001,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@android:color/black"
-                        android:textStyle="italic"
+                        android:textStyle="italic|bold"
                         android:textSize="15dp"
                         android:text="   kcal"/>
 

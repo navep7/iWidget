@@ -294,6 +294,7 @@ class StepsService : Service() {
             }
         }
 
+        if (isSharedPreferencesInitialized())
         stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
 
     }

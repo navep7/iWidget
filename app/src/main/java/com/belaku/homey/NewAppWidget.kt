@@ -2030,29 +2030,6 @@ class NewAppWidget : AppWidgetProvider() {
                         ", " + formattedDate
             )
 
-            if (ColorUtil().isColorDark(primaryColor)) {
-
-
-           //     remoteViews?.setInt(R.id.a_clock,    "setDialTint", widgetContext.resources.getColor(android.R.color.holo_red_light))
-
-                remoteViews?.setTextColor(
-                    R.id.tx_day_date,
-                    context.resources.getColor(R.color.black)
-                )
-                remoteViews?.setTextColor(
-                    R.id.clock,
-                    context.resources.getColor(R.color.white)
-                )
-            } else {
-                remoteViews?.setTextColor(
-                    R.id.tx_day_date,
-                    context.resources.getColor(R.color.white)
-                )
-                remoteViews?.setTextColor(
-                    R.id.clock,
-                    context.resources.getColor(R.color.black)
-                )
-            }
 
             greeting(context)
             remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
