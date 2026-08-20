@@ -1,3 +1,4 @@
+<!--
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
@@ -50,6 +51,61 @@
         android:gravity="end"
         android:layout_alignParentTop="true"
         android:layout_marginEnd="-25dp"
+        android:layout_toEndOf="@+id/contact_imgv"
+        android:src="@drawable/contacts"
+        tools:ignore="HardcodedText" />
+
+
+</RelativeLayout>-->
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="75dp"
+    android:layout_height="75dp">
+
+    <ImageView
+        android:id="@+id/contact_imgv"
+        android:src="@drawable/launch_e"
+        android:layout_above="@+id/contact_tx_name"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/contact_tx_name"
+        android:tag="APP"
+        android:text="App"
+        android:background="@drawable/gradient_glass_flat"
+        android:textStyle="bold"
+        android:maxLines="1"
+        android:textColor="@color/black"
+        android:ellipsize="end"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="@dimen/padding_3"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/contacts"
+        tools:ignore="HardcodedText" />
+
+
+
+    <TextView
+        android:id="@+id/contact_tx_close"
+        android:tag="APP"
+        android:text=" X "
+        android:padding="3sp"
+        android:background="@drawable/circular_white"
+        android:textSize="10sp"
+        android:textColor="@android:color/holo_red_dark"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="-25dp"
         android:layout_toEndOf="@+id/contact_imgv"
         android:src="@drawable/contacts"
         tools:ignore="HardcodedText" />

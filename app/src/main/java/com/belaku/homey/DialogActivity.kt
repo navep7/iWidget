@@ -1,7 +1,6 @@
 package com.belaku.homey
 
-//import com.chaquo.python.Python
-//import com.chaquo.python.android.AndroidPlatform
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
@@ -10,6 +9,7 @@ import android.app.ProgressDialog
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.ContentValues
@@ -21,7 +21,10 @@ import android.content.pm.PackageManager.NameNotFoundException
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.hardware.camera2.CameraAccessException
+import android.hardware.camera2.CameraManager
 import android.net.Uri
+import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -55,6 +58,7 @@ import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.listTweets
+import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.pickContactLauncher
@@ -113,10 +117,21 @@ import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import androidx.core.content.ContextCompat
+import com.google.android.things.bluetooth.BluetoothProfile
 
 
 class DialogActivity : AppCompatActivity() {
 
+    var bluetoothLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+
+        }
+    private var bluetoothAdapter: BluetoothAdapter? = null
+    val wifiPanelIntent = Intent(Settings.Panel.ACTION_WIFI)
+    private lateinit var llMenu: LinearLayout
     private lateinit var dialogAct: AlertDialog
     private var boolFetchingTweets: Boolean = false
     private lateinit var dialogActContext: Context
@@ -161,6 +176,11 @@ class DialogActivity : AppCompatActivity() {
     private lateinit var btnCancel: Button
 
     private lateinit var imgbtnShare: ImageButton
+    private lateinit var menuReminders: ImageButton
+    private lateinit var menuTorch: ImageButton
+    private lateinit var menuWifi: ImageButton
+    private lateinit var menuBlue: ImageButton
+    private lateinit var menuAi: ImageButton
 
     @RequiresApi(Build.VERSION_CODES.S)
     @SuppressLint("ResourceAsColor", "SetTextI18n")
@@ -224,12 +244,10 @@ class DialogActivity : AppCompatActivity() {
             }
         }
 
-        var bluetoothLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-
-            }
 
 
+
+        llMenu = findViewById<LinearLayout>(R.id.ll_menu)
         llDialog = findViewById<RelativeLayout>(R.id.dialog_layout)
         imgvSongCover = findViewById<ImageView>(R.id.dialog_imgv_cover)
         txTitle = findViewById<TextView>(R.id.tx_dialog_title)
@@ -244,9 +262,57 @@ class DialogActivity : AppCompatActivity() {
         btnCancel = findViewById<Button>(R.id.btn_dialog_cancel)
         imgbtnShare = findViewById<ImageButton>(R.id.imgbtn_dialog_share)
         vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
+        menuReminders = findViewById(R.id.menu_reminders)
+        menuTorch = findViewById(R.id.menu_torch)
+        menuWifi = findViewById(R.id.menu_wifi)
+        menuBlue = findViewById(R.id.menu_blue)
+        menuAi = findViewById(R.id.menu_ai)
+
+         val bluetoothManager = applicationContext.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+         bluetoothAdapter = bluetoothManager.adapter
+
+        checkWifiState(applicationContext)
+        checkBluetoothState(applicationContext)
 
         btnCancel.setOnClickListener {
             finish()
+        }
+
+        menuReminders.setOnClickListener {
+            val remindersIntent = Intent(this, RemindersActivity::class.java)
+            remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+            remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(remindersIntent)
+            finish()
+        }
+
+        menuTorch.setOnClickListener {
+            toggleTorch()
+        }
+
+        menuWifi.setOnClickListener {
+            startActivity(wifiPanelIntent)
+            finish()
+        }
+
+        menuBlue.setOnClickListener {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                // Android 12+ requires dynamic BLUETOOTH_CONNECT permission
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
+                    != PackageManager.PERMISSION_GRANTED) {
+                   makeToast(applicationContext, " requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT)")
+                }
+            }
+            toggleBluetooth()
+            finish()
+        }
+
+        menuAi.setOnClickListener {
+            val aiIntent = Intent(this, AiActivity::class.java)
+            aiIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+            aiIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(aiIntent)
+         //   finish()
         }
 
 
@@ -256,11 +322,37 @@ class DialogActivity : AppCompatActivity() {
 
         if (dialogIntentStr != null) {
 
+
             if (dialogIntentStr == "stepsInfo") {
                 stepsMapsAdapter(stepsData)
             }
 
-            if (dialogIntentStr == "SongCover") {
+
+            if (dialogIntentStr == "Menu") {
+
+                window.setLayout(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+
+
+                edtxDialog.visibility = View.GONE
+                btnOk.visibility = View.GONE
+                btnCancel.visibility = View.GONE
+                vpSteps.visibility = View.GONE
+                imgbtnShare.visibility = View.GONE
+                imgvSongCover.visibility = View.GONE
+                txTitle.setText(
+                    "Menu"
+                )
+
+                txTitle.visibility = View.VISIBLE
+                llMenu.visibility = View.VISIBLE
+
+
+
+
+            } else if (dialogIntentStr == "SongCover") {
+                llMenu.visibility = View.GONE
                 txTitle.visibility = View.GONE
                 edtxDialog.visibility = View.GONE
                 btnOk.visibility = View.GONE
@@ -443,17 +535,7 @@ class DialogActivity : AppCompatActivity() {
                     }
                     .show()
 
-            } else if (dialogIntentStr == "BLUEEnable") {
-                blE = true
-                llDialog.visibility = View.GONE
-                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                bluetoothLauncher.launch(enableBtIntent)
-            } else if (dialogIntentStr == "BLUEDisable") {
-                blE = false
-                llDialog.visibility = View.GONE
-                val disableintent = Intent("android.bluetooth.adapter.action.REQUEST_DISABLE")
-                bluetoothLauncher.launch(disableintent)
-            } else if (dialogIntentStr == "WifiEnable" || dialogIntentStr == "WifiDisable") {
+            }  else if (dialogIntentStr == "WifiEnable" || dialogIntentStr == "WifiDisable") {
                 try {
                     val intent = Intent(Intent.ACTION_MAIN, null)
                     intent.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -861,6 +943,107 @@ class DialogActivity : AppCompatActivity() {
 
 
 
+    fun checkBluetoothState(context: Context) {
+        // 1. Check runtime permission for Android 12+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT)
+            != PackageManager.PERMISSION_GRANTED) {
+            makeToast(applicationContext, "Bluetooth permission not granted.")
+            return
+        }
+
+
+        // 3. Verify if hardware supports Bluetooth
+        if (bluetoothAdapter == null) {
+            makeToast(applicationContext, "Device does not support Bluetooth.")
+            return
+        }
+
+        // 4. Check if Bluetooth is turned ON
+        if (!bluetoothAdapter!!.isEnabled) {
+            menuBlue.setImageResource(R.drawable.blue_off)
+            return
+        }
+
+        makeToast(applicationContext, "Bluetooth is turned ON.")
+
+        // 5. Check if any device is CONNECTED
+        // We check common profiles like GATT (BLE), A2DP (Audio), and HEADSET
+        val isConnected = isProfileConnected(bluetoothAdapter!!, BluetoothProfile.GATT) ||
+                isProfileConnected(bluetoothAdapter!!, BluetoothProfile.A2DP) ||
+                isProfileConnected(bluetoothAdapter!!, BluetoothProfile.HEADSET)
+
+        if (isConnected) {
+            menuBlue.setImageResource(R.drawable.blue_on)
+        } else {
+            menuBlue.setImageResource(R.drawable.blue_red)
+        }
+    }
+
+    // Helper to check specific profile connection states
+    private fun isProfileConnected(adapter: BluetoothAdapter, profileType: Int): Boolean {
+        val connectionState = adapter.getProfileConnectionState(profileType)
+        return connectionState == android.bluetooth.BluetoothProfile.STATE_CONNECTED
+    }
+
+
+    fun checkWifiState(context: Context)  {
+
+        // 2. Check if the device is actively connected to a Wi-Fi network
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork = connectivityManager.activeNetwork
+        val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
+
+        val isConnected = capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+
+        if (isConnected)
+            menuWifi.setImageResource(R.drawable.wifi_on)
+        else menuWifi.setImageResource(R.drawable.wifi_on_but_not_connected)
+
+        // 1. Check if the physical Wi-Fi switch is turned on
+        val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        if (!wifiManager.isWifiEnabled) {
+            menuWifi.setImageResource(R.drawable.wifi_off)
+        }
+
+    }
+
+
+    private fun toggleTorch() {
+        val isFlashAvailable = packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)
+        if (!isFlashAvailable) return
+
+        val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        var cameraId: String? = null
+        try {
+            cameraId = cameraManager.cameraIdList[0]
+        } catch (ex: CameraAccessException) {
+        }
+
+        try {
+            if (cameraId != null) {
+                if (!sharedPreferences.getBoolean("Torch", false)) {
+                    cameraManager.setTorchMode(cameraId, true)
+                    remoteViews?.setImageViewResource(R.id.fab_torch, R.drawable.torch_on)
+                    sharedPreferencesEditor.putBoolean("Torch", true).apply()
+                } else {
+                    cameraManager.setTorchMode(cameraId, false)
+                    remoteViews?.setImageViewResource(R.id.fab_torch, R.drawable.torch_off)
+                    sharedPreferencesEditor.putBoolean("Torch", false).apply()
+                }
+                appWidM.updateAppWidget(newAppWidget, remoteViews)
+            }
+        } catch (ex: CameraAccessException) {
+        }
+    }
+
+    private fun isWifiEnabled(context: Context): Boolean {
+        val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        return wifiManager.isWifiEnabled
+    }
+
+
+
     fun sumTimes(times: List<String>): String {
         val totalDuration = times.fold(Duration.ZERO) { acc, time ->
             val parts = time.split(":").map { it.trim().toInt() }
@@ -1036,6 +1219,20 @@ class DialogActivity : AppCompatActivity() {
         } finally {
             cursor?.close()
         }
+    }
+
+
+    private fun toggleBluetooth() {
+
+
+
+        bluetoothAdapter?.let { adapter ->
+            if (!adapter.isEnabled)
+                bluetoothLauncher.launch(Intent("android.bluetooth.adapter.action.REQUEST_ENABLE"))
+             else
+                bluetoothLauncher.launch(Intent("android.bluetooth.adapter.action.REQUEST_DISABLE"))
+
+        } ?: makeToast(applicationContext, "Bluetooth not supported on this device")
     }
 
     fun markAsFav(contactId: Long) {

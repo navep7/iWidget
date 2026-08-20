@@ -686,6 +686,14 @@ class NewAppWidget : AppWidgetProvider() {
             getPendingSelfIntent(context, WATER_REMINDER_CLICK)
         )
 
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgv_menu, PendingIntent.getActivity(
+                context, 55,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "Menu"),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
     }
 
     private fun locationTxUpdate(context: Context) {
@@ -1560,6 +1568,8 @@ class NewAppWidget : AppWidgetProvider() {
             val waterCount = sharedPreferences.getInt("waterCountToday", 0) + 1
             sharedPreferencesEditor.putInt("waterCountToday", waterCount).apply()
             remoteViews?.setTextViewText(R.id.tx_water_count, waterCount.toString())
+        } else if (MENU_CLICK == intent.action) {
+            makeToast(widgetContext, "hi")
         }
     }
 
@@ -2099,6 +2109,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val A_CLICKED = "AClicked"
         private const val ADD_TODO_CLICK = "addTodoClick"
         private const val WATER_REMINDER_CLICK = "waterReminderClick"
+        private const val MENU_CLICK = "menuClick"
         private const val ACTION_LIST_CONTACTITEM_CLICK = "Contact_Item_Click"
         private const val ACTION_LIST_APPITEM_CLICK = "App_Item_Click"
         const val EXTRA_CONTACTITEM_POSITION = "Contact_Item_Pos"

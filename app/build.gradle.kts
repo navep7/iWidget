@@ -52,6 +52,7 @@ dependencies {
 
     // Add dependency for App Check Play Integrity provider
     implementation("com.google.firebase:firebase-appcheck-playintegrity")
+    implementation(libs.androidthings)
 
     // Add dependency for App Check Debug provider (for local testing)
     debugImplementation("com.google.firebase:firebase-appcheck-debug")

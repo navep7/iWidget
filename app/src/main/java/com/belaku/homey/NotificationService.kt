@@ -86,7 +86,9 @@ class NotificationService : NotificationListenerService() {
     }
 
     private fun setupSpeechRecognizer() {
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+        // Use ComponentName to avoid SecurityException: Specified package ... but it is not
+        val serviceComponent = ComponentName("com.google.android.googlequicksearchbox", "com.google.android.voicesearch.service.SpeechRecognitionService")
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(applicationContext, serviceComponent)
         speechRecognizer?.setRecognitionListener(object : RecognitionListener {
             override fun onReadyForSpeech(params: Bundle?) {}
             override fun onBeginningOfSpeech() {}

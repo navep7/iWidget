@@ -32,13 +32,12 @@ class SpeakService : Service(), OnInitListener {
 
     private fun initializeTTS() {
         try {
-            // Try to use the Google TTS engine explicitly to avoid issues with QuickSearchBox
-            // on some devices where it's the default but causes AppOps issues.
-            tts = TextToSpeech(applicationContext, this, "com.google.android.tts")
+            // Try to use the Google TTS engine explicitly
+            tts = TextToSpeech(this, this, "com.google.android.tts")
         } catch (e: Exception) {
             try {
                 // Fallback to default engine
-                tts = TextToSpeech(applicationContext, this)
+                tts = TextToSpeech(this, this)
             } catch (e2: Exception) {
                 Log.e("SpeakService", "Failed to initialize TTS", e2)
             }

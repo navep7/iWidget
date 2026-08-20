@@ -40,6 +40,7 @@ material3Android = "1.3.2"
 zxingAndroidEmbedded = "4.3.0"
 firebasePerfKtx = "22.0.4"
 media3Exoplayer = "1.10.0"
+androidthings = "1.0"
 
 [libraries]
 android-gif-drawable = { module = "pl.droidsonroids.gif:android-gif-drawable", version.ref = "androidGifDrawable" }
@@ -86,6 +87,7 @@ play-services-maps = { group = "com.google.android.gms", name = "play-services-m
 androidx-material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
 zxing-android-embedded = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxingAndroidEmbedded" }
 androidx-media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3Exoplayer" }
+androidthings = { group = "com.google.android.things", name = "androidthings", version.ref = "androidthings" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
