@@ -170,7 +170,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="35dp"
-                android:src="@drawable/menu_transparent"/>
+                android:src="@drawable/menu_more"/>
 
             <ImageButton
                 android:id="@+id/imgbtn_reminders"
