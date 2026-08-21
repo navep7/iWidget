@@ -261,6 +261,8 @@ class StepsService : Service() {
                         )
                         sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
                     } else if (stepsToday % 10 == 0)  {
+                        if (stepsToday > 5)
+                        presentActivityState = "WALKING"
                         if(stepsToday < 131) {
                             remoteViews?.setTextViewText(
                                 R.id.tx_steps,

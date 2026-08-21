@@ -66,10 +66,13 @@
 
     <ImageView
         android:id="@+id/contact_imgv"
-        android:src="@drawable/launch_e"
+        android:src="@drawable/contacts"
         android:layout_above="@+id/contact_tx_name"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:background="@drawable/rounded_corner"
+        android:layout_centerHorizontal="true"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:scaleType="fitXY"
         tools:ignore="ContentDescription" />
 
     <TextView
@@ -98,14 +101,14 @@
         android:text=" X "
         android:padding="3sp"
         android:background="@drawable/circular_white"
-        android:textSize="10sp"
+        android:textSize="9sp"
         android:textColor="@android:color/holo_red_dark"
         android:textStyle="bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="end"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="-25dp"
+        android:layout_marginStart="-9dp"
         android:layout_toEndOf="@+id/contact_imgv"
         android:src="@drawable/contacts"
         tools:ignore="HardcodedText" />

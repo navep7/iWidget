@@ -23,6 +23,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Typeface
 import android.icu.util.Calendar
+import android.icu.util.ChineseCalendar
 import android.location.Location
 import android.net.ConnectivityManager
 import android.net.Uri
@@ -112,6 +113,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.net.URL
 import java.util.Collections
+import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import java.util.regex.Matcher
@@ -397,7 +399,23 @@ class MainActivity : AppCompatActivity() {
             RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
         newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
 
+        getLunarDate()
 
+
+    }
+
+    fun getLunarDate() {
+        // Initialize with current time or a specific Gregorian date
+        val lunarCal = Calendar.getInstance(android.icu.util.ULocale("@calendar=chinese")) as ChineseCalendar
+        lunarCal.time = Date()
+
+        // Extract lunar values
+        val lunarYear = lunarCal.get(Calendar.YEAR)       // Year in the 60-year cycle
+        val lunarMonth = lunarCal.get(Calendar.MONTH) + 1 // Months are 0-indexed
+        val lunarDay = lunarCal.get(Calendar.DAY_OF_MONTH)
+        val isLeapMonth = lunarCal.get(ChineseCalendar.IS_LEAP_MONTH) == 1
+
+        println("Lunar Date: $lunarYear-$lunarMonth-$lunarDay (Leap Month: $isLeapMonth)")
     }
 
     private fun gotoHome() {
