@@ -1921,13 +1921,13 @@ class NewAppWidget : AppWidgetProvider() {
             c!!.close()
 
             if (timeOfDay == "Morni!")
-                timelyWish = "$timeOfDay \uD83C\uDF3B "//, ${gpName.split(" ").get(0)}!"
+                timelyWish = "$timeOfDay \uD83C\uDF3B"//, ${gpName.split(" ").get(0)}!"
             else if (timeOfDay == "Noon!")
-                timelyWish = "$timeOfDay ☀\uFE0F "//, ${gpName.split(" ").get(0)}!"
+                timelyWish = "$timeOfDay ☀\uFE0F"//, ${gpName.split(" ").get(0)}!"
             else if (timeOfDay == "Eve!")
-                timelyWish = "$timeOfDay \uD83C\uDF41 "//, ${gpName.split(" ").get(0)}!"
+                timelyWish = "$timeOfDay \uD83C\uDF41"//, ${gpName.split(" ").get(0)}!"
             else if (timeOfDay == "Night!")
-                timelyWish = "$timeOfDay \uD83D\uDCA4 "//, ${gpName.split(" ").get(0)}!"
+                timelyWish = "$timeOfDay \uD83D\uDCA4"//, ${gpName.split(" ").get(0)}!"
 
         }
 
@@ -2042,7 +2042,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
             greeting(context)
-            remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
+            remoteViews?.setTextViewText(R.id.tx_wish, " .." + timelyWish)
 
             try {
 

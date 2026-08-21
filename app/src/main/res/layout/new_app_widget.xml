@@ -144,7 +144,7 @@
 
             <TextView
                 android:id="@+id/tx_sub_wish"
-                android:text=",sub Greeting!"
+                android:text="sub Greeting!"
                 android:textStyle="bold|italic"
                 android:maxLines="1"
                 android:ellipsize="end"
@@ -958,7 +958,7 @@
 
             <RelativeLayout
                 android:id="@+id/rl_walking"
-
+                android:visibility="invisible"
                 android:gravity="center"
                 android:paddingBottom="@dimen/padding_5"
                 android:layout_gravity="center"
