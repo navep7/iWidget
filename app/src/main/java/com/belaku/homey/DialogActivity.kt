@@ -273,6 +273,7 @@ class DialogActivity : AppCompatActivity() {
 
         checkWifiState(applicationContext)
         checkBluetoothState(applicationContext)
+        checkTorchState()
 
         btnCancel.setOnClickListener {
             finish()
@@ -1008,6 +1009,14 @@ class DialogActivity : AppCompatActivity() {
 
     }
 
+    private fun checkTorchState() {
+        if (sharedPreferences.getBoolean("Torch", false)) {
+            menuTorch.setImageResource(R.drawable.torch_on)
+        } else {
+            menuTorch.setImageResource(R.drawable.torch_off)
+        }
+    }
+
 
     private fun toggleTorch() {
         val isFlashAvailable = packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)
@@ -1025,10 +1034,12 @@ class DialogActivity : AppCompatActivity() {
                 if (!sharedPreferences.getBoolean("Torch", false)) {
                     cameraManager.setTorchMode(cameraId, true)
                     remoteViews?.setImageViewResource(R.id.fab_torch, R.drawable.torch_on)
+                    menuTorch.setImageResource(R.drawable.torch_on)
                     sharedPreferencesEditor.putBoolean("Torch", true).apply()
                 } else {
                     cameraManager.setTorchMode(cameraId, false)
                     remoteViews?.setImageViewResource(R.id.fab_torch, R.drawable.torch_off)
+                    menuTorch.setImageResource(R.drawable.torch_off)
                     sharedPreferencesEditor.putBoolean("Torch", false).apply()
                 }
                 appWidM.updateAppWidget(newAppWidget, remoteViews)

@@ -5,164 +5,144 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.SystemClock
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
-import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.belaku.homey.StepsService.Companion.presentActivityState
 import com.google.android.gms.location.ActivityTransition
-import com.google.android.gms.location.ActivityTransitionEvent
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
 
-
 class ActivityTransitionReceiver : BroadcastReceiver() {
 
-    private lateinit var applicationContext: Context
-
     override fun onReceive(context: Context, intent: Intent) {
-        applicationContext = context.applicationContext
-        appWidM = AppWidgetManager.getInstance(context)
-        remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
-        newAppWidget = ComponentName(context, NewAppWidget::class.java)
+        val applicationContext = context.applicationContext
+
+        // Safely initialize widget companion properties if needed
+        try {
+            appWidM = AppWidgetManager.getInstance(applicationContext)
+            newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
+        } catch (e: Exception) {
+            Log.e("ActivityTransition", "Failed to initialize widget manager", e)
+        }
 
         if (ActivityTransitionResult.hasResult(intent)) {
             val result = ActivityTransitionResult.extractResult(intent)
             result?.let {
                 result.transitionEvents.forEach { event ->
-                    // Info about activity
-
                     if (toTransitionType(event.transitionType) == "ENTER") {
                         val detectedState = toActivityString(event.activityType).trim()
-                        
-                        // Fix: If we get a STILL event but SpeedService is running with non-zero speed, 
-                        // ignore the STILL event as it's likely just a traffic stop.
-                        if (detectedState == "STILL" && isMyServiceRunning(applicationContext, SpeedService::class.java)) {
+
+                        // Fix: Ignore STILL if the vehicle is actually moving (GPS/Activity Recognition mismatch)
+                        if (detectedState == "STILL") {
                             val sharedPreferences = applicationContext.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
-                            val currentSpeed = sharedPreferences.getInt("currentSpeed", 0)
-                            if (currentSpeed > 3) { // If speed > 3 km/h, it's definitely not a real "STILL" state for the user
-                                Log.d("ActivityTransition", "Ignoring STILL event because vehicle is moving at $currentSpeed km/h")
+                            // Corrected key to "current_speed" to match SpeedService's implementation
+                            val currentSpeed = sharedPreferences.getInt("current_speed", 0)
+                            if (currentSpeed > 3 && isMyServiceRunning(applicationContext, SpeedService::class.java)) {
+                                Log.d("ActivityTransition", "Ignoring STILL event: vehicle moving at $currentSpeed km/h")
                                 return@forEach
                             }
                         }
 
                         presentActivityState = detectedState
-                        updateActivityState(event, presentActivityState)
+                        updateActivityState(applicationContext, detectedState)
                     }
                 }
             }
         }
     }
 
+    private fun updateActivityState(context: Context, state: String) {
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val provider = ComponentName(context, NewAppWidget::class.java)
+        
+        // Consolidate widget updates into a single RemoteViews instance to avoid inconsistent UI
+        val rv = RemoteViews(context.packageName, R.layout.new_app_widget)
 
-    private fun updateActivityState(event: ActivityTransitionEvent, presentActivityState: String) {
-
-        Log.d("applicationContext", presentActivityState)
-
-        // Define your specific widget component and the Context
-        val provider = ComponentName(applicationContext, NewAppWidget::class.java)
-        val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
-
-
-        // Create the RemoteViews object targeting your widget's XML layout
-        val remoteViews = RemoteViews(applicationContext.getPackageName(), R.layout.new_app_widget)
-
-    //    makeToast(applicationContext, presentActivityState)
-
-        if (presentActivityState == "STILL") {
-            remoteViews.setViewVisibility(R.id.rl_still, View.VISIBLE)
-            remoteViews.setViewVisibility(R.id.rl_walking, View.GONE)
-            remoteViews.setViewVisibility(R.id.rl_speed, View.GONE)
-
-        //    remoteViews.setTextViewText(R.id.tx_activity_state, "STILL")
-        //    remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.still)
-            
-            // If we transitioned to STILL, stop the SpeedService if it was running
-            if (isMyServiceRunning(applicationContext, SpeedService::class.java)) {
-                applicationContext.stopService(Intent(applicationContext, SpeedService::class.java))
-                NewAppWidget.Companion.remoteViews?.setChronometer(R.id.speed_chronometer, 0L, null, false)
-                NewAppWidget.Companion.remoteViews?.setViewVisibility(R.id.frame_speed, View.INVISIBLE)
-                NewAppWidget.Companion.remoteViews?.setViewVisibility(R.id.frame_time_speed, View.INVISIBLE)
+        when (state) {
+            "STILL" -> {
+                rv.setViewVisibility(R.id.rl_still, View.VISIBLE)
+                rv.setViewVisibility(R.id.rl_walking, View.GONE)
+                rv.setViewVisibility(R.id.rl_speed, View.GONE)
+                
+                rv.setChronometer(R.id.speed_chronometer, 0L, null, false)
+                rv.setViewVisibility(R.id.frame_speed, View.INVISIBLE)
+                rv.setViewVisibility(R.id.frame_time_speed, View.INVISIBLE)
+                
+                stopSpeedService(context)
             }
-        } else if (presentActivityState == "WALKING") {
-            remoteViews.setViewVisibility(R.id.rl_walking, View.VISIBLE)
-            remoteViews.setViewVisibility(R.id.rl_still, View.GONE)
-            remoteViews.setViewVisibility(R.id.rl_speed, View.GONE)
-
-     //       remoteViews.setTextViewText(R.id.tx_activity_state, "WALKING")
-      //      remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.steps)
-            
-            // If walking, also stop speed service
-            if (isMyServiceRunning(applicationContext, SpeedService::class.java)) {
-                applicationContext.stopService(Intent(applicationContext, SpeedService::class.java))
+            "WALKING" -> {
+                rv.setViewVisibility(R.id.rl_walking, View.VISIBLE)
+                rv.setViewVisibility(R.id.rl_still, View.GONE)
+                rv.setViewVisibility(R.id.rl_speed, View.GONE)
+                
+                stopSpeedService(context)
             }
-        } else if (presentActivityState == "TRAVEL") {
-            remoteViews.setViewVisibility(R.id.rl_speed, View.VISIBLE)
-            remoteViews.setViewVisibility(R.id.rl_still, View.GONE)
-            remoteViews.setViewVisibility(R.id.rl_walking, View.GONE)
+            "TRAVEL" -> {
+                rv.setViewVisibility(R.id.rl_speed, View.VISIBLE)
+                rv.setViewVisibility(R.id.rl_still, View.GONE)
+                rv.setViewVisibility(R.id.rl_walking, View.GONE)
 
-
-            if (toTransitionType(event.transitionType) == "ENTER") {
-
-                NewAppWidget.Companion.remoteViews?.setViewVisibility(
-                    R.id.frame_speed,
-                    View.VISIBLE
-                )
-                NewAppWidget.Companion.remoteViews?.setViewVisibility(
-                    R.id.frame_time_speed,
-                    View.VISIBLE
-                )
-                if (!isMyServiceRunning(applicationContext, SpeedService::class.java)) {
-                    applicationContext.startForegroundService(
-                        Intent(
-                            applicationContext,
-                            SpeedService::class.java
-                        )
-                    )
-
+                rv.setViewVisibility(R.id.frame_speed, View.VISIBLE)
+                rv.setViewVisibility(R.id.frame_time_speed, View.VISIBLE)
+                
+                if (!isMyServiceRunning(context, SpeedService::class.java)) {
                     val baseTime = SystemClock.elapsedRealtime()
-                    NewAppWidget.Companion.remoteViews?.setChronometer(
-                        R.id.speed_chronometer,
-                        baseTime,
-                        null,
-                        true
-                    )
-
-             //       remoteViews.setTextViewText(R.id.tx_activity_state, "IN A VEHICLE")
-          //          remoteViews.setImageViewResource(R.id.imgv_steps, R.drawable.in_a_vehicle)
+                    rv.setChronometer(R.id.speed_chronometer, baseTime, null, true)
+                    startSpeedService(context)
                 }
             }
         }
 
-
-        // Push the update for all instances of the widget
-        appWidgetManager.updateAppWidget(provider, remoteViews)
-
-    }
-
-
-    // types of activities
-    fun toActivityString(activity: Int): String {
-        return when (activity) {
-            DetectedActivity.STILL -> "STILL"
-            DetectedActivity.WALKING -> "WALKING"
-            DetectedActivity.IN_VEHICLE -> "TRAVEL"
-            DetectedActivity.RUNNING -> "RUNNING"
-            else -> "UNKNOWN"
+        try {
+            // Keep the companion's remoteViews in sync and update the widget
+            remoteViews = rv
+            appWidgetManager.updateAppWidget(provider, rv)
+        } catch (e: Exception) {
+            Log.e("ActivityTransition", "Widget update failed", e)
         }
     }
 
-    // type of transitions
-    fun toTransitionType(transitionType: Int): String {
-        return when (transitionType) {
-            ActivityTransition.ACTIVITY_TRANSITION_ENTER -> "ENTER"
-            ActivityTransition.ACTIVITY_TRANSITION_EXIT -> "EXIT"
-            else -> "UNKNOWN"
+    private fun startSpeedService(context: Context) {
+        try {
+            val intent = Intent(context, SpeedService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
+        } catch (e: Exception) {
+            Log.e("ActivityTransition", "Start service failed", e)
         }
+    }
+
+    private fun stopSpeedService(context: Context) {
+        try {
+            if (isMyServiceRunning(context, SpeedService::class.java)) {
+                context.stopService(Intent(context, SpeedService::class.java))
+            }
+        } catch (e: Exception) {
+            Log.e("ActivityTransition", "Stop service failed", e)
+        }
+    }
+
+    private fun toActivityString(activity: Int): String = when (activity) {
+        DetectedActivity.STILL -> "STILL"
+        DetectedActivity.WALKING -> "WALKING"
+        DetectedActivity.IN_VEHICLE -> "TRAVEL"
+        DetectedActivity.RUNNING -> "RUNNING"
+        else -> "UNKNOWN"
+    }
+
+    private fun toTransitionType(transitionType: Int): String = when (transitionType) {
+        ActivityTransition.ACTIVITY_TRANSITION_ENTER -> "ENTER"
+        ActivityTransition.ACTIVITY_TRANSITION_EXIT -> "EXIT"
+        else -> "UNKNOWN"
     }
 }
