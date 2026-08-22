@@ -324,11 +324,6 @@ class DialogActivity : AppCompatActivity() {
         if (dialogIntentStr != null) {
 
 
-            if (dialogIntentStr == "stepsInfo") {
-                stepsMapsAdapter(stepsData)
-            }
-
-
             if (dialogIntentStr == "Menu") {
 
                 window.setLayout(
@@ -551,22 +546,27 @@ class DialogActivity : AppCompatActivity() {
                 }
             } else if (dialogIntentStr == "stepsInfo") {
 
+                window.setLayout(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+
+                stepsMapsAdapter(stepsData)
+
                 var i = (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) + 5) % 7
                 stepsData[i] = stepsToday.toString()
                 vpSteps.currentItem = i
                 stepsAdapter.notifyDataSetChanged()
 
-                window.setLayout(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
-                );
 
-                txTitle.setText("Steps...")
-                imgbtnTwConfig.visibility = View.GONE
-                txContent.visibility = View.GONE
                 edtxDialog.visibility = View.GONE
                 btnOk.visibility = View.GONE
                 btnCancel.visibility = View.GONE
+                vpSteps.visibility = View.GONE
                 imgbtnShare.visibility = View.GONE
+                imgvSongCover.visibility = View.GONE
+                txTitle.setText(
+                    "Steps..."
+                )
                 vpSteps.visibility = View.VISIBLE
                 findViewById<TabLayout>(R.id.tab_layout).visibility = View.VISIBLE
 

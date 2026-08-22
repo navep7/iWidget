@@ -211,12 +211,16 @@
         android:layout_height="wrap_content"/>
 
 
+
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/vp_dialog"
-        android:visibility="gone"
-        android:layout_marginTop="50dp"
-        android:layout_width="match_parent"
-        android:layout_height="350dp"/>
+        android:visibility="invisible"
+        android:layout_width="fill_parent"
+        android:layout_height="250dp"
+        android:background="@android:color/transparent"
+        android:layout_below="@+id/tx_dialog_title"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"/>
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
