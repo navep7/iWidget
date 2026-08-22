@@ -490,8 +490,9 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
 
         fun appUsageStats(applicationContext: Context?) {
+            val context = applicationContext?.applicationContext ?: return
 
-            if (UsageStatsChecker().hasUsageStatsPermission(applicationContext!!)) {
+            if (UsageStatsChecker().hasUsageStatsPermission(context)) {
 
                 cYear = Calendar.getInstance().get(Calendar.YEAR)
                 cMonth = Calendar.getInstance().get(Calendar.MONTH)
@@ -503,7 +504,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
                 try {
                     StepsService.usageStatsManager =
-                        applicationContext?.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager // Context.USAGE_STATS_SERVICE);
+                        context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
 
                     val queryUsageStats = StepsService.usageStatsManager.queryUsageStats(
                         UsageStatsManager.INTERVAL_DAILY,
@@ -524,7 +525,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
                             val appName =
                                 getAppNameFromPkg(
-                                    applicationContext!!,
+                                    context,
                                     queryUsageStats.get(i).packageName
                                 )
                             val appPname = queryUsageStats.get(i).packageName
@@ -538,7 +539,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
                             //   if (queryUsageStats.get(i).totalTimeInForeground > 0)
                             if (!appName.contains("Launcher") || !appName.equals("Home"))
-                                if (applicationContext.packageManager.getLaunchIntentForPackage(
+                                if (context.packageManager.getLaunchIntentForPackage(
                                         queryUsageStats[i].packageName
                                     ) != null
                                 )
@@ -557,7 +558,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
                         }
 
-                        hashSetAppUsage = hashSetAppUsage.sortedByDescending { 
+                        hashSetAppUsage = hashSetAppUsage.sortedByDescending {
                             val parts = it.usageTime.split(":")
                             if (parts.size >= 1) parts[0].trim().toIntOrNull() ?: 0 else 0
                         }
@@ -570,19 +571,19 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
                             val appUsage = i.usageTime
                             val iconBitmap: Bitmap =
-                                applicationContext!!.packageManager.getApplicationIcon(i.appName)
+                                context.packageManager.getApplicationIcon(i.appName)
                                     .toBitmap()
 
                             if (choosenApps.size < 10) {
                                 if (choosenApps.none {
                                         it.name == getAppNameFromPkg(
-                                            applicationContext,
+                                            context,
                                             i.appName
                                         )
                                     })
                                     choosenApps.add(
                                         App(
-                                            getAppNameFromPkg(applicationContext, i.appName),
+                                            getAppNameFromPkg(context, i.appName),
                                             i.appName,
                                             appUsage,
                                             iconBitmap
@@ -599,6 +600,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 } catch (e: Exception) {
                     // This catches the AppSearchException "Invalid cycle detected" which is a system bug
                     // in the AppsIndexer when processing Digital Wellbeing metadata.
+                    // Also handles the SecurityException: Specified package "..." under uid ... but it is not
                     Log.e(TAG, "System indexing error during UsageStats query: ${e}")
                 }
 

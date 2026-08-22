@@ -1033,12 +1033,12 @@ class DialogActivity : AppCompatActivity() {
             if (cameraId != null) {
                 if (!sharedPreferences.getBoolean("Torch", false)) {
                     cameraManager.setTorchMode(cameraId, true)
-                    remoteViews?.setImageViewResource(R.id.fab_torch, R.drawable.torch_on)
+                    remoteViews?.setImageViewResource(R.id.menu_torch, R.drawable.torch_on)
                     menuTorch.setImageResource(R.drawable.torch_on)
                     sharedPreferencesEditor.putBoolean("Torch", true).apply()
                 } else {
                     cameraManager.setTorchMode(cameraId, false)
-                    remoteViews?.setImageViewResource(R.id.fab_torch, R.drawable.torch_off)
+                    remoteViews?.setImageViewResource(R.id.menu_torch, R.drawable.torch_off)
                     menuTorch.setImageResource(R.drawable.torch_off)
                     sharedPreferencesEditor.putBoolean("Torch", false).apply()
                 }

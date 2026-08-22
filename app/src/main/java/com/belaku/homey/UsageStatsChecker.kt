@@ -5,18 +5,19 @@ import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Build
+import android.os.Process
 import android.provider.Settings
-import com.belaku.homey.MainActivity.Companion.makeToast
-
+import android.util.Log
 
 class UsageStatsChecker {
     fun hasUsageStatsPermission(context: Context): Boolean {
+        val appContext = context.applicationContext
+        val appOps = appContext.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
 
         val mode = try {
-            val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
-          //  val uid = context.applicationInfo.uid
-            val uid = android.os.Process.myUid()
-            val packageName = context.packageName
+            val packageName = appContext.packageName
+            val uid = Process.myUid()
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 appOps.unsafeCheckOpNoThrow(
                     AppOpsManager.OPSTR_GET_USAGE_STATS,
@@ -32,7 +33,7 @@ class UsageStatsChecker {
                 )
             }
         } catch (e: Exception) {
-            makeToast(context, "exception ~ Handle cases where the system throws a SecurityException due to UID/package mismatch or other issues")
+            Log.e("UsageStatsChecker", "Failed to check usage stats permission", e)
             AppOpsManager.MODE_ERRORED
         }
 

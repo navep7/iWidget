@@ -108,7 +108,7 @@
         android:layout_height="wrap_content"
         android:gravity="end"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="-9dp"
+        android:layout_marginStart="-11dp"
         android:layout_toEndOf="@+id/contact_imgv"
         android:src="@drawable/contacts"
         tools:ignore="HardcodedText" />

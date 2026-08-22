@@ -454,54 +454,6 @@ class NewAppWidget : AppWidgetProvider() {
             getPendingSelfIntent(context, A_CLICKED)
         )
 
-        val aiIntent = Intent(context, AiActivity::class.java)
-        aiIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-        aiIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-        val aiPendingIntent = PendingIntent.getActivity(
-            context,
-            3,
-            aiIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.fab_ai,
-            aiPendingIntent
-        )
-
-
-        val remindersIntent = Intent(context, RemindersActivity::class.java)
-        remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-        remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-        val remindersPendingIntent = PendingIntent.getActivity(
-            context,
-            4,
-            remindersIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgbtn_reminders,
-            remindersPendingIntent
-        )
-
-      /*  remoteViews?.setOnClickPendingIntent(
-            R.id.tx_nextplan,
-            remindersPendingIntent
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.tx_breathe,
-            getPendingSelfIntent(context, BREATHE_INC)
-        )
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.tx_drink,
-            getPendingSelfIntent(context, DRINK_INC)
-        )*/
-
 
         remoteViews?.setOnClickPendingIntent(
             R.id.imgbtn_speech, PendingIntent.getActivity(
@@ -536,35 +488,7 @@ class NewAppWidget : AppWidgetProvider() {
             )
         )*/
 
-        val intentBluetooth = Intent(context, DialogActivity::class.java)
-        if (mBluetoothAdapter.isEnabled)
-            intentBluetooth.putExtra("DialogIntent", "BLUEDisable")
-        else intentBluetooth.putExtra("DialogIntent", "BLUEEnable")
-        val pendingIntentBluetooth = PendingIntent.getActivity(
-            context,
-            9,
-            intentBluetooth,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        remoteViews?.setOnClickPendingIntent(R.id.fab_blue, pendingIntentBluetooth)
 
-
-        val intentWifi = Intent(context, DialogActivity::class.java)
-        if (isWifiEnabled(context))
-            intentWifi.putExtra("DialogIntent", "WifiDisable")
-        else intentWifi.putExtra("DialogIntent", "WifiEnable")
-        val pendingIntentWifi = PendingIntent.getActivity(
-            context,
-            10,
-            intentWifi,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        remoteViews?.setOnClickPendingIntent(R.id.fab_wifi, pendingIntentWifi)
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.fab_torch,
-            getPendingSelfIntent(context, TORCH_STATE)
-        )
 
 
         val launcherIntentGaps = Intent(context, GapsActivity::class.java)
@@ -893,10 +817,11 @@ class NewAppWidget : AppWidgetProvider() {
         val wifiState = sharedPreferences.getBoolean("WifiState", false)
         val wifiConnectionState = sharedPreferences.getBoolean("WifiConnectionState", false)
         if (wifiState && wifiConnectionState)
-            remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_on)
-        else if (wifiState)
-            remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_on_but_not_connected)
-        else remoteViews?.setImageViewResource(R.id.fab_wifi, R.drawable.wifi_off)
+            remoteViews?.setImageViewResource(R.id.menu_wifi, R.drawable.wifi_on)
+        else if (wifiState) {
+            remoteViews?.setImageViewResource(R.id.menu_wifi, R.drawable.wifi_on_but_not_connected)
+            remoteViews?.setViewVisibility(R.id.ll_menu, View.VISIBLE)
+        }else remoteViews?.setImageViewResource(R.id.menu_wifi, R.drawable.wifi_off)
     }
 
     private fun seekBluetoothState() {
@@ -904,10 +829,11 @@ class NewAppWidget : AppWidgetProvider() {
         val blState = sharedPreferences.getBoolean("BluetoothState", false)
         val blConnectionState = sharedPreferences.getBoolean("BluetoothConnectionState", false)
         if (blState && blConnectionState)
-            remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_on)
-        else if (blState)
-            remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_red)
-        else remoteViews?.setImageViewResource(R.id.fab_blue, R.drawable.blue_off)
+            remoteViews?.setImageViewResource(R.id.menu_blue, R.drawable.blue_on)
+        else if (blState) {
+            remoteViews?.setImageViewResource(R.id.menu_blue, R.drawable.blue_red)
+            remoteViews?.setViewVisibility(R.id.ll_menu, View.VISIBLE)
+        } else remoteViews?.setImageViewResource(R.id.menu_blue, R.drawable.blue_off)
     }
 
     private fun setACAdapter() {
@@ -1488,11 +1414,11 @@ class NewAppWidget : AppWidgetProvider() {
                 if (cameraId != null) {
                     if (!sharedPreferences.getBoolean("Torch", false)) {
                         cameraManager.setTorchMode(cameraId, true)
-                        remoteViews?.setImageViewResource(R.id.fab_torch, R.drawable.torch_on)
+                        remoteViews?.setImageViewResource(R.id.menu_torch, R.drawable.torch_on)
                         sharedPreferencesEditor.putBoolean("Torch", true).apply()
                     } else {
                         cameraManager.setTorchMode(cameraId, false)
-                        remoteViews?.setImageViewResource(R.id.fab_torch, R.drawable.torch_off)
+                        remoteViews?.setImageViewResource(R.id.menu_torch, R.drawable.torch_off)
                         sharedPreferencesEditor.putBoolean("Torch", false).apply()
                     }
                 }
@@ -1921,13 +1847,13 @@ class NewAppWidget : AppWidgetProvider() {
             c!!.close()
 
             if (timeOfDay == "Morni!")
-                timelyWish = "$timeOfDay \uD83C\uDF3B"//, ${gpName.split(" ").get(0)}!"
+                timelyWish = "\uD83C\uDF3B"//, ${gpName.split(" ").get(0)}!"
             else if (timeOfDay == "Noon!")
-                timelyWish = "$timeOfDay ☀\uFE0F"//, ${gpName.split(" ").get(0)}!"
+                timelyWish = "☀\uFE0F"//, ${gpName.split(" ").get(0)}!"
             else if (timeOfDay == "Eve!")
-                timelyWish = "$timeOfDay \uD83C\uDF41"//, ${gpName.split(" ").get(0)}!"
+                timelyWish = "\uD83C\uDF41"//, ${gpName.split(" ").get(0)}!"
             else if (timeOfDay == "Night!")
-                timelyWish = "$timeOfDay \uD83D\uDCA4"//, ${gpName.split(" ").get(0)}!"
+                timelyWish = "\uD83D\uDCA4"//, ${gpName.split(" ").get(0)}!"
 
         }
 
@@ -2042,7 +1968,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
             greeting(context)
-            remoteViews?.setTextViewText(R.id.tx_wish, " .." + timelyWish)
+            remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
 
             try {
 
