@@ -820,7 +820,10 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setImageViewResource(R.id.menu_wifi, R.drawable.wifi_on)
         else if (wifiState) {
             remoteViews?.setImageViewResource(R.id.menu_wifi, R.drawable.wifi_on_but_not_connected)
-            remoteViews?.setViewVisibility(R.id.ll_menu, View.VISIBLE)
+            widgetContext.startActivity(
+                Intent(widgetContext, DialogActivity::class.java)
+                    .putExtra("DialogIntent", "Menu")
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }else remoteViews?.setImageViewResource(R.id.menu_wifi, R.drawable.wifi_off)
     }
 
@@ -832,7 +835,10 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setImageViewResource(R.id.menu_blue, R.drawable.blue_on)
         else if (blState) {
             remoteViews?.setImageViewResource(R.id.menu_blue, R.drawable.blue_red)
-            remoteViews?.setViewVisibility(R.id.ll_menu, View.VISIBLE)
+            widgetContext.startActivity(
+                Intent(widgetContext, DialogActivity::class.java)
+                    .putExtra("DialogIntent", "Menu")
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         } else remoteViews?.setImageViewResource(R.id.menu_blue, R.drawable.blue_off)
     }
 
