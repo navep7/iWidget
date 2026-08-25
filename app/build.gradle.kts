@@ -14,8 +14,8 @@ android {
         minSdk = 30
         //noinspection OldTargetApi
         targetSdk = 36
-        versionCode = 168
-        versionName = "168.0"
+        versionCode = 170
+        versionName = "170.0"
 
         renderscriptTargetApi = 18
         renderscriptSupportModeEnabled = true
@@ -45,6 +45,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
@@ -55,7 +56,9 @@ dependencies {
     implementation(libs.androidthings)
 
     // Add dependency for App Check Debug provider (for local testing)
-    debugImplementation("com.google.firebase:firebase-appcheck-debug")
+    // Changed to implementation because it is referenced in src/main code (NHApp.kt)
+    // which is compiled for both debug and release variants.
+    implementation("com.google.firebase:firebase-appcheck-debug")
 
     implementation(libs.androidx.media)
     implementation(libs.zxing.android.embedded)

@@ -9,12 +9,22 @@
         android:id="@+id/progress_steps"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
+        android:layout_height="400dp"
+        android:adjustViewBounds="true"
         android:layout_centerInParent="true"
         android:background="@drawable/circular_shape"
         android:indeterminate="false"
         android:progressDrawable="@drawable/circular_progress_bar"
         android:textAlignment="center" />
+
+    <TextView
+        android:id="@+id/tx_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/progress_steps"
+        android:text="Day..,"
+        android:textSize="50sp"/>
+
 
     <TextView
         android:id="@+id/txsteps"

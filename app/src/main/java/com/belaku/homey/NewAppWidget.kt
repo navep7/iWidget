@@ -71,8 +71,6 @@ import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
-import com.belaku.homey.MainActivity.Companion.mBluetoothAdapter
-import com.belaku.homey.MainActivity.Companion.makeLongToast
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
 import com.belaku.homey.MainActivity.Companion.tempKind
@@ -472,7 +470,7 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.imgbtn_twitter, PendingIntent.getActivity(
+            R.id.tw_fact, PendingIntent.getActivity(
                 context, 7,
                 Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "ST"),
                 PendingIntent.FLAG_IMMUTABLE
@@ -1974,7 +1972,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
             greeting(context)
-            remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
+            remoteViews?.setTextViewText(R.id.tw_fact, timelyWish)
 
             try {
 

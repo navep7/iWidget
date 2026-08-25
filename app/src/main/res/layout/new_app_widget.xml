@@ -79,11 +79,13 @@
 
                     <TextView
                         android:id="@+id/tx_day_date"
+                        android:maxLines="1"
+                        android:ellipsize="end"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Fri, 24th Apr"
                         android:textColor="@android:color/black"
-                        android:textSize="21sp"
+                        android:textSize="20sp"
                         android:textStyle="bold"
                         android:shadowColor="@android:color/white"
                         android:shadowRadius="5"
@@ -92,14 +94,14 @@
                         android:padding="3dp"/>
 
                     <TextView
-                        android:id="@+id/tx_wish"
+                        android:id="@+id/tw_fact"
                         android:text="|"
                         android:layout_alignParentTop="true"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="top"
                         android:textColor="#FFFFFF"
-                        android:textSize="24sp"
+                        android:textSize="21sp"
                         android:shadowColor="@android:color/white"
                         android:shadowRadius="12"
                         android:shadowDx="0"
@@ -109,11 +111,13 @@
 
                     <android.widget.TextClock
                         android:id="@+id/clock"
+                        android:maxLines="1"
+                        android:ellipsize="end"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:format12Hour="hh:mm:ss"
                         android:textColor="@android:color/black"
-                        android:textSize="21sp"
+                        android:textSize="20sp"
                         android:textStyle="bold"
                         android:shadowColor="@android:color/white"
                         android:shadowRadius="5"
@@ -458,12 +462,6 @@
             android:layout_alignParentEnd="true" />
 
 
-        <ImageButton
-            android:id="@+id/imgbtn_twitter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            />
-
         <RelativeLayout
             android:id="@+id/rl_player"
             android:layout_width="match_parent"
@@ -604,6 +602,7 @@
     <LinearLayout
         android:weightSum="6"
         android:orientation="vertical"
+        android:layout_marginBottom="@dimen/padding_5"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/rl_clocks"
@@ -617,9 +616,8 @@
             android:adjustViewBounds="true"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginBottom="@dimen/padding_3"
             android:layout_alignParentTop="true"
-            android:background="@drawable/gradient_glass_light">
+            android:background="@drawable/gradient_glass_flatbottom">
 
             <ImageView
                 android:id="@+id/imgbtn_g_apps"
@@ -792,8 +790,8 @@
 
             <RelativeLayout
                 android:id="@+id/rl_still"
-                android:background="@drawable/gradient_glass_rounded"
                 android:visibility="gone"
+                android:background="@drawable/gradient_glass_flat_dark_top"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
@@ -805,7 +803,7 @@
                     android:layout_marginTop="@dimen/padding_3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/black"
+                    android:textColor="@android:color/white"
                     android:textStyle="bold"
                     android:textSize="25dp"
                     android:text="Still"/>
@@ -820,6 +818,7 @@
                         android:id="@+id/imgv_water_glass"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
+                        android:tint="@color/white"
                         android:src="@drawable/water_reminder"
                         android:scaleType="fitCenter"/>
 
@@ -848,11 +847,11 @@
 
             <RelativeLayout
                 android:id="@+id/rl_walking"
-                android:visibility="invisible"
+                android:visibility="gone"
                 android:gravity="center"
                 android:paddingBottom="@dimen/padding_5"
                 android:layout_gravity="center"
-                android:background="@drawable/gradient_glass_rounded"
+                android:background="@drawable/gradient_glass_flat_dark_top"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
@@ -862,7 +861,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:textColor="@android:color/black"
+                    android:textColor="@android:color/white"
                     android:textStyle="bold"
                     android:textSize="25dp"
                     android:text="Walking"/>
@@ -879,7 +878,7 @@
                         android:id="@+id/rl_tx_steps"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@android:color/black"
+                        android:textColor="@android:color/white"
                         android:textStyle="bold"
                         android:textSize="20dp"
                         android:text="0"/>
@@ -887,7 +886,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@android:color/black"
+                        android:textColor="@android:color/darker_gray"
                         android:textStyle="italic"
                         android:textSize="15dp"
                         android:text="   steps"/>
@@ -896,7 +895,7 @@
                         android:id="@+id/rl_tx_steps_in_km"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@android:color/black"
+                        android:textColor="@android:color/white"
                         android:textStyle="bold"
                         android:textSize="20dp"
                         android:text="X.x"/>
@@ -904,7 +903,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@android:color/black"
+                        android:textColor="@android:color/darker_gray"
                         android:textStyle="italic"
                         android:textSize="15dp"
                         android:text="   km"/>
@@ -921,7 +920,7 @@
                         android:id="@+id/rl_tx_cals"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@android:color/black"
+                        android:textColor="@android:color/white"
                         android:textStyle="bold"
                         android:textSize="20dp"
                         android:text="52.07"/>
@@ -929,7 +928,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@android:color/black"
+                        android:textColor="@android:color/darker_gray"
                         android:textStyle="italic|bold"
                         android:textSize="15dp"
                         android:text="   kcal"/>
@@ -940,7 +939,7 @@
 
             <RelativeLayout
                 android:id="@+id/rl_speed"
-                android:background="@drawable/gradient_glass_dark_flat"
+                android:background="@drawable/gradient_glass_flat_dark_top"
                 android:layout_width="0dp"
                 android:visibility="gone"
                 android:layout_weight="5"
