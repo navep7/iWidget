@@ -188,7 +188,7 @@
             android:name=".DialogActivity"
             android:excludeFromRecents="true"
             android:exported="false"
-            android:theme="@style/Theme.AppCompat.Dialog" />
+            android:theme="@style/Theme.Material3.DayNight.Dialog" />
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
@@ -265,7 +265,7 @@
         <activity
             android:name=".DialogWidgetStepsActivity"
             android:exported="false"
-            android:theme="@android:style/Theme.Dialog" />
+            android:theme="@style/Theme.Material3.DayNight.Dialog" />
 
         <service
             android:name=".StepsService"

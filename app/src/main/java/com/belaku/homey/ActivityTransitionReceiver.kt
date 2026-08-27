@@ -42,7 +42,6 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                         // Fix: Ignore STILL if the vehicle is actually moving (GPS/Activity Recognition mismatch)
                         if (detectedState == "STILL") {
                             val sharedPreferences = applicationContext.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
-                            // Corrected key to "current_speed" to match SpeedService's implementation
                             val currentSpeed = sharedPreferences.getInt("current_speed", 0)
                             if (currentSpeed > 3 && isMyServiceRunning(applicationContext, SpeedService::class.java)) {
                                 Log.d("ActivityTransition", "Ignoring STILL event: vehicle moving at $currentSpeed km/h")
@@ -61,8 +60,8 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
     private fun updateActivityState(context: Context, state: String) {
         val appWidgetManager = AppWidgetManager.getInstance(context)
         val provider = ComponentName(context, NewAppWidget::class.java)
+        val sharedPreferences = context.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
         
-        // Consolidate widget updates into a single RemoteViews instance to avoid inconsistent UI
         val rv = RemoteViews(context.packageName, R.layout.new_app_widget)
 
         when (state) {
@@ -75,6 +74,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                 rv.setViewVisibility(R.id.frame_speed, View.INVISIBLE)
                 rv.setViewVisibility(R.id.frame_time_speed, View.INVISIBLE)
                 
+                sharedPreferences.edit().putLong("speed_trip_start_time", 0L).apply()
                 stopSpeedService(context)
             }
             "WALKING" -> {
@@ -94,14 +94,17 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                 
                 if (!isMyServiceRunning(context, SpeedService::class.java)) {
                     val baseTime = SystemClock.elapsedRealtime()
+                    sharedPreferences.edit().putLong("speed_trip_start_time", baseTime).apply()
                     rv.setChronometer(R.id.speed_chronometer, baseTime, null, true)
                     startSpeedService(context)
+                } else {
+                    val baseTime = sharedPreferences.getLong("speed_trip_start_time", SystemClock.elapsedRealtime())
+                    rv.setChronometer(R.id.speed_chronometer, baseTime, null, true)
                 }
             }
         }
 
         try {
-            // Keep the companion's remoteViews in sync and update the widget
             remoteViews = rv
             appWidgetManager.updateAppWidget(provider, rv)
         } catch (e: Exception) {

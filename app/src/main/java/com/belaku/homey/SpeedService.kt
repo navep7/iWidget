@@ -12,8 +12,8 @@ import android.location.Location
 import android.os.Build
 import android.os.IBinder
 import android.os.Looper
+import android.os.SystemClock
 import android.widget.RemoteViews
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.google.android.gms.location.*
@@ -92,6 +92,12 @@ class SpeedService : Service() {
         val views = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
         views.setTextViewText(R.id.tx_speed, speedKmh.toString())
         views.setTextViewText(R.id.tx_max_speed, maxSpeed.toString())
+        
+        // Restore chronometer state
+        val baseTime = sharedPreferences.getLong("speed_trip_start_time", 0L)
+        if (baseTime != 0L) {
+            views.setChronometer(R.id.speed_chronometer, baseTime, null, true)
+        }
 
         appWidgetManager.updateAppWidget(provider, views)
     }
@@ -122,6 +128,7 @@ class SpeedService : Service() {
             .setContentTitle("Tracking Vehicle Speed")
             .setContentText("Reading real-time GPS data for widget")
             .setSmallIcon(R.drawable.in_a_vehicle)
+            .setOngoing(true) // Prevent notification from being cleared easily
             .build()
 
         try {
