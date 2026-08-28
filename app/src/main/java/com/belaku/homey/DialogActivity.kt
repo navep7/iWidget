@@ -473,6 +473,16 @@ class DialogActivity : AppCompatActivity() {
                         .setNegativeButton("Not Now") { _, _ -> finish() }
                         .show()
                 }
+                "qrClick" -> {
+
+                    val options = ScanOptions().apply {
+                        setDesiredBarcodeFormats(ScanOptions.QR_CODE)
+                        setPrompt("Scan a QR code")
+                    }
+
+                    // Launch the scanner
+                    barcodeLauncher.launch(options)
+                }
             }
         }
     }
