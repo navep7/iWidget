@@ -272,6 +272,7 @@ class DialogActivity : AppCompatActivity() {
                     txTitle.text = "Menu"
                     llMenu.visibility = View.VISIBLE
                     btnOk.visibility = View.GONE
+                    imgbtnShare.visibility = View.GONE
                     btnCancel.visibility = View.GONE
                 }
                 "SongCover" -> {
@@ -364,6 +365,16 @@ class DialogActivity : AppCompatActivity() {
                     if (listTweets.isNotEmpty()) {
                         txContent.text = listTweets[Random.nextInt(0, listTweets.size)]
                     } else rawTweets(false)
+
+                    imgbtnShare.setOnClickListener {
+                        if (txContent.text.isNotEmpty()) {
+                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, txContent.text)
+                            }
+                            startActivity(Intent.createChooser(shareIntent, "Share Tweet"))
+                        }
+                    }
                 }
                 "stepsInfo" -> {
                     txTitle.text = "Weekly Steps"
