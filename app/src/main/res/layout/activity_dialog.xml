@@ -5,24 +5,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/dialog_layout"
     android:background="@drawable/gradient_glass_rounded_ss"
-    android:adjustViewBounds="true"
-    android:layout_gravity="top"
-    android:gravity="top"
-    android:foregroundGravity="top"
-    app:layout_anchorGravity="top"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     tools:context=".DialogActivity">
 
     <LinearLayout
         android:id="@+id/ll_menu"
-        android:visibility="invisible"
-        android:layout_width="fill_parent"
+        android:visibility="gone"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         android:layout_below="@+id/tx_dialog_title"
-        android:adjustViewBounds="true"
-        android:scaleType="fitCenter">
+        android:orientation="horizontal"
+        android:gravity="center">
 
         <ImageButton
             android:id="@+id/menu_reminders"
@@ -83,9 +78,9 @@
 
     <ImageView
         android:id="@+id/dialog_imgv_cover"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
+        android:visibility="gone"
         android:layout_centerInParent="true"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter" />
@@ -93,22 +88,24 @@
     <TextView
         android:id="@+id/tx_dialog_title"
         android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
         android:text="Dialog Title"
+        android:textAppearance="?attr/textAppearanceTitleLarge"
         android:textStyle="bold"
-        android:layout_margin="@dimen/fab_margin"
+        android:layout_margin="16dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:ignore="HardcodedText" />
+        android:layout_height="wrap_content" />
 
     <ImageButton
         android:id="@+id/tw_config"
-        android:visibility="invisible"
+        android:visibility="gone"
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:scaleType="fitXY"
         android:background="@android:color/transparent"
         android:layout_alignBottom="@+id/tx_dialog_title"
-        android:layout_toRightOf="@+id/tx_dialog_title"
+        android:layout_toEndOf="@+id/tx_dialog_title"
+        android:layout_marginStart="8dp"
         android:src="@drawable/fact"/>
 
     <TextView
@@ -116,39 +113,43 @@
         android:gravity="center_horizontal"
         android:layout_below="@+id/edtx_dialog"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:textAppearance="?attr/textAppearanceBodyMedium"/>
 
     <LinearLayout
         android:id="@+id/ll_buttons"
         android:layout_below="@+id/tx_dialog_content"
         android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp">
 
         <Button
             android:id="@+id/btn_dialog_ok"
             android:text="Ok"
-            tools:ignore="HardcodedText"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"/>
 
         <ImageButton
             android:id="@+id/imgbtn_dialog_share"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:contentDescription="Share"
-            android:src="@android:drawable/ic_menu_share"
-            tools:ignore="HardcodedText" />
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_share" />
 
         <Button
             android:id="@+id/btn_dialog_cancel"
+            style="?attr/materialButtonOutlinedStyle"
             android:text="Cancel"
-            tools:ignore="ButtonOrder,HardcodedText"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"/>
 
     </LinearLayout>
-
 
     <LinearLayout
         android:id="@+id/ll_activity_container"
@@ -156,71 +157,49 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="10dp"/>
+        android:visibility="gone"
+        android:padding="16dp"/>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_screen_time"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/tx_dialog_title"
+        android:layout_above="@+id/tx_avg_usage"
+        android:visibility="gone"
+        android:clipToPadding="false"
+        android:paddingTop="8dp"
+        android:paddingBottom="16dp"
+        tools:listitem="@layout/item_screen_time" />
 
     <TextView
-        android:id="@+id/tx_heading"
-        android:layout_below="@+id/ll_buttons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
-    <ScrollView
+        android:id="@+id/tx_avg_usage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tx_heading"
-        >
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="8dp">
-
-            <!-- Left Word TextView -->
-            <TextView
-                android:id="@+id/tx_app_left"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/holo_red_light"
-                android:textSize="16sp" />
-
-            <!-- A 'spacer' view or an empty textview to push the next text to the right -->
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-            <!-- Right Word TextView -->
-            <TextView
-                android:id="@+id/tx_appusage_right"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/holo_red_dark"
-                android:textSize="16sp" />
-
-        </LinearLayout>
-    </ScrollView>
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:padding="16dp"
+        android:textAppearance="?attr/textAppearanceTitleMedium"
+        android:textColor="?attr/colorPrimary"
+        android:visibility="gone"
+        tools:text="Avg Usage/Day ~ 2 Hours : 30 Mins" />
 
     <EditText
         android:id="@+id/edtx_dialog"
-        android:hint="Set"
-        tools:ignore="Autofill,HardcodedText,TextFields"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/tx_dialog_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-
+        android:layout_marginHorizontal="32dp"
+        android:hint="Enter text..."
+        android:visibility="gone"/>
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/vp_dialog"
-        android:visibility="invisible"
-        android:layout_width="wrap_content"
+        android:visibility="gone"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:layout_below="@+id/tx_dialog_title"
-        android:adjustViewBounds="true"
-        android:scaleType="fitCenter"/>
+        android:layout_below="@+id/tx_dialog_title" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
@@ -228,8 +207,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/vp_dialog"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         app:tabBackground="@drawable/tab_selector"
+        app:tabIndicatorHeight="0dp"
         app:tabGravity="center"
-        app:tabIndicatorHeight="0dp" />
+        app:tabMaxWidth="24dp"
+        app:tabMinWidth="24dp"
+        app:tabMode="fixed"
+        app:tabRippleColor="@null"
+        android:background="@android:color/transparent" />
 
 </RelativeLayout>

@@ -11,11 +11,13 @@ import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import java.time.LocalDate
 
-
 class StepsAdapter(
     private val stepsData: ArrayList<String>,
 ) : RecyclerView.Adapter<StepsViewHolder>() {
-    private var km: String = ""
+
+    private val days = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+    // Using a large number to simulate infinite scrolling
+    private val MAX_COUNT = 7000 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StepsViewHolder {
         return StepsViewHolder(
@@ -23,107 +25,31 @@ class StepsAdapter(
         )
     }
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint("DefaultLocale", "SetTextI18n")
     override fun onBindViewHolder(holder: StepsViewHolder, position: Int) {
+        if (stepsData.isEmpty()) return
 
-        stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
-        remoteViews?.setTextViewText(R.id.txsteps, "$stepsToday Steps")
-        appWidM.updateAppWidget(newAppWidget, remoteViews)
+        val realPosition = position % stepsData.size
+        val steps = stepsData[realPosition].trim().toIntOrNull() ?: 0
 
+        // Update widget if it's today
+        val currentDayIndex = (LocalDate.now().dayOfWeek.value + 6) % 7 // Monday = 0
+        if (realPosition == currentDayIndex) {
+            stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
+            remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday")
+            appWidM.updateAppWidget(newAppWidget, remoteViews)
+        }
 
-            when (position) {
+        val km = if (steps != 0) String.format("%.1f", (steps * 74f) / 100000f) else "0"
+        val kCal = (steps * 0.04 * (80 / 70)).toInt()
 
+        holder.txTitle.text = days[realPosition]
+        holder.txSteps.text = "$steps steps\n~ $km km\n~ $kCal kCal"
 
-                0 -> {
-
-                    if (stepsData[position].trim().toInt() != 0)
-                        km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
-                    else km = "0"
-
-                    holder.txTitle.text = "Monday!"
-                    holder.txSteps.text = "${stepsData[position]} steps... \n ~ $km km! \n ~ " + (stepsData[position].toInt() * 0.04 * (80 / 70)).toInt().toString() + " kCal"
-                    if (stepsData[position].trim().toInt() > 1000)
-                        holder.progressSteps.progress = stepsData[position].trim().toInt() / 100
-                    else holder.progressSteps.progress = stepsData[position].trim().toInt() / 10
-                }
-
-                1 -> {
-
-                    if (stepsData[position].trim().toInt() != 0)
-                        km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
-                    else km = "0"
-                    holder.txTitle.text = "Tuesday!"
-                    holder.txSteps.text = "${stepsData[position]} steps... \n ~ $km km! \n ~ " + (stepsData[position].toInt() * 0.04 * (80 / 70)).toInt().toString() + " kCal"
-                    if (stepsData[position].trim().toInt() > 1000)
-                        holder.progressSteps.progress = stepsData[position].trim().toInt() / 100
-                    else holder.progressSteps.progress = stepsData[position].trim().toInt() / 10
-                }
-
-                2 -> {
-
-                    if (stepsData[position].trim().toInt() != 0)
-                        km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
-                    else km = "0"
-                    holder.txTitle.text = "Wednesday!"
-                    holder.txSteps.text = "${stepsData[position]} steps... \n ~ $km km! \n ~ " + (stepsData[position].toInt() * 0.04 * (80 / 70)).toInt().toString() + " kCal"
-                    if (stepsData[position].trim().toInt() > 1000)
-                        holder.progressSteps.progress = stepsData[position].trim().toInt() / 100
-                    else holder.progressSteps.progress = stepsData[position].trim().toInt() / 10
-                }
-
-                3 -> {
-
-                    if (stepsData[position].trim().toInt() != 0)
-                        km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
-                    else km = "0"
-                    holder.txTitle.text = "Thursday!"
-                    holder.txSteps.text = "${stepsData[position]} steps... \n ~ $km km! \n ~ " + (stepsData[position].toInt() * 0.04 * (80 / 70)).toInt().toString() + " kCal"
-                    if (stepsData[position].trim().toInt() > 1000)
-                        holder.progressSteps.progress = stepsData[position].trim().toInt() / 100
-                    else holder.progressSteps.progress = stepsData[position].trim().toInt() / 10
-                }
-
-                4 -> {
-
-                    if (stepsData[position].trim().toInt() != 0)
-                        km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
-                    else km = "0"
-                    holder.txTitle.text = "Friday!"
-                    holder.txSteps.text = "${stepsData[position]} steps... \n ~ $km km! \n ~ " + (stepsData[position].toInt() * 0.04 * (80 / 70)).toInt().toString() + " kCal"
-                    if (stepsData[position].trim().toInt() > 1000)
-                        holder.progressSteps.progress = stepsData[position].trim().toInt() / 100
-                    else holder.progressSteps.progress = stepsData[position].trim().toInt() / 10
-                }
-
-                5 -> {
-
-                    if (stepsData[position].trim().toInt() != 0)
-                        km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
-                    else km = "0"
-                    holder.txTitle.text = "Saturday!"
-                    holder.txSteps.text = "${stepsData[position]} steps... \n ~ $km km! \n ~ " + (stepsData[position].toInt() * 0.04 * (80 / 70)).toInt().toString() + " kCal"
-                    if (stepsData[position].trim().toInt() > 1000)
-                        holder.progressSteps.progress = stepsData[position].trim().toInt() / 100
-                    else holder.progressSteps.progress = stepsData[position].trim().toInt() / 10
-                }
-
-                6 -> {
-
-                    if (stepsData[position].trim().toInt() != 0)
-                        km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
-                    else km = "0"
-                    holder.txTitle.text = "Sunday!"
-                    holder.txSteps.text = "${stepsData[position]} steps... \n ~ $km km! \n ~ " + (stepsData[position].toInt() * 0.04 * (80 / 70)).toInt().toString() + " kCal"
-                    if (stepsData[position].trim().toInt() > 1000)
-                        holder.progressSteps.progress = stepsData[position].trim().toInt() / 100
-                    else holder.progressSteps.progress = stepsData[position].trim().toInt() / 10
-                }
-
-            }
-
+        // Material-like progress
+        holder.progressSteps.max = 10000 // Standard daily goal
+        holder.progressSteps.progress = steps
     }
 
-
-
-    override fun getItemCount() = stepsData.size
+    override fun getItemCount(): Int = if (stepsData.isEmpty()) 0 else MAX_COUNT
 }
