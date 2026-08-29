@@ -56,7 +56,7 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMySpaceBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(binding.root as View)
 
         mySpaceActivityContext = applicationContext
 

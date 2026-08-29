@@ -4,13 +4,9 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
-import android.app.PendingIntent
-import android.app.ProgressDialog
-import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
-import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.ContentValues
 import android.content.Context
@@ -18,10 +14,6 @@ import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
-import android.database.Cursor
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -29,13 +21,10 @@ import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.provider.ContactsContract
 import android.provider.Settings
 import android.speech.RecognizerIntent
 import android.text.method.ScrollingMovementMethod
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,7 +36,6 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
-import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -58,33 +46,26 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.makeToast
-import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.pickContactLauncher
-import com.belaku.homey.MainActivity.Companion.sN
 import com.belaku.homey.MusicActivity.Companion.dataListSongs
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
 import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.NewAppWidget.Companion.appWidM
-import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.hashSetAppUsage
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
-import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.getFavoriteContacts
 import com.belaku.homey.SetWallWorker.Companion.hour
 import com.belaku.homey.SetWallWorker.Companion.isSharedPreferencesInitialized
 import com.belaku.homey.SetWallWorker.Companion.pinNote
-import com.belaku.homey.SetWallWorker.Companion.screenHeight
-import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.StepsService.Companion.speedInKmph
@@ -98,9 +79,7 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
@@ -111,12 +90,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
-import java.net.URL
 import java.util.Calendar
-import kotlin.properties.Delegates
 import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -124,37 +99,32 @@ import kotlin.time.Duration.Companion.seconds
 
 class DialogActivity : AppCompatActivity() {
 
-    var bluetoothLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-
+    private var bluetoothLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
         }
+
     private var bluetoothAdapter: BluetoothAdapter? = null
-    val wifiPanelIntent = Intent(Settings.Panel.ACTION_WIFI)
+    private val wifiPanelIntent = Intent(Settings.Panel.ACTION_WIFI)
     private lateinit var llMenu: LinearLayout
-    private lateinit var dialogAct: AlertDialog
-    private var boolFetchingTweets: Boolean = false
     private lateinit var dialogActContext: Context
     private lateinit var parentLayoutDialog: View
+    
     private val barcodeLauncher =
         registerForActivityResult(ScanContract()) { result: ScanIntentResult? ->
-            if (result?.contents == null) {
-
-            } else {
-                // Handle the scan result
-                var scannedUrl = result.contents
+            if (result?.contents != null) {
+                val scannedUrl = result.contents
                 val upiUri = Uri.parse(scannedUrl)
                 val upiIntent = Intent(Intent.ACTION_VIEW)
                 upiIntent.setData(upiUri)
                 val chooser = Intent.createChooser(upiIntent, "Pay with")
-                if (chooser.resolveActivity(getPackageManager()) != null) {
-                    startActivity(chooser);
+                if (chooser.resolveActivity(packageManager) != null) {
+                    startActivity(chooser)
                 } else {
-                    // Handle the case where no UPI apps are installed
                      makeToast(applicationContext, "No UPI app found. Please install one to proceed.")
                 }
             }
         }
-    private var stepsVPpos: Int = 0
+        
     private var rewardedInterstitialAd: RewardedInterstitialAd? = null
     private lateinit var llDialog: RelativeLayout
     private lateinit var imgvSongCover: ImageView
@@ -178,30 +148,21 @@ class DialogActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.activity_dialog)
 
         parentLayoutDialog = findViewById(android.R.id.content)
         dialogActContext = applicationContext
 
-        if (isSharedPreferencesInitialized())
-        if (stepsData.isEmpty()) {
-            stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
-            stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
-            stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
-            stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
-            stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
-            stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
-            stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
-        }
-
-        rewardedInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
-            override fun onAdDismissedFullScreenContent() {
-                rewardedInterstitialAd = null
-            }
-
-            override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                rewardedInterstitialAd = null
+        if (isSharedPreferencesInitialized()) {
+            if (stepsData.isEmpty()) {
+                stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
+                stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
             }
         }
 
@@ -223,8 +184,8 @@ class DialogActivity : AppCompatActivity() {
         menuBlue = findViewById(R.id.menu_blue)
         menuAi = findViewById(R.id.menu_ai)
 
-         val bluetoothManager = applicationContext.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-         bluetoothAdapter = bluetoothManager.adapter
+        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        bluetoothAdapter = bluetoothManager.adapter
 
         checkWifiState(applicationContext)
         checkBluetoothState(applicationContext)
@@ -247,8 +208,14 @@ class DialogActivity : AppCompatActivity() {
         }
 
         menuWifi.setOnClickListener {
-            startActivity(wifiPanelIntent)
-            finish()
+            try {
+                startActivity(wifiPanelIntent)
+                finish()
+            } catch (e: Exception) {
+                val wifiSettingsIntent = Intent(Settings.ACTION_WIFI_SETTINGS)
+                startActivity(wifiSettingsIntent)
+                finish()
+            }
         }
 
         menuBlue.setOnClickListener {
@@ -271,6 +238,9 @@ class DialogActivity : AppCompatActivity() {
                     window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                     txTitle.text = "Menu"
                     llMenu.visibility = View.VISIBLE
+                    txContent.visibility = View.GONE
+                    edtxDialog.visibility = View.GONE
+                    findViewById<LinearLayout>(R.id.ll_buttons).visibility = View.GONE
                     btnOk.visibility = View.GONE
                     imgbtnShare.visibility = View.GONE
                     btnCancel.visibility = View.GONE
@@ -308,7 +278,15 @@ class DialogActivity : AppCompatActivity() {
                         object : RewardedInterstitialAdLoadCallback() {
                             override fun onAdLoaded(rewardedAd: RewardedInterstitialAd) {
                                 rewardedInterstitialAd = rewardedAd
-                                rewardedInterstitialAd?.show(this@DialogActivity) { rewardItem ->
+                                rewardedInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+                                    override fun onAdDismissedFullScreenContent() {
+                                        rewardedInterstitialAd = null
+                                    }
+                                    override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                                        rewardedInterstitialAd = null
+                                    }
+                                }
+                                rewardedInterstitialAd?.show(this@DialogActivity) { _ ->
                                     sharedPreferencesEditor.putInt("noRewards", 7).apply()
                                     noRewards = 7
                                     remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
@@ -334,18 +312,18 @@ class DialogActivity : AppCompatActivity() {
                             }
                         }
                     }
-                    val intent = Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
-                    try { pickContactLauncher.launch(intent) } catch (ex: Exception) { finish() }
+                    val pickIntent = Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
+                    try { pickContactLauncher.launch(pickIntent) } catch (ex: Exception) { finish() }
                 }
                 "StT" -> {
                     txTitle.text = "Speech to Text"
                     txContent.text = "listening..."
                     btnOk.visibility = View.GONE
                     btnCancel.visibility = View.GONE
-                    val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-                    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                    intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now...")
-                    startActivityForResult(intent, REQUEST_CODE_SPEECH_INPUT)
+                    val intentStT = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+                    intentStT.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                    intentStT.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now...")
+                    startActivityForResult(intentStT, REQUEST_CODE_SPEECH_INPUT)
                     imgbtnShare.setOnClickListener {
                         if (txContent.text != "listening...") {
                             val shareIntent = Intent(Intent.ACTION_SEND).apply {
@@ -364,7 +342,7 @@ class DialogActivity : AppCompatActivity() {
                     }
                     if (listTweets.isNotEmpty()) {
                         txContent.text = listTweets[Random.nextInt(0, listTweets.size)]
-                    } else rawTweets(false)
+                    } else rawTweets()
 
                     imgbtnShare.setOnClickListener {
                         if (txContent.text.isNotEmpty()) {
@@ -379,7 +357,7 @@ class DialogActivity : AppCompatActivity() {
                 "stepsInfo" -> {
                     txTitle.text = "Weekly Steps"
                     val vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
-                    val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
+                    val tabLayout = findViewById<com.google.android.material.tabs.TabLayout>(R.id.tab_layout)
                     vpSteps.visibility = View.VISIBLE
                     tabLayout.visibility = View.VISIBLE
                     imgbtnShare.visibility = View.GONE
@@ -389,7 +367,6 @@ class DialogActivity : AppCompatActivity() {
 
                     stepsMapsAdapter(stepsData)
                     
-                    // Set to a middle position for circular scrolling
                     val mid = 3500 - (3500 % 7) + currentDay
                     vpSteps.setCurrentItem(mid, false)
                     
@@ -422,14 +399,15 @@ class DialogActivity : AppCompatActivity() {
                     rvScreenTime.visibility = View.VISIBLE
                     txAvgUsage.visibility = View.VISIBLE
                     
-                    val maxUsage = displayList.firstOrNull()?.usageTime?.split(":")?.get(0)?.trim()?.toIntOrNull() ?: 1
+                    val firstUsage = displayList.firstOrNull()?.usageTime
+                    val maxUsage = if (firstUsage != null) firstUsage.split(":")[0].trim().toIntOrNull() ?: 1 else 1
                     rvScreenTime.layoutManager = LinearLayoutManager(this)
                     rvScreenTime.adapter = ScreenTimeAdapter(displayList, maxUsage)
 
                     totalUsage = sumTimes(hashSetAppUsage.map { it.usageTime })
                     val sT = totalUsage.split(":")
                     hour = sT[0].toIntOrNull() ?: 0
-                    val min = sT.getOrElse(1) { "00" }
+                    val min = if (sT.size > 1) sT[1] else "00"
                     txAvgUsage.text = "Avg Usage/Day ~ $hour Hours : $min Mins"
 
                     remoteViews?.setTextViewText(R.id.tx_screentime, "$hour+")
@@ -485,13 +463,10 @@ class DialogActivity : AppCompatActivity() {
                         .show()
                 }
                 "qrClick" -> {
-
                     val options = ScanOptions().apply {
                         setDesiredBarcodeFormats(ScanOptions.QR_CODE)
                         setPrompt("Scan a QR code")
                     }
-
-                    // Launch the scanner
                     barcodeLauncher.launch(options)
                 }
             }
@@ -560,7 +535,7 @@ class DialogActivity : AppCompatActivity() {
         stepsAdapter = StepsAdapter(stepsData)
         val vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
         vpSteps.adapter = stepsAdapter
-        val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
+        val tabLayout = findViewById<com.google.android.material.tabs.TabLayout>(R.id.tab_layout)
         
         tabLayout.removeAllTabs()
         for (i in 0 until 7) {
@@ -573,26 +548,26 @@ class DialogActivity : AppCompatActivity() {
             }
         })
 
-        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab) {
+        tabLayout.addOnTabSelectedListener(object : com.google.android.material.tabs.TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: com.google.android.material.tabs.TabLayout.Tab) {
                 val currentPos = vpSteps.currentItem
                 val currentDay = currentPos % 7
                 val targetDay = tab.position
                 val diff = targetDay - currentDay
                 vpSteps.setCurrentItem(currentPos + diff, true)
             }
-            override fun onTabUnselected(tab: TabLayout.Tab?) {}
-            override fun onTabReselected(tab: TabLayout.Tab?) {}
+            override fun onTabUnselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
+            override fun onTabReselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
         })
     }
 
     private fun updateWidget() {
-        val intent = Intent(applicationContext, NewAppWidget::class.java).apply {
+        val updateIntent = Intent(applicationContext, NewAppWidget::class.java).apply {
             action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
             val ids = AppWidgetManager.getInstance(application).getAppWidgetIds(ComponentName(application, NewAppWidget::class.java))
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
         }
-        sendBroadcast(intent)
+        sendBroadcast(updateIntent)
     }
 
     private fun getAppNameFromPkg(context: Context, packageName: String?): String {
@@ -609,7 +584,6 @@ class DialogActivity : AppCompatActivity() {
     private fun getContactInfo(contactUri: Uri) {
         contentResolver.query(contactUri, arrayOf(ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.Contacts._ID), null, null, null)?.use { cursor ->
             if (cursor.moveToFirst()) {
-                val displayName = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME))
                 val contactId = cursor.getLong(cursor.getColumnIndexOrThrow(ContactsContract.Contacts._ID))
                 markAsFav(contactId)
                 saveContacts()
@@ -621,14 +595,14 @@ class DialogActivity : AppCompatActivity() {
 
     private fun toggleBluetooth() {
         bluetoothAdapter?.let { adapter ->
-            val action = if (!adapter.isEnabled) BluetoothAdapter.ACTION_REQUEST_ENABLE else "android.bluetooth.adapter.action.REQUEST_DISABLE"
-            bluetoothLauncher.launch(Intent(action))
+            val intentAction = if (!adapter.isEnabled) BluetoothAdapter.ACTION_REQUEST_ENABLE else "android.bluetooth.adapter.action.REQUEST_DISABLE"
+            bluetoothLauncher.launch(Intent(intentAction))
         } ?: makeToast(applicationContext, "Bluetooth not supported")
     }
 
     fun markAsFav(contactId: Long) {
-        val values = ContentValues().apply { put(ContactsContract.Contacts.STARRED, 1) }
-        contentResolver.update(ContactsContract.Contacts.CONTENT_URI, values, "${ContactsContract.Contacts._ID} = ?", arrayOf(contactId.toString()))
+        val vals = ContentValues().apply { put(ContactsContract.Contacts.STARRED, 1) }
+        contentResolver.update(ContactsContract.Contacts.CONTENT_URI, vals, "${ContactsContract.Contacts._ID} = ?", arrayOf(contactId.toString()))
         getFavoriteContacts(applicationContext)
     }
 
@@ -637,43 +611,7 @@ class DialogActivity : AppCompatActivity() {
         sharedPreferencesEditor.putString("CTS", json).apply()
     }
 
-    private fun getTweetID(str: String) {
-        val client = OkHttpClient()
-        val request = Request.Builder().url("https://twitter241.p.rapidapi.com/user?username=$str")
-            .addHeader("x-rapidapi-key", "8521aa6a65mshab927b74fff566dp175607jsn24cd6edd63a7")
-            .addHeader("x-rapidapi-host", "twitter241.p.rapidapi.com").build()
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val response = client.newCall(request).execute()
-                val responseBody = response.body?.string() ?: return@launch
-                val json = JSONObject(responseBody)
-                val restId = json.getJSONObject("result").getJSONObject("data").getJSONObject("user").getJSONObject("result").getString("rest_id")
-                withContext(Dispatchers.Main) { getTweets(restId, true) }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) { makeToast(applicationContext, "User not found") }
-            }
-        }
-    }
-
-    private fun getTweets(twitterID: String, b: Boolean) {
-        val client = OkHttpClient()
-        val request = Request.Builder().url("https://twitter241.p.rapidapi.com/user-tweets?user=$twitterID&count=5")
-            .addHeader("x-rapidapi-key", "8521aa6a65mshab927b74fff566dp175607jsn24cd6edd63a7")
-            .addHeader("x-rapidapi-host", "twitter241.p.rapidapi.com").build()
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val response = client.newCall(request).execute()
-                val responseBody = response.body?.string() ?: return@launch
-                val json = JSONObject(responseBody)
-                // Parsing logic simplified for brevity
-                withContext(Dispatchers.Main) { updateWidget() }
-            } catch (e: Exception) {}
-        }
-    }
-
-    private fun rawTweets(b: Boolean) {
+    private fun rawTweets() {
         val dataArray = TweetsJsonParser.parseJsonArrayFromRaw(this, R.raw.np_tweets) ?: return
         for (i in 0 until dataArray.length()) {
             listTweets.add(dataArray.getJSONObject(i).getString("text"))

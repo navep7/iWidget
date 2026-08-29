@@ -5,76 +5,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/dialog_layout"
     android:background="@drawable/gradient_glass_rounded_ss"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     tools:context=".DialogActivity">
-
-    <LinearLayout
-        android:id="@+id/ll_menu"
-        android:visibility="gone"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:layout_below="@+id/tx_dialog_title"
-        android:orientation="horizontal"
-        android:gravity="center">
-
-        <ImageButton
-            android:id="@+id/menu_reminders"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_margin="10dp"
-            android:src="@drawable/bell_hr"
-            android:background="@drawable/rounded_corner_gray"
-            android:scaleType="fitXY"
-            android:padding="10dp"
-            android:contentDescription="Reminders" />
-
-        <ImageButton
-            android:id="@+id/menu_torch"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_margin="10dp"
-            android:src="@drawable/torch_off"
-            android:background="@drawable/rounded_corner_gray"
-            android:scaleType="fitXY"
-            android:padding="10dp"
-            android:contentDescription="Torch" />
-
-        <ImageButton
-            android:id="@+id/menu_wifi"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_margin="10dp"
-            android:src="@drawable/wifi_off"
-            android:background="@drawable/rounded_corner_gray"
-            android:scaleType="fitXY"
-            android:padding="10dp"
-            android:contentDescription="Wifi" />
-
-        <ImageButton
-            android:id="@+id/menu_blue"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_margin="10dp"
-            android:src="@drawable/blue_off"
-            android:background="@drawable/rounded_corner_gray"
-            android:scaleType="fitXY"
-            android:padding="10dp"
-            android:contentDescription="Bluetooth" />
-
-        <ImageButton
-            android:id="@+id/menu_ai"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_margin="10dp"
-            android:src="@drawable/ai"
-            android:background="@drawable/rounded_corner_gray"
-            android:scaleType="fitXY"
-            android:padding="10dp"
-            android:contentDescription="AI" />
-
-    </LinearLayout>
 
     <ImageView
         android:id="@+id/dialog_imgv_cover"
@@ -217,5 +150,73 @@
         app:tabMode="fixed"
         app:tabRippleColor="@null"
         android:background="@android:color/transparent" />
+
+    <LinearLayout
+        android:id="@+id/ll_menu"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:layout_below="@+id/tx_dialog_title"
+        android:orientation="horizontal"
+        android:elevation="4dp"
+        android:gravity="center">
+
+        <ImageButton
+            android:id="@+id/menu_reminders"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:src="@drawable/bell_hr"
+            android:background="@drawable/rounded_corner_gray"
+            android:scaleType="fitXY"
+            android:padding="10dp"
+            android:contentDescription="Reminders" />
+
+        <ImageButton
+            android:id="@+id/menu_torch"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:src="@drawable/torch_off"
+            android:background="@drawable/rounded_corner_gray"
+            android:scaleType="fitXY"
+            android:padding="10dp"
+            android:contentDescription="Torch" />
+
+        <ImageButton
+            android:id="@+id/menu_wifi"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:src="@drawable/wifi_off"
+            android:background="@drawable/rounded_corner_gray"
+            android:scaleType="fitXY"
+            android:padding="10dp"
+            android:contentDescription="Wifi" />
+
+        <ImageButton
+            android:id="@+id/menu_blue"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:src="@drawable/blue_off"
+            android:background="@drawable/rounded_corner_gray"
+            android:scaleType="fitXY"
+            android:padding="10dp"
+            android:contentDescription="Bluetooth" />
+
+        <ImageButton
+            android:id="@+id/menu_ai"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:src="@drawable/ai"
+            android:background="@drawable/rounded_corner_gray"
+            android:scaleType="fitXY"
+            android:padding="10dp"
+            android:contentDescription="AI" />
+
+    </LinearLayout>
 
 </RelativeLayout>
