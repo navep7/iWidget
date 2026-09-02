@@ -670,6 +670,33 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setUI() {
 
+
+        if (sharedPreferences.getBoolean("rlControls", false)) {
+         //   sharedPreferencesEditor.putBoolean("rlControls", true).apply()
+            remoteViews?.setViewVisibility(R.id.edtx_pen, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.rl_setwall, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_qr, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_g_apps, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_lock, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_speech, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.tx_myspace, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgv_conf, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgv_ps, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgv_dialler, View.VISIBLE)
+        } else {
+        //    sharedPreferencesEditor.putBoolean("rlControls", false).apply()
+            remoteViews?.setViewVisibility(R.id.edtx_pen, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.rl_setwall, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_qr, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_g_apps, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_lock, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_speech, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.tx_myspace, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgv_conf, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgv_ps, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgv_dialler, View.INVISIBLE)
+        }
+
         locationTxUpdate(widgetContext)
 
         remoteViews?.setTextViewText(R.id.tx_speed, speedReading)
