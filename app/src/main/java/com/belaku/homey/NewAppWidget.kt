@@ -167,7 +167,7 @@ class NewAppWidget : AppWidgetProvider() {
 
                             widgetContext = context
                             setUI()
-                            setACAdapter()
+                       //     setACAdapter()
 
                             setOnClickPendingIntents(context)
 
@@ -180,8 +180,8 @@ class NewAppWidget : AppWidgetProvider() {
 
                         mAppWidgetIds = appWidM.getAppWidgetIds(ComponentName(widgetContext, NewAppWidget::class.java))
                         appWidM.updateAppWidget(newAppWidget, remoteViews)
-                        appWidM.notifyAppWidgetViewDataChanged(mAppWidgetIds, R.id.list_apps)
-                        appWidM.notifyAppWidgetViewDataChanged(mAppWidgetIds, R.id.list_contacts)
+                   //     appWidM.notifyAppWidgetViewDataChanged(mAppWidgetIds, R.id.list_apps)
+                   //     appWidM.notifyAppWidgetViewDataChanged(mAppWidgetIds, R.id.list_contacts)
 
                     }
                 }
@@ -320,7 +320,7 @@ class NewAppWidget : AppWidgetProvider() {
             setUI()
 
        //     if (!Constants.boolACadapterSet) {
-                setACAdapter()
+           //     setACAdapter()
       //          Constants.boolACadapterSet = true
       //      }
 
@@ -332,8 +332,8 @@ class NewAppWidget : AppWidgetProvider() {
                 appWidM = AppWidgetManager.getInstance(widgetContext)
             mAppWidgetIds = appWidM.getAppWidgetIds(ComponentName(widgetContext, NewAppWidget::class.java))
             appWidM.updateAppWidget(appWidgetId, remoteViews)
-            appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_apps)
-            appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)
+       //     appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_apps)
+       //     appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)
         }
 
 
@@ -1138,7 +1138,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             for (id in ids) {
                 setUI()
-                setACAdapter()
+              //  setACAdapter()
             }
         }
 
@@ -1157,11 +1157,11 @@ class NewAppWidget : AppWidgetProvider() {
         if (!isAppWidMInitialized())
             appWidM = AppWidgetManager.getInstance(widgetContext)
 
-        val appWidgetIds = appWidM.getAppWidgetIds(newAppWidget)
+    //    val appWidgetIds = appWidM.getAppWidgetIds(newAppWidget)
       //  appWidM = AppWidgetManager.getInstance(context)
         appWidM.updateAppWidget(newAppWidget, remoteViews)
-        appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_apps)
-        appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)
+    //    appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_apps)
+    //    appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)
 
     }
 
