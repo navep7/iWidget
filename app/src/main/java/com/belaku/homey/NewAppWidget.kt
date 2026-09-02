@@ -158,7 +158,7 @@ class NewAppWidget : AppWidgetProvider() {
         recognizeActivityTransitions()
         val filter = IntentFilter(Intent.ACTION_USER_PRESENT)
         context.applicationContext.registerReceiver(unlockReceiver, filter)
-        appUsageStats(widgetContext)
+    //    appUsageStats(widgetContext)
 
         sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
@@ -170,7 +170,7 @@ class NewAppWidget : AppWidgetProvider() {
 
                             widgetContext = context
                             setUI()
-                            setACAdapter()
+                       //     setACAdapter()
 
                             setOnClickPendingIntents(context)
 
@@ -183,8 +183,8 @@ class NewAppWidget : AppWidgetProvider() {
 
                         mAppWidgetIds = appWidM.getAppWidgetIds(ComponentName(widgetContext, NewAppWidget::class.java))
                         appWidM.updateAppWidget(newAppWidget, remoteViews)
-                        appWidM.notifyAppWidgetViewDataChanged(mAppWidgetIds, R.id.list_apps)
-                        appWidM.notifyAppWidgetViewDataChanged(mAppWidgetIds, R.id.list_contacts)
+                   //     appWidM.notifyAppWidgetViewDataChanged(mAppWidgetIds, R.id.list_apps)
+                   //     appWidM.notifyAppWidgetViewDataChanged(mAppWidgetIds, R.id.list_contacts)
 
                     }
                 }
@@ -322,7 +322,7 @@ class NewAppWidget : AppWidgetProvider() {
             setUI()
 
        //     if (!Constants.boolACadapterSet) {
-                setACAdapter()
+          //      setACAdapter()
       //          Constants.boolACadapterSet = true
       //      }
 
@@ -334,8 +334,8 @@ class NewAppWidget : AppWidgetProvider() {
                 appWidM = AppWidgetManager.getInstance(widgetContext)
             mAppWidgetIds = appWidM.getAppWidgetIds(ComponentName(widgetContext, NewAppWidget::class.java))
             appWidM.updateAppWidget(appWidgetId, remoteViews)
-            appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_apps)
-            appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)
+        //    appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_apps)
+        //    appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)
         }
 
 
@@ -844,7 +844,7 @@ class NewAppWidget : AppWidgetProvider() {
 
     private fun setACAdapter() {
 
-        if (!sharedPreferences.getBoolean("setACAdapter", false)) {
+        if (!sharedPreferences.getBoolean("setACAdapter", false) || favContacts.isEmpty() || choosenApps.isEmpty()) {
             setContactsAdapter()
             setContactsClick()
             setAppsAdapter()
@@ -1069,16 +1069,16 @@ class NewAppWidget : AppWidgetProvider() {
         serviceIntentApp = Intent(widgetContext, RemoteViewsAppsService::class.java)
         serviceIntentApp.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, newAppWidget)
         serviceIntentApp.setData(Uri.parse(serviceIntentApp.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
-        remoteViews?.setRemoteAdapter(R.id.list_apps, serviceIntentApp)
-        remoteViews?.setEmptyView(R.id.list_apps, R.id.widget_empty_view_apps)
+   //     remoteViews?.setRemoteAdapter(R.id.list_apps, serviceIntentApp)
+   //     remoteViews?.setEmptyView(R.id.list_apps, R.id.widget_empty_view_apps)
     }
 
     private fun setContactsAdapter() {
         serviceIntentContact = Intent(widgetContext, RemoteViewsContactsService::class.java)
         serviceIntentContact.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, newAppWidget)
         serviceIntentContact.setData(Uri.parse(serviceIntentContact.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
-        remoteViews?.setRemoteAdapter(R.id.list_contacts, serviceIntentContact)
-        remoteViews?.setEmptyView(R.id.list_contacts, R.id.widget_empty_view_contacts)
+    //    remoteViews?.setRemoteAdapter(R.id.list_contacts, serviceIntentContact)
+    //    remoteViews?.setEmptyView(R.id.list_contacts, R.id.widget_empty_view_contacts)
     }
 
     private fun setAppsClick() {
@@ -1091,7 +1091,7 @@ class NewAppWidget : AppWidgetProvider() {
             clickIntentApp,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE // Use FLAG_MUTABLE for security
         )
-        remoteViews?.setPendingIntentTemplate(R.id.list_apps, clickPendingIntentTemplateApp)
+   //     remoteViews?.setPendingIntentTemplate(R.id.list_apps, clickPendingIntentTemplateApp)
 
     }
 
@@ -1105,7 +1105,7 @@ class NewAppWidget : AppWidgetProvider() {
             clickIntentContact,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE // Use FLAG_MUTABLE for security
         )
-        remoteViews?.setPendingIntentTemplate(R.id.list_contacts, clickPendingIntentTemplateContact)
+    //    remoteViews?.setPendingIntentTemplate(R.id.list_contacts, clickPendingIntentTemplateContact)
     }
 
     @SuppressLint("ResourceAsColor", "ResourceType")
@@ -1141,9 +1141,11 @@ class NewAppWidget : AppWidgetProvider() {
                 android.content.ComponentName(context, NewAppWidget::class.java)
             )
 
+            setUI()
+
             for (id in ids) {
-                setUI()
-                setACAdapter()
+             //   setUI()
+           //     setACAdapter()
             }
         }
 
@@ -1165,8 +1167,8 @@ class NewAppWidget : AppWidgetProvider() {
         val appWidgetIds = appWidM.getAppWidgetIds(newAppWidget)
       //  appWidM = AppWidgetManager.getInstance(context)
         appWidM.updateAppWidget(newAppWidget, remoteViews)
-        appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_apps)
-        appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)
+    //    appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_apps)
+    //    appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)
 
     }
 
@@ -1926,7 +1928,7 @@ class NewAppWidget : AppWidgetProvider() {
 
                 if (isadapterHabitsInitialized()) adapterHabits.notifyDataSetChanged()
                 // Midnight transition detected
-                appUsageStats(context)
+            //    appUsageStats(context)
 
                 // 1. Ensure current count is saved to disk before resetting
                 sharedPreferencesEditor.putInt(dayName, stepsToday).apply()
