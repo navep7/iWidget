@@ -844,10 +844,13 @@ class NewAppWidget : AppWidgetProvider() {
 
     private fun setACAdapter() {
 
-        setContactsAdapter()
-        setContactsClick()
-        setAppsAdapter()
-        setAppsClick()
+        if (!sharedPreferences.getBoolean("setACAdapter", false)) {
+            setContactsAdapter()
+            setContactsClick()
+            setAppsAdapter()
+            setAppsClick()
+            sharedPreferencesEditor.putBoolean("setACAdapter", true).apply()
+        }
     }
 
     fun getInvertedColor(color: Int): Int {
