@@ -616,11 +616,12 @@
             android:adjustViewBounds="true"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_alignParentTop="true"
-            android:background="@drawable/gradient_glass_flatbottom">
+            android:background="@drawable/gradient_glass_flatbottom"
+            android:layout_alignParentTop="true">
 
             <ImageView
                 android:id="@+id/imgbtn_g_apps"
+                android:visibility="invisible"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:background="@drawable/rounded_corner_gray"
@@ -633,6 +634,7 @@
 
             <ImageButton
                 android:id="@+id/imgv_conf"
+                android:visibility="invisible"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:background="@drawable/rounded_corner_gray"
@@ -648,6 +650,7 @@
 
             <ImageButton
                 android:id="@+id/imgbtn_speech"
+                android:visibility="invisible"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:background="@drawable/rounded_corner_gray"
@@ -662,6 +665,7 @@
 
             <ImageView
                 android:id="@+id/imgbtn_qr"
+                android:visibility="invisible"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:adjustViewBounds="true"
@@ -674,8 +678,31 @@
                 android:tint="@color/white"
                 tools:ignore="UseAppTint" />
 
+            <TextView
+                android:id="@+id/edtx_pen"
+                android:text="📝 Pen a note..,"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="@android:color/holo_red_dark"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="@dimen/padding_20"
+                tools:ignore="HardcodedText" />
+
+
+            <ImageButton
+                android:id="@+id/imgbtn_fab"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="fitXY"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:background="@android:color/transparent"
+                android:src="@drawable/assistive_touch"/>
+
             <RelativeLayout
                 android:id="@+id/rl_setwall"
+                android:visibility="invisible"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:background="@drawable/rounded_corner_gray"
@@ -727,6 +754,7 @@
 
             <ImageButton
                 android:id="@+id/imgbtn_lock"
+                android:visibility="invisible"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_toEndOf="@+id/rl_setwall"
@@ -741,6 +769,7 @@
 
             <ImageView
                 android:id="@+id/imgv_ps"
+                android:visibility="invisible"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:background="@drawable/rounded_corner_gray"
@@ -755,6 +784,7 @@
 
             <TextView
                 android:id="@+id/tx_myspace"
+                android:visibility="invisible"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/rl_setwall"
@@ -769,13 +799,15 @@
 
             <ImageView
                 android:id="@+id/imgv_dialler"
+                android:visibility="invisible"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:background="@drawable/rounded_corner_gray"
                 android:padding="@dimen/padding_5"
                 android:adjustViewBounds="true"
                 android:layout_below="@+id/rl_setwall"
-                android:layout_toEndOf="@+id/rl_setwall"
+                android:layout_marginTop="-25dp"
+                android:layout_toStartOf="@+id/imgbtn_fab"
                 android:scaleType="fitXY"
                 android:tint="@color/white"
                 android:src="@drawable/dial"
