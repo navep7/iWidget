@@ -372,7 +372,10 @@ class StepsService : Service() {
         val intentFilter = IntentFilter()
         intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION)
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION)
-        registerReceiver(mWifiReceiver, intentFilter)
+        if (!sharedPreferences.getBoolean("WifiRed", false)) {
+            registerReceiver(mWifiReceiver, intentFilter)
+            sharedPreferencesEditor.putBoolean("WifiRed", true).apply()
+        }
 
     }
 
@@ -424,7 +427,12 @@ class StepsService : Service() {
         val bluetoothFilter = IntentFilter()
         bluetoothFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
         bluetoothFilter.addAction(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)
-        registerReceiver(mBluetoothStateReceiver, bluetoothFilter)
+
+        if (!sharedPreferences.getBoolean("BlueRed", false)) {
+            registerReceiver(mBluetoothStateReceiver, bluetoothFilter)
+            sharedPreferencesEditor.putBoolean("BlueRed", true).apply()
+        }
+
 
 
 

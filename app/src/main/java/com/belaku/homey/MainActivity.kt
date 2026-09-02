@@ -449,7 +449,11 @@ class MainActivity : AppCompatActivity() {
             addAction(Intent.ACTION_TIME_TICK) // Fires every minute
         }
         val timeChangedReceiver = TimeChangedReceiver()
-        registerReceiver(timeChangedReceiver, intentFilter)
+
+        if (!sharedPreferences.getBoolean("TimeRed", false)) {
+            registerReceiver(timeChangedReceiver, intentFilter)
+            sharedPreferencesEditor.putBoolean("TimeRed", true).apply()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)

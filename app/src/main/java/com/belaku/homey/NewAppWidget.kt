@@ -155,6 +155,9 @@ class NewAppWidget : AppWidgetProvider() {
         widgetContext = context!!
         onEn = true
 
+        recognizeActivityTransitions()
+        val filter = IntentFilter(Intent.ACTION_USER_PRESENT)
+        context.applicationContext.registerReceiver(unlockReceiver, filter)
         appUsageStats(widgetContext)
 
         sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
@@ -188,8 +191,7 @@ class NewAppWidget : AppWidgetProvider() {
             }
 
             // Register the receiver programmatically to bypass manifest restrictions
-            val filter = IntentFilter(Intent.ACTION_USER_PRESENT)
-            context.applicationContext.registerReceiver(unlockReceiver, filter)
+
 
         }
             if(ismActInitialized())
@@ -759,7 +761,7 @@ class NewAppWidget : AppWidgetProvider() {
         wallColors()
         setSomeTwAndWallDescUI()
 
-        recognizeActivityTransitions()
+
 
         if (isMyServiceRunning(widgetContext, SpeedService::class.java)) {
             remoteViews?.setViewVisibility(R.id.frame_speed, View.VISIBLE)
