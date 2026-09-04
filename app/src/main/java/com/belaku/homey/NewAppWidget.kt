@@ -157,6 +157,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         appUsageStats(widgetContext)
 
+        recognizeActivityTransitions()
         sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
@@ -354,6 +355,14 @@ class NewAppWidget : AppWidgetProvider() {
 
     private fun setOnClickPendingIntents(context: Context) {
 
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.edtx_pen, PendingIntent.getActivity(
+                context, 19,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "setNote"),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
 
         remoteViews?.setOnClickPendingIntent(R.id.imgbtn_fab, getPendingSelfIntent(context, ASSISTIVE_TOUCH))
 
@@ -670,6 +679,8 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setUI() {
 
+        if (penNote.isNotEmpty())
+            remoteViews?.setTextViewText(R.id.edtx_pen, penNote)
 
         if (sharedPreferences.getBoolean("rlControls", false)) {
          //   sharedPreferencesEditor.putBoolean("rlControls", true).apply()
@@ -788,7 +799,6 @@ class NewAppWidget : AppWidgetProvider() {
         wallColors()
         setSomeTwAndWallDescUI()
 
-        recognizeActivityTransitions()
 
         if (isMyServiceRunning(widgetContext, SpeedService::class.java)) {
             remoteViews?.setViewVisibility(R.id.frame_speed, View.VISIBLE)
@@ -1785,6 +1795,8 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     companion object {
+
+        var penNote: String = ""
         lateinit var blurWallBitmap: Bitmap
         private var unlockReceiver: BroadcastReceiver? = null
         lateinit var i_appWidgetIds: IntArray

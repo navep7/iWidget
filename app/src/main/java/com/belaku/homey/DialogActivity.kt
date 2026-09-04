@@ -76,6 +76,7 @@ import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.hashSetAppUsage
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
+import com.belaku.homey.NewAppWidget.Companion.penNote
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
@@ -267,10 +268,25 @@ class DialogActivity : AppCompatActivity() {
 
         if (dialogIntentStr != null) {
             when (dialogIntentStr) {
+                "setNote" -> {
+                    edtxDialog.visibility = View.VISIBLE
+                    btnOk.visibility = View.VISIBLE
+                    txTitle.text = "Pin a Note"
+
+                    btnOk.setOnClickListener {
+                        if (edtxDialog.text.isNotEmpty()) {
+                            penNote = edtxDialog.text.toString()
+                            remoteViews?.setTextViewText(R.id.edtx_pen, penNote)
+                            appWidM.updateAppWidget(newAppWidget, remoteViews)
+                        }
+                        finish()
+                    }
+                }
                 "Menu" -> {
                     window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                     txTitle.text = "Menu"
                     llMenu.visibility = View.VISIBLE
+                    imgbtnShare.visibility = View.GONE
                     btnOk.visibility = View.GONE
                     btnCancel.visibility = View.GONE
                 }
