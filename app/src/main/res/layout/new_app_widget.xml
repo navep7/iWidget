@@ -462,7 +462,7 @@
             android:adjustViewBounds="true"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/gradient_glass_flatbottom"
+            android:background="@drawable/gradient_glass"
             android:layout_alignParentTop="true">
 
             <ImageView
