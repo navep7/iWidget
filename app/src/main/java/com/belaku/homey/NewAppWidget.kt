@@ -684,7 +684,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (sharedPreferences.getBoolean("rlControls", false)) {
          //   sharedPreferencesEditor.putBoolean("rlControls", true).apply()
-            remoteViews?.setViewVisibility(R.id.edtx_pen, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.ll_activity_states, View.INVISIBLE)
             remoteViews?.setViewVisibility(R.id.rl_setwall, View.VISIBLE)
             remoteViews?.setViewVisibility(R.id.imgbtn_qr, View.VISIBLE)
             remoteViews?.setViewVisibility(R.id.imgbtn_g_apps, View.VISIBLE)
@@ -696,7 +696,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setViewVisibility(R.id.imgv_dialler, View.VISIBLE)
         } else {
         //    sharedPreferencesEditor.putBoolean("rlControls", false).apply()
-            remoteViews?.setViewVisibility(R.id.edtx_pen, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.ll_activity_states, View.VISIBLE)
             remoteViews?.setViewVisibility(R.id.rl_setwall, View.INVISIBLE)
             remoteViews?.setViewVisibility(R.id.imgbtn_qr, View.INVISIBLE)
             remoteViews?.setViewVisibility(R.id.imgbtn_g_apps, View.INVISIBLE)
@@ -1103,16 +1103,16 @@ class NewAppWidget : AppWidgetProvider() {
         serviceIntentApp = Intent(widgetContext, RemoteViewsAppsService::class.java)
         serviceIntentApp.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, newAppWidget)
         serviceIntentApp.setData(Uri.parse(serviceIntentApp.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
-        remoteViews?.setRemoteAdapter(R.id.list_apps, serviceIntentApp)
-        remoteViews?.setEmptyView(R.id.list_apps, R.id.widget_empty_view_apps)
+       // remoteViews?.setRemoteAdapter(R.id.list_apps, serviceIntentApp)
+     //   remoteViews?.setEmptyView(R.id.list_apps, R.id.widget_empty_view_apps)
     }
 
     private fun setContactsAdapter() {
         serviceIntentContact = Intent(widgetContext, RemoteViewsContactsService::class.java)
         serviceIntentContact.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, newAppWidget)
         serviceIntentContact.setData(Uri.parse(serviceIntentContact.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
-        remoteViews?.setRemoteAdapter(R.id.list_contacts, serviceIntentContact)
-        remoteViews?.setEmptyView(R.id.list_contacts, R.id.widget_empty_view_contacts)
+    //    remoteViews?.setRemoteAdapter(R.id.list_contacts, serviceIntentContact)
+      //  remoteViews?.setEmptyView(R.id.list_contacts, R.id.widget_empty_view_contacts)
     }
 
     private fun setAppsClick() {
@@ -1125,7 +1125,7 @@ class NewAppWidget : AppWidgetProvider() {
             clickIntentApp,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE // Use FLAG_MUTABLE for security
         )
-        remoteViews?.setPendingIntentTemplate(R.id.list_apps, clickPendingIntentTemplateApp)
+      //  remoteViews?.setPendingIntentTemplate(R.id.list_apps, clickPendingIntentTemplateApp)
 
     }
 
@@ -1139,7 +1139,7 @@ class NewAppWidget : AppWidgetProvider() {
             clickIntentContact,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE // Use FLAG_MUTABLE for security
         )
-        remoteViews?.setPendingIntentTemplate(R.id.list_contacts, clickPendingIntentTemplateContact)
+    //    remoteViews?.setPendingIntentTemplate(R.id.list_contacts, clickPendingIntentTemplateContact)
     }
 
     @SuppressLint("ResourceAsColor", "ResourceType")
@@ -1220,7 +1220,7 @@ class NewAppWidget : AppWidgetProvider() {
         if (ASSISTIVE_TOUCH == intent.action) {
             if (!sharedPreferences.getBoolean("rlControls", false)) {
                 sharedPreferencesEditor.putBoolean("rlControls", true).apply()
-                remoteViews?.setViewVisibility(R.id.edtx_pen, View.INVISIBLE)
+                remoteViews?.setViewVisibility(R.id.ll_activity_states, View.INVISIBLE)
                 remoteViews?.setViewVisibility(R.id.rl_setwall, View.VISIBLE)
                 remoteViews?.setViewVisibility(R.id.imgbtn_qr, View.VISIBLE)
                 remoteViews?.setViewVisibility(R.id.imgbtn_g_apps, View.VISIBLE)
@@ -1232,7 +1232,7 @@ class NewAppWidget : AppWidgetProvider() {
                 remoteViews?.setViewVisibility(R.id.imgv_dialler, View.VISIBLE)
             } else {
                 sharedPreferencesEditor.putBoolean("rlControls", false).apply()
-                remoteViews?.setViewVisibility(R.id.edtx_pen, View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.ll_activity_states, View.VISIBLE)
                 remoteViews?.setViewVisibility(R.id.rl_setwall, View.INVISIBLE)
                 remoteViews?.setViewVisibility(R.id.imgbtn_qr, View.INVISIBLE)
                 remoteViews?.setViewVisibility(R.id.imgbtn_g_apps, View.INVISIBLE)
