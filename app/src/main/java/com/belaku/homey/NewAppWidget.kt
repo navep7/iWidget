@@ -123,6 +123,7 @@ import java.util.Calendar
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
+import androidx.core.graphics.scale
 
 
 class NewAppWidget : AppWidgetProvider() {
@@ -937,9 +938,8 @@ class NewAppWidget : AppWidgetProvider() {
 
 
 
-                if (isWallBitmapInitialized(widgetContext)) {
-                    scaledBitmap =
-                        Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
+                if (isWallBitmapInitialized(widgetContext) && !wallBitmap.isRecycled) {
+                    scaledBitmap = wallBitmap.scale(screenWidth, screenHeight)
 
                     remoteViews?.setImageViewBitmap(
                         R.id.imgv_widget_layout,
@@ -1234,7 +1234,7 @@ class NewAppWidget : AppWidgetProvider() {
             } else {
                 sharedPreferencesEditor.putBoolean("rlControls", false).apply()
 
-                makeToast(widgetContext, presentActivityState)
+           //     makeToast(widgetContext, presentActivityState)
 
                 if (presentActivityState == "STILL") {
                     remoteViews?.setViewVisibility(R.id.rl_still, View.VISIBLE)

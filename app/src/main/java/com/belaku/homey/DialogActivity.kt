@@ -235,6 +235,21 @@ class DialogActivity : AppCompatActivity() {
             finish()
         }
 
+        btnOk.setOnClickListener {
+            finish()
+        }
+
+
+        imgbtnShare.setOnClickListener {
+            if (txContent.text != "listening...") {
+                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, txContent.text)
+                }
+                startActivity(Intent.createChooser(shareIntent, "Share via..."))
+            }
+        }
+
         menuReminders.setOnClickListener {
             val remindersIntent = Intent(this, RemindersActivity::class.java)
             remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
@@ -363,25 +378,21 @@ class DialogActivity : AppCompatActivity() {
                     intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                     intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now...")
                     startActivityForResult(intent, REQUEST_CODE_SPEECH_INPUT)
-                    imgbtnShare.setOnClickListener {
-                        if (txContent.text != "listening...") {
-                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                                type = "text/plain"
-                                putExtra(Intent.EXTRA_TEXT, txContent.text)
-                            }
-                            startActivity(Intent.createChooser(shareIntent, "Share via..."))
-                        }
-                    }
+
                 }
                 "ST" -> {
-                    txTitle.text = twitterProfileName
+                    txContent.visibility = View.VISIBLE
+                    txTitle.text = " " + twitterProfileName
                     findViewById<ImageButton>(R.id.tw_config).apply {
                         visibility = View.VISIBLE
                         setOnClickListener { makeToast(applicationContext, "Paid Feature, coming soon!") }
                     }
                     if (listTweets.isNotEmpty()) {
                         txContent.text = listTweets[Random.nextInt(0, listTweets.size)]
-                    } else rawTweets(false)
+                    } else {
+                        txContent.text = "fetching Data.. visit again later, please"
+                        rawTweets(false)
+                    }
                 }
                 "stepsInfo" -> {
                     txTitle.text = "Weekly Steps"
