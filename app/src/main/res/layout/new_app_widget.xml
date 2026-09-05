@@ -216,9 +216,9 @@
                 android:layout_height="125dp"
                 android:layout_centerHorizontal="true"
                 android:dial="@drawable/ggd"
-                android:hand_second="@drawable/s_hand"
-                android:hand_minuteTint="@android:color/holo_green_light"
                 android:hand_hourTint="@android:color/holo_orange_light"
+                android:hand_minuteTint="@android:color/holo_green_light"
+                android:hand_second="@drawable/s_hand"
                 android:hand_secondTint="@android:color/holo_red_dark"
                 android:visibility="visible"
                 tools:ignore="UnusedAttribute" />
@@ -318,6 +318,7 @@
 
         <ImageView
             android:id="@+id/imgbtn_albumcover"
+            android:src="@drawable/media"
             android:layout_width="75dp"
             android:layout_height="75dp"
             android:scaleType="fitXY"
@@ -330,6 +331,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/rl_player"
+            android:layout_marginBottom="-15dp"
             android:layout_centerHorizontal="true"
             android:background="@drawable/gradient_glass_rounded_go"
             android:clickable="true"
@@ -338,6 +340,7 @@
             android:fontFamily="sans-serif-condensed"
             android:gravity="center"
             android:maxLines="1"
+            android:padding="@dimen/padding_5"
             android:text=" Pin a Note! ✏️ "
             android:textSize="17sp"
             android:textColor="@android:color/white"
@@ -486,7 +489,6 @@
 
             <ImageView
                 android:id="@+id/imgbtn_g_apps"
-                android:visibility="invisible"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:background="@drawable/rounded_corner_gray"
@@ -499,7 +501,6 @@
 
             <ImageButton
                 android:id="@+id/imgv_conf"
-                android:visibility="invisible"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:background="@drawable/rounded_corner_gray"
@@ -515,7 +516,6 @@
 
             <ImageButton
                 android:id="@+id/imgbtn_speech"
-                android:visibility="invisible"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:background="@drawable/rounded_corner_gray"
@@ -530,7 +530,6 @@
 
             <ImageView
                 android:id="@+id/imgbtn_qr"
-                android:visibility="invisible"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:adjustViewBounds="true"
@@ -547,6 +546,7 @@
 
             <LinearLayout
                 android:id="@+id/ll_activity_states"
+                android:visibility="invisible"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
@@ -836,7 +836,6 @@
 
             <RelativeLayout
                 android:id="@+id/rl_setwall"
-                android:visibility="invisible"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:background="@drawable/rounded_corner_gray"
@@ -888,7 +887,6 @@
 
             <ImageButton
                 android:id="@+id/imgbtn_lock"
-                android:visibility="invisible"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_toEndOf="@+id/rl_setwall"
@@ -903,7 +901,6 @@
 
             <ImageView
                 android:id="@+id/imgv_ps"
-                android:visibility="invisible"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:background="@drawable/rounded_corner_gray"
@@ -918,7 +915,6 @@
 
             <TextView
                 android:id="@+id/tx_myspace"
-                android:visibility="invisible"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/rl_setwall"
@@ -933,7 +929,6 @@
 
             <ImageView
                 android:id="@+id/imgv_dialler"
-                android:visibility="invisible"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:background="@drawable/rounded_corner_gray"
@@ -1023,6 +1018,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/imgv_unlocks"
                 android:text="#"
+                android:padding="@dimen/padding_3"
                 android:gravity="center"
                 android:layout_centerHorizontal="true"
                 android:textColor="@android:color/black"
