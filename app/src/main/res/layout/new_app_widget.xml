@@ -325,6 +325,25 @@
             android:layout_alignParentEnd="true" />
 
 
+        <TextView
+            android:id="@+id/tx_runner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/rl_player"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/gradient_glass_rounded_go"
+            android:clickable="true"
+            android:ellipsize="end"
+            android:focusable="true"
+            android:fontFamily="sans-serif-condensed"
+            android:gravity="center"
+            android:maxLines="1"
+            android:text=" Pin a Note! ✏️ "
+            android:textSize="17sp"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+
+
         <RelativeLayout
             android:id="@+id/rl_player"
             android:layout_width="match_parent"
@@ -523,6 +542,7 @@
                 android:src="@drawable/qr"
                 android:tint="@color/white"
                 tools:ignore="UseAppTint" />
+
 
 
             <LinearLayout
@@ -932,6 +952,8 @@
 
     </LinearLayout>
 
+
+
     <RelativeLayout
         android:id="@+id/ll_steps_screentime"
         android:layout_width="match_parent"
@@ -940,29 +962,6 @@
         android:layout_marginBottom="@dimen/padding_10"
         android:layout_above="@+id/tx_walldesc"
         android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/tx_runner"
-            android:visibility="gone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_alignBottom="@id/rl_steps"
-            android:layout_toEndOf="@+id/rl_steps"
-            android:layout_toStartOf="@+id/rl_scrtime"
-            android:background="@drawable/gradient_glass_rounded_go"
-            android:clickable="true"
-            android:ellipsize="end"
-            android:focusable="true"
-            android:fontFamily="sans-serif-condensed"
-            android:gravity="center"
-            android:maxLines="1"
-            android:orientation="horizontal"
-            android:text=" Pin a Note! ✏️ "
-            android:textSize="21sp"
-            android:textColor="@android:color/white"
-            android:textStyle="bold" />
-
 
 
         <RelativeLayout
@@ -1005,7 +1004,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:layout_marginBottom="@dimen/padding_5"
             android:background="@drawable/gradient_glass_rounded">
 
 
@@ -1013,8 +1011,8 @@
                 android:id="@+id/imgv_unlocks"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentTop="true"
                 android:background="@android:color/transparent"
                 android:scaleType="fitXY"
                 android:src="@drawable/unlock" />
@@ -1023,11 +1021,10 @@
                 android:id="@+id/tx_unlocks"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="5dp"
-                android:layout_toEndOf="@+id/imgv_unlocks"
-                android:paddingEnd="@dimen/padding_3"
-                android:text="1"
+                android:layout_below="@+id/imgv_unlocks"
+                android:text="#"
+                android:gravity="center"
+                android:layout_centerHorizontal="true"
                 android:textColor="@android:color/black"
                 android:textSize="25sp"
                 android:textStyle="bold" />

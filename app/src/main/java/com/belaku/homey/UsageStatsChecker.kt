@@ -1,6 +1,7 @@
 package com.belaku.homey
 
 import android.app.AppOpsManager
+import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
@@ -14,11 +15,12 @@ class UsageStatsChecker {
         val appContext = context.applicationContext
         val appOps = appContext.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
 
-        val mode = try {
+        // 1. Try checking via AppOpsManager (Standard way)
+        try {
             val packageName = appContext.packageName
             val uid = Process.myUid()
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 appOps.unsafeCheckOpNoThrow(
                     AppOpsManager.OPSTR_GET_USAGE_STATS,
                     uid,
@@ -32,12 +34,30 @@ class UsageStatsChecker {
                     packageName
                 )
             }
+            if (mode == AppOpsManager.MODE_ALLOWED) {
+                return true
+            }
+        } catch (e: SecurityException) {
+            // This happens on some devices where the system incorrectly identifies a UID/Package mismatch
+            Log.w("UsageStatsChecker", "SecurityException during AppOps check: ${e.message}")
         } catch (e: Exception) {
-            Log.e("UsageStatsChecker", "Failed to check usage stats permission", e)
-            AppOpsManager.MODE_ERRORED
+            Log.e("UsageStatsChecker", "Error checking usage stats permission via AppOps", e)
         }
 
-        return mode == AppOpsManager.MODE_ALLOWED
+        // 2. Fallback: Try querying usage stats directly
+        // If AppOps check fails due to SecurityException or returns DISALLOWED,
+        // we try a direct query which works on many devices if the permission is actually granted.
+        try {
+            val usageStatsManager = appContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+            val endTime = System.currentTimeMillis()
+            val startTime = endTime - 1000 * 60 // Check for any stats in the last minute
+            val stats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime)
+            return stats != null && stats.isNotEmpty()
+        } catch (e: Exception) {
+            Log.e("UsageStatsChecker", "Fallback usage stats query check failed", e)
+        }
+
+        return false
     }
 
     fun requestUsageStatsPermission(context: Context) {

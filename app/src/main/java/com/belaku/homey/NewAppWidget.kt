@@ -1218,6 +1218,9 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         if (ASSISTIVE_TOUCH == intent.action) {
+
+         //   makeToast(widgetContext, presentActivityState)
+
             if (!sharedPreferences.getBoolean("rlControls", false)) {
                 sharedPreferencesEditor.putBoolean("rlControls", true).apply()
                 remoteViews?.setViewVisibility(R.id.ll_activity_states, View.INVISIBLE)
@@ -1233,6 +1236,19 @@ class NewAppWidget : AppWidgetProvider() {
             } else {
                 sharedPreferencesEditor.putBoolean("rlControls", false).apply()
                 remoteViews?.setViewVisibility(R.id.ll_activity_states, View.VISIBLE)
+                if (presentActivityState == "STILL") {
+                    remoteViews?.setViewVisibility(R.id.rl_still, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.rl_walking, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.rl_speed, View.INVISIBLE)
+                } else if (presentActivityState == "WALKING") {
+                    remoteViews?.setViewVisibility(R.id.rl_still, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.rl_walking, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.rl_speed, View.INVISIBLE)
+                } else if (presentActivityState == "TRAVEL") {
+                    remoteViews?.setViewVisibility(R.id.rl_still, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.rl_walking, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.rl_speed, View.VISIBLE)
+                }
                 remoteViews?.setViewVisibility(R.id.rl_setwall, View.INVISIBLE)
                 remoteViews?.setViewVisibility(R.id.imgbtn_qr, View.INVISIBLE)
                 remoteViews?.setViewVisibility(R.id.imgbtn_g_apps, View.INVISIBLE)
