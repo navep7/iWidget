@@ -211,7 +211,7 @@ class DialogActivity : AppCompatActivity() {
         imgvSongCover = findViewById(R.id.dialog_imgv_cover)
         txTitle = findViewById(R.id.tx_dialog_title)
         txContent = findViewById(R.id.tx_dialog_content)
-        txContent.movementMethod = ScrollingMovementMethod()
+
 
         edtxDialog = findViewById(R.id.edtx_dialog)
         btnOk = findViewById(R.id.btn_dialog_ok)
@@ -353,6 +353,8 @@ class DialogActivity : AppCompatActivity() {
                     try { pickContactLauncher.launch(intent) } catch (ex: Exception) { finish() }
                 }
                 "StT" -> {
+                    txContent.visibility = View.VISIBLE
+                    txContent.movementMethod = ScrollingMovementMethod()
                     txTitle.text = "Speech to Text"
                     txContent.text = "listening..."
                     btnOk.visibility = View.GONE

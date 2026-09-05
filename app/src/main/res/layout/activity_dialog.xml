@@ -110,6 +110,7 @@
 
     <TextView
         android:id="@+id/tx_dialog_content"
+        android:visibility="gone"
         android:gravity="center_horizontal"
         android:layout_below="@+id/edtx_dialog"
         android:layout_width="match_parent"

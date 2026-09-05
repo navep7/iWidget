@@ -18,6 +18,7 @@ import com.belaku.homey.StepsService.Companion.presentActivityState
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
+import androidx.core.content.edit
 
 class ActivityTransitionReceiver : BroadcastReceiver() {
 
@@ -66,35 +67,45 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
         when (state) {
             "STILL" -> {
+
                 rv.setViewVisibility(R.id.rl_still, View.VISIBLE)
                 rv.setViewVisibility(R.id.rl_walking, View.GONE)
                 rv.setViewVisibility(R.id.rl_speed, View.GONE)
+
                 
                 rv.setChronometer(R.id.speed_chronometer, 0L, null, false)
                 rv.setViewVisibility(R.id.frame_speed, View.INVISIBLE)
                 rv.setViewVisibility(R.id.frame_time_speed, View.INVISIBLE)
                 
-                sharedPreferences.edit().putLong("speed_trip_start_time", 0L).apply()
+                sharedPreferences.edit { putLong("speed_trip_start_time", 0L) }
                 stopSpeedService(context)
             }
             "WALKING" -> {
-                rv.setViewVisibility(R.id.rl_walking, View.VISIBLE)
+
                 rv.setViewVisibility(R.id.rl_still, View.GONE)
+                rv.setViewVisibility(R.id.rl_walking, View.VISIBLE)
                 rv.setViewVisibility(R.id.rl_speed, View.GONE)
-                
+
+
+                rv.setChronometer(R.id.speed_chronometer, 0L, null, false)
+                rv.setViewVisibility(R.id.frame_speed, View.INVISIBLE)
+                rv.setViewVisibility(R.id.frame_time_speed, View.INVISIBLE)
+
+                sharedPreferences.edit { putLong("speed_trip_start_time", 0L) }
                 stopSpeedService(context)
             }
             "TRAVEL" -> {
-                rv.setViewVisibility(R.id.rl_speed, View.VISIBLE)
+
                 rv.setViewVisibility(R.id.rl_still, View.GONE)
                 rv.setViewVisibility(R.id.rl_walking, View.GONE)
+                rv.setViewVisibility(R.id.rl_speed, View.VISIBLE)
 
                 rv.setViewVisibility(R.id.frame_speed, View.VISIBLE)
                 rv.setViewVisibility(R.id.frame_time_speed, View.VISIBLE)
                 
                 if (!isMyServiceRunning(context, SpeedService::class.java)) {
                     val baseTime = SystemClock.elapsedRealtime()
-                    sharedPreferences.edit().putLong("speed_trip_start_time", baseTime).apply()
+                    sharedPreferences.edit { putLong("speed_trip_start_time", baseTime) }
                     rv.setChronometer(R.id.speed_chronometer, baseTime, null, true)
                     startSpeedService(context)
                 } else {
