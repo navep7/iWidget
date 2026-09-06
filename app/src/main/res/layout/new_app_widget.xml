@@ -470,8 +470,9 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/ll_controls_states"
         android:orientation="vertical"
-        android:layout_marginBottom="@dimen/padding_5"
+        android:layout_margin="@dimen/padding_25"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/rl_clocks"
@@ -625,7 +626,7 @@
                         android:textColor="@android:color/white"
                         android:textStyle="bold"
                         android:textSize="25dp"
-                        android:text="Walking"/>
+                        android:text="WALKING"/>
 
                     <LinearLayout
                         android:id="@+id/ll_steps"
@@ -650,7 +651,7 @@
                             android:textColor="@android:color/holo_red_dark"
                             android:textStyle="italic"
                             android:textSize="15dp"
-                            android:text="   steps"/>
+                            android:text=" steps"/>
 
                         <TextView
                             android:id="@+id/rl_tx_steps_in_km"
@@ -667,7 +668,7 @@
                             android:textColor="@android:color/holo_red_dark"
                             android:textStyle="italic"
                             android:textSize="15dp"
-                            android:text="   km"/>
+                            android:text=" km"/>
 
                     </LinearLayout>
 
@@ -692,7 +693,7 @@
                             android:textColor="@android:color/holo_red_light"
                             android:textStyle="italic|bold"
                             android:textSize="15dp"
-                            android:text="   kcal"/>
+                            android:text=" kcal"/>
 
                     </LinearLayout>
 
@@ -703,15 +704,15 @@
                     android:background="@drawable/gradient_glass_flat_dark_top"
                     android:layout_width="0dp"
                     android:layout_gravity="center"
-                    android:visibility="gone"
+
                     android:layout_weight="5"
                     android:layout_height="match_parent"
                     android:layout_below="@+id/rl_controls">
 
                     <TextView
                         android:id="@+id/tx_sp_"
-                        android:layout_above="@+id/frame_speed"
-                        android:layout_toStartOf="@+id/frame_speed"
+                        android:layout_above="@+id/tx_kmp_"
+                        android:layout_centerHorizontal="true"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@android:color/white"
@@ -721,8 +722,8 @@
 
                     <TextView
                         android:id="@+id/tx_kmp_"
-                        android:layout_toEndOf="@+id/frame_speed"
-                        android:layout_above="@id/frame_speed"
+                        android:layout_centerHorizontal="true"
+                        android:layout_above="@+id/frame_speed"
                         android:textStyle="bold"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -840,7 +841,7 @@
                 android:layout_height="50dp"
                 android:background="@drawable/rounded_corner_gray"
                 android:padding="@dimen/padding_5"
-                android:layout_margin="30dp"
+                android:layout_margin="10dp"
                 android:layout_centerInParent="true"
                 android:adjustViewBounds="true">
 
@@ -944,10 +945,11 @@
             <ImageButton
                 android:id="@+id/btn_ui_prev"
                 android:visibility="gone"
+                android:layout_marginTop="@dimen/fab_margin"
                 android:layout_width="25dp"
                 android:layout_height="50dp"
                 android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
+                android:layout_alignParentTop="true"
                 android:background="#20000000"
                 android:src="@drawable/ic_chevron_left"
                 android:contentDescription="Previous"/>
@@ -955,41 +957,32 @@
             <ImageButton
                 android:id="@+id/btn_ui_next"
                 android:visibility="gone"
+                android:layout_marginTop="@dimen/fab_margin"
                 android:layout_width="25dp"
                 android:layout_height="50dp"
                 android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
+                android:layout_alignParentTop="true"
                 android:background="#20000000"
                 android:src="@drawable/ic_chevron_right"
                 android:contentDescription="Previous"/>
 
-            <ImageButton
-                android:id="@+id/btn_ui_up"
-                android:layout_width="50dp"
-                android:layout_height="25dp"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
-                android:background="#20000000"
-                android:src="@drawable/ic_chevron_up"
-                android:contentDescription="Up"/>
-
-            <ImageButton
-                android:id="@+id/btn_ui_down"
-                android:layout_width="50dp"
-                android:layout_height="25dp"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
-                android:background="#20000000"
-                android:src="@drawable/ic_chevron_down"
-                android:contentDescription="Up"/>
-
 
         </RelativeLayout>
 
-
     </LinearLayout>
 
-
+    <ImageButton
+        android:id="@+id/switch_arrow"
+        android:layout_width="50dp"
+        android:layout_height="25dp"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/ll_controls_states"
+        android:layout_marginBottom="-25dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="Switch Mode"
+        android:padding="5dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/switch_ui"/>
 
     <RelativeLayout
         android:id="@+id/ll_steps_screentime"
