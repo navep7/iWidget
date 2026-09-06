@@ -367,6 +367,11 @@ class NewAppWidget : AppWidgetProvider() {
 
         remoteViews?.setOnClickPendingIntent(R.id.imgbtn_fab, getPendingSelfIntent(context, ASSISTIVE_TOUCH))
 
+        remoteViews?.setOnClickPendingIntent(R.id.btn_ui_up, getPendingSelfIntent(context, ARROW_UP))
+        remoteViews?.setOnClickPendingIntent(R.id.btn_ui_down, getPendingSelfIntent(context, ARROW_DOWN))
+        remoteViews?.setOnClickPendingIntent(R.id.btn_ui_next, getPendingSelfIntent(context, NEXT_STATE))
+        remoteViews?.setOnClickPendingIntent(R.id.btn_ui_prev, getPendingSelfIntent(context, PREV_STATE))
+
         val dummyIntent = PendingIntent.getActivity(
             context,
             100,
@@ -1214,6 +1219,149 @@ class NewAppWidget : AppWidgetProvider() {
         // 4. Manually trigger onUpdate
        // onUpdate(context, appWidgetManager, appWidgetIds!!)
 
+
+        when(intent.action) {
+            ARROW_UP  -> {
+                if (!sharedPreferences.getBoolean("activitiesORcontrols", false)) {
+                    sharedPreferencesEditor.putBoolean("activitiesORcontrols", true).apply()
+
+                    remoteViews?.setViewVisibility(R.id.btn_ui_prev, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.btn_ui_next, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.ll_activity_states, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.rl_setwall, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_qr, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_g_apps, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_lock, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_speech, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.tx_myspace, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgv_conf, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgv_ps, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgv_dialler, View.INVISIBLE)
+
+                    if (presentActivityState == "STILL") {
+                        remoteViews?.setViewVisibility(R.id.rl_still, View.VISIBLE)
+                        remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
+                        remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
+                    } else if (presentActivityState == "WALKING") {
+                        remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
+                        remoteViews?.setViewVisibility(R.id.rl_walking, View.VISIBLE)
+                        remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
+                    } else if (presentActivityState == "TRAVEL") {
+                        remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
+                        remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
+                        remoteViews?.setViewVisibility(R.id.rl_speed, View.VISIBLE)
+                    }
+                } else {
+                    sharedPreferencesEditor.putBoolean("activitiesORcontrols", false).apply()
+
+                    remoteViews?.setViewVisibility(R.id.btn_ui_prev, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.btn_ui_next, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.ll_activity_states, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.rl_setwall, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_qr, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_g_apps, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_lock, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_speech, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.tx_myspace, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgv_conf, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgv_ps, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgv_dialler, View.VISIBLE)
+
+                }
+            }
+            ARROW_DOWN -> {
+                if (!sharedPreferences.getBoolean("activitiesORcontrols", false)) {
+                    sharedPreferencesEditor.putBoolean("activitiesORcontrols", true).apply()
+
+                    remoteViews?.setViewVisibility(R.id.btn_ui_prev, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.btn_ui_next, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.ll_activity_states, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.rl_setwall, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_qr, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_g_apps, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_lock, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_speech, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.tx_myspace, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgv_conf, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgv_ps, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgv_dialler, View.INVISIBLE)
+
+                    if (presentActivityState == "STILL") {
+                        remoteViews?.setViewVisibility(R.id.rl_still, View.VISIBLE)
+                        remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
+                        remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
+                    } else if (presentActivityState == "WALKING") {
+                        remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
+                        remoteViews?.setViewVisibility(R.id.rl_walking, View.VISIBLE)
+                        remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
+                    } else if (presentActivityState == "TRAVEL") {
+                        remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
+                        remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
+                        remoteViews?.setViewVisibility(R.id.rl_speed, View.VISIBLE)
+                    }
+                } else {
+                    sharedPreferencesEditor.putBoolean("activitiesORcontrols", false).apply()
+
+                    remoteViews?.setViewVisibility(R.id.btn_ui_prev, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.btn_ui_next, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.ll_activity_states, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.rl_setwall, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_qr, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_g_apps, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_lock, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_speech, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.tx_myspace, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgv_conf, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgv_ps, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgv_dialler, View.VISIBLE)
+
+                }
+            }
+            NEXT_STATE -> {
+
+                val displayedAct = sharedPreferences.getString("displayedAct", presentActivityState)
+           //     makeToast(widgetContext, displayedAct)
+
+                if (displayedAct == "STILL") {
+                    sharedPreferencesEditor.putString("displayedAct", "WALKING").apply()
+                    remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
+                    remoteViews?.setViewVisibility(R.id.rl_walking, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
+                } else if (displayedAct == "WALKING") {
+                    sharedPreferencesEditor.putString("displayedAct", "TRAVEL").apply()
+                    remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
+                    remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
+                    remoteViews?.setViewVisibility(R.id.rl_speed, View.VISIBLE)
+                } else if (displayedAct == "TRAVEL") {
+                    sharedPreferencesEditor.putString("displayedAct", "STILL").apply()
+                    remoteViews?.setViewVisibility(R.id.rl_still, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
+                    remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
+                }
+            }
+            PREV_STATE -> {
+
+                val displayedAct = sharedPreferences.getString("displayedAct", presentActivityState)
+                //     makeToast(widgetContext, displayedAct)
+
+                if (displayedAct == "STILL") {
+                    sharedPreferencesEditor.putString("displayedAct", "TRAVEL").apply()
+                    remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
+                    remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
+                    remoteViews?.setViewVisibility(R.id.rl_speed, View.VISIBLE)
+                } else if (displayedAct == "WALKING") {
+                    sharedPreferencesEditor.putString("displayedAct", "STILL").apply()
+                    remoteViews?.setViewVisibility(R.id.rl_still, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
+                    remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
+                } else if (displayedAct == "TRAVEL") {
+                    sharedPreferencesEditor.putString("displayedAct", "WALKING").apply()
+                    remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
+                    remoteViews?.setViewVisibility(R.id.rl_walking, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
+                }
+            }
+        }
 
         if (ASSISTIVE_TOUCH == intent.action) {
 
@@ -2101,7 +2249,9 @@ class NewAppWidget : AppWidgetProvider() {
         private const val ASSISTIVE_TOUCH = "assistiveTouch"
         //    private const val RL_INVERT = "rlInvert"
         private const val NEXT_STATE = "nextState"
-        private const val PREV_STATE = "nextState"
+        private const val PREV_STATE = "prevState"
+        private const val ARROW_UP = "arrowUp"
+        private const val ARROW_DOWN = "arrowDown"
         private const val SPEED_INFO = "sppedInfo"
         private const val TODO_CLICK = "todo1Click"
         private const val TIME_CLICK = "timeClick"

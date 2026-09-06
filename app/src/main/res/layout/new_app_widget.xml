@@ -560,16 +560,14 @@
 
                     <TextView
                         android:id="@+id/rl_tx_still_"
-                        android:layout_alignParentStart="true"
-                        android:layout_alignParentTop="true"
-                        android:layout_marginStart="@dimen/padding_5"
-                        android:layout_marginTop="@dimen/padding_3"
+                       android:layout_above="@+id/rl_water_reminder"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
                         android:textColor="@android:color/white"
                         android:textStyle="bold"
                         android:textSize="25dp"
-                        android:text="Still"/>
+                        android:text="STILL"/>
 
                     <RelativeLayout
                         android:id="@+id/rl_water_reminder"
@@ -581,9 +579,9 @@
                             android:id="@+id/imgv_water_glass"
                             android:layout_width="50dp"
                             android:layout_height="50dp"
-                            android:tint="@color/white"
                             android:src="@drawable/water_reminder"
-                            android:scaleType="fitCenter"/>
+                            android:scaleType="fitCenter"
+                            app:tint="@color/white" />
 
                         <TextView
                             android:id="@+id/tx_water_count"
@@ -649,7 +647,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textColor="@android:color/darker_gray"
+                            android:textColor="@android:color/holo_red_dark"
                             android:textStyle="italic"
                             android:textSize="15dp"
                             android:text="   steps"/>
@@ -666,7 +664,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textColor="@android:color/darker_gray"
+                            android:textColor="@android:color/holo_red_dark"
                             android:textStyle="italic"
                             android:textSize="15dp"
                             android:text="   km"/>
@@ -691,7 +689,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textColor="@android:color/darker_gray"
+                            android:textColor="@android:color/holo_red_light"
                             android:textStyle="italic|bold"
                             android:textSize="15dp"
                             android:text="   kcal"/>
@@ -704,6 +702,7 @@
                     android:id="@+id/rl_speed"
                     android:background="@drawable/gradient_glass_flat_dark_top"
                     android:layout_width="0dp"
+                    android:layout_gravity="center"
                     android:visibility="gone"
                     android:layout_weight="5"
                     android:layout_height="match_parent"
@@ -711,18 +710,19 @@
 
                     <TextView
                         android:id="@+id/tx_sp_"
-                        android:layout_alignParentTop="true"
+                        android:layout_above="@+id/frame_speed"
                         android:layout_toStartOf="@+id/frame_speed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@android:color/white"
                         android:textSize="14dp"
-                        android:text="Speed "/>
+                        android:textStyle="bold"
+                        android:text="SPEED "/>
 
                     <TextView
                         android:id="@+id/tx_kmp_"
                         android:layout_toEndOf="@+id/frame_speed"
-                        android:layout_alignParentTop="true"
+                        android:layout_above="@id/frame_speed"
                         android:textStyle="bold"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -733,9 +733,9 @@
 
                     <FrameLayout
                         android:id="@+id/frame_max_speed"
-                        android:layout_below="@+id/tx_sp_"
                         android:layout_width="55dp"
                         android:layout_height="55dp"
+                        android:layout_alignBottom="@+id/frame_speed"
                         android:layout_toStartOf="@+id/frame_speed"
                         >
 
@@ -755,9 +755,9 @@
 
                     <FrameLayout
                         android:id="@+id/frame_time_speed"
-                        android:layout_below="@+id/tx_sp_"
                         android:layout_width="55dp"
                         android:layout_height="55dp"
+                        android:layout_alignBottom="@+id/frame_speed"
                         android:layout_toEndOf="@+id/frame_speed"
                         >
 
@@ -776,10 +776,9 @@
 
                     <FrameLayout
                         android:id="@+id/frame_speed"
+                        android:layout_centerInParent="true"
                         android:layout_width="75dp"
                         android:layout_height="75dp"
-                        android:layout_centerHorizontal="true"
-                        android:layout_alignParentTop="true"
                         >
 
                         <TextView
@@ -826,6 +825,7 @@
 
             <ImageButton
                 android:id="@+id/imgbtn_fab"
+                android:visibility="gone"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:scaleType="fitXY"
@@ -934,12 +934,55 @@
                 android:background="@drawable/rounded_corner_gray"
                 android:padding="@dimen/padding_5"
                 android:adjustViewBounds="true"
-                android:layout_above="@+id/imgbtn_fab"
-                android:layout_toStartOf="@+id/imgbtn_fab"
+                android:layout_below="@+id/rl_setwall"
+                android:layout_toEndOf="@+id/rl_setwall"
                 android:scaleType="fitXY"
                 android:tint="@color/white"
                 android:src="@drawable/dial"
                 tools:ignore="UseAppTint" />
+
+            <ImageButton
+                android:id="@+id/btn_ui_prev"
+                android:visibility="gone"
+                android:layout_width="25dp"
+                android:layout_height="50dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:background="#20000000"
+                android:src="@drawable/ic_chevron_left"
+                android:contentDescription="Previous"/>
+
+            <ImageButton
+                android:id="@+id/btn_ui_next"
+                android:visibility="gone"
+                android:layout_width="25dp"
+                android:layout_height="50dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="#20000000"
+                android:src="@drawable/ic_chevron_right"
+                android:contentDescription="Previous"/>
+
+            <ImageButton
+                android:id="@+id/btn_ui_up"
+                android:layout_width="50dp"
+                android:layout_height="25dp"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:background="#20000000"
+                android:src="@drawable/ic_chevron_up"
+                android:contentDescription="Up"/>
+
+            <ImageButton
+                android:id="@+id/btn_ui_down"
+                android:layout_width="50dp"
+                android:layout_height="25dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:background="#20000000"
+                android:src="@drawable/ic_chevron_down"
+                android:contentDescription="Up"/>
+
 
         </RelativeLayout>
 
