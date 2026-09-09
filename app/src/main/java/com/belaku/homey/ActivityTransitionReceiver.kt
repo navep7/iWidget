@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.SystemClock
+import android.text.Html
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
@@ -19,6 +20,8 @@ import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
 import androidx.core.content.edit
+import com.belaku.homey.Constants.Companion.stepsToday
+import com.belaku.homey.MainActivity.Companion.makeToast
 
 class ActivityTransitionReceiver : BroadcastReceiver() {
 
@@ -62,47 +65,50 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
         val appWidgetManager = AppWidgetManager.getInstance(context)
         val provider = ComponentName(context, NewAppWidget::class.java)
         val sharedPreferences = context.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
-        
+
         val rv = RemoteViews(context.packageName, R.layout.new_app_widget)
+        rv.setTextViewText(R.id.tx_act_state, state)
 
         when (state) {
             "STILL" -> {
 
+                rv.setTextViewText(R.id.tx_act_count, Html.fromHtml("\uD800\uDCEF<sup>"+SetWallWorker.Companion.sharedPreferences.getInt("waterCountToday", 0).toString()+"</sup> " ))
+                rv.setImageViewResource(R.id.imgv_activity_state, R.drawable.still)
                 rv.setViewVisibility(R.id.rl_still, View.VISIBLE)
                 rv.setViewVisibility(R.id.rl_walking, View.GONE)
                 rv.setViewVisibility(R.id.rl_speed, View.GONE)
 
-                
+
                 rv.setChronometer(R.id.speed_chronometer, 0L, null, false)
-                rv.setViewVisibility(R.id.frame_speed, View.INVISIBLE)
-                rv.setViewVisibility(R.id.frame_time_speed, View.INVISIBLE)
-                
+
                 sharedPreferences.edit { putLong("speed_trip_start_time", 0L) }
                 stopSpeedService(context)
             }
             "WALKING" -> {
 
+                rv.setImageViewResource(R.id.imgv_activity_state, R.drawable.steps)
+                rv.setTextViewText(R.id.tx_act_count, stepsToday.toString())
                 rv.setViewVisibility(R.id.rl_still, View.GONE)
                 rv.setViewVisibility(R.id.rl_walking, View.VISIBLE)
                 rv.setViewVisibility(R.id.rl_speed, View.GONE)
 
 
                 rv.setChronometer(R.id.speed_chronometer, 0L, null, false)
-                rv.setViewVisibility(R.id.frame_speed, View.INVISIBLE)
-                rv.setViewVisibility(R.id.frame_time_speed, View.INVISIBLE)
 
                 sharedPreferences.edit { putLong("speed_trip_start_time", 0L) }
                 stopSpeedService(context)
             }
             "TRAVEL" -> {
 
+                rv.setImageViewResource(R.id.imgv_activity_state, R.drawable.in_a_vehicle)
+                rv.setTextViewText(R.id.tx_act_count, sharedPreferences.getInt("current_speed", 0).toString())
                 rv.setViewVisibility(R.id.rl_still, View.GONE)
                 rv.setViewVisibility(R.id.rl_walking, View.GONE)
                 rv.setViewVisibility(R.id.rl_speed, View.VISIBLE)
 
                 rv.setViewVisibility(R.id.frame_speed, View.VISIBLE)
                 rv.setViewVisibility(R.id.frame_time_speed, View.VISIBLE)
-                
+
                 if (!isMyServiceRunning(context, SpeedService::class.java)) {
                     val baseTime = SystemClock.elapsedRealtime()
                     sharedPreferences.edit { putLong("speed_trip_start_time", baseTime) }
@@ -118,8 +124,10 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
         try {
             remoteViews = rv
             appWidgetManager.updateAppWidget(provider, rv)
+            Log.d("ActivityTransition", "Widget update Success!")
         } catch (e: Exception) {
-            Log.e("ActivityTransition", "Widget update failed", e)
+            makeToast(context, "Widget update failed ~ " + e)
+            Log.d("ActivityTransition", "Widget update failed ~ " + e)
         }
     }
 

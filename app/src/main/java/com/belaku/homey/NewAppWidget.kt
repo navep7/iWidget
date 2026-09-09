@@ -367,7 +367,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         remoteViews?.setOnClickPendingIntent(R.id.imgbtn_fab, getPendingSelfIntent(context, ASSISTIVE_TOUCH))
 
-        remoteViews?.setOnClickPendingIntent(R.id.switch_arrow, getPendingSelfIntent(context, ARROW_PAGES))
+    //    remoteViews?.setOnClickPendingIntent(R.id.switch_arrow, getPendingSelfIntent(context, ARROW_PAGES))
     //    remoteViews?.setOnClickPendingIntent(R.id.btn_ui_down, getPendingSelfIntent(context, ARROW_DOWN))
         remoteViews?.setOnClickPendingIntent(R.id.btn_ui_next, getPendingSelfIntent(context, NEXT_STATE))
         remoteViews?.setOnClickPendingIntent(R.id.btn_ui_prev, getPendingSelfIntent(context, PREV_STATE))
@@ -393,10 +393,7 @@ class NewAppWidget : AppWidgetProvider() {
         // Set the click listener on the widget button
         remoteViews?.setOnClickPendingIntent(R.id.imgv_conf, pendingIntentMain)
 
-        remoteViews?.setOnClickPendingIntent(
-            R.id.tx_steps,
-            getPendingSelfIntent(context, STEPS_CLICK)
-        )
+
 
         remoteViews?.setOnClickPendingIntent(
             R.id.tx_more_activities,
@@ -564,8 +561,8 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_steps,
-            getPendingSelfIntent(context, STEPSINFO_CLICK)
+            R.id.imgv_activity_state,
+            getPendingSelfIntent(context, ACTINFO_CLICK)
         )
 
 
@@ -688,29 +685,23 @@ class NewAppWidget : AppWidgetProvider() {
         if (penNote.isNotEmpty())
             remoteViews?.setTextViewText(R.id.edtx_pen, penNote)
 
-       /* if (sharedPreferences.getBoolean("rlControls", false)) {
-            remoteViews?.setViewVisibility(R.id.ll_activity_states, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.rl_setwall, View.INVISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgbtn_qr, View.INVISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgbtn_g_apps, View.INVISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgbtn_lock, View.INVISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgbtn_speech, View.INVISIBLE)
-            remoteViews?.setViewVisibility(R.id.tx_myspace, View.INVISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgv_conf, View.INVISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgv_ps, View.INVISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgv_dialler, View.INVISIBLE)
-        } else {
-            remoteViews?.setViewVisibility(R.id.ll_activity_states, View.INVISIBLE)
-            remoteViews?.setViewVisibility(R.id.rl_setwall, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgbtn_qr, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgbtn_g_apps, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgbtn_lock, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgbtn_speech, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.tx_myspace, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgv_conf, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgv_ps, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgv_dialler, View.VISIBLE)
-        }*/
+        remoteViews?.setTextViewText(R.id.tx_act_state, presentActivityState)
+
+        if (presentActivityState == "STILL") {
+            remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.still)
+            remoteViews?.setTextViewText(R.id.tx_act_count, Html.fromHtml("\uD800\uDCEF<sup>"+SetWallWorker.Companion.sharedPreferences.getInt("waterCountToday", 0).toString()+"</sup> " ))
+        } else if (presentActivityState == "WALKING") {
+            remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.steps)
+            stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
+
+            remoteViews?.setTextViewText(
+                R.id.tx_act_count,
+                "$stepsToday"
+            )
+        } else if (presentActivityState == "TRAVEL") {
+            remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.in_a_vehicle)
+        }
+
 
         locationTxUpdate(widgetContext)
 
@@ -720,12 +711,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setTextViewText(R.id.tx_max_speed, maxSpeed.toString())
 
 
-            stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
 
-            remoteViews?.setTextViewText(
-                R.id.tx_steps,
-                "$stepsToday"
-            )
             remoteViews?.setTextViewText(
                 R.id.rl_tx_steps,
                 "$stepsToday"
@@ -744,7 +730,7 @@ class NewAppWidget : AppWidgetProvider() {
                 "$hour+"
             )
 
-           /* if (hour < 2)
+            if (hour < 2)
                 remoteViews?.setTextViewText(
                     R.id.tx_screenusage_state,
                     "LOW"
@@ -763,7 +749,7 @@ class NewAppWidget : AppWidgetProvider() {
                 remoteViews?.setTextViewText(
                     R.id.tx_screenusage_state,
                     "EXCESSIVE"
-                )*/
+                )
         }
 
         val spkServiceRunning = sharedPreferences.getBoolean("SPKSERVICE", false)
@@ -1221,7 +1207,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         when(intent.action) {
-            ARROW_PAGES  -> {
+            ACTINFO_CLICK  -> {
                 if (!sharedPreferences.getBoolean("activitiesORcontrols", false)) {
                     sharedPreferencesEditor.putBoolean("activitiesORcontrols", true).apply()
 
@@ -1388,18 +1374,15 @@ class NewAppWidget : AppWidgetProvider() {
             widgetContext.startActivity(intentCalendar)
         }
 
-        if (STEPSINFO_CLICK == intent.action) {
-
+        if (STEPS_CLICK == intent.action) {
+            makeToast(widgetContext, "$stepsToday ~ " + String.format("%.1f", stepsToday * 74f / 100000f) + " Km")
+            remoteViews?.setTextViewText(R.id.tx_act_count, "$stepsToday")
             widgetContext.startActivity(
                 Intent(widgetContext, DialogActivity::class.java)
                     .putExtra("DialogIntent", "stepsInfo")
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }
-        if (STEPS_CLICK == intent.action) {
-            makeToast(widgetContext, "$stepsToday ~ " + String.format("%.1f", stepsToday * 74f / 100000f) + " Km")
-            remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday")
 
-        }
 
         if (NEXT_ACT_CLICK == intent.action) {
             makeToast(widgetContext, "  $presentActivityState")
@@ -2207,7 +2190,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val TODO_CLICK = "todo1Click"
         private const val TIME_CLICK = "timeClick"
         private const val DATE_CLICK = "dateClick"
-        private const val STEPSINFO_CLICK = "stepsinfoClick"
+        private const val ACTINFO_CLICK = "actinfoClick"
         private const val STEPS_CLICK = "stepsClick"
         private const val NEXT_ACT_CLICK = "nextActlick"
         private const val BATTERY_INFO = "batteryInfo"

@@ -243,7 +243,7 @@ class StepsService : Service() {
 
         mSensorEventListener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent) {
-                if (presentActivityState != "TRAVEL") {
+                if (presentActivityState == "WALKING") {
 
                     stepsToday++
 
@@ -256,16 +256,15 @@ class StepsService : Service() {
 
                     if (stepsToday < 10) {
                         remoteViews?.setTextViewText(
-                            R.id.tx_steps,
+                            R.id.tx_act_count,
                             "$stepsToday"
                         )
                         sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
                     } else if (stepsToday % 10 == 0)  {
-                        if (stepsToday > 5)
-                        presentActivityState = "WALKING"
+
                         if(stepsToday < 131) {
                             remoteViews?.setTextViewText(
-                                R.id.tx_steps,
+                                R.id.tx_act_count,
                                 "$stepsToday"
                             )
                             remoteViews?.setTextViewText(

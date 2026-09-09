@@ -472,7 +472,6 @@
     <LinearLayout
         android:id="@+id/ll_controls_states"
         android:orientation="vertical"
-        android:layout_margin="@dimen/padding_25"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/rl_clocks"
@@ -485,7 +484,7 @@
             android:adjustViewBounds="true"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/gradient_glass"
+            android:background="@drawable/rounded_ss"
             android:layout_alignParentTop="true">
 
             <ImageView
@@ -841,7 +840,7 @@
                 android:layout_height="50dp"
                 android:background="@drawable/rounded_corner_gray"
                 android:padding="@dimen/padding_5"
-                android:layout_margin="10dp"
+                android:layout_margin="21dp"
                 android:layout_centerInParent="true"
                 android:adjustViewBounds="true">
 
@@ -971,18 +970,6 @@
 
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/switch_arrow"
-        android:layout_width="50dp"
-        android:layout_height="25dp"
-        android:layout_centerHorizontal="true"
-        android:layout_above="@+id/ll_controls_states"
-        android:layout_marginBottom="-25dp"
-        android:background="@android:color/transparent"
-        android:contentDescription="Switch Mode"
-        android:padding="5dp"
-        android:scaleType="fitXY"
-        android:src="@drawable/switch_ui"/>
 
     <RelativeLayout
         android:id="@+id/ll_steps_screentime"
@@ -1003,26 +990,34 @@
             android:layout_marginBottom="@dimen/padding_5"
             android:background="@drawable/gradient_glass_rounded">
 
+            <TextView
+                android:id="@+id/tx_act_state"
+                android:text="Activity..."
+                android:layout_centerHorizontal="true"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"/>
 
             <ImageButton
-                android:id="@+id/imgv_steps"
+                android:id="@+id/imgv_activity_state"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
+                android:layout_below="@+id/tx_act_state"
                 android:background="@android:color/transparent"
                 android:scaleType="fitXY"
-                android:src="@drawable/steps" />
+                 />
 
             <TextView
-                android:id="@+id/tx_steps"
+                android:id="@+id/tx_act_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
+                android:layout_below="@+id/tx_act_state"
                 android:layout_marginStart="5dp"
-                android:layout_toEndOf="@+id/imgv_steps"
+                android:layout_toEndOf="@+id/imgv_activity_state"
                 android:paddingEnd="@dimen/padding_3"
-                android:text="Steps."
                 android:textColor="@android:color/black"
                 android:textSize="25sp"
                 android:textStyle="bold" />
@@ -1070,15 +1065,25 @@
             android:layout_marginEnd="@dimen/fab_margin"
             android:background="@drawable/gradient_glass_rounded">
 
+
+            <TextView
+                android:id="@+id/tx_screenusage_state"
+                android:text="ScreenTime"
+                android:layout_centerHorizontal="true"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"/>
+
             <TextView
                 android:id="@+id/tx_screentime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
+                android:layout_below="@+id/tx_screenusage_state"
                 android:layout_marginEnd="5dp"
                 android:paddingStart="@dimen/padding_3"
-                android:text="Usage"
                 android:textColor="@android:color/black"
                 android:textSize="25sp"
                 android:textStyle="bold" />
@@ -1087,7 +1092,7 @@
                 android:id="@+id/imgv_scr_time"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:layout_centerVertical="true"
+                android:layout_below="@+id/tx_screenusage_state"
                 android:layout_toEndOf="@+id/tx_screentime"
                 android:background="@android:color/transparent"
                 android:scaleType="fitXY"

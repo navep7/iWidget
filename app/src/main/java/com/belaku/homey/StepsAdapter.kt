@@ -36,7 +36,7 @@ class StepsAdapter(
         val currentDayIndex = (LocalDate.now().dayOfWeek.value + 6) % 7 // Monday = 0
         if (realPosition == currentDayIndex) {
             stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
-            remoteViews?.setTextViewText(R.id.tx_steps, "$stepsToday")
+            remoteViews?.setTextViewText(R.id.tx_act_count, "$stepsToday")
             appWidM.updateAppWidget(newAppWidget, remoteViews)
         }
 
