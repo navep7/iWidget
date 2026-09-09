@@ -328,6 +328,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
                 if (isPinNoteInitialized()) {
                     remoteViews?.setTextViewText(R.id.tx_runner, pinNote)
+            //        remoteViews?.setTextColor(R.id.tx_runner, ColorUtil().matchTertianaryColor())
                 }
 
                 remoteViews?.setTextViewText(R.id.tx_walldesc, wD)

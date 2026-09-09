@@ -1,5 +1,6 @@
 package com.belaku.homey
 
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -68,6 +69,9 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
         val rv = RemoteViews(context.packageName, R.layout.new_app_widget)
         rv.setTextViewText(R.id.tx_act_state, state)
+    //    rv.setTextColor(R.id.tx_act_state, ColorUtil().matchPrimaryColor())
+    //    rv.setTextColor(R.id.tx_act_count, ColorUtil().matchSecondaryColor())
+
 
         when (state) {
             "STILL" -> {
@@ -85,6 +89,13 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                 stopSpeedService(context)
             }
             "WALKING" -> {
+
+                rv.setOnClickPendingIntent(R.id.tx_act_state, PendingIntent.getActivity(
+                    context, 56,
+                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "WALKING"),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+                )
 
                 rv.setImageViewResource(R.id.imgv_activity_state, R.drawable.steps)
                 rv.setTextViewText(R.id.tx_act_count, stepsToday.toString())
@@ -119,6 +130,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     rv.setChronometer(R.id.speed_chronometer, baseTime, null, true)
                 }
             }
+
         }
 
         try {

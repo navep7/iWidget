@@ -159,7 +159,6 @@
                 android:layout_height="100dp"
                 android:layout_margin="@dimen/padding_5"
                 android:padding="@dimen/padding_5"
-                android:layout_above="@+id/tx_screenusage_state"
                 android:layout_alignParentStart="true"
                 android:gravity="center"
                 android:orientation="vertical">
@@ -246,7 +245,6 @@
                 android:layout_height="100dp"
                 android:layout_margin="@dimen/padding_5"
                 android:padding="@dimen/padding_5"
-                android:layout_above="@+id/tx_screenusage_state"
                 android:layout_alignParentEnd="true"
                 android:gravity="center"
                 android:orientation="vertical">
@@ -343,7 +341,7 @@
             android:padding="@dimen/padding_5"
             android:text=" Pin a Note! ✏️ "
             android:textSize="17sp"
-            android:textColor="@android:color/white"
+            android:textColor="@android:color/black"
             android:textStyle="bold" />
 
 
@@ -544,6 +542,15 @@
 
 
 
+            <ImageButton
+                android:id="@+id/imgbtn_close_activities"
+                android:src="@android:drawable/ic_notification_clear_all"
+                android:background="@android:color/transparent"
+                android:layout_centerHorizontal="true"
+                android:visibility="invisible"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
             <LinearLayout
                 android:id="@+id/ll_activity_states"
                 android:visibility="invisible"
@@ -554,9 +561,12 @@
                 <RelativeLayout
                     android:id="@+id/rl_still"
                     android:visibility="gone"
+                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:padding="@dimen/padding_10"
                     android:background="@drawable/gradient_glass_flat_dark_top"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="wrap_content">
 
                     <TextView
                         android:id="@+id/rl_tx_still_"
@@ -609,6 +619,7 @@
                 <RelativeLayout
                     android:id="@+id/rl_walking"
                     android:visibility="gone"
+                    android:padding="@dimen/padding_10"
                     android:gravity="center"
                     android:paddingBottom="@dimen/padding_5"
                     android:layout_gravity="center"
@@ -700,10 +711,10 @@
 
                 <RelativeLayout
                     android:id="@+id/rl_speed"
+                    android:visibility="gone"
                     android:background="@drawable/gradient_glass_flat_dark_top"
                     android:layout_width="0dp"
                     android:layout_gravity="center"
-
                     android:layout_weight="5"
                     android:layout_height="match_parent"
                     android:layout_below="@+id/rl_controls">
@@ -796,17 +807,6 @@
                     </FrameLayout>
 
                 </RelativeLayout>
-
-                <TextView
-                    android:id="@+id/tx_more_activities"
-                    android:background="@drawable/gradient_glass_dark"
-                    android:layout_width="0dp"
-                    android:layout_weight="0"
-                    android:text="M\no\nr\ne"
-                    android:gravity="center"
-                    android:textColor="@color/white"
-                    android:src="@android:drawable/ic_media_next"
-                    android:layout_height="match_parent" />
 
             </LinearLayout>
 
@@ -994,7 +994,7 @@
                 android:id="@+id/tx_act_state"
                 android:text="Activity..."
                 android:layout_centerHorizontal="true"
-                android:textColor="@color/black"
+                android:textColor="@android:color/white"
                 android:textStyle="bold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -1018,7 +1018,7 @@
                 android:layout_marginStart="5dp"
                 android:layout_toEndOf="@+id/imgv_activity_state"
                 android:paddingEnd="@dimen/padding_3"
-                android:textColor="@android:color/black"
+                android:textColor="@android:color/white"
                 android:textSize="25sp"
                 android:textStyle="bold" />
 
@@ -1048,10 +1048,10 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/imgv_unlocks"
                 android:text="#"
+                android:textColor="@color/black"
                 android:padding="@dimen/padding_3"
                 android:gravity="center"
                 android:layout_centerHorizontal="true"
-                android:textColor="@android:color/black"
                 android:textSize="25sp"
                 android:textStyle="bold" />
 
@@ -1070,7 +1070,7 @@
                 android:id="@+id/tx_screenusage_state"
                 android:text="ScreenTime"
                 android:layout_centerHorizontal="true"
-                android:textColor="@color/black"
+                android:textColor="@color/white"
                 android:textStyle="bold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -1083,8 +1083,9 @@
                 android:layout_alignParentStart="true"
                 android:layout_below="@+id/tx_screenusage_state"
                 android:layout_marginEnd="5dp"
+                android:layout_marginTop="@dimen/padding_10"
                 android:paddingStart="@dimen/padding_3"
-                android:textColor="@android:color/black"
+                android:textColor="@android:color/white"
                 android:textSize="25sp"
                 android:textStyle="bold" />
 

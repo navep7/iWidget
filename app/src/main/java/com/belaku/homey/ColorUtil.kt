@@ -2,6 +2,9 @@ package com.belaku.homey
 
 import android.graphics.Color
 import androidx.core.graphics.ColorUtils
+import com.belaku.homey.NewAppWidget.Companion.primaryColor
+import com.belaku.homey.NewAppWidget.Companion.secondaryColor
+import com.belaku.homey.NewAppWidget.Companion.tertianaryColor
 import kotlin.math.min
 import kotlin.math.roundToInt
 
@@ -18,6 +21,21 @@ class ColorUtil {
         }
     }
 
+
+    fun matchPrimaryColor(): Int {
+        return if (isColorDark(primaryColor)) lightenColor(primaryColor, 0.3f)
+        else darkenColor(primaryColor, 3f)
+    }
+
+    fun matchSecondaryColor(): Int {
+        return if (isColorDark(secondaryColor)) lightenColor(secondaryColor, 0.3f)
+        else darkenColor(secondaryColor, 3f)
+    }
+
+    fun matchTertianaryColor(): Int {
+        return if (isColorDark(tertianaryColor)) lightenColor(tertianaryColor, 0.3f)
+        else darkenColor(tertianaryColor, 3f)
+    }
 
 
     fun darkenColor(color: Int, factor: Float): Int {

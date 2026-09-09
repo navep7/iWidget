@@ -34,6 +34,7 @@ import android.os.Looper
 import android.provider.ContactsContract
 import android.provider.Settings
 import android.speech.RecognizerIntent
+import android.text.Html
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.LayoutInflater
@@ -280,6 +281,7 @@ class DialogActivity : AppCompatActivity() {
         }
 
         val dialogIntentStr = intent.getStringExtra("DialogIntent")
+   //     makeToast(applicationContext,dialogIntentStr.toString())
 
         if (dialogIntentStr != null) {
             when (dialogIntentStr) {
@@ -308,6 +310,7 @@ class DialogActivity : AppCompatActivity() {
                 "SongCover" -> {
                     txTitle.visibility = View.VISIBLE
                     imgvSongCover.visibility = View.VISIBLE
+                    imgbtnShare.visibility = View.GONE
                     btnOk.visibility = View.GONE
                     btnCancel.visibility = View.GONE
                     if (isDataListInitialized()) {
@@ -394,7 +397,7 @@ class DialogActivity : AppCompatActivity() {
                         rawTweets(false)
                     }
                 }
-                "stepsInfo" -> {
+                "WALKING" -> {
                     txTitle.text = "Weekly Steps"
                     val vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
                     val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
@@ -450,7 +453,7 @@ class DialogActivity : AppCompatActivity() {
                     val min = sT.getOrElse(1) { "00" }
                     txAvgUsage.text = "Avg Usage/Day ~ $hour Hours : $min Mins"
 
-                    remoteViews?.setTextViewText(R.id.tx_screentime, "$hour+")
+                    remoteViews?.setTextViewText(R.id.tx_screentime, hour.toString() + "+")
                     appWidM.updateAppWidget(newAppWidget, remoteViews)
                 }
                 "AddNote" -> {

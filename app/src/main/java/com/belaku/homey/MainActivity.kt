@@ -323,6 +323,7 @@ class MainActivity : AppCompatActivity() {
 
         //     viewPager.post { viewPager.currentItem = 17 }
 
+        viewPager.currentItem = 17
 
         TabLayoutMediator(
             tabLayout, viewPager

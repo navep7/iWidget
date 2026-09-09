@@ -176,8 +176,10 @@ class NewAppWidget : AppWidgetProvider() {
                         if (!isAppWidMInitialized())
                             appWidM = AppWidgetManager.getInstance(widgetContext)
 
-                   //     makeLongToast(widgetContext, "ꗃ " + sharedPreferences.getInt("unlockCount", 1))
-                        remoteViews?.setTextViewText(R.id.tx_unlocks, sharedPreferences.getInt("unlockCount", 1).toString())
+                        val unlockCount = sharedPreferences.getInt("unlockCount", 1)
+
+
+                        remoteViews?.setTextViewText(R.id.tx_unlocks, unlockCount.toString())
                         sharedPreferencesEditor.putInt("unlockCount", sharedPreferences.getInt("unlockCount", 1) + 1).apply()
 
                         mAppWidgetIds = appWidM.getAppWidgetIds(ComponentName(widgetContext, NewAppWidget::class.java))
@@ -328,7 +330,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             //  Create an intent to launch MainActivity
 
-            setOnClickPendingIntents(context)
+
 
             if (!isAppWidMInitialized())
                 appWidM = AppWidgetManager.getInstance(widgetContext)
@@ -357,6 +359,7 @@ class NewAppWidget : AppWidgetProvider() {
     private fun setOnClickPendingIntents(context: Context) {
 
 
+
         remoteViews?.setOnClickPendingIntent(
             R.id.edtx_pen, PendingIntent.getActivity(
                 context, 19,
@@ -365,6 +368,7 @@ class NewAppWidget : AppWidgetProvider() {
             )
         )
 
+        remoteViews?.setOnClickPendingIntent(R.id.imgbtn_close_activities, getPendingSelfIntent(context, CLOSE_ACTIVITIES))
         remoteViews?.setOnClickPendingIntent(R.id.imgbtn_fab, getPendingSelfIntent(context, ASSISTIVE_TOUCH))
 
     //    remoteViews?.setOnClickPendingIntent(R.id.switch_arrow, getPendingSelfIntent(context, ARROW_PAGES))
@@ -394,11 +398,6 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setOnClickPendingIntent(R.id.imgv_conf, pendingIntentMain)
 
 
-
-        remoteViews?.setOnClickPendingIntent(
-            R.id.tx_more_activities,
-            getPendingSelfIntent(context, NEXT_ACT_CLICK)
-        )
 
         remoteViews?.setOnClickPendingIntent(
             R.id.clock,
@@ -630,9 +629,12 @@ class NewAppWidget : AppWidgetProvider() {
             )
         )
 
+
+
     }
 
     private fun locationTxUpdate(context: Context) {
+  //      remoteViews?.setTextColor(R.id.tx_place, ColorUtil().matchPrimaryColor())
         if (!isLocationEnabled(context)) {
             remoteViews?.setTextViewText(R.id.tx_place, "Please Enable Location services!")
 
@@ -655,7 +657,9 @@ class NewAppWidget : AppWidgetProvider() {
             cName = cityname
 
             remoteViews?.setTextViewText(R.id.tx_place, cName)
+   //         remoteViews?.setTextColor(R.id.tx_place, ColorUtil().matchPrimaryColor())
             remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "° " + tempKind)
+     //       remoteViews?.setTextColor(R.id.tx_weather, ColorUtil().matchPrimaryColor())
             if (weatherIconID.startsWith("5"))
                 remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.rain)
             if (weatherIconID.equals("800"))
@@ -725,31 +729,35 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         if (hour != 0) {
-            remoteViews?.setTextViewText(
-                R.id.tx_screentime,
-                "$hour+"
-            )
 
-            if (hour < 2)
+
+            if (hour < 2) {
+
                 remoteViews?.setTextViewText(
                     R.id.tx_screenusage_state,
                     "LOW"
                 )
-            else if (hour in 2..< 5)
+            } else if (hour in 2..< 5) {
                 remoteViews?.setTextViewText(
                     R.id.tx_screenusage_state,
                     "MODERATE"
                 )
-            else if (hour in 5..< 8)
+            } else if (hour in 5..< 8) {
                 remoteViews?.setTextViewText(
                     R.id.tx_screenusage_state,
                     "HIGH"
                 )
-            else if (hour >= 8)
+            } else {
                 remoteViews?.setTextViewText(
                     R.id.tx_screenusage_state,
                     "EXCESSIVE"
                 )
+            }
+
+            remoteViews?.setTextViewText(R.id.tx_screentime, hour.toString() + "+")
+
+            //     remoteViews?.setTextColor(R.id.tx_screenusage_state, ColorUtil().matchPrimaryColor())
+         //   remoteViews?.setTextColor(R.id.tx_screentime, ColorUtil().matchSecondaryColor())
         }
 
         val spkServiceRunning = sharedPreferences.getBoolean("SPKSERVICE", false)
@@ -779,6 +787,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (isPinNoteInitialized()) {
             remoteViews?.setTextViewText(R.id.tx_runner, pinNote)
+      //      remoteViews?.setTextColor(R.id.tx_runner, ColorUtil().matchTertianaryColor())
         }
 
         getPreciseEnergyCounter(widgetContext)
@@ -800,6 +809,7 @@ class NewAppWidget : AppWidgetProvider() {
         val waterCount = sharedPreferences.getInt("waterCountToday", 0)
         remoteViews?.setTextViewText(R.id.tx_water_count, waterCount.toString())
 
+        setOnClickPendingIntents(widgetContext)
 
     }
 
@@ -1211,6 +1221,7 @@ class NewAppWidget : AppWidgetProvider() {
                 if (!sharedPreferences.getBoolean("activitiesORcontrols", false)) {
                     sharedPreferencesEditor.putBoolean("activitiesORcontrols", true).apply()
 
+                    remoteViews?.setViewVisibility(R.id.imgbtn_close_activities, View.VISIBLE)
                     remoteViews?.setViewVisibility(R.id.btn_ui_prev, View.VISIBLE)
                     remoteViews?.setViewVisibility(R.id.btn_ui_next, View.VISIBLE)
                     remoteViews?.setViewVisibility(R.id.ll_activity_states, View.VISIBLE)
@@ -1240,6 +1251,7 @@ class NewAppWidget : AppWidgetProvider() {
                 } else {
                     sharedPreferencesEditor.putBoolean("activitiesORcontrols", false).apply()
 
+                    remoteViews?.setViewVisibility(R.id.imgbtn_close_activities, View.INVISIBLE)
                     remoteViews?.setViewVisibility(R.id.btn_ui_prev, View.INVISIBLE)
                     remoteViews?.setViewVisibility(R.id.btn_ui_next, View.INVISIBLE)
                     remoteViews?.setViewVisibility(R.id.ll_activity_states, View.INVISIBLE)
@@ -1299,6 +1311,25 @@ class NewAppWidget : AppWidgetProvider() {
                     remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
                 }
             }
+        }
+
+        if (CLOSE_ACTIVITIES == intent.action) {
+            sharedPreferencesEditor.putBoolean("activitiesORcontrols", false).apply()
+
+            remoteViews?.setViewVisibility(R.id.imgbtn_close_activities, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.btn_ui_prev, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.btn_ui_next, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.ll_activity_states, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.rl_setwall, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_qr, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_g_apps, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_lock, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_speech, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.tx_myspace, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgv_conf, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgv_ps, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgv_dialler, View.VISIBLE)
+
         }
 
         if (ASSISTIVE_TOUCH == intent.action) {
@@ -2181,6 +2212,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val WIFI_AUTO = "wifiAuto"
         private const val TORCH_STATE = "torch"
 
+        private const val CLOSE_ACTIVITIES = "closeActivities"
         private const val ASSISTIVE_TOUCH = "assistiveTouch"
         //    private const val RL_INVERT = "rlInvert"
         private const val NEXT_STATE = "nextState"
