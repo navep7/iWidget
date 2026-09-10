@@ -12,6 +12,9 @@ import android.text.Html
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
+import androidx.core.content.edit
+import com.belaku.homey.Constants.Companion.stepsToday
+import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
@@ -20,9 +23,6 @@ import com.belaku.homey.StepsService.Companion.presentActivityState
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
-import androidx.core.content.edit
-import com.belaku.homey.Constants.Companion.stepsToday
-import com.belaku.homey.MainActivity.Companion.makeToast
 
 class ActivityTransitionReceiver : BroadcastReceiver() {
 
@@ -55,14 +55,14 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                         }
 
                         presentActivityState = detectedState
-                        updateActivityState(applicationContext, detectedState)
+                        updateActivityState(applicationContext, detectedState, event.transitionType)
                     }
                 }
             }
         }
     }
 
-    private fun updateActivityState(context: Context, state: String) {
+    private fun updateActivityState(context: Context, state: String, transitionType: Int) {
         val appWidgetManager = AppWidgetManager.getInstance(context)
         val provider = ComponentName(context, NewAppWidget::class.java)
         val sharedPreferences = context.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
@@ -83,8 +83,6 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                 rv.setViewVisibility(R.id.rl_speed, View.GONE)
 
 
-                rv.setChronometer(R.id.speed_chronometer, 0L, null, false)
-
                 sharedPreferences.edit { putLong("speed_trip_start_time", 0L) }
                 stopSpeedService(context)
             }
@@ -96,6 +94,17 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     PendingIntent.FLAG_IMMUTABLE
                 )
                 )
+
+                if (transitionType == 0) {
+                    val baseTime = SystemClock.elapsedRealtime()
+                    rv.setChronometer(R.id.walk_chronometer, baseTime, null, true)
+                 //   makeToast(context, "ENTER")
+                } else {
+                 //   makeToast(context, "EXIT")
+                    rv.setChronometer(R.id.walk_chronometer, 0L, null, false)
+                }
+
+
 
                 rv.setImageViewResource(R.id.imgv_activity_state, R.drawable.steps)
                 rv.setTextViewText(R.id.tx_act_count, stepsToday.toString())
@@ -120,15 +129,16 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                 rv.setViewVisibility(R.id.frame_speed, View.VISIBLE)
                 rv.setViewVisibility(R.id.frame_time_speed, View.VISIBLE)
 
-                if (!isMyServiceRunning(context, SpeedService::class.java)) {
+                if (transitionType == 0) {
                     val baseTime = SystemClock.elapsedRealtime()
-                    sharedPreferences.edit { putLong("speed_trip_start_time", baseTime) }
                     rv.setChronometer(R.id.speed_chronometer, baseTime, null, true)
-                    startSpeedService(context)
+                 //   makeToast(context, "ENTER")
                 } else {
-                    val baseTime = sharedPreferences.getLong("speed_trip_start_time", SystemClock.elapsedRealtime())
-                    rv.setChronometer(R.id.speed_chronometer, baseTime, null, true)
+                    makeToast(context, "EXIT")
+                 //   rv.setChronometer(R.id.speed_chronometer, 0L, null, false)
                 }
+
+
             }
 
         }
