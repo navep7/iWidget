@@ -76,17 +76,37 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
         when (state) {
             "STILL" -> {
 
+                if (transitionType == 0) {
+                    val baseTime = SystemClock.elapsedRealtime()
+                    rv.setViewVisibility(R.id.still_chronometer, View.VISIBLE)
+                    rv.setChronometer(R.id.still_chronometer, baseTime, null, true)
+                    rv.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
+                    rv.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
+                    rv.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
+                    rv.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
+
+                }
+
                 rv.setTextViewText(R.id.tx_act_count, Html.fromHtml("\uD800\uDCEF<sup>"+SetWallWorker.Companion.sharedPreferences.getInt("waterCountToday", 0).toString()+"</sup> " ))
                 rv.setImageViewResource(R.id.imgv_activity_state, R.drawable.still)
                 rv.setViewVisibility(R.id.rl_still, View.VISIBLE)
                 rv.setViewVisibility(R.id.rl_walking, View.GONE)
                 rv.setViewVisibility(R.id.rl_speed, View.GONE)
 
-
-                sharedPreferences.edit { putLong("speed_trip_start_time", 0L) }
                 stopSpeedService(context)
             }
             "WALKING" -> {
+
+                if (transitionType == 0) {
+                    val baseTime = SystemClock.elapsedRealtime()
+                    rv.setViewVisibility(R.id.walk_chronometer, View.VISIBLE)
+                    rv.setChronometer(R.id.walk_chronometer, baseTime, null, true)
+                    rv.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
+                    rv.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
+                    rv.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
+                    rv.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
+
+                }
 
                 rv.setOnClickPendingIntent(R.id.tx_act_state, PendingIntent.getActivity(
                     context, 56,
@@ -94,15 +114,6 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     PendingIntent.FLAG_IMMUTABLE
                 )
                 )
-
-                if (transitionType == 0) {
-                    val baseTime = SystemClock.elapsedRealtime()
-                    rv.setChronometer(R.id.walk_chronometer, baseTime, null, true)
-                 //   makeToast(context, "ENTER")
-                } else {
-                 //   makeToast(context, "EXIT")
-                    rv.setChronometer(R.id.walk_chronometer, 0L, null, false)
-                }
 
 
 
@@ -112,32 +123,26 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                 rv.setViewVisibility(R.id.rl_walking, View.VISIBLE)
                 rv.setViewVisibility(R.id.rl_speed, View.GONE)
 
-
-                rv.setChronometer(R.id.speed_chronometer, 0L, null, false)
-
-                sharedPreferences.edit { putLong("speed_trip_start_time", 0L) }
                 stopSpeedService(context)
             }
             "TRAVEL" -> {
+
+                if (transitionType == 0) {
+                    val baseTime = SystemClock.elapsedRealtime()
+                    rv.setViewVisibility(R.id.speed_chronometer, View.VISIBLE)
+                    rv.setChronometer(R.id.speed_chronometer, baseTime, null, true)
+                    rv.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
+                    rv.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
+                    rv.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
+                    rv.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
+
+                }
 
                 rv.setImageViewResource(R.id.imgv_activity_state, R.drawable.in_a_vehicle)
                 rv.setTextViewText(R.id.tx_act_count, sharedPreferences.getInt("current_speed", 0).toString())
                 rv.setViewVisibility(R.id.rl_still, View.GONE)
                 rv.setViewVisibility(R.id.rl_walking, View.GONE)
                 rv.setViewVisibility(R.id.rl_speed, View.VISIBLE)
-
-                rv.setViewVisibility(R.id.frame_speed, View.VISIBLE)
-                rv.setViewVisibility(R.id.frame_time_speed, View.VISIBLE)
-
-                if (transitionType == 0) {
-                    val baseTime = SystemClock.elapsedRealtime()
-                    rv.setChronometer(R.id.speed_chronometer, baseTime, null, true)
-                 //   makeToast(context, "ENTER")
-                } else {
-                    makeToast(context, "EXIT")
-                 //   rv.setChronometer(R.id.speed_chronometer, 0L, null, false)
-                }
-
 
             }
 
