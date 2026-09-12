@@ -566,7 +566,7 @@
                     android:padding="@dimen/padding_10"
                     android:background="@drawable/gradient_glass_flat_dark_top"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="match_parent">
 
                     <Chronometer
                         android:id="@+id/still_chronometer"
@@ -580,12 +580,22 @@
                         android:textColor="@android:color/holo_red_dark"
                         android:textStyle="bold" />
 
+                    <ImageButton
+                        android:id="@+id/imgbtn_info_still"
+                        android:layout_width="75dp"
+                        android:layout_height="75dp"
+                        android:background="@android:color/transparent"
+                        android:src="@android:drawable/ic_menu_info_details"
+                        android:layout_centerHorizontal="true"
+                        android:layout_below="@+id/rl_water_reminder"
+                        android:gravity="center"/>
+
 
                     <TextView
                         android:id="@+id/rl_tx_still_"
-                        android:layout_above="@+id/rl_water_reminder"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
                         android:layout_centerHorizontal="true"
                         android:textColor="@android:color/white"
                         android:textStyle="bold"
@@ -596,7 +606,7 @@
                         android:id="@+id/rl_water_reminder"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
+                        android:layout_below="@+id/rl_tx_still_"
                         android:layout_centerHorizontal="true">
 
                         <ImageView
@@ -640,6 +650,16 @@
                     android:background="@drawable/gradient_glass_flat_dark_top"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
+
+                    <ImageButton
+                        android:id="@+id/imgbtn_info_steps"
+                        android:layout_width="75dp"
+                        android:layout_height="75dp"
+                        android:background="@android:color/transparent"
+                        android:src="@android:drawable/ic_menu_info_details"
+                        android:layout_centerHorizontal="true"
+                        android:layout_below="@+id/ll_kcals"
+                        android:gravity="center"/>
 
                     <Chronometer
                         android:id="@+id/walk_chronometer"
@@ -740,29 +760,28 @@
 
                 <RelativeLayout
                     android:id="@+id/rl_speed"
-                    android:visibility="gone"
-                    android:background="@drawable/gradient_glass_flat_dark_top"
-                    android:layout_width="0dp"
-                    android:layout_gravity="center"
-                    android:layout_weight="5"
+
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_below="@+id/rl_controls">
+                    android:background="@drawable/gradient_glass_flat_dark_top"
+                    android:gravity="center"
+                    android:layout_gravity="center">
 
                     <TextView
                         android:id="@+id/tx_sp_"
-                        android:layout_above="@+id/tx_kmp_"
+                        android:layout_alignParentTop="true"
                         android:layout_centerHorizontal="true"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@android:color/white"
-                        android:textSize="14dp"
+                        android:textSize="25dp"
                         android:textStyle="bold"
                         android:text="SPEED "/>
 
                     <TextView
                         android:id="@+id/tx_kmp_"
                         android:layout_centerHorizontal="true"
-                        android:layout_above="@+id/frame_speed"
+                        android:layout_below="@+id/tx_sp_"
                         android:textStyle="bold"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -771,60 +790,53 @@
                         android:text="km/h"/>
 
 
-                    <FrameLayout
-                        android:id="@+id/frame_max_speed"
-                        android:layout_width="55dp"
-                        android:layout_height="55dp"
-                        android:layout_alignBottom="@+id/frame_speed"
-                        android:layout_toStartOf="@+id/frame_speed"
-                        >
-
                         <TextView
                             android:id="@+id/tx_max_speed"
                             android:text="Max"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_gravity="center"
+                            android:layout_width="55dp"
+                            android:layout_height="55dp"
+                            android:layout_alignBottom="@+id/tx_speed"
+                            android:layout_toStartOf="@+id/tx_speed"
                             android:background="@drawable/speed_sign_bg"
                             android:gravity="center"
                             android:textColor="@android:color/holo_red_light"
                             android:textSize="@dimen/padding_15"
                             android:textStyle="bold" />
 
-                    </FrameLayout>
 
-                    <FrameLayout
-                        android:id="@+id/frame_time_speed"
-                        android:layout_width="55dp"
-                        android:layout_height="55dp"
-                        android:layout_alignBottom="@+id/frame_speed"
-                        android:layout_toEndOf="@+id/frame_speed"
-                        >
+
 
                         <Chronometer
                             android:id="@+id/speed_chronometer"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_width="55dp"
+                            android:layout_height="55dp"
+                            android:layout_alignBottom="@+id/tx_speed"
+                            android:layout_toEndOf="@+id/tx_speed"
                             android:gravity="center"
                             android:background="@drawable/speed_sign_bg"
                             android:textSize="15sp"
                             android:textColor="@android:color/holo_red_dark"
                             android:textStyle="bold" />
 
-                    </FrameLayout>
+                    <ImageButton
+                        android:id="@+id/imgbtn_info_speed"
+                        android:layout_width="55dp"
+                        android:layout_height="55dp"
+                        android:background="@android:color/transparent"
+                        android:src="@android:drawable/ic_menu_info_details"
+                        android:layout_alignBottom="@+id/tx_speed"
+                        android:layout_toEndOf="@+id/tx_speed"
+                        android:gravity="center"/>
 
 
-                    <FrameLayout
-                        android:id="@+id/frame_speed"
-                        android:layout_centerInParent="true"
-                        android:layout_width="75dp"
-                        android:layout_height="75dp"
-                        >
 
-                        <TextView
+
+                    <TextView
                             android:id="@+id/tx_speed"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_centerHorizontal="true"
+                            android:layout_below="@+id/tx_kmp_"
+                            android:layout_width="75dp"
+                            android:layout_height="75dp"
                             android:layout_gravity="center"
                             android:background="@drawable/speed_sign_bg"
                             android:gravity="center"
@@ -833,7 +845,6 @@
                             android:textSize="50sp"
                             android:textStyle="bold" />
 
-                    </FrameLayout>
 
                 </RelativeLayout>
 

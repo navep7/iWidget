@@ -697,11 +697,14 @@ class NewAppWidget : AppWidgetProvider() {
 
             val baseTime = sharedPreferences.getLong("stillChr", SystemClock.elapsedRealtime())
             remoteViews?.setViewVisibility(R.id.still_chronometer, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_info_still, View.INVISIBLE)
             remoteViews?.setChronometer(R.id.still_chronometer, baseTime, null, true)
             remoteViews?.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
             remoteViews?.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
             remoteViews?.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
             remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_info_steps, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_info_speed, View.VISIBLE)
 
             remoteViews?.setTextViewText(R.id.tx_act_count, Html.fromHtml("\uD800\uDCEF<sup>"+SetWallWorker.Companion.sharedPreferences.getInt("waterCountToday", 0).toString()+"</sup> " ))
             remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.still)
@@ -715,11 +718,14 @@ class NewAppWidget : AppWidgetProvider() {
 
             val baseTime = sharedPreferences.getLong("walkChr", SystemClock.elapsedRealtime())
             remoteViews?.setViewVisibility(R.id.walk_chronometer, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_info_steps, View.INVISIBLE)
             remoteViews?.setChronometer(R.id.walk_chronometer, baseTime, null, true)
             remoteViews?.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
             remoteViews?.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
             remoteViews?.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
             remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_info_still, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_info_speed, View.VISIBLE)
 
             remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.steps)
             remoteViews?.setTextViewText(R.id.tx_act_count, stepsToday.toString())
@@ -732,11 +738,14 @@ class NewAppWidget : AppWidgetProvider() {
 
             val baseTime = sharedPreferences.getLong("speedChr", SystemClock.elapsedRealtime())
             remoteViews?.setViewVisibility(R.id.speed_chronometer, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_info_speed, View.INVISIBLE)
             remoteViews?.setChronometer(R.id.speed_chronometer, baseTime, null, true)
             remoteViews?.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
             remoteViews?.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
             remoteViews?.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
             remoteViews?.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_info_still, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_info_steps, View.VISIBLE)
 
 
 
@@ -842,9 +851,9 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         if (isMyServiceRunning(widgetContext, SpeedService::class.java)) {
-            remoteViews?.setViewVisibility(R.id.frame_speed, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.frame_max_speed, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.frame_time_speed, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.tx_speed, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.tx_max_speed, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.speed_chronometer, View.VISIBLE)
 
         }
 
@@ -1480,16 +1489,16 @@ class NewAppWidget : AppWidgetProvider() {
                 if(widgetContext.stopService(Intent(widgetContext, SpeedService::class.java))) {
                     makeToast(widgetContext, "  ⃠  ")
                     remoteViews?.setChronometer(R.id.speed_chronometer, 0L, null, false)
-                    remoteViews?.setViewVisibility(R.id.frame_speed, View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.frame_max_speed, android.view.View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.frame_time_speed, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.tx_speed, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.tx_max_speed, android.view.View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
                     }
             } else {
                 val baseTime = SystemClock.elapsedRealtime()
                 remoteViews?.setChronometer(R.id.speed_chronometer, baseTime, null, true)
-                remoteViews?.setViewVisibility(R.id.frame_speed, View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.frame_max_speed, android.view.View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.frame_time_speed, View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.tx_speed, View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.tx_max_speed, android.view.View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.speed_chronometer, View.VISIBLE)
                 remoteViews?.setTextViewText(R.id.tx_max_speed, "MAX")
                 sharedPreferencesEditor.putInt("maxSpeedToday", 0).apply()
                     widgetContext.startForegroundService(
