@@ -176,10 +176,7 @@ class NewAppWidget : AppWidgetProvider() {
                         if (!isAppWidMInitialized())
                             appWidM = AppWidgetManager.getInstance(widgetContext)
 
-                        val unlockCount = sharedPreferences.getInt("unlockCount", 1)
-
-
-                        remoteViews?.setTextViewText(R.id.tx_unlocks, unlockCount.toString())
+                        remoteViews?.setTextViewText(R.id.tx_unlocks, sharedPreferences.getInt("unlockCount", 1).toString())
                         sharedPreferencesEditor.putInt("unlockCount", sharedPreferences.getInt("unlockCount", 1) + 1).apply()
 
                         mAppWidgetIds = appWidM.getAppWidgetIds(ComponentName(widgetContext, NewAppWidget::class.java))
@@ -360,13 +357,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
 
-        remoteViews?.setOnClickPendingIntent(
-            R.id.edtx_pen, PendingIntent.getActivity(
-                context, 19,
-                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "setNote"),
-                PendingIntent.FLAG_IMMUTABLE
-            )
-        )
+
 
         remoteViews?.setOnClickPendingIntent(R.id.imgbtn_close_activities, getPendingSelfIntent(context, CLOSE_ACTIVITIES))
         remoteViews?.setOnClickPendingIntent(R.id.imgbtn_fab, getPendingSelfIntent(context, ASSISTIVE_TOUCH))
@@ -695,9 +686,13 @@ class NewAppWidget : AppWidgetProvider() {
     private fun setUI() {
 
         if (penNote.isNotEmpty())
-            remoteViews?.setTextViewText(R.id.edtx_pen, penNote)
+            remoteViews?.setTextViewText(R.id.tx_runner, "\uD83D\uDCDD " +penNote)
 
         remoteViews?.setTextViewText(R.id.tx_act_state, presentActivityState)
+
+
+        remoteViews?.setTextViewText(R.id.tx_unlocks, sharedPreferences.getInt("unlockCount", 1).toString())
+
 
         if (presentActivityState == "STILL") {
 
@@ -705,14 +700,12 @@ class NewAppWidget : AppWidgetProvider() {
 
             val baseTime = sharedPreferences.getLong("stillChr", SystemClock.elapsedRealtime())
             remoteViews?.setViewVisibility(R.id.still_chronometer, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgbtn_info_still, View.INVISIBLE)
             remoteViews?.setChronometer(R.id.still_chronometer, baseTime, null, true)
             remoteViews?.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
             remoteViews?.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
             remoteViews?.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
             remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
             remoteViews?.setViewVisibility(R.id.imgbtn_info_steps, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgbtn_info_speed, View.VISIBLE)
 
             remoteViews?.setTextViewText(R.id.tx_act_count, Html.fromHtml("\uD800\uDCEF<sup>"+SetWallWorker.Companion.sharedPreferences.getInt("waterCountToday", 0).toString()+"</sup> " ))
             remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.still)
@@ -732,8 +725,6 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
             remoteViews?.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
             remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgbtn_info_still, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgbtn_info_speed, View.VISIBLE)
 
             remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.steps)
             remoteViews?.setTextViewText(R.id.tx_act_count, stepsToday.toString())
@@ -746,13 +737,11 @@ class NewAppWidget : AppWidgetProvider() {
 
             val baseTime = sharedPreferences.getLong("speedChr", SystemClock.elapsedRealtime())
             remoteViews?.setViewVisibility(R.id.speed_chronometer, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgbtn_info_speed, View.INVISIBLE)
             remoteViews?.setChronometer(R.id.speed_chronometer, baseTime, null, true)
             remoteViews?.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
             remoteViews?.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
             remoteViews?.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
             remoteViews?.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgbtn_info_still, View.VISIBLE)
             remoteViews?.setViewVisibility(R.id.imgbtn_info_steps, View.VISIBLE)
 
 
@@ -845,7 +834,7 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
         if (isPinNoteInitialized()) {
-            remoteViews?.setTextViewText(R.id.tx_runner, pinNote)
+            remoteViews?.setTextViewText(R.id.tx_runner, "\uD83D\uDCDD " +pinNote)
       //      remoteViews?.setTextColor(R.id.tx_runner, ColorUtil().matchTertianaryColor())
         }
 

@@ -329,7 +329,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/rl_player"
-            android:layout_marginBottom="-15dp"
+            android:layout_marginBottom="-5dp"
             android:layout_centerHorizontal="true"
             android:background="@drawable/gradient_glass_flat_start"
             android:clickable="true"
@@ -339,7 +339,7 @@
             android:gravity="center"
             android:maxLines="1"
             android:padding="@dimen/padding_5"
-            android:text=" Pin a Note! ✏️ "
+            android:text="📝 Pen a note..,"
             android:textSize="17sp"
             android:textColor="@android:color/black"
             android:textStyle="bold" />
@@ -580,16 +580,6 @@
                         android:textColor="@android:color/holo_red_dark"
                         android:textStyle="bold" />
 
-                    <ImageButton
-                        android:id="@+id/imgbtn_info_still"
-                        android:layout_width="75dp"
-                        android:layout_height="75dp"
-                        android:background="@android:color/transparent"
-                        android:src="@android:drawable/ic_menu_info_details"
-                        android:layout_centerHorizontal="true"
-                        android:layout_below="@+id/rl_water_reminder"
-                        android:gravity="center"/>
-
 
                     <TextView
                         android:id="@+id/rl_tx_still_"
@@ -818,17 +808,6 @@
                             android:textColor="@android:color/holo_red_dark"
                             android:textStyle="bold" />
 
-                    <ImageButton
-                        android:id="@+id/imgbtn_info_speed"
-                        android:layout_width="55dp"
-                        android:layout_height="55dp"
-                        android:background="@android:color/transparent"
-                        android:src="@android:drawable/ic_menu_info_details"
-                        android:layout_alignBottom="@+id/tx_speed"
-                        android:layout_toEndOf="@+id/tx_speed"
-                        android:gravity="center"/>
-
-
 
 
                     <TextView
@@ -850,17 +829,6 @@
 
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/edtx_pen"
-                android:visibility="gone"
-                android:text="📝 Pen a note..,"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:textColor="@android:color/holo_red_dark"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="@dimen/padding_20"
-                tools:ignore="HardcodedText" />
 
 
             <ImageButton
