@@ -80,6 +80,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     val baseTime = SystemClock.elapsedRealtime()
                     rv.setViewVisibility(R.id.still_chronometer, View.VISIBLE)
                     rv.setChronometer(R.id.still_chronometer, baseTime, null, true)
+                    sharedPreferences.edit { putLong("stillChr", baseTime) }
                     rv.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
                     rv.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
                     rv.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
@@ -101,6 +102,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     val baseTime = SystemClock.elapsedRealtime()
                     rv.setViewVisibility(R.id.walk_chronometer, View.VISIBLE)
                     rv.setChronometer(R.id.walk_chronometer, baseTime, null, true)
+                    sharedPreferences.edit { putLong("walkChr", baseTime) }
                     rv.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
                     rv.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
                     rv.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
@@ -131,6 +133,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     val baseTime = SystemClock.elapsedRealtime()
                     rv.setViewVisibility(R.id.speed_chronometer, View.VISIBLE)
                     rv.setChronometer(R.id.speed_chronometer, baseTime, null, true)
+                    sharedPreferences.edit { putLong("speedChr", baseTime) }
                     rv.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
                     rv.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
                     rv.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)

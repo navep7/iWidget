@@ -692,18 +692,60 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setTextViewText(R.id.tx_act_state, presentActivityState)
 
         if (presentActivityState == "STILL") {
-            remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.still)
-            remoteViews?.setTextViewText(R.id.tx_act_count, Html.fromHtml("\uD800\uDCEF<sup>"+SetWallWorker.Companion.sharedPreferences.getInt("waterCountToday", 0).toString()+"</sup> " ))
-        } else if (presentActivityState == "WALKING") {
-            remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.steps)
-            stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
 
-            remoteViews?.setTextViewText(
-                R.id.tx_act_count,
-                "$stepsToday"
-            )
+
+
+            val baseTime = sharedPreferences.getLong("stillChr", SystemClock.elapsedRealtime())
+            remoteViews?.setViewVisibility(R.id.still_chronometer, View.VISIBLE)
+            remoteViews?.setChronometer(R.id.still_chronometer, baseTime, null, true)
+            remoteViews?.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
+            remoteViews?.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
+            remoteViews?.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
+
+            remoteViews?.setTextViewText(R.id.tx_act_count, Html.fromHtml("\uD800\uDCEF<sup>"+SetWallWorker.Companion.sharedPreferences.getInt("waterCountToday", 0).toString()+"</sup> " ))
+            remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.still)
+            remoteViews?.setViewVisibility(R.id.rl_still, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
+            remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
+
+
+        } else if (presentActivityState == "WALKING") {
+
+
+            val baseTime = sharedPreferences.getLong("walkChr", SystemClock.elapsedRealtime())
+            remoteViews?.setViewVisibility(R.id.walk_chronometer, View.VISIBLE)
+            remoteViews?.setChronometer(R.id.walk_chronometer, baseTime, null, true)
+            remoteViews?.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
+            remoteViews?.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
+            remoteViews?.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
+
+            remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.steps)
+            remoteViews?.setTextViewText(R.id.tx_act_count, stepsToday.toString())
+            remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
+            remoteViews?.setViewVisibility(R.id.rl_walking, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
+
+        //    stopSpeedService(context)
         } else if (presentActivityState == "TRAVEL") {
+
+            val baseTime = sharedPreferences.getLong("speedChr", SystemClock.elapsedRealtime())
+            remoteViews?.setViewVisibility(R.id.speed_chronometer, View.VISIBLE)
+            remoteViews?.setChronometer(R.id.speed_chronometer, baseTime, null, true)
+            remoteViews?.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
+            remoteViews?.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
+            remoteViews?.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
+
+
+
             remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.in_a_vehicle)
+            remoteViews?.setTextViewText(R.id.tx_act_count, sharedPreferences.getInt("current_speed", 0).toString())
+            remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
+            remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
+            remoteViews?.setViewVisibility(R.id.rl_speed, View.VISIBLE)
+
         }
 
 
