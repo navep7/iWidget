@@ -55,6 +55,11 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                         }
 
                         presentActivityState = detectedState
+                        // Save persistent state for widget
+                        applicationContext.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE).edit {
+                            putString("presentActivityState", detectedState)
+                        }
+                        
                         updateActivityState(applicationContext, detectedState, event.transitionType)
                     }
                 }
@@ -69,13 +74,9 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
         val rv = RemoteViews(context.packageName, R.layout.new_app_widget)
         rv.setTextViewText(R.id.tx_act_state, state)
-    //    rv.setTextColor(R.id.tx_act_state, ColorUtil().matchPrimaryColor())
-    //    rv.setTextColor(R.id.tx_act_count, ColorUtil().matchSecondaryColor())
-
 
         when (state) {
             "STILL" -> {
-
                 if (transitionType == 0) {
                     val baseTime = SystemClock.elapsedRealtime()
                     rv.setViewVisibility(R.id.still_chronometer, View.VISIBLE)
@@ -85,7 +86,6 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     rv.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
                     rv.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
                     rv.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
-
                 }
 
                 rv.setTextViewText(R.id.tx_act_count, Html.fromHtml("\uD800\uDCEF<sup>"+SetWallWorker.Companion.sharedPreferences.getInt("waterCountToday", 0).toString()+"</sup> " ))
@@ -97,7 +97,6 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                 stopSpeedService(context)
             }
             "WALKING" -> {
-
                 if (transitionType == 0) {
                     val baseTime = SystemClock.elapsedRealtime()
                     rv.setViewVisibility(R.id.walk_chronometer, View.VISIBLE)
@@ -107,17 +106,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     rv.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
                     rv.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
                     rv.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
-
                 }
-
-                rv.setOnClickPendingIntent(R.id.tx_act_state, PendingIntent.getActivity(
-                    context, 56,
-                    Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "WALKING"),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-                )
-
-
 
                 rv.setImageViewResource(R.id.imgv_activity_state, R.drawable.steps)
                 rv.setTextViewText(R.id.tx_act_count, stepsToday.toString())
@@ -128,17 +117,20 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                 stopSpeedService(context)
             }
             "TRAVEL" -> {
-
                 if (transitionType == 0) {
                     val baseTime = SystemClock.elapsedRealtime()
                     rv.setViewVisibility(R.id.speed_chronometer, View.VISIBLE)
                     rv.setChronometer(R.id.speed_chronometer, baseTime, null, true)
-                    sharedPreferences.edit { putLong("speedChr", baseTime) }
+                    sharedPreferences.edit { 
+                        putLong("speedChr", baseTime)
+                        putLong("speed_trip_start_time", baseTime)
+                    }
                     rv.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
                     rv.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
                     rv.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
                     rv.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
-
+                    
+                    startSpeedService(context)
                 }
 
                 rv.setImageViewResource(R.id.imgv_activity_state, R.drawable.in_a_vehicle)
@@ -146,9 +138,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                 rv.setViewVisibility(R.id.rl_still, View.GONE)
                 rv.setViewVisibility(R.id.rl_walking, View.GONE)
                 rv.setViewVisibility(R.id.rl_speed, View.VISIBLE)
-
             }
-
         }
 
         try {

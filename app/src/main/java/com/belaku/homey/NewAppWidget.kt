@@ -630,6 +630,14 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
 
+        remoteViews?.setOnClickPendingIntent(R.id.imgbtn_info_steps, PendingIntent.getActivity(
+            context, 56,
+            Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "WALKING"),
+            PendingIntent.FLAG_IMMUTABLE
+        )
+        )
+
+
 
     }
 
