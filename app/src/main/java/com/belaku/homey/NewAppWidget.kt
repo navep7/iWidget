@@ -1802,31 +1802,19 @@ class NewAppWidget : AppWidgetProvider() {
             ColorStateList.valueOf(context.resources.getColor(android.R.color.holo_orange_light))
 
         if (energy.toInt() > 70) {
-            remoteViews?.setColorStateList(
-                R.id.progressBar_battery,
-                "setProgressTintList",
-                greenColor
-            )
+            setColorStateList(greenColor)
             remoteViews?.setTextColor(
                 R.id.tx_battery,
                 widgetContext.resources.getColor(android.R.color.holo_green_dark)
             )
         } else if (energy.toInt() < 30) {
-            remoteViews?.setColorStateList(
-                R.id.progressBar_battery,
-                "setProgressTintList",
-                redColor
-            )
+            setColorStateList(redColor)
             remoteViews?.setTextColor(
                 R.id.tx_battery,
                 widgetContext.resources.getColor(android.R.color.holo_red_dark)
             )
         } else {
-            remoteViews?.setColorStateList(
-                R.id.progressBar_battery,
-                "setProgressTintList",
-                amberColor
-            )
+            setColorStateList(amberColor)
             remoteViews?.setTextColor(
                 R.id.tx_battery,
                 widgetContext.resources.getColor(android.R.color.holo_orange_dark)
@@ -1839,6 +1827,19 @@ class NewAppWidget : AppWidgetProvider() {
         } else {
             0L
         }*/
+    }
+
+    private fun setColorStateList(color: ColorStateList) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            remoteViews?.setColorStateList(
+                R.id.progressBar_battery,
+                "setProgressTintList",
+                color
+            )
+        } else {
+            // Fallback for Android 11 and below (e.g., using a solid int color if applicable)
+          //yet2impl  remoteViews?.setInt(R.id.progressBar_battery, "setTint", color)
+        }
     }
 
     fun isWifiEnabled(context: Context): Boolean {
