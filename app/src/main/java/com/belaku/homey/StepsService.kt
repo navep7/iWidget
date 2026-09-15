@@ -501,59 +501,77 @@ class StepsService : Service() {
 
 
                 GlobalScope.launch(Dispatchers.IO) {
-                    val openWeatherApiKey = "9fa8e101240ab18615e3133b051e767e"
-                    weatherData = weatherService.getWeather(
-                        latLng.latitude.toString(),
-                        latLng.longitude.toString(), openWeatherApiKey
-                    )
-                    withContext(Dispatchers.Main) {
-                        //  updateUI(weatherData)
-                        tempC = "${weatherData.main.temp - 273}°C"
-                        weatherIconState = weatherData.weather.get(0).main
-                        Log.d("weatherIconSubState", weatherData.weather.toString())
-                        tempKind = weatherData.weather.get(0).main
-                        weatherIconID = weatherData.weather.get(0).id
-                        weatherIconUrl =
-                            "http://openweathermap.org/img/wn/" + weatherIconID + "@2x.png"
-
-
-                        Log.d("weatherInfo", tempC + " - " + tempKind)
-
-                        remoteViews?.setTextViewText(
-                            R.id.tx_weather,
-                            tempC.split(".")[0] + "° " + tempKind
+                    try {
+                        val openWeatherApiKey = "9fa8e101240ab18615e3133b051e767e"
+                        weatherData = weatherService.getWeather(
+                            latLng.latitude.toString(),
+                            latLng.longitude.toString(), openWeatherApiKey
                         )
-                        if (weatherIconID.startsWith("5"))
-                            remoteViews?.setImageViewResource(
-                                R.id.imgv_weather_icon,
-                                R.drawable.rain
-                            )
-                        if (weatherIconID.equals("800"))
-                            remoteViews?.setImageViewResource(
-                                R.id.imgv_weather_icon,
-                                R.drawable.clear_sky
-                            )
-                        if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals(
-                                "803"
-                            ) || weatherIconID.equals("804")
-                        )
-                            remoteViews?.setImageViewResource(
-                                R.id.imgv_weather_icon,
-                                R.drawable.clouds
-                            )
+                        withContext(Dispatchers.Main) {
+                            //  updateUI(weatherData)
+                            tempC = "${weatherData.main.temp - 273}°C"
+                            weatherIconState = weatherData.weather.get(0).main
+                            Log.d("weatherIconSubState", weatherData.weather.toString())
+                            tempKind = weatherData.weather.get(0).main
+                            weatherIconID = weatherData.weather.get(0).id
+                            weatherIconUrl =
+                                "http://openweathermap.org/img/wn/" + weatherIconID + "@2x.png"
 
 
-                        remoteViews?.setViewVisibility(
-                            R.id.progressBar_cyclic_weather,
-                            View.INVISIBLE
-                        )
-                        remoteViews?.setViewVisibility(R.id.tx_refresh_weather, View.VISIBLE)
-                        appWidM.updateAppWidget(newAppWidget, remoteViews)
+                            Log.d("weatherInfo", tempC + " - " + tempKind)
+
+                            remoteViews?.setTextViewText(
+                                R.id.tx_weather,
+                                tempC.split(".")[0] + "° " + tempKind
+                            )
+                            if (weatherIconID.startsWith("5"))
+                                remoteViews?.setImageViewResource(
+                                    R.id.imgv_weather_icon,
+                                    R.drawable.rain
+                                )
+                            if (weatherIconID.equals("800"))
+                                remoteViews?.setImageViewResource(
+                                    R.id.imgv_weather_icon,
+                                    R.drawable.clear_sky
+                                )
+                            if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals(
+                                    "803"
+                                ) || weatherIconID.equals("804")
+                            )
+                                remoteViews?.setImageViewResource(
+                                    R.id.imgv_weather_icon,
+                                    R.drawable.clouds
+                                )
+
+
+                            remoteViews?.setViewVisibility(
+                                R.id.progressBar_cyclic_weather,
+                                View.INVISIBLE
+                            )
+                            remoteViews?.setViewVisibility(R.id.tx_refresh_weather, View.VISIBLE)
+                            appWidM.updateAppWidget(newAppWidget, remoteViews)
+                        }
+                    } catch (e: Exception) {
+                        Log.e("StepsService", "Error fetching weather data", e)
+                        withContext(Dispatchers.Main) {
+                            remoteViews?.setViewVisibility(
+                                R.id.progressBar_cyclic_weather,
+                                View.INVISIBLE
+                            )
+                            remoteViews?.setViewVisibility(R.id.tx_refresh_weather, View.VISIBLE)
+                            if (NewAppWidget.isAppWidMInitialized() && remoteViews != null) {
+                                appWidM.updateAppWidget(newAppWidget, remoteViews)
+                            }
+                        }
                     }
                 }
             } catch (ex: Exception) {
                 Log.d("WD Excep7 - ", ex.toString())
-
+                remoteViews?.setViewVisibility(R.id.progressBar_cyclic_weather, View.INVISIBLE)
+                remoteViews?.setViewVisibility(R.id.tx_refresh_weather, View.VISIBLE)
+                if (NewAppWidget.isAppWidMInitialized() && remoteViews != null) {
+                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                }
             }
 
             //   // makeToast(tempC)

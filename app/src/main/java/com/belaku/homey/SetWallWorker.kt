@@ -229,6 +229,8 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 }
 
 
+                var downloadSuccess = true
+
                 if (urls.isNotEmpty()) {
                     randomWallIndex = Random.Default.nextInt(urls.size)
                     if (randomWallIndex < wallDescs.size) {
@@ -264,36 +266,43 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                             scaledBitmap = newScaledBitmap
                             
                             saveBitmapToInternalStorage(wallWorkerContext, scaledBitmap)
+                        } else {
+                            downloadSuccess = false
                         }
                     } catch (e: Exception) {
                         Log.e(TAG, "Error setting wallpaper bitmap", e)
+                        downloadSuccess = false
                     } finally {
                         if (tempFile.exists()) tempFile.delete()
                     }
+                } else {
+                    downloadSuccess = false
                 }
 
-                if (b && ::scaledBitmap.isInitialized && !scaledBitmap.isRecycled)
-                    wm.setBitmap(scaledBitmap)
+                if (downloadSuccess) {
+                    if (b && ::scaledBitmap.isInitialized && !scaledBitmap.isRecycled)
+                        wm.setBitmap(scaledBitmap)
 
-                val c = Calendar.getInstance()
+                    val c = Calendar.getInstance()
 
-                updateTime =
-                    "" + c.get(Calendar.HOUR_OF_DAY) + ":" + c.get(Calendar.MINUTE) + ":" + c.get(
-                        Calendar.SECOND
-                    )
+                    updateTime =
+                        "" + c.get(Calendar.HOUR_OF_DAY) + ":" + c.get(Calendar.MINUTE) + ":" + c.get(
+                            Calendar.SECOND
+                        )
 
-                if (b) {
-                    if (wallDesc.contains("+")) {
-                        sharedPreferencesEditor.putString("wD", wallDesc.split("+")[1]).apply()
-                        wD = wallDesc.split("+")[1]
-                    } else {
-                        sharedPreferencesEditor.putString("wD", wallDesc).apply()
-                        wD = wallDesc
+                    if (b) {
+                        if (wallDesc.contains("+")) {
+                            sharedPreferencesEditor.putString("wD", wallDesc.split("+")[1]).apply()
+                            wD = wallDesc.split("+")[1]
+                        } else {
+                            sharedPreferencesEditor.putString("wD", wallDesc).apply()
+                            wD = wallDesc
+                        }
+                        sharedPreferencesEditor.putString("uT", updateTime).apply()
                     }
-                    sharedPreferencesEditor.putString("uT", updateTime).apply()
+                    Log.d(TAG, "Set successfully $noRewards")
+                    boolWallSet = true
                 }
-                Log.d(TAG, "Set successfully $noRewards")
-                boolWallSet = true
 
                 remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.INVISIBLE)
                 remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
@@ -302,28 +311,29 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 appWidM = AppWidgetManager.getInstance(wallWorkerContext)
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
 
+                if (downloadSuccess) {
+                    qT = queryType
+                    dU = delayUnit
+                    uT = updateTime
 
-                qT = queryType
-                dU = delayUnit
-                uT = updateTime
+                    try {
+                        if (pD.isShowing) {
+                            pD.dismiss()
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                txStatus.text =
+                                    "\"$queryType\" wallpapers Set, updates every $wallDelay mins."
+                                rlStatus.visibility = View.VISIBLE
+                                val ids: IntArray = appWidM.getAppWidgetIds(newAppWidget)
 
-                try {
-                    if (pD.isShowing) {
-                        pD.dismiss()
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            txStatus.text =
-                                "\"$queryType\" wallpapers Set, updates every $wallDelay mins."
-                            rlStatus.visibility = View.VISIBLE
-                            val ids: IntArray = appWidM.getAppWidgetIds(newAppWidget)
+                                if (ids.size == 0) {
+                                    fabMain.text = "Add Widget to Homescreen"
+                                }
 
-                            if (ids.size == 0) {
-                                fabMain.text = "Add Widget to Homescreen"
-                            }
+                            }, 1000)
+                        }
+                    } catch (ex: Exception) {
 
-                        }, 1000)
                     }
-                } catch (ex: Exception) {
-
                 }
 
                 if (isPinNoteInitialized()) {
@@ -331,15 +341,17 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             //        remoteViews?.setTextColor(R.id.tx_runner, ColorUtil().matchTertianaryColor())
                 }
 
-                remoteViews?.setTextViewText(R.id.tx_walldesc, wD)
-                remoteViews?.setTextViewText(
-                    R.id.tx_walltype_updateinfo,
-                    Html.fromHtml(
-                        qT.split(" ")[0].substring(0, 1)
-                            .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
-                        Html.FROM_HTML_MODE_LEGACY
+                if (NewAppWidget.checkCompanionVariable()) {
+                    remoteViews?.setTextViewText(R.id.tx_walldesc, wD)
+                    remoteViews?.setTextViewText(
+                        R.id.tx_walltype_updateinfo,
+                        Html.fromHtml(
+                            qT.split(" ")[0].substring(0, 1)
+                                .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
+                            Html.FROM_HTML_MODE_LEGACY
+                        )
                     )
-                )
+                }
 
                 updateWidget(wallWorkerContext)
 
