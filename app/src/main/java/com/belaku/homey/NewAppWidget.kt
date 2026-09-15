@@ -176,10 +176,7 @@ class NewAppWidget : AppWidgetProvider() {
                         if (!isAppWidMInitialized())
                             appWidM = AppWidgetManager.getInstance(widgetContext)
 
-                        val unlockCount = sharedPreferences.getInt("unlockCount", 1)
-
-
-                        remoteViews?.setTextViewText(R.id.tx_unlocks, unlockCount.toString())
+                        remoteViews?.setTextViewText(R.id.tx_unlocks, sharedPreferences.getInt("unlockCount", 1).toString())
                         sharedPreferencesEditor.putInt("unlockCount", sharedPreferences.getInt("unlockCount", 1) + 1).apply()
 
                         mAppWidgetIds = appWidM.getAppWidgetIds(ComponentName(widgetContext, NewAppWidget::class.java))
@@ -360,13 +357,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
 
-        remoteViews?.setOnClickPendingIntent(
-            R.id.edtx_pen, PendingIntent.getActivity(
-                context, 19,
-                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "setNote"),
-                PendingIntent.FLAG_IMMUTABLE
-            )
-        )
+
 
         remoteViews?.setOnClickPendingIntent(R.id.imgbtn_close_activities, getPendingSelfIntent(context, CLOSE_ACTIVITIES))
         remoteViews?.setOnClickPendingIntent(R.id.imgbtn_fab, getPendingSelfIntent(context, ASSISTIVE_TOUCH))
@@ -630,6 +621,14 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
 
+        remoteViews?.setOnClickPendingIntent(R.id.imgbtn_info_steps, PendingIntent.getActivity(
+            context, 56,
+            Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "WALKING"),
+            PendingIntent.FLAG_IMMUTABLE
+        )
+        )
+
+
 
     }
 
@@ -687,23 +686,72 @@ class NewAppWidget : AppWidgetProvider() {
     private fun setUI() {
 
         if (penNote.isNotEmpty())
-            remoteViews?.setTextViewText(R.id.edtx_pen, penNote)
+            remoteViews?.setTextViewText(R.id.tx_runner, "\uD83D\uDCDD " +penNote)
 
         remoteViews?.setTextViewText(R.id.tx_act_state, presentActivityState)
 
-        if (presentActivityState == "STILL") {
-            remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.still)
-            remoteViews?.setTextViewText(R.id.tx_act_count, Html.fromHtml("\uD800\uDCEF<sup>"+SetWallWorker.Companion.sharedPreferences.getInt("waterCountToday", 0).toString()+"</sup> " ))
-        } else if (presentActivityState == "WALKING") {
-            remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.steps)
-            stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
 
-            remoteViews?.setTextViewText(
-                R.id.tx_act_count,
-                "$stepsToday"
-            )
+        remoteViews?.setTextViewText(R.id.tx_unlocks, sharedPreferences.getInt("unlockCount", 1).toString())
+
+
+        if (presentActivityState == "STILL") {
+
+
+
+            val baseTime = sharedPreferences.getLong("stillChr", SystemClock.elapsedRealtime())
+            remoteViews?.setViewVisibility(R.id.still_chronometer, View.VISIBLE)
+            remoteViews?.setChronometer(R.id.still_chronometer, baseTime, null, true)
+            remoteViews?.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
+            remoteViews?.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
+            remoteViews?.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_info_steps, View.VISIBLE)
+
+            remoteViews?.setTextViewText(R.id.tx_act_count, Html.fromHtml("\uD800\uDCEF<sup>"+SetWallWorker.Companion.sharedPreferences.getInt("waterCountToday", 0).toString()+"</sup> " ))
+            remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.still)
+            remoteViews?.setViewVisibility(R.id.rl_still, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
+            remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
+
+
+        } else if (presentActivityState == "WALKING") {
+
+
+            val baseTime = sharedPreferences.getLong("walkChr", SystemClock.elapsedRealtime())
+            remoteViews?.setViewVisibility(R.id.walk_chronometer, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_info_steps, View.INVISIBLE)
+            remoteViews?.setChronometer(R.id.walk_chronometer, baseTime, null, true)
+            remoteViews?.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
+            remoteViews?.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
+            remoteViews?.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
+
+            remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.steps)
+            remoteViews?.setTextViewText(R.id.tx_act_count, stepsToday.toString())
+            remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
+            remoteViews?.setViewVisibility(R.id.rl_walking, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
+
+        //    stopSpeedService(context)
         } else if (presentActivityState == "TRAVEL") {
+
+            val baseTime = sharedPreferences.getLong("speedChr", SystemClock.elapsedRealtime())
+            remoteViews?.setViewVisibility(R.id.speed_chronometer, View.VISIBLE)
+            remoteViews?.setChronometer(R.id.speed_chronometer, baseTime, null, true)
+            remoteViews?.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
+            remoteViews?.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
+            remoteViews?.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_info_steps, View.VISIBLE)
+
+
+
             remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.in_a_vehicle)
+            remoteViews?.setTextViewText(R.id.tx_act_count, sharedPreferences.getInt("current_speed", 0).toString())
+            remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
+            remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
+            remoteViews?.setViewVisibility(R.id.rl_speed, View.VISIBLE)
+
         }
 
 
@@ -786,7 +834,7 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
         if (isPinNoteInitialized()) {
-            remoteViews?.setTextViewText(R.id.tx_runner, pinNote)
+            remoteViews?.setTextViewText(R.id.tx_runner, "\uD83D\uDCDD " +pinNote)
       //      remoteViews?.setTextColor(R.id.tx_runner, ColorUtil().matchTertianaryColor())
         }
 
@@ -800,9 +848,9 @@ class NewAppWidget : AppWidgetProvider() {
 
 
         if (isMyServiceRunning(widgetContext, SpeedService::class.java)) {
-            remoteViews?.setViewVisibility(R.id.frame_speed, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.frame_max_speed, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.frame_time_speed, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.tx_speed, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.tx_max_speed, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.speed_chronometer, View.VISIBLE)
 
         }
 
@@ -1438,16 +1486,16 @@ class NewAppWidget : AppWidgetProvider() {
                 if(widgetContext.stopService(Intent(widgetContext, SpeedService::class.java))) {
                     makeToast(widgetContext, "  ⃠  ")
                     remoteViews?.setChronometer(R.id.speed_chronometer, 0L, null, false)
-                    remoteViews?.setViewVisibility(R.id.frame_speed, View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.frame_max_speed, android.view.View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.frame_time_speed, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.tx_speed, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.tx_max_speed, android.view.View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
                     }
             } else {
                 val baseTime = SystemClock.elapsedRealtime()
                 remoteViews?.setChronometer(R.id.speed_chronometer, baseTime, null, true)
-                remoteViews?.setViewVisibility(R.id.frame_speed, View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.frame_max_speed, android.view.View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.frame_time_speed, View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.tx_speed, View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.tx_max_speed, android.view.View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.speed_chronometer, View.VISIBLE)
                 remoteViews?.setTextViewText(R.id.tx_max_speed, "MAX")
                 sharedPreferencesEditor.putInt("maxSpeedToday", 0).apply()
                     widgetContext.startForegroundService(
@@ -1754,31 +1802,19 @@ class NewAppWidget : AppWidgetProvider() {
             ColorStateList.valueOf(context.resources.getColor(android.R.color.holo_orange_light))
 
         if (energy.toInt() > 70) {
-            remoteViews?.setColorStateList(
-                R.id.progressBar_battery,
-                "setProgressTintList",
-                greenColor
-            )
+            setColorStateList(greenColor)
             remoteViews?.setTextColor(
                 R.id.tx_battery,
                 widgetContext.resources.getColor(android.R.color.holo_green_dark)
             )
         } else if (energy.toInt() < 30) {
-            remoteViews?.setColorStateList(
-                R.id.progressBar_battery,
-                "setProgressTintList",
-                redColor
-            )
+            setColorStateList(redColor)
             remoteViews?.setTextColor(
                 R.id.tx_battery,
                 widgetContext.resources.getColor(android.R.color.holo_red_dark)
             )
         } else {
-            remoteViews?.setColorStateList(
-                R.id.progressBar_battery,
-                "setProgressTintList",
-                amberColor
-            )
+            setColorStateList(amberColor)
             remoteViews?.setTextColor(
                 R.id.tx_battery,
                 widgetContext.resources.getColor(android.R.color.holo_orange_dark)
@@ -1791,6 +1827,19 @@ class NewAppWidget : AppWidgetProvider() {
         } else {
             0L
         }*/
+    }
+
+    private fun setColorStateList(color: ColorStateList) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            remoteViews?.setColorStateList(
+                R.id.progressBar_battery,
+                "setProgressTintList",
+                color
+            )
+        } else {
+            // Fallback for Android 11 and below (e.g., using a solid int color if applicable)
+          //yet2impl  remoteViews?.setInt(R.id.progressBar_battery, "setTint", color)
+        }
     }
 
     fun isWifiEnabled(context: Context): Boolean {

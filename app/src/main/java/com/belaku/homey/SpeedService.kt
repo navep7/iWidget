@@ -8,11 +8,13 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.location.Location
 import android.os.Build
 import android.os.IBinder
 import android.os.Looper
 import android.os.SystemClock
+import android.view.View
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.belaku.homey.MainActivity.Companion.makeToast
@@ -58,18 +60,15 @@ class SpeedService : Service() {
     }
 
     private fun onLocationChanged(location: Location) {
-        val speedKmh = (location.speed * 3.6).toInt()
+        val speedKmh = if (location.hasSpeed()) (location.speed * 3.6).toInt() else 0
         updateSpeed(speedKmh)
     }
 
     private fun updateSpeed(speedKmh: Int) {
-        val provider = ComponentName(applicationContext, NewAppWidget::class.java)
-        val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
-
         val sharedPreferences = applicationContext.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
         val sharedPreferencesEditor = sharedPreferences.edit()
         
-        // Save current speed so ActivityTransitionReceiver can check it
+        // Save current speed so Widget and ActivityTransitionReceiver can check it
         sharedPreferencesEditor.putInt("current_speed", speedKmh)
         
         val today = LocalDate.now().toString()
@@ -89,17 +88,11 @@ class SpeedService : Service() {
         }
         sharedPreferencesEditor.apply()
 
-        val views = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
-        views.setTextViewText(R.id.tx_speed, speedKmh.toString())
-        views.setTextViewText(R.id.tx_max_speed, maxSpeed.toString())
-        
-        // Restore chronometer state
-        val baseTime = sharedPreferences.getLong("speed_trip_start_time", 0L)
-        if (baseTime != 0L) {
-            views.setChronometer(R.id.speed_chronometer, baseTime, null, true)
-        }
-
-        appWidgetManager.updateAppWidget(provider, views)
+        // Notify widget to update. NewAppWidget will read speed from SharedPreferences.
+        val updateIntent = Intent(applicationContext, NewAppWidget::class.java)
+        updateIntent.action = "ACTION_UPDATE_SPEED"
+        updateIntent.putExtra("EXTRA_SPEED", speedKmh.toDouble())
+        sendBroadcast(updateIntent)
     }
 
     override fun onDestroy() {
@@ -109,6 +102,13 @@ class SpeedService : Service() {
         // Reset speed on stop
         applicationContext.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
             .edit().putInt("current_speed", 0).apply()
+            
+        // Final update to widget to clear speed
+        val updateIntent = Intent(applicationContext, NewAppWidget::class.java)
+        updateIntent.action = "ACTION_UPDATE_SPEED"
+        updateIntent.putExtra("EXTRA_SPEED", 0.0)
+        sendBroadcast(updateIntent)
+        
         super.onDestroy()
     }
 
@@ -128,11 +128,15 @@ class SpeedService : Service() {
             .setContentTitle("Tracking Vehicle Speed")
             .setContentText("Reading real-time GPS data for widget")
             .setSmallIcon(R.drawable.in_a_vehicle)
-            .setOngoing(true) // Prevent notification from being cleared easily
+            .setOngoing(true)
             .build()
 
         try {
-            startForeground(3, notification)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(3, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
+            } else {
+                startForeground(3, notification)
+            }
         } catch (ex: Exception) {
             makeToast(applicationContext, "SpeedServiceEXP - ${ex.message}")
         }

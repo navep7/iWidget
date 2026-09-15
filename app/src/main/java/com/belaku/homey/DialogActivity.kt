@@ -288,12 +288,13 @@ class DialogActivity : AppCompatActivity() {
                 "setNote" -> {
                     edtxDialog.visibility = View.VISIBLE
                     btnOk.visibility = View.VISIBLE
+                    imgbtnShare.visibility = View.INVISIBLE
                     txTitle.text = "Pin a Note"
 
                     btnOk.setOnClickListener {
                         if (edtxDialog.text.isNotEmpty()) {
                             penNote = edtxDialog.text.toString()
-                            remoteViews?.setTextViewText(R.id.edtx_pen, penNote)
+                            remoteViews?.setTextViewText(R.id.tx_runner, "\uD83D\uDCDD " + penNote)
                             appWidM.updateAppWidget(newAppWidget, remoteViews)
                         }
                         finish()
@@ -459,6 +460,7 @@ class DialogActivity : AppCompatActivity() {
                 "AddNote" -> {
                     txTitle.text = "Add Note"
                     edtxDialog.visibility = View.VISIBLE
+                    imgbtnShare.visibility = View.INVISIBLE
                     edtxDialog.setHint("Enter Note to be Pinned...")
                     edtxDialog.requestFocus()
                     window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
