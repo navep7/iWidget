@@ -1155,563 +1155,358 @@ class NewAppWidget : AppWidgetProvider() {
     @SuppressLint("ResourceAsColor", "ResourceType")
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onReceive(context: Context, intent: Intent) {
-        // TODO Auto-generated method stub
+        val action = intent.action ?: return
+        Log.d(TAG, "onReceive: $action")
 
-        super.onReceive(context, intent)
-
+        // Initialize core components
         widgetContext = context
+        newAppWidget = ComponentName(context, NewAppWidget::class.java)
+        appWidM = AppWidgetManager.getInstance(context)
+        sharedPreferences = context.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        sharedPreferencesEditor = sharedPreferences.edit()
 
-        getScreenDimens()
-
-        if (Intent.ACTION_BOOT_COMPLETED == intent.action) {
-            val appWidgetManager = AppWidgetManager.getInstance(context)
-            val ids = appWidgetManager.getAppWidgetIds(
-                ComponentName(context, NewAppWidget::class.java)
-            )
-
-
-            // Trigger the standard update logic
-            onUpdate(context, appWidgetManager, ids)
-
-            val intentSteps = Intent(context, StepsService::class.java)
-            context.startForegroundService(intentSteps)
-        }
-
-        if (intent.action == "ACTION_UPDATE_SPEED") {
-            speedReading = intent.getDoubleExtra("EXTRA_SPEED", 0.0).toString()
-
-            val appWidgetManager = AppWidgetManager.getInstance(context)
-            val ids = appWidgetManager.getAppWidgetIds(
-                android.content.ComponentName(context, NewAppWidget::class.java)
-            )
-
-            for (id in ids) {
-                setUI()
-              //  setACAdapter()
+        // Handle specific system broadcasts
+        when (action) {
+            Intent.ACTION_BOOT_COMPLETED -> {
+                context.startForegroundService(Intent(context, StepsService::class.java))
+            }
+            "ACTION_UPDATE_SPEED" -> {
+                speedReading = intent.getDoubleExtra("EXTRA_SPEED", 0.0).toString()
             }
         }
 
-        widgetContext = context
+        // Standard AppWidgetProvider handling
+        super.onReceive(context, intent)
 
+        // For custom actions and speed updates, perform a unified UI refresh
+        // Standard actions like ACTION_APPWIDGET_UPDATE are already handled by onUpdate via super.onReceive
+        val standardActions = listOf(
+            AppWidgetManager.ACTION_APPWIDGET_UPDATE,
+            AppWidgetManager.ACTION_APPWIDGET_OPTIONS_CHANGED,
+            AppWidgetManager.ACTION_APPWIDGET_DELETED,
+            AppWidgetManager.ACTION_APPWIDGET_DISABLED,
+            AppWidgetManager.ACTION_APPWIDGET_ENABLED
+        )
 
-        Log.d(TAG, "!onReceive")
-        remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
-        newAppWidget = ComponentName(context, NewAppWidget::class.java)
-        sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
-        sharedPreferencesEditor = sharedPreferences.edit()
-
-        setUI()
-        handleIntentActions(intent)
-
-        if (!isAppWidMInitialized())
-            appWidM = AppWidgetManager.getInstance(widgetContext)
-
-    //    val appWidgetIds = appWidM.getAppWidgetIds(newAppWidget)
-      //  appWidM = AppWidgetManager.getInstance(context)
-        appWidM.updateAppWidget(newAppWidget, remoteViews)
-    //    appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_apps)
-    //    appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)
-
+        if (action !in standardActions) {
+            if (remoteViews == null) {
+                remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
+            }
+            getScreenDimens()
+            setUI()
+            handleIntentActions(intent)
+            appWidM.updateAppWidget(newAppWidget, remoteViews)
+        }
     }
-
 
     @SuppressLint("InflateParams", "ResourceAsColor")
     @RequiresApi(Build.VERSION_CODES.S)
     private fun handleIntentActions(intent: Intent) {
+        val action = intent.action ?: return
 
-        val appWidgetManager = AppWidgetManager.getInstance(widgetContext)
-        // 3. Get IDs for all active widgets of this provider
-        val thisAppWidget = ComponentName(widgetContext.getPackageName(), javaClass.getName())
-        val appWidgetIds = appWidgetManager.getAppWidgetIds(thisAppWidget)
-        // 4. Manually trigger onUpdate
-       // onUpdate(context, appWidgetManager, appWidgetIds!!)
+        when (action) {
+            ACTINFO_CLICK -> {
+                val current = sharedPreferences.getBoolean("activitiesORcontrols", false)
+                sharedPreferencesEditor.putBoolean("activitiesORcontrols", !current).apply()
+                val show = !current
 
+                remoteViews?.apply {
+                    setViewVisibility(R.id.imgbtn_close_activities, if (show) View.VISIBLE else View.INVISIBLE)
+                    setViewVisibility(R.id.btn_ui_prev, if (show) View.VISIBLE else View.INVISIBLE)
+                    setViewVisibility(R.id.btn_ui_next, if (show) View.VISIBLE else View.INVISIBLE)
+                    setViewVisibility(R.id.ll_activity_states, if (show) View.VISIBLE else View.INVISIBLE)
 
-        when(intent.action) {
-            ACTINFO_CLICK  -> {
-                if (!sharedPreferences.getBoolean("activitiesORcontrols", false)) {
-                    sharedPreferencesEditor.putBoolean("activitiesORcontrols", true).apply()
+                    setViewVisibility(R.id.rl_setwall, if (show) View.INVISIBLE else View.VISIBLE)
+                    setViewVisibility(R.id.imgbtn_qr, if (show) View.INVISIBLE else View.VISIBLE)
+                    setViewVisibility(R.id.imgbtn_g_apps, if (show) View.INVISIBLE else View.VISIBLE)
+                    setViewVisibility(R.id.imgbtn_lock, if (show) View.INVISIBLE else View.VISIBLE)
+                    setViewVisibility(R.id.imgbtn_speech, if (show) View.INVISIBLE else View.VISIBLE)
+                    setViewVisibility(R.id.tx_myspace, if (show) View.INVISIBLE else View.VISIBLE)
+                    setViewVisibility(R.id.imgv_conf, if (show) View.INVISIBLE else View.VISIBLE)
+                    setViewVisibility(R.id.imgv_ps, if (show) View.INVISIBLE else View.VISIBLE)
+                    setViewVisibility(R.id.imgv_dialler, if (show) View.INVISIBLE else View.VISIBLE)
 
-                    remoteViews?.setViewVisibility(R.id.imgbtn_close_activities, View.VISIBLE)
-                    remoteViews?.setViewVisibility(R.id.btn_ui_prev, View.VISIBLE)
-                    remoteViews?.setViewVisibility(R.id.btn_ui_next, View.VISIBLE)
-                    remoteViews?.setViewVisibility(R.id.ll_activity_states, View.VISIBLE)
-                    remoteViews?.setViewVisibility(R.id.rl_setwall, View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.imgbtn_qr, View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.imgbtn_g_apps, View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.imgbtn_lock, View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.imgbtn_speech, View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.tx_myspace, View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.imgv_conf, View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.imgv_ps, View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.imgv_dialler, View.INVISIBLE)
-
-                    if (presentActivityState == "STILL") {
-                        remoteViews?.setViewVisibility(R.id.rl_still, View.VISIBLE)
-                        remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
-                        remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
-                    } else if (presentActivityState == "WALKING") {
-                        remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
-                        remoteViews?.setViewVisibility(R.id.rl_walking, View.VISIBLE)
-                        remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
-                    } else if (presentActivityState == "TRAVEL") {
-                        remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
-                        remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
-                        remoteViews?.setViewVisibility(R.id.rl_speed, View.VISIBLE)
+                    if (show) {
+                        setViewVisibility(R.id.rl_still, if (presentActivityState == "STILL") View.VISIBLE else View.GONE)
+                        setViewVisibility(R.id.rl_walking, if (presentActivityState == "WALKING") View.VISIBLE else View.GONE)
+                        setViewVisibility(R.id.rl_speed, if (presentActivityState == "TRAVEL") View.VISIBLE else View.GONE)
                     }
-                } else {
-                    sharedPreferencesEditor.putBoolean("activitiesORcontrols", false).apply()
-
-                    remoteViews?.setViewVisibility(R.id.imgbtn_close_activities, View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.btn_ui_prev, View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.btn_ui_next, View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.ll_activity_states, View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.rl_setwall, View.VISIBLE)
-                    remoteViews?.setViewVisibility(R.id.imgbtn_qr, View.VISIBLE)
-                    remoteViews?.setViewVisibility(R.id.imgbtn_g_apps, View.VISIBLE)
-                    remoteViews?.setViewVisibility(R.id.imgbtn_lock, View.VISIBLE)
-                    remoteViews?.setViewVisibility(R.id.imgbtn_speech, View.VISIBLE)
-                    remoteViews?.setViewVisibility(R.id.tx_myspace, View.VISIBLE)
-                    remoteViews?.setViewVisibility(R.id.imgv_conf, View.VISIBLE)
-                    remoteViews?.setViewVisibility(R.id.imgv_ps, View.VISIBLE)
-                    remoteViews?.setViewVisibility(R.id.imgv_dialler, View.VISIBLE)
-
                 }
             }
             NEXT_STATE -> {
-
                 val displayedAct = sharedPreferences.getString("displayedAct", presentActivityState)
-           //     makeToast(widgetContext, displayedAct)
-
-                if (displayedAct == "STILL") {
-                    sharedPreferencesEditor.putString("displayedAct", "WALKING").apply()
-                    remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
-                    remoteViews?.setViewVisibility(R.id.rl_walking, View.VISIBLE)
-                    remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
-                } else if (displayedAct == "WALKING") {
-                    sharedPreferencesEditor.putString("displayedAct", "TRAVEL").apply()
-                    remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
-                    remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
-                    remoteViews?.setViewVisibility(R.id.rl_speed, View.VISIBLE)
-                } else if (displayedAct == "TRAVEL") {
-                    sharedPreferencesEditor.putString("displayedAct", "STILL").apply()
-                    remoteViews?.setViewVisibility(R.id.rl_still, View.VISIBLE)
-                    remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
-                    remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
+                val next = when (displayedAct) {
+                    "STILL" -> "WALKING"
+                    "WALKING" -> "TRAVEL"
+                    else -> "STILL"
+                }
+                sharedPreferencesEditor.putString("displayedAct", next).apply()
+                remoteViews?.apply {
+                    setViewVisibility(R.id.rl_still, if (next == "STILL") View.VISIBLE else View.GONE)
+                    setViewVisibility(R.id.rl_walking, if (next == "WALKING") View.VISIBLE else View.GONE)
+                    setViewVisibility(R.id.rl_speed, if (next == "TRAVEL") View.VISIBLE else View.GONE)
                 }
             }
             PREV_STATE -> {
-
                 val displayedAct = sharedPreferences.getString("displayedAct", presentActivityState)
-                //     makeToast(widgetContext, displayedAct)
-
-                if (displayedAct == "STILL") {
-                    sharedPreferencesEditor.putString("displayedAct", "TRAVEL").apply()
-                    remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
-                    remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
-                    remoteViews?.setViewVisibility(R.id.rl_speed, View.VISIBLE)
-                } else if (displayedAct == "WALKING") {
-                    sharedPreferencesEditor.putString("displayedAct", "STILL").apply()
-                    remoteViews?.setViewVisibility(R.id.rl_still, View.VISIBLE)
-                    remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
-                    remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
-                } else if (displayedAct == "TRAVEL") {
-                    sharedPreferencesEditor.putString("displayedAct", "WALKING").apply()
-                    remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
-                    remoteViews?.setViewVisibility(R.id.rl_walking, View.VISIBLE)
-                    remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
+                val prev = when (displayedAct) {
+                    "STILL" -> "TRAVEL"
+                    "WALKING" -> "STILL"
+                    else -> "WALKING"
+                }
+                sharedPreferencesEditor.putString("displayedAct", prev).apply()
+                remoteViews?.apply {
+                    setViewVisibility(R.id.rl_still, if (prev == "STILL") View.VISIBLE else View.GONE)
+                    setViewVisibility(R.id.rl_walking, if (prev == "WALKING") View.VISIBLE else View.GONE)
+                    setViewVisibility(R.id.rl_speed, if (prev == "TRAVEL") View.VISIBLE else View.GONE)
                 }
             }
-        }
-
-        if (CLOSE_ACTIVITIES == intent.action) {
-            sharedPreferencesEditor.putBoolean("activitiesORcontrols", false).apply()
-
-            remoteViews?.setViewVisibility(R.id.imgbtn_close_activities, View.INVISIBLE)
-            remoteViews?.setViewVisibility(R.id.btn_ui_prev, View.INVISIBLE)
-            remoteViews?.setViewVisibility(R.id.btn_ui_next, View.INVISIBLE)
-            remoteViews?.setViewVisibility(R.id.ll_activity_states, View.INVISIBLE)
-            remoteViews?.setViewVisibility(R.id.rl_setwall, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgbtn_qr, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgbtn_g_apps, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgbtn_lock, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgbtn_speech, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.tx_myspace, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgv_conf, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgv_ps, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.imgv_dialler, View.VISIBLE)
-
-        }
-
-        if (ASSISTIVE_TOUCH == intent.action) {
-
-
-
-            if (!sharedPreferences.getBoolean("rlControls", false)) {
-                sharedPreferencesEditor.putBoolean("rlControls", true).apply()
-                remoteViews?.setViewVisibility(R.id.ll_activity_states, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.rl_setwall, View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgbtn_qr, View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgbtn_g_apps, View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgbtn_lock, View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgbtn_speech, View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.tx_myspace, View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgv_conf, View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgv_ps, View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgv_dialler, View.VISIBLE)
-            } else {
-                sharedPreferencesEditor.putBoolean("rlControls", false).apply()
-
-           //     makeToast(widgetContext, presentActivityState)
-
-                if (presentActivityState == "STILL") {
-                    remoteViews?.setViewVisibility(R.id.rl_still, View.VISIBLE)
-                    remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
-                    remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
-                } else if (presentActivityState == "WALKING") {
-                    remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
-                    remoteViews?.setViewVisibility(R.id.rl_walking, View.VISIBLE)
-                    remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
-                } else if (presentActivityState == "TRAVEL") {
-                    remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
-                    remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
-                    remoteViews?.setViewVisibility(R.id.rl_speed, View.VISIBLE)
-                }
-                remoteViews?.setViewVisibility(R.id.ll_activity_states, View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.rl_setwall, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgbtn_qr, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgbtn_g_apps, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgbtn_lock, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgbtn_speech, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.tx_myspace, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgv_conf, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgv_ps, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgv_dialler, View.INVISIBLE)
-            }
-
-        }
-        if (TODO_CLICK == intent.action) {
-            makeToast(widgetContext,"inc")
-         //   sharedPreferencesEditor.putInt()
-        }
-
-        if (TIME_CLICK == intent.action) {
-
-            val mClockIntent = Intent(AlarmClock.ACTION_SHOW_ALARMS).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            }
-            widgetContext.startActivity(mClockIntent)
-
-        }
-        if (DATE_CLICK == intent.action) {
-
-            val startMillis = System.currentTimeMillis()
-            val builder = CalendarContract.CONTENT_URI.buildUpon()
-                .appendPath("time")
-            ContentUris.appendId(builder, startMillis)
-
-            val intentCalendar = Intent(Intent.ACTION_VIEW)
-                .setData(builder.build())
-            intentCalendar.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            widgetContext.startActivity(intentCalendar)
-        }
-
-        if (STEPS_CLICK == intent.action) {
-            makeToast(widgetContext, "$stepsToday ~ " + String.format("%.1f", stepsToday * 74f / 100000f) + " Km")
-            remoteViews?.setTextViewText(R.id.tx_act_count, "$stepsToday")
-            widgetContext.startActivity(
-                Intent(widgetContext, DialogActivity::class.java)
-                    .putExtra("DialogIntent", "stepsInfo")
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        }
-
-
-        if (NEXT_ACT_CLICK == intent.action) {
-            makeToast(widgetContext, "  $presentActivityState")
-            widgetContext.startActivity(
-                Intent(
-                    widgetContext,
-                    DialogActivity::class.java
-                ).putExtra("DialogIntent", "activitiesInfo")
-                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            )
-        }
-
-        if (BATTERY_INFO == intent.action) {
-            val powerUsageIntent = Intent("android.intent.action.POWER_USAGE_SUMMARY")
-            if (powerUsageIntent.resolveActivity(widgetContext.getPackageManager()) != null) {
-                powerUsageIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                widgetContext.startActivity(powerUsageIntent)
-            }
-        } else if(SPEED_CHECK == intent.action) {
-
-            if (isMyServiceRunning(widgetContext, SpeedService::class.java)) {
-                if(widgetContext.stopService(Intent(widgetContext, SpeedService::class.java))) {
-                    makeToast(widgetContext, "  ⃠  ")
-                    remoteViews?.setChronometer(R.id.speed_chronometer, 0L, null, false)
-                    remoteViews?.setViewVisibility(R.id.tx_speed, View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.tx_max_speed, android.view.View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
-                    }
-            } else {
-                val baseTime = SystemClock.elapsedRealtime()
-                remoteViews?.setChronometer(R.id.speed_chronometer, baseTime, null, true)
-                remoteViews?.setViewVisibility(R.id.tx_speed, View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.tx_max_speed, android.view.View.VISIBLE)
-                remoteViews?.setViewVisibility(R.id.speed_chronometer, View.VISIBLE)
-                remoteViews?.setTextViewText(R.id.tx_max_speed, "MAX")
-                sharedPreferencesEditor.putInt("maxSpeedToday", 0).apply()
-                    widgetContext.startForegroundService(
-                    Intent(
-                        widgetContext,
-                        SpeedService::class.java
-                    ))
-            }
-
-        } else if (GET_WEATHER == intent.action) {
-            remoteViews?.setViewVisibility(R.id.progressBar_cyclic_weather, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.tx_refresh_weather, View.INVISIBLE)
-            appWidM.updateAppWidget(newAppWidget, remoteViews)
-            StepsService.getWeatherData(LatLng(cityLat, cityLng))
-
-        } else if (PLAYPAUSE_CLICK == intent.action) {
-            if (boolMusicServiceRunning) {
-                try {
-                    if (mMediaPlayer != null)
-                        if (mMediaPlayer!!.isPlaying) {
-                            mMediaPlayer!!.pause()
-                            remoteViews?.setImageViewResource(
-                                R.id.imgbtn_playpause,
-                                R.drawable.play_m
-                            )
-                        } else {
-                            startMusicActivity(songIndex)
-                            remoteViews?.setImageViewResource(
-                                R.id.imgbtn_playpause,
-                                R.drawable.pause_m
-                            )
-                            mMediaPlayer!!.play()
-                        }
-                } catch (ex: Exception) {
-                    showException(ex.message.toString())
-                    startMusicActivity(0)
-                }
-            } else {
-                startMusicActivity(songIndex)
-            }
-
-
-        } else if (P_THUMBNAIL_CLICK == intent.action) {
-            widgetContext.startActivity(
-                Intent(
-                    widgetContext,
-                    DialogActivity::class.java
-                ).putExtra("DialogIntent", "SongCover")
-                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            )
-        } else if (ACTION_LIST_CONTACTITEM_CLICK == intent.action) {
-            // Extract the item position or ID from the intent extras
-
-            getFavoriteContacts(widgetContext)
-            val position = intent.getIntExtra(
-                EXTRA_CONTACTITEM_POSITION,
-                AdapterView.INVALID_POSITION
-            )
-            val viewID = intent.getIntExtra(
-                EXTRA_CONTACTVIEW_ID,
-                7
-            )
-
-
-            if (position != AdapterView.INVALID_POSITION) {
-
-                if (viewID == 0)
-                    dialPhoneNumber(widgetContext, favContacts[position].number)
-                else if (viewID == 1) {
-                    if (favContacts.size != position)
-                        unMarkAsFav(favContacts[position].id)
-                }
-            } else {
-                val pickContactIntent =
-                    Intent(widgetContext, DialogActivity::class.java)
-                pickContactIntent.putExtra("DialogIntent", "PC")
-                pickContactIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                widgetContext.startActivity(pickContactIntent)
-            }
-
-        } else if (ACTION_LIST_APPITEM_CLICK == intent.action) {
-            // Extract the item position or ID from the intent extras
-            val position = intent.getIntExtra(
-                EXTRA_APPITEM_POSITION,
-                AdapterView.INVALID_POSITION
-            )
-            val viewID = intent.getIntExtra(
-                EXTRA_APPVIEW_ID,
-                7
-            )
-
-            sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
-            sharedPreferencesEditor = sharedPreferences.edit()
-
-
-            if (position != AdapterView.INVALID_POSITION) {
-
-                if (viewID == 0) {
-                    val launchIntent: Intent =
-                        widgetContext.packageManager.getLaunchIntentForPackage(
-                            choosenApps[position].pName
-                        )!!
-
-                    // Optional: Add flags for desired behavior (e.g., to ensure a new task is created)
-                    launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    widgetContext.startActivity(launchIntent)
+            CLOSE_ACTIVITIES -> {
+                sharedPreferencesEditor.putBoolean("activitiesORcontrols", false).apply()
+                remoteViews?.apply {
+                    setViewVisibility(R.id.imgbtn_close_activities, View.INVISIBLE)
+                    setViewVisibility(R.id.btn_ui_prev, View.INVISIBLE)
+                    setViewVisibility(R.id.btn_ui_next, View.INVISIBLE)
+                    setViewVisibility(R.id.ll_activity_states, View.INVISIBLE)
+                    setViewVisibility(R.id.rl_setwall, View.VISIBLE)
+                    setViewVisibility(R.id.imgbtn_qr, View.VISIBLE)
+                    setViewVisibility(R.id.imgbtn_g_apps, View.VISIBLE)
+                    setViewVisibility(R.id.imgbtn_lock, View.VISIBLE)
+                    setViewVisibility(R.id.imgbtn_speech, View.VISIBLE)
+                    setViewVisibility(R.id.tx_myspace, View.VISIBLE)
+                    setViewVisibility(R.id.imgv_conf, View.VISIBLE)
+                    setViewVisibility(R.id.imgv_ps, View.VISIBLE)
+                    setViewVisibility(R.id.imgv_dialler, View.VISIBLE)
                 }
             }
-        } else if (FAB_SHARE == intent.action) {
+            ASSISTIVE_TOUCH -> {
+                val current = sharedPreferences.getBoolean("rlControls", false)
+                sharedPreferencesEditor.putBoolean("rlControls", !current).apply()
+                val show = !current
 
-            val inflater =
-                widgetContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            val appWidgetView: View = inflater.inflate(R.layout.new_app_widget, null)
-
-            appWidgetView.measure(
-                View.MeasureSpec.makeMeasureSpec(screenWidth, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(screenHeight - 725, View.MeasureSpec.EXACTLY)
-            );
-            appWidgetView.layout(
-                0,
-                0,
-                appWidgetView.getMeasuredWidth(),
-                appWidgetView.getMeasuredHeight()
-            );
-
-            var bitmapWidget = Bitmap.createBitmap(
-                appWidgetView.width,
-                appWidgetView.height,
-                Bitmap.Config.ARGB_8888
-            )
-
-            val canvas = Canvas(bitmapWidget)
-
-            appWidgetView.draw(canvas)
-
-            bitmapWidget = Bitmap.createScaledBitmap(
-                bitmapWidget,
-                Math.round(bitmapWidget.width * 50 / 100.0f),
-                Math.round(bitmapWidget.height * 50 / 100.0f),
-                true
-            )
-
-            shareBitmap(bitmapWidget)
-
-
-        } else if (WIFI_AUTO == intent.action) {
-            var wifiIntent = Intent(Settings.ACTION_WIFI_SETTINGS)
-            wifiIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            widgetContext.startActivity(wifiIntent)
-        } else if (TORCH_STATE == intent.action) {
-
-            val isFlashAvailable =
-                widgetContext.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)
-            if (!isFlashAvailable) {
-                  return
-            }
-            val cameraManager =
-                widgetContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-            var cameraId: String? = null
-            try {
-                cameraId = cameraManager.cameraIdList[0] // Typically the back camera
-            } catch (ex: CameraAccessException) {
-                showException(ex.message.toString())
-            }
-
-            try {
-                if (cameraId != null) {
-                    if (!sharedPreferences.getBoolean("Torch", false)) {
-                        cameraManager.setTorchMode(cameraId, true)
-                        remoteViews?.setImageViewResource(R.id.menu_torch, R.drawable.torch_on)
-                        sharedPreferencesEditor.putBoolean("Torch", true).apply()
+                remoteViews?.apply {
+                    if (show) {
+                        setViewVisibility(R.id.ll_activity_states, View.INVISIBLE)
+                        setViewVisibility(R.id.rl_setwall, View.VISIBLE)
+                        setViewVisibility(R.id.imgbtn_qr, View.VISIBLE)
+                        setViewVisibility(R.id.imgbtn_g_apps, View.VISIBLE)
+                        setViewVisibility(R.id.imgbtn_lock, View.VISIBLE)
+                        setViewVisibility(R.id.imgbtn_speech, View.VISIBLE)
+                        setViewVisibility(R.id.tx_myspace, View.VISIBLE)
+                        setViewVisibility(R.id.imgv_conf, View.VISIBLE)
+                        setViewVisibility(R.id.imgv_ps, View.VISIBLE)
+                        setViewVisibility(R.id.imgv_dialler, View.VISIBLE)
                     } else {
-                        cameraManager.setTorchMode(cameraId, false)
-                        remoteViews?.setImageViewResource(R.id.menu_torch, R.drawable.torch_off)
-                        sharedPreferencesEditor.putBoolean("Torch", false).apply()
+                        setViewVisibility(R.id.rl_still, if (presentActivityState == "STILL") View.VISIBLE else View.GONE)
+                        setViewVisibility(R.id.rl_walking, if (presentActivityState == "WALKING") View.VISIBLE else View.GONE)
+                        setViewVisibility(R.id.rl_speed, if (presentActivityState == "TRAVEL") View.VISIBLE else View.GONE)
+
+                        setViewVisibility(R.id.ll_activity_states, View.VISIBLE)
+                        setViewVisibility(R.id.rl_setwall, View.INVISIBLE)
+                        setViewVisibility(R.id.imgbtn_qr, View.INVISIBLE)
+                        setViewVisibility(R.id.imgbtn_g_apps, View.INVISIBLE)
+                        setViewVisibility(R.id.imgbtn_lock, View.INVISIBLE)
+                        setViewVisibility(R.id.imgbtn_speech, View.INVISIBLE)
+                        setViewVisibility(R.id.tx_myspace, View.INVISIBLE)
+                        setViewVisibility(R.id.imgv_conf, View.INVISIBLE)
+                        setViewVisibility(R.id.imgv_ps, View.INVISIBLE)
+                        setViewVisibility(R.id.imgv_dialler, View.INVISIBLE)
                     }
                 }
-            } catch (ex: CameraAccessException) {
-                showException(ex.message.toString())
             }
-
-
-        } else if (STEPS_NOW == intent.action) {
-            boolNewLap = !boolNewLap
-
-            sharedPreferencesEditor.putBoolean("newLap", boolNewLap).apply()
-
-        } else if (LOCK_PHONE == intent.action) {
-            if (widgetContext != null) {
-                if (isAccessibilityServiceEnabled(
-                        widgetContext,
-                        LockAccessibilityService::class.java
-                    )
+            TODO_CLICK -> makeToast(widgetContext, "inc")
+            TIME_CLICK -> {
+                val mClockIntent = Intent(AlarmClock.ACTION_SHOW_ALARMS).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                widgetContext.startActivity(mClockIntent)
+            }
+            DATE_CLICK -> {
+                val startMillis = System.currentTimeMillis()
+                val builder = CalendarContract.CONTENT_URI.buildUpon().appendPath("time")
+                ContentUris.appendId(builder, startMillis)
+                val intentCalendar = Intent(Intent.ACTION_VIEW).setData(builder.build())
+                intentCalendar.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                widgetContext.startActivity(intentCalendar)
+            }
+            STEPS_CLICK -> {
+                makeToast(widgetContext, "$stepsToday ~ " + String.format("%.1f", stepsToday * 74f / 100000f) + " Km")
+                remoteViews?.setTextViewText(R.id.tx_act_count, "$stepsToday")
+                widgetContext.startActivity(Intent(widgetContext, DialogActivity::class.java)
+                    .putExtra("DialogIntent", "stepsInfo").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }
+            NEXT_ACT_CLICK -> {
+                makeToast(widgetContext, "  $presentActivityState")
+                widgetContext.startActivity(Intent(widgetContext, DialogActivity::class.java)
+                    .putExtra("DialogIntent", "activitiesInfo").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }
+            BATTERY_INFO -> {
+                val powerUsageIntent = Intent("android.intent.action.POWER_USAGE_SUMMARY")
+                if (powerUsageIntent.resolveActivity(widgetContext.packageManager) != null) {
+                    powerUsageIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    widgetContext.startActivity(powerUsageIntent)
+                }
+            }
+            SPEED_CHECK -> {
+                if (isMyServiceRunning(widgetContext, SpeedService::class.java)) {
+                    if (widgetContext.stopService(Intent(widgetContext, SpeedService::class.java))) {
+                        makeToast(widgetContext, "  ⃠  ")
+                        remoteViews?.setChronometer(R.id.speed_chronometer, 0L, null, false)
+                        remoteViews?.setViewVisibility(R.id.tx_speed, View.INVISIBLE)
+                        remoteViews?.setViewVisibility(R.id.tx_max_speed, View.INVISIBLE)
+                        remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
+                    }
+                } else {
+                    val baseTime = SystemClock.elapsedRealtime()
+                    remoteViews?.setChronometer(R.id.speed_chronometer, baseTime, null, true)
+                    remoteViews?.setViewVisibility(R.id.tx_speed, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.tx_max_speed, View.VISIBLE)
+                    remoteViews?.setViewVisibility(R.id.speed_chronometer, View.VISIBLE)
+                    remoteViews?.setTextViewText(R.id.tx_max_speed, "MAX")
+                    sharedPreferencesEditor.putInt("maxSpeedToday", 0).apply()
+                    widgetContext.startForegroundService(Intent(widgetContext, SpeedService::class.java))
+                }
+            }
+            GET_WEATHER -> {
+                remoteViews?.setViewVisibility(R.id.progressBar_cyclic_weather, View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.tx_refresh_weather, View.INVISIBLE)
+                appWidM.updateAppWidget(newAppWidget, remoteViews)
+                StepsService.getWeatherData(LatLng(cityLat, cityLng))
+            }
+            PLAYPAUSE_CLICK -> {
+                if (boolMusicServiceRunning) {
+                    try {
+                        mMediaPlayer?.let {
+                            if (it.isPlaying) {
+                                it.pause()
+                                remoteViews?.setImageViewResource(R.id.imgbtn_playpause, R.drawable.play_m)
+                            } else {
+                                startMusicActivity(songIndex)
+                                remoteViews?.setImageViewResource(R.id.imgbtn_playpause, R.drawable.pause_m)
+                                it.play()
+                            }
+                        } ?: startMusicActivity(songIndex)
+                    } catch (ex: Exception) {
+                        remoteViews?.setTextViewText(R.id.tx_runner, ex.message)
+                        startMusicActivity(0)
+                    }
+                } else {
+                    startMusicActivity(songIndex)
+                }
+            }
+            P_THUMBNAIL_CLICK -> {
+                widgetContext.startActivity(Intent(widgetContext, DialogActivity::class.java)
+                    .putExtra("DialogIntent", "SongCover").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }
+            ACTION_LIST_CONTACTITEM_CLICK -> {
+                getFavoriteContacts(widgetContext)
+                val position = intent.getIntExtra(EXTRA_CONTACTITEM_POSITION, AdapterView.INVALID_POSITION)
+                val viewID = intent.getIntExtra(EXTRA_CONTACTVIEW_ID, 7)
+                if (position != AdapterView.INVALID_POSITION) {
+                    if (viewID == 0) dialPhoneNumber(widgetContext, favContacts[position].number)
+                    else if (viewID == 1 && favContacts.size > position) unMarkAsFav(favContacts[position].id)
+                } else {
+                    widgetContext.startActivity(Intent(widgetContext, DialogActivity::class.java)
+                        .putExtra("DialogIntent", "PC").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                }
+            }
+            ACTION_LIST_APPITEM_CLICK -> {
+                val position = intent.getIntExtra(EXTRA_APPITEM_POSITION, AdapterView.INVALID_POSITION)
+                val viewID = intent.getIntExtra(EXTRA_APPVIEW_ID, 7)
+                if (position != AdapterView.INVALID_POSITION && viewID == 0) {
+                    widgetContext.packageManager.getLaunchIntentForPackage(choosenApps[position].pName)?.let {
+                        it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        widgetContext.startActivity(it)
+                    }
+                }
+            }
+            FAB_SHARE -> {
+                val inflater = widgetContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+                val appWidgetView = inflater.inflate(R.layout.new_app_widget, null)
+                appWidgetView.measure(
+                    View.MeasureSpec.makeMeasureSpec(screenWidth, View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(screenHeight - 725, View.MeasureSpec.EXACTLY)
                 )
+                appWidgetView.layout(0, 0, appWidgetView.measuredWidth, appWidgetView.measuredHeight)
+                var bitmapWidget = Bitmap.createBitmap(appWidgetView.width, appWidgetView.height, Bitmap.Config.ARGB_8888)
+                val canvas = Canvas(bitmapWidget)
+                appWidgetView.draw(canvas)
+                bitmapWidget = Bitmap.createScaledBitmap(bitmapWidget, Math.round(bitmapWidget.width * 0.5f), Math.round(bitmapWidget.height * 0.5f), true)
+                shareBitmap(bitmapWidget)
+            }
+            WIFI_AUTO -> {
+                widgetContext.startActivity(Intent(Settings.ACTION_WIFI_SETTINGS).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }
+            TORCH_STATE -> {
+                if (widgetContext.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
+                    val cameraManager = widgetContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+                    try {
+                        val cameraId = cameraManager.cameraIdList[0]
+                        val isTorchOn = sharedPreferences.getBoolean("Torch", false)
+                        cameraManager.setTorchMode(cameraId, !isTorchOn)
+                        remoteViews?.setImageViewResource(R.id.menu_torch, if (isTorchOn) R.drawable.torch_off else R.drawable.torch_on)
+                        sharedPreferencesEditor.putBoolean("Torch", !isTorchOn).apply()
+                    } catch (ex: Exception) {
+                        remoteViews?.setTextViewText(R.id.tx_runner, ex.message)
+                    }
+                }
+            }
+            STEPS_NOW -> {
+                boolNewLap = !boolNewLap
+                sharedPreferencesEditor.putBoolean("newLap", boolNewLap).apply()
+            }
+            LOCK_PHONE -> {
+                if (isAccessibilityServiceEnabled(widgetContext, LockAccessibilityService::class.java)) {
                     LockAccessibilityService.lockScreenAccessibility(widgetContext)
-                else widgetContext.startActivity(
-                    Intent(
-                        widgetContext,
-                        DialogActivity::class.java
-                    ).putExtra("DialogIntent", "AccessibilityPermDialog")
-                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                )
+                } else {
+                    widgetContext.startActivity(Intent(widgetContext, DialogActivity::class.java)
+                        .putExtra("DialogIntent", "AccessibilityPermDialog").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                }
             }
-
-        } else if (SET_CLICKED == intent.action) {
-            val launchIntent: Intent =
-                widgetContext.packageManager.getLaunchIntentForPackage("com.belaku.homey")!!
-            widgetContext.startActivity(launchIntent)
-        } else if (A_CLICKED == intent.action) {
-            val intentApps = Intent(widgetContext, AppsActivity::class.java)
-            intentApps.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            widgetContext.startActivity(intentApps)
-        } else if (C_CLICKED == intent.action) {
-            val intentContacts = Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI)
-            intentContacts.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            widgetContext.startActivity(intentContacts)
-        } else if (DIAL_CLICK == intent.action) {
-            val intentDial = Intent(Intent.ACTION_DIAL)
-            intentDial.data = Uri.parse("tel:") // Replace with the desired number
-            widgetContext.startActivity(intentDial.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-
-        } else if (PS_CLICK == intent.action) {
-            val pm: PackageManager = widgetContext.getPackageManager()
-            val intent = pm.getLaunchIntentForPackage("com.android.vending")
-            intent?.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            intent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            widgetContext.startActivity(intent);
-
-        } else if (Time_A_CLICKED == intent.action) {
-
-            var boolSpkService = sharedPreferences.getBoolean("SPKSERVICE", false)
-            val speakIntent = Intent(widgetContext, SpeakService::class.java)
-            if (!boolSpkService) {
-                widgetContext.startService(speakIntent)
-                remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
-                sharedPreferencesEditor.putBoolean("SPKSERVICE", true).apply()
-                makeToast(widgetContext, "Incoming notifications and hour changes will be read out loud.")
-            } else {
-                widgetContext.stopService(speakIntent)
-                remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
-                sharedPreferencesEditor.putBoolean("SPKSERVICE", false).apply()
+            SET_CLICKED -> {
+                widgetContext.packageManager.getLaunchIntentForPackage("com.belaku.homey")?.let {
+                    widgetContext.startActivity(it)
+                }
             }
-
-        } else if (ADD_TODO_CLICK == intent.action) {
-            makeToast(widgetContext, "Add Todo Clicked!")
-        } else if (WATER_REMINDER_CLICK == intent.action) {
-            val waterCount = sharedPreferences.getInt("waterCountToday", 0) + 1
-            sharedPreferencesEditor.putInt("waterCountToday", waterCount).apply()
-            remoteViews?.setTextViewText(R.id.tx_water_count, waterCount.toString())
-        } else if (MENU_CLICK == intent.action) {
-            makeToast(widgetContext, "hi")
+            A_CLICKED -> {
+                widgetContext.startActivity(Intent(widgetContext, AppsActivity::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }
+            C_CLICKED -> {
+                widgetContext.startActivity(Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }
+            DIAL_CLICK -> {
+                widgetContext.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:")).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }
+            PS_CLICK -> {
+                widgetContext.packageManager.getLaunchIntentForPackage("com.android.vending")?.let {
+                    it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    widgetContext.startActivity(it)
+                }
+            }
+            Time_A_CLICKED -> {
+                val current = sharedPreferences.getBoolean("SPKSERVICE", false)
+                val speakIntent = Intent(widgetContext, SpeakService::class.java)
+                if (!current) {
+                    widgetContext.startService(speakIntent)
+                    remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
+                    sharedPreferencesEditor.putBoolean("SPKSERVICE", true).apply()
+                    makeToast(widgetContext, "Incoming notifications and hour changes will be read out loud.")
+                } else {
+                    widgetContext.stopService(speakIntent)
+                    remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
+                    sharedPreferencesEditor.putBoolean("SPKSERVICE", false).apply()
+                }
+            }
+            ADD_TODO_CLICK -> makeToast(widgetContext, "Add Todo Clicked!")
+            WATER_REMINDER_CLICK -> {
+                val waterCount = sharedPreferences.getInt("waterCountToday", 0) + 1
+                sharedPreferencesEditor.putInt("waterCountToday", waterCount).apply()
+                remoteViews?.setTextViewText(R.id.tx_water_count, waterCount.toString())
+            }
+            MENU_CLICK -> makeToast(widgetContext, "hi")
         }
     }
+
 
 
 
