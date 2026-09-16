@@ -387,6 +387,9 @@ class MainActivity : AppCompatActivity() {
 
                     // Launch the system request to pin the widget
                     appWidgetManager.requestPinAppWidget(myProvider, null, successCallback)
+                    remoteViews?.setTextViewText(R.id.tx_act_count, "1")
+                    setWalls(0)
+               //     appWidgetManager.updateAppWidget(myProvider, remoteViews)
                     finish()
 
                 }

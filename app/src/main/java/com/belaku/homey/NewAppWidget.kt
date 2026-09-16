@@ -607,8 +607,9 @@ class NewAppWidget : AppWidgetProvider() {
             getPendingSelfIntent(context, WATER_REMINDER_CLICK)
         )
 
+
         remoteViews?.setOnClickPendingIntent(
-            R.id.tx_water_count,
+            R.id.tx_act_plus,
             getPendingSelfIntent(context, WATER_REMINDER_CLICK)
         )
 
@@ -707,9 +708,10 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
             remoteViews?.setViewVisibility(R.id.imgbtn_info_steps, View.VISIBLE)
 
-            remoteViews?.setTextViewText(R.id.tx_act_count, Html.fromHtml("\uD800\uDCEF<sup>"+SetWallWorker.Companion.sharedPreferences.getInt("waterCountToday", 0).toString()+"</sup> " ))
+            remoteViews?.setTextViewText(R.id.tx_act_count, sharedPreferences.getInt("waterCountToday", 0).toString() + "\uD800\uDCEF" )
             remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.still)
             remoteViews?.setViewVisibility(R.id.rl_still, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.tx_act_plus, View.VISIBLE)
             remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
             remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
 
@@ -729,6 +731,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.steps)
             remoteViews?.setTextViewText(R.id.tx_act_count, stepsToday.toString())
             remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
+            remoteViews?.setViewVisibility(R.id.tx_act_plus, View.GONE)
             remoteViews?.setViewVisibility(R.id.rl_walking, View.VISIBLE)
             remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
 
@@ -749,6 +752,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.in_a_vehicle)
             remoteViews?.setTextViewText(R.id.tx_act_count, sharedPreferences.getInt("current_speed", 0).toString())
             remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
+            remoteViews?.setViewVisibility(R.id.tx_act_plus, View.GONE)
             remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
             remoteViews?.setViewVisibility(R.id.rl_speed, View.VISIBLE)
 
@@ -1502,6 +1506,8 @@ class NewAppWidget : AppWidgetProvider() {
                 val waterCount = sharedPreferences.getInt("waterCountToday", 0) + 1
                 sharedPreferencesEditor.putInt("waterCountToday", waterCount).apply()
                 remoteViews?.setTextViewText(R.id.tx_water_count, waterCount.toString())
+                if (presentActivityState == "STILL")
+                remoteViews?.setTextViewText(R.id.tx_act_count, waterCount.toString() + "\uD800\uDCEF")
             }
             MENU_CLICK -> makeToast(widgetContext, "hi")
         }

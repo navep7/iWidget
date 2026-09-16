@@ -88,9 +88,10 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     rv.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
                 }
 
-                rv.setTextViewText(R.id.tx_act_count, Html.fromHtml("\uD800\uDCEF<sup>"+SetWallWorker.Companion.sharedPreferences.getInt("waterCountToday", 0).toString()+"</sup> " ))
+                rv.setTextViewText(R.id.tx_act_count, sharedPreferences.getInt("waterCountToday", 0).toString() + "\uD800\uDCEF" )
                 rv.setImageViewResource(R.id.imgv_activity_state, R.drawable.still)
                 rv.setViewVisibility(R.id.rl_still, View.VISIBLE)
+                rv.setViewVisibility(R.id.tx_act_plus, View.VISIBLE)
                 rv.setViewVisibility(R.id.rl_walking, View.GONE)
                 rv.setViewVisibility(R.id.rl_speed, View.GONE)
 
@@ -111,6 +112,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                 rv.setImageViewResource(R.id.imgv_activity_state, R.drawable.steps)
                 rv.setTextViewText(R.id.tx_act_count, stepsToday.toString())
                 rv.setViewVisibility(R.id.rl_still, View.GONE)
+                rv.setViewVisibility(R.id.tx_act_plus, View.GONE)
                 rv.setViewVisibility(R.id.rl_walking, View.VISIBLE)
                 rv.setViewVisibility(R.id.rl_speed, View.GONE)
 
@@ -128,6 +130,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     rv.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
                     rv.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
                     rv.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
+                    rv.setViewVisibility(R.id.tx_act_plus, View.GONE)
                     rv.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
                     
                     startSpeedService(context)
