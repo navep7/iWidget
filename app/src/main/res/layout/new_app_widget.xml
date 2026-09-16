@@ -804,7 +804,7 @@
                             android:layout_toEndOf="@+id/tx_speed"
                             android:gravity="center"
                             android:background="@drawable/speed_sign_bg"
-                            android:textSize="15sp"
+                            android:textSize="10sp"
                             android:textColor="@android:color/holo_red_dark"
                             android:textStyle="bold" />
 
@@ -821,7 +821,7 @@
                             android:gravity="center"
                             android:text="⚡"
                             android:textColor="@android:color/holo_red_light"
-                            android:textSize="50sp"
+                            android:textSize="35sp"
                             android:textStyle="bold" />
 
 

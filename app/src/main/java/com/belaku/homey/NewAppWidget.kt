@@ -944,114 +944,76 @@ class NewAppWidget : AppWidgetProvider() {
     @SuppressLint("ResourceAsColor")
     @RequiresApi(Build.VERSION_CODES.S)
     private fun wallColors() {
+        try {
+            val wallpaperManager = WallpaperManager.getInstance(widgetContext)
+            val wallpaperColors = wallpaperManager.getWallpaperColors(WallpaperManager.FLAG_SYSTEM)
 
-        val wallpaperManager = WallpaperManager.getInstance(widgetContext)
-        val wallpaperColors = wallpaperManager.getWallpaperColors(WallpaperManager.FLAG_SYSTEM)
+            if (wallpaperColors != null) {
+                Log.d("wallColors", "notNULL")
 
+                primaryColor = wallpaperColors.primaryColor.toArgb()
+                secondaryColor = wallpaperColors.secondaryColor?.toArgb() ?: Color.GREEN
+                tertianaryColor = wallpaperColors.tertiaryColor?.toArgb() ?: Color.BLUE
 
-        if (wallpaperColors != null) {
-            Log.d("wallColors", "notNULL")
+                wallpColors.clear()
+                wallpColors.add(primaryColor)
+                wallpColors.add(secondaryColor)
+                wallpColors.add(tertianaryColor)
 
-            primaryColor = wallpaperColors.primaryColor.toArgb()
+                val metrics = widgetContext.resources.displayMetrics
+                if (screenWidth == 0 || screenHeight == 0) {
+                    screenWidth = metrics.widthPixels
+                    screenHeight = metrics.heightPixels
+                }
 
-            if (wallpaperColors.secondaryColor != null)
-                secondaryColor = wallpaperColors.secondaryColor!!.toArgb()
-            else secondaryColor = Color.GREEN
+                if (ismActInitialized()) {
+                    mAct.windowManager.defaultDisplay.getMetrics(metrics)
+                    screenHeight = metrics.heightPixels
+                    screenWidth = metrics.widthPixels
+                }
 
-            if (wallpaperColors.tertiaryColor != null)
-                tertianaryColor = wallpaperColors.tertiaryColor!!.toArgb()
-            else tertianaryColor = Color.BLUE
-
-            wallpColors.add(primaryColor)
-            wallpColors.add(secondaryColor)
-            wallpColors.add(tertianaryColor)
-
-
-            val metrics = DisplayMetrics()
-
-            if (ismActInitialized()) {
-                mAct.getWindowManager().getDefaultDisplay().getMetrics(metrics)
-                screenHeight = metrics.heightPixels
-                screenWidth = metrics.widthPixels
                 remoteViews?.setImageViewBitmap(
                     R.id.imgv_player,
                     createGradientBitmap(screenWidth, 100, primaryColor, tertianaryColor)
                 )
 
+                if (isWallBitmapInitialized(widgetContext)) {
+                    val currentWallBitmap = wallBitmap
+                    if (!currentWallBitmap.isRecycled) {
+                        scaledBitmap = Bitmap.createScaledBitmap(currentWallBitmap, screenWidth, screenHeight, true)
 
-            }
+                        if (!scaledBitmap.isRecycled) {
+                            val overlayColor = if (ColorUtil().isColorDark(primaryColor)) android.R.color.black else android.R.color.white
+                            
+                            val cropX = 10
+                            val cropY = 25
+                            val cropW = (screenWidth - 20).coerceAtLeast(1)
+                            val cropH = (screenHeight - 150).coerceAtLeast(1)
 
+                            if (cropX + cropW <= scaledBitmap.width && cropY + cropH <= scaledBitmap.height) {
+                                val croppedBitmap = Bitmap.createBitmap(scaledBitmap, cropX, cropY, cropW, cropH)
+                                val blurredBitmap = BitmapBlurHelper.blurBitmap(widgetContext, croppedBitmap)
+                                val roundedDrawable = RoundedBitmapDrawableFactory.create(widgetContext.resources, blurredBitmap)
+                                val finalBitmap = drawableToBitmap(widgetContext, roundedDrawable)
 
-
-            if (!ColorUtil().isColorDark(primaryColor)) {
-
-
-
-                if (isWallBitmapInitialized(widgetContext) && !wallBitmap.isRecycled) {
-                    scaledBitmap = wallBitmap.scale(screenWidth, screenHeight)
-
-                    remoteViews?.setImageViewBitmap(
-                        R.id.imgv_widget_layout,
-                        applyThinFilmOverlay(
-                            drawableToBitmap(
-                                widgetContext, RoundedBitmapDrawableFactory.create(
-                                    widgetContext.resources, BitmapBlurHelper.blurBitmap(
-                                        widgetContext,
-                                        Bitmap.createBitmap(
-                                            scaledBitmap,
-                                            10,
-                                            25,
-                                            screenWidth - 20,
-                                            screenHeight - 150
-                                        )
-                                    )
+                                remoteViews?.setImageViewBitmap(
+                                    R.id.imgv_widget_layout,
+                                    applyThinFilmOverlay(finalBitmap, overlayColor, 75)
                                 )
-                            ), android.R.color.white, 75
-                        )
-                    )
+                            }
+                        }
 
-                    blurWallBitmap = blur(widgetContext, wallBitmap)
+                        if (!currentWallBitmap.isRecycled) {
+                            blurWallBitmap = blur(widgetContext, currentWallBitmap)
+                        }
+                    }
                 }
-
-
-
             } else {
-
-
-                if (isWallBitmapInitialized(widgetContext))
-                if (!wallBitmap.isRecycled){
-                    scaledBitmap =
-                        Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
-
-                    remoteViews?.setImageViewBitmap(
-                        R.id.imgv_widget_layout,
-                        applyThinFilmOverlay(
-                            drawableToBitmap(
-                                widgetContext, RoundedBitmapDrawableFactory.create(
-                                    widgetContext.resources, BitmapBlurHelper.blurBitmap(
-                                        widgetContext,
-                                        Bitmap.createBitmap(
-                                            scaledBitmap,
-                                            10,
-                                            25,
-                                            screenWidth - 20,
-                                            screenHeight - 150
-                                        )
-                                    )
-                                )
-                            ), android.R.color.black, 75
-                        )
-                    )
-
-                    blurWallBitmap = blur(widgetContext, wallBitmap)
-                }
-
-
+                Log.d("wallColors", "NULL")
             }
-
-        } else Log.d("wallColors", "NULL")
-
-
+        } catch (e: Exception) {
+            Log.e("wallColors", "Error in wallColors", e)
+        }
     }
 
     fun blur(context: Context?, image: Bitmap): Bitmap {
@@ -1075,6 +1037,7 @@ class NewAppWidget : AppWidgetProvider() {
         theIntrinsic.forEach(tmpOut)
         tmpOut.copyTo(outputBitmap)
 
+        inputBitmap.recycle()
         rs.destroy()
 
         return outputBitmap
