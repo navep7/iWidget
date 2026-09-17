@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Light pill, used for controls on the dark panel plate. Mirrors rounded_corner_gray. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#75FFFFFF"/>
+    <corners
+        android:radius="50dp"/>
+</shape>

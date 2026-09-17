@@ -66,6 +66,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.cityLat
@@ -908,9 +909,7 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
         val spkServiceRunning = sharedPreferences.getBoolean("SPKSERVICE", false)
-        if (spkServiceRunning)
-            remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
-        else remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
+        applyTimeAnnouncementState(spkServiceRunning, ColorUtil().isColorDark(primaryColor))
 
         if (ispDataListInitialized() && songIndex >= 0 && pDatalistSongs.size > songIndex) {
             val song = pDatalistSongs[songIndex]
@@ -1046,6 +1045,140 @@ class NewAppWidget : AppWidgetProvider() {
         return color xor 0x00FFFFFF
     }
 
+    /**
+     * Keeps the shaded panels readable over any wallpaper.
+     *
+     * The place/weather cards and the steps, unlocks and screen-time stats panels contrast against
+     * the wallpaper - light shaded plates on dark wallpapers, dark shaded plates on light ones - and
+     * keep their existing 15dp glass look via
+     * [R.drawable.gradient_glass_light]/[R.drawable.gradient_glass_dark].
+     *
+     * The controls panel is deliberately inverted: it matches the wallpaper's own tone rather than
+     * contrasting with it, using the 24dp
+     * [R.drawable.rounded_panel_light]/[R.drawable.rounded_panel_dark] pair. Its icon pills therefore
+     * contrast against that plate ([R.drawable.rounded_corner_light] on the dark plate,
+     * [R.drawable.rounded_corner_gray] on the light one), and the icons sitting on those pills are
+     * re-tinted to contrast with the pill in turn.
+     *
+     * All labels sitting on a glass plate are inverted against that plate, otherwise the default
+     * white text would wash out on the light plate that a dark wallpaper produces. The accent glyphs
+     * ([R.id.tx_open_maps], [R.id.tx_refresh_weather]) follow the same rule but stay tinted, using a
+     * darkened or lightened shade of [tertianaryColor] instead of plain black/white.
+     *
+     * [R.id.tx_time_announcement] is tinted from [tertianaryColor] too, but shifted the opposite way:
+     * it sits directly on the wallpaper rather than on a plate, so it lightens over dark wallpapers.
+     *
+     * RemoteViews has no setBackgroundResource helper, so the setter is invoked reflectively.
+     */
+    private fun applyAdaptivePanelBackgrounds(isWallpaperDark: Boolean) {
+        try {
+            // Intentionally inverted relative to the glass panels: the controls plate follows the
+            // wallpaper's own tone instead of contrasting against it.
+            val controlsBackground =
+                if (isWallpaperDark) R.drawable.rounded_panel_dark
+                else R.drawable.rounded_panel_light
+
+            val glassBackground =
+                if (isWallpaperDark) R.drawable.gradient_glass_light
+                else R.drawable.gradient_glass_dark
+
+            // Every panel that sits directly on the wallpaper and needs a readable backdrop.
+            val glassPanelIds = listOf(
+                R.id.ll_place,
+                R.id.id_weather,
+                R.id.rl_steps,
+                R.id.rl_unlocks,
+                R.id.rl_scrtime
+            )
+
+            remoteViews?.setInt(R.id.rl_controls, "setBackgroundResource", controlsBackground)
+            glassPanelIds.forEach { panelId ->
+                remoteViews?.setInt(panelId, "setBackgroundResource", glassBackground)
+            }
+
+            // The controls plate matches the wallpaper tone, so its pills must contrast with the
+            // plate: light pills on the dark plate, the original dark pills on the light plate.
+            val pillBackground =
+                if (isWallpaperDark) R.drawable.rounded_corner_light
+                else R.drawable.rounded_corner_gray
+
+            // imgbtn_g_apps takes the adaptive pill like its siblings, but is deliberately left out
+            // of the tint loop below: a colour filter would flatten the Google logo's brand colours.
+            listOf(
+                R.id.imgbtn_g_apps,
+                R.id.imgv_conf,
+                R.id.imgbtn_speech,
+                R.id.imgbtn_qr,
+                R.id.rl_setwall,
+                R.id.imgbtn_lock,
+                R.id.imgv_ps,
+                R.id.imgv_dialler,
+                R.id.tx_myspace
+            ).forEach { pillId ->
+                remoteViews?.setInt(pillId, "setBackgroundResource", pillBackground)
+            }
+
+            // Icons sit on the pill, so they invert against it rather than against the wallpaper.
+            val pillContentColor = if (isWallpaperDark) Color.BLACK else Color.WHITE
+
+            listOf(
+                R.id.imgv_conf,
+                R.id.imgbtn_speech,
+                R.id.imgbtn_qr,
+                R.id.imgbtn_lock,
+                R.id.imgv_ps,
+                R.id.imgv_dialler,
+                R.id.imgbtn_set
+            ).forEach { iconId ->
+                remoteViews?.setInt(iconId, "setColorFilter", pillContentColor)
+            }
+
+            remoteViews?.setTextColor(R.id.tx_myspace, pillContentColor)
+
+            // Contrast against the glass plate, not against the wallpaper: a dark wallpaper
+            // yields a light plate, which needs dark text.
+            val glassTextColor = if (isWallpaperDark) Color.BLACK else Color.WHITE
+
+            val glassLabelIds = listOf(
+                R.id.tx_place,
+                R.id.tx_weather,
+                R.id.tx_act_state,
+                R.id.tx_act_count,
+                R.id.tx_act_plus,
+                R.id.tx_unlocks,
+                R.id.tx_screenusage_state,
+                R.id.tx_screentime
+            )
+
+            glassLabelIds.forEach { textViewId ->
+                remoteViews?.setTextColor(textViewId, glassTextColor)
+            }
+
+            // Accent glyphs keep the tertiary hue but shift shade so they stay visible on the
+            // plate: darker shade on the light plate, lighter shade on the dark plate.
+            // darkenColor preserves the source alpha, so force full opacity - a translucent
+            // tertianaryColor would otherwise render the glyphs faded.
+            val accentShade =
+                if (isWallpaperDark) ColorUtil().darkenColor(tertianaryColor, 0.45f)
+                else ColorUtil().lightenColor(tertianaryColor, 0.35f)
+            val accentColor = ColorUtils.setAlphaComponent(accentShade, 255)
+
+            listOf(R.id.tx_open_maps, R.id.tx_refresh_weather).forEach { glyphId ->
+                remoteViews?.setTextColor(glyphId, accentColor)
+            }
+
+            // The time-announcement glyph sits straight on the wallpaper instead of a plate and is
+            // also a service indicator, so its glyph and colour are set together by the shared
+            // helper: wallpaper accent while speaking, muted grey when off.
+            applyTimeAnnouncementState(
+                sharedPreferences.getBoolean("SPKSERVICE", false),
+                isWallpaperDark
+            )
+        } catch (e: Exception) {
+            Log.e("wallColors", "Unable to apply adaptive panel backgrounds", e)
+        }
+    }
+
     @SuppressLint("ResourceAsColor")
     @RequiresApi(Build.VERSION_CODES.S)
     private fun wallColors() {
@@ -1064,6 +1197,8 @@ class NewAppWidget : AppWidgetProvider() {
                 wallpColors.add(primaryColor)
                 wallpColors.add(secondaryColor)
                 wallpColors.add(tertianaryColor)
+
+                applyAdaptivePanelBackgrounds(ColorUtil().isColorDark(primaryColor))
 
                 val metrics = widgetContext.resources.displayMetrics
                 if (screenWidth == 0 || screenHeight == 0) {
@@ -1111,7 +1246,7 @@ class NewAppWidget : AppWidgetProvider() {
 
                                 remoteViews?.setImageViewBitmap(
                                     R.id.imgv_widget_layout,
-                                    applyThinFilmOverlay(finalBitmap, overlayColor, 75)
+                                    finalBitmap
                                 )
 
                                 // Release intermediates: these wallpaper-sized bitmaps are the
@@ -1127,6 +1262,9 @@ class NewAppWidget : AppWidgetProvider() {
                 }
             } else {
                 Log.d("wallColors", "NULL")
+                // No wallpaper colors available - default to the light plates, which stay
+                // readable on the majority of (darker) wallpapers.
+                applyAdaptivePanelBackgrounds(true)
             }
         } catch (e: Exception) {
             Log.e("wallColors", "Error in wallColors", e)
@@ -1658,12 +1796,12 @@ class NewAppWidget : AppWidgetProvider() {
                 val speakIntent = Intent(widgetContext, SpeakService::class.java)
                 if (!current) {
                     widgetContext.startService(speakIntent)
-                    remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
+                    applyTimeAnnouncementState(true, ColorUtil().isColorDark(primaryColor))
                     sharedPreferencesEditor.putBoolean("SPKSERVICE", true).apply()
                     makeToast(widgetContext, "Incoming notifications and hour changes will be read out loud.")
                 } else {
                     widgetContext.stopService(speakIntent)
-                    remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
+                    applyTimeAnnouncementState(false, ColorUtil().isColorDark(primaryColor))
                     sharedPreferencesEditor.putBoolean("SPKSERVICE", false).apply()
                 }
             }
@@ -2007,9 +2145,12 @@ class NewAppWidget : AppWidgetProvider() {
         var selectedApps: ArrayList<SelectedApp> = ArrayList()
         lateinit var selectedApp: Bitmap
 
-        var primaryColor = R.color.light_blue_900
-        var secondaryColor = R.color.bg_light
-        var tertianaryColor = R.color.bg_dark
+        // These must hold resolved ARGB ints, never R.color.* resource ids: every consumer
+        // (ColorUtil shading, createGradientBitmap, RemoteViews.setTextColor) reads them as colors.
+        // Defaults mirror light_blue_900 / bg_light / bg_dark until wallColors() overwrites them.
+        var primaryColor = Color.parseColor("#FF01579B")
+        var secondaryColor = Color.parseColor("#75FFFFFF")
+        var tertianaryColor = Color.parseColor("#75000000")
 
 
         var favContacts: ArrayList<Contact> = ArrayList()
@@ -2233,6 +2374,33 @@ class NewAppWidget : AppWidgetProvider() {
             }
         }
 
+
+        /**
+         * Single source of truth for the speech-service indicator: keeps the glyph and its colour
+         * in sync so the on/off state stays readable at a glance.
+         *
+         * Active uses the wallpaper's tertiary accent, shaded to contrast with the wallpaper it sits
+         * on. Inactive falls back to a muted grey, so the state is not conveyed by shape alone.
+         */
+        fun applyTimeAnnouncementState(isSpeaking: Boolean, isWallpaperDark: Boolean) {
+            try {
+                val glyph = if (isSpeaking) "\uD83D\uDDE3" else "⊘"
+
+                val color = if (isSpeaking) {
+                    val accentShade =
+                        if (isWallpaperDark) ColorUtil().lightenColor(tertianaryColor, 0.35f)
+                        else ColorUtil().darkenColor(tertianaryColor, 0.45f)
+                    ColorUtils.setAlphaComponent(accentShade, 255)
+                } else {
+                    if (isWallpaperDark) Color.LTGRAY else Color.DKGRAY
+                }
+
+                remoteViews?.setTextViewText(R.id.tx_time_announcement, glyph)
+                remoteViews?.setTextColor(R.id.tx_time_announcement, color)
+            } catch (e: Exception) {
+                Log.e("NewAppWidget", "Unable to apply time announcement state", e)
+            }
+        }
 
         fun interpolateColor(color1: Int, color2: Int, ratio: Float): Int {
             val r = (Color.red(color1) + ratio * (Color.red(color2) - Color.red(color1))).toInt()

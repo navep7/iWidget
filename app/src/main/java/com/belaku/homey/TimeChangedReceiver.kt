@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SpeakService.Companion.speakOut
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
@@ -26,7 +25,10 @@ class TimeChangedReceiver : BroadcastReceiver() {
                 if (currentHour == 10 && calendar.get(Calendar.AM_PM) == 1) {
                     val speakIntent = Intent(context, SpeakService::class.java)
                     context.stopService(speakIntent)
-                    remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
+                    NewAppWidget.applyTimeAnnouncementState(
+                        false,
+                        ColorUtil().isColorDark(NewAppWidget.primaryColor)
+                    )
                     sharedPreferencesEditor.putBoolean("SPKSERVICE", false).apply()
                 }
 
