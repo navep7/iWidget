@@ -51,7 +51,7 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
     private lateinit var binding: ActivityMySpaceBinding
 
     @SuppressLint("NotifyDataSetChanged")
-    @RequiresApi(Build.VERSION_CODES.S)
+      
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -90,7 +90,7 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         loadData()
     }
 
-    @RequiresApi(Build.VERSION_CODES.S)
+      
     private fun loadData() {
         val savedAppNames = sharedPreferences.getStringSet("mySpaceApps", null) ?: emptySet()
         mySpaceAppsString.clear()

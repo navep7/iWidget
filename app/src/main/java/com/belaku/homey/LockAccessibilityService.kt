@@ -87,7 +87,7 @@ class LockAccessibilityService : AccessibilityService() {
     override fun onInterrupt() {
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
+
     override fun onCreate() {
         super.onCreate()
 

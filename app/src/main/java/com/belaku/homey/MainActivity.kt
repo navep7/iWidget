@@ -197,8 +197,8 @@ class MainActivity : AppCompatActivity() {
 
 
     @OptIn(DelicateCoroutinesApi::class)
-    @SuppressLint("MissingPermission", "SetTextI18n")
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @SuppressLint("MissingPermission", "SetTextI18n", "NewApi")
+   
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -318,6 +318,8 @@ class MainActivity : AppCompatActivity() {
         instructionsDialogView = inflater.inflate(R.layout.instructions_dialog, null)
         instructionsDialogBuilder.setView(instructionsDialogView)
 
+        instructionsDialogBuilder.setTitle("        nHome Widget samples!")
+
         iDV = instructionsDialogBuilder.create()
 
         // The sheet must always be closable: it is now a plain welcome/how-to
@@ -375,7 +377,7 @@ class MainActivity : AppCompatActivity() {
 
         fabMain.setOnClickListener { view ->
 
-            if (fabMain.text == "Set") {
+            if (fabMain.text == "Set" || fabMain.text == "Exp ~ Set again!") {
                 if (fabDay.visibility == View.GONE) {
 
                     fabDay.visibility = View.VISIBLE
@@ -398,7 +400,6 @@ class MainActivity : AppCompatActivity() {
 
         } else {
 
-            //    showPermissionsSheet()
 
                 val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
                 val myProvider = ComponentName(applicationContext, NewAppWidget::class.java)
@@ -413,8 +414,8 @@ class MainActivity : AppCompatActivity() {
                     // Launch the system request to pin the widget
                     appWidgetManager.requestPinAppWidget(myProvider, null, successCallback)
                     remoteViews?.setTextViewText(R.id.tx_act_count, "1")
-                    setWalls(0)
-                    //     appWidgetManager.updateAppWidget(myProvider, remoteViews)
+                 //   setWalls(0)
+                         appWidgetManager.updateAppWidget(myProvider, remoteViews)
 
                     // The widget is now on the home screen: populate the tiles whose
                     // permissions we already hold. Anything missing is requested
@@ -1065,7 +1066,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    @RequiresApi(Build.VERSION_CODES.S)
+      
     private fun setWalls(delay: Long) {
 
         delayUnit = delay.toString()
@@ -1099,7 +1100,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    @RequiresApi(Build.VERSION_CODES.S)
+      
     @SuppressLint("ClickableViewAccessibility")
     private fun listeners() {
 
@@ -1277,7 +1278,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun AccessibilityServicePermissionDialog() {
 
         val builder = AlertDialog.Builder(this)
@@ -1334,7 +1334,7 @@ class MainActivity : AppCompatActivity() {
      * Handles the "requestFeature" extra sent by a widget tile whose permission is
      * missing. The extra is consumed so a rotation or resume cannot replay the request.
      */
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+     
     private fun handleFeatureRequest(fromIntent: Intent?) {
         val featureName = fromIntent?.getStringExtra("requestFeature") ?: return
         fromIntent.removeExtra("requestFeature")
@@ -1347,7 +1347,7 @@ class MainActivity : AppCompatActivity() {
         requestFeaturePermission(feature)
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+     
     override fun onNewIntent(newIntent: Intent) {
         super.onNewIntent(newIntent)
         // singleTop: a widget tap while the activity is already running arrives here
@@ -1362,6 +1362,10 @@ class MainActivity : AppCompatActivity() {
      * by the permission cards in the how-to sheet.
      */
     private fun requestFeaturePermission(feature: FeaturePermission) {
+        if (feature == FeaturePermission.USAGE_STATS) {
+            usageStatsPermissionDialog()
+            return
+        }
         permissionRequester.ensure(feature) {
             when (feature) {
                 FeaturePermission.STEPS -> startStepsServiceInternal()
@@ -1453,7 +1457,7 @@ class MainActivity : AppCompatActivity() {
         rvImages.adapter = rvAdapter
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+     
     override fun onResume() {
         super.onResume()
 
@@ -1489,11 +1493,6 @@ class MainActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_permissions -> {
-
-                showPermissionsSheet()
-                true
-            }
 
             R.id.action_settings -> {
 

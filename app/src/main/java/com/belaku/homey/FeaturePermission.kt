@@ -68,6 +68,23 @@ enum class FeaturePermission(
         rationaleTitle = "Notify you about reminders?",
         rationale = "Notification access is needed so the reminders you set can actually alert you.",
         prefKey = "PNP"
+    ),
+
+    /** Time announcement and service status notifications */
+    NOTIFICATIONS(
+        permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            arrayOf(Manifest.permission.POST_NOTIFICATIONS) else emptyArray(),
+        rationaleTitle = "Show notifications?",
+        rationale = "Notification access is needed to announce time and keep the service running.",
+        prefKey = "PNP"
+    ),
+
+    /** App usage statistics for screen time and frequent apps */
+    USAGE_STATS(
+        permissions = emptyArray(), // Special permission, handled manually
+        rationaleTitle = "Show app usage?",
+        rationale = "App Usage access lets the widget display your screen time and suggest frequent apps.",
+        prefKey = "AUS"
     );
 
     /** Key used to remember that the system dialog was already shown once. */

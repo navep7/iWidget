@@ -83,7 +83,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
     lateinit var widgetContext: Context
     private var isNetConnected: Boolean = false
 
-    @RequiresApi(Build.VERSION_CODES.S)
+      
     @NonNull
     override fun doWork(): Result {
 
@@ -197,7 +197,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         lateinit var wm: WallpaperManager
 
 
-        @RequiresApi(Build.VERSION_CODES.S)
+          
         @SuppressLint("SetTextI18n")
         fun setWall(b: Boolean, wallWorkerContext: Context) {
 
@@ -327,14 +327,14 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                                 rlStatus.visibility = View.VISIBLE
                                 val ids: IntArray = appWidM.getAppWidgetIds(newAppWidget)
 
-                                if (ids.size == 0) {
-                                    fabMain.text = "Grant Permissions\nAnd Add Widget to Homescreen"
+                                if (ids.isEmpty()) {
+                                    fabMain.text = "Add Widget to Homescreen"
                                 }
 
-                            }, 1000)
+                            }, 1500)
                         }
                     } catch (ex: Exception) {
-
+                        fabMain.text = "Exp ~ Set again!"
                     }
                 }
 

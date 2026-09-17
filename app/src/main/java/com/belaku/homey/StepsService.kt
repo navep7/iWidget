@@ -363,7 +363,7 @@ class StepsService : Service() {
     private fun WifiState(contx: StepsService) {
         val mWifiReceiver: BroadcastReceiver = object : BroadcastReceiver() {
 
-            @RequiresApi(Build.VERSION_CODES.S)
+              
             override fun onReceive(p0: Context?, intent: Intent?) {
 
 

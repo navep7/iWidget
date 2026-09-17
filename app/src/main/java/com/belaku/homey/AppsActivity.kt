@@ -24,7 +24,7 @@ class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
     private lateinit var binding: ActivityAppsBinding
 
-    @RequiresApi(Build.VERSION_CODES.S)
+      
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

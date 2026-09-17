@@ -169,10 +169,9 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:text="Place Information"
+                    android:text="⚠ Place Information"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:textColor="@android:color/white"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
@@ -257,10 +256,9 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:text="Xx° \nCloudy"
+                    android:text="⚠ Weather Information"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:textColor="@android:color/white"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
@@ -932,7 +930,7 @@
                 android:layout_below="@+id/rl_setwall"
                 android:layout_centerHorizontal="true"
                 android:gravity="center"
-                android:text="User \nSpace"
+                android:text="i"
                 android:background="@drawable/rounded_corner_gray"
                 android:padding="@dimen/padding_5"
                 android:textColor="@android:color/white"
@@ -1004,7 +1002,7 @@
 
             <TextView
                 android:id="@+id/tx_act_state"
-                android:text="Activity..."
+                android:text="ActivityState"
                 android:layout_centerHorizontal="true"
                 android:textColor="@android:color/white"
                 android:textStyle="bold"
@@ -1020,6 +1018,7 @@
                 android:layout_below="@+id/tx_act_state"
                 android:background="@android:color/transparent"
                 android:scaleType="fitXY"
+                android:src="@drawable/act_state"
                 />
 
             <TextView
@@ -1028,7 +1027,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@+id/imgv_activity_state"
                 android:layout_marginStart="3dp"
-                android:text="7"
+                android:text="~"
                 android:layout_marginBottom="3dp"
                 android:gravity="center"
                 android:layout_toEndOf="@+id/imgv_activity_state"

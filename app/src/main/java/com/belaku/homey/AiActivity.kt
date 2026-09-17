@@ -56,7 +56,7 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityAiBinding
 
-    @RequiresApi(Build.VERSION_CODES.S)
+      
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

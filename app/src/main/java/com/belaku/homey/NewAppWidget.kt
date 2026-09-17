@@ -63,6 +63,7 @@ import android.view.accessibility.AccessibilityManager
 import android.widget.AdapterView
 import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresPermission
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -149,7 +150,7 @@ class NewAppWidget : AppWidgetProvider() {
     private lateinit var serviceIntentApp: Intent
 
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+
     override fun onEnabled(context: Context?) {
         super.onEnabled(context)
         if (context == null) return
@@ -158,13 +159,13 @@ class NewAppWidget : AppWidgetProvider() {
         widgetContext = appContext
         onEn = true
 
-        try {
+       /* try {
             appUsageStats(appContext)
         } catch (e: Exception) {
             Log.e(TAG, "appUsageStats failed", e)
         }
 
-        recognizeActivityTransitions()
+        recognizeActivityTransitions()*/
         ensurePrefs(appContext)
 
         if (unlockReceiver == null) {
@@ -237,14 +238,8 @@ class NewAppWidget : AppWidgetProvider() {
         // ActivityTransitionReceiver is already declared in the manifest with the
         // "action.TRANSITIONS_DATA" filter, so no runtime registration is needed here.
         // Registering it again on every onEnabled() leaked a receiver and never unregistered it.
-        if (ContextCompat.checkSelfPermission(
-                widgetContext,
-                Manifest.permission.ACTIVITY_RECOGNITION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            Log.w(TAG, "ACTIVITY_RECOGNITION not granted - skipping transition updates")
-            return
-        }
+
+   //     remoteViews?.setTextViewText(R.id.tx_act_state, "fetching..,")
 
         intentActivityTransitionReceiver =
             Intent(widgetContext, ActivityTransitionReceiver::class.java).setAction("action.TRANSITIONS_DATA")
@@ -338,6 +333,7 @@ class NewAppWidget : AppWidgetProvider() {
         return distanceMiles * weightLbs * caloriesPerMilePerLb
     }
 
+    @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
     override fun onDisabled(context: Context?) {
         super.onDisabled(context)
         if (context == null) return
@@ -367,7 +363,7 @@ class NewAppWidget : AppWidgetProvider() {
         onEn = false
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+     
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -473,6 +469,14 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setOnClickPendingIntent(
             R.id.rl_battery,
             getPendingSelfIntent(context, BATTERY_INFO)
+        )
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_place,
+            getPendingSelfIntent(context, PLACE_CLICK)
+        )
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_weather,
+            getPendingSelfIntent(context, WEATHER_CLICK)
         )
         remoteViews?.setOnClickPendingIntent(
             R.id.tx_refresh_weather,
@@ -611,14 +615,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         remoteViews?.setOnClickPendingIntent(
             R.id.imgv_scr_time,
-            PendingIntent.getActivity(
-                context, 14,
-                Intent(context, DialogActivity::class.java).putExtra(
-                    "DialogIntent",
-                    "screenTimeInfo"
-                ),
-                PendingIntent.FLAG_IMMUTABLE
-            )
+            getPendingSelfIntent(context, SCRTIME_CLICK)
         )
 
         remoteViews?.setOnClickPendingIntent(
@@ -708,21 +705,9 @@ class NewAppWidget : AppWidgetProvider() {
   //      remoteViews?.setTextColor(R.id.tx_place, ColorUtil().matchPrimaryColor())
         if (!isLocationEnabled(context)) {
             remoteViews?.setTextViewText(R.id.tx_place, "Please Enable Location services!")
-
-            val locIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-            val locPendingIntent = PendingIntent.getActivity(
-                context,
-                18,
-                locIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            remoteViews?.setOnClickPendingIntent(
-                R.id.tx_place,
-                locPendingIntent
-            )
         } else {
 
-            cName = cityname.ifBlank { "…" }
+            cName = cityname.ifBlank { "⚠ Place Information" }
 
             remoteViews?.setTextViewText(R.id.tx_place, cName)
    //         remoteViews?.setTextColor(R.id.tx_place, ColorUtil().matchPrimaryColor())
@@ -734,7 +719,7 @@ class NewAppWidget : AppWidgetProvider() {
                     R.id.tx_weather,
                     tempC.substringBefore(".") + "° " + tempKind
                 )
-            }
+            } else remoteViews?.setTextViewText(R.id.tx_weather, "⚠ Weather Information")
      //       remoteViews?.setTextColor(R.id.tx_weather, ColorUtil().matchPrimaryColor())
             when {
                 weatherIconID.startsWith("5") ->
@@ -763,7 +748,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
     @SuppressLint("SuspiciousIndentation")
-    @RequiresApi(Build.VERSION_CODES.S)
+      
     private fun setUI() {
 
         // setUI() is reachable from several receiver paths; make sure the shared state it
@@ -1180,7 +1165,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     @SuppressLint("ResourceAsColor")
-    @RequiresApi(Build.VERSION_CODES.S)
+      
     private fun wallColors() {
         try {
             val wallpaperManager = WallpaperManager.getInstance(widgetContext)
@@ -1335,7 +1320,7 @@ class NewAppWidget : AppWidgetProvider() {
         return bitmap
     }
 
-    @RequiresApi(Build.VERSION_CODES.S)
+      
     private fun setSomeTwAndWallDescUI() {
 
         if (checkCompanionVariable()) {
@@ -1424,7 +1409,6 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     @SuppressLint("ResourceAsColor", "ResourceType")
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action ?: return
         Log.d(TAG, "onReceive: $action")
@@ -1474,38 +1458,72 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     @SuppressLint("InflateParams", "ResourceAsColor")
-    @RequiresApi(Build.VERSION_CODES.S)
+      
     private fun handleIntentActions(intent: Intent) {
         val action = intent.action ?: return
 
         when (action) {
             ACTINFO_CLICK -> {
+
+                if (ContextCompat.checkSelfPermission(
+                        widgetContext,
+                        Manifest.permission.ACTIVITY_RECOGNITION
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    recognizeActivityTransitions()
+                } else requestFeaturePermission(widgetContext, FeaturePermission.STEPS)
+
+
+                if (!presentActivityState.isBlank()) {
+
                 val current = sharedPreferences.getBoolean("activitiesORcontrols", false)
                 sharedPreferencesEditor.putBoolean("activitiesORcontrols", !current).apply()
                 val show = !current
 
                 remoteViews?.apply {
-                    setViewVisibility(R.id.imgbtn_close_activities, if (show) View.VISIBLE else View.INVISIBLE)
+                    setViewVisibility(
+                        R.id.imgbtn_close_activities,
+                        if (show) View.VISIBLE else View.INVISIBLE
+                    )
                     setViewVisibility(R.id.btn_ui_prev, if (show) View.VISIBLE else View.INVISIBLE)
                     setViewVisibility(R.id.btn_ui_next, if (show) View.VISIBLE else View.INVISIBLE)
-                    setViewVisibility(R.id.ll_activity_states, if (show) View.VISIBLE else View.INVISIBLE)
+                    setViewVisibility(
+                        R.id.ll_activity_states,
+                        if (show) View.VISIBLE else View.INVISIBLE
+                    )
 
                     setViewVisibility(R.id.rl_setwall, if (show) View.INVISIBLE else View.VISIBLE)
                     setViewVisibility(R.id.imgbtn_qr, if (show) View.INVISIBLE else View.VISIBLE)
-                    setViewVisibility(R.id.imgbtn_g_apps, if (show) View.INVISIBLE else View.VISIBLE)
+                    setViewVisibility(
+                        R.id.imgbtn_g_apps,
+                        if (show) View.INVISIBLE else View.VISIBLE
+                    )
                     setViewVisibility(R.id.imgbtn_lock, if (show) View.INVISIBLE else View.VISIBLE)
-                    setViewVisibility(R.id.imgbtn_speech, if (show) View.INVISIBLE else View.VISIBLE)
+                    setViewVisibility(
+                        R.id.imgbtn_speech,
+                        if (show) View.INVISIBLE else View.VISIBLE
+                    )
                     setViewVisibility(R.id.tx_myspace, if (show) View.INVISIBLE else View.VISIBLE)
                     setViewVisibility(R.id.imgv_conf, if (show) View.INVISIBLE else View.VISIBLE)
                     setViewVisibility(R.id.imgv_ps, if (show) View.INVISIBLE else View.VISIBLE)
                     setViewVisibility(R.id.imgv_dialler, if (show) View.INVISIBLE else View.VISIBLE)
 
                     if (show) {
-                        setViewVisibility(R.id.rl_still, if (presentActivityState == "STILL") View.VISIBLE else View.GONE)
-                        setViewVisibility(R.id.rl_walking, if (presentActivityState == "WALKING") View.VISIBLE else View.GONE)
-                        setViewVisibility(R.id.rl_speed, if (presentActivityState == "TRAVEL") View.VISIBLE else View.GONE)
+                        setViewVisibility(
+                            R.id.rl_still,
+                            if (presentActivityState == "STILL") View.VISIBLE else View.GONE
+                        )
+                        setViewVisibility(
+                            R.id.rl_walking,
+                            if (presentActivityState == "WALKING") View.VISIBLE else View.GONE
+                        )
+                        setViewVisibility(
+                            R.id.rl_speed,
+                            if (presentActivityState == "TRAVEL") View.VISIBLE else View.GONE
+                        )
                     }
                 }
+            }
             }
             NEXT_STATE -> {
                 val displayedAct = sharedPreferences.getString("displayedAct", presentActivityState)
@@ -1672,6 +1690,43 @@ class NewAppWidget : AppWidgetProvider() {
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
                 StepsService.getWeatherData(LatLng(cityLat, cityLng))
             }
+            PLACE_CLICK -> {
+                if (!hasFeaturePermission(widgetContext, FeaturePermission.PLACE_INFO)) {
+                    requestFeaturePermission(widgetContext, FeaturePermission.PLACE_INFO)
+                } else if (!isLocationEnabled(widgetContext)) {
+                    val locIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    widgetContext.startActivity(locIntent)
+                } else {
+                    if (cityname.isNotBlank())
+                        remoteViews?.setTextViewText(R.id.tx_place, cityname)
+               //     else remoteViews?.setTextViewText(R.id.tx_place, "fetching..,")
+                }
+            }
+            SCRTIME_CLICK -> {
+                if (!hasFeaturePermission(widgetContext, FeaturePermission.USAGE_STATS)) {
+                    requestFeaturePermission(widgetContext, FeaturePermission.USAGE_STATS)
+                } else {
+                    val intent = Intent(widgetContext, DialogActivity::class.java).apply {
+                        putExtra("DialogIntent", "screenTimeInfo")
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    widgetContext.startActivity(intent)
+                }
+            }
+            WEATHER_CLICK -> {
+                if (!hasFeaturePermission(widgetContext, FeaturePermission.PLACE_INFO)) {
+                    requestFeaturePermission(widgetContext, FeaturePermission.PLACE_INFO)
+                } else if (!isLocationEnabled(widgetContext)) {
+                    val locIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    widgetContext.startActivity(locIntent)
+                } else {
+                    makeToast(widgetContext, "Weather: $tempC $tempKind")
+                }
+            }
             PLAYPAUSE_CLICK -> {
                 if (boolMusicServiceRunning) {
                     try {
@@ -1809,6 +1864,10 @@ class NewAppWidget : AppWidgetProvider() {
                 }
             }
             Time_A_CLICKED -> {
+                if (!hasFeaturePermission(widgetContext, FeaturePermission.NOTIFICATIONS)) {
+                    requestFeaturePermission(widgetContext, FeaturePermission.NOTIFICATIONS)
+                    return
+                }
                 val current = sharedPreferences.getBoolean("SPKSERVICE", false)
                 val speakIntent = Intent(widgetContext, SpeakService::class.java)
                 if (!current) {
@@ -1850,7 +1909,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
 
-    @RequiresApi(Build.VERSION_CODES.S)
+      
     private fun unMarkAsFav(contactId: String) {
         if (contactId.isBlank()) return
 
@@ -1887,7 +1946,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
     @SuppressLint("ResourceAsColor")
-    @RequiresApi(Build.VERSION_CODES.S)
+      
     fun getPreciseEnergyCounter(context: Context) {
         val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as? BatteryManager
             ?: return
@@ -2044,10 +2103,14 @@ class NewAppWidget : AppWidgetProvider() {
      * True when every runtime permission backing [feature] is granted.
      * An empty group (permission not applicable on this API level) counts as granted.
      */
-    private fun hasFeaturePermission(context: Context, feature: FeaturePermission): Boolean =
-        feature.permissions.all {
+    private fun hasFeaturePermission(context: Context, feature: FeaturePermission): Boolean {
+        if (feature == FeaturePermission.USAGE_STATS) {
+            return UsageStatsChecker().hasUsageStatsPermission(context)
+        }
+        return feature.permissions.all {
             ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
         }
+    }
 
     /**
      * A widget cannot request runtime permissions itself, so bounce through
@@ -2057,7 +2120,7 @@ class NewAppWidget : AppWidgetProvider() {
     private fun requestFeaturePermission(context: Context, feature: FeaturePermission) {
         try {
             context.startActivity(
-                Intent(context, MainActivity::class.java)
+                Intent(context, DialogActivity::class.java)
                     .putExtra("requestFeature", feature.name)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
@@ -2489,6 +2552,9 @@ class NewAppWidget : AppWidgetProvider() {
         private const val TODO_CLICK = "todo1Click"
         private const val TIME_CLICK = "timeClick"
         private const val DATE_CLICK = "dateClick"
+        private const val PLACE_CLICK = "placeClick"
+        private const val WEATHER_CLICK = "weatherClick"
+        private const val SCRTIME_CLICK = "scrtimeClick"
         private const val ACTINFO_CLICK = "actinfoClick"
         private const val STEPS_CLICK = "stepsClick"
         private const val NEXT_ACT_CLICK = "nextActlick"

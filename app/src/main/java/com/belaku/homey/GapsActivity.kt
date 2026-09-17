@@ -22,7 +22,7 @@ class GapsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
     private var gapps: ArrayList<InstalledApp> = ArrayList()
     private lateinit var binding: ActivityGapsBinding
 
-    @RequiresApi(Build.VERSION_CODES.S)
+      
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

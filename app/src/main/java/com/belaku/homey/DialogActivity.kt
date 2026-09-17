@@ -178,7 +178,7 @@ class DialogActivity : AppCompatActivity() {
     private lateinit var menuBlue: ImageButton
     private lateinit var menuAi: ImageButton
 
-    @RequiresApi(Build.VERSION_CODES.S)
+      
     @SuppressLint("ResourceAsColor", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -287,6 +287,8 @@ class DialogActivity : AppCompatActivity() {
 
         val dialogIntentStr = intent.getStringExtra("DialogIntent")
    //     makeToast(applicationContext,dialogIntentStr.toString())
+
+        handleFeatureRequest(intent)
 
         if (dialogIntentStr != null) {
             when (dialogIntentStr) {
@@ -632,6 +634,70 @@ class DialogActivity : AppCompatActivity() {
         } catch (e: NameNotFoundException) {
             packageName
         }
+    }
+
+    /**
+     * Handles the "requestFeature" extra sent by a widget tile whose permission is
+     * missing. The extra is consumed so a rotation or resume cannot replay the request.
+     */
+    private fun handleFeatureRequest(fromIntent: Intent?) {
+        val featureName = fromIntent?.getStringExtra("requestFeature") ?: return
+        fromIntent.removeExtra("requestFeature")
+
+        // Hide the default dialog UI since we are only here to show a permission prompt.
+        llDialog.visibility = View.INVISIBLE
+
+        val feature = runCatching { FeaturePermission.valueOf(featureName) }.getOrNull()
+        if (feature == null) {
+            Log.e("DialogActivity", "Unknown requestFeature: $featureName")
+            return
+        }
+        requestFeaturePermission(feature)
+    }
+
+    /**
+     * Shows a rationale (if needed) and ensures the user is prompted for the permission
+     * needed, then doing that feature's follow-up work.
+     */
+    private fun requestFeaturePermission(feature: FeaturePermission) {
+        if (feature == FeaturePermission.USAGE_STATS) {
+            usageStatsPermissionDialog()
+            return
+        }
+        permissionRequester.ensure(
+            feature,
+            onDenied = { finish() }
+        ) {
+            when (feature) {
+                FeaturePermission.STEPS -> {
+                    try {
+                        startForegroundService(Intent(this, StepsService::class.java))
+                    } catch (e: Exception) {
+                        Log.e("DialogActivity", "startForegroundService(StepsService) failed", e)
+                    }
+                }
+                FeaturePermission.CONTACTS -> getFavoriteContacts(applicationContext)
+                else -> Unit
+            }
+            updateWidget()
+            finish()
+        }
+    }
+
+    private fun usageStatsPermissionDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Permission Request for App Usage Stats")
+            .setMessage("App needs permission to get Usage stats to suggest apps to use, based on previously used App stats.. ")
+            .setPositiveButton("OK") { dialog, _ ->
+                UsageStatsChecker().requestUsageStatsPermission(this)
+                dialog.dismiss()
+                finish()
+            }
+            .setNegativeButton("Not now") { dialog, _ ->
+                dialog.dismiss()
+                finish()
+            }
+            .show()
     }
 
     private fun getContactInfo(contactUri: Uri) {
