@@ -175,6 +175,16 @@
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
+                <TextView
+                    android:id="@+id/tx_place_permission_hint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Tap to Grant Location"
+                    android:textColor="@android:color/holo_red_dark"
+                    android:textSize="10sp"
+                    android:gravity="center"
+                    android:visibility="gone" />
+
                 <FrameLayout
                     android:layout_gravity="center"
                     android:layout_width="wrap_content"
@@ -238,6 +248,17 @@
                 android:textFontWeight="900"
                 android:textStyle="bold" />
 
+            <TextView
+                android:id="@+id/tx_time_announcement_permission_hint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/tx_time_announcement"
+                android:text="Tap to Grant Notification"
+                android:textColor="@android:color/holo_red_dark"
+                android:textSize="10sp"
+                android:visibility="gone" />
+
 
             <LinearLayout
                 android:id="@+id/id_weather"
@@ -261,6 +282,16 @@
                     android:gravity="center"
                     android:textSize="15sp"
                     android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tx_weather_permission_hint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Tap to Grant Location"
+                    android:textColor="@android:color/holo_red_dark"
+                    android:textSize="10sp"
+                    android:gravity="center"
+                    android:visibility="gone" />
 
                 <FrameLayout
                     android:layout_gravity="center"
@@ -930,7 +961,7 @@
                 android:layout_below="@+id/rl_setwall"
                 android:layout_centerHorizontal="true"
                 android:gravity="center"
-                android:text="i"
+                android:text=" i "
                 android:background="@drawable/rounded_corner_gray"
                 android:padding="@dimen/padding_5"
                 android:textColor="@android:color/white"
@@ -1049,6 +1080,17 @@
                 android:textSize="25sp"
                 android:textStyle="bold" />
 
+            <TextView
+                android:id="@+id/tx_act_permission_hint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/imgv_activity_state"
+                android:layout_centerHorizontal="true"
+                android:text="Tap to Grant Activity"
+                android:textColor="@android:color/holo_red_dark"
+                android:textSize="10sp"
+                android:visibility="gone" />
+
         </RelativeLayout>
 
         <RelativeLayout
@@ -1125,6 +1167,17 @@
                 android:background="@android:color/transparent"
                 android:scaleType="fitXY"
                 android:src="@drawable/scr_time" />
+
+            <TextView
+                android:id="@+id/tx_scrtime_permission_hint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/imgv_scr_time"
+                android:layout_centerHorizontal="true"
+                android:text="Tap to Grant Usage"
+                android:textColor="@android:color/holo_red_dark"
+                android:textSize="10sp"
+                android:visibility="gone" />
 
 
         </RelativeLayout>

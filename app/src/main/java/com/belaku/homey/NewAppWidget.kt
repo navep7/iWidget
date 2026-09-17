@@ -944,8 +944,26 @@ class NewAppWidget : AppWidgetProvider() {
         val waterCount = sharedPreferences.getInt("waterCountToday", 0)
         remoteViews?.setTextViewText(R.id.tx_water_count, waterCount.toString())
 
+        updatePermissionHints(widgetContext, remoteViews!!)
+
         setOnClickPendingIntents(widgetContext)
 
+    }
+
+
+    private fun updatePermissionHints(context: Context, rv: RemoteViews) {
+        val showPlaceHint = !hasFeaturePermission(context, FeaturePermission.PLACE_INFO)
+        rv.setViewVisibility(R.id.tx_place_permission_hint, if (showPlaceHint) View.VISIBLE else View.GONE)
+        rv.setViewVisibility(R.id.tx_weather_permission_hint, if (showPlaceHint) View.VISIBLE else View.GONE)
+
+        val showTimeHint = !hasFeaturePermission(context, FeaturePermission.NOTIFICATIONS)
+        rv.setViewVisibility(R.id.tx_time_announcement_permission_hint, if (showTimeHint) View.VISIBLE else View.GONE)
+
+        val showStepsHint = !hasFeaturePermission(context, FeaturePermission.STEPS)
+        rv.setViewVisibility(R.id.tx_act_permission_hint, if (showStepsHint) View.VISIBLE else View.GONE)
+
+        val showUsageHint = !hasFeaturePermission(context, FeaturePermission.USAGE_STATS)
+        rv.setViewVisibility(R.id.tx_scrtime_permission_hint, if (showUsageHint) View.VISIBLE else View.GONE)
     }
 
 
