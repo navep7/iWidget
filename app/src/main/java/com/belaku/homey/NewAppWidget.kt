@@ -87,7 +87,6 @@ import com.belaku.homey.RemindersActivity.Companion.arrayListHabits
 import com.belaku.homey.RemindersActivity.Companion.isadapterHabitsInitialized
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
-import com.belaku.homey.SetWallWorker.Companion.getFavoriteContacts
 import com.belaku.homey.SetWallWorker.Companion.hour
 import com.belaku.homey.SetWallWorker.Companion.isPinNoteInitialized
 import com.belaku.homey.SetWallWorker.Companion.isSharedPreferencesInitialized
@@ -1016,13 +1015,6 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setImageViewResource(R.id.menu_blue, icon)
     }
 
-    private fun setACAdapter() {
-
-        setContactsAdapter()
-        setContactsClick()
-        setAppsAdapter()
-        setAppsClick()
-    }
 
     fun getInvertedColor(color: Int): Int {
         // 0x00FFFFFF represents a mask for the RGB components (ignoring alpha).
@@ -1365,48 +1357,6 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
 
-    private fun setAppsAdapter() {
-        serviceIntentApp = Intent(widgetContext, RemoteViewsAppsService::class.java)
-        serviceIntentApp.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, newAppWidget)
-        serviceIntentApp.setData(Uri.parse(serviceIntentApp.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
-       // remoteViews?.setRemoteAdapter(R.id.list_apps, serviceIntentApp)
-     //   remoteViews?.setEmptyView(R.id.list_apps, R.id.widget_empty_view_apps)
-    }
-
-    private fun setContactsAdapter() {
-        serviceIntentContact = Intent(widgetContext, RemoteViewsContactsService::class.java)
-        serviceIntentContact.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, newAppWidget)
-        serviceIntentContact.setData(Uri.parse(serviceIntentContact.toUri(Intent.URI_INTENT_SCHEME))) // Required for unique intents
-    //    remoteViews?.setRemoteAdapter(R.id.list_contacts, serviceIntentContact)
-      //  remoteViews?.setEmptyView(R.id.list_contacts, R.id.widget_empty_view_contacts)
-    }
-
-    private fun setAppsClick() {
-        // Set the PendingIntent template for the list items
-        clickIntentApp = Intent(widgetContext, NewAppWidget::class.java)
-        clickIntentApp.setAction(ACTION_LIST_APPITEM_CLICK)
-        clickPendingIntentTemplateApp = PendingIntent.getBroadcast(
-            widgetContext,
-            1,
-            clickIntentApp,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE // Use FLAG_MUTABLE for security
-        )
-      //  remoteViews?.setPendingIntentTemplate(R.id.list_apps, clickPendingIntentTemplateApp)
-
-    }
-
-    private fun setContactsClick() {
-        // Set the PendingIntent template for the list items
-        clickIntentContact = Intent(widgetContext, NewAppWidget::class.java)
-        clickIntentContact.setAction(ACTION_LIST_CONTACTITEM_CLICK)
-        clickPendingIntentTemplateContact = PendingIntent.getBroadcast(
-            widgetContext,
-            0,
-            clickIntentContact,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE // Use FLAG_MUTABLE for security
-        )
-    //    remoteViews?.setPendingIntentTemplate(R.id.list_contacts, clickPendingIntentTemplateContact)
-    }
 
     @SuppressLint("ResourceAsColor", "ResourceType")
     override fun onReceive(context: Context, intent: Intent) {
@@ -1463,6 +1413,12 @@ class NewAppWidget : AppWidgetProvider() {
         val action = intent.action ?: return
 
         when (action) {
+
+            C_CLICKED -> {
+                val intentContacts = Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI)
+                intentContacts.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                widgetContext.startActivity(intentContacts)
+            }
             ACTINFO_CLICK -> {
 
                 if (ContextCompat.checkSelfPermission(
@@ -1753,29 +1709,6 @@ class NewAppWidget : AppWidgetProvider() {
                 widgetContext.startActivity(Intent(widgetContext, DialogActivity::class.java)
                     .putExtra("DialogIntent", "SongCover").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             }
-            ACTION_LIST_CONTACTITEM_CLICK -> {
-                getFavoriteContacts(widgetContext)
-                val position = intent.getIntExtra(EXTRA_CONTACTITEM_POSITION, AdapterView.INVALID_POSITION)
-                val viewID = intent.getIntExtra(EXTRA_CONTACTVIEW_ID, 7)
-                if (position != AdapterView.INVALID_POSITION && position < favContacts.size) {
-                    // The dial path previously indexed favContacts without a bounds check.
-                    if (viewID == 0) dialPhoneNumber(widgetContext, favContacts[position].number)
-                    else if (viewID == 1) unMarkAsFav(favContacts[position].id)
-                } else {
-                    widgetContext.startActivity(Intent(widgetContext, DialogActivity::class.java)
-                        .putExtra("DialogIntent", "PC").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                }
-            }
-            ACTION_LIST_APPITEM_CLICK -> {
-                val position = intent.getIntExtra(EXTRA_APPITEM_POSITION, AdapterView.INVALID_POSITION)
-                val viewID = intent.getIntExtra(EXTRA_APPVIEW_ID, 7)
-                if (position != AdapterView.INVALID_POSITION && viewID == 0 && position < choosenApps.size) {
-                    widgetContext.packageManager.getLaunchIntentForPackage(choosenApps[position].pName)?.let {
-                        it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        widgetContext.startActivity(it)
-                    }
-                }
-            }
             FAB_SHARE -> {
                 val inflater = widgetContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as? LayoutInflater
                 if (inflater != null) {
@@ -1846,17 +1779,6 @@ class NewAppWidget : AppWidgetProvider() {
             A_CLICKED -> {
                 widgetContext.startActivity(Intent(widgetContext, AppsActivity::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             }
-            C_CLICKED -> {
-                // Reading favourites needs READ_CONTACTS – ask for it on first tap.
-                if (!hasFeaturePermission(widgetContext, FeaturePermission.CONTACTS)) {
-                    requestFeaturePermission(widgetContext, FeaturePermission.CONTACTS)
-                    return
-                }
-                widgetContext.startActivity(Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-            }
-            DIAL_CLICK -> {
-                widgetContext.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:")).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-            }
             PS_CLICK -> {
                 widgetContext.packageManager.getLaunchIntentForPackage("com.android.vending")?.let {
                     it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -1909,38 +1831,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
 
-      
-    private fun unMarkAsFav(contactId: String) {
-        if (contactId.isBlank()) return
 
-        // contentResolver.update() throws SecurityException without the WRITE_CONTACTS
-        // runtime permission, which would kill the widget host process.
-        if (ContextCompat.checkSelfPermission(
-                widgetContext,
-                Manifest.permission.WRITE_CONTACTS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            Log.w(TAG, "unMarkAsFav skipped: WRITE_CONTACTS not granted")
-            return
-        }
-
-        val values = ContentValues()
-        values.put(ContactsContract.Contacts.STARRED, 0) // 1 for favorite, 0 for not favorite
-
-        try {
-            widgetContext.contentResolver.update(
-                ContactsContract.Contacts.CONTENT_URI,
-                values,
-                ContactsContract.Contacts._ID + " = ?",
-                arrayOf(contactId)
-            )
-        } catch (ex: Exception) {
-            showException(ex.message.toString())
-            return
-        }
-
-        getFavoriteContacts(widgetContext)
-    }
 
 
 

@@ -33,17 +33,6 @@ enum class FeaturePermission(
         prefKey = "LP"
     ),
 
-    /** "④ Favorite Contacts" tile */
-    CONTACTS(
-        permissions = arrayOf(
-            Manifest.permission.READ_CONTACTS,
-            Manifest.permission.WRITE_CONTACTS
-        ),
-        rationaleTitle = "Show your favourite contacts?",
-        rationale = "Contacts access lets the widget list your \"④ Favorite Contacts\" so you can dial them in one tap.",
-        prefKey = "RCP"
-    ),
-
     /** Dialling straight from the widget */
     CALL(
         permissions = arrayOf(Manifest.permission.CALL_PHONE),

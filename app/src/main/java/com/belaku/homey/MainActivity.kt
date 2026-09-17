@@ -88,7 +88,6 @@ import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.boolWallSet
 import com.belaku.homey.SetWallWorker.Companion.dayIndex
-import com.belaku.homey.SetWallWorker.Companion.getFavoriteContacts
 import com.belaku.homey.SetWallWorker.Companion.hour
 import com.belaku.homey.SetWallWorker.Companion.mAct
 import com.belaku.homey.SetWallWorker.Companion.screenHeight
@@ -173,10 +172,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var connectivityManager: ConnectivityManager
     private val LOC_P: Int = 1
     private val ACTIVITY_RECOGNITION_P: Int = 2
-    private val READ_CONTACTS_P: Int = 3
-    private val BLUETOOTH_P: Int = 4
-    private val NOTIfications_P: Int = 5
-    private val CALLPHONE_P: Int = 6
+    private val BLUETOOTH_P: Int = 3
+    private val NOTIfications_P: Int = 4
+
 
     private val TAG: String = "MainActivity"
     private lateinit var frameMin: FrameLayout
@@ -225,7 +223,6 @@ class MainActivity : AppCompatActivity() {
         screenHeight = metrics.heightPixels
         screenWidth = metrics.widthPixels
 
-        launchers()
 
         timeR()
 
@@ -307,8 +304,7 @@ class MainActivity : AppCompatActivity() {
         // Never prompt here – missing permissions are asked for just-in-time.
         if (permissionRequester.isGranted(FeaturePermission.STEPS))
             startStepsServiceInternal()
-        if (permissionRequester.isGranted(FeaturePermission.CONTACTS))
-            getFavoriteContacts(applicationContext)
+
 
         //    getNews(cDate - 1)
 
@@ -422,8 +418,6 @@ class MainActivity : AppCompatActivity() {
                     // just-in-time when the user taps that tile in the widget.
                     if (permissionRequester.isGranted(FeaturePermission.STEPS))
                         startStepsServiceInternal()
-                    if (permissionRequester.isGranted(FeaturePermission.CONTACTS))
-                        getFavoriteContacts(applicationContext)
 
                     finish()
 
@@ -526,11 +520,7 @@ class MainActivity : AppCompatActivity() {
         )
 
 
-        addPermissionCard(
-            "<b> Contacts </b>- to show your \"④ Favorite Contacts\" in the Widget, to dial easily",
-            "Permit CONTACTS permission",
-            Manifest.permission.READ_CONTACTS
-        )
+
 
 
         addPermissionCard(
@@ -626,13 +616,6 @@ class MainActivity : AppCompatActivity() {
                 requestFeaturePermission(FeaturePermission.STEPS)
             }
             llP.addView(btnAR)
-        } else if (rPermission == Manifest.permission.READ_CONTACTS) {
-            btnRC = Button(applicationContext)
-            btnRC.text = bTx
-            btnRC.setOnClickListener {
-                requestFeaturePermission(FeaturePermission.CONTACTS)
-            }
-            llP.addView(btnRC)
         } else if (rPermission == Manifest.permission.BLUETOOTH_CONNECT) {
             btnBT = Button(applicationContext)
             btnBT.text = bTx
@@ -763,55 +746,8 @@ class MainActivity : AppCompatActivity() {
         llKeywords.addView(txKey)
     }
 
-    private fun launchers() {
 
-        pickContactLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode == Activity.RESULT_OK) {
-                    val contactUri = result.data?.data
-                    if (contactUri != null) {
-                        getContactInfo(contactUri)
-                        // markContactAsFavorite(contactUri)
-                    }
-                }
-            }
 
-    }
-
-    fun getContactInfo(contactUri: Uri) {
-        val contentResolver = contentResolver
-        var cursor: Cursor? = null
-
-        try {
-            cursor = contentResolver.query(
-                contactUri!!,
-                arrayOf(
-                    ContactsContract.Contacts.DISPLAY_NAME,
-                    ContactsContract.Contacts._ID,  // Add other desired columns like HAS_PHONE_NUMBER, PHOTO_URI, etc.
-                ),
-                null,
-                null,
-                null
-            )
-
-            if (cursor != null && cursor.moveToFirst()) {
-                val displayNameIndex = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
-                val contactIdIndex = cursor.getColumnIndex(ContactsContract.Contacts._ID)
-
-                if (displayNameIndex != -1) {
-                    val displayName = cursor.getString(displayNameIndex)
-                    val contactId = cursor.getLong(contactIdIndex)
-                    getContactDetails(displayName, contactId)
-
-                    // Now you have the display name and ID for the contact
-                    // You can use the contactId to query for phone numbers, email addresses, etc.
-                    // using ContactsContract.CommonDataKinds.Phone or ContactsContract.CommonDataKinds.Email
-                }
-            }
-        } finally {
-            cursor?.close()
-        }
-    }
 
     fun markAsFav(contactId: Long) {
         // Replace with the actual contact ID
@@ -825,7 +761,6 @@ class MainActivity : AppCompatActivity() {
             arrayOf<String>(contactId.toString())
         )
 
-        getFavoriteContacts(applicationContext)
         updateWidget()
     }
 
@@ -842,46 +777,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun getContactDetails(displayName: String, contactId: Long) {
-        val contentResolver = contentResolver
-        var phoneCursor: Cursor? = null
-        var emailCursor: Cursor? = null
-
-        markAsFav(contactId)
-        try {
-            // Get phone numbers
-            phoneCursor = contentResolver.query(
-                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER),
-                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
-                arrayOf(contactId.toString()),
-                null
-            )
-
-
-
-            // Get email addresses
-            emailCursor = contentResolver.query(
-                ContactsContract.CommonDataKinds.Email.CONTENT_URI,
-                arrayOf(ContactsContract.CommonDataKinds.Email.ADDRESS),
-                ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
-                arrayOf(contactId.toString()),
-                null
-            )
-
-            if (emailCursor != null && emailCursor.moveToFirst()) {
-                val emailAddressIndex =
-                    emailCursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS)
-                if (emailAddressIndex != -1) {
-                    val emailAddress = emailCursor.getString(emailAddressIndex)
-                    // Process email address
-                }
-            }
-        } finally {
-            phoneCursor?.close()
-            emailCursor?.close()
-        }
-    }
 
 
     private fun showSTTDialog() {
@@ -1246,14 +1141,7 @@ class MainActivity : AppCompatActivity() {
                     startStepsServiceInternal()
                     if (this::btnAR.isInitialized) btnAR.text = "Granted"
                 }
-        } else if (requestCode == READ_CONTACTS_P) {
-            if (grantResults.isNotEmpty())
-                if (grantResults[0] == PERMISSION_GRANTED) {
-                    sharedPreferencesEditor.putBoolean("RCP", true).apply()
-                    getFavoriteContacts(applicationContext)
-                    if (this::btnRC.isInitialized) btnRC.text = "Granted"
-                }
-        } else if (requestCode == BLUETOOTH_P) {
+        }  else if (requestCode == BLUETOOTH_P) {
             if (grantResults.isNotEmpty())
                 if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("BP", true).apply()
@@ -1264,12 +1152,6 @@ class MainActivity : AppCompatActivity() {
                 if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("PNP", true).apply()
                     if (this::btnPN.isInitialized) btnPN.text = "Granted"
-                }
-        } else if (requestCode == CALLPHONE_P) {
-            if (grantResults.isNotEmpty())
-                if (grantResults[0] == PERMISSION_GRANTED) {
-                    sharedPreferencesEditor.putBoolean("CPP", true).apply()
-                    if (this::btnCP.isInitialized) btnCP.text = "Granted"
                 }
         }
 
@@ -1323,12 +1205,7 @@ class MainActivity : AppCompatActivity() {
         startForegroundService(intentSteps)
     }
 
-    /** Loads favourite contacts, requesting Contacts access on demand. */
-    private fun loadFavoriteContacts() {
-        permissionRequester.ensure(FeaturePermission.CONTACTS) {
-            getFavoriteContacts(applicationContext)
-        }
-    }
+
 
     /**
      * Handles the "requestFeature" extra sent by a widget tile whose permission is
@@ -1369,7 +1246,6 @@ class MainActivity : AppCompatActivity() {
         permissionRequester.ensure(feature) {
             when (feature) {
                 FeaturePermission.STEPS -> startStepsServiceInternal()
-                FeaturePermission.CONTACTS -> getFavoriteContacts(applicationContext)
                 else -> Unit
             }
             updateWidget()

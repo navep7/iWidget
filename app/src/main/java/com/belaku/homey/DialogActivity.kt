@@ -81,7 +81,6 @@ import com.belaku.homey.NewAppWidget.Companion.penNote
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
-import com.belaku.homey.SetWallWorker.Companion.getFavoriteContacts
 import com.belaku.homey.SetWallWorker.Companion.hour
 import com.belaku.homey.SetWallWorker.Companion.isSharedPreferencesInitialized
 import com.belaku.homey.SetWallWorker.Companion.pinNote
@@ -364,20 +363,7 @@ class DialogActivity : AppCompatActivity() {
                             }
                         })
                 }
-                "PC" -> {
-                    llDialog.visibility = View.GONE
-                    getFavoriteContacts(applicationContext)
-                    pickContactLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                        if (result.resultCode == Activity.RESULT_OK) {
-                            val contactUri = result.data?.data
-                            if (contactUri != null) {
-                                getContactInfo(contactUri)
-                            }
-                        }
-                    }
-                    val intent = Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
-                    try { pickContactLauncher.launch(intent) } catch (ex: Exception) { finish() }
-                }
+
                 "StT" -> {
                     txContent.visibility = View.VISIBLE
                     txContent.movementMethod = ScrollingMovementMethod()
@@ -676,7 +662,6 @@ class DialogActivity : AppCompatActivity() {
                         Log.e("DialogActivity", "startForegroundService(StepsService) failed", e)
                     }
                 }
-                FeaturePermission.CONTACTS -> getFavoriteContacts(applicationContext)
                 else -> Unit
             }
             updateWidget()
@@ -700,18 +685,6 @@ class DialogActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun getContactInfo(contactUri: Uri) {
-        contentResolver.query(contactUri, arrayOf(ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.Contacts._ID), null, null, null)?.use { cursor ->
-            if (cursor.moveToFirst()) {
-                val displayName = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME))
-                val contactId = cursor.getLong(cursor.getColumnIndexOrThrow(ContactsContract.Contacts._ID))
-                markAsFav(contactId)
-                saveContacts()
-                updateWidget()
-                finish()
-            }
-        }
-    }
 
     private fun toggleBluetooth() {
         // BLUETOOTH_CONNECT is required to read adapter.isEnabled and to toggle the
@@ -733,16 +706,7 @@ class DialogActivity : AppCompatActivity() {
         }
     }
 
-    fun markAsFav(contactId: Long) {
-        val values = ContentValues().apply { put(ContactsContract.Contacts.STARRED, 1) }
-        contentResolver.update(ContactsContract.Contacts.CONTENT_URI, values, "${ContactsContract.Contacts._ID} = ?", arrayOf(contactId.toString()))
-        getFavoriteContacts(applicationContext)
-    }
 
-    private fun saveContacts() {
-        val json = Gson().toJson(favContacts)
-        sharedPreferencesEditor.putString("CTS", json).apply()
-    }
 
     private fun getTweetID(str: String) {
         val client = OkHttpClient()
