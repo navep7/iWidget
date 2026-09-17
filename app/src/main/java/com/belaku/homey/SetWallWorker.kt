@@ -40,6 +40,7 @@ import com.belaku.homey.MainActivity.Companion.cYear
 import com.belaku.homey.MainActivity.Companion.delayUnit
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.fabMain
+import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.queryType
 import com.belaku.homey.MainActivity.Companion.randomWallIndex
@@ -301,6 +302,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                         sharedPreferencesEditor.putString("uT", updateTime).apply()
                     }
                     Log.d(TAG, "Set successfully $noRewards")
+
                     boolWallSet = true
                 }
 
@@ -326,7 +328,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                                 val ids: IntArray = appWidM.getAppWidgetIds(newAppWidget)
 
                                 if (ids.size == 0) {
-                                    fabMain.text = "Add Widget to Homescreen"
+                                    fabMain.text = "Grant Permissions\nAnd Add Widget to Homescreen"
                                 }
 
                             }, 1000)

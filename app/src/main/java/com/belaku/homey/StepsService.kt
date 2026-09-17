@@ -17,6 +17,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.IntentFilter
+import android.content.pm.PackageManager
+import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -38,6 +40,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
@@ -101,6 +104,11 @@ class StepsService : Service() {
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onCreate() {
         super.onCreate()
+
+        if (!isSharedPreferencesInitialized()) {
+            sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+            sharedPreferencesEditor = sharedPreferences.edit()
+        }
 
             if (!isLocationEnabled(applicationContext)) {
                 val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
@@ -232,14 +240,47 @@ class StepsService : Service() {
                 .setContentTitle("")
                 .setContentText("").build()
 
-            startForeground(1, notification)
+            if (Build.VERSION.SDK_INT >= 34) {
+                var type = 0
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
+                    type = type or ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH
+                }
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    type = type or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+                }
+
+                try {
+                    if (type != 0) {
+                        startForeground(1, notification, type)
+                    } else {
+                        // Fallback: if no runtime permissions are granted, we can't start with those types.
+                        // However, health and location types MUST be started with their respective types.
+                        // If we have neither, we might have to stop the service or start without types
+                        // if the manifest allows (but it doesn't here).
+                        Log.w("StepsService", "Starting foreground without specific types due to missing permissions")
+                        startForeground(1, notification)
+                    }
+                } catch (e: Exception) {
+                    Log.e("StepsService", "startForeground failed", e)
+                    stopSelf()
+                    return
+                }
+            } else {
+                startForeground(1, notification)
+            }
         }
 
         BluetoothState(this)
         WifiState(this)
 
         sensorManager = this.getSystemService(SENSOR_SERVICE) as SensorManager
-        stepCounterSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)!!
+        val sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+        if (sensor != null) {
+            stepCounterSensor = sensor
+        } else {
+            Log.w("StepsService", "Sensor.TYPE_STEP_COUNTER not available")
+        }
 
         mSensorEventListener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent) {
@@ -433,11 +474,13 @@ class StepsService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
 
-        sensorManager.registerListener(
-            mSensorEventListener,
-            stepCounterSensor,
-            SensorManager.SENSOR_DELAY_NORMAL
-        )
+        if (::stepCounterSensor.isInitialized) {
+            sensorManager.registerListener(
+                mSensorEventListener,
+                stepCounterSensor,
+                SensorManager.SENSOR_DELAY_NORMAL
+            )
+        }
 
 
         //    stopSelf()

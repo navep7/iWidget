@@ -131,6 +131,10 @@ class DialogActivity : AppCompatActivity() {
 
         }
     private var bluetoothAdapter: BluetoothAdapter? = null
+
+    /** Asks for Nearby Devices access only when the Bluetooth tile is actually tapped. */
+    private val permissionRequester by lazy { JitPermissionRequester(this) }
+
     val wifiPanelIntent = Intent(Settings.Panel.ACTION_WIFI)
     private lateinit var llMenu: LinearLayout
     private lateinit var dialogAct: AlertDialog
@@ -269,8 +273,9 @@ class DialogActivity : AppCompatActivity() {
         }
 
         menuBlue.setOnClickListener {
+            // No finish() here: toggleBluetooth may first show a permission rationale
+            // dialog, and finishing now would tear it down. It finishes itself instead.
             toggleBluetooth()
-            finish()
         }
 
         menuAi.setOnClickListener {
@@ -643,10 +648,23 @@ class DialogActivity : AppCompatActivity() {
     }
 
     private fun toggleBluetooth() {
-        bluetoothAdapter?.let { adapter ->
-            val action = if (!adapter.isEnabled) BluetoothAdapter.ACTION_REQUEST_ENABLE else "android.bluetooth.adapter.action.REQUEST_DISABLE"
-            bluetoothLauncher.launch(Intent(action))
-        } ?: makeToast(applicationContext, "Bluetooth not supported")
+        // BLUETOOTH_CONNECT is required to read adapter.isEnabled and to toggle the
+        // adapter on Android 12+. Below API 31 FeaturePermission.BLUETOOTH carries an
+        // empty array, which the requester treats as already granted, so older devices
+        // keep the original behaviour.
+        permissionRequester.ensure(
+            FeaturePermission.BLUETOOTH,
+            onDenied = {
+                makeToast(applicationContext, "Nearby Devices access is needed to switch Bluetooth")
+                finish()
+            }
+        ) {
+            bluetoothAdapter?.let { adapter ->
+                val action = if (!adapter.isEnabled) BluetoothAdapter.ACTION_REQUEST_ENABLE else "android.bluetooth.adapter.action.REQUEST_DISABLE"
+                bluetoothLauncher.launch(Intent(action))
+            } ?: makeToast(applicationContext, "Bluetooth not supported")
+            finish()
+        }
     }
 
     fun markAsFav(contactId: Long) {

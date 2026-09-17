@@ -271,7 +271,7 @@
             android:name=".StepsService"
             android:enabled="true"
             android:exported="true"
-            android:foregroundServiceType="health">
+            android:foregroundServiceType="health|location">
             <intent-filter>
                 <action android:name="com.example.MY_SERVICE" />
             </intent-filter>
@@ -318,6 +318,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.Homey">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -64,7 +64,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
@@ -87,6 +86,7 @@ import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.NewAppWidget.Companion.tW
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
+import com.belaku.homey.SetWallWorker.Companion.boolWallSet
 import com.belaku.homey.SetWallWorker.Companion.dayIndex
 import com.belaku.homey.SetWallWorker.Companion.getFavoriteContacts
 import com.belaku.homey.SetWallWorker.Companion.hour
@@ -98,6 +98,7 @@ import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.StepsService.Companion.totalUsage
 import com.belaku.homey.databinding.ActivityMainBinding
 import com.google.android.gms.ads.MobileAds
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -127,19 +128,18 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var mainActivityContext: Context
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    val permissions = arrayOf(
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.READ_CONTACTS,
-        Manifest.permission.WRITE_CONTACTS,
-        Manifest.permission.ACTIVITY_RECOGNITION,
-        Manifest.permission.BLUETOOTH_CONNECT,
-        Manifest.permission.POST_NOTIFICATIONS,
-        Manifest.permission.CALL_PHONE
-    )
+    /**
+     * Just-in-time permission requester: ask for a permission only when the user
+     * actually engages the feature that needs it, avoiding permission fatigue.
+     */
+    private val permissionRequester by lazy { JitPermissionRequester(this) }
+
+    /** Guards against building the permission cards more than once. */
+    private var permissionCardsBuilt: Boolean = false
+
+    // Permissions are declared per feature in FeaturePermission and requested
+    // individually, just-in-time – there is no bulk request any more.
     private var boolAccessibilityNotNow: Boolean = false
-    private lateinit var buttonAll: Button
-    private val ALL_PERMISSIONS_REQUEST_CODE: Int = 100
     private lateinit var imageSliderAdapter: ImageSliderAdapter
     private lateinit var viewPager: ViewPager2
     private lateinit var tabLayout: TabLayout
@@ -298,6 +298,18 @@ class MainActivity : AppCompatActivity() {
         fetchWallpaper(applicationContext)
         GetDisplayDimens()
 
+        // Needs no permission – load it at startup rather than from the (now removed)
+        // "Proceed" button on the permission sheet.
+        if (listTweets.isEmpty())
+            rawTweets(false)
+
+        // Returning users who already granted access: resume these features silently.
+        // Never prompt here – missing permissions are asked for just-in-time.
+        if (permissionRequester.isGranted(FeaturePermission.STEPS))
+            startStepsServiceInternal()
+        if (permissionRequester.isGranted(FeaturePermission.CONTACTS))
+            getFavoriteContacts(applicationContext)
+
         //    getNews(cDate - 1)
 
 
@@ -308,8 +320,11 @@ class MainActivity : AppCompatActivity() {
 
         iDV = instructionsDialogBuilder.create()
 
-        iDV.setCanceledOnTouchOutside(false) // Prevent dismissal on outside touch
-        iDV.setCancelable(false)
+        // The sheet must always be closable: it is now a plain welcome/how-to
+        // walkthrough, and the permission buttons that used to be its only exit
+        // are no longer built at app start.
+        iDV.setCanceledOnTouchOutside(true)
+        iDV.setCancelable(true)
 
         viewPager = instructionsDialogView.findViewById<ViewPager2>(R.id.viewPager);
         tabLayout = instructionsDialogView.findViewById(R.id.tabLayout);
@@ -329,24 +344,30 @@ class MainActivity : AppCompatActivity() {
             tabLayout, viewPager
         ) { tab: TabLayout.Tab?, position: Int -> }.attach()
 
-        if (nPermissions())
+        // Show the intro/how-to sheet only on the very first launch. Previously this
+        // reappeared on every launch while any permission was missing, which bombarded
+        // the user with permission cards. Permissions are now requested just-in-time.
+        // Skipped when a widget tile launched us purely to ask for one permission, so
+        // the rationale dialog is not stacked on top of the walkthrough.
+        val launchedForPermission = intent?.hasExtra("requestFeature") == true
+        if (!launchedForPermission && !sharedPreferences.getBoolean("seenIntro", false)) {
             iDV.show()
+            sharedPreferencesEditor.putBoolean("seenIntro", true).apply()
+        }
 
         llInstructions = instructionsDialogView.findViewById<LinearLayout>(R.id.ll_instructions)
         llInstructions.orientation = LinearLayout.VERTICAL
-        //    val messageView = dialogView.findViewById<TextView>(R.id.dialog_message)
-        //    messageView.movementMethod = ScrollingMovementMethod()
 
-        //all Ps at once
+        // Explicit way out of the walkthrough – tapping outside / back also works,
+        // but users expect a confirm button at the bottom of the sheet.
+        instructionsDialogView.findViewById<MaterialButton>(R.id.btn_ok_proceed)
+            .setOnClickListener { iDV.dismiss() }
 
-
-        addPermissionCards()
-
-
-        if (isNotificationListenerPermissionGranted())
-            btNRO.text = "Granted"
-        else btNRO.text = "Permit"
-
+        // NOTE: addPermissionCards() is deliberately NOT called here anymore.
+        // Showing 8 permission cards + "Allow ALL" on app start alarmed users.
+        // The intro sheet is now a pure welcome/how-to walkthrough; each permission
+        // is requested just-in-time when the user engages the feature that needs it.
+        // The cards are still available on demand via the "Permissions" menu item.
 
         instructionsDialogBuilder.setTitle("nHome Widget Highlights ~ underlined words in the below pic, explain...!")
 
@@ -354,7 +375,7 @@ class MainActivity : AppCompatActivity() {
 
         fabMain.setOnClickListener { view ->
 
-            if (fabMain.text == "Set")
+            if (fabMain.text == "Set") {
                 if (fabDay.visibility == View.GONE) {
 
                     fabDay.visibility = View.VISIBLE
@@ -373,7 +394,11 @@ class MainActivity : AppCompatActivity() {
                     TxAutoUpdate.visibility = View.GONE
                     // Add animation here to collapse the menu
                 }
-            else {
+
+
+        } else {
+
+            //    showPermissionsSheet()
 
                 val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
                 val myProvider = ComponentName(applicationContext, NewAppWidget::class.java)
@@ -389,7 +414,16 @@ class MainActivity : AppCompatActivity() {
                     appWidgetManager.requestPinAppWidget(myProvider, null, successCallback)
                     remoteViews?.setTextViewText(R.id.tx_act_count, "1")
                     setWalls(0)
-               //     appWidgetManager.updateAppWidget(myProvider, remoteViews)
+                    //     appWidgetManager.updateAppWidget(myProvider, remoteViews)
+
+                    // The widget is now on the home screen: populate the tiles whose
+                    // permissions we already hold. Anything missing is requested
+                    // just-in-time when the user taps that tile in the widget.
+                    if (permissionRequester.isGranted(FeaturePermission.STEPS))
+                        startStepsServiceInternal()
+                    if (permissionRequester.isGranted(FeaturePermission.CONTACTS))
+                        getFavoriteContacts(applicationContext)
+
                     finish()
 
                 }
@@ -405,6 +439,9 @@ class MainActivity : AppCompatActivity() {
 
         getLunarDate()
 
+        // Widget entry point, handled last so this feature's rationale dialog is not
+        // covered by the first-run intro sheet shown above.
+        handleFeatureRequest(intent)
 
     }
 
@@ -456,8 +493,26 @@ class MainActivity : AppCompatActivity() {
         registerReceiver(timeChangedReceiver, intentFilter)
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    /**
+     * Opens the permissions sheet on demand (from the "Permissions" menu item).
+     * The cards are built lazily here instead of at app start, where a wall of
+     * eight permission requests made users anxious.
+     */
+    fun showPermissionsSheet() {
+        addPermissionCards()
+
+        if (this::btNRO.isInitialized)
+            btNRO.text = if (isNotificationListenerPermissionGranted()) "Granted" else "Permit"
+
+        if (!iDV.isShowing)
+            iDV.show()
+    }
+
     private fun addPermissionCards() {
+        // Built lazily and only once, so opening the sheet repeatedly cannot stack duplicates.
+        if (permissionCardsBuilt) return
+        permissionCardsBuilt = true
+
         addPermissionCard(
             "<b> Physical Activity </b>- to recognise walking state and display \"① Steps Count\" in the Widget",
             "Permit ACTIVITY_RECOGNITION permission",
@@ -510,45 +565,10 @@ class MainActivity : AppCompatActivity() {
             "AS"
         )*/
 
-
-
-        buttonAll = Button(applicationContext)
-        buttonAll.text = "Allow ALL"
-        buttonAll.setOnClickListener {
-            if (!hasPermissions(permissions)) {
-                ActivityCompat.requestPermissions(this, permissions, ALL_PERMISSIONS_REQUEST_CODE);
-            } else {
-                // Permissions already granted, proceed with functionality
-            }
-        }
-        llInstructions.addView(buttonAll)
+        // NOTE: there is deliberately no "Allow ALL" button. Each card above requests
+        // just its own permission, with a reason, so the user stays in control.
     }
 
-    private fun hasPermissions(permissions: Array<String>): Boolean {
-        for (permission in permissions) {
-            if (ActivityCompat.checkSelfPermission(this, permission) != PERMISSION_GRANTED) {
-                return false
-            }
-        }
-        return true
-    }
-
-    private fun nPermissions(): Boolean {
-
-        return (!(sharedPreferences.getBoolean("LP", false) && sharedPreferences.getBoolean(
-            "ARP",
-            false
-        ) && sharedPreferences.getBoolean("RCP", false) && sharedPreferences.getBoolean(
-            "BP",
-            false
-        ) && sharedPreferences.getBoolean("PNP", false) && sharedPreferences.getBoolean(
-            "CPP",
-            false
-        ) && UsageStatsChecker().hasUsageStatsPermission(applicationContext)
-                ))
-    }
-
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun addPermissionCard(tx: String, bTx: String, rPermission: String) {
 
         val cardP = CardView(applicationContext)
@@ -574,7 +594,6 @@ class MainActivity : AppCompatActivity() {
         llP.addView(txP)
 
 
-        var requestCode: Int = 25
         if (rPermission == "NRO") {
 
             btNRO = Button(applicationContext)
@@ -593,76 +612,45 @@ class MainActivity : AppCompatActivity() {
 
 
         } else if (rPermission == Manifest.permission.ACCESS_FINE_LOCATION) {
-            requestCode = LOC_P
             btnL = Button(applicationContext)
             btnL.text = bTx
             btnL.setOnClickListener {
-                ActivityCompat.requestPermissions(
-                    mAct,
-                    arrayOf(rPermission),
-                    requestCode
-                )
+                requestFeaturePermission(FeaturePermission.PLACE_INFO)
             }
             llP.addView(btnL)
         } else if (rPermission == Manifest.permission.ACTIVITY_RECOGNITION) {
-            requestCode = ACTIVITY_RECOGNITION_P
             btnAR = Button(applicationContext)
             btnAR.text = bTx
             btnAR.setOnClickListener {
-                ActivityCompat.requestPermissions(
-                    mAct,
-                    arrayOf(rPermission),
-                    requestCode
-                )
+                requestFeaturePermission(FeaturePermission.STEPS)
             }
             llP.addView(btnAR)
         } else if (rPermission == Manifest.permission.READ_CONTACTS) {
-            var rPs = arrayOf(rPermission, Manifest.permission.WRITE_CONTACTS)
-            requestCode = READ_CONTACTS_P
             btnRC = Button(applicationContext)
             btnRC.text = bTx
             btnRC.setOnClickListener {
-                ActivityCompat.requestPermissions(
-                    mAct,
-                    rPs,
-                    requestCode
-                )
+                requestFeaturePermission(FeaturePermission.CONTACTS)
             }
             llP.addView(btnRC)
         } else if (rPermission == Manifest.permission.BLUETOOTH_CONNECT) {
-            requestCode = BLUETOOTH_P
             btnBT = Button(applicationContext)
             btnBT.text = bTx
             btnBT.setOnClickListener {
-                ActivityCompat.requestPermissions(
-                    mAct,
-                    arrayOf(rPermission),
-                    requestCode
-                )
+                requestFeaturePermission(FeaturePermission.BLUETOOTH)
             }
             llP.addView(btnBT)
         } else if (rPermission == Manifest.permission.POST_NOTIFICATIONS) {
-            requestCode = NOTIfications_P
             btnPN = Button(applicationContext)
             btnPN.text = bTx
             btnPN.setOnClickListener {
-                ActivityCompat.requestPermissions(
-                    mAct,
-                    arrayOf(rPermission),
-                    requestCode
-                )
+                requestFeaturePermission(FeaturePermission.REMINDERS)
             }
             llP.addView(btnPN)
         } else if (rPermission == Manifest.permission.CALL_PHONE) {
-            requestCode = CALLPHONE_P
             btnCP = Button(applicationContext)
             btnCP.text = bTx
             btnCP.setOnClickListener {
-                ActivityCompat.requestPermissions(
-                    mAct,
-                    arrayOf(rPermission),
-                    requestCode
-                )
+                requestFeaturePermission(FeaturePermission.CALL)
             }
             llP.addView(btnCP)
         } else if (rPermission == "AUS") {
@@ -1241,97 +1229,51 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-
-        if (requestCode == ALL_PERMISSIONS_REQUEST_CODE) {
-            var allGranted = true
-            for (result in grantResults) {
-                if (result != PERMISSION_GRANTED) {
-                    allGranted = false
-                    break
-                }
-            }
-            if (allGranted) {
-
-
-                usageStatsPermissionDialog()
-
-                sharedPreferencesEditor.putBoolean("LP", true).apply()
-
-                btnL.text = "Granted"
-
-
-                sharedPreferencesEditor.putBoolean("ARP", true).apply()
-                startStepsService()
-                btnAR.text = "Granted"
-
-                StepsService.usageStatsManager =
-                    applicationContext?.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager // Context.USAGE_STATS_SERVICE);
-
-                sharedPreferencesEditor.putBoolean("RCP", true).apply()
-                getFavoriteContacts(applicationContext)
-                btnRC.text = "Granted"
-
-
-                sharedPreferencesEditor.putBoolean("BP", true).apply()
-                btnBT.text = "Granted"
-
-
-                sharedPreferencesEditor.putBoolean("PNP", true).apply()
-                btnPN.text = "Granted"
-
-
-                sharedPreferencesEditor.putBoolean("CPP", true).apply()
-                btnCP.text = "Granted"
-
-
-            } else {
-                // makeToast("Some permissions denied")
-            }
-        } else if (requestCode == LOC_P) {
+        // Per-feature results only – the bulk "Allow ALL" request no longer exists.
+        if (requestCode == LOC_P) {
             if (grantResults.isNotEmpty())
-                if (grantResults[0].equals(PERMISSION_GRANTED)) {
+                if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("LP", true).apply()
 
-                    btnL.text = "Granted"
+                    if (this::btnL.isInitialized) btnL.text = "Granted"
                 }
 
         } else if (requestCode == ACTIVITY_RECOGNITION_P) {
             if (grantResults.isNotEmpty())
                 if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("ARP", true).apply()
-                //    startStepsService()
-                    btnAR.text = "Granted"
+                    startStepsServiceInternal()
+                    if (this::btnAR.isInitialized) btnAR.text = "Granted"
                 }
         } else if (requestCode == READ_CONTACTS_P) {
             if (grantResults.isNotEmpty())
                 if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("RCP", true).apply()
-               //     getFavoriteContacts()
-                    btnRC.text = "Granted"
+                    getFavoriteContacts(applicationContext)
+                    if (this::btnRC.isInitialized) btnRC.text = "Granted"
                 }
         } else if (requestCode == BLUETOOTH_P) {
             if (grantResults.isNotEmpty())
                 if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("BP", true).apply()
-                    btnBT.text = "Granted"
+                    if (this::btnBT.isInitialized) btnBT.text = "Granted"
                 }
         } else if (requestCode == NOTIfications_P) {
             if (grantResults.isNotEmpty())
                 if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("PNP", true).apply()
-                    btnPN.text = "Granted"
+                    if (this::btnPN.isInitialized) btnPN.text = "Granted"
                 }
         } else if (requestCode == CALLPHONE_P) {
             if (grantResults.isNotEmpty())
                 if (grantResults[0] == PERMISSION_GRANTED) {
                     sharedPreferencesEditor.putBoolean("CPP", true).apply()
-                    btnCP.text = "Granted"
+                    if (this::btnCP.isInitialized) btnCP.text = "Granted"
                 }
         }
 
-        if (nPermissions())
-            instructionsDialogBuilder.create().dismiss()
-
+        // The sheet is opened deliberately from the Permissions menu, so leave it
+        // open: the user sees the labels flip to "Granted" and closes it themselves.
     }
 
 
@@ -1353,26 +1295,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         builder.setNegativeButton("Not Now") { dialog, id ->
-            // User clicked OK button
             boolAccessibilityNotNow = true
-            btnAS.text = "Not Now"
-            if (!nPermissions()) {
-
-                buttonAll.text = "Proceed"
-                buttonAll.setOnClickListener {
-                    if (!nPermissions()) {
-                        rawTweets(false)
-                        startStepsService()
-                        getFavoriteContacts(applicationContext)
-                        if (iDV.isShowing)
-                            iDV.dismiss()
-                    } else ActivityCompat.requestPermissions(
-                        this,
-                        permissions,
-                        ALL_PERMISSIONS_REQUEST_CODE
-                    );
-                }
-            }
+            if (this::btnAS.isInitialized)
+                btnAS.text = "Not Now"
             dialog.dismiss()
         }
 
@@ -1387,8 +1312,64 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun startStepsService() {
-            val intentSteps = Intent(this, StepsService::class.java)
-            startForegroundService(intentSteps)
+        // Ask for Physical Activity access only now, when the steps feature is engaged.
+        permissionRequester.ensure(FeaturePermission.STEPS) {
+            startStepsServiceInternal()
+        }
+    }
+
+    private fun startStepsServiceInternal() {
+        val intentSteps = Intent(this, StepsService::class.java)
+        startForegroundService(intentSteps)
+    }
+
+    /** Loads favourite contacts, requesting Contacts access on demand. */
+    private fun loadFavoriteContacts() {
+        permissionRequester.ensure(FeaturePermission.CONTACTS) {
+            getFavoriteContacts(applicationContext)
+        }
+    }
+
+    /**
+     * Handles the "requestFeature" extra sent by a widget tile whose permission is
+     * missing. The extra is consumed so a rotation or resume cannot replay the request.
+     */
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun handleFeatureRequest(fromIntent: Intent?) {
+        val featureName = fromIntent?.getStringExtra("requestFeature") ?: return
+        fromIntent.removeExtra("requestFeature")
+
+        val feature = runCatching { FeaturePermission.valueOf(featureName) }.getOrNull()
+        if (feature == null) {
+            Log.w(TAG, "Unknown requestFeature: $featureName")
+            return
+        }
+        requestFeaturePermission(feature)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    override fun onNewIntent(newIntent: Intent) {
+        super.onNewIntent(newIntent)
+        // singleTop: a widget tap while the activity is already running arrives here
+        // rather than in onCreate.
+        setIntent(newIntent)
+        handleFeatureRequest(newIntent)
+    }
+
+    /**
+     * Single entry point for asking for one feature's permission at the moment it is
+     * needed, then doing that feature's follow-up work. Used by the widget tiles and
+     * by the permission cards in the how-to sheet.
+     */
+    private fun requestFeaturePermission(feature: FeaturePermission) {
+        permissionRequester.ensure(feature) {
+            when (feature) {
+                FeaturePermission.STEPS -> startStepsServiceInternal()
+                FeaturePermission.CONTACTS -> getFavoriteContacts(applicationContext)
+                else -> Unit
+            }
+            updateWidget()
+        }
     }
 
 
@@ -1478,29 +1459,14 @@ class MainActivity : AppCompatActivity() {
 
         sharedPreferencesEditor.putBoolean("AS", true).apply()
 
-        if (!nPermissions()) {
-            if (!isNotificationListenerPermissionGranted())
-                readNotificationsPermissionDialog()
-            else btNRO.text = "Granted"
-
-            buttonAll.text = "Proceed"
-        }
-        buttonAll.setOnClickListener {
-            if (!nPermissions()) {
-                rawTweets(false)
-                startStepsService()
-                getFavoriteContacts(applicationContext)
-                if(iDV.isShowing)
-                    iDV.dismiss()
-            } else ActivityCompat.requestPermissions(
-                this,
-                permissions,
-                ALL_PERMISSIONS_REQUEST_CODE
-            );
-        }
+        // Never auto-pop permission dialogs on resume – just reflect current state.
+        // The Read-Notifications access is requested from its card / the feature itself.
+        if (this::btNRO.isInitialized)
+            btNRO.text = if (isNotificationListenerPermissionGranted()) "Granted" else "Permit"
 
         if (UsageStatsChecker().hasUsageStatsPermission(applicationContext)) {
-            btnAUS.text = "Granted"
+            if (this::btnAUS.isInitialized)
+                btnAUS.text = "Granted"
             appUsageStats(applicationContext)
             sharedPreferencesEditor.putBoolean("AUS", true).apply()
         }
@@ -1523,6 +1489,12 @@ class MainActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
+            R.id.action_permissions -> {
+
+                showPermissionsSheet()
+                true
+            }
+
             R.id.action_settings -> {
 
                 iDV.show()

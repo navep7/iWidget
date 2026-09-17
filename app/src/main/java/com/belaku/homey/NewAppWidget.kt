@@ -1604,6 +1604,12 @@ class NewAppWidget : AppWidgetProvider() {
                 widgetContext.startActivity(intentCalendar)
             }
             STEPS_CLICK -> {
+                // Without ACTIVITY_RECOGNITION the count is always 0, so ask for it
+                // here – at the moment the user shows interest in the steps tile.
+                if (!hasFeaturePermission(widgetContext, FeaturePermission.STEPS)) {
+                    requestFeaturePermission(widgetContext, FeaturePermission.STEPS)
+                    return
+                }
                 makeToast(widgetContext, "$stepsToday ~ " + String.format("%.1f", stepsToday * 74f / 100000f) + " Km")
                 remoteViews?.setTextViewText(R.id.tx_act_count, "$stepsToday")
                 widgetContext.startActivity(Intent(widgetContext, DialogActivity::class.java)
@@ -1655,6 +1661,12 @@ class NewAppWidget : AppWidgetProvider() {
                 }
             }
             GET_WEATHER -> {
+                // cityLat/cityLng are only meaningful with location access, otherwise the
+                // spinner would spin forever – ask for the permission instead.
+                if (!hasFeaturePermission(widgetContext, FeaturePermission.PLACE_INFO)) {
+                    requestFeaturePermission(widgetContext, FeaturePermission.PLACE_INFO)
+                    return
+                }
                 remoteViews?.setViewVisibility(R.id.progressBar_cyclic_weather, View.VISIBLE)
                 remoteViews?.setViewVisibility(R.id.tx_refresh_weather, View.INVISIBLE)
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
@@ -1780,6 +1792,11 @@ class NewAppWidget : AppWidgetProvider() {
                 widgetContext.startActivity(Intent(widgetContext, AppsActivity::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             }
             C_CLICKED -> {
+                // Reading favourites needs READ_CONTACTS – ask for it on first tap.
+                if (!hasFeaturePermission(widgetContext, FeaturePermission.CONTACTS)) {
+                    requestFeaturePermission(widgetContext, FeaturePermission.CONTACTS)
+                    return
+                }
                 widgetContext.startActivity(Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             }
             DIAL_CLICK -> {
@@ -2019,6 +2036,34 @@ class NewAppWidget : AppWidgetProvider() {
             context.startActivity(intent)
         } catch (e: Exception) {
             Log.e(TAG, "dialPhoneNumber failed", e)
+        }
+    }
+
+
+    /**
+     * True when every runtime permission backing [feature] is granted.
+     * An empty group (permission not applicable on this API level) counts as granted.
+     */
+    private fun hasFeaturePermission(context: Context, feature: FeaturePermission): Boolean =
+        feature.permissions.all {
+            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+        }
+
+    /**
+     * A widget cannot request runtime permissions itself, so bounce through
+     * MainActivity, which shows the rationale and the system dialog for just
+     * this one feature.
+     */
+    private fun requestFeaturePermission(context: Context, feature: FeaturePermission) {
+        try {
+            context.startActivity(
+                Intent(context, MainActivity::class.java)
+                    .putExtra("requestFeature", feature.name)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        } catch (e: Exception) {
+            // Must never escape a BroadcastReceiver – that kills the widget host.
+            Log.e(TAG, "requestFeaturePermission(${feature.name}) failed", e)
         }
     }
 

@@ -54,6 +54,9 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
     private lateinit var binding: ActivityRemindersBinding
 
+    /** Asks for notification permission only when the user actually adds a reminder. */
+    private val permissionRequester by lazy { JitPermissionRequester(this) }
+
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,9 +77,19 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         })
 
         binding.txAddReminders.setOnClickListener(View.OnClickListener {
-            val cdd = CustomDialogClass(this@RemindersActivity, "Reminder")
-            cdd.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            cdd.show()
+            val showReminderDialog = {
+                val cdd = CustomDialogClass(this@RemindersActivity, "Reminder")
+                cdd.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                cdd.show()
+            }
+            // A reminder that cannot notify is useless, so ask here – the moment the
+            // user creates one. Denying still opens the dialog: the reminder is saved
+            // and shown in-app, it just cannot raise a notification.
+            permissionRequester.ensure(
+                FeaturePermission.REMINDERS,
+                onDenied = showReminderDialog,
+                onGranted = showReminderDialog
+            )
         })
 
 
