@@ -4,6 +4,7 @@ package com.belaku.homey
 // Weather Key - 9fa8e101240ab18615e3133b051e767e
 
 
+import android.Manifest
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
@@ -23,7 +24,6 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.content.res.ColorStateList
-import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -63,8 +63,8 @@ import android.view.accessibility.AccessibilityManager
 import android.widget.AdapterView
 import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity.RECEIVER_NOT_EXPORTED
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.belaku.homey.Constants.Companion.stepsToday
@@ -75,7 +75,6 @@ import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
 import com.belaku.homey.MainActivity.Companion.tempKind
 import com.belaku.homey.MainActivity.Companion.weatherIconID
-import com.belaku.homey.MusicActivity.Companion.dataListSongs
 import com.belaku.homey.MusicActivity.Companion.ispDataListInitialized
 import com.belaku.homey.MusicActivity.Companion.pDatalistSongs
 import com.belaku.homey.MusicService.Companion.boolMusicServiceRunning
@@ -89,6 +88,7 @@ import com.belaku.homey.SetWallWorker.Companion.boolNewLap
 import com.belaku.homey.SetWallWorker.Companion.getFavoriteContacts
 import com.belaku.homey.SetWallWorker.Companion.hour
 import com.belaku.homey.SetWallWorker.Companion.isPinNoteInitialized
+import com.belaku.homey.SetWallWorker.Companion.isSharedPreferencesInitialized
 import com.belaku.homey.SetWallWorker.Companion.isWallBitmapInitialized
 import com.belaku.homey.SetWallWorker.Companion.ismActInitialized
 import com.belaku.homey.SetWallWorker.Companion.mAct
@@ -117,7 +117,6 @@ import com.google.gson.reflect.TypeToken
 import com.squareup.picasso.Picasso
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 import java.time.LocalDate
 import java.util.Calendar
 import java.util.Collections
@@ -135,7 +134,6 @@ class NewAppWidget : AppWidgetProvider() {
     private lateinit var activityTransitions: ArrayList<ActivityTransition>
     private var requestCodeAT: Int = 57
     private lateinit var intentActivityTransitionReceiver: Intent
-    private lateinit var activityTransitionReceiver: ActivityTransitionReceiver
     private var speedReading: String = ""
     private var boolKm: Boolean = false
     private lateinit var cName: String
@@ -153,59 +151,102 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onEnabled(context: Context?) {
         super.onEnabled(context)
-        widgetContext = context!!
+        if (context == null) return
+
+        val appContext = context.applicationContext
+        widgetContext = appContext
         onEn = true
 
-        appUsageStats(widgetContext)
+        try {
+            appUsageStats(appContext)
+        } catch (e: Exception) {
+            Log.e(TAG, "appUsageStats failed", e)
+        }
 
         recognizeActivityTransitions()
-        sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
-        sharedPreferencesEditor = sharedPreferences.edit()
+        ensurePrefs(appContext)
 
         if (unlockReceiver == null) {
             unlockReceiver = object : BroadcastReceiver() {
                 override fun onReceive(ctx: Context, intent: Intent) {
-                    if (Intent.ACTION_USER_PRESENT == intent.action) {
+                    if (Intent.ACTION_USER_PRESENT != intent.action) return
+                    try {
+                        widgetContext = ctx.applicationContext
+                        ensurePrefs(widgetContext)
+                        ensureRemoteViews(widgetContext)
+                        newAppWidget = ComponentName(widgetContext, NewAppWidget::class.java)
 
-                            widgetContext = context
-                            setUI()
-                       //     setACAdapter()
-
-                            setOnClickPendingIntents(context)
+                        setUI()
+                        setOnClickPendingIntents(widgetContext)
 
                         if (!isAppWidMInitialized())
                             appWidM = AppWidgetManager.getInstance(widgetContext)
 
-                        remoteViews?.setTextViewText(R.id.tx_unlocks, sharedPreferences.getInt("unlockCount", 1).toString())
-                        sharedPreferencesEditor.putInt("unlockCount", sharedPreferences.getInt("unlockCount", 1) + 1).apply()
+                        val unlockCount = sharedPreferences.getInt("unlockCount", 1)
+                        remoteViews?.setTextViewText(R.id.tx_unlocks, unlockCount.toString())
+                        sharedPreferencesEditor.putInt("unlockCount", unlockCount + 1).apply()
 
-                        mAppWidgetIds = appWidM.getAppWidgetIds(ComponentName(widgetContext, NewAppWidget::class.java))
+                        mAppWidgetIds = appWidM.getAppWidgetIds(newAppWidget)
                         appWidM.updateAppWidget(newAppWidget, remoteViews)
-                   //     appWidM.notifyAppWidgetViewDataChanged(mAppWidgetIds, R.id.list_apps)
-                   //     appWidM.notifyAppWidgetViewDataChanged(mAppWidgetIds, R.id.list_contacts)
-
+                    } catch (e: Exception) {
+                        Log.e(TAG, "unlockReceiver failed", e)
                     }
                 }
             }
 
-            // Register the receiver programmatically to bypass manifest restrictions
-            val filter = IntentFilter(Intent.ACTION_USER_PRESENT)
-            context.applicationContext.registerReceiver(unlockReceiver, filter)
-
+            // Register the receiver programmatically to bypass manifest restrictions.
+            // API 34+ requires an explicit export flag or a SecurityException is thrown.
+            try {
+                val filter = IntentFilter(Intent.ACTION_USER_PRESENT)
+                ContextCompat.registerReceiver(
+                    appContext,
+                    unlockReceiver,
+                    filter,
+                    ContextCompat.RECEIVER_NOT_EXPORTED
+                )
+            } catch (e: Exception) {
+                unlockReceiver = null
+                Log.e(TAG, "registerReceiver(ACTION_USER_PRESENT) failed", e)
+            }
         }
-            if(ismActInitialized())
-                fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
 
+        if (ismActInitialized())
+            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
+    }
+
+    /** Ensures the shared companion [sharedPreferences] / editor are usable from any entry point. */
+    private fun ensurePrefs(context: Context) {
+        if (!isSharedPreferencesInitialized()) {
+            sharedPreferences = context.applicationContext
+                .getSharedPreferences("UserPreferences", MODE_PRIVATE)
+            sharedPreferencesEditor = sharedPreferences.edit()
+        }
+    }
+
+    /** Ensures [remoteViews] is non-null before any setter is invoked on it. */
+    private fun ensureRemoteViews(context: Context) {
+        if (remoteViews == null) {
+            remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
+        }
     }
 
     @SuppressLint("MissingPermission")
     private fun recognizeActivityTransitions() {
 
-        activityTransitionReceiver = ActivityTransitionReceiver()
-        val intentFilterActivityTransitionReceiver = IntentFilter("com.belaku.homey.CUSTOM_ACTION") // Use a unique action string
-        widgetContext.registerReceiver(activityTransitionReceiver, intentFilterActivityTransitionReceiver, RECEIVER_NOT_EXPORTED)
+        // ActivityTransitionReceiver is already declared in the manifest with the
+        // "action.TRANSITIONS_DATA" filter, so no runtime registration is needed here.
+        // Registering it again on every onEnabled() leaked a receiver and never unregistered it.
+        if (ContextCompat.checkSelfPermission(
+                widgetContext,
+                Manifest.permission.ACTIVITY_RECOGNITION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.w(TAG, "ACTIVITY_RECOGNITION not granted - skipping transition updates")
+            return
+        }
 
-        intentActivityTransitionReceiver = Intent(widgetContext, ActivityTransitionReceiver::class.java)
+        intentActivityTransitionReceiver =
+            Intent(widgetContext, ActivityTransitionReceiver::class.java).setAction("action.TRANSITIONS_DATA")
         requestCodeAT = 57
         pendingIntentActivityTransitions = PendingIntent.getBroadcast(
             widgetContext,
@@ -262,10 +303,17 @@ class NewAppWidget : AppWidgetProvider() {
         activityTransitionRequest = ActivityTransitionRequest(activityTransitions)
 
         // myPendingIntent is the instance of PendingIntent where the app receives callbacks.
-        ActivityRecognition.getClient(widgetContext)
-            .requestActivityTransitionUpdates(activityTransitionRequest, pendingIntentActivityTransitions)
-
-
+        try {
+            ActivityRecognition.getClient(widgetContext)
+                .requestActivityTransitionUpdates(
+                    activityTransitionRequest,
+                    pendingIntentActivityTransitions
+                )
+                .addOnSuccessListener { Log.d(TAG, "Activity transition updates registered") }
+                .addOnFailureListener { e -> Log.e(TAG, "Activity transition updates failed", e) }
+        } catch (e: Exception) {
+            Log.e(TAG, "requestActivityTransitionUpdates threw", e)
+        }
     }
 
     fun calculateCaloriesFromSteps(steps: Int, weightKg: Double, heightCm: Double): Double {
@@ -291,7 +339,31 @@ class NewAppWidget : AppWidgetProvider() {
 
     override fun onDisabled(context: Context?) {
         super.onDisabled(context)
-        widgetContext = context!!
+        if (context == null) return
+        widgetContext = context.applicationContext
+
+        // Clean up everything registered in onEnabled, otherwise the receiver leaks.
+        unlockReceiver?.let { receiver ->
+            try {
+                widgetContext.unregisterReceiver(receiver)
+            } catch (e: IllegalArgumentException) {
+                Log.w(TAG, "unlockReceiver was not registered", e)
+            } finally {
+                unlockReceiver = null
+            }
+        }
+
+        try {
+            if (::pendingIntentActivityTransitions.isInitialized) {
+                ActivityRecognition.getClient(widgetContext)
+                    .removeActivityTransitionUpdates(pendingIntentActivityTransitions)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "removeActivityTransitionUpdates failed", e)
+        }
+
+        remoteViews = null
+        onEn = false
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -300,56 +372,54 @@ class NewAppWidget : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
+        super.onUpdate(context, appWidgetManager, appWidgetIds)
 
-        widgetContext = context
+        widgetContext = context.applicationContext
         Log.d(TAG, "!onUpdate")
-        remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
-        newAppWidget = ComponentName(context, NewAppWidget::class.java)
 
-        sharedPreferences = widgetContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
-        sharedPreferencesEditor = sharedPreferences.edit()
+        try {
+            remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
+            newAppWidget = ComponentName(context, NewAppWidget::class.java)
+            appWidM = appWidgetManager
 
-        i_appWidgetIds = appWidgetIds
+            ensurePrefs(widgetContext)
 
+            i_appWidgetIds = appWidgetIds
 
-        getScreenDimens()
-
-        for (appWidgetId in appWidgetIds) {
-
-            widgetContext = context
+            getScreenDimens()
 
             setUI()
 
-       //     if (!Constants.boolACadapterSet) {
-           //     setACAdapter()
-      //          Constants.boolACadapterSet = true
-      //      }
-
-            //  Create an intent to launch MainActivity
-
-
-
-            if (!isAppWidMInitialized())
-                appWidM = AppWidgetManager.getInstance(widgetContext)
-            mAppWidgetIds = appWidM.getAppWidgetIds(ComponentName(widgetContext, NewAppWidget::class.java))
-            appWidM.updateAppWidget(appWidgetId, remoteViews)
-       //     appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_apps)
-       //     appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)
+            mAppWidgetIds = appWidgetIds
+            for (appWidgetId in appWidgetIds) {
+                appWidM.updateAppWidget(appWidgetId, remoteViews)
+            }
+        } catch (e: Exception) {
+            // Never let an exception escape a BroadcastReceiver callback: it kills the host process.
+            Log.e(TAG, "onUpdate failed", e)
         }
-
-
-        super.onUpdate(context, appWidgetManager, appWidgetIds)
-
     }
 
     private fun getScreenDimens() {
+        try {
+            val wm = widgetContext.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
+            if (wm != null) {
+                val metrics: WindowMetrics = wm.currentWindowMetrics
+                val bounds: Rect = metrics.bounds
+                if (bounds.width() > 0 && bounds.height() > 0) {
+                    screenWidth = bounds.width()
+                    screenHeight = bounds.height()
+                    return
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "getScreenDimens via WindowManager failed", e)
+        }
 
-        val wm = widgetContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val metrics: WindowMetrics = wm.currentWindowMetrics
-        val bounds: Rect = metrics.bounds
-        screenWidth = bounds.width()
-        screenHeight = bounds.height()
-
+        // Fallback so downstream Bitmap.createScaledBitmap() never receives 0/negative sizes.
+        val dm: DisplayMetrics = widgetContext.resources.displayMetrics
+        screenWidth = dm.widthPixels.coerceAtLeast(1)
+        screenHeight = dm.heightPixels.coerceAtLeast(1)
     }
 
 
@@ -651,34 +721,43 @@ class NewAppWidget : AppWidgetProvider() {
             )
         } else {
 
-            if (::cName.isInitialized)
-                if (cName != cityname)
-                    cName = cityname
-            cName = cityname
+            cName = cityname.ifBlank { "…" }
 
             remoteViews?.setTextViewText(R.id.tx_place, cName)
    //         remoteViews?.setTextColor(R.id.tx_place, ColorUtil().matchPrimaryColor())
-            remoteViews?.setTextViewText(R.id.tx_weather, tempC.split(".")[0] + "° " + tempKind)
-     //       remoteViews?.setTextColor(R.id.tx_weather, ColorUtil().matchPrimaryColor())
-            if (weatherIconID.startsWith("5"))
-                remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.rain)
-            if (weatherIconID.equals("800"))
-                remoteViews?.setImageViewResource(
-                    R.id.imgv_weather_icon,
-                    R.drawable.clear_sky
+
+            // tempC may still be empty before the first weather response; split()[0] on an
+            // empty string yields "" and rendered a stray "° " label.
+            if (tempC.isNotBlank()) {
+                remoteViews?.setTextViewText(
+                    R.id.tx_weather,
+                    tempC.substringBefore(".") + "° " + tempKind
                 )
-            if (weatherIconID.equals("801") || weatherIconID.equals("802") || weatherIconID.equals(
-                    "803"
-                ) || weatherIconID.equals("804")
-            )
-                remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.clouds)
+            }
+     //       remoteViews?.setTextColor(R.id.tx_weather, ColorUtil().matchPrimaryColor())
+            when {
+                weatherIconID.startsWith("5") ->
+                    remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.rain)
+
+                weatherIconID == "800" ->
+                    remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.clear_sky)
+
+                weatherIconID in setOf("801", "802", "803", "804") ->
+                    remoteViews?.setImageViewResource(R.id.imgv_weather_icon, R.drawable.clouds)
+            }
         }
     }
 
     fun isLocationEnabled(context: Context): Boolean {
-        val locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
-                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        return try {
+            val locationManager = context.getSystemService(LOCATION_SERVICE) as? LocationManager
+                ?: return false
+            locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                    locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        } catch (e: Exception) {
+            Log.e(TAG, "isLocationEnabled failed", e)
+            false
+        }
     }
 
 
@@ -686,8 +765,17 @@ class NewAppWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.S)
     private fun setUI() {
 
+        // setUI() is reachable from several receiver paths; make sure the shared state it
+        // relies on exists, otherwise lateinit access throws UninitializedPropertyAccessException.
+        ensureRemoteViews(widgetContext)
+        ensurePrefs(widgetContext)
+
+        if (presentActivityState.isBlank()) {
+            presentActivityState = sharedPreferences.getString("presentActivityState", "") ?: ""
+        }
+
         if (penNote.isNotEmpty())
-            remoteViews?.setTextViewText(R.id.tx_runner, "\uD83D\uDCDD " +penNote)
+            remoteViews?.setTextViewText(R.id.tx_runner, "\uD83D\uDCDD " + penNote)
 
         remoteViews?.setTextViewText(R.id.tx_act_state, presentActivityState)
 
@@ -768,16 +856,23 @@ class NewAppWidget : AppWidgetProvider() {
 
 
 
-            remoteViews?.setTextViewText(
-                R.id.rl_tx_steps,
-                "$stepsToday"
-            )
+        remoteViews?.setTextViewText(
+            R.id.rl_tx_steps,
+            "$stepsToday"
+        )
         remoteViews?.setTextViewText(
             R.id.rl_tx_steps_in_km,
-            " ~ " + String.format("%.1f",  (Integer.parseInt(stepsToday.toString()) * 74f) / 100000f)
+            " ~ " + String.format(Locale.getDefault(), "%.1f", (stepsToday * 74f) / 100000f)
         )
-            remoteViews?.setTextViewText(R.id.rl_tx_cals, (stepsToday * 0.04 * (80 / 70)).toInt().toString())
-            sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
+        // The previous formula used integer division `(80 / 70)` which always evaluated to 1,
+        // silently discarding the weight factor.
+        val weightKg = sharedPreferences.getInt("userWeightKg", 70).toDouble()
+        val heightCm = sharedPreferences.getInt("userHeightCm", 170).toDouble()
+        remoteViews?.setTextViewText(
+            R.id.rl_tx_cals,
+            calculateCaloriesFromSteps(stepsToday, weightKg, heightCm).toInt().toString()
+        )
+        sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
 
 
         if (hour != 0) {
@@ -817,17 +912,27 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setTextViewText(R.id.tx_time_announcement, "\uD83D\uDDE3")
         else remoteViews?.setTextViewText(R.id.tx_time_announcement, "⊘")
 
-        if (ispDataListInitialized() && pDatalistSongs.size > songIndex) {
+        if (ispDataListInitialized() && songIndex >= 0 && pDatalistSongs.size > songIndex) {
+            val song = pDatalistSongs[songIndex]
             remoteViews?.setTextViewText(
                 R.id.tx_music_details,
-                pDatalistSongs[songIndex].title + " | " + pDatalistSongs[songIndex].album.title + " | " + pDatalistSongs[songIndex].artist.name
+                song.title + " | " + song.album.title + " | " + song.artist.name
             )
-            val albumArtPath = dataListSongs[songIndex].album.cover
-            if (!albumArtPath.isNullOrBlank())
-                Picasso.get()
-                    .load(albumArtPath)
-                    .into(remoteViews!!, R.id.imgbtn_albumcover, NewAppWidget.i_appWidgetIds)
-            else remoteViews?.setImageViewResource(R.id.imgbtn_albumcover, R.drawable.launch)
+            // Previously indexed dataListSongs after bounds-checking pDatalistSongs, which
+            // could throw IndexOutOfBoundsException / UninitializedPropertyAccessException.
+            val albumArtPath = song.album.cover
+            if (!albumArtPath.isNullOrBlank() && isAppWidgetIdsInitialized()) {
+                try {
+                    Picasso.get()
+                        .load(albumArtPath)
+                        .into(remoteViews!!, R.id.imgbtn_albumcover, i_appWidgetIds)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Album art load failed", e)
+                    remoteViews?.setImageViewResource(R.id.imgbtn_albumcover, R.drawable.launch)
+                }
+            } else {
+                remoteViews?.setImageViewResource(R.id.imgbtn_albumcover, R.drawable.launch)
+            }
 
             mMediaPlayer?.let {
                 if (it.isPlaying)
@@ -905,30 +1010,26 @@ class NewAppWidget : AppWidgetProvider() {
 
         val wifiState = sharedPreferences.getBoolean("WifiState", false)
         val wifiConnectionState = sharedPreferences.getBoolean("WifiConnectionState", false)
-        if (wifiState && wifiConnectionState)
-            remoteViews?.setImageViewResource(R.id.menu_wifi, R.drawable.wifi_on)
-        else if (wifiState) {
-            remoteViews?.setImageViewResource(R.id.menu_wifi, R.drawable.wifi_on_but_not_connected)
-            widgetContext.startActivity(
-                Intent(widgetContext, DialogActivity::class.java)
-                    .putExtra("DialogIntent", "Menu")
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        }else remoteViews?.setImageViewResource(R.id.menu_wifi, R.drawable.wifi_off)
+        // Only reflect state in the icon. Launching DialogActivity from here fired on every
+        // widget refresh and is blocked by background-activity-launch restrictions.
+        val icon = when {
+            wifiState && wifiConnectionState -> R.drawable.wifi_on
+            wifiState -> R.drawable.wifi_on_but_not_connected
+            else -> R.drawable.wifi_off
+        }
+        remoteViews?.setImageViewResource(R.id.menu_wifi, icon)
     }
 
     private fun seekBluetoothState() {
 
         val blState = sharedPreferences.getBoolean("BluetoothState", false)
         val blConnectionState = sharedPreferences.getBoolean("BluetoothConnectionState", false)
-        if (blState && blConnectionState)
-            remoteViews?.setImageViewResource(R.id.menu_blue, R.drawable.blue_on)
-        else if (blState) {
-            remoteViews?.setImageViewResource(R.id.menu_blue, R.drawable.blue_red)
-            widgetContext.startActivity(
-                Intent(widgetContext, DialogActivity::class.java)
-                    .putExtra("DialogIntent", "Menu")
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        } else remoteViews?.setImageViewResource(R.id.menu_blue, R.drawable.blue_off)
+        val icon = when {
+            blState && blConnectionState -> R.drawable.blue_on
+            blState -> R.drawable.blue_red
+            else -> R.drawable.blue_off
+        }
+        remoteViews?.setImageViewResource(R.id.menu_blue, icon)
     }
 
     private fun setACAdapter() {
@@ -984,11 +1085,19 @@ class NewAppWidget : AppWidgetProvider() {
                 if (isWallBitmapInitialized(widgetContext)) {
                     val currentWallBitmap = wallBitmap
                     if (!currentWallBitmap.isRecycled) {
-                        scaledBitmap = Bitmap.createScaledBitmap(currentWallBitmap, screenWidth, screenHeight, true)
+                        scaledBitmap = Bitmap.createScaledBitmap(
+                            currentWallBitmap,
+                            screenWidth.coerceAtLeast(1),
+                            screenHeight.coerceAtLeast(1),
+                            true
+                        )
 
                         if (!scaledBitmap.isRecycled) {
-                            val overlayColor = if (ColorUtil().isColorDark(primaryColor)) android.R.color.black else android.R.color.white
-                            
+                            // android.R.color.black is a *resource id*, not an ARGB int; using it
+                            // as a Paint color produced a garbage tint.
+                            val overlayColor =
+                                if (ColorUtil().isColorDark(primaryColor)) Color.BLACK else Color.WHITE
+
                             val cropX = 10
                             val cropY = 25
                             val cropW = (screenWidth - 20).coerceAtLeast(1)
@@ -1004,6 +1113,10 @@ class NewAppWidget : AppWidgetProvider() {
                                     R.id.imgv_widget_layout,
                                     applyThinFilmOverlay(finalBitmap, overlayColor, 75)
                                 )
+
+                                // Release intermediates: these wallpaper-sized bitmaps are the
+                                // main source of OutOfMemoryError in this provider.
+                                if (croppedBitmap != blurredBitmap) croppedBitmap.recycle()
                             }
                         }
 
@@ -1022,27 +1135,37 @@ class NewAppWidget : AppWidgetProvider() {
 
     fun blur(context: Context?, image: Bitmap): Bitmap {
 
-        var BITMAP_SCALE = 0.1f; // Increased scale slightly for better quality/stability
-        var BLUR_RADIUS = 25f; // Adjust blur intensity
+        val bitmapScale = 0.1f // Increased scale slightly for better quality/stability
+        val blurRadius = 25f // Adjust blur intensity
 
-        val width = Math.max(1, Math.round(image.width * BITMAP_SCALE).toInt())
-        val height = Math.max(1, Math.round(image.height * BITMAP_SCALE).toInt())
+        val width = Math.round(image.width * bitmapScale).coerceAtLeast(1)
+        val height = Math.round(image.height * bitmapScale).coerceAtLeast(1)
 
         val inputBitmap = Bitmap.createScaledBitmap(image, width, height, false)
         val outputBitmap = Bitmap.createBitmap(inputBitmap)
 
-        val rs = RenderScript.create(context)
-        val theIntrinsic = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
-        val tmpIn = Allocation.createFromBitmap(rs, inputBitmap)
-        val tmpOut = Allocation.createFromBitmap(rs, outputBitmap)
+        var rs: RenderScript? = null
+        var theIntrinsic: ScriptIntrinsicBlur? = null
+        var tmpIn: Allocation? = null
+        var tmpOut: Allocation? = null
+        try {
+            rs = RenderScript.create(context)
+            theIntrinsic = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
+            tmpIn = Allocation.createFromBitmap(rs, inputBitmap)
+            tmpOut = Allocation.createFromBitmap(rs, outputBitmap)
 
-        theIntrinsic.setRadius(BLUR_RADIUS)
-        theIntrinsic.setInput(tmpIn)
-        theIntrinsic.forEach(tmpOut)
-        tmpOut.copyTo(outputBitmap)
-
-        inputBitmap.recycle()
-        rs.destroy()
+            theIntrinsic.setRadius(blurRadius)
+            theIntrinsic.setInput(tmpIn)
+            theIntrinsic.forEach(tmpOut)
+            tmpOut.copyTo(outputBitmap)
+        } finally {
+            // These native allocations were never released, leaking on every refresh.
+            tmpIn?.destroy()
+            tmpOut?.destroy()
+            theIntrinsic?.destroy()
+            rs?.destroy()
+            if (!inputBitmap.isRecycled) inputBitmap.recycle()
+        }
 
         return outputBitmap
     }
@@ -1079,14 +1202,20 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (checkCompanionVariable()) {
             remoteViews?.setTextViewText(R.id.tx_walldesc, wD)
-            remoteViews?.setTextViewText(
-                R.id.tx_walltype_updateinfo,
-                Html.fromHtml(
-                    qT.split(" ")[0].substring(0, 1)
-                        .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
-                    Html.FROM_HTML_MODE_LEGACY
+
+            // qT may be blank or start with a space; substring(0, 1) threw
+            // StringIndexOutOfBoundsException in that case.
+            val firstToken = qT.trim().substringBefore(" ")
+            if (firstToken.isNotEmpty()) {
+                val label = firstToken.replaceFirstChar { it.uppercase() }
+                remoteViews?.setTextViewText(
+                    R.id.tx_walltype_updateinfo,
+                    Html.fromHtml(
+                        "$label..,\t ||| \t$dU mins, once.\t ||| \t↺ @ $uT",
+                        Html.FROM_HTML_MODE_LEGACY
+                    )
                 )
-            )
+            }
             noRewards = sharedPreferences.getInt("noRewards", 7)
 
             if (noRewards > 1)
@@ -1162,44 +1291,47 @@ class NewAppWidget : AppWidgetProvider() {
         val action = intent.action ?: return
         Log.d(TAG, "onReceive: $action")
 
-        // Initialize core components
-        widgetContext = context
-        newAppWidget = ComponentName(context, NewAppWidget::class.java)
-        appWidM = AppWidgetManager.getInstance(context)
-        sharedPreferences = context.getSharedPreferences("UserPreferences", MODE_PRIVATE)
-        sharedPreferencesEditor = sharedPreferences.edit()
+        try {
+            // Initialize core components
+            widgetContext = context.applicationContext
+            newAppWidget = ComponentName(context, NewAppWidget::class.java)
+            appWidM = AppWidgetManager.getInstance(context)
+            ensurePrefs(widgetContext)
 
-        // Handle specific system broadcasts
-        when (action) {
-            Intent.ACTION_BOOT_COMPLETED -> {
-                context.startForegroundService(Intent(context, StepsService::class.java))
+            // Handle specific system broadcasts
+            when (action) {
+                Intent.ACTION_BOOT_COMPLETED -> {
+                    // Starting a foreground service from a background broadcast can throw
+                    // ForegroundServiceStartNotAllowedException; never let it escape.
+                    try {
+                        context.startForegroundService(Intent(context, StepsService::class.java))
+                    } catch (e: Exception) {
+                        Log.e(TAG, "startForegroundService(StepsService) failed", e)
+                    }
+                }
+
+                "ACTION_UPDATE_SPEED" -> {
+                    val speed = intent.getDoubleExtra("EXTRA_SPEED", 0.0)
+                    speedReading = Math.round(speed).toString()
+                }
             }
-            "ACTION_UPDATE_SPEED" -> {
-                speedReading = intent.getDoubleExtra("EXTRA_SPEED", 0.0).toString()
+
+            // Standard AppWidgetProvider handling
+            super.onReceive(context, intent)
+
+            // For custom actions and speed updates, perform a unified UI refresh.
+            // Standard actions like ACTION_APPWIDGET_UPDATE are already handled by onUpdate
+            // via super.onReceive.
+            if (action !in STANDARD_WIDGET_ACTIONS) {
+                ensureRemoteViews(context)
+                getScreenDimens()
+                setUI()
+                handleIntentActions(intent)
+                remoteViews?.let { appWidM.updateAppWidget(newAppWidget, it) }
             }
-        }
-
-        // Standard AppWidgetProvider handling
-        super.onReceive(context, intent)
-
-        // For custom actions and speed updates, perform a unified UI refresh
-        // Standard actions like ACTION_APPWIDGET_UPDATE are already handled by onUpdate via super.onReceive
-        val standardActions = listOf(
-            AppWidgetManager.ACTION_APPWIDGET_UPDATE,
-            AppWidgetManager.ACTION_APPWIDGET_OPTIONS_CHANGED,
-            AppWidgetManager.ACTION_APPWIDGET_DELETED,
-            AppWidgetManager.ACTION_APPWIDGET_DISABLED,
-            AppWidgetManager.ACTION_APPWIDGET_ENABLED
-        )
-
-        if (action !in standardActions) {
-            if (remoteViews == null) {
-                remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
-            }
-            getScreenDimens()
-            setUI()
-            handleIntentActions(intent)
-            appWidM.updateAppWidget(newAppWidget, remoteViews)
+        } catch (e: Exception) {
+            // An exception escaping a BroadcastReceiver crashes the hosting process.
+            Log.e(TAG, "onReceive($action) failed", e)
         }
     }
 
@@ -1367,8 +1499,21 @@ class NewAppWidget : AppWidgetProvider() {
                     remoteViews?.setViewVisibility(R.id.tx_max_speed, View.VISIBLE)
                     remoteViews?.setViewVisibility(R.id.speed_chronometer, View.VISIBLE)
                     remoteViews?.setTextViewText(R.id.tx_max_speed, "MAX")
-                    sharedPreferencesEditor.putInt("maxSpeedToday", 0).apply()
-                    widgetContext.startForegroundService(Intent(widgetContext, SpeedService::class.java))
+                    if (isSharedPreferencesInitialized()) {
+                        sharedPreferencesEditor.putInt("maxSpeedToday", 0).apply()
+                    }
+                    try {
+                        // Throws ForegroundServiceStartNotAllowedException on Android 12+ when
+                        // the app is not allowed to start a foreground service from background.
+                        widgetContext.startForegroundService(Intent(widgetContext, SpeedService::class.java))
+                    } catch (e: Exception) {
+                        Log.e(TAG, "startForegroundService(SpeedService) failed", e)
+                        // Roll the UI back so it does not claim a trip is being tracked.
+                        remoteViews?.setChronometer(R.id.speed_chronometer, 0L, null, false)
+                        remoteViews?.setViewVisibility(R.id.tx_speed, View.INVISIBLE)
+                        remoteViews?.setViewVisibility(R.id.tx_max_speed, View.INVISIBLE)
+                        remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
+                    }
                 }
             }
             GET_WEATHER -> {
@@ -1385,9 +1530,10 @@ class NewAppWidget : AppWidgetProvider() {
                                 it.pause()
                                 remoteViews?.setImageViewResource(R.id.imgbtn_playpause, R.drawable.play_m)
                             } else {
-                                startMusicActivity(songIndex)
-                                remoteViews?.setImageViewResource(R.id.imgbtn_playpause, R.drawable.pause_m)
+                                // Previously also launched MusicActivity here, which resumed the
+                                // existing player *and* started a second playback session.
                                 it.play()
+                                remoteViews?.setImageViewResource(R.id.imgbtn_playpause, R.drawable.pause_m)
                             }
                         } ?: startMusicActivity(songIndex)
                     } catch (ex: Exception) {
@@ -1406,9 +1552,10 @@ class NewAppWidget : AppWidgetProvider() {
                 getFavoriteContacts(widgetContext)
                 val position = intent.getIntExtra(EXTRA_CONTACTITEM_POSITION, AdapterView.INVALID_POSITION)
                 val viewID = intent.getIntExtra(EXTRA_CONTACTVIEW_ID, 7)
-                if (position != AdapterView.INVALID_POSITION) {
+                if (position != AdapterView.INVALID_POSITION && position < favContacts.size) {
+                    // The dial path previously indexed favContacts without a bounds check.
                     if (viewID == 0) dialPhoneNumber(widgetContext, favContacts[position].number)
-                    else if (viewID == 1 && favContacts.size > position) unMarkAsFav(favContacts[position].id)
+                    else if (viewID == 1) unMarkAsFav(favContacts[position].id)
                 } else {
                     widgetContext.startActivity(Intent(widgetContext, DialogActivity::class.java)
                         .putExtra("DialogIntent", "PC").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
@@ -1417,7 +1564,7 @@ class NewAppWidget : AppWidgetProvider() {
             ACTION_LIST_APPITEM_CLICK -> {
                 val position = intent.getIntExtra(EXTRA_APPITEM_POSITION, AdapterView.INVALID_POSITION)
                 val viewID = intent.getIntExtra(EXTRA_APPVIEW_ID, 7)
-                if (position != AdapterView.INVALID_POSITION && viewID == 0) {
+                if (position != AdapterView.INVALID_POSITION && viewID == 0 && position < choosenApps.size) {
                     widgetContext.packageManager.getLaunchIntentForPackage(choosenApps[position].pName)?.let {
                         it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         widgetContext.startActivity(it)
@@ -1425,31 +1572,48 @@ class NewAppWidget : AppWidgetProvider() {
                 }
             }
             FAB_SHARE -> {
-                val inflater = widgetContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-                val appWidgetView = inflater.inflate(R.layout.new_app_widget, null)
-                appWidgetView.measure(
-                    View.MeasureSpec.makeMeasureSpec(screenWidth, View.MeasureSpec.EXACTLY),
-                    View.MeasureSpec.makeMeasureSpec(screenHeight - 725, View.MeasureSpec.EXACTLY)
-                )
-                appWidgetView.layout(0, 0, appWidgetView.measuredWidth, appWidgetView.measuredHeight)
-                var bitmapWidget = Bitmap.createBitmap(appWidgetView.width, appWidgetView.height, Bitmap.Config.ARGB_8888)
-                val canvas = Canvas(bitmapWidget)
-                appWidgetView.draw(canvas)
-                bitmapWidget = Bitmap.createScaledBitmap(bitmapWidget, Math.round(bitmapWidget.width * 0.5f), Math.round(bitmapWidget.height * 0.5f), true)
-                shareBitmap(bitmapWidget)
+                val inflater = widgetContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as? LayoutInflater
+                if (inflater != null) {
+                    val appWidgetView = inflater.inflate(R.layout.new_app_widget, null)
+                    val measureW = screenWidth.coerceAtLeast(1)
+                    val measureH = (screenHeight - 725).coerceAtLeast(1)
+                    appWidgetView.measure(
+                        View.MeasureSpec.makeMeasureSpec(measureW, View.MeasureSpec.EXACTLY),
+                        View.MeasureSpec.makeMeasureSpec(measureH, View.MeasureSpec.EXACTLY)
+                    )
+                    appWidgetView.layout(0, 0, appWidgetView.measuredWidth, appWidgetView.measuredHeight)
+
+                    // view.width/height are 0 for a detached, manually measured view, which made
+                    // Bitmap.createBitmap() throw "width and height must be > 0".
+                    val bmpW = appWidgetView.measuredWidth.coerceAtLeast(1)
+                    val bmpH = appWidgetView.measuredHeight.coerceAtLeast(1)
+                    var bitmapWidget = Bitmap.createBitmap(bmpW, bmpH, Bitmap.Config.ARGB_8888)
+                    appWidgetView.draw(Canvas(bitmapWidget))
+                    bitmapWidget = Bitmap.createScaledBitmap(
+                        bitmapWidget,
+                        Math.round(bmpW * 0.5f).coerceAtLeast(1),
+                        Math.round(bmpH * 0.5f).coerceAtLeast(1),
+                        true
+                    )
+                    shareBitmap(bitmapWidget)
+                }
             }
             WIFI_AUTO -> {
                 widgetContext.startActivity(Intent(Settings.ACTION_WIFI_SETTINGS).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             }
             TORCH_STATE -> {
                 if (widgetContext.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
-                    val cameraManager = widgetContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+                    val cameraManager = widgetContext.getSystemService(Context.CAMERA_SERVICE) as? CameraManager
                     try {
-                        val cameraId = cameraManager.cameraIdList[0]
-                        val isTorchOn = sharedPreferences.getBoolean("Torch", false)
-                        cameraManager.setTorchMode(cameraId, !isTorchOn)
-                        remoteViews?.setImageViewResource(R.id.menu_torch, if (isTorchOn) R.drawable.torch_off else R.drawable.torch_on)
-                        sharedPreferencesEditor.putBoolean("Torch", !isTorchOn).apply()
+                        // cameraIdList[0] threw ArrayIndexOutOfBoundsException on devices that
+                        // report the flash feature but expose no camera ids.
+                        val cameraId = cameraManager?.cameraIdList?.firstOrNull()
+                        if (cameraId != null) {
+                            val isTorchOn = sharedPreferences.getBoolean("Torch", false)
+                            cameraManager.setTorchMode(cameraId, !isTorchOn)
+                            remoteViews?.setImageViewResource(R.id.menu_torch, if (isTorchOn) R.drawable.torch_off else R.drawable.torch_on)
+                            sharedPreferencesEditor.putBoolean("Torch", !isTorchOn).apply()
+                        }
                     } catch (ex: Exception) {
                         remoteViews?.setTextViewText(R.id.tx_runner, ex.message)
                     }
@@ -1469,6 +1633,8 @@ class NewAppWidget : AppWidgetProvider() {
             }
             SET_CLICKED -> {
                 widgetContext.packageManager.getLaunchIntentForPackage("com.belaku.homey")?.let {
+                    // Without NEW_TASK this throws AndroidRuntimeException from a receiver context.
+                    it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     widgetContext.startActivity(it)
                 }
             }
@@ -1518,32 +1684,48 @@ class NewAppWidget : AppWidgetProvider() {
 
 
     private fun startMusicActivity(songIndex: Int) {
-        var intentMusic = Intent(widgetContext, MusicActivity::class.java)
-        intentMusic.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intentMusic.putExtra("songIndex", songIndex)
-        widgetContext.startActivity(intentMusic)
+        val intentMusic = Intent(widgetContext, MusicActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            .putExtra("songIndex", songIndex)
+        try {
+            widgetContext.startActivity(intentMusic)
+        } catch (e: Exception) {
+            Log.e(TAG, "startMusicActivity failed", e)
+        }
     }
 
 
     @RequiresApi(Build.VERSION_CODES.S)
     private fun unMarkAsFav(contactId: String) {
-        // Replace with the actual contact ID
+        if (contactId.isBlank()) return
+
+        // contentResolver.update() throws SecurityException without the WRITE_CONTACTS
+        // runtime permission, which would kill the widget host process.
+        if (ContextCompat.checkSelfPermission(
+                widgetContext,
+                Manifest.permission.WRITE_CONTACTS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.w(TAG, "unMarkAsFav skipped: WRITE_CONTACTS not granted")
+            return
+        }
+
         val values = ContentValues()
         values.put(ContactsContract.Contacts.STARRED, 0) // 1 for favorite, 0 for not favorite
 
-        widgetContext.contentResolver.update(
-            ContactsContract.Contacts.CONTENT_URI,
-            values,
-            ContactsContract.Contacts._ID + " = ?",
-            arrayOf<String>(contactId.toString())
-        )
+        try {
+            widgetContext.contentResolver.update(
+                ContactsContract.Contacts.CONTENT_URI,
+                values,
+                ContactsContract.Contacts._ID + " = ?",
+                arrayOf(contactId)
+            )
+        } catch (ex: Exception) {
+            showException(ex.message.toString())
+            return
+        }
 
         getFavoriteContacts(widgetContext)
-        //   val appWidgetIds = appWidM.getAppWidgetIds(newAppWidget)
-        //   appWidM.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list_contacts)
-
-  //      widgetContext.startActivity(Intent(widgetContext, DialogActivity::class.java).putExtra("DialogIntent", "WCh").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-
     }
 
 
@@ -1552,45 +1734,43 @@ class NewAppWidget : AppWidgetProvider() {
     @SuppressLint("ResourceAsColor")
     @RequiresApi(Build.VERSION_CODES.S)
     fun getPreciseEnergyCounter(context: Context) {
-        val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
-        val energy = batteryManager.getLongProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+        val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as? BatteryManager
+            ?: return
+
+        // getLongProperty() returns Integer.MIN_VALUE for unsupported properties, which produced
+        // a nonsensical label and a negative ProgressBar value.
+        val raw = batteryManager.getLongProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+        val energy = if (raw in 0..100) raw.toInt() else 0
 
         remoteViews?.setTextViewText(R.id.tx_battery, energy.toString())
-        remoteViews?.setProgressBar(R.id.progressBar_battery, 100, energy.toInt(), false)
+        remoteViews?.setProgressBar(R.id.progressBar_battery, 100, energy, false)
 
         val greenColor =
-            ColorStateList.valueOf(context.resources.getColor(android.R.color.holo_green_light))
+            ColorStateList.valueOf(ContextCompat.getColor(context, android.R.color.holo_green_light))
         val redColor =
-            ColorStateList.valueOf(context.resources.getColor(android.R.color.holo_red_light))
+            ColorStateList.valueOf(ContextCompat.getColor(context, android.R.color.holo_red_light))
         val amberColor =
-            ColorStateList.valueOf(context.resources.getColor(android.R.color.holo_orange_light))
+            ColorStateList.valueOf(ContextCompat.getColor(context, android.R.color.holo_orange_light))
 
-        if (energy.toInt() > 70) {
+        if (energy > 70) {
             setColorStateList(greenColor)
             remoteViews?.setTextColor(
                 R.id.tx_battery,
-                widgetContext.resources.getColor(android.R.color.holo_green_dark)
+                ContextCompat.getColor(context, android.R.color.holo_green_dark)
             )
-        } else if (energy.toInt() < 30) {
+        } else if (energy < 30) {
             setColorStateList(redColor)
             remoteViews?.setTextColor(
                 R.id.tx_battery,
-                widgetContext.resources.getColor(android.R.color.holo_red_dark)
+                ContextCompat.getColor(context, android.R.color.holo_red_dark)
             )
         } else {
             setColorStateList(amberColor)
             remoteViews?.setTextColor(
                 R.id.tx_battery,
-                widgetContext.resources.getColor(android.R.color.holo_orange_dark)
+                ContextCompat.getColor(context, android.R.color.holo_orange_dark)
             )
         }
-
-
-      /*  return if (energy != Long.MIN_VALUE) {
-            energy // Energy remaining in microampere-hours (µAh)
-        } else {
-            0L
-        }*/
     }
 
     private fun setColorStateList(color: ColorStateList) {
@@ -1607,51 +1787,56 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     fun isWifiEnabled(context: Context): Boolean {
+        // The unchecked `as WifiManager` cast threw instead of producing null, making the
+        // former null-check dead code.
         val wifiManager =
-            context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        if (wifiManager != null) {
-            return wifiManager.isWifiEnabled
-        }
-        return false // Handle the case where WifiManager is null
+            context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
+        return wifiManager?.isWifiEnabled == true
     }
 
 
 
     private fun shareBitmap(bitmapWidget: Bitmap) {
 
-        val cachePath: File = File(widgetContext.getCacheDir(), "images")
-        cachePath.mkdirs() // Create the directory if it doesn't exist
-        val imageFile: File = File(cachePath, "image_to_share.png")
+        val cachePath = File(widgetContext.cacheDir, "images")
+        if (!cachePath.exists() && !cachePath.mkdirs()) {
+            showException("Unable to create cache directory for sharing")
+            return
+        }
+        val imageFile = File(cachePath, "image_to_share.png")
 
         try {
-            val outputStream: FileOutputStream = FileOutputStream(imageFile)
-            bitmapWidget.compress(
-                Bitmap.CompressFormat.PNG,
-                100,
-                outputStream
-            ) // Adjust format and quality as needed
-            outputStream.flush()
-            outputStream.close()
-        } catch (ex: IOException) {
+            // use {} guarantees the stream is closed even when compress() throws.
+            FileOutputStream(imageFile).use { outputStream ->
+                bitmapWidget.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                outputStream.flush()
+            }
+        } catch (ex: Exception) {
             showException(ex.message.toString())
             return  // Handle the error appropriately
         }
 
-        val contentUri = FileProvider.getUriForFile(
-            widgetContext,
-            widgetContext.getApplicationContext().getPackageName() + ".fileprovider",
-            imageFile
-        )
+        try {
+            // getUriForFile() throws IllegalArgumentException if the file is outside the
+            // paths declared for the provider, and the chooser can fail on its own.
+            val contentUri = FileProvider.getUriForFile(
+                widgetContext,
+                widgetContext.packageName + ".fileprovider",
+                imageFile
+            )
 
-        val shareIntent = Intent(Intent.ACTION_SEND)
-        shareIntent.setType("image/*")
-        shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri)
-        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) // Grant temporary read permission
+            val shareIntent = Intent(Intent.ACTION_SEND)
+                .setType("image/*")
+                .putExtra(Intent.EXTRA_STREAM, contentUri)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) // Grant temporary read permission
 
-        widgetContext.startActivity(
-            Intent.createChooser(shareIntent, "Share Image Using")
-                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        )
+            widgetContext.startActivity(
+                Intent.createChooser(shareIntent, "Share Image Using")
+                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        } catch (ex: Exception) {
+            showException(ex.message.toString())
+        }
     }
 
 
@@ -1678,29 +1863,64 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     fun dialPhoneNumber(context: Context, phoneNumber: String) {
-        val intent = Intent(Intent.ACTION_CALL)
-        intent.data = Uri.parse("tel:" + phoneNumber)
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent)
+        if (phoneNumber.isBlank()) return
 
+        // ACTION_CALL throws SecurityException without the CALL_PHONE runtime permission;
+        // ACTION_DIAL needs none, so use it as the fallback.
+        val canCall = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.CALL_PHONE
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val intent = Intent(if (canCall) Intent.ACTION_CALL else Intent.ACTION_DIAL).apply {
+            data = Uri.fromParts("tel", phoneNumber, null)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
+        try {
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            Log.e(TAG, "dialPhoneNumber failed", e)
+        }
     }
 
 
     private fun launchApp(context: Context, pkgName: String) {
-        val launchIntent: Intent = context.packageManager.getLaunchIntentForPackage(pkgName)!!
-        context.startActivity(launchIntent)
+        // getLaunchIntentForPackage() returns null for packages with no launcher activity,
+        // so the previous !! threw NullPointerException.
+        val launchIntent = context.packageManager.getLaunchIntentForPackage(pkgName)
+        if (launchIntent == null) {
+            Log.w(TAG, "No launch intent for $pkgName")
+            return
+        }
+        launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        try {
+            context.startActivity(launchIntent)
+        } catch (e: Exception) {
+            Log.e(TAG, "launchApp($pkgName) failed", e)
+        }
     }
 
 
     private fun readApps() {
+        if (!isSharedPreferencesInitialized()) return
 
-        val gson = Gson()
-        val response: String = sharedPreferences.getString("MUA", "").toString()
-        if (response.length > 0)
-            choosenApps = gson.fromJson(
-                response,
-                object : TypeToken<List<App?>?>() {}.type
-            )
+        val response: String = sharedPreferences.getString("MUA", "").orEmpty()
+        if (response.isNotEmpty()) {
+            try {
+                // fromJson() throws JsonSyntaxException on corrupt prefs payloads; the old
+                // List<App?> token also allowed null elements that NPE'd downstream.
+                val parsed: ArrayList<App>? = Gson().fromJson(
+                    response,
+                    object : TypeToken<ArrayList<App>>() {}.type
+                )
+                if (parsed != null) {
+                    choosenApps = ArrayList(parsed.filterNotNull())
+                }
+            } catch (ex: Exception) {
+                Log.e(TAG, "readApps: unable to parse stored apps", ex)
+            }
+        }
 
         sortApps(choosenApps)
 
@@ -1710,13 +1930,13 @@ class NewAppWidget : AppWidgetProvider() {
 
 
     private fun sortApps(apps: List<App>) {
-
-        Collections.sort<App>(
-            apps
-        ) { p0, p1 ->
-            p1.usage.compareTo(p0.usage)
+        try {
+            // Collections.sort() throws UnsupportedOperationException on immutable lists and
+            // ConcurrentModificationException if another thread mutates choosenApps.
+            Collections.sort(apps) { p0, p1 -> p1.usage.compareTo(p0.usage) }
+        } catch (ex: Exception) {
+            Log.e(TAG, "sortApps failed", ex)
         }
-
     }
 
 
@@ -1780,6 +2000,10 @@ class NewAppWidget : AppWidgetProvider() {
 
         }
 
+        /** True when [i_appWidgetIds] has been assigned and holds at least one widget id. */
+        fun isAppWidgetIdsInitialized(): Boolean =
+            ::i_appWidgetIds.isInitialized && i_appWidgetIds.isNotEmpty()
+
         var selectedApps: ArrayList<SelectedApp> = ArrayList()
         lateinit var selectedApp: Bitmap
 
@@ -1831,47 +2055,49 @@ class NewAppWidget : AppWidgetProvider() {
 
             val currentHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
 
-
-            timeOfDay = if (currentHour < 6) {
-                "Night!"
-            } else if (currentHour < 12) {
-                "Morni!"
-            } else if (currentHour < 17) {
-                "Noon!"
-            } else if (currentHour < 21) {
-                "Eve!"
-            } else {
-                "Night!"
+            timeOfDay = when {
+                currentHour < 6 -> "Night!"
+                currentHour < 12 -> "Morni!"
+                currentHour < 17 -> "Noon!"
+                currentHour < 21 -> "Eve!"
+                else -> "Night!"
             }
 
             timelyWish = timeOfDay
 
-
-            val c: Cursor? = context.contentResolver
-                .query(ContactsContract.Profile.CONTENT_URI, null, null, null, null)
-            c?.moveToFirst()
-
-            Log.d("gpColNAmes", c?.columnNames.contentToString())
-
-            try {
-                gpName = c?.getString(c.getColumnIndex("display_name")).toString()
-            } catch (ex: Exception) {
-                showException(ex.message.toString())
+            // The Profile query throws SecurityException without READ_CONTACTS, and the old
+            // `c!!.close()` threw NPE whenever query() returned null.
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.READ_CONTACTS
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                try {
+                    context.contentResolver.query(
+                        ContactsContract.Profile.CONTENT_URI, null, null, null, null
+                    )?.use { c ->
+                        if (c.moveToFirst()) {
+                            val nameIndex = c.getColumnIndex("display_name")
+                            // getColumnIndex() returns -1 when the column is absent.
+                            if (nameIndex != -1) {
+                                gpName = c.getString(nameIndex).orEmpty()
+                            }
+                        }
+                    }
+                } catch (ex: Exception) {
+                    showException(ex.message.toString())
+                }
             }
 
-            //    remoteViews?.setImageViewBitmap(R.id.imgbtn_n_apps, gpBitmap)
-
             Log.d("gpName - ", gpName)
-            c!!.close()
 
-            if (timeOfDay == "Morni!")
-                timelyWish = "\uD83C\uDF3B"//, ${gpName.split(" ").get(0)}!"
-            else if (timeOfDay == "Noon!")
-                timelyWish = "☀\uFE0F"//, ${gpName.split(" ").get(0)}!"
-            else if (timeOfDay == "Eve!")
-                timelyWish = "\uD83C\uDF41"//, ${gpName.split(" ").get(0)}!"
-            else if (timeOfDay == "Night!")
-                timelyWish = "\uD83D\uDCA4"//, ${gpName.split(" ").get(0)}!"
+            timelyWish = when (timeOfDay) {
+                "Morni!" -> "\uD83C\uDF3B"//, ${gpName.split(" ").get(0)}!"
+                "Noon!" -> "☀\uFE0F"//, ${gpName.split(" ").get(0)}!"
+                "Eve!" -> "\uD83C\uDF41"//, ${gpName.split(" ").get(0)}!"
+                "Night!" -> "\uD83D\uDCA4"//, ${gpName.split(" ").get(0)}!"
+                else -> timelyWish
+            }
 
         }
 
@@ -1884,8 +2110,15 @@ class NewAppWidget : AppWidgetProvider() {
             stepsData.clear()
             val days = listOf("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY")
             val currentDay = LocalDate.now().dayOfWeek.name
+            // sharedPreferences is lateinit and may not be set yet when a service calls this
+            // after a process restart, which threw UninitializedPropertyAccessException.
+            val prefsReady = isSharedPreferencesInitialized()
             for (dayKey in days) {
-                val count = if (dayKey == currentDay) stepsToday else sharedPreferences.getInt(dayKey, 0)
+                val count = when {
+                    dayKey == currentDay -> stepsToday
+                    prefsReady -> sharedPreferences.getInt(dayKey, 0)
+                    else -> 0
+                }
                 stepsData.add(count.toString())
             }
         }
@@ -1898,37 +2131,26 @@ class NewAppWidget : AppWidgetProvider() {
             val dfDate = SimpleDateFormat("d", Locale.getDefault())
             val dfMonth = SimpleDateFormat("MMM", Locale.getDefault())
 
-            var postFixDate = ""
+            val dayOfMonthText = dfDate.format(c)
+            val dayOfMonth = dayOfMonthText.trim().toIntOrNull() ?: 0
 
-
-
-            if (dfDate.format(c).length == 1) {
-                when (dfDate.format(c).trim().toInt()) {
-                    1 -> postFixDate = "ˢᵗ"
-                    2 -> postFixDate = "ⁿᵈ"
-                    3 -> postFixDate = "ʳᵈ"
-                    in 4..9 -> postFixDate = "ᵗʰ"
-
-                }
-            } else {
-                when (dfDate.format(c).trim().toInt()) {
-                    in 11..20 -> postFixDate = "ᵗʰ"
-                    21, 31 -> postFixDate = "ˢᵗ"
-                    22 -> postFixDate = "ⁿᵈ"
-                    23 -> postFixDate = "ʳᵈ"
-                    in 24..30 -> postFixDate = "ᵗʰ"
-
-                }
+            // The old length-based branches left day 10 (and any unmatched value) with an
+            // empty suffix. A single when over the whole range covers every day.
+            val postFixDate = when (dayOfMonth) {
+                1, 21, 31 -> "ˢᵗ"
+                2, 22 -> "ⁿᵈ"
+                3, 23 -> "ʳᵈ"
+                else -> "ᵗʰ"
             }
 
             val now = LocalDate.now()
             val dayName = now.dayOfWeek.name
+            val todayFormatted = dayOfMonthText + postFixDate + " " + dfMonth.format(c)
 
             if (!::formattedDate.isInitialized) {
-                formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
+                formattedDate = todayFormatted
                 loadStepsData()
-            } else if (formattedDate != dfDate.format(c) + postFixDate + " " + dfMonth.format(c)) {
-
+            } else if (formattedDate != todayFormatted) {
 
                 for (i in arrayListHabits)
                     i.isChecked = false
@@ -1936,6 +2158,14 @@ class NewAppWidget : AppWidgetProvider() {
                 if (isadapterHabitsInitialized()) adapterHabits.notifyDataSetChanged()
                 // Midnight transition detected
                 appUsageStats(context)
+
+                // The rollover below writes to the lateinit editor; bail out if prefs are
+                // not ready yet instead of throwing UninitializedPropertyAccessException.
+                if (!isSharedPreferencesInitialized()) {
+                    formattedDate = todayFormatted
+                    loadStepsData()
+                    return
+                }
 
                 // 1. Ensure current count is saved to disk before resetting
                 sharedPreferencesEditor.putInt(dayName, stepsToday).apply()
@@ -1952,7 +2182,9 @@ class NewAppWidget : AppWidgetProvider() {
                 // 3. Weekly reset logic (Monday)
                 if (now.dayOfWeek == java.time.DayOfWeek.MONDAY) {
                     val days = listOf("TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY")
+                    // These putInt() calls were never committed because apply() was missing.
                     days.forEach { sharedPreferencesEditor.putInt(it, 0) }
+                    sharedPreferencesEditor.apply()
 
                     for (i in arrayListHabits) {
                         i.isChecked = false
@@ -1966,7 +2198,7 @@ class NewAppWidget : AppWidgetProvider() {
                     if (isadapterHabitsInitialized()) adapterHabits.notifyDataSetChanged()
                 }
 
-                formattedDate = dfDate.format(c) + postFixDate + " " + dfMonth.format(c)
+                formattedDate = todayFormatted
 
                 // 4. Synchronize the history list and notify adapter
                 loadStepsData()
@@ -2020,6 +2252,15 @@ class NewAppWidget : AppWidgetProvider() {
         private var appIndex: Int = 0
 
         lateinit var newAppWidget: ComponentName
+
+        /** Framework actions already handled by super.onReceive() -> onUpdate()/onDeleted() etc. */
+        private val STANDARD_WIDGET_ACTIONS = setOf(
+            AppWidgetManager.ACTION_APPWIDGET_UPDATE,
+            AppWidgetManager.ACTION_APPWIDGET_OPTIONS_CHANGED,
+            AppWidgetManager.ACTION_APPWIDGET_DELETED,
+            AppWidgetManager.ACTION_APPWIDGET_DISABLED,
+            AppWidgetManager.ACTION_APPWIDGET_ENABLED
+        )
 
         private const val FAB_SHARE = "fabShare"
         private const val WIFI_AUTO = "wifiAuto"
