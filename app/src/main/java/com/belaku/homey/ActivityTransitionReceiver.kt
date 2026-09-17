@@ -54,9 +54,14 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                             }
                         }
 
+                        val sharedPrefs = applicationContext.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
+                        val oldState = sharedPrefs.getString("presentActivityState", "")
+
+                        if (oldState == detectedState) return@forEach
+
                         presentActivityState = detectedState
                         // Save persistent state for widget
-                        applicationContext.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE).edit {
+                        sharedPrefs.edit {
                             putString("presentActivityState", detectedState)
                         }
                         
@@ -81,7 +86,11 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     val baseTime = SystemClock.elapsedRealtime()
                     rv.setViewVisibility(R.id.still_chronometer, View.VISIBLE)
                     rv.setChronometer(R.id.still_chronometer, baseTime, null, true)
-                    sharedPreferences.edit { putLong("stillChr", baseTime) }
+                    sharedPreferences.edit { 
+                        putLong("stillChr", baseTime)
+                        putLong("walkChr", 0L)
+                        putLong("speedChr", 0L)
+                    }
                     rv.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
                     rv.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
                     rv.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
@@ -102,7 +111,11 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     val baseTime = SystemClock.elapsedRealtime()
                     rv.setViewVisibility(R.id.walk_chronometer, View.VISIBLE)
                     rv.setChronometer(R.id.walk_chronometer, baseTime, null, true)
-                    sharedPreferences.edit { putLong("walkChr", baseTime) }
+                    sharedPreferences.edit { 
+                        putLong("walkChr", baseTime)
+                        putLong("stillChr", 0L)
+                        putLong("speedChr", 0L)
+                    }
                     rv.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
                     rv.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
                     rv.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
@@ -126,6 +139,8 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     sharedPreferences.edit { 
                         putLong("speedChr", baseTime)
                         putLong("speed_trip_start_time", baseTime)
+                        putLong("stillChr", 0L)
+                        putLong("walkChr", 0L)
                     }
                     rv.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
                     rv.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)

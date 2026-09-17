@@ -645,7 +645,7 @@ class DialogActivity : AppCompatActivity() {
      * Shows a rationale (if needed) and ensures the user is prompted for the permission
      * needed, then doing that feature's follow-up work.
      */
-    private fun requestFeaturePermission(feature: FeaturePermission) {
+    fun requestFeaturePermission(feature: FeaturePermission) {
         if (feature == FeaturePermission.USAGE_STATS) {
             usageStatsPermissionDialog()
             return

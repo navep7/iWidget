@@ -25,6 +25,13 @@ enum class FeaturePermission(
         prefKey = "ARP"
     ),
 
+    CONTACTS(
+        permissions = arrayOf(Manifest.permission.READ_CONTACTS),
+        rationaleTitle = "to get Google account info",
+        rationale = "to Display Google account initials.",
+        prefKey = "RC"
+    ),
+
     /** "② Place Info" tile */
     PLACE_INFO(
         permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),

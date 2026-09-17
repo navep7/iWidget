@@ -157,62 +157,45 @@ class NewAppWidget : AppWidgetProvider() {
         val appContext = context.applicationContext
         widgetContext = appContext
         onEn = true
-
-       /* try {
-            appUsageStats(appContext)
-        } catch (e: Exception) {
-            Log.e(TAG, "appUsageStats failed", e)
-        }
-
-        recognizeActivityTransitions()*/
         ensurePrefs(appContext)
 
-        if (unlockReceiver == null) {
-            unlockReceiver = object : BroadcastReceiver() {
-                override fun onReceive(ctx: Context, intent: Intent) {
-                    if (Intent.ACTION_USER_PRESENT != intent.action) return
-                    try {
-                        widgetContext = ctx.applicationContext
-                        ensurePrefs(widgetContext)
-                        ensureRemoteViews(widgetContext)
-                        newAppWidget = ComponentName(widgetContext, NewAppWidget::class.java)
-
-                        setUI()
-                        setOnClickPendingIntents(widgetContext)
-
-                        if (!isAppWidMInitialized())
-                            appWidM = AppWidgetManager.getInstance(widgetContext)
-
-                        val unlockCount = sharedPreferences.getInt("unlockCount", 1)
-                        remoteViews?.setTextViewText(R.id.tx_unlocks, unlockCount.toString())
-                        sharedPreferencesEditor.putInt("unlockCount", unlockCount + 1).apply()
-
-                        mAppWidgetIds = appWidM.getAppWidgetIds(newAppWidget)
-                        appWidM.updateAppWidget(newAppWidget, remoteViews)
-                    } catch (e: Exception) {
-                        Log.e(TAG, "unlockReceiver failed", e)
-                    }
-                }
-            }
-
-            // Register the receiver programmatically to bypass manifest restrictions.
-            // API 34+ requires an explicit export flag or a SecurityException is thrown.
-            try {
-                val filter = IntentFilter(Intent.ACTION_USER_PRESENT)
-                ContextCompat.registerReceiver(
-                    appContext,
-                    unlockReceiver,
-                    filter,
-                    ContextCompat.RECEIVER_NOT_EXPORTED
-                )
-            } catch (e: Exception) {
-                unlockReceiver = null
-                Log.e(TAG, "registerReceiver(ACTION_USER_PRESENT) failed", e)
-            }
-        }
+        ensureUnlockReceiver(appContext)
 
         if (ismActInitialized())
             fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
+    }
+
+    private fun ensureUnlockReceiver(context: Context) {
+        if (unlockReceiver != null) return
+
+        val appContext = context.applicationContext
+        unlockReceiver = object : BroadcastReceiver() {
+            override fun onReceive(ctx: Context, intent: Intent) {
+                if (Intent.ACTION_USER_PRESENT == intent.action) {
+                    val appContextInside = ctx.applicationContext
+
+                    // Increment count in SharedPreferences first
+                    val prefs = appContextInside.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+                    val currentCount = prefs.getInt("unlockCount", 0)
+                    prefs.edit().putInt("unlockCount", currentCount + 1).apply()
+
+                    // Trigger a refresh. We use a fresh instance to avoid stale property captures.
+                    val manager = AppWidgetManager.getInstance(appContextInside)
+                    val componentName = ComponentName(appContextInside, NewAppWidget::class.java)
+                    val ids = manager.getAppWidgetIds(componentName)
+
+                    val provider = NewAppWidget()
+                    provider.onUpdate(appContextInside, manager, ids)
+                }
+            }
+        }
+
+        val filter = IntentFilter(Intent.ACTION_USER_PRESENT)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            appContext.registerReceiver(unlockReceiver, filter, Context.RECEIVER_EXPORTED)
+        } else {
+            appContext.registerReceiver(unlockReceiver, filter)
+        }
     }
 
     /** Ensures the shared companion [sharedPreferences] / editor are usable from any entry point. */
@@ -336,19 +319,19 @@ class NewAppWidget : AppWidgetProvider() {
     override fun onDisabled(context: Context?) {
         super.onDisabled(context)
         if (context == null) return
-        widgetContext = context.applicationContext
+        val appContext = context.applicationContext
+        widgetContext = appContext
 
-        // Clean up everything registered in onEnabled, otherwise the receiver leaks.
-        unlockReceiver?.let { receiver ->
+        unlockReceiver?.let {
             try {
-                widgetContext.unregisterReceiver(receiver)
-            } catch (e: IllegalArgumentException) {
-                Log.w(TAG, "unlockReceiver was not registered", e)
-            } finally {
-                unlockReceiver = null
+                appContext.unregisterReceiver(it)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to unregister unlockReceiver", e)
             }
+            unlockReceiver = null
         }
 
+        // Clean up everything registered in onEnabled, otherwise the receiver leaks.
         try {
             if (::pendingIntentActivityTransitions.isInitialized) {
                 ActivityRecognition.getClient(widgetContext)
@@ -373,14 +356,16 @@ class NewAppWidget : AppWidgetProvider() {
         widgetContext = context.applicationContext
         Log.d(TAG, "!onUpdate")
 
+        ensureUnlockReceiver(widgetContext)
+
         try {
             remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
             newAppWidget = ComponentName(context, NewAppWidget::class.java)
             appWidM = appWidgetManager
+            i_appWidgetIds = appWidgetIds
+            mAppWidgetIds = i_appWidgetIds
 
             ensurePrefs(widgetContext)
-
-            i_appWidgetIds = appWidgetIds
 
             getScreenDimens()
 
@@ -765,14 +750,16 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setTextViewText(R.id.tx_act_state, presentActivityState)
 
 
-        remoteViews?.setTextViewText(R.id.tx_unlocks, sharedPreferences.getInt("unlockCount", 1).toString())
+        remoteViews?.setTextViewText(R.id.tx_unlocks, sharedPreferences.getInt("unlockCount", 0).toString())
 
 
         if (presentActivityState == "STILL") {
 
-
-
-            val baseTime = sharedPreferences.getLong("stillChr", SystemClock.elapsedRealtime())
+            var baseTime = sharedPreferences.getLong("stillChr", 0L)
+            if (baseTime == 0L) {
+                baseTime = SystemClock.elapsedRealtime()
+                sharedPreferencesEditor.putLong("stillChr", baseTime).apply()
+            }
             remoteViews?.setViewVisibility(R.id.still_chronometer, View.VISIBLE)
             remoteViews?.setChronometer(R.id.still_chronometer, baseTime, null, true)
             remoteViews?.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
@@ -792,7 +779,11 @@ class NewAppWidget : AppWidgetProvider() {
         } else if (presentActivityState == "WALKING") {
 
 
-            val baseTime = sharedPreferences.getLong("walkChr", SystemClock.elapsedRealtime())
+            var baseTime = sharedPreferences.getLong("walkChr", 0L)
+            if (baseTime == 0L) {
+                baseTime = SystemClock.elapsedRealtime()
+                sharedPreferencesEditor.putLong("walkChr", baseTime).apply()
+            }
             remoteViews?.setViewVisibility(R.id.walk_chronometer, View.VISIBLE)
             remoteViews?.setViewVisibility(R.id.imgbtn_info_steps, View.INVISIBLE)
             remoteViews?.setChronometer(R.id.walk_chronometer, baseTime, null, true)
@@ -811,7 +802,11 @@ class NewAppWidget : AppWidgetProvider() {
         //    stopSpeedService(context)
         } else if (presentActivityState == "TRAVEL") {
 
-            val baseTime = sharedPreferences.getLong("speedChr", SystemClock.elapsedRealtime())
+            var baseTime = sharedPreferences.getLong("speedChr", 0L)
+            if (baseTime == 0L) {
+                baseTime = SystemClock.elapsedRealtime()
+                sharedPreferencesEditor.putLong("speedChr", baseTime).apply()
+            }
             remoteViews?.setViewVisibility(R.id.speed_chronometer, View.VISIBLE)
             remoteViews?.setChronometer(R.id.speed_chronometer, baseTime, null, true)
             remoteViews?.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
@@ -1364,11 +1359,12 @@ class NewAppWidget : AppWidgetProvider() {
         Log.d(TAG, "onReceive: $action")
 
         try {
-            // Initialize core components
             widgetContext = context.applicationContext
+            ensurePrefs(widgetContext)
             newAppWidget = ComponentName(context, NewAppWidget::class.java)
             appWidM = AppWidgetManager.getInstance(context)
-            ensurePrefs(widgetContext)
+            i_appWidgetIds = appWidM.getAppWidgetIds(newAppWidget)
+            mAppWidgetIds = i_appWidgetIds
 
             // Handle specific system broadcasts
             when (action) {
@@ -2097,9 +2093,9 @@ class NewAppWidget : AppWidgetProvider() {
 
     companion object {
 
+        private var unlockReceiver: BroadcastReceiver? = null
         var penNote: String = ""
         lateinit var blurWallBitmap: Bitmap
-        private var unlockReceiver: BroadcastReceiver? = null
         lateinit var i_appWidgetIds: IntArray
         lateinit var gpBitmap: Bitmap
         var totalScreenTimeInHours: Long = 0
@@ -2227,7 +2223,7 @@ class NewAppWidget : AppWidgetProvider() {
                 } catch (ex: Exception) {
                     showException(ex.message.toString())
                 }
-            }
+            } //else DialogActivity().requestFeaturePermission(FeaturePermission.CONTACTS)
 
             Log.d("gpName - ", gpName)
 
