@@ -650,6 +650,10 @@ class DialogActivity : AppCompatActivity() {
             usageStatsPermissionDialog()
             return
         }
+        if (feature == FeaturePermission.NOTIFICATIONS) {
+            readNotificationsPermissionDialog()
+            return
+        }
         permissionRequester.ensure(
             feature,
             onDenied = { finish() }
@@ -685,6 +689,34 @@ class DialogActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun readNotificationsPermissionDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Permission Request to Read all incoming notifications")
+            .setMessage("App needs permission to Read all incoming notifications to notify you with Voice..")
+            .setPositiveButton("OK") { dialog, _ ->
+                if (!isNotificationListenerPermissionGranted()) {
+                    startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).apply {
+                        addFlags(FLAG_ACTIVITY_NEW_TASK)
+                    })
+                }
+                dialog.dismiss()
+                finish()
+            }
+            .setNegativeButton("Not now") { dialog, _ ->
+                dialog.dismiss()
+                finish()
+            }
+            .show()
+    }
+
+    private fun isNotificationListenerPermissionGranted(): Boolean {
+        val enabledListeners = Settings.Secure.getString(
+            contentResolver,
+            "enabled_notification_listeners"
+        )
+        val componentName = ComponentName(this, NotificationService::class.java)
+        return enabledListeners?.contains(componentName.flattenToString()) ?: false
+    }
 
     private fun toggleBluetooth() {
         // BLUETOOTH_CONNECT is required to read adapter.isEnabled and to toggle the

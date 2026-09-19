@@ -66,13 +66,12 @@ enum class FeaturePermission(
         prefKey = "PNP"
     ),
 
-    /** Time announcement and service status notifications */
+    /** Read all incoming notifications for voice narration */
     NOTIFICATIONS(
-        permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            arrayOf(Manifest.permission.POST_NOTIFICATIONS) else emptyArray(),
-        rationaleTitle = "Show notifications?",
-        rationale = "Notification access is needed to announce time and keep the service running.",
-        prefKey = "PNP"
+        permissions = emptyArray(),
+        rationaleTitle = "Permission Request to Read all incoming notifications",
+        rationale = "App needs permission to Read all incoming notifications to notify you with Voice..",
+        prefKey = "NRO"
     ),
 
     /** App usage statistics for screen time and frequent apps */

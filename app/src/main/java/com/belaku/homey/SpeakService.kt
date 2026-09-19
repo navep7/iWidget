@@ -52,6 +52,7 @@ class SpeakService : Service(), OnInitListener {
             Log.e("SpeakService", "Error during TTS shutdown", e)
         }
         tts = null
+        isReady = false
         super.onDestroy()
     }
 
@@ -62,6 +63,17 @@ class SpeakService : Service(), OnInitListener {
                 || result == TextToSpeech.LANG_NOT_SUPPORTED
             ) {
                 Log.e("TTS", "This Language is not supported")
+            } else {
+                isReady = true
+                synchronized(speechQueue) {
+                    if (speechQueue.isNotEmpty()) {
+                        Log.d("SpeakService", "TTS Ready, flushing ${speechQueue.size} queued messages")
+                        for (msg in speechQueue) {
+                            tts?.speak(msg, TextToSpeech.QUEUE_ADD, null, "utteranceId")
+                        }
+                        speechQueue.clear()
+                    }
+                }
             }
         } else {
             Log.e("TTS", "Initialization Failed!")
@@ -71,18 +83,23 @@ class SpeakService : Service(), OnInitListener {
 
     companion object {
         private var tts: TextToSpeech? = null
+        private var isReady = false
+        private val speechQueue = mutableListOf<String>()
 
         fun speakOut(spk: String) {
             val currentTts = tts
-            if (currentTts != null) {
+            if (isReady && currentTts != null) {
                 try {
-                    // Using the modern speak method with utteranceId
-                    currentTts.speak(spk, TextToSpeech.QUEUE_FLUSH, null, "utteranceId")
+                    // Using QUEUE_ADD to avoid cutting off concurrent notifications
+                    currentTts.speak(spk, TextToSpeech.QUEUE_ADD, null, "utteranceId")
                 } catch (e: Exception) {
                     Log.e("SpeakService", "Error during speakOut", e)
                 }
             } else {
-                Log.e("SpeakService", "TTS not initialized or service not running")
+                synchronized(speechQueue) {
+                    speechQueue.add(spk)
+                }
+                Log.d("SpeakService", "TTS not ready or service not running, queued: $spk")
             }
         }
     }

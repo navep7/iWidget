@@ -179,11 +179,12 @@
                     android:id="@+id/tx_place_permission_hint"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Tap to Grant Location"
+                    android:text="⚠️"
+                    android:visibility="gone"
                     android:textColor="@android:color/holo_red_dark"
-                    android:textSize="10sp"
+                    android:textSize="21sp"
                     android:gravity="center"
-                    android:visibility="gone" />
+                   />
 
                 <FrameLayout
                     android:layout_gravity="center"
@@ -254,10 +255,11 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_below="@id/tx_time_announcement"
-                android:text="Tap to Grant Notification"
+                android:text="⚠️"
+                android:visibility="gone"
                 android:textColor="@android:color/holo_red_dark"
-                android:textSize="10sp"
-                android:visibility="gone" />
+                android:textSize="21sp"
+                />
 
 
             <LinearLayout
@@ -287,11 +289,12 @@
                     android:id="@+id/tx_weather_permission_hint"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Tap to Grant Location"
+                    android:text="⚠️"
+                    android:visibility="gone"
                     android:textColor="@android:color/holo_red_dark"
-                    android:textSize="10sp"
+                    android:textSize="21sp"
                     android:gravity="center"
-                    android:visibility="gone" />
+                   />
 
                 <FrameLayout
                     android:layout_gravity="center"
@@ -1023,7 +1026,7 @@
 
 
         <RelativeLayout
-            android:id="@+id/rl_steps"
+            android:id="@+id/rl_activity_states"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
@@ -1086,10 +1089,10 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/imgv_activity_state"
                 android:layout_centerHorizontal="true"
-                android:text="Tap to Grant Activity"
+                android:text="⚠️"
+                android:visibility="gone"
                 android:textColor="@android:color/holo_red_dark"
-                android:textSize="10sp"
-                android:visibility="gone" />
+                android:textSize="21sp"/>
 
         </RelativeLayout>
 
@@ -1174,10 +1177,11 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/imgv_scr_time"
                 android:layout_centerHorizontal="true"
-                android:text="Tap to Grant Usage"
+                android:text="⚠️"
                 android:textColor="@android:color/holo_red_dark"
-                android:textSize="10sp"
-                android:visibility="gone" />
+                android:textSize="21sp"
+                android:visibility="gone"
+                />
 
 
         </RelativeLayout>

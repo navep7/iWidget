@@ -124,6 +124,7 @@ import java.util.Collections
 import java.util.Date
 import java.util.Locale
 import androidx.core.graphics.scale
+import com.belaku.homey.MainActivity.Companion.makeSnack
 
 
 class NewAppWidget : AppWidgetProvider() {
@@ -459,8 +460,16 @@ class NewAppWidget : AppWidgetProvider() {
             getPendingSelfIntent(context, PLACE_CLICK)
         )
         remoteViews?.setOnClickPendingIntent(
+            R.id.tx_place_permission_hint,
+            getPendingSelfIntent(context, LOC_P_REQ)
+        )
+        remoteViews?.setOnClickPendingIntent(
             R.id.tx_weather,
             getPendingSelfIntent(context, WEATHER_CLICK)
+        )
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_weather_permission_hint,
+            getPendingSelfIntent(context, LOC_P_REQ)
         )
         remoteViews?.setOnClickPendingIntent(
             R.id.tx_refresh_weather,
@@ -472,6 +481,11 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setOnClickPendingIntent(
             R.id.tx_time_announcement,
             getPendingSelfIntent(context, Time_A_CLICKED)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_time_announcement_permission_hint,
+            getPendingSelfIntent(context, NOT_P_REQ)
         )
 
         remoteViews?.setOnClickPendingIntent(
@@ -603,8 +617,18 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
+            R.id.tx_scrtime_permission_hint,
+            getPendingSelfIntent(context, APP_USAGE_P_REQ)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
             R.id.imgv_activity_state,
             getPendingSelfIntent(context, ACTINFO_CLICK)
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.tx_act_permission_hint,
+            getPendingSelfIntent(context, ACT_RECOGNITION_P_REQ)
         )
 
 
@@ -1076,7 +1100,7 @@ class NewAppWidget : AppWidgetProvider() {
             val glassPanelIds = listOf(
                 R.id.ll_place,
                 R.id.id_weather,
-                R.id.rl_steps,
+                R.id.rl_activity_states,
                 R.id.rl_unlocks,
                 R.id.rl_scrtime
             )
@@ -1428,6 +1452,20 @@ class NewAppWidget : AppWidgetProvider() {
 
         when (action) {
 
+
+            LOC_P_REQ -> {
+                makeSnack("Location permissions granted")
+                    requestFeaturePermission(widgetContext, FeaturePermission.PLACE_INFO)
+            }
+            NOT_P_REQ -> {
+                requestFeaturePermission(widgetContext, FeaturePermission.NOTIFICATIONS)
+            }
+            APP_USAGE_P_REQ -> {
+                requestFeaturePermission(widgetContext, FeaturePermission.USAGE_STATS)
+            }
+            ACT_RECOGNITION_P_REQ -> {
+                requestFeaturePermission(widgetContext, FeaturePermission.STEPS)
+            }
             C_CLICKED -> {
                 val intentContacts = Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI)
                 intentContacts.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -1661,9 +1699,7 @@ class NewAppWidget : AppWidgetProvider() {
                 StepsService.getWeatherData(LatLng(cityLat, cityLng))
             }
             PLACE_CLICK -> {
-                if (!hasFeaturePermission(widgetContext, FeaturePermission.PLACE_INFO)) {
-                    requestFeaturePermission(widgetContext, FeaturePermission.PLACE_INFO)
-                } else if (!isLocationEnabled(widgetContext)) {
+                 if (!isLocationEnabled(widgetContext)) {
                     val locIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).apply {
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     }
@@ -1803,18 +1839,22 @@ class NewAppWidget : AppWidgetProvider() {
                 if (!hasFeaturePermission(widgetContext, FeaturePermission.NOTIFICATIONS)) {
                     requestFeaturePermission(widgetContext, FeaturePermission.NOTIFICATIONS)
                     return
-                }
-                val current = sharedPreferences.getBoolean("SPKSERVICE", false)
-                val speakIntent = Intent(widgetContext, SpeakService::class.java)
-                if (!current) {
-                    widgetContext.startService(speakIntent)
-                    applyTimeAnnouncementState(true, ColorUtil().isColorDark(primaryColor))
-                    sharedPreferencesEditor.putBoolean("SPKSERVICE", true).apply()
-                    makeToast(widgetContext, "Incoming notifications and hour changes will be read out loud.")
                 } else {
-                    widgetContext.stopService(speakIntent)
-                    applyTimeAnnouncementState(false, ColorUtil().isColorDark(primaryColor))
-                    sharedPreferencesEditor.putBoolean("SPKSERVICE", false).apply()
+                    val current = sharedPreferences.getBoolean("SPKSERVICE", false)
+                    val speakIntent = Intent(widgetContext, SpeakService::class.java)
+                    if (!current) {
+                        widgetContext.startService(speakIntent)
+                        applyTimeAnnouncementState(true, ColorUtil().isColorDark(primaryColor))
+                        sharedPreferencesEditor.putBoolean("SPKSERVICE", true).apply()
+                        makeToast(
+                            widgetContext,
+                            "Incoming notifications and hour changes will be read out loud."
+                        )
+                    } else {
+                        widgetContext.stopService(speakIntent)
+                        applyTimeAnnouncementState(false, ColorUtil().isColorDark(primaryColor))
+                        sharedPreferencesEditor.putBoolean("SPKSERVICE", false).apply()
+                    }
                 }
             }
             ADD_TODO_CLICK -> makeToast(widgetContext, "Add Todo Clicked!")
@@ -2009,12 +2049,22 @@ class NewAppWidget : AppWidgetProvider() {
      * An empty group (permission not applicable on this API level) counts as granted.
      */
     private fun hasFeaturePermission(context: Context, feature: FeaturePermission): Boolean {
-        if (feature == FeaturePermission.USAGE_STATS) {
-            return UsageStatsChecker().hasUsageStatsPermission(context)
+        return when (feature) {
+            FeaturePermission.USAGE_STATS -> UsageStatsChecker().hasUsageStatsPermission(context)
+            FeaturePermission.NOTIFICATIONS -> isNotificationListenerPermissionGranted(context)
+            else -> feature.permissions.all {
+                ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+            }
         }
-        return feature.permissions.all {
-            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
-        }
+    }
+
+    private fun isNotificationListenerPermissionGranted(context: Context): Boolean {
+        val enabledListeners = Settings.Secure.getString(
+            context.contentResolver,
+            "enabled_notification_listeners"
+        )
+        val componentName = ComponentName(context, NotificationService::class.java)
+        return enabledListeners?.contains(componentName.flattenToString()) ?: false
     }
 
     /**
@@ -2471,6 +2521,11 @@ class NewAppWidget : AppWidgetProvider() {
         private const val SET_CLICKED = "setButtonClick"
         private const val BREATHE_INC = "breatheInc"
         private const val DRINK_INC = "drinkInc"
+
+        private const val LOC_P_REQ = "locPrequest"
+        private const val NOT_P_REQ = "notPrequest"
+        private const val APP_USAGE_P_REQ = "appUsagePrequest"
+        private const val ACT_RECOGNITION_P_REQ = "actRecognitionPrequest"
 
         private const val P_THUMBNAIL_CLICK = "p_album_click"
         private const val PLAYPAUSE_CLICK = "pp_click"

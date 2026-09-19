@@ -14,59 +14,107 @@ import android.service.notification.StatusBarNotification
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import android.speech.tts.TextToSpeech
 import android.util.Log
-import com.belaku.homey.SpeakService.Companion.speakOut
+import com.belaku.homey.MainActivity.Companion.makeToast
+import java.util.Locale
 
-
-class NotificationService : NotificationListenerService() {
+class NotificationService : NotificationListenerService(), TextToSpeech.OnInitListener {
 
     private var speechRecognizer: SpeechRecognizer? = null
-    private var isConnected = false
+    private var tts: TextToSpeech? = null
+    private var isTtsReady = false
+    private val speechQueue = mutableListOf<String>()
 
     override fun onCreate() {
         super.onCreate()
         Log.d("NoteServiceLOG", "onCreate")
+        initializeTTS()
+    }
+
+    private fun initializeTTS() {
+        try {
+            tts = TextToSpeech(applicationContext, this, "com.google.android.tts")
+        } catch (e: Exception) {
+            try {
+                tts = TextToSpeech(applicationContext, this)
+            } catch (e2: Exception) {
+                Log.e("NoteServiceLOG", "Failed to initialize TTS", e2)
+            }
+        }
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            val result = tts?.setLanguage(Locale.US)
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("NoteServiceLOG", "Language is not supported")
+            } else {
+                isTtsReady = true
+                synchronized(speechQueue) {
+                    if (speechQueue.isNotEmpty()) {
+                        for (msg in speechQueue) {
+                            tts?.speak(msg, TextToSpeech.QUEUE_ADD, null, "notificationUtterance")
+                        }
+                        speechQueue.clear()
+                    }
+                }
+            }
+        } else {
+            Log.e("NoteServiceLOG", "TTS Initialization Failed!")
+        }
     }
 
     override fun onListenerConnected() {
         super.onListenerConnected()
-        isConnected = true
         Log.d("NoteServiceLOG", "onListenerConnected")
     }
 
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
-        isConnected = false
         Log.d("NoteServiceLOG", "onListenerDisconnected")
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val componentName = ComponentName(this, NotificationService::class.java)
-            val enabledListeners = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
-            val isEnabled = enabledListeners?.contains(componentName.flattenToString()) == true
+        val componentName = ComponentName(this, NotificationService::class.java)
+        val enabledListeners = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
+        val isEnabled = enabledListeners?.contains(componentName.flattenToString()) == true
 
-            if (isEnabled) {
-                // Delay rebind to avoid "Service not registered" IllegalArgumentException
-                // which happens if we request rebind while the system is still unbinding.
-                // Increasing delay to 5s to give the system more time to clean up.
-                Handler(Looper.getMainLooper()).postDelayed({
-                    if (!isConnected) {
-                        try {
-                            Log.d("NoteServiceLOG", "Requesting rebind...")
-                            requestRebind(componentName)
-                        } catch (e: Exception) {
-                            Log.e("NoteServiceLOG", "Failed to request rebind", e)
-                        }
-                    }
-                }, 5000)
-            }
+        if (isEnabled) {
+            Handler(Looper.getMainLooper()).postDelayed({
+                try {
+                    Log.d("NoteServiceLOG", "Requesting rebind...")
+                    requestRebind(componentName)
+                } catch (e: Exception) {
+                    Log.e("NoteServiceLOG", "Failed to request rebind", e)
+                }
+            }, 5000)
         }
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
-        if (!isConnected) return
-        
-        val packageName = sbn?.packageName ?: return
-        val extras = sbn.notification?.extras ?: return
+        if (sbn == null) return
+        processNotification(sbn)
+    }
+
+    override fun onNotificationPosted(sbn: StatusBarNotification?, rankingMap: RankingMap?) {
+        if (sbn == null) return
+        processNotification(sbn)
+    }
+
+    private fun processNotification(sbn: StatusBarNotification) {
+        val packageName = sbn.packageName ?: return
+        Log.d("NoteServiceLOG", "onNotificationPosted received from package: $packageName")
+
+        // Filter out our own app's notifications to prevent infinite speech/processing loops
+        if (packageName == applicationContext.packageName) return
+
+        // Toasts must be shown on the Main Thread (UI Looper) to avoid crashing the background thread
+        Handler(Looper.getMainLooper()).post {
+            try {
+                makeToast(applicationContext, "Notification from: $packageName")
+            } catch (e: Exception) {
+                Log.e("NoteServiceLOG", "Error showing toast", e)
+            }
+        }
 
         // Extract app name
         var appName: String
@@ -77,16 +125,29 @@ class NotificationService : NotificationListenerService() {
             appName = "Unknown"
         }
 
-        // Initialize sharedPreferences if not already done (context safe)
+        // Initialize sharedPreferences context safely
         val prefs = applicationContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
 
         if (prefs.getBoolean("SPKSERVICE", false)) {
-             speakOut(appName)
+            synchronized(speechQueue) {
+                if (isTtsReady) {
+                    tts?.speak(appName, TextToSpeech.QUEUE_FLUSH, null, "notificationUtterance")
+                } else {
+                    speechQueue.add(appName)
+                }
+            }
         }
     }
 
+    override fun onNotificationRemoved(sbn: StatusBarNotification?) {
+        // Optional override for completeness
+    }
+
+    override fun onNotificationRemoved(sbn: StatusBarNotification?, rankingMap: RankingMap?) {
+        // Optional override for completeness
+    }
+
     private fun setupSpeechRecognizer() {
-        // Use ComponentName to avoid SecurityException: Specified package ... but it is not
         val serviceComponent = ComponentName("com.google.android.googlequicksearchbox", "com.google.android.voicesearch.service.SpeechRecognitionService")
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(applicationContext, serviceComponent)
         speechRecognizer?.setRecognitionListener(object : RecognitionListener {
@@ -106,19 +167,17 @@ class NotificationService : NotificationListenerService() {
             }
 
             override fun onEvent(p0: Int, p1: Bundle?) {}
-
             override fun onPartialResults(partialResults: Bundle?) {}
-
         })
     }
 
     private fun handleVoiceCommand(command: String) {
-        when {
-            command.contains("yes", ignoreCase = true) -> {
-                speakOut("Ok, will do")
-            }
-            else -> {
-                speakOut("fine")
+        synchronized(speechQueue) {
+            val reply = if (command.contains("yes", ignoreCase = true)) "Ok, will do" else "fine"
+            if (isTtsReady) {
+                tts?.speak(reply, TextToSpeech.QUEUE_ADD, null, "notificationUtterance")
+            } else {
+                speechQueue.add(reply)
             }
         }
     }
@@ -132,6 +191,14 @@ class NotificationService : NotificationListenerService() {
     }
 
     override fun onDestroy() {
+        try {
+            tts?.stop()
+            tts?.shutdown()
+        } catch (e: Exception) {
+            Log.e("NoteServiceLOG", "Error during TTS shutdown", e)
+        }
+        tts = null
+        isTtsReady = false
         speechRecognizer?.destroy()
         speechRecognizer = null
         super.onDestroy()

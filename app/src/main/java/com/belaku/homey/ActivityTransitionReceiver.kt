@@ -16,6 +16,7 @@ import androidx.core.content.edit
 import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.NewAppWidget.Companion.appWidM
+import com.belaku.homey.NewAppWidget.Companion.isAppWidMInitialized
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
@@ -23,19 +24,20 @@ import com.belaku.homey.StepsService.Companion.presentActivityState
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
+import java.time.LocalDate
 
 class ActivityTransitionReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val applicationContext = context.applicationContext
 
-        // Safely initialize widget companion properties if needed
+       /* // Safely initialize widget companion properties if needed
         try {
             appWidM = AppWidgetManager.getInstance(applicationContext)
             newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
         } catch (e: Exception) {
             Log.e("ActivityTransition", "Failed to initialize widget manager", e)
-        }
+        }*/
 
         if (ActivityTransitionResult.hasResult(intent)) {
             val result = ActivityTransitionResult.extractResult(intent)
@@ -59,6 +61,16 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
                         if (oldState == detectedState) return@forEach
 
+                        // Save walking duration if stopping WALKING
+                        if (oldState == "WALKING") {
+                            val walkStartTime = sharedPrefs.getLong("walkChr", 0L)
+                            if (walkStartTime != 0L) {
+                                val totalDurationToday = SystemClock.elapsedRealtime() - walkStartTime
+                                val todayKey = LocalDate.now().dayOfWeek.name + "_walk_duration"
+                                sharedPrefs.edit { putLong(todayKey, totalDurationToday) }
+                            }
+                        }
+
                         presentActivityState = detectedState
                         // Save persistent state for widget
                         sharedPrefs.edit {
@@ -73,95 +85,101 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
     }
 
     private fun updateActivityState(context: Context, state: String, transitionType: Int) {
-        val appWidgetManager = AppWidgetManager.getInstance(context)
-        val provider = ComponentName(context, NewAppWidget::class.java)
+
+        if (!isAppWidMInitialized()) {
+            appWidM = AppWidgetManager.getInstance(context)
+            newAppWidget = ComponentName(context, NewAppWidget::class.java)
+            remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
+        }
         val sharedPreferences = context.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
 
-        val rv = RemoteViews(context.packageName, R.layout.new_app_widget)
-        rv.setTextViewText(R.id.tx_act_state, state)
+
+        remoteViews?.setTextViewText(R.id.tx_act_state, state)
 
         when (state) {
             "STILL" -> {
                 if (transitionType == 0) {
                     val baseTime = SystemClock.elapsedRealtime()
-                    rv.setViewVisibility(R.id.still_chronometer, View.VISIBLE)
-                    rv.setChronometer(R.id.still_chronometer, baseTime, null, true)
+                    remoteViews?.setViewVisibility(R.id.still_chronometer, View.VISIBLE)
+                    remoteViews?.setChronometer(R.id.still_chronometer, baseTime, null, true)
                     sharedPreferences.edit { 
                         putLong("stillChr", baseTime)
                         putLong("walkChr", 0L)
                         putLong("speedChr", 0L)
                     }
-                    rv.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
-                    rv.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
-                    rv.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
-                    rv.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
+                    remoteViews?.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
+                    remoteViews?.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
+                    remoteViews?.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
                 }
 
-                rv.setTextViewText(R.id.tx_act_count, sharedPreferences.getInt("waterCountToday", 0).toString() + "\uD800\uDCEF" )
-                rv.setImageViewResource(R.id.imgv_activity_state, R.drawable.still)
-                rv.setViewVisibility(R.id.rl_still, View.VISIBLE)
-                rv.setViewVisibility(R.id.tx_act_plus, View.VISIBLE)
-                rv.setViewVisibility(R.id.rl_walking, View.GONE)
-                rv.setViewVisibility(R.id.rl_speed, View.GONE)
+                remoteViews?.setTextViewText(R.id.tx_act_count, sharedPreferences.getInt("waterCountToday", 0).toString() + "\uD800\uDCEF" )
+                remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.still)
+                remoteViews?.setViewVisibility(R.id.rl_still, View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.tx_act_plus, View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
+                remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
 
                 stopSpeedService(context)
             }
             "WALKING" -> {
                 if (transitionType == 0) {
-                    val baseTime = SystemClock.elapsedRealtime()
-                    rv.setViewVisibility(R.id.walk_chronometer, View.VISIBLE)
-                    rv.setChronometer(R.id.walk_chronometer, baseTime, null, true)
+                    val todayKey = LocalDate.now().dayOfWeek.name + "_walk_duration"
+                    val storedDuration = sharedPreferences.getLong(todayKey, 0L)
+                    val baseTime = SystemClock.elapsedRealtime() - storedDuration
+
+                    remoteViews?.setViewVisibility(R.id.walk_chronometer, View.VISIBLE)
+                    remoteViews?.setChronometer(R.id.walk_chronometer, baseTime, null, true)
                     sharedPreferences.edit { 
                         putLong("walkChr", baseTime)
                         putLong("stillChr", 0L)
                         putLong("speedChr", 0L)
                     }
-                    rv.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
-                    rv.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
-                    rv.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
-                    rv.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
+                    remoteViews?.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
+                    remoteViews?.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
+                    remoteViews?.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
                 }
 
-                rv.setImageViewResource(R.id.imgv_activity_state, R.drawable.steps)
-                rv.setTextViewText(R.id.tx_act_count, stepsToday.toString())
-                rv.setViewVisibility(R.id.rl_still, View.GONE)
-                rv.setViewVisibility(R.id.tx_act_plus, View.GONE)
-                rv.setViewVisibility(R.id.rl_walking, View.VISIBLE)
-                rv.setViewVisibility(R.id.rl_speed, View.GONE)
+                remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.steps)
+                remoteViews?.setTextViewText(R.id.tx_act_count, stepsToday.toString())
+                remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
+                remoteViews?.setViewVisibility(R.id.tx_act_plus, View.GONE)
+                remoteViews?.setViewVisibility(R.id.rl_walking, View.VISIBLE)
+                remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
 
                 stopSpeedService(context)
             }
             "TRAVEL" -> {
                 if (transitionType == 0) {
                     val baseTime = SystemClock.elapsedRealtime()
-                    rv.setViewVisibility(R.id.speed_chronometer, View.VISIBLE)
-                    rv.setChronometer(R.id.speed_chronometer, baseTime, null, true)
+                    remoteViews?.setViewVisibility(R.id.speed_chronometer, View.VISIBLE)
+                    remoteViews?.setChronometer(R.id.speed_chronometer, baseTime, null, true)
                     sharedPreferences.edit { 
                         putLong("speedChr", baseTime)
                         putLong("speed_trip_start_time", baseTime)
                         putLong("stillChr", 0L)
                         putLong("walkChr", 0L)
                     }
-                    rv.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
-                    rv.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
-                    rv.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
-                    rv.setViewVisibility(R.id.tx_act_plus, View.GONE)
-                    rv.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
+                    remoteViews?.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
+                    remoteViews?.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
+                    remoteViews?.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.tx_act_plus, View.GONE)
+                    remoteViews?.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
                     
                     startSpeedService(context)
                 }
 
-                rv.setImageViewResource(R.id.imgv_activity_state, R.drawable.in_a_vehicle)
-                rv.setTextViewText(R.id.tx_act_count, sharedPreferences.getInt("current_speed", 0).toString())
-                rv.setViewVisibility(R.id.rl_still, View.GONE)
-                rv.setViewVisibility(R.id.rl_walking, View.GONE)
-                rv.setViewVisibility(R.id.rl_speed, View.VISIBLE)
+                remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.in_a_vehicle)
+                remoteViews?.setTextViewText(R.id.tx_act_count, sharedPreferences.getInt("current_speed", 0).toString())
+                remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
+                remoteViews?.setViewVisibility(R.id.rl_walking, View.GONE)
+                remoteViews?.setViewVisibility(R.id.rl_speed, View.VISIBLE)
             }
         }
 
         try {
-            remoteViews = rv
-            appWidgetManager.updateAppWidget(provider, rv)
+            appWidM.updateAppWidget(newAppWidget, remoteViews)
             Log.d("ActivityTransition", "Widget update Success!")
         } catch (e: Exception) {
             makeToast(context, "Widget update failed ~ " + e)

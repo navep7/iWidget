@@ -55,7 +55,7 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
     private lateinit var binding: ActivityRemindersBinding
 
     /** Asks for notification permission only when the user actually adds a reminder. */
-    private val permissionRequester by lazy { JitPermissionRequester(this) }
+    private val permissionRequester = JitPermissionRequester(this)
 
       
     override fun onCreate(savedInstanceState: Bundle?) {
