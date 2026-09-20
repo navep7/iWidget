@@ -48,7 +48,8 @@ class StepsAdapter(
             if (presentActivityState == "WALKING") {
                 val baseTime = sharedPreferences.getLong("walkChr", 0L)
                 if (baseTime != 0L) {
-                    durationMillis = SystemClock.elapsedRealtime() - baseTime
+                    // Show sum of all walking streaks in a day by adding current streak to the stored total
+                    durationMillis += (SystemClock.elapsedRealtime() - baseTime)
                 }
             }
         }

@@ -65,9 +65,10 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                         if (oldState == "WALKING") {
                             val walkStartTime = sharedPrefs.getLong("walkChr", 0L)
                             if (walkStartTime != 0L) {
-                                val totalDurationToday = SystemClock.elapsedRealtime() - walkStartTime
+                                val streakDuration = SystemClock.elapsedRealtime() - walkStartTime
                                 val todayKey = LocalDate.now().dayOfWeek.name + "_walk_duration"
-                                sharedPrefs.edit { putLong(todayKey, totalDurationToday) }
+                                val previousTotal = sharedPrefs.getLong(todayKey, 0L)
+                                sharedPrefs.edit { putLong(todayKey, previousTotal + streakDuration) }
                             }
                         }
 
@@ -124,9 +125,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
             }
             "WALKING" -> {
                 if (transitionType == 0) {
-                    val todayKey = LocalDate.now().dayOfWeek.name + "_walk_duration"
-                    val storedDuration = sharedPreferences.getLong(todayKey, 0L)
-                    val baseTime = SystemClock.elapsedRealtime() - storedDuration
+                    val baseTime = SystemClock.elapsedRealtime()
 
                     remoteViews?.setViewVisibility(R.id.walk_chronometer, View.VISIBLE)
                     remoteViews?.setChronometer(R.id.walk_chronometer, baseTime, null, true)
