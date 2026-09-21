@@ -10,25 +10,28 @@
         android:id="@+id/tx_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:textAppearance="?attr/textAppearanceHeadlineLarge"
         android:textColor="?attr/colorOnSurface"
         android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/progress_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.1"
+        app:layout_constraintVertical_chainStyle="packed"
         tools:text="Monday" />
 
     <FrameLayout
         android:id="@+id/progress_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tx_title"
-        app:layout_constraintVertical_bias="0.8"
+        app:layout_constraintVertical_bias="0.5"
         app:layout_constraintWidth_percent="0.85">
 
         <ProgressBar
@@ -56,6 +59,15 @@
                 android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:textColor="?attr/colorOnSurfaceVariant"
                 tools:text="5000 steps\n~ 3.5 km\n~ 200 kCal" />
+
+            <ImageButton
+                android:id="@+id/imgbtn_trip_info"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:scaleType="centerInside"
+                android:src="@android:drawable/ic_menu_info_details" />
 
         </LinearLayout>
     </FrameLayout>

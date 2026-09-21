@@ -2,8 +2,10 @@ package com.belaku.homey
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.os.SystemClock
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.belaku.homey.Constants.Companion.stepsToday
@@ -74,6 +76,15 @@ class StepsAdapter(
         // Material-like progress
         holder.progressSteps.max = 10000 // Standard daily goal
         holder.progressSteps.progress = steps
+
+        // Trip Info Shortcut
+        holder.imgbtnTripInfo.setOnClickListener {
+            val intent = Intent(contx, DialogActivity::class.java).apply {
+                putExtra("DialogIntent", "activitiesInfo")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            contx.startActivity(intent)
+        }
     }
 
     private fun formatDuration(millis: Long): String {
