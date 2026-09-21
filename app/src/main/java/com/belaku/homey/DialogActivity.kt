@@ -101,7 +101,8 @@ class DialogActivity : AppCompatActivity() {
     private var bluetoothAdapter: BluetoothAdapter? = null
 
     /** Asks for Nearby Devices access only when the Bluetooth tile is actually tapped. */
-    private val permissionRequester by lazy { JitPermissionRequester(this) }
+    private val permissionRequester = JitPermissionRequester(this)
+
 
     val wifiPanelIntent = Intent(Settings.Panel.ACTION_WIFI)
     private lateinit var llMenu: LinearLayout
