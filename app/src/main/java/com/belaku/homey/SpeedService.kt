@@ -24,6 +24,10 @@ import java.time.LocalDate
 
 class SpeedService : Service() {
 
+    companion object {
+        var maxSpeed = 0
+    }
+
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
 
@@ -74,7 +78,7 @@ class SpeedService : Service() {
         val today = LocalDate.now().toString()
         val lastSavedDate = sharedPreferences.getString("maxSpeedDate", "")
         
-        var maxSpeed = 0
+
         if (today == lastSavedDate) {
             maxSpeed = sharedPreferences.getInt("maxSpeedToday", 0)
         } else {

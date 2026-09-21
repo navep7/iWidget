@@ -829,10 +829,20 @@
                             android:textSize="@dimen/padding_15"
                             android:textStyle="bold" />
 
+                    <ImageButton
+                        android:id="@+id/imgbtn_info_speed"
+                        android:layout_width="75dp"
+                        android:layout_height="75dp"
+                        android:background="@android:color/transparent"
+                        android:src="@android:drawable/ic_menu_info_details"
+                        android:layout_toEndOf="@+id/tx_speed"
+                        android:layout_alignBottom="@+id/tx_speed" />
 
 
 
-                        <Chronometer
+
+
+                    <Chronometer
                             android:id="@+id/speed_chronometer"
                             android:layout_width="55dp"
                             android:layout_height="55dp"

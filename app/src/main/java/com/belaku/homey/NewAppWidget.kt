@@ -705,6 +705,13 @@ class NewAppWidget : AppWidgetProvider() {
         )
         )
 
+        remoteViews?.setOnClickPendingIntent(R.id.imgbtn_info_speed, PendingIntent.getActivity(
+            context, 58,
+            Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "SPEED"),
+            PendingIntent.FLAG_IMMUTABLE
+        )
+        )
+
 
 
     }
@@ -791,6 +798,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
             remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
             remoteViews?.setViewVisibility(R.id.imgbtn_info_steps, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_info_speed, View.VISIBLE)
 
             remoteViews?.setTextViewText(R.id.tx_act_count, sharedPreferences.getInt("waterCountToday", 0).toString() + "\uD800\uDCEF" )
             remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.still)
@@ -809,6 +817,7 @@ class NewAppWidget : AppWidgetProvider() {
                 sharedPreferencesEditor.putLong("walkChr", baseTime).apply()
             }
             remoteViews?.setViewVisibility(R.id.walk_chronometer, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_info_speed, View.VISIBLE)
             remoteViews?.setViewVisibility(R.id.imgbtn_info_steps, View.INVISIBLE)
             remoteViews?.setChronometer(R.id.walk_chronometer, baseTime, null, true)
             remoteViews?.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
@@ -838,6 +847,8 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
             remoteViews?.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
             remoteViews?.setViewVisibility(R.id.imgbtn_info_steps, View.VISIBLE)
+            remoteViews?.setViewVisibility(R.id.imgbtn_info_speed, View.INVISIBLE)
+
 
 
 

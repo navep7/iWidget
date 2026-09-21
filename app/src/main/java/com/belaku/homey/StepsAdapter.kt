@@ -1,11 +1,14 @@
 package com.belaku.homey
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.belaku.homey.Constants.Companion.stepsToday
+import com.belaku.homey.DialogActivity.Companion.dialogIntentStr
+import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
@@ -14,14 +17,18 @@ import com.belaku.homey.StepsService.Companion.presentActivityState
 import java.time.LocalDate
 
 class StepsAdapter(
+    strType: String,
     private val stepsData: ArrayList<String>,
 ) : RecyclerView.Adapter<StepsViewHolder>() {
 
+    var strT = strType
+    lateinit var contx: Context
     private val days = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
     // Using a large number to simulate infinite scrolling
     private val MAX_COUNT = 7000 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StepsViewHolder {
+        contx = parent.context
         return StepsViewHolder(
             LayoutInflater.from(parent.context).inflate(R.layout.steps_list_item, parent, false),
         )
@@ -59,7 +66,10 @@ class StepsAdapter(
         val durationStr = formatDuration(durationMillis)
 
         holder.txTitle.text = days[realPosition]
+       // makeToast(contx, "StA ~ " + strT)
+        if (strT == "walk")
         holder.txSteps.text = "$steps steps\n~ $km km\n~ $kCal kCal\nActive: $durationStr"
+        else holder.txSteps.text = "Max ~ ${stepsData[realPosition]} KmpH"
 
         // Material-like progress
         holder.progressSteps.max = 10000 // Standard daily goal

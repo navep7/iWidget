@@ -2,26 +2,16 @@ package com.belaku.homey
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
-import android.app.PendingIntent
-import android.app.ProgressDialog
-import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
-import android.content.ActivityNotFoundException
 import android.content.ComponentName
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
-import android.database.Cursor
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -29,12 +19,8 @@ import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.provider.ContactsContract
 import android.provider.Settings
 import android.speech.RecognizerIntent
-import android.text.Html
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.LayoutInflater
@@ -48,48 +34,38 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
-import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.makeToast
-import com.belaku.homey.MainActivity.Companion.pD
-import com.belaku.homey.MainActivity.Companion.pickContactLauncher
-import com.belaku.homey.MainActivity.Companion.sN
 import com.belaku.homey.MusicActivity.Companion.dataListSongs
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
 import com.belaku.homey.MusicService.Companion.songIndex
 import com.belaku.homey.NewAppWidget.Companion.appWidM
-import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
-import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.hashSetAppUsage
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
 import com.belaku.homey.NewAppWidget.Companion.penNote
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
-import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.hour
 import com.belaku.homey.SetWallWorker.Companion.isSharedPreferencesInitialized
 import com.belaku.homey.SetWallWorker.Companion.pinNote
-import com.belaku.homey.SetWallWorker.Companion.screenHeight
-import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.StepsService.Companion.speedInKmph
 import com.belaku.homey.StepsService.Companion.stepsAdapter
+import com.belaku.homey.StepsService.Companion.speedData
 import com.belaku.homey.StepsService.Companion.stepsData
 import com.belaku.homey.StepsService.Companion.totalUsage
 import com.belaku.homey.StepsService.Companion.twitterProfileName
@@ -99,10 +75,7 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
-import com.google.gson.Gson
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
@@ -112,12 +85,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
-import java.net.URL
 import java.util.Calendar
-import kotlin.properties.Delegates
 import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -198,6 +167,16 @@ class DialogActivity : AppCompatActivity() {
             stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
             stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
             stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
+        }
+
+        if (speedData.isEmpty()) {
+            speedData.add(sharedPreferences.getInt("Monday", 0).toString())
+            speedData.add(sharedPreferences.getInt("Tuesday", 0).toString())
+            speedData.add(sharedPreferences.getInt("Wednesday", 0).toString())
+            speedData.add(sharedPreferences.getInt("Thursday", 0).toString())
+            speedData.add(sharedPreferences.getInt("Friday", 0).toString())
+            speedData.add(sharedPreferences.getInt("Saturday", 0).toString())
+            speedData.add(sharedPreferences.getInt("Sunday", 0).toString())
         }
 
         rewardedInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
@@ -284,7 +263,7 @@ class DialogActivity : AppCompatActivity() {
             startActivity(aiIntent)
         }
 
-        val dialogIntentStr = intent.getStringExtra("DialogIntent")
+        dialogIntentStr = intent.getStringExtra("DialogIntent").toString()
    //     makeToast(applicationContext,dialogIntentStr.toString())
 
         handleFeatureRequest(intent)
@@ -391,6 +370,32 @@ class DialogActivity : AppCompatActivity() {
                         rawTweets(false)
                     }
                 }
+                "SPEED" -> {
+                    txTitle.text = "Weekly Speed"
+                    val vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
+                    val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
+                    vpSteps.visibility = View.VISIBLE
+                    tabLayout.visibility = View.VISIBLE
+                    imgbtnShare.visibility = View.GONE
+
+                    val currentDay = (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) + 5) % 7
+                    
+                    val maxSpeedToday = if (isSharedPreferencesInitialized()) {
+                        sharedPreferences.getInt("maxSpeedToday", SpeedService.maxSpeed)
+                    } else {
+                        SpeedService.maxSpeed
+                    }
+                    speedData[currentDay] = "$maxSpeedToday"
+
+                    stepsMapsAdapter("speed", speedData)
+
+                    // Set to a middle position for circular scrolling
+                    val mid = 3500 - (3500 % 7) + currentDay
+                    vpSteps.setCurrentItem(mid, false)
+
+                    btnOk.visibility = View.GONE
+                    btnCancel.visibility = View.GONE
+                }
                 "WALKING" -> {
                     txTitle.text = "Weekly Steps"
                     val vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
@@ -402,7 +407,7 @@ class DialogActivity : AppCompatActivity() {
                     val currentDay = (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) + 5) % 7
                     stepsData[currentDay] = stepsToday.toString()
 
-                    stepsMapsAdapter(stepsData)
+                    stepsMapsAdapter("walk", stepsData)
                     
                     // Set to a middle position for circular scrolling
                     val mid = 3500 - (3500 % 7) + currentDay
@@ -572,8 +577,9 @@ class DialogActivity : AppCompatActivity() {
         return totalDuration.toComponents { hours, minutes, _, _ -> "%02d:%02d".format(hours, minutes) }
     }
 
-    private fun stepsMapsAdapter(stepsData: ArrayList<String>) {
-        stepsAdapter = StepsAdapter(stepsData)
+    private fun stepsMapsAdapter(strType: String, stepsData: ArrayList<String>) {
+    //    makeToast(applicationContext, "DA ~ " + strType)
+        stepsAdapter = StepsAdapter(strType, stepsData)
         val vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
         vpSteps.adapter = stepsAdapter
         val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
@@ -795,5 +801,6 @@ class DialogActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_CODE_SPEECH_INPUT = 100
+        lateinit var dialogIntentStr: String
     }
 }

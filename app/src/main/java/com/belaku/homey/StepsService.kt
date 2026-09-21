@@ -508,6 +508,7 @@ class StepsService : Service() {
         lateinit var usageStatsManager: UsageStatsManager
         lateinit var stepsAdapter: StepsAdapter
         val stepsData: ArrayList<String> = ArrayList()
+        val speedData: ArrayList<String> = ArrayList()
         var presentActivityState = ""
         var presentActivityStateImage = R.drawable.walp_icon
         lateinit var locationListenerSpeed: LocationListener
