@@ -161,7 +161,7 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
                 // Split the long text into smaller parts
                 val chunks = longText.chunked(maxLength)
                 for (chunk in chunks) {
-                    it.speak(chunk, TextToSpeech.QUEUE_ADD, null, "unique_utterance_id_part_${chunks.indexOf(chunk)}")
+                    it.speak(chunk, TextToSpeech.QUEUE_FLUSH, null, "unique_utterance_id_part_${chunks.indexOf(chunk)}")
                 }
             }
         }

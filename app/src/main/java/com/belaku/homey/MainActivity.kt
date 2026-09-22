@@ -131,7 +131,7 @@ class MainActivity : AppCompatActivity() {
      * Just-in-time permission requester: ask for a permission only when the user
      * actually engages the feature that needs it, avoiding permission fatigue.
      */
-    private val permissionRequester by lazy { JitPermissionRequester(this) }
+    private val permissionRequester = JitPermissionRequester(this)
 
     /** Guards against building the permission cards more than once. */
     private var permissionCardsBuilt: Boolean = false

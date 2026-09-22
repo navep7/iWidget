@@ -54,7 +54,7 @@ class NotificationService : NotificationListenerService(), TextToSpeech.OnInitLi
                 synchronized(speechQueue) {
                     if (speechQueue.isNotEmpty()) {
                         for (msg in speechQueue) {
-                            tts?.speak(msg, TextToSpeech.QUEUE_ADD, null, "notificationUtterance")
+                            tts?.speak(msg, TextToSpeech.QUEUE_FLUSH, null, "notificationUtterance")
                         }
                         speechQueue.clear()
                     }
@@ -175,7 +175,7 @@ class NotificationService : NotificationListenerService(), TextToSpeech.OnInitLi
         synchronized(speechQueue) {
             val reply = if (command.contains("yes", ignoreCase = true)) "Ok, will do" else "fine"
             if (isTtsReady) {
-                tts?.speak(reply, TextToSpeech.QUEUE_ADD, null, "notificationUtterance")
+                tts?.speak(reply, TextToSpeech.QUEUE_FLUSH, null, "notificationUtterance")
             } else {
                 speechQueue.add(reply)
             }

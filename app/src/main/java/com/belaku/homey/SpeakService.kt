@@ -69,7 +69,7 @@ class SpeakService : Service(), OnInitListener {
                     if (speechQueue.isNotEmpty()) {
                         Log.d("SpeakService", "TTS Ready, flushing ${speechQueue.size} queued messages")
                         for (msg in speechQueue) {
-                            tts?.speak(msg, TextToSpeech.QUEUE_ADD, null, "utteranceId")
+                            tts?.speak(msg, TextToSpeech.QUEUE_FLUSH, null, "utteranceId")
                         }
                         speechQueue.clear()
                     }
@@ -91,7 +91,7 @@ class SpeakService : Service(), OnInitListener {
             if (isReady && currentTts != null) {
                 try {
                     // Using QUEUE_ADD to avoid cutting off concurrent notifications
-                    currentTts.speak(spk, TextToSpeech.QUEUE_ADD, null, "utteranceId")
+                    currentTts.speak(spk, TextToSpeech.QUEUE_FLUSH, null, "utteranceId")
                 } catch (e: Exception) {
                     Log.e("SpeakService", "Error during speakOut", e)
                 }
