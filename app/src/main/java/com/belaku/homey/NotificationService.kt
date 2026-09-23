@@ -18,7 +18,6 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
 import android.util.Log
-import com.belaku.homey.MainActivity.Companion.makeToast
 import java.util.Locale
 
 class NotificationService : NotificationListenerService(), TextToSpeech.OnInitListener {
@@ -114,7 +113,11 @@ class NotificationService : NotificationListenerService(), TextToSpeech.OnInitLi
                 putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f)
             }
             Log.d("NoteServiceLOG", "Speaking text loudly: $text")
-            tts?.speak(text, TextToSpeech.QUEUE_ADD, params, "notificationUtterance_${System.currentTimeMillis()}")
+            tts?.speak(text, try {
+                TextToSpeech.QUEUE_FLUSH
+            } catch (e: Exception) {
+                TODO("Not yet implemented")
+            }, params, "notificationUtterance_${System.currentTimeMillis()}")
         } catch (e: Exception) {
             Log.e("NoteServiceLOG", "Error during tts.speak", e)
         }
@@ -187,15 +190,6 @@ class NotificationService : NotificationListenerService(), TextToSpeech.OnInitLi
         }
         lastProcessedKey = notificationKey
         lastProcessedTime = currentTime
-
-        // Toasts must be shown on the Main Thread (UI Looper) to avoid crashing the background thread
-        Handler(Looper.getMainLooper()).post {
-            try {
-                makeToast(applicationContext, "Notification from: $packageName")
-            } catch (e: Exception) {
-                Log.e("NoteServiceLOG", "Error showing toast", e)
-            }
-        }
 
         // Extract app name
         var appName: String
