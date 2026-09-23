@@ -4,7 +4,9 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.os.Build
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -25,22 +27,36 @@ class NotificationService : NotificationListenerService(), TextToSpeech.OnInitLi
     private var tts: TextToSpeech? = null
     private var isTtsReady = false
     private val speechQueue = mutableListOf<String>()
+    private var usingGoogleTtsEngine = true
+    private var audioManager: AudioManager? = null
+
+    private var lastProcessedKey: String? = null
+    private var lastProcessedTime: Long = 0
 
     override fun onCreate() {
         super.onCreate()
         Log.d("NoteServiceLOG", "onCreate")
+        audioManager = getSystemService(AUDIO_SERVICE) as? AudioManager
         initializeTTS()
     }
 
     private fun initializeTTS() {
         try {
+            usingGoogleTtsEngine = true
             tts = TextToSpeech(applicationContext, this, "com.google.android.tts")
-        } catch (e: Exception) {
-            try {
-                tts = TextToSpeech(applicationContext, this)
-            } catch (e2: Exception) {
-                Log.e("NoteServiceLOG", "Failed to initialize TTS", e2)
-            }
+        } catch (_: Exception) {
+            fallbackToDefaultTTS()
+        }
+    }
+
+    private fun fallbackToDefaultTTS() {
+        try {
+            Log.w("NoteServiceLOG", "Falling back to default TTS engine")
+            usingGoogleTtsEngine = false
+            tts?.shutdown()
+            tts = TextToSpeech(applicationContext, this)
+        } catch (e2: Exception) {
+            Log.e("NoteServiceLOG", "Failed to initialize default TTS", e2)
         }
     }
 
@@ -50,18 +66,73 @@ class NotificationService : NotificationListenerService(), TextToSpeech.OnInitLi
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 Log.e("NoteServiceLOG", "Language is not supported")
             } else {
+                Log.d("NoteServiceLOG", "TTS initialized successfully")
+                setupTtsAudioAttributes()
                 isTtsReady = true
                 synchronized(speechQueue) {
                     if (speechQueue.isNotEmpty()) {
                         for (msg in speechQueue) {
-                            tts?.speak(msg, TextToSpeech.QUEUE_FLUSH, null, "notificationUtterance")
+                            speakText(msg)
                         }
                         speechQueue.clear()
                     }
                 }
             }
         } else {
-            Log.e("NoteServiceLOG", "TTS Initialization Failed!")
+            Log.e("NoteServiceLOG", "TTS Initialization Failed with status $status")
+            if (usingGoogleTtsEngine) {
+                fallbackToDefaultTTS()
+            }
+        }
+    }
+
+    private fun setupTtsAudioAttributes() {
+        try {
+            val audioAttributes = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                .build()
+            tts?.setAudioAttributes(audioAttributes)
+        } catch (e: Exception) {
+            Log.e("NoteServiceLOG", "Error setting audio attributes", e)
+        }
+    }
+
+    private fun speakText(text: String) {
+        if (!isTtsReady || tts == null) {
+            synchronized(speechQueue) {
+                speechQueue.add(text)
+            }
+            Log.d("NoteServiceLOG", "TTS not ready yet, queued: $text")
+            return
+        }
+
+        try {
+            requestAudioFocus()
+
+            val params = Bundle().apply {
+                putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f)
+            }
+            Log.d("NoteServiceLOG", "Speaking text loudly: $text")
+            tts?.speak(text, TextToSpeech.QUEUE_ADD, params, "notificationUtterance_${System.currentTimeMillis()}")
+        } catch (e: Exception) {
+            Log.e("NoteServiceLOG", "Error during tts.speak", e)
+        }
+    }
+
+    private fun requestAudioFocus() {
+        try {
+            val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+                .setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                        .build()
+                )
+                .build()
+            audioManager?.requestAudioFocus(focusRequest)
+        } catch (e: Exception) {
+            Log.e("NoteServiceLOG", "Error requesting audio focus", e)
         }
     }
 
@@ -107,6 +178,16 @@ class NotificationService : NotificationListenerService(), TextToSpeech.OnInitLi
         // Filter out our own app's notifications to prevent infinite speech/processing loops
         if (packageName == applicationContext.packageName) return
 
+        // Deduplicate rapid duplicate callbacks for the same notification
+        val notificationKey = "${packageName}_${sbn.id}_${sbn.postTime}"
+        val currentTime = System.currentTimeMillis()
+        if (notificationKey == lastProcessedKey && (currentTime - lastProcessedTime) < 1000) {
+            Log.d("NoteServiceLOG", "Duplicate notification callback ignored for $notificationKey")
+            return
+        }
+        lastProcessedKey = notificationKey
+        lastProcessedTime = currentTime
+
         // Toasts must be shown on the Main Thread (UI Looper) to avoid crashing the background thread
         Handler(Looper.getMainLooper()).post {
             try {
@@ -130,11 +211,7 @@ class NotificationService : NotificationListenerService(), TextToSpeech.OnInitLi
 
         if (prefs.getBoolean("SPKSERVICE", false)) {
             synchronized(speechQueue) {
-                if (isTtsReady) {
-                    tts?.speak(appName, TextToSpeech.QUEUE_FLUSH, null, "notificationUtterance")
-                } else {
-                    speechQueue.add(appName)
-                }
+                speakText(appName)
             }
         }
     }
@@ -174,11 +251,7 @@ class NotificationService : NotificationListenerService(), TextToSpeech.OnInitLi
     private fun handleVoiceCommand(command: String) {
         synchronized(speechQueue) {
             val reply = if (command.contains("yes", ignoreCase = true)) "Ok, will do" else "fine"
-            if (isTtsReady) {
-                tts?.speak(reply, TextToSpeech.QUEUE_FLUSH, null, "notificationUtterance")
-            } else {
-                speechQueue.add(reply)
-            }
+            speakText(reply)
         }
     }
 
