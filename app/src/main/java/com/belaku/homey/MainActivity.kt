@@ -906,7 +906,10 @@ class MainActivity : AppCompatActivity() {
             }, 1000)
         }
 
-        val dataArray: JSONArray = TweetsJsonParser.parseJsonArrayFromRaw(this, R.raw.np_tweets)!!
+        // Returns null when the raw resource is missing/malformed - fall back to
+        // an empty array rather than crashing during startup.
+        val dataArray: JSONArray =
+            TweetsJsonParser.parseJsonArrayFromRaw(this, R.raw.np_tweets) ?: JSONArray()
 
         for (i in 0 until dataArray.length()) {
             try {

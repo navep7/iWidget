@@ -193,24 +193,25 @@ class StepsService : Service() {
                         val gcd = Geocoder(applicationContext)
                         Locale.getDefault()
                         try {
-                            var cAddrs = gcd.getFromLocation(lat, lng, 1)!!
-                            //   // makeToast(cAddrs?.get(0)!!.subLocality)
+                            // getFromLocation() may return null/empty and the
+                            // address fields are frequently null.
+                            val cAddrs = gcd.getFromLocation(lat, lng, 1)
 
                             cityLat = lat
                             cityLng = lng
-                            if (cAddrs.isNotEmpty())
-                                if (cAddrs.get(0) != null)
-                                    if (cAddrs.get(0).subLocality != null)
-                                        cityname = cAddrs.get(0)!!.subLocality
-                                    else if (cAddrs.get(0).locality != null)
-                                        cityname = cAddrs.get(0)!!.locality
-                                    else cityname = "remoteAreaMaybe!"
 
+                            val address = cAddrs?.firstOrNull()
+                            cityname = address?.subLocality
+                                ?: address?.locality
+                                ?: "remoteAreaMaybe!"
 
                         } catch (e: IOException) {
-                            // TODO Auto-generated catch block
+                            // Backend service unreachable / no geocoder available.
                             e.printStackTrace()
                              makeToast(applicationContext, "GCD - IOException \n $e")
+                        } catch (e: Exception) {
+                            // IllegalArgumentException for invalid coordinates.
+                            e.printStackTrace()
                         }
 
                     }

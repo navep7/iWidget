@@ -612,14 +612,17 @@ class DialogActivity : AppCompatActivity() {
     private fun toggleTorch() {
         val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
         try {
-            val cameraId = cameraManager.cameraIdList[0]
+            // Devices without a camera report an empty list -> [0] would throw.
+            val cameraId = cameraManager.cameraIdList.firstOrNull() ?: return
             val isTorchOn = sharedPreferences.getBoolean("Torch", false)
             cameraManager.setTorchMode(cameraId, !isTorchOn)
             sharedPreferencesEditor.putBoolean("Torch", !isTorchOn).apply()
             checkTorchState()
             remoteViews?.setImageViewResource(R.id.menu_torch, if (!isTorchOn) R.drawable.torch_on else R.drawable.torch_off)
             appWidM.updateAppWidget(newAppWidget, remoteViews)
-        } catch (e: Exception) {}
+        } catch (e: Exception) {
+            Log.w("DialogActivity", "toggleTorch failed", e)
+        }
     }
 
     fun sumTimes(times: List<String>): String {
@@ -902,19 +905,25 @@ class DialogActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val response = client.newCall(request).execute()
-                val responseBody = response.body?.string() ?: return@launch
+                // use{} guarantees the response body is closed.
+                val responseBody = client.newCall(request).execute().use { response ->
+                    response.body?.string()
+                } ?: return@launch
                 val json = JSONObject(responseBody)
                 // Parsing logic simplified for brevity
                 withContext(Dispatchers.Main) { updateWidget() }
-            } catch (e: Exception) {}
+            } catch (e: Exception) {
+                Log.w("DialogActivity", "Fetching tweets failed", e)
+            }
         }
     }
 
     private fun rawTweets(b: Boolean) {
         val dataArray = TweetsJsonParser.parseJsonArrayFromRaw(this, R.raw.np_tweets) ?: return
         for (i in 0 until dataArray.length()) {
-            listTweets.add(dataArray.getJSONObject(i).getString("text"))
+            // opt* accessors avoid JSONException on malformed entries.
+            val text = dataArray.optJSONObject(i)?.optString("text").orEmpty()
+            if (text.isNotEmpty()) listTweets.add(text)
         }
         updateWidget()
     }

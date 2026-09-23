@@ -49,7 +49,9 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
     GoogleMap.OnMarkerClickListener {
 
     private var boolStreetMarkerClicked: Boolean = false
-    private lateinit var cAddrs: MutableList<Address>
+    // Initialised eagerly: a lateinit read before the first successful geocode
+    // would throw UninitializedPropertyAccessException.
+    private var cAddrs: MutableList<Address> = mutableListOf()
     private var boolMapReady: Boolean = false
 
     private lateinit var mSupportMapFragment: SupportMapFragment
@@ -118,14 +120,18 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
                     if (boolMapReady) {
 
                         var addrs = ""
-                        if (cAddrs[0].maxAddressLineIndex > 0)
-                            for (i in 0 until cAddrs[0].maxAddressLineIndex) {
-                                addrs += cAddrs[0].getAddressLine(i)
-                            }
-                        else addrs = cAddrs[0].subLocality
+                        // cAddrs is empty whenever geocoding failed.
+                        val first = cAddrs.firstOrNull()
+                        if (first != null) {
+                            if (first.maxAddressLineIndex > 0)
+                                for (i in 0 until first.maxAddressLineIndex) {
+                                    addrs += first.getAddressLine(i)
+                                }
+                            else addrs = first.subLocality ?: ""
+                        }
 
 
-                        if (!(addrs?.isNotEmpty() ?: false))
+                        if (addrs.isEmpty())
                             addrs = "unknown"
 
                         addPresentMarker(LatLng(location.latitude, location.longitude), addrs)
@@ -166,17 +172,29 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
         val gcd = Geocoder(applicationContext)
         Locale.getDefault()
         try {
-            cAddrs = gcd.getFromLocation(lat, lng, 1)!!
-            //   // makeToast(cAddrs?.get(0)!!.subLocality)
+            // getFromLocation() may return null or an empty list, and the
+            // individual address fields are often null (e.g. remote areas).
+            val addresses = gcd.getFromLocation(lat, lng, 1)
+            cAddrs = addresses?.toMutableList() ?: mutableListOf()
+
+            val address = cAddrs.firstOrNull() ?: return
+            val label = address.subLocality
+                ?: address.locality
+                ?: address.countryName
+                ?: return
+
             Snackbar.make(
                 window.decorView.rootView,
-                cAddrs?.get(0)!!.subLocality,
+                label,
                 Snackbar.LENGTH_INDEFINITE
             ).show()
         } catch (e: IOException) {
-            // TODO Auto-generated catch block
+            // Backend service unreachable / no geocoder available.
             e.printStackTrace()
             // makeToast("GCD - IOException \n $e")
+        } catch (e: Exception) {
+            // Geocoder throws IllegalArgumentException for invalid coordinates.
+            e.printStackTrace()
         }
 
     }

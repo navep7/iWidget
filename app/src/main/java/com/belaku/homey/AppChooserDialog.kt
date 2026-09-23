@@ -39,8 +39,7 @@ class AppChooserDialog : Activity() {
         var gridView: GridView = findViewById(R.id.grid_view)
 
 
-        if (intent.extras != null)
-            appID = intent.extras!!.getInt("id")
+        appID = intent.extras?.getInt("id") ?: 0
 
 
 

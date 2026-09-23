@@ -34,14 +34,18 @@ class RvAdapter internal constructor(
     //    val desc = mDescs[position]
         var url = mUrls[position]
     //    holder.ryTextView.text = desc
-        url = url.split("+ ")[1]
+        // split() yields a single element when the "+ " delimiter is absent,
+        // so index [1] would throw IndexOutOfBoundsException.
+        url = url.split("+ ").getOrNull(1) ?: url
 
 
         holder.rvImgv.setImageURI(Uri.parse(url))
 
-        Glide.with(context!!)
+        // context is nullable; Glide.with(null) would throw.
+        val ctx = context ?: return
+        Glide.with(ctx)
             .load(url)
-            .thumbnail(Glide.with(context).load(R.drawable.loading_gif))
+            .thumbnail(Glide.with(ctx).load(R.drawable.loading_gif))
             .into(holder.rvImgv)
 
     }

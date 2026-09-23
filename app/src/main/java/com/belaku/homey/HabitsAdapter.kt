@@ -16,16 +16,13 @@ class HabitsAdapter(context: Context, data: List<Habit>) :
 
     @SuppressLint("SetTextI18n")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        var listItemView = convertView
-        if (listItemView == null) {
-            listItemView = LayoutInflater.from(context).inflate(
-                R.layout.item_habit, parent, false
-            )
-        }
+        val listItemView = convertView ?: LayoutInflater.from(context).inflate(
+            R.layout.item_habit, parent, false
+        )
 
         val currentItem = getItem(position)
 
-        val textView = listItemView!!.findViewById<TextView>(R.id.item_text_name)
+        val textView = listItemView.findViewById<TextView>(R.id.item_text_name)
         textView.text = "${(position + 1)}. ${currentItem?.name}"
 
         val textViewStreak = listItemView.findViewById<TextView>(R.id.item_text_streak)

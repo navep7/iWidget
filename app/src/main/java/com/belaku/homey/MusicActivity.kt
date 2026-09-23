@@ -313,9 +313,10 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                     response: Response<MusicData?>
                 ) {
 
-                    if (response.body() != null)
-                        if (response.body()?.data != null) {
-                            dataListSongs = response.body()?.data!!
+                    // Extract once and guard, instead of re-reading + asserting.
+                    val songs = response.body()?.data
+                    if (songs != null) {
+                            dataListSongs = songs
                             if (query == playingAlbum)
                                 pDatalistSongs = dataListSongs
 
@@ -445,8 +446,6 @@ class MusicActivity : AppCompatActivity(), MusicAdapter.RecyclerViewEvent {
                             "DeeZerDOWN, maybe!",
                             Toast.LENGTH_LONG
                         ).show()
-                    else Toast.makeText(applicationContext, "DeeZerDOWN, maybe!", Toast.LENGTH_LONG)
-                        .show()
                 }
 
                 override fun onFailure(call: Call<MusicData?>, t: Throwable) {

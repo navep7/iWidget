@@ -376,10 +376,13 @@ class MusicService : Service() {
         volumeAnimator?.cancel()
         handlerVolume.removeCallbacksAndMessages(null)
 
-        if (mMediaPlayer != null) {
-            mMediaPlayer!!.release(); // Release resources when done
-            mMediaPlayer = null;
+        // release() can throw IllegalStateException (wrong thread / already released).
+        try {
+            mMediaPlayer?.release()
+        } catch (e: Exception) {
+            Log.w("OnDestroyMS", "MediaPlayer release failed", e)
         }
+        mMediaPlayer = null
 
         songIndex = 0
         sharedPreferencesEditor.putInt("SIn", 0).apply()

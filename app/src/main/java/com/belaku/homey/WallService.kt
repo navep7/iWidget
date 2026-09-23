@@ -52,7 +52,16 @@ class WallService : WallpaperService() {
 
         private fun draw() {
             if (!mVisible) return
-            val canvas = mHolder!!.lockCanvas()
+
+            val holder = mHolder ?: return
+            // lockCanvas() returns null while the surface is not ready/valid.
+            val canvas = try {
+                holder.lockCanvas()
+            } catch (ex: Exception) {
+                Log.d("AideWallpaperService", "lockCanvas failed: ${ex.message ?: ex.javaClass.simpleName}")
+                null
+            } ?: return
+
             try {
                 mCounter += 5
                 mCounter %= 360
@@ -65,9 +74,16 @@ class WallService : WallpaperService() {
                 )
                 canvas.drawArc(0f, 0f, 400f, 400f, 0f, mCounter.toFloat(), true, mForeGround)
             } catch (ex: Exception) {
-                Log.d("AideWallpaperService", ex.message!!)
+                Log.d("AideWallpaperService", ex.message ?: ex.javaClass.simpleName)
+            } finally {
+                // Always release the canvas, otherwise the surface stays locked.
+                try {
+                    holder.unlockCanvasAndPost(canvas)
+                } catch (ex: Exception) {
+                    Log.d("AideWallpaperService", "unlockCanvasAndPost failed: ${ex.message ?: ex.javaClass.simpleName}")
+                }
             }
-            mHolder!!.unlockCanvasAndPost(canvas)
+
             mHandler.removeCallbacks(mDrawTask)
             mHandler.postDelayed(mDrawTask, 10)
         }
