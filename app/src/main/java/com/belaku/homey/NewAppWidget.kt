@@ -908,37 +908,28 @@ class NewAppWidget : AppWidgetProvider() {
         sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
 
 
-        if (hour != 0) {
-
-
-            if (hour < 2) {
-
-                remoteViews?.setTextViewText(
-                    R.id.tx_screenusage_state,
-                    "LOW"
-                )
-            } else if (hour in 2..< 5) {
-                remoteViews?.setTextViewText(
-                    R.id.tx_screenusage_state,
-                    "MODERATE"
-                )
-            } else if (hour in 5..< 8) {
-                remoteViews?.setTextViewText(
-                    R.id.tx_screenusage_state,
-                    "HIGH"
-                )
-            } else {
-                remoteViews?.setTextViewText(
-                    R.id.tx_screenusage_state,
-                    "EXCESSIVE"
-                )
-            }
-
-            remoteViews?.setTextViewText(R.id.tx_screentime, hour.toString() + "+")
-
-            //     remoteViews?.setTextColor(R.id.tx_screenusage_state, ColorUtil().matchPrimaryColor())
-         //   remoteViews?.setTextColor(R.id.tx_screentime, ColorUtil().matchSecondaryColor())
+        val hasUsagePermission = hasFeaturePermission(widgetContext, FeaturePermission.USAGE_STATS)
+        if (hasUsagePermission) {
+            appUsageStats(widgetContext)
         }
+
+        if (hasUsagePermission || hour != 0) {
+            val usageState = when {
+                hour < 2 -> "LOW"
+                hour in 2..< 5 -> "MODERATE"
+                hour in 5..< 8 -> "HIGH"
+                else -> "EXCESSIVE"
+            }
+            remoteViews?.setTextViewText(R.id.tx_screenusage_state, usageState)
+            remoteViews?.setTextViewText(R.id.tx_screentime, "$hour+")
+        }
+
+        val hasStepsPermission = hasFeaturePermission(widgetContext, FeaturePermission.STEPS)
+        if (hasStepsPermission) {
+            recognizeActivityTransitions()
+        }
+        val showActivityControls = hasStepsPermission && sharedPreferences.getBoolean("activitiesORcontrols", false)
+        updateActivityUi(remoteViews, showActivityControls)
 
         val spkServiceRunning = sharedPreferences.getBoolean("SPKSERVICE", false)
         applyTimeAnnouncementState(spkServiceRunning, ColorUtil().isColorDark(primaryColor))
@@ -1047,6 +1038,53 @@ class NewAppWidget : AppWidgetProvider() {
 
         val showUsageHint = !hasFeaturePermission(context, FeaturePermission.USAGE_STATS)
         rv.setViewVisibility(R.id.tx_scrtime_permission_hint, if (showUsageHint) View.VISIBLE else View.GONE)
+    }
+
+    private fun updateActivityUi(rv: RemoteViews?, show: Boolean) {
+        rv?.apply {
+            setViewVisibility(
+                R.id.imgbtn_close_activities,
+                if (show) View.VISIBLE else View.INVISIBLE
+            )
+            setViewVisibility(R.id.btn_ui_prev, if (show) View.VISIBLE else View.INVISIBLE)
+            setViewVisibility(R.id.btn_ui_next, if (show) View.VISIBLE else View.INVISIBLE)
+            setViewVisibility(
+                R.id.ll_activity_states,
+                if (show) View.VISIBLE else View.INVISIBLE
+            )
+
+            setViewVisibility(R.id.rl_setwall, if (show) View.INVISIBLE else View.VISIBLE)
+            setViewVisibility(R.id.imgbtn_qr, if (show) View.INVISIBLE else View.VISIBLE)
+            setViewVisibility(
+                R.id.imgbtn_g_apps,
+                if (show) View.INVISIBLE else View.VISIBLE
+            )
+            setViewVisibility(R.id.imgbtn_lock, if (show) View.INVISIBLE else View.VISIBLE)
+            setViewVisibility(
+                R.id.imgbtn_speech,
+                if (show) View.INVISIBLE else View.VISIBLE
+            )
+            setViewVisibility(R.id.tx_myspace, if (show) View.INVISIBLE else View.VISIBLE)
+            setViewVisibility(R.id.imgv_conf, if (show) View.INVISIBLE else View.VISIBLE)
+            setViewVisibility(R.id.imgv_ps, if (show) View.INVISIBLE else View.VISIBLE)
+            setViewVisibility(R.id.imgv_dialler, if (show) View.INVISIBLE else View.VISIBLE)
+
+            if (show) {
+                val displayedAct = sharedPreferences.getString("displayedAct", presentActivityState) ?: presentActivityState
+                setViewVisibility(
+                    R.id.rl_still,
+                    if (displayedAct == "STILL") View.VISIBLE else View.GONE
+                )
+                setViewVisibility(
+                    R.id.rl_walking,
+                    if (displayedAct == "WALKING") View.VISIBLE else View.GONE
+                )
+                setViewVisibility(
+                    R.id.rl_speed,
+                    if (displayedAct == "TRAVEL") View.VISIBLE else View.GONE
+                )
+            }
+        }
     }
 
 
@@ -1304,9 +1342,24 @@ class NewAppWidget : AppWidgetProvider() {
                     screenWidth = metrics.widthPixels
                 }
 
+                // RemoteViews enforces a strict bitmap memory budget for the entire widget tree
+                // (see "RemoteViews for widget update exceeds maximum bitmap memory usage").
+                // screenWidth/screenHeight are the full device screen resolution - fine for
+                // actually setting the wallpaper (SetWallWorker), but far too large for a bitmap
+                // attached to this 300dp-wide widget. Downscale to a widget-appropriate size
+                // before creating/attaching any bitmap here, scaling the crop margins by the
+                // same factor so the crop still looks correct.
+                val maxWidgetImageWidth = 480
+                val widgetImageScale =
+                    if (screenWidth > maxWidgetImageWidth) {
+                        maxWidgetImageWidth.toFloat() / screenWidth.coerceAtLeast(1)
+                    } else 1f
+                val widgetImgWidth = Math.round(screenWidth * widgetImageScale).coerceAtLeast(1)
+                val widgetImgHeight = Math.round(screenHeight * widgetImageScale).coerceAtLeast(1)
+
                 remoteViews?.setImageViewBitmap(
                     R.id.imgv_player,
-                    createGradientBitmap(screenWidth, 100, primaryColor, tertianaryColor)
+                    createGradientBitmap(2 * widgetImgWidth, 100, primaryColor, tertianaryColor)
                 )
 
                 if (isWallBitmapInitialized(widgetContext)) {
@@ -1314,8 +1367,8 @@ class NewAppWidget : AppWidgetProvider() {
                     if (!currentWallBitmap.isRecycled) {
                         scaledBitmap = Bitmap.createScaledBitmap(
                             currentWallBitmap,
-                            screenWidth.coerceAtLeast(1),
-                            screenHeight.coerceAtLeast(1),
+                            widgetImgWidth,
+                            widgetImgHeight,
                             true
                         )
 
@@ -1325,10 +1378,10 @@ class NewAppWidget : AppWidgetProvider() {
                             val overlayColor =
                                 if (ColorUtil().isColorDark(primaryColor)) Color.BLACK else Color.WHITE
 
-                            val cropX = 10
-                            val cropY = 25
-                            val cropW = (screenWidth - 20).coerceAtLeast(1)
-                            val cropH = (screenHeight - 150).coerceAtLeast(1)
+                            val cropX = Math.round(10 * widgetImageScale).coerceAtLeast(1)
+                            val cropY = Math.round(25 * widgetImageScale).coerceAtLeast(1)
+                            val cropW = (widgetImgWidth - cropX * 2).coerceAtLeast(1)
+                            val cropH = (widgetImgHeight - Math.round(150 * widgetImageScale).coerceAtLeast(1)).coerceAtLeast(1)
 
                             if (cropX + cropW <= scaledBitmap.width && cropY + cropH <= scaledBitmap.height) {
                                 val croppedBitmap = Bitmap.createBitmap(scaledBitmap, cropX, cropY, cropW, cropH)
@@ -1561,6 +1614,7 @@ class NewAppWidget : AppWidgetProvider() {
                 })
             }
             ACT_RECOGNITION_P_REQ -> {
+                sharedPreferencesEditor.putBoolean("activitiesORcontrols", true).apply()
                 requestFeaturePermission(widgetContext, FeaturePermission.STEPS)
             }
             C_CLICKED -> {
@@ -1568,67 +1622,27 @@ class NewAppWidget : AppWidgetProvider() {
                 intentContacts.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 widgetContext.startActivity(intentContacts)
             }
-            ACTINFO_CLICK -> {
-
-                if (ContextCompat.checkSelfPermission(
-                        widgetContext,
-                        Manifest.permission.ACTIVITY_RECOGNITION
-                    ) == PackageManager.PERMISSION_GRANTED
-                ) {
-                    recognizeActivityTransitions()
-                } else requestFeaturePermission(widgetContext, FeaturePermission.STEPS)
-
-
-                if (!presentActivityState.isBlank()) {
-
-                val current = sharedPreferences.getBoolean("activitiesORcontrols", false)
-                sharedPreferencesEditor.putBoolean("activitiesORcontrols", !current).apply()
-                val show = !current
-
-                remoteViews?.apply {
-                    setViewVisibility(
-                        R.id.imgbtn_close_activities,
-                        if (show) View.VISIBLE else View.INVISIBLE
-                    )
-                    setViewVisibility(R.id.btn_ui_prev, if (show) View.VISIBLE else View.INVISIBLE)
-                    setViewVisibility(R.id.btn_ui_next, if (show) View.VISIBLE else View.INVISIBLE)
-                    setViewVisibility(
-                        R.id.ll_activity_states,
-                        if (show) View.VISIBLE else View.INVISIBLE
-                    )
-
-                    setViewVisibility(R.id.rl_setwall, if (show) View.INVISIBLE else View.VISIBLE)
-                    setViewVisibility(R.id.imgbtn_qr, if (show) View.INVISIBLE else View.VISIBLE)
-                    setViewVisibility(
-                        R.id.imgbtn_g_apps,
-                        if (show) View.INVISIBLE else View.VISIBLE
-                    )
-                    setViewVisibility(R.id.imgbtn_lock, if (show) View.INVISIBLE else View.VISIBLE)
-                    setViewVisibility(
-                        R.id.imgbtn_speech,
-                        if (show) View.INVISIBLE else View.VISIBLE
-                    )
-                    setViewVisibility(R.id.tx_myspace, if (show) View.INVISIBLE else View.VISIBLE)
-                    setViewVisibility(R.id.imgv_conf, if (show) View.INVISIBLE else View.VISIBLE)
-                    setViewVisibility(R.id.imgv_ps, if (show) View.INVISIBLE else View.VISIBLE)
-                    setViewVisibility(R.id.imgv_dialler, if (show) View.INVISIBLE else View.VISIBLE)
-
-                    if (show) {
-                        setViewVisibility(
-                            R.id.rl_still,
-                            if (presentActivityState == "STILL") View.VISIBLE else View.GONE
-                        )
-                        setViewVisibility(
-                            R.id.rl_walking,
-                            if (presentActivityState == "WALKING") View.VISIBLE else View.GONE
-                        )
-                        setViewVisibility(
-                            R.id.rl_speed,
-                            if (presentActivityState == "TRAVEL") View.VISIBLE else View.GONE
-                        )
-                    }
+            DIAL_CLICK -> {
+                val intentDial = Intent(Intent.ACTION_DIAL).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                try {
+                    widgetContext.startActivity(intentDial)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to open dialer", e)
                 }
             }
+            ACTINFO_CLICK -> {
+                if (hasFeaturePermission(widgetContext, FeaturePermission.STEPS)) {
+                    recognizeActivityTransitions()
+                    val current = sharedPreferences.getBoolean("activitiesORcontrols", false)
+                    val show = !current
+                    sharedPreferencesEditor.putBoolean("activitiesORcontrols", show).apply()
+                    updateActivityUi(remoteViews, show)
+                } else {
+                    sharedPreferencesEditor.putBoolean("activitiesORcontrols", true).apply()
+                    requestFeaturePermission(widgetContext, FeaturePermission.STEPS)
+                }
             }
             NEXT_STATE -> {
                 val displayedAct = sharedPreferences.getString("displayedAct", presentActivityState)
@@ -1660,54 +1674,21 @@ class NewAppWidget : AppWidgetProvider() {
             }
             CLOSE_ACTIVITIES -> {
                 sharedPreferencesEditor.putBoolean("activitiesORcontrols", false).apply()
-                remoteViews?.apply {
-                    setViewVisibility(R.id.imgbtn_close_activities, View.INVISIBLE)
-                    setViewVisibility(R.id.btn_ui_prev, View.INVISIBLE)
-                    setViewVisibility(R.id.btn_ui_next, View.INVISIBLE)
-                    setViewVisibility(R.id.ll_activity_states, View.INVISIBLE)
-                    setViewVisibility(R.id.rl_setwall, View.VISIBLE)
-                    setViewVisibility(R.id.imgbtn_qr, View.VISIBLE)
-                    setViewVisibility(R.id.imgbtn_g_apps, View.VISIBLE)
-                    setViewVisibility(R.id.imgbtn_lock, View.VISIBLE)
-                    setViewVisibility(R.id.imgbtn_speech, View.VISIBLE)
-                    setViewVisibility(R.id.tx_myspace, View.VISIBLE)
-                    setViewVisibility(R.id.imgv_conf, View.VISIBLE)
-                    setViewVisibility(R.id.imgv_ps, View.VISIBLE)
-                    setViewVisibility(R.id.imgv_dialler, View.VISIBLE)
-                }
+                updateActivityUi(remoteViews, false)
             }
             ASSISTIVE_TOUCH -> {
                 val current = sharedPreferences.getBoolean("rlControls", false)
                 sharedPreferencesEditor.putBoolean("rlControls", !current).apply()
                 val show = !current
 
-                remoteViews?.apply {
-                    if (show) {
-                        setViewVisibility(R.id.ll_activity_states, View.INVISIBLE)
-                        setViewVisibility(R.id.rl_setwall, View.VISIBLE)
-                        setViewVisibility(R.id.imgbtn_qr, View.VISIBLE)
-                        setViewVisibility(R.id.imgbtn_g_apps, View.VISIBLE)
-                        setViewVisibility(R.id.imgbtn_lock, View.VISIBLE)
-                        setViewVisibility(R.id.imgbtn_speech, View.VISIBLE)
-                        setViewVisibility(R.id.tx_myspace, View.VISIBLE)
-                        setViewVisibility(R.id.imgv_conf, View.VISIBLE)
-                        setViewVisibility(R.id.imgv_ps, View.VISIBLE)
-                        setViewVisibility(R.id.imgv_dialler, View.VISIBLE)
-                    } else {
-                        setViewVisibility(R.id.rl_still, if (presentActivityState == "STILL") View.VISIBLE else View.GONE)
-                        setViewVisibility(R.id.rl_walking, if (presentActivityState == "WALKING") View.VISIBLE else View.GONE)
-                        setViewVisibility(R.id.rl_speed, if (presentActivityState == "TRAVEL") View.VISIBLE else View.GONE)
-
-                        setViewVisibility(R.id.ll_activity_states, View.VISIBLE)
-                        setViewVisibility(R.id.rl_setwall, View.INVISIBLE)
-                        setViewVisibility(R.id.imgbtn_qr, View.INVISIBLE)
-                        setViewVisibility(R.id.imgbtn_g_apps, View.INVISIBLE)
-                        setViewVisibility(R.id.imgbtn_lock, View.INVISIBLE)
-                        setViewVisibility(R.id.imgbtn_speech, View.INVISIBLE)
-                        setViewVisibility(R.id.tx_myspace, View.INVISIBLE)
-                        setViewVisibility(R.id.imgv_conf, View.INVISIBLE)
-                        setViewVisibility(R.id.imgv_ps, View.INVISIBLE)
-                        setViewVisibility(R.id.imgv_dialler, View.INVISIBLE)
+                if (show) {
+                    sharedPreferencesEditor.putBoolean("activitiesORcontrols", false).apply()
+                    updateActivityUi(remoteViews, false)
+                } else {
+                    val hasSteps = hasFeaturePermission(widgetContext, FeaturePermission.STEPS)
+                    if (hasSteps) {
+                        sharedPreferencesEditor.putBoolean("activitiesORcontrols", true).apply()
+                        updateActivityUi(remoteViews, true)
                     }
                 }
             }
