@@ -1485,6 +1485,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (checkCompanionVariable()) {
             remoteViews?.setTextViewText(R.id.tx_walldesc, wD)
+            wallColors()
 
             // qT may be blank or start with a space; substring(0, 1) threw
             // StringIndexOutOfBoundsException in that case.
