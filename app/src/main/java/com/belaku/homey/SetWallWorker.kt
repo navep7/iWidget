@@ -143,6 +143,12 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         lateinit var wallBitmap: Bitmap
         lateinit var scaledBitmap: Bitmap
 
+        // appUsageStats() queries UsageStatsManager for a week of data and decodes every app's
+        // icon via PackageManager - expensive work that used to re-run on every single widget
+        // tap (NewAppWidget.setUI() calls it unconditionally on every onReceive()). Throttling
+        // it here lets callers skip the query when it was refreshed recently.
+        var lastAppUsageStatsQueryTimeMs: Long = 0L
+
         fun recycleBitmap(bitmap: Bitmap?) {
             if (bitmap != null && !bitmap.isRecycled) {
                 bitmap.recycle()

@@ -92,6 +92,7 @@ import com.belaku.homey.SetWallWorker.Companion.isPinNoteInitialized
 import com.belaku.homey.SetWallWorker.Companion.isSharedPreferencesInitialized
 import com.belaku.homey.SetWallWorker.Companion.isWallBitmapInitialized
 import com.belaku.homey.SetWallWorker.Companion.ismActInitialized
+import com.belaku.homey.SetWallWorker.Companion.lastAppUsageStatsQueryTimeMs
 import com.belaku.homey.SetWallWorker.Companion.mAct
 import com.belaku.homey.SetWallWorker.Companion.pinNote
 import com.belaku.homey.SetWallWorker.Companion.scaledBitmap
@@ -225,6 +226,13 @@ class NewAppWidget : AppWidgetProvider() {
         // "action.TRANSITIONS_DATA" filter, so no runtime registration is needed here.
         // Registering it again on every onEnabled() leaked a receiver and never unregistered it.
 
+        // setUI() calls this on every widget click (via onReceive()). The registration below is
+        // idempotent by PendingIntent (same request code + action), but re-issuing it is still a
+        // synchronous IPC call to Google Play Services on every single tap. Since the request
+        // never actually changes at runtime, only register once and skip on subsequent calls -
+        // this was contributing to the perceived click delay.
+        if (activityTransitionsRegistered) return
+
    //     remoteViews?.setTextViewText(R.id.tx_act_state, "fetching..,")
 
         intentActivityTransitionReceiver =
@@ -291,7 +299,10 @@ class NewAppWidget : AppWidgetProvider() {
                     activityTransitionRequest,
                     pendingIntentActivityTransitions
                 )
-                .addOnSuccessListener { Log.d(TAG, "Activity transition updates registered") }
+                .addOnSuccessListener {
+                    activityTransitionsRegistered = true
+                    Log.d(TAG, "Activity transition updates registered")
+                }
                 .addOnFailureListener { e -> Log.e(TAG, "Activity transition updates failed", e) }
         } catch (e: Exception) {
             Log.e(TAG, "requestActivityTransitionUpdates threw", e)
@@ -344,6 +355,7 @@ class NewAppWidget : AppWidgetProvider() {
         } catch (e: Exception) {
             Log.e(TAG, "removeActivityTransitionUpdates failed", e)
         }
+        activityTransitionsRegistered = false
 
         remoteViews = null
         onEn = false
@@ -910,7 +922,16 @@ class NewAppWidget : AppWidgetProvider() {
 
         val hasUsagePermission = hasFeaturePermission(widgetContext, FeaturePermission.USAGE_STATS)
         if (hasUsagePermission) {
-            appUsageStats(widgetContext)
+            // appUsageStats() queries a week of UsageStatsManager data and decodes every app's
+            // icon bitmap - setUI() runs synchronously on the main thread for every widget tap
+            // (via onReceive()), so re-running this on each click was a major source of the
+            // perceived click delay. The underlying usage data changes on the order of minutes,
+            // not clicks, so throttle it instead of dropping it entirely.
+            val now = SystemClock.elapsedRealtime()
+            if (now - lastAppUsageStatsQueryTimeMs >= APP_USAGE_STATS_MIN_REFRESH_INTERVAL_MS) {
+                lastAppUsageStatsQueryTimeMs = now
+                appUsageStats(widgetContext)
+            }
         }
 
         if (hasUsagePermission || hour != 0) {
@@ -1364,7 +1385,22 @@ class NewAppWidget : AppWidgetProvider() {
 
                 if (isWallBitmapInitialized(widgetContext)) {
                     val currentWallBitmap = wallBitmap
-                    if (!currentWallBitmap.isRecycled) {
+
+                    // The RenderScript blur pipeline below (scale + crop + blur + round, plus a
+                    // second full-bitmap blur() pass for blurWallBitmap) is by far the most
+                    // expensive work in this provider. setUI() -> wallColors() runs from
+                    // onReceive() on *every single widget tap*, so without this cache every click
+                    // paid for two RenderScript blur passes before the tap's own effect could even
+                    // be applied - that synchronous cost is what made clicks feel delayed.
+                    // The source bitmap only changes when SetWallWorker installs a new wallpaper,
+                    // so it is a safe and cheap cache key (reference identity).
+                    val cacheHit = cachedWidgetBackgroundBitmap != null &&
+                            lastWallColorsSourceBitmap === currentWallBitmap &&
+                            !currentWallBitmap.isRecycled
+
+                    if (cacheHit) {
+                        remoteViews?.setImageViewBitmap(R.id.imgv_widget_layout, cachedWidgetBackgroundBitmap)
+                    } else if (!currentWallBitmap.isRecycled) {
                         scaledBitmap = Bitmap.createScaledBitmap(
                             currentWallBitmap,
                             widgetImgWidth,
@@ -1393,6 +1429,15 @@ class NewAppWidget : AppWidgetProvider() {
                                     R.id.imgv_widget_layout,
                                     finalBitmap
                                 )
+
+                                // Cache the result so subsequent clicks (which all funnel through
+                                // setUI()) reuse it instead of re-running the blur pipeline.
+                                val previousCached = cachedWidgetBackgroundBitmap
+                                cachedWidgetBackgroundBitmap = finalBitmap
+                                lastWallColorsSourceBitmap = currentWallBitmap
+                                if (previousCached != null && previousCached != finalBitmap && !previousCached.isRecycled) {
+                                    previousCached.recycle()
+                                }
 
                                 // Release intermediates: these wallpaper-sized bitmaps are the
                                 // main source of OutOfMemoryError in this provider.
@@ -2302,6 +2347,23 @@ class NewAppWidget : AppWidgetProvider() {
         var onEn: Boolean = false
         var remoteViews: RemoteViews? = null
         var lapCount: Int = 0
+
+        // Cache for the expensive scale/crop/blur/round pipeline in wallColors() that produces
+        // the imgv_widget_layout background. Without this, every widget tap (which redraws via
+        // setUI() -> wallColors()) re-ran two RenderScript blur passes synchronously on the main
+        // thread, which is what made onClick feedback feel delayed. Both fields are invalidated
+        // together whenever the source wallBitmap reference changes (i.e. a new wallpaper is set).
+        private var cachedWidgetBackgroundBitmap: Bitmap? = null
+        private var lastWallColorsSourceBitmap: Bitmap? = null
+
+        /** Minimum time between appUsageStats() calls triggered from setUI() on every click. */
+        private const val APP_USAGE_STATS_MIN_REFRESH_INTERVAL_MS = 60_000L
+
+        /**
+         * True once [recognizeActivityTransitions] has successfully registered with
+         * ActivityRecognition. Reset in [onDisabled] so re-enabling the widget re-registers.
+         */
+        private var activityTransitionsRegistered: Boolean = false
 
 
         fun drawableToBitmap(context: Context, drawable: Drawable): Bitmap {
