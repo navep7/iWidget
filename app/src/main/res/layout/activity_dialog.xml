@@ -90,7 +90,7 @@
         android:id="@+id/tx_dialog_title"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:text="Dialog Title"
+        android:text="Menu"
         android:textAppearance="?attr/textAppearanceTitleLarge"
         android:textStyle="bold"
         android:layout_margin="16dp"

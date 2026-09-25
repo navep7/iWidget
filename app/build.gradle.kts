@@ -14,8 +14,8 @@ android {
         minSdk = 30
         //noinspection OldTargetApi
         targetSdk = 36
-        versionCode = 189
-        versionName = "189.0"
+        versionCode = 190
+        versionName = "190.0"
 
         renderscriptTargetApi = 18
         renderscriptSupportModeEnabled = true

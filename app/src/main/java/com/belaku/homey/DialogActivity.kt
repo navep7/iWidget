@@ -3,6 +3,7 @@ package com.belaku.homey
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
@@ -75,6 +76,10 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
+import com.google.android.gms.location.ActivityRecognition
+import com.google.android.gms.location.ActivityTransition
+import com.google.android.gms.location.ActivityTransitionRequest
+import com.google.android.gms.location.DetectedActivity
 import com.google.android.material.tabs.TabLayout
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
@@ -147,7 +152,7 @@ class DialogActivity : AppCompatActivity() {
     private lateinit var menuBlue: ImageButton
     private lateinit var menuAi: ImageButton
 
-      
+
     @SuppressLint("ResourceAsColor", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -201,7 +206,7 @@ class DialogActivity : AppCompatActivity() {
         btnOk = findViewById(R.id.btn_dialog_ok)
         btnCancel = findViewById(R.id.btn_dialog_cancel)
         imgbtnShare = findViewById(R.id.imgbtn_dialog_share)
-        
+
         menuReminders = findViewById(R.id.menu_reminders)
         menuTorch = findViewById(R.id.menu_torch)
         menuWifi = findViewById(R.id.menu_wifi)
@@ -293,6 +298,27 @@ class DialogActivity : AppCompatActivity() {
                     imgbtnShare.visibility = View.GONE
                     btnOk.visibility = View.GONE
                     btnCancel.visibility = View.GONE
+
+                    val hasPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+                    } else {
+                        true
+                    }
+                    if (hasPermission && bluetoothAdapter != null && bluetoothAdapter!!.isEnabled) {
+                        val isConnected = isProfileConnected(bluetoothAdapter!!, android.bluetooth.BluetoothProfile.GATT) ||
+                                isProfileConnected(bluetoothAdapter!!, android.bluetooth.BluetoothProfile.A2DP) ||
+                                isProfileConnected(bluetoothAdapter!!, android.bluetooth.BluetoothProfile.HEADSET)
+                        if (!isConnected) {
+                            AlertDialog.Builder(this)
+                                .setTitle("Bluetooth Alert")
+                                .setMessage("Bluetooth is ON but not connected, just wasting battery. Please turn it off.")
+                                .setPositiveButton("Turn Off") { _, _ ->
+                                    toggleBluetooth()
+                                }
+                                .setNegativeButton("Dismiss", null)
+                                .show()
+                        }
+                    }
                 }
                 "SongCover" -> {
                     txTitle.visibility = View.VISIBLE
@@ -380,7 +406,7 @@ class DialogActivity : AppCompatActivity() {
                     imgbtnShare.visibility = View.GONE
 
                     val currentDay = (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) + 5) % 7
-                    
+
                     val maxSpeedToday = if (isSharedPreferencesInitialized()) {
                         sharedPreferences.getInt("maxSpeedToday", SpeedService.maxSpeed)
                     } else {
@@ -404,24 +430,24 @@ class DialogActivity : AppCompatActivity() {
                     vpSteps.visibility = View.VISIBLE
                     tabLayout.visibility = View.VISIBLE
                     imgbtnShare.visibility = View.GONE
-                    
+
                     val currentDay = (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) + 5) % 7
                     stepsData[currentDay] = stepsToday.toString()
 
                     stepsMapsAdapter("walk", stepsData)
-                    
+
                     // Set to a middle position for circular scrolling
                     val mid = 3500 - (3500 % 7) + currentDay
                     vpSteps.setCurrentItem(mid, false)
-                    
+
                     btnOk.visibility = View.GONE
                     btnCancel.visibility = View.GONE
                 }
-                "screenTimeInfo" -> {
-                    window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-                    txTitle.text = "App Usage Analysis"
-                    txContent.text = "Stats from ${beginCal.get(Calendar.DAY_OF_MONTH)}/${beginCal.get(Calendar.MONTH) + 1} to ${endCal.get(Calendar.DAY_OF_MONTH)}/${endCal.get(Calendar.MONTH) + 1}"
-                    
+                "screenTimeInfoWithoutDialog" -> {
+                //    window.setLayout(0, 0)
+                //    txTitle.text = "App Usage Analysis"
+                 //   txContent.text = "Stats from ${beginCal.get(Calendar.DAY_OF_MONTH)}/${beginCal.get(Calendar.MONTH) + 1} to ${endCal.get(Calendar.DAY_OF_MONTH)}/${endCal.get(Calendar.MONTH) + 1}"
+
                     btnOk.visibility = View.GONE
                     btnCancel.visibility = View.GONE
                     imgbtnShare.visibility = View.GONE
@@ -430,19 +456,89 @@ class DialogActivity : AppCompatActivity() {
                     appUsageStats(applicationContext)
 
                     val displayList = hashSetAppUsage
-                        .filter { 
+                        .filter {
                             val mins = it.usageTime.split(":")[0].trim().toIntOrNull() ?: 0
-                            mins in 1..500 
+                            mins in 1..500
                         }
                         .sortedByDescending { it.usageTime.split(":")[0].trim().toInt() }
                         .map { AppUsage(getAppNameFromPkg(dialogActContext, it.appName), it.usageTime, it.appName) }
 
                     val rvScreenTime = findViewById<RecyclerView>(R.id.rv_screen_time)
                     val txAvgUsage = findViewById<TextView>(R.id.tx_avg_usage)
-                    
+
+                    rvScreenTime.visibility = View.GONE
+                    txAvgUsage.visibility = View.GONE
+
+                    val maxUsage = displayList.firstOrNull()?.usageTime?.split(":")?.get(0)?.trim()?.toIntOrNull() ?: 1
+                    rvScreenTime.layoutManager = LinearLayoutManager(this)
+                    rvScreenTime.adapter = ScreenTimeAdapter(displayList, maxUsage)
+
+                    totalUsage = sumTimes(hashSetAppUsage.map { it.usageTime })
+                    val sT = totalUsage.split(":")
+                    hour = sT[0].toIntOrNull() ?: 0
+                    val min = sT.getOrElse(1) { "00" }
+                    txAvgUsage.text = "Usage Today ~ $hour Hours : $min Mins"
+
+                    if (hour != 0) {
+
+
+                        if (hour < 2) {
+
+                            remoteViews?.setTextViewText(
+                                R.id.tx_screenusage_state,
+                                "LOW"
+                            )
+                        } else if (hour in 2..< 5) {
+                            remoteViews?.setTextViewText(
+                                R.id.tx_screenusage_state,
+                                "MODERATE"
+                            )
+                        } else if (hour in 5..< 8) {
+                            remoteViews?.setTextViewText(
+                                R.id.tx_screenusage_state,
+                                "HIGH"
+                            )
+                        } else {
+                            remoteViews?.setTextViewText(
+                                R.id.tx_screenusage_state,
+                                "EXCESSIVE"
+                            )
+                        }
+
+                        remoteViews?.setTextViewText(R.id.tx_screentime, hour.toString() + "+")
+
+                        //     remoteViews?.setTextColor(R.id.tx_screenusage_state, ColorUtil().matchPrimaryColor())
+                        //   remoteViews?.setTextColor(R.id.tx_screentime, ColorUtil().matchSecondaryColor())
+                    }
+                    remoteViews?.setTextViewText(R.id.tx_screentime, hour.toString() + "+")
+                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                }
+                "screenTimeInfo" -> {
+                    window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                    txTitle.text = "App Usage Analysis"
+                    txContent.text = "Stats from ${beginCal.get(Calendar.DAY_OF_MONTH)}/${beginCal.get(Calendar.MONTH) + 1} to ${endCal.get(Calendar.DAY_OF_MONTH)}/${endCal.get(Calendar.MONTH) + 1}"
+
+                    btnOk.visibility = View.GONE
+                    btnCancel.visibility = View.GONE
+                    imgbtnShare.visibility = View.GONE
+
+                    hashSetAppUsage.clear()
+                    appUsageStats(applicationContext)
+
+                    val displayList = hashSetAppUsage
+                        .filter {
+                            val mins = it.usageTime.split(":")[0].trim().toIntOrNull() ?: 0
+                            mins in 1..500
+                        }
+                        .sortedByDescending { it.usageTime.split(":")[0].trim().toInt() }
+                        .map { AppUsage(getAppNameFromPkg(dialogActContext, it.appName), it.usageTime, it.appName) }
+
+                    val rvScreenTime = findViewById<RecyclerView>(R.id.rv_screen_time)
+                    val txAvgUsage = findViewById<TextView>(R.id.tx_avg_usage)
+
                     rvScreenTime.visibility = View.VISIBLE
                     txAvgUsage.visibility = View.VISIBLE
-                    
+
                     val maxUsage = displayList.firstOrNull()?.usageTime?.split(":")?.get(0)?.trim()?.toIntOrNull() ?: 1
                     rvScreenTime.layoutManager = LinearLayoutManager(this)
                     rvScreenTime.adapter = ScreenTimeAdapter(displayList, maxUsage)
@@ -477,7 +573,7 @@ class DialogActivity : AppCompatActivity() {
                     btnCancel.visibility = View.GONE
                     val inflater = LayoutInflater.from(this)
                     val widgetView = inflater.inflate(R.layout.new_app_widget, container, false)
-                    
+
                     val stillLayout = widgetView.findViewById<RelativeLayout>(R.id.rl_still)
                     val walkingLayout = widgetView.findViewById<RelativeLayout>(R.id.rl_walking)
                     val speedLayout = widgetView.findViewById<RelativeLayout>(R.id.rl_speed)
@@ -545,7 +641,7 @@ class DialogActivity : AppCompatActivity() {
         val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
         val isConnected = capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
         val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        
+
         if (!wifiManager.isWifiEnabled) {
             menuWifi.setImageResource(R.drawable.wifi_off)
         } else {
@@ -584,7 +680,7 @@ class DialogActivity : AppCompatActivity() {
         val vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
         vpSteps.adapter = stepsAdapter
         val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
-        
+
         tabLayout.removeAllTabs()
         for (i in 0 until 7) {
             tabLayout.addTab(tabLayout.newTab())
@@ -648,6 +744,81 @@ class DialogActivity : AppCompatActivity() {
         requestFeaturePermission(feature)
     }
 
+    @SuppressLint("MissingPermission")
+    private fun requestActTransitions() {
+
+            var intentActivityTransitionReceiver =
+                Intent(applicationContext, ActivityTransitionReceiver::class.java).setAction("action.TRANSITIONS_DATA")
+            var requestCodeAT = 57
+            var pendingIntentActivityTransitions = PendingIntent.getBroadcast(
+                applicationContext,
+                requestCodeAT,
+                intentActivityTransitionReceiver,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+            )
+
+            var activityTransitions = ArrayList<ActivityTransition>()
+            activityTransitions.apply {
+                add(
+                    ActivityTransition.Builder()
+                        .setActivityType(DetectedActivity.STILL)
+                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                        .build()
+                )
+
+                add(
+                    ActivityTransition.Builder()
+                        .setActivityType(DetectedActivity.STILL)
+                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                        .build()
+                )
+
+                add(
+                    ActivityTransition.Builder()
+                        .setActivityType(DetectedActivity.WALKING)
+                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                        .build()
+                )
+
+                add(
+                    ActivityTransition.Builder()
+                        .setActivityType(DetectedActivity.WALKING)
+                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                        .build()
+                )
+
+                add(
+                    ActivityTransition.Builder()
+                        .setActivityType(DetectedActivity.IN_VEHICLE)
+                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                        .build()
+                )
+
+                add(
+                    ActivityTransition.Builder()
+                        .setActivityType(DetectedActivity.IN_VEHICLE)
+                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                        .build()
+                )
+            }
+
+            var activityTransitionRequest = ActivityTransitionRequest(activityTransitions)
+
+            // myPendingIntent is the instance of PendingIntent where the app receives callbacks.
+            try {
+                ActivityRecognition.getClient(applicationContext)
+                    .requestActivityTransitionUpdates(
+                        activityTransitionRequest,
+                        pendingIntentActivityTransitions
+                    )
+                    .addOnSuccessListener { Log.d("TAG", "Activity transition updates registered") }
+                    .addOnFailureListener { e -> Log.e("TAG", "Activity transition updates failed", e) }
+            } catch (e: Exception) {
+                Log.e("TAG", "requestActivityTransitionUpdates threw", e)
+            }
+
+    }
+
     /**
      * Shows a rationale (if needed) and ensures the user is prompted for the permission
      * needed, then doing that feature's follow-up work.
@@ -669,9 +840,9 @@ class DialogActivity : AppCompatActivity() {
                 FeaturePermission.STEPS -> {
                     try {
                         startForegroundService(Intent(this, StepsService::class.java))
-                    } catch (e: Exception) {
-                        Log.e("DialogActivity", "startForegroundService(StepsService) failed", e)
-                    }
+                        requestActTransitions()
+                } catch (_: Exception) {
+                }
                 }
                 else -> Unit
             }
@@ -679,6 +850,7 @@ class DialogActivity : AppCompatActivity() {
             finish()
         }
     }
+
 
     private fun usageStatsPermissionDialog() {
         AlertDialog.Builder(this)

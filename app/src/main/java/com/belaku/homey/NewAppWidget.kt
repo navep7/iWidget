@@ -1092,7 +1092,19 @@ class NewAppWidget : AppWidgetProvider() {
             wifiState -> R.drawable.wifi_on_but_not_connected
             else -> R.drawable.wifi_off
         }
+
+        if (wifiState)
+            if (!wifiConnectionState) {
+                remoteViews?.setImageViewResource(
+                    R.id.imgv_menu,
+                    R.drawable.wifi_on_but_not_connected
+                )
+                remoteViews?.setTextViewText(R.id.tx_dialog_title, "Wifi is turned ON, but not connected.. Turn off to save Battery!")
+            }
+        else remoteViews?.setImageViewResource(R.id.imgv_menu, R.drawable.more_s)
+
         remoteViews?.setImageViewResource(R.id.menu_wifi, icon)
+
     }
 
     private fun seekBluetoothState() {
@@ -1104,6 +1116,13 @@ class NewAppWidget : AppWidgetProvider() {
             blState -> R.drawable.blue_red
             else -> R.drawable.blue_off
         }
+        if (blState)
+            if (!blConnectionState) {
+                remoteViews?.setImageViewResource(R.id.imgv_menu, R.drawable.blue_red)
+                remoteViews?.setTextViewText(R.id.tx_dialog_title, "Bluetooth is turned ON, but not connected.. Turn off to save Battery!")
+            }
+        else remoteViews?.setImageViewResource(R.id.imgv_menu, R.drawable.more_s)
+
         remoteViews?.setImageViewResource(R.id.menu_blue, icon)
     }
 
@@ -1456,6 +1475,8 @@ class NewAppWidget : AppWidgetProvider() {
         val action = intent.action ?: return
         Log.d(TAG, "onReceive: $action")
 
+
+
         try {
             widgetContext = context.applicationContext
             ensurePrefs(widgetContext)
@@ -1518,6 +1539,22 @@ class NewAppWidget : AppWidgetProvider() {
             }
             APP_USAGE_P_REQ -> {
                 requestFeaturePermission(widgetContext, FeaturePermission.USAGE_STATS)
+
+                val handler = android.os.Handler(android.os.Looper.getMainLooper())
+                handler.post(object : Runnable {
+                    override fun run() {
+                        if (hasFeaturePermission(widgetContext, FeaturePermission.USAGE_STATS)) {
+                            val intent = Intent(widgetContext, DialogActivity::class.java).apply {
+                                putExtra("DialogIntent", "screenTimeInfoWithoutDialog")
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            }
+                            widgetContext.startActivity(intent)
+                            remoteViews?.setViewVisibility(R.id.tx_scrtime_permission_hint, View.GONE)
+                        } else {
+                            handler.postDelayed(this, 1000)
+                        }
+                    }
+                })
             }
             ACT_RECOGNITION_P_REQ -> {
                 requestFeaturePermission(widgetContext, FeaturePermission.STEPS)

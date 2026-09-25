@@ -475,23 +475,36 @@
         android:layout_alignParentStart="true"
         android:orientation="vertical">
 
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|top"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:padding="@dimen/padding_3"
+            android:layout_marginBottom="@dimen/padding_10"
+            android:background="@drawable/gradient_glass_rounded"
+            android:text="⏳ Times," />
+
         <ImageView
             android:id="@+id/imgv_app1"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:scaleType="centerCrop" />
 
         <ImageView
             android:id="@+id/imgv_app2"
             android:layout_margin="@dimen/fab_margin"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:scaleType="centerCrop" />
 
         <ImageView
             android:id="@+id/imgv_app3"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:scaleType="centerCrop" />
 
 
@@ -604,8 +617,6 @@
                 android:tint="@color/white"
                 tools:ignore="UseAppTint" />
 
-
-
             <ImageButton
                 android:id="@+id/imgbtn_close_activities"
                 android:src="@android:drawable/ic_notification_clear_all"
@@ -613,7 +624,8 @@
                 android:layout_alignParentRight="true"
                 android:visibility="invisible"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                app:tint="@android:color/holo_red_dark" />
 
             <LinearLayout
                 android:id="@+id/ll_activity_states"
@@ -1085,6 +1097,7 @@
         android:orientation="horizontal">
 
 
+
         <RelativeLayout
             android:id="@+id/rl_activity_states"
             android:layout_width="wrap_content"
@@ -1133,15 +1146,15 @@
                 android:id="@+id/tx_act_plus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/tx_act_state"
+                android:layout_above="@+id/tx_act_count"
                 android:layout_toEndOf="@+id/tx_act_count"
-                android:layout_marginStart="3dp"
-                android:layout_marginTop="-10dp"
                 android:text=" + "
-                android:background="@drawable/rounded_ss_1dp"
+                android:background="@drawable/gradient_glass_rounded"
                 android:textColor="@android:color/white"
-                android:textSize="25sp"
+                android:textSize="21sp"
                 android:textStyle="bold" />
+
+
 
             <TextView
                 android:id="@+id/tx_act_permission_hint"
@@ -1155,6 +1168,8 @@
                 android:textSize="21sp"/>
 
         </RelativeLayout>
+
+
 
         <RelativeLayout
             android:id="@+id/rl_unlocks"
