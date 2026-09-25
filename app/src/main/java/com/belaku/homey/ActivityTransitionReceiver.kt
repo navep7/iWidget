@@ -87,6 +87,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
     private fun updateActivityState(context: Context, state: String, transitionType: Int) {
 
+        makeToast(context, state)
         if (!isAppWidMInitialized()) {
             appWidM = AppWidgetManager.getInstance(context)
             newAppWidget = ComponentName(context, NewAppWidget::class.java)
@@ -94,8 +95,6 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
         }
         val sharedPreferences = context.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
 
-
-        remoteViews?.setTextViewText(R.id.tx_act_state, state)
 
         when (state) {
             "STILL" -> {
@@ -108,6 +107,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                         putLong("walkChr", 0L)
                         putLong("speedChr", 0L)
                     }
+                    remoteViews?.setTextViewText(R.id.tx_act_state, "STILL")
                     remoteViews?.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
                     remoteViews?.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
                     remoteViews?.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
@@ -134,6 +134,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                         putLong("stillChr", 0L)
                         putLong("speedChr", 0L)
                     }
+                    remoteViews?.setTextViewText(R.id.tx_act_state, "WALKING")
                     remoteViews?.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
                     remoteViews?.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
                     remoteViews?.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
@@ -160,6 +161,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                         putLong("stillChr", 0L)
                         putLong("walkChr", 0L)
                     }
+                    remoteViews?.setTextViewText(R.id.tx_act_state, "TRAVEL")
                     remoteViews?.setChronometer(R.id.walk_chronometer, SystemClock.elapsedRealtime(), null, false)
                     remoteViews?.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
                     remoteViews?.setViewVisibility(R.id.walk_chronometer, View.INVISIBLE)
