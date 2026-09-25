@@ -588,7 +588,7 @@
                 android:id="@+id/imgbtn_close_activities"
                 android:src="@android:drawable/ic_notification_clear_all"
                 android:background="@android:color/transparent"
-                android:layout_centerHorizontal="true"
+                android:layout_alignParentRight="true"
                 android:visibility="invisible"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
@@ -692,6 +692,17 @@
                         android:layout_centerHorizontal="true"
                         android:layout_below="@+id/ll_kcals"
                         android:gravity="center"/>
+
+                    <TextView
+                        android:id="@+id/tx_active_walk_duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/imgbtn_info_steps"
+                        android:layout_centerHorizontal="true"
+                        android:text="Active: $durationStr"
+                        android:textColor="@android:color/white"
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText" />
 
                     <Chronometer
                         android:id="@+id/walk_chronometer"
@@ -843,6 +854,17 @@
                         android:src="@android:drawable/ic_menu_info_details"
                         android:layout_toEndOf="@+id/tx_speed"
                         android:layout_alignBottom="@+id/tx_speed" />
+
+                    <TextView
+                        android:id="@+id/tx_active_speed_duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/imgbtn_info_speed"
+                        android:layout_centerHorizontal="true"
+                        android:text="Active: $durationStr"
+                        android:textColor="@android:color/white"
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText" />
 
 
 
@@ -1004,11 +1026,11 @@
             <ImageButton
                 android:id="@+id/btn_ui_prev"
                 android:visibility="gone"
+                android:layout_below="@+id/imgbtn_close_activities"
                 android:layout_marginTop="@dimen/fab_margin"
                 android:layout_width="25dp"
                 android:layout_height="50dp"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
                 android:background="#20000000"
                 android:src="@drawable/ic_chevron_left"
                 android:contentDescription="Previous"/>
@@ -1016,11 +1038,11 @@
             <ImageButton
                 android:id="@+id/btn_ui_next"
                 android:visibility="gone"
+                android:layout_below="@+id/imgbtn_close_activities"
                 android:layout_marginTop="@dimen/fab_margin"
                 android:layout_width="25dp"
                 android:layout_height="50dp"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentTop="true"
                 android:background="#20000000"
                 android:src="@drawable/ic_chevron_right"
                 android:contentDescription="Previous"/>

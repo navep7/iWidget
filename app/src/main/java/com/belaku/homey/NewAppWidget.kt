@@ -125,6 +125,8 @@ import java.util.Date
 import java.util.Locale
 import androidx.core.graphics.scale
 import com.belaku.homey.MainActivity.Companion.makeSnack
+import com.belaku.homey.StepsService.Companion.strDurationTravel
+import com.belaku.homey.StepsService.Companion.strDurationWalk
 
 
 class NewAppWidget : AppWidgetProvider() {
@@ -965,8 +967,25 @@ class NewAppWidget : AppWidgetProvider() {
         seekBluetoothState()
         todaysDate(widgetContext)
         loadStepsData() // Always refresh stepsData from disk to ensure persistence
-        wallColors()
         setSomeTwAndWallDescUI()
+
+        val dayKey = LocalDate.now().dayOfWeek.name.toUpperCase()
+        var durationMillisWalk = sharedPreferences.getLong(dayKey + "_walk_duration", 0L)
+
+        val baseTimeW = sharedPreferences.getLong("walkChr", 0L)
+        if (baseTimeW != 0L) {
+            // Show sum of all walking streaks in a day by adding current streak to the stored total
+            durationMillisWalk += (SystemClock.elapsedRealtime() - baseTimeW)
+        }
+        remoteViews?.setTextViewText(R.id.tx_active_walk_duration, "Active : " + formatDuration(durationMillisWalk))
+
+        var durationMillisTravel = sharedPreferences.getLong(dayKey + "_travel_duration", 0L)
+        val baseTimeT = sharedPreferences.getLong("speedChr", 0L)
+        if (baseTimeT != 0L) {
+            // Show sum of all walking streaks in a day by adding current streak to the stored total
+            durationMillisTravel += (SystemClock.elapsedRealtime() - baseTimeT)
+        }
+        remoteViews?.setTextViewText(R.id.tx_active_speed_duration, "Active : " + formatDuration(durationMillisTravel))
 
 
         if (isMyServiceRunning(widgetContext, SpeedService::class.java)) {
@@ -983,6 +1002,17 @@ class NewAppWidget : AppWidgetProvider() {
 
         setOnClickPendingIntents(widgetContext)
 
+    }
+
+    private fun formatDuration(millis: Long): String {
+        val seconds = (millis / 1000) % 60
+        val minutes = (millis / (1000 * 60)) % 60
+        val hours = (millis / (1000 * 60 * 60))
+        return if (hours > 0) {
+            String.format("%02d:%02d:%02d", hours, minutes, seconds)
+        } else {
+            String.format("%02d:%02d", minutes, seconds)
+        }
     }
 
 
@@ -1381,9 +1411,10 @@ class NewAppWidget : AppWidgetProvider() {
             }
             noRewards = sharedPreferences.getInt("noRewards", 7)
 
-            if (noRewards > 1)
+            if (noRewards > 1) {
+                wallColors()
                 remoteViews?.setTextViewText(R.id.tx_rewards_count, "$noRewards")
-            else {
+            } else {
                 remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
                 remoteViews?.setTextViewText(R.id.tx_rewards_count, "\uD83D\uDC41\uFE0FAD!")
              /*   remoteViews?.setOnClickPendingIntent(

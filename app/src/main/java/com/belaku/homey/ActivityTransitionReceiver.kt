@@ -31,14 +31,6 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val applicationContext = context.applicationContext
 
-       /* // Safely initialize widget companion properties if needed
-        try {
-            appWidM = AppWidgetManager.getInstance(applicationContext)
-            newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
-        } catch (e: Exception) {
-            Log.e("ActivityTransition", "Failed to initialize widget manager", e)
-        }*/
-
         if (ActivityTransitionResult.hasResult(intent)) {
             val result = ActivityTransitionResult.extractResult(intent)
             result?.let {
@@ -67,6 +59,17 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                             if (walkStartTime != 0L) {
                                 val streakDuration = SystemClock.elapsedRealtime() - walkStartTime
                                 val todayKey = LocalDate.now().dayOfWeek.name + "_walk_duration"
+                                val previousTotal = sharedPrefs.getLong(todayKey, 0L)
+                                sharedPrefs.edit { putLong(todayKey, previousTotal + streakDuration) }
+                            }
+                        }
+                        
+                        // Save travel duration if stopping TRAVEL
+                        if (oldState == "TRAVEL") {
+                            val travelStartTime = sharedPrefs.getLong("speedChr", 0L)
+                            if (travelStartTime != 0L) {
+                                val streakDuration = SystemClock.elapsedRealtime() - travelStartTime
+                                val todayKey = LocalDate.now().dayOfWeek.name + "_travel_duration"
                                 val previousTotal = sharedPrefs.getLong(todayKey, 0L)
                                 sharedPrefs.edit { putLong(todayKey, previousTotal + streakDuration) }
                             }

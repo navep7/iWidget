@@ -504,6 +504,8 @@ class StepsService : Service() {
 
     companion object {
 
+        var strDurationWalk: String = ""
+        var strDurationTravel: String = ""
         var speedInKmph: Int = 0
         lateinit var usageStatsManager: UsageStatsManager
         lateinit var stepsAdapter: StepsAdapter

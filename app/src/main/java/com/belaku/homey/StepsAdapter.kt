@@ -16,6 +16,8 @@ import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.StepsService.Companion.presentActivityState
+import com.belaku.homey.StepsService.Companion.strDurationTravel
+import com.belaku.homey.StepsService.Companion.strDurationWalk
 import java.time.LocalDate
 
 class StepsAdapter(
@@ -47,7 +49,8 @@ class StepsAdapter(
         val currentDayIndex = (LocalDate.now().dayOfWeek.value + 6) % 7 // Monday = 0
         
         val dayKey = days[realPosition].uppercase()
-        var durationMillis = sharedPreferences.getLong(dayKey + "_walk_duration", 0L)
+        var durationMillisWalk = sharedPreferences.getLong(dayKey + "_walk_duration", 0L)
+        var durationMillisTravel = sharedPreferences.getLong(dayKey + "_travel_duration", 0L)
 
         if (realPosition == currentDayIndex) {
             stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
@@ -58,19 +61,28 @@ class StepsAdapter(
                 val baseTime = sharedPreferences.getLong("walkChr", 0L)
                 if (baseTime != 0L) {
                     // Show sum of all walking streaks in a day by adding current streak to the stored total
-                    durationMillis += (SystemClock.elapsedRealtime() - baseTime)
+                    durationMillisWalk += (SystemClock.elapsedRealtime() - baseTime)
+                }
+            }
+
+            if (presentActivityState == "TRAVEL") {
+                val baseTime = sharedPreferences.getLong("speedChr", 0L)
+                if (baseTime != 0L) {
+                    // Show sum of all walking streaks in a day by adding current streak to the stored total
+                    durationMillisTravel += (SystemClock.elapsedRealtime() - baseTime)
                 }
             }
         }
 
         val km = if (steps != 0) String.format("%.1f", (steps * 74f) / 100000f) else "0"
         val kCal = (steps * 0.04 * (80 / 70)).toInt()
-        val durationStr = formatDuration(durationMillis)
+        strDurationWalk = formatDuration(durationMillisWalk)
+        strDurationTravel = formatDuration(durationMillisTravel)
 
         holder.txTitle.text = days[realPosition]
        // makeToast(contx, "StA ~ " + strT)
         if (strT == "walk")
-        holder.txSteps.text = "$steps steps\n~ $km km\n~ $kCal kCal\nActive: $durationStr"
+        holder.txSteps.text = "$steps steps\n~ $km km\n~ $kCal kCal\nActive: $strDurationWalk"
         else holder.txSteps.text = "Max ~ ${stepsData[realPosition]} KmpH"
 
         // Material-like progress
