@@ -467,7 +467,7 @@
     <LinearLayout
         android:id="@+id/ll_apps"
         android:layout_width="75dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:padding="@dimen/padding_5"
         android:gravity="center"
         android:layout_above="@+id/ll_steps_screentime"
@@ -475,13 +475,26 @@
         android:layout_alignParentStart="true"
         android:orientation="vertical">
 
-
         <ImageView
-            android:id="@+id/imgv_apps"
+            android:id="@+id/imgv_app1"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/launch_e" />
+            android:scaleType="centerCrop" />
+
+        <ImageView
+            android:id="@+id/imgv_app2"
+            android:layout_margin="@dimen/fab_margin"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="centerCrop" />
+
+        <ImageView
+            android:id="@+id/imgv_app3"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="centerCrop" />
+
+
 
 
     </LinearLayout>
@@ -497,6 +510,15 @@
         android:layout_below="@+id/rl_clocks"
         android:layout_alignParentEnd="true"
         android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/imgv_apps"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="@dimen/fab_margin"
+            android:scaleType="centerCrop"
+            android:src="@drawable/launch_e" />
+
 
         <ImageView
             android:id="@+id/imgv_contacts"

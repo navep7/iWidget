@@ -125,6 +125,7 @@ import java.util.Date
 import java.util.Locale
 import androidx.core.graphics.scale
 import com.belaku.homey.MainActivity.Companion.makeSnack
+import com.belaku.homey.StepsService.Companion.Top3
 import com.belaku.homey.StepsService.Companion.strDurationTravel
 import com.belaku.homey.StepsService.Companion.strDurationWalk
 
@@ -714,6 +715,10 @@ class NewAppWidget : AppWidgetProvider() {
         )
         )
 
+        remoteViews?.setOnClickPendingIntent(R.id.imgv_app1, getPendingSelfIntent(context, APP1_CLICK))
+        remoteViews?.setOnClickPendingIntent(R.id.imgv_app2, getPendingSelfIntent(context, APP2_CLICK))
+        remoteViews?.setOnClickPendingIntent(R.id.imgv_app3, getPendingSelfIntent(context, APP3_CLICK))
+
 
 
     }
@@ -782,6 +787,13 @@ class NewAppWidget : AppWidgetProvider() {
 
         remoteViews?.setTextViewText(R.id.tx_act_state, presentActivityState)
 
+        if (Top3.isNotEmpty()) {
+            remoteViews?.setImageViewBitmap(R.id.imgv_app1, Top3.get(0).iconBitmap)
+            if (Top3.size > 1)
+                remoteViews?.setImageViewBitmap(R.id.imgv_app2, Top3.get(1).iconBitmap)
+            if (Top3.size > 2)
+                remoteViews?.setImageViewBitmap(R.id.imgv_app3, Top3.get(2).iconBitmap)
+        }
 
         remoteViews?.setTextViewText(R.id.tx_unlocks, sharedPreferences.getInt("unlockCount", 0).toString())
 
@@ -1001,6 +1013,8 @@ class NewAppWidget : AppWidgetProvider() {
         updatePermissionHints(widgetContext, remoteViews!!)
 
         setOnClickPendingIntents(widgetContext)
+
+
 
     }
 
@@ -1908,6 +1922,9 @@ class NewAppWidget : AppWidgetProvider() {
                 remoteViews?.setTextViewText(R.id.tx_act_count, waterCount.toString() + "\uD800\uDCEF")
             }
             MENU_CLICK -> makeToast(widgetContext, "hi")
+            APP1_CLICK -> if (Top3.size > 0) launchApp(widgetContext, Top3[0].pName)
+            APP2_CLICK -> if (Top3.size > 1) launchApp(widgetContext, Top3[1].pName)
+            APP3_CLICK -> if (Top3.size > 2) launchApp(widgetContext, Top3[2].pName)
         }
     }
 
@@ -2585,6 +2602,10 @@ class NewAppWidget : AppWidgetProvider() {
         const val EXTRA_APPITEM_POSITION = "App_Item_Pos"
         const val EXTRA_CONTACTVIEW_ID = "CID"
         const val EXTRA_APPVIEW_ID = "AID"
+
+        private const val APP1_CLICK = "app1_click"
+        private const val APP2_CLICK = "app2_click"
+        private const val APP3_CLICK = "app3_click"
 
     }
 

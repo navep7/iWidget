@@ -186,8 +186,7 @@
         android:padding="16dp"
         android:textAppearance="?attr/textAppearanceTitleMedium"
         android:textColor="?attr/colorPrimary"
-        android:visibility="gone"
-        tools:text="Avg Usage/Day ~ 2 Hours : 30 Mins" />
+        android:visibility="gone" />
 
     <EditText
         android:id="@+id/edtx_dialog"

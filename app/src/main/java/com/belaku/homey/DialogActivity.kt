@@ -451,7 +451,7 @@ class DialogActivity : AppCompatActivity() {
                     val sT = totalUsage.split(":")
                     hour = sT[0].toIntOrNull() ?: 0
                     val min = sT.getOrElse(1) { "00" }
-                    txAvgUsage.text = "Avg Usage/Day ~ $hour Hours : $min Mins"
+                    txAvgUsage.text = "Usage Today ~ $hour Hours : $min Mins"
 
                     remoteViews?.setTextViewText(R.id.tx_screentime, hour.toString() + "+")
                     appWidM.updateAppWidget(newAppWidget, remoteViews)

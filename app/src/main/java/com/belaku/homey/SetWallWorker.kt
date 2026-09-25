@@ -3,6 +3,7 @@ package com.belaku.homey
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.WallpaperManager
+import android.app.usage.UsageEvents
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.appwidget.AppWidgetManager
@@ -15,6 +16,7 @@ import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.database.Cursor
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.icu.util.Calendar
@@ -429,7 +431,102 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             }
         }
 
+        /**
+         * Retrieves a map of package names to their total foreground duration (in milliseconds)
+         * for a custom timeframe range.
+         */
+        fun getAppUsageStatsForRange(
+            context: Context,
+            startTime: Long,
+            endTime: Long
+        ): List<Pair<String, Long>> {
+            val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
 
+            // To catch apps already open at 'startTime', we look back 2 hours.
+            val lookBackTime = startTime - (2 * 60 * 60 * 1000)
+            val usageEvents = usageStatsManager.queryEvents(lookBackTime, endTime)
+            val event = UsageEvents.Event()
+
+            val appUsageMap = HashMap<String, Long>()
+            val openTimeMap = HashMap<String, Long>()
+
+            while (usageEvents.hasNextEvent()) {
+                usageEvents.getNextEvent(event)
+                val pkg = event.packageName
+                val time = event.timeStamp
+
+                when (event.eventType) {
+                    UsageEvents.Event.ACTIVITY_RESUMED, UsageEvents.Event.MOVE_TO_FOREGROUND -> {
+                        openTimeMap[pkg] = time
+                    }
+                    UsageEvents.Event.ACTIVITY_PAUSED, UsageEvents.Event.MOVE_TO_BACKGROUND -> {
+                        val lastResumed = openTimeMap.remove(pkg)
+                        if (lastResumed != null) {
+                            val intersectStart = Math.max(lastResumed, startTime)
+                            val intersectEnd = Math.min(time, endTime)
+                            if (intersectEnd > intersectStart && isNotHomeLauncherApp(context, pkg)) {
+                                appUsageMap[pkg] = (appUsageMap[pkg] ?: 0L) + (intersectEnd - intersectStart)
+                            }
+                        }
+                    }
+                }
+            }
+            
+            val cappedEndTime = Math.min(System.currentTimeMillis(), endTime)
+            for ((pkg, lastResumed) in openTimeMap) {
+                val intersectStart = Math.max(lastResumed, startTime)
+                if (cappedEndTime > intersectStart && isNotHomeLauncherApp(context, pkg)) {
+                    appUsageMap[pkg] = (appUsageMap[pkg] ?: 0L) + (cappedEndTime - intersectStart)
+                }
+            }
+
+            return appUsageMap.toList().sortedByDescending { it.second }
+        }
+
+        /**
+         * Retrieves a map of package names to their total foreground duration (in milliseconds)
+         * for a specific hour of a specific day.
+         *
+         * @param hourOfDay The hour of the day (0 - 23).
+         */
+        fun getHourlyAppUsageStats(
+            context: Context,
+            year: Int,
+            month: Int,
+            day: Int,
+            hourOfDay: Int
+        ): List<Pair<String, Long>> {
+            val calendar = Calendar.getInstance().apply {
+                set(Calendar.YEAR, year)
+                set(Calendar.MONTH, month)
+                set(Calendar.DATE, day)
+                set(Calendar.HOUR_OF_DAY, hourOfDay)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+            val startTime = calendar.timeInMillis
+            val endTime = startTime + (60 * 60 * 1000)
+
+            return getAppUsageStatsForRange(context, startTime, endTime)
+        }
+
+
+        fun isNotHomeLauncherApp(context: Context, packageName: String): Boolean {
+            val intent = Intent(Intent.ACTION_MAIN).apply {
+                addCategory(Intent.CATEGORY_HOME)
+            }
+
+            // Query all applications that can act as a home screen/launcher
+            val resolveInfos = context.packageManager.queryIntentActivities(
+                intent,
+                PackageManager.MATCH_DEFAULT_ONLY
+            )
+
+            // If the package name matches any in the list, it IS a home launcher.
+            // We return true if it is NOT found in the list.
+            return resolveInfos.none { it.activityInfo.packageName == packageName }
+        }
 
         fun appUsageStats(applicationContext: Context?) {
             val context = applicationContext?.applicationContext ?: return
@@ -440,8 +537,11 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 cMonth = Calendar.getInstance().get(Calendar.MONTH)
                 cDate = Calendar.getInstance().get(Calendar.DATE)
 
-                beginCal.set(cYear, cMonth, cDate - 6, 0, 0)
-                endCal.set(cYear, cMonth, cDate - 1, 0, 0)
+                val cHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+                val cMin = Calendar.getInstance().get(Calendar.MINUTE)
+
+                beginCal.set(cYear, cMonth, cDate, 0, 0)
+                endCal.set(cYear, cMonth, cDate, cHour, cMin)
 
 
                 try {
@@ -618,7 +718,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             return String.format("%02d:%02d", minutes, seconds)
         }
 
-        private fun getAppNameFromPkg(context: Context, packageName: String?): String {
+        fun getAppNameFromPkg(context: Context, packageName: String?): String {
 
             val pm: PackageManager = context.getPackageManager()
             var ai = try {

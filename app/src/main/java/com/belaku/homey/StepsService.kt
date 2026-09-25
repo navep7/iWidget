@@ -504,6 +504,7 @@ class StepsService : Service() {
 
     companion object {
 
+        var Top3: ArrayList<App> = ArrayList()
         var strDurationWalk: String = ""
         var strDurationTravel: String = ""
         var speedInKmph: Int = 0
@@ -533,8 +534,8 @@ class StepsService : Service() {
                 return true
             else
                 return false
-
         }
+
 
         @OptIn(DelicateCoroutinesApi::class)
         fun getWeatherData(latLng: LatLng) {
