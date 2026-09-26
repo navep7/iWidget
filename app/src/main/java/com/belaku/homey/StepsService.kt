@@ -327,8 +327,13 @@ class StepsService : Service() {
                     sharedPreferencesEditor.putString("day", LocalDate.now().dayOfWeek.name).apply()
 
 
-                if (isAppWidMInitialized())
-                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                if (isAppWidMInitialized() && remoteViews != null) {
+                    try {
+                        appWidM.updateAppWidget(newAppWidget, remoteViews)
+                    } catch (e: Exception) {
+                        Log.e("StepsService", "Failed to update widget", e)
+                    }
+                }
 
             }
         }
@@ -598,7 +603,13 @@ class StepsService : Service() {
                                 View.INVISIBLE
                             )
                             remoteViews?.setViewVisibility(R.id.tx_refresh_weather, View.VISIBLE)
-                            appWidM.updateAppWidget(newAppWidget, remoteViews)
+                            if (NewAppWidget.isAppWidMInitialized() && remoteViews != null) {
+                                try {
+                                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                                } catch (e: Exception) {
+                                    Log.e("StepsService", "Error updating weather widget", e)
+                                }
+                            }
                         }
                     } catch (e: Exception) {
                         Log.e("StepsService", "Error fetching weather data", e)
@@ -609,7 +620,11 @@ class StepsService : Service() {
                             )
                             remoteViews?.setViewVisibility(R.id.tx_refresh_weather, View.VISIBLE)
                             if (NewAppWidget.isAppWidMInitialized() && remoteViews != null) {
-                                appWidM.updateAppWidget(newAppWidget, remoteViews)
+                                try {
+                                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                                } catch (e: Exception) {
+                                    Log.e("StepsService", "Error updating weather widget", e)
+                                }
                             }
                         }
                     }
@@ -619,7 +634,11 @@ class StepsService : Service() {
                 remoteViews?.setViewVisibility(R.id.progressBar_cyclic_weather, View.INVISIBLE)
                 remoteViews?.setViewVisibility(R.id.tx_refresh_weather, View.VISIBLE)
                 if (NewAppWidget.isAppWidMInitialized() && remoteViews != null) {
-                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                    try {
+                        appWidM.updateAppWidget(newAppWidget, remoteViews)
+                    } catch (e: Exception) {
+                        Log.e("StepsService", "Error updating weather widget", e)
+                    }
                 }
             }
 

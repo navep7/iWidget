@@ -1380,7 +1380,7 @@ class NewAppWidget : AppWidgetProvider() {
 
                 remoteViews?.setImageViewBitmap(
                     R.id.imgv_player,
-                    createGradientBitmap(2 * widgetImgWidth, 100, primaryColor, tertianaryColor)
+                    createGradientBitmap(2 * widgetImgWidth, 80, primaryColor, tertianaryColor)
                 )
 
                 if (isWallBitmapInitialized(widgetContext)) {
@@ -1530,7 +1530,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (checkCompanionVariable()) {
             remoteViews?.setTextViewText(R.id.tx_walldesc, wD)
-            wallColors()
+         //   wallColors()
 
             // qT may be blank or start with a space; substring(0, 1) threw
             // StringIndexOutOfBoundsException in that case.
