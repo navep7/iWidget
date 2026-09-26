@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
 import com.belaku.homey.MainActivity.Companion.makeToast
@@ -26,7 +27,7 @@ class TimeChangedReceiver : BroadcastReceiver() {
             val currentMin = calendar.get(Calendar.MINUTE)
 
             if (Top3.isEmpty())
-            getAppsOfCurrentTimeWindow(context)
+                getAppsOfCurrentTimeWindow(context)
             else {
                 if (currentMin % 10 == 0)
                     getAppsOfCurrentTimeWindow(context)
@@ -59,27 +60,29 @@ class TimeChangedReceiver : BroadcastReceiver() {
             
             val targetTimeMs = yesterdayTarget.timeInMillis
             var startTime = targetTimeMs - (5 * 60 * 1000)
-            val endTime = targetTimeMs + (5 * 60 * 1000)
+            var endTime = targetTimeMs + (5 * 60 * 1000)
 
             var topApps = getAppUsageStatsForRange(
                 context = context,
                 startTime = startTime,
                 endTime = endTime
-            )
+            ).filter { isAppInstalled(context, it.first) }
 
-            if (topApps.isEmpty()) {
-                startTime = targetTimeMs - (20 * 60 * 1000)
+            var rangeMinutes = 5
+            while ((topApps.size < 3) && rangeMinutes <= 60) {
+                rangeMinutes += 15
+                startTime = targetTimeMs - (rangeMinutes * 60 * 1000)
+                endTime = targetTimeMs + (rangeMinutes * 60 * 1000)
                 topApps = getAppUsageStatsForRange(
-                    context = context,
-                    startTime = startTime,
-                    endTime = endTime
-                )
+                    context, startTime, endTime
+                ).filter { isAppInstalled(context, it.first) }
             }
-            
+
             // Persist package names for the widget launch logic
             val pkgList = topApps.take(3).map { it.first }
             sharedPreferencesEditor.putString("TOP3_PKGS", Gson().toJson(pkgList)).apply()
-            
+
+
             Top3.clear()
             topApps.take(3).forEach { (packageName, durationMs) ->
                 val appName = getAppNameFromPkg(context, packageName)
@@ -102,6 +105,15 @@ class TimeChangedReceiver : BroadcastReceiver() {
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
             }
             context.sendBroadcast(updateIntent)
+        }
+    }
+
+    private fun isAppInstalled(context: Context, packageName: String): Boolean {
+        return try {
+            context.packageManager.getPackageInfo(packageName, 0)
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
         }
     }
 }

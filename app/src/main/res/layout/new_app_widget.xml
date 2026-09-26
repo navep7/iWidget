@@ -625,7 +625,8 @@
                 android:visibility="invisible"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:tint="@android:color/holo_red_dark" />
+                android:tint="@android:color/holo_red_dark"
+                tools:ignore="UseAppTint" />
 
             <LinearLayout
                 android:id="@+id/ll_activity_states"

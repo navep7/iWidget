@@ -298,27 +298,6 @@ class DialogActivity : AppCompatActivity() {
                     imgbtnShare.visibility = View.GONE
                     btnOk.visibility = View.GONE
                     btnCancel.visibility = View.GONE
-
-                    val hasPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
-                    } else {
-                        true
-                    }
-                    if (hasPermission && bluetoothAdapter != null && bluetoothAdapter!!.isEnabled) {
-                        val isConnected = isProfileConnected(bluetoothAdapter!!, android.bluetooth.BluetoothProfile.GATT) ||
-                                isProfileConnected(bluetoothAdapter!!, android.bluetooth.BluetoothProfile.A2DP) ||
-                                isProfileConnected(bluetoothAdapter!!, android.bluetooth.BluetoothProfile.HEADSET)
-                        if (!isConnected) {
-                            AlertDialog.Builder(this)
-                                .setTitle("Bluetooth Alert")
-                                .setMessage("Bluetooth is ON but not connected, just wasting battery. Please turn it off.")
-                                .setPositiveButton("Turn Off") { _, _ ->
-                                    toggleBluetooth()
-                                }
-                                .setNegativeButton("Dismiss", null)
-                                .show()
-                        }
-                    }
                 }
                 "SongCover" -> {
                     txTitle.visibility = View.VISIBLE
@@ -444,10 +423,6 @@ class DialogActivity : AppCompatActivity() {
                     btnCancel.visibility = View.GONE
                 }
                 "screenTimeInfoWithoutDialog" -> {
-                //    window.setLayout(0, 0)
-                //    txTitle.text = "App Usage Analysis"
-                 //   txContent.text = "Stats from ${beginCal.get(Calendar.DAY_OF_MONTH)}/${beginCal.get(Calendar.MONTH) + 1} to ${endCal.get(Calendar.DAY_OF_MONTH)}/${endCal.get(Calendar.MONTH) + 1}"
-
                     btnOk.visibility = View.GONE
                     btnCancel.visibility = View.GONE
                     imgbtnShare.visibility = View.GONE
@@ -456,11 +431,7 @@ class DialogActivity : AppCompatActivity() {
                     appUsageStats(applicationContext)
 
                     val displayList = hashSetAppUsage
-                        .filter {
-                            val mins = it.usageTime.split(":")[0].trim().toIntOrNull() ?: 0
-                            mins in 1..500
-                        }
-                        .sortedByDescending { it.usageTime.split(":")[0].trim().toInt() }
+                        .sortedByDescending { it.usageTime.split(":")[0].trim().toIntOrNull() ?: 0 }
                         .map { AppUsage(getAppNameFromPkg(dialogActContext, it.appName), it.usageTime, it.appName) }
 
                     val rvScreenTime = findViewById<RecyclerView>(R.id.rv_screen_time)
@@ -480,35 +451,16 @@ class DialogActivity : AppCompatActivity() {
                     txAvgUsage.text = "Usage Today ~ $hour Hours : $min Mins"
 
                     if (hour != 0) {
-
-
                         if (hour < 2) {
-
-                            remoteViews?.setTextViewText(
-                                R.id.tx_screenusage_state,
-                                "LOW"
-                            )
+                            remoteViews?.setTextViewText(R.id.tx_screenusage_state, "LOW")
                         } else if (hour in 2..< 5) {
-                            remoteViews?.setTextViewText(
-                                R.id.tx_screenusage_state,
-                                "MODERATE"
-                            )
+                            remoteViews?.setTextViewText(R.id.tx_screenusage_state, "MODERATE")
                         } else if (hour in 5..< 8) {
-                            remoteViews?.setTextViewText(
-                                R.id.tx_screenusage_state,
-                                "HIGH"
-                            )
+                            remoteViews?.setTextViewText(R.id.tx_screenusage_state, "HIGH")
                         } else {
-                            remoteViews?.setTextViewText(
-                                R.id.tx_screenusage_state,
-                                "EXCESSIVE"
-                            )
+                            remoteViews?.setTextViewText(R.id.tx_screenusage_state, "EXCESSIVE")
                         }
-
                         remoteViews?.setTextViewText(R.id.tx_screentime, hour.toString() + "+")
-
-                        //     remoteViews?.setTextColor(R.id.tx_screenusage_state, ColorUtil().matchPrimaryColor())
-                        //   remoteViews?.setTextColor(R.id.tx_screentime, ColorUtil().matchSecondaryColor())
                     }
                     remoteViews?.setTextViewText(R.id.tx_screentime, hour.toString() + "+")
                     appWidM.updateAppWidget(newAppWidget, remoteViews)
@@ -526,11 +478,7 @@ class DialogActivity : AppCompatActivity() {
                     appUsageStats(applicationContext)
 
                     val displayList = hashSetAppUsage
-                        .filter {
-                            val mins = it.usageTime.split(":")[0].trim().toIntOrNull() ?: 0
-                            mins in 1..500
-                        }
-                        .sortedByDescending { it.usageTime.split(":")[0].trim().toInt() }
+                        .sortedByDescending { it.usageTime.split(":")[0].trim().toIntOrNull() ?: 0 }
                         .map { AppUsage(getAppNameFromPkg(dialogActContext, it.appName), it.usageTime, it.appName) }
 
                     val rvScreenTime = findViewById<RecyclerView>(R.id.rv_screen_time)
@@ -624,12 +572,20 @@ class DialogActivity : AppCompatActivity() {
         if (bluetoothAdapter == null) return
         if (!bluetoothAdapter!!.isEnabled) {
             menuBlue.setImageResource(R.drawable.blue_off)
+            menuBlue.setBackgroundResource(R.drawable.rounded_corner_gray)
             return
         }
         val isConnected = isProfileConnected(bluetoothAdapter!!, android.bluetooth.BluetoothProfile.GATT) ||
                 isProfileConnected(bluetoothAdapter!!, android.bluetooth.BluetoothProfile.A2DP) ||
                 isProfileConnected(bluetoothAdapter!!, android.bluetooth.BluetoothProfile.HEADSET)
-        menuBlue.setImageResource(if (isConnected) R.drawable.blue_on else R.drawable.blue_red)
+        
+        if (isConnected) {
+            menuBlue.setImageResource(R.drawable.blue_on)
+            menuBlue.setBackgroundResource(R.drawable.rounded_corner_gray)
+        } else {
+            menuBlue.setImageResource(R.drawable.blue_red)
+            menuBlue.setBackgroundResource(R.drawable.rounded_corner_light)
+        }
     }
 
     private fun isProfileConnected(adapter: BluetoothAdapter, profileType: Int): Boolean {
