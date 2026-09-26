@@ -66,7 +66,7 @@ class TimeChangedReceiver : BroadcastReceiver() {
                 context = context,
                 startTime = startTime,
                 endTime = endTime
-            ).filter { isAppInstalled(context, it.first) }
+            ).filter { isAppInstalled(context, it.first) && isAppLaunchable(context, it.first) }
 
             var rangeMinutes = 5
             while ((topApps.size < 3) && rangeMinutes <= 60) {
@@ -75,7 +75,7 @@ class TimeChangedReceiver : BroadcastReceiver() {
                 endTime = targetTimeMs + (rangeMinutes * 60 * 1000)
                 topApps = getAppUsageStatsForRange(
                     context, startTime, endTime
-                ).filter { isAppInstalled(context, it.first) }
+                ).filter { isAppInstalled(context, it.first) && isAppLaunchable(context, it.first) }
             }
 
             // Persist package names for the widget launch logic
@@ -115,5 +115,11 @@ class TimeChangedReceiver : BroadcastReceiver() {
         } catch (e: PackageManager.NameNotFoundException) {
             false
         }
+    }
+
+    fun isAppLaunchable(context: Context, packageName: String): Boolean {
+        val pm = context.packageManager
+        val intent = pm.getLaunchIntentForPackage(packageName)
+        return intent != null
     }
 }

@@ -293,7 +293,17 @@ class DialogActivity : AppCompatActivity() {
                 }
                 "Menu" -> {
                     window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                    txTitle.text = "Menu"
+                    val prefs = if (isSharedPreferencesInitialized()) sharedPreferences else getSharedPreferences("UserPreferences", MODE_PRIVATE)
+                    val wifiState = prefs.getBoolean("WifiState", false)
+                    val wifiConnectionState = prefs.getBoolean("WifiConnectionState", false)
+                    val blState = prefs.getBoolean("BluetoothState", false)
+                    val blConnectionState = prefs.getBoolean("BluetoothConnectionState", false)
+
+                    txTitle.text = when {
+                        wifiState && !wifiConnectionState -> "Turn off WIFI"
+                        blState && !blConnectionState -> "Turn off Bluetooth"
+                        else -> "Menu"
+                    }
                     llMenu.visibility = View.VISIBLE
                     imgbtnShare.visibility = View.GONE
                     btnOk.visibility = View.GONE

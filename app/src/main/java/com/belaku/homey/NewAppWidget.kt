@@ -991,8 +991,7 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
         getPreciseEnergyCounter(widgetContext)
-        seekWifiState()
-        seekBluetoothState()
+        seekWifiBluetoothState()
         todaysDate(widgetContext)
         loadStepsData() // Always refresh stepsData from disk to ensure persistence
         setSomeTwAndWallDescUI()
@@ -1143,50 +1142,33 @@ class NewAppWidget : AppWidgetProvider() {
         return resultBitmap
     }
 
-
-    private fun seekWifiState() {
-
+    
+    private fun seekWifiBluetoothState() {
         val wifiState = sharedPreferences.getBoolean("WifiState", false)
         val wifiConnectionState = sharedPreferences.getBoolean("WifiConnectionState", false)
-        // Only reflect state in the icon. Launching DialogActivity from here fired on every
-        // widget refresh and is blocked by background-activity-launch restrictions.
-        val icon = when {
+        val blState = sharedPreferences.getBoolean("BluetoothState", false)
+        val blConnectionState = sharedPreferences.getBoolean("BluetoothConnectionState", false)
+
+        val wifiIcon = when {
             wifiState && wifiConnectionState -> R.drawable.wifi_on
             wifiState -> R.drawable.wifi_on_but_not_connected
             else -> R.drawable.wifi_off
         }
+        remoteViews?.setImageViewResource(R.id.menu_wifi, wifiIcon)
 
-        if (wifiState)
-            if (!wifiConnectionState) {
-                remoteViews?.setImageViewResource(
-                    R.id.imgv_menu,
-                    R.drawable.wifi_on_but_not_connected
-                )
-                remoteViews?.setTextViewText(R.id.tx_dialog_title, "Wifi is turned ON, but not connected.. Turn off to save Battery!")
-            }
-        else remoteViews?.setImageViewResource(R.id.imgv_menu, R.drawable.more_s)
-
-        remoteViews?.setImageViewResource(R.id.menu_wifi, icon)
-
-    }
-
-    private fun seekBluetoothState() {
-
-        val blState = sharedPreferences.getBoolean("BluetoothState", false)
-        val blConnectionState = sharedPreferences.getBoolean("BluetoothConnectionState", false)
-        val icon = when {
+        val blIcon = when {
             blState && blConnectionState -> R.drawable.blue_on
             blState -> R.drawable.blue_red
             else -> R.drawable.blue_off
         }
-        if (blState)
-            if (!blConnectionState) {
-                remoteViews?.setImageViewResource(R.id.imgv_menu, R.drawable.blue_red)
-                remoteViews?.setTextViewText(R.id.tx_dialog_title, "Bluetooth is turned ON, but not connected.. Turn off to save Battery!")
-            }
-        else remoteViews?.setImageViewResource(R.id.imgv_menu, R.drawable.more_s)
+        remoteViews?.setImageViewResource(R.id.menu_blue, blIcon)
 
-        remoteViews?.setImageViewResource(R.id.menu_blue, icon)
+        val menuIcon = when {
+            wifiState && !wifiConnectionState -> R.drawable.wifi_on_but_not_connected
+            blState && !blConnectionState -> R.drawable.blue_red
+            else -> R.drawable.more_s
+        }
+        remoteViews?.setImageViewResource(R.id.imgv_menu, menuIcon)
     }
 
 
