@@ -1159,12 +1159,13 @@
 
             <TextView
                 android:id="@+id/tx_act_permission_hint"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/imgv_activity_state"
-                android:layout_centerHorizontal="true"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/tx_act_state"
                 android:text="⚠️"
                 android:visibility="gone"
+                android:gravity="center"
                 android:textColor="@android:color/holo_red_dark"
                 android:textSize="21sp"/>
 
@@ -1249,15 +1250,15 @@
 
             <TextView
                 android:id="@+id/tx_scrtime_permission_hint"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/imgv_scr_time"
-                android:layout_centerHorizontal="true"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_below="@+id/tx_screenusage_state"
+                android:layout_toEndOf="@+id/tx_screentime"
                 android:text="⚠️"
+                android:gravity="center"
                 android:textColor="@android:color/holo_red_dark"
                 android:textSize="21sp"
-                android:visibility="gone"
-                />
+                android:visibility="gone" />
 
 
         </RelativeLayout>

@@ -15,7 +15,6 @@ import android.appwidget.AppWidgetProvider
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.ContentUris
-import android.content.ContentValues
 import android.content.Context
 import android.content.Context.LOCATION_SERVICE
 import android.content.Context.MODE_PRIVATE
@@ -35,7 +34,6 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
-import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.icu.text.SimpleDateFormat
 import android.location.LocationManager
@@ -60,9 +58,7 @@ import android.view.View
 import android.view.WindowManager
 import android.view.WindowMetrics
 import android.view.accessibility.AccessibilityManager
-import android.widget.AdapterView
 import android.widget.RemoteViews
-import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
@@ -73,6 +69,7 @@ import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
+import com.belaku.homey.MainActivity.Companion.makeSnack
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
 import com.belaku.homey.MainActivity.Companion.tempKind
@@ -82,6 +79,9 @@ import com.belaku.homey.MusicActivity.Companion.pDatalistSongs
 import com.belaku.homey.MusicService.Companion.boolMusicServiceRunning
 import com.belaku.homey.MusicService.Companion.mMediaPlayer
 import com.belaku.homey.MusicService.Companion.songIndex
+import com.belaku.homey.NewAppWidget.Companion.i_appWidgetIds
+import com.belaku.homey.NewAppWidget.Companion.remoteViews
+import com.belaku.homey.NewAppWidget.Companion.tertianaryColor
 import com.belaku.homey.RemindersActivity.Companion.adapterHabits
 import com.belaku.homey.RemindersActivity.Companion.arrayListHabits
 import com.belaku.homey.RemindersActivity.Companion.isadapterHabitsInitialized
@@ -101,6 +101,7 @@ import com.belaku.homey.SetWallWorker.Companion.screenWidth
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SetWallWorker.Companion.wallBitmap
+import com.belaku.homey.StepsService.Companion.Top3
 import com.belaku.homey.StepsService.Companion.choosenApps
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.belaku.homey.StepsService.Companion.isStepsAdapterInitialized
@@ -124,11 +125,6 @@ import java.util.Calendar
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
-import androidx.core.graphics.scale
-import com.belaku.homey.MainActivity.Companion.makeSnack
-import com.belaku.homey.StepsService.Companion.Top3
-import com.belaku.homey.StepsService.Companion.strDurationTravel
-import com.belaku.homey.StepsService.Companion.strDurationWalk
 
 
 class NewAppWidget : AppWidgetProvider() {
