@@ -357,7 +357,7 @@ class NewAppWidget : AppWidgetProvider() {
         onEn = false
     }
 
-     
+
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -778,7 +778,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
     @SuppressLint("SuspiciousIndentation")
-      
+
     private fun setUI() {
 
         // setUI() is reachable from several receiver paths; make sure the shared state it
@@ -966,7 +966,7 @@ class NewAppWidget : AppWidgetProvider() {
                         .load(albumArtPath)
                         .into(remoteViews!!, R.id.imgbtn_albumcover, i_appWidgetIds)
                 } catch (e: Exception) {
-                    Log.e(TAG, "Album art load failed", e)
+                    Log.e(TAG, "album art load failed", e)
                     remoteViews?.setImageViewResource(R.id.imgbtn_albumcover, R.drawable.launch)
                 }
             } else {
@@ -1138,7 +1138,7 @@ class NewAppWidget : AppWidgetProvider() {
         return resultBitmap
     }
 
-    
+
     private fun seekWifiBluetoothState() {
         val wifiState = sharedPreferences.getBoolean("WifiState", false)
         val wifiConnectionState = sharedPreferences.getBoolean("WifiConnectionState", false)
@@ -1309,7 +1309,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     @SuppressLint("ResourceAsColor")
-      
+
     private fun wallColors() {
         try {
             val wallpaperManager = WallpaperManager.getInstance(widgetContext)
@@ -1503,7 +1503,7 @@ class NewAppWidget : AppWidgetProvider() {
         return bitmap
     }
 
-      
+
     private fun setSomeTwAndWallDescUI() {
 
         if (checkCompanionVariable()) {
@@ -1604,7 +1604,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     @SuppressLint("InflateParams", "ResourceAsColor")
-      
+
     private fun handleIntentActions(intent: Intent) {
         val action = intent.action ?: return
 
@@ -1657,15 +1657,13 @@ class NewAppWidget : AppWidgetProvider() {
                 }
             }
             ACTINFO_CLICK -> {
-                if (hasFeaturePermission(widgetContext, FeaturePermission.STEPS)) {
-                    recognizeActivityTransitions()
-                    val current = sharedPreferences.getBoolean("activitiesORcontrols", false)
-                    val show = !current
-                    sharedPreferencesEditor.putBoolean("activitiesORcontrols", show).apply()
-                    updateActivityUi(remoteViews, show)
-                } else {
-                    sharedPreferencesEditor.putBoolean("activitiesORcontrols", true).apply()
-                    requestFeaturePermission(widgetContext, FeaturePermission.STEPS)
+                makeToast(widgetContext, presentActivityState)
+                if (presentActivityState.isNotEmpty()) {
+                    sharedPreferencesEditor.putBoolean("activitiesORcontrols", true)
+                        .putString("displayedAct", presentActivityState)
+                        .apply()
+                    remoteViews?.setViewVisibility(R.id.rl_controls, View.VISIBLE)
+                    updateActivityUi(remoteViews, true)
                 }
             }
             NEXT_STATE -> {
@@ -1996,7 +1994,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
     @SuppressLint("ResourceAsColor")
-      
+
     fun getPreciseEnergyCounter(context: Context) {
         val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as? BatteryManager
             ?: return
