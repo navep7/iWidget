@@ -86,7 +86,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                 // and re-apply all adaptive backgrounds, colors, and listeners based on the updated state.
                 triggerWidgetUpdate(applicationContext)
 
-                makeToast(applicationContext, detectedState)
+             //   makeToast(applicationContext, detectedState)
             }
         }
     }

@@ -78,9 +78,11 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.maps.android.ui.IconGenerator
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
@@ -92,6 +94,8 @@ import java.util.Locale
 
 class StepsService : Service() {
 
+    private val serviceJob = SupervisorJob()
+    private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
 
     private lateinit var mSensorEventListener: SensorEventListener
     lateinit var stepCounterSensor: Sensor
@@ -152,70 +156,9 @@ class StepsService : Service() {
 
                             currentLocation = location
 
-
-
                             getAddress(location.latitude, location.longitude)
-                            if (ismGoogleMapInitialized()) {
-                                getAddress(location.latitude, location.longitude)
-                                var icon: BitmapDescriptor? = null
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                    val icnGenerator = IconGenerator(applicationContext)
-                                    // Bitmap bmp = icnGenerator.makeIcon(Html.fromHtml("<b><font color=\"#000000\">" + mAddresses[0] + mAddresses[1] + mAddresses[2] + "\n" + mAddresses[3] + mAddresses[4] + "</font></b>"));
-                                    val bmp: Bitmap = icnGenerator.makeIcon(
-                                        cityname
-                                    )
-                                    icon = BitmapDescriptorFactory.fromBitmap(bmp)
-                                }
-                                mGoogleMap.clear()
-                                val mLatLng = LatLng(location.latitude, location.longitude)
-
-                                if (cityname.isNotEmpty()) {
-                                    var markerOptions =
-                                        MarkerOptions().position(mLatLng).icon(icon).title(cityname)
-                                    mGoogleMap.addMarker(markerOptions)
-                                    mStreetViewPanorama.setPosition(
-                                        mLatLng
-                                    )
-                                }
-
-                                val cameraPosition =
-                                    CameraPosition.Builder().target(mLatLng).tilt(55f).zoom(20f).bearing(0f)
-                                        .build()
-
-                                mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
-
-                            }
                         }
                     }
-
-
-                    fun getAddress(lat: Double, lng: Double) {
-                        val gcd = Geocoder(applicationContext)
-                        Locale.getDefault()
-                        try {
-                            // getFromLocation() may return null/empty and the
-                            // address fields are frequently null.
-                            val cAddrs = gcd.getFromLocation(lat, lng, 1)
-
-                            cityLat = lat
-                            cityLng = lng
-
-                            val address = cAddrs?.firstOrNull()
-                            cityname = address?.subLocality
-                                ?: address?.locality
-                                ?: "remoteAreaMaybe!"
-
-                        } catch (e: IOException) {
-                            // Backend service unreachable / no geocoder available.
-                            e.printStackTrace()
-                             makeToast(applicationContext, "GCD - IOException \n $e")
-                        } catch (e: Exception) {
-                            // IllegalArgumentException for invalid coordinates.
-                            e.printStackTrace()
-                        }
-
-                    }
-
 
                     override fun onMarkerClick(p0: Marker): Boolean {
                         return true
@@ -499,7 +442,91 @@ class StepsService : Service() {
         return super.stopService(name)
     }
 
+    fun getAddress(lat: Double, lng: Double) {
+        serviceScope.launch(Dispatchers.IO) {
+            val gcd = Geocoder(applicationContext, Locale.getDefault())
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                try {
+                    gcd.getFromLocation(lat, lng, 1, object : Geocoder.GeocodeListener {
+                        override fun onGeocode(addresses: MutableList<android.location.Address>) {
+                            val address = addresses.firstOrNull()
+                            val name = address?.subLocality
+                                ?: address?.locality
+                                ?: "remoteAreaMaybe!"
+                            updateAddressAndMap(lat, lng, name)
+                        }
+
+                        override fun onError(errorMessage: String?) {
+                            Log.e("StepsService", "Geocode error: $errorMessage")
+                            updateAddressAndMap(lat, lng, "remoteAreaMaybe!")
+                        }
+                    })
+                } catch (e: Exception) {
+                    Log.e("StepsService", "Geocode exception", e)
+                    updateAddressAndMap(lat, lng, "remoteAreaMaybe!")
+                }
+            } else {
+                var name = "remoteAreaMaybe!"
+                try {
+                    @Suppress("DEPRECATION")
+                    val cAddrs = gcd.getFromLocation(lat, lng, 1)
+                    val address = cAddrs?.firstOrNull()
+                    name = address?.subLocality
+                        ?: address?.locality
+                        ?: "remoteAreaMaybe!"
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    withContext(Dispatchers.Main) {
+                        makeToast(applicationContext, "GCD - IOException \n $e")
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+                updateAddressAndMap(lat, lng, name)
+            }
+        }
+    }
+
+    private fun updateAddressAndMap(lat: Double, lng: Double, name: String) {
+        serviceScope.launch(Dispatchers.Main) {
+            cityLat = lat
+            cityLng = lng
+            cityname = name
+
+            if (ismGoogleMapInitialized()) {
+                var icon: BitmapDescriptor? = null
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    try {
+                        val icnGenerator = IconGenerator(applicationContext)
+                        val bmp: Bitmap = icnGenerator.makeIcon(cityname)
+                        icon = BitmapDescriptorFactory.fromBitmap(bmp)
+                    } catch (e: Exception) {
+                        Log.e("StepsService", "Failed to generate icon", e)
+                    }
+                }
+                mGoogleMap.clear()
+                val mLatLng = LatLng(lat, lng)
+
+                if (cityname.isNotEmpty()) {
+                    val markerOptions = MarkerOptions().position(mLatLng).icon(icon).title(cityname)
+                    mGoogleMap.addMarker(markerOptions)
+                    mStreetViewPanorama.setPosition(mLatLng)
+                }
+
+                val cameraPosition = CameraPosition.Builder()
+                    .target(mLatLng)
+                    .tilt(55f)
+                    .zoom(20f)
+                    .bearing(0f)
+                    .build()
+
+                mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+            }
+        }
+    }
+
     override fun onDestroy() {
+        serviceJob.cancel()
         Toast.makeText(
             applicationContext, "Service execution completed",
             Toast.LENGTH_SHORT

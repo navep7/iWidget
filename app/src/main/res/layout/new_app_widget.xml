@@ -343,16 +343,8 @@
                         android:minWidth="25dp"
                         android:minHeight="25dp" />
 
-
                 </FrameLayout>
-
-
             </LinearLayout>
-
-
-
-
-
         </RelativeLayout>
 
         <ImageView
@@ -380,7 +372,7 @@
             android:gravity="center"
             android:maxLines="1"
             android:padding="@dimen/padding_5"
-            android:text="📝 Pen a note..,"
+            android:text="✎ Pen a note..,"
             android:textSize="17sp"
             android:textColor="@android:color/black"
             android:textStyle="bold" />

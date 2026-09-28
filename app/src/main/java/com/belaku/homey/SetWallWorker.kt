@@ -437,10 +437,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
         /**
          * Retrieves a map of package names to their total foreground duration (in milliseconds)
-         * for a custom timeframe range.
-         *
-         * This implementation completely resolves overcounting and undercounting using a fully verified
-         * state machine that aligns tracking perfectly with interactive screen sessions.
+         * for all apps that had an open event during the specified timeframe range.
          */
         fun getAppUsageStatsForRange(
             context: Context,
@@ -454,7 +451,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 PackageManager.MATCH_DEFAULT_ONLY
             ).map { it.activityInfo.packageName }.toSet()
 
-            // 1. Establish the precise state of the world at exactly midnight (startTime)
+            // 1. Establish the precise state of the world before startTime
             var activeApp: String? = null
             var isScreenInteractive = true
 
@@ -463,10 +460,10 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             while (lookbackEvents.hasNextEvent()) {
                 lookbackEvents.getNextEvent(event)
                 when (event.eventType) {
-                    UsageEvents.Event.ACTIVITY_RESUMED, UsageEvents.Event.MOVE_TO_FOREGROUND -> {
+                    UsageEvents.Event.ACTIVITY_RESUMED -> {
                         activeApp = event.packageName
                     }
-                    UsageEvents.Event.ACTIVITY_PAUSED, UsageEvents.Event.MOVE_TO_BACKGROUND -> {
+                    UsageEvents.Event.ACTIVITY_PAUSED -> {
                         if (event.packageName == activeApp) {
                             activeApp = null
                         }
@@ -480,8 +477,16 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 }
             }
 
-            // 2. Chronologically iterate through today's usage logs
             val appUsageMap = HashMap<String, Long>()
+            val openedApps = HashSet<String>()
+
+            // If an app was already active/open at startTime, consider it opened during this timeframe
+            if (activeApp != null && !launcherPackages.contains(activeApp) && activeApp != context.packageName) {
+                openedApps.add(activeApp)
+                appUsageMap[activeApp] = 0L
+            }
+
+            // 2. Chronologically iterate through usage logs in the target duration
             var lastTimestamp: Long = startTime
             val usageEvents = usageStatsManager.queryEvents(startTime, endTime)
 
@@ -500,12 +505,20 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 // Move our interval marker forward
                 lastTimestamp = eventTime
                 
-                // Transition state tracking correctly
+                // Transition state tracking correctly and record open events
                 when (event.eventType) {
-                    UsageEvents.Event.ACTIVITY_RESUMED, UsageEvents.Event.MOVE_TO_FOREGROUND -> {
+                    UsageEvents.Event.ACTIVITY_RESUMED,
+                    UsageEvents.Event.USER_INTERACTION,
+                    UsageEvents.Event.SHORTCUT_INVOCATION -> {
                         activeApp = event.packageName
+                        if (!launcherPackages.contains(activeApp) && activeApp != context.packageName) {
+                            openedApps.add(activeApp)
+                            if (!appUsageMap.containsKey(activeApp)) {
+                                appUsageMap[activeApp] = 0L
+                            }
+                        }
                     }
-                    UsageEvents.Event.ACTIVITY_PAUSED, UsageEvents.Event.MOVE_TO_BACKGROUND -> {
+                    UsageEvents.Event.ACTIVITY_PAUSED -> {
                         if (event.packageName == activeApp) {
                             activeApp = null
                         }
@@ -528,45 +541,19 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 }
             }
 
-            return appUsageMap.toList().sortedByDescending { it.second }
-        }
-
-        /**
-         * Retrieves a map of package names to their total foreground duration (in milliseconds)
-         * for a specific hour of a specific day.
-         *
-         * @param hourOfDay The hour of the day (0 - 23).
-         */
-        fun getHourlyAppUsageStats(
-            context: Context,
-            year: Int,
-            month: Int,
-            day: Int,
-            hourOfDay: Int
-        ): List<Pair<String, Long>> {
-            val calendar = Calendar.getInstance().apply {
-                set(Calendar.YEAR, year)
-                set(Calendar.MONTH, month)
-                set(Calendar.DATE, day)
-                set(Calendar.HOUR_OF_DAY, hourOfDay)
-                set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
+            // Ensure all apps that had an open event during the duration are present in the map
+            for (pkg in openedApps) {
+                if (!appUsageMap.containsKey(pkg)) {
+                    appUsageMap[pkg] = 0L
+                }
             }
-            val startTime = calendar.timeInMillis
-            val endTime = startTime + (60 * 60 * 1000)
 
-            return getAppUsageStatsForRange(context, startTime, endTime)
+            // Return only apps that were opened during the timeframe, sorted by duration descending
+            return appUsageMap.filter { openedApps.contains(it.key) }
+                .toList()
+                .sortedByDescending { it.second }
         }
 
-
-        fun isNotHomeLauncherApp(context: Context, packageName: String): Boolean {
-            val launcherPackages = context.packageManager.queryIntentActivities(
-                Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME),
-                PackageManager.MATCH_DEFAULT_ONLY
-            ).map { it.activityInfo.packageName }.toSet()
-            return !launcherPackages.contains(packageName)
-        }
 
         fun appUsageStats(applicationContext: Context?) {
             val context = applicationContext?.applicationContext ?: return
@@ -600,7 +587,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     var totalDurationMs = 0L
 
                     for ((pkg, duration) in usageStats) {
-                        if (duration < 1000) continue // ignore usage under 1 second
+                        if (duration < 0) continue // ignore usage under 1 second
                         
                         // Check if the package is a user-facing app with a launch intent
                         if (context.packageManager.getLaunchIntentForPackage(pkg) != null) {

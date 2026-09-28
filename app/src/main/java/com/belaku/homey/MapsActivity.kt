@@ -40,6 +40,9 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.StreetViewPanoramaCamera
 import com.google.android.material.snackbar.Snackbar
 import com.google.maps.android.ui.IconGenerator
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.Locale
 
@@ -169,34 +172,55 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
     }
 
     fun getAddress(lat: Double, lng: Double) {
-        val gcd = Geocoder(applicationContext)
-        Locale.getDefault()
-        try {
-            // getFromLocation() may return null or an empty list, and the
-            // individual address fields are often null (e.g. remote areas).
-            val addresses = gcd.getFromLocation(lat, lng, 1)
-            cAddrs = addresses?.toMutableList() ?: mutableListOf()
+        lifecycleScope.launch(Dispatchers.IO) {
+            val gcd = Geocoder(applicationContext, Locale.getDefault())
+            var label: String? = null
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                try {
+                    gcd.getFromLocation(lat, lng, 1, object : Geocoder.GeocodeListener {
+                        override fun onGeocode(addresses: MutableList<Address>) {
+                            cAddrs = addresses
+                            val address = cAddrs.firstOrNull() ?: return
+                            val text = address.subLocality ?: address.locality ?: address.countryName ?: return
+                            showSnackbar(text)
+                        }
 
-            val address = cAddrs.firstOrNull() ?: return
-            val label = address.subLocality
-                ?: address.locality
-                ?: address.countryName
-                ?: return
+                        override fun onError(errorMessage: String?) {
+                            Log.e("MapsActivity", "Geocode error: $errorMessage")
+                        }
+                    })
+                } catch (e: Exception) {
+                    Log.e("MapsActivity", "Geocode exception", e)
+                }
+            } else {
+                try {
+                    @Suppress("DEPRECATION")
+                    val addresses = gcd.getFromLocation(lat, lng, 1)
+                    cAddrs = addresses?.toMutableList() ?: mutableListOf()
+                    val address = cAddrs.firstOrNull()
+                    if (address != null) {
+                        label = address.subLocality ?: address.locality ?: address.countryName
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+                if (label != null) {
+                    showSnackbar(label)
+                }
+            }
+        }
+    }
 
+    private fun showSnackbar(label: String) {
+        lifecycleScope.launch(Dispatchers.Main) {
             Snackbar.make(
                 window.decorView.rootView,
                 label,
                 Snackbar.LENGTH_INDEFINITE
             ).show()
-        } catch (e: IOException) {
-            // Backend service unreachable / no geocoder available.
-            e.printStackTrace()
-            // makeToast("GCD - IOException \n $e")
-        } catch (e: Exception) {
-            // Geocoder throws IllegalArgumentException for invalid coordinates.
-            e.printStackTrace()
         }
-
     }
 
     override fun onStreetViewPanoramaReady(streetViewPanorama: StreetViewPanorama) {
