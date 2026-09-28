@@ -567,6 +567,35 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         }
 
 
+
+        fun getForegroundAppAtTime(context: Context, targetTimeMs: Long): String? {
+            val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+
+            // Set a window buffer (e.g., look from 1 hour before up to the target time)
+            val startTime = targetTimeMs - (60 * 60 * 1000)
+            val endTime = targetTimeMs
+
+            val usageEvents = usageStatsManager.queryEvents(startTime, endTime)
+            val event = UsageEvents.Event()
+            var foregroundApp: String? = null
+
+            // Iterate through the chronological system log
+            while (usageEvents.hasNextEvent()) {
+                usageEvents.getNextEvent(event)
+
+                // Match both legacy and modern foreground flag variations
+                if (event.eventType == UsageEvents.Event.MOVE_TO_FOREGROUND ||
+                    event.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
+                    foregroundApp = event.packageName
+                }
+            }
+
+            // The last package to transition to the foreground before or at the target time
+            return foregroundApp
+        }
+
+
+
         fun appUsageStats(applicationContext: Context?) {
             val context = applicationContext?.applicationContext ?: return
 

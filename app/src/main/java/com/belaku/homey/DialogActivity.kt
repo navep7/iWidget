@@ -59,6 +59,7 @@ import com.belaku.homey.NewAppWidget.Companion.noRewards
 import com.belaku.homey.NewAppWidget.Companion.penNote
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
+import com.belaku.homey.SetWallWorker.Companion.getForegroundAppAtTime
 import com.belaku.homey.SetWallWorker.Companion.hour
 import com.belaku.homey.SetWallWorker.Companion.isSharedPreferencesInitialized
 import com.belaku.homey.SetWallWorker.Companion.pinNote
@@ -91,6 +92,10 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.Calendar
 import kotlin.random.Random
 import kotlin.time.Duration
@@ -373,6 +378,8 @@ class DialogActivity : AppCompatActivity() {
 
                 }
                 "ST" -> {
+
+                    ydayApp(applicationContext)
                     txContent.visibility = View.VISIBLE
                     txTitle.text = " " + twitterProfileName
                     findViewById<ImageButton>(R.id.tw_config).apply {
@@ -574,6 +581,24 @@ class DialogActivity : AppCompatActivity() {
         }
     }
 
+    private fun ydayApp(context: Context) {
+        // Get yesterday's date
+        val yesterday = LocalDate.now().minusDays(1)
+
+// Combine with 6:00 PM (18:00) and current time zone
+        val yesterday6Pm: ZonedDateTime = yesterday.atTime(LocalTime.now()).atZone(ZoneId.systemDefault())
+
+// Get epoch milliseconds if needed
+        val timestampMillis = yesterday6Pm.toInstant().toEpochMilli()
+        var ydayAppName = getForegroundAppAtTime(context, timestampMillis)
+
+        makeToast(context, "ydaY - " + SetWallWorker.Companion.getAppNameFromPkg(
+            context,
+            ydayAppName
+        )
+        )
+    }
+
     fun checkBluetoothState(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
@@ -598,6 +623,7 @@ class DialogActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun isProfileConnected(adapter: BluetoothAdapter, profileType: Int): Boolean {
         return adapter.getProfileConnectionState(profileType) == android.bluetooth.BluetoothProfile.STATE_CONNECTED
     }

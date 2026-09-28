@@ -800,19 +800,25 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setTextViewText(R.id.tx_act_state, presentActivityState)
 
         if (Top3.isNotEmpty()) {
-            makeToast(widgetContext, Top3.toString())
+       //     makeToast(widgetContext, Top3.toString())
             remoteViews?.setViewVisibility(R.id.rl_app1, View.VISIBLE)
             remoteViews?.setImageViewBitmap(R.id.imgv_app1, Top3[0].iconBitmap)
-            remoteViews?.setTextViewText(R.id.tx_app1_count, Top3[0].usage)
+            if (Top3[0].openCount != 0)
+            remoteViews?.setTextViewText(R.id.tx_app1_count, Top3[0].openCount.toString())
+            else remoteViews?.setViewVisibility(R.id.tx_app1_count, View.INVISIBLE)
             if (Top3.size > 1) {
                 remoteViews?.setViewVisibility(R.id.rl_app2, View.VISIBLE)
                 remoteViews?.setImageViewBitmap(R.id.imgv_app2, Top3[1].iconBitmap)
-                remoteViews?.setTextViewText(R.id.tx_app2_count, Top3[1].usage)
+                if (Top3[1].openCount != 0)
+                remoteViews?.setTextViewText(R.id.tx_app2_count, Top3[1].openCount.toString())
+                else remoteViews?.setViewVisibility(R.id.tx_app2_count, View.INVISIBLE)
             }
             if (Top3.size > 2) {
                 remoteViews?.setViewVisibility(R.id.rl_app3, View.VISIBLE)
                 remoteViews?.setImageViewBitmap(R.id.imgv_app3, Top3[2].iconBitmap)
-                remoteViews?.setTextViewText(R.id.tx_app3_count, Top3[2].usage)
+                if (Top3[2].openCount != 0)
+                remoteViews?.setTextViewText(R.id.tx_app3_count, Top3[2].openCount.toString())
+                else remoteViews?.setViewVisibility(R.id.tx_app3_count, View.INVISIBLE)
             }
         }
 
@@ -1666,7 +1672,7 @@ class NewAppWidget : AppWidgetProvider() {
                 }
             }
             ACTINFO_CLICK -> {
-                makeToast(widgetContext, presentActivityState)
+          //      makeToast(widgetContext, presentActivityState)
                 if (presentActivityState.isNotEmpty()) {
                     sharedPreferencesEditor.putBoolean("activitiesORcontrols", true)
                         .putString("displayedAct", presentActivityState)

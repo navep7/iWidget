@@ -11,13 +11,17 @@ import androidx.core.graphics.drawable.toBitmap
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.SetWallWorker.Companion.getAppNameFromPkg
 import com.belaku.homey.SetWallWorker.Companion.getAppUsageStatsForRange
+import com.belaku.homey.SetWallWorker.Companion.getForegroundAppAtTime
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SpeakService.Companion.speakOut
 import com.belaku.homey.StepsService.Companion.Top3
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.google.gson.Gson
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.Calendar
-import kotlin.time.Duration.Companion.minutes
 
 class TimeChangedReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -69,6 +73,7 @@ class TimeChangedReceiver : BroadcastReceiver() {
                 endTime = endTime
             ).filter { isAppInstalled(context, it.first) && isAppLaunchable(context, it.first) }
 
+           // ydayApp(context)
             var rangeMinutes = 5
             while ((topApps.size < 3) && rangeMinutes <= 60) {
                 rangeMinutes += 15
@@ -110,6 +115,8 @@ class TimeChangedReceiver : BroadcastReceiver() {
             context.sendBroadcast(updateIntent)
         }
     }
+
+
 
     private fun isAppInstalled(context: Context, packageName: String): Boolean {
         return try {
