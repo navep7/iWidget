@@ -478,12 +478,14 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             }
 
             val appUsageMap = HashMap<String, Long>()
+            val appOpenCountMap = HashMap<String, Int>()
             val openedApps = HashSet<String>()
 
             // If an app was already active/open at startTime, consider it opened during this timeframe
             if (activeApp != null && !launcherPackages.contains(activeApp) && activeApp != context.packageName) {
                 openedApps.add(activeApp)
                 appUsageMap[activeApp] = 0L
+                appOpenCountMap[activeApp] = 1
             }
 
             // 2. Chronologically iterate through usage logs in the target duration
@@ -507,7 +509,16 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 
                 // Transition state tracking correctly and record open events
                 when (event.eventType) {
-                    UsageEvents.Event.ACTIVITY_RESUMED,
+                    UsageEvents.Event.ACTIVITY_RESUMED -> {
+                        activeApp = event.packageName
+                        if (!launcherPackages.contains(activeApp) && activeApp != context.packageName) {
+                            openedApps.add(activeApp)
+                            if (!appUsageMap.containsKey(activeApp)) {
+                                appUsageMap[activeApp] = 0L
+                            }
+                            appOpenCountMap[activeApp!!] = (appOpenCountMap[activeApp] ?: 0) + 1
+                        }
+                    }
                     UsageEvents.Event.USER_INTERACTION,
                     UsageEvents.Event.SHORTCUT_INVOCATION -> {
                         activeApp = event.packageName
@@ -548,10 +559,11 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 }
             }
 
-            // Return only apps that were opened during the timeframe, sorted by duration descending
+            // Return only apps that were opened during the timeframe, sorted by open count descending then duration descending
             return appUsageMap.filter { openedApps.contains(it.key) }
                 .toList()
-                .sortedByDescending { it.second }
+                .sortedWith(compareByDescending<Pair<String, Long>> { appUsageMap[it.first] ?: 0 }
+                    .thenByDescending { it.second })
         }
 
 

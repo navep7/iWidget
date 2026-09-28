@@ -800,11 +800,20 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setTextViewText(R.id.tx_act_state, presentActivityState)
 
         if (Top3.isNotEmpty()) {
-            remoteViews?.setImageViewBitmap(R.id.imgv_app1, Top3.get(0).iconBitmap)
-            if (Top3.size > 1)
-                remoteViews?.setImageViewBitmap(R.id.imgv_app2, Top3.get(1).iconBitmap)
-            if (Top3.size > 2)
-                remoteViews?.setImageViewBitmap(R.id.imgv_app3, Top3.get(2).iconBitmap)
+            makeToast(widgetContext, Top3.toString())
+            remoteViews?.setViewVisibility(R.id.rl_app1, View.VISIBLE)
+            remoteViews?.setImageViewBitmap(R.id.imgv_app1, Top3[0].iconBitmap)
+            remoteViews?.setTextViewText(R.id.tx_app1_count, Top3[0].usage)
+            if (Top3.size > 1) {
+                remoteViews?.setViewVisibility(R.id.rl_app2, View.VISIBLE)
+                remoteViews?.setImageViewBitmap(R.id.imgv_app2, Top3[1].iconBitmap)
+                remoteViews?.setTextViewText(R.id.tx_app2_count, Top3[1].usage)
+            }
+            if (Top3.size > 2) {
+                remoteViews?.setViewVisibility(R.id.rl_app3, View.VISIBLE)
+                remoteViews?.setImageViewBitmap(R.id.imgv_app3, Top3[2].iconBitmap)
+                remoteViews?.setTextViewText(R.id.tx_app3_count, Top3[2].usage)
+            }
         }
 
         remoteViews?.setTextViewText(R.id.tx_unlocks, sharedPreferences.getInt("unlockCount", 0).toString())

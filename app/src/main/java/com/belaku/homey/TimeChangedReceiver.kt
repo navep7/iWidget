@@ -17,6 +17,7 @@ import com.belaku.homey.StepsService.Companion.Top3
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.google.gson.Gson
 import java.util.Calendar
+import kotlin.time.Duration.Companion.minutes
 
 class TimeChangedReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -90,9 +91,11 @@ class TimeChangedReceiver : BroadcastReceiver() {
                     val iconDrawable = context.packageManager.getApplicationIcon(packageName)
                     // Scale to 150x150 to stay under the RemoteViews size limit and render clearly
                     val bitmap = iconDrawable.toBitmap(150, 150)
-                    Top3.add(App(appName, packageName, (durationMs / 1000).toString() + " s", bitmap))
+                    var ds = (durationMs / 1000).toString() + " s"
+                //    makeToast(context, "durationMs ~ $ds" )
+                    Top3.add(App(appName, packageName, (durationMs/1000).toString(), bitmap))
                 } catch (e: Exception) {
-                    Log.e("TimeChangedReceiver", "Error adding app icon for $packageName", e)
+                    Log.d("getAppsOfCurrentTimeWindowExp", "Error adding app icon for $packageName ~ " + e)
                 }
             }
 

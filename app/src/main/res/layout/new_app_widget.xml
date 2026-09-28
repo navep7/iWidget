@@ -480,24 +480,108 @@
             android:background="@drawable/gradient_glass_rounded"
             android:text="⏳ Times," />
 
-        <ImageView
-            android:id="@+id/imgv_app1"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:scaleType="centerCrop" />
+        <RelativeLayout
+            android:id="@+id/rl_app1"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/imgv_app2"
-            android:layout_margin="@dimen/fab_margin"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:scaleType="centerCrop" />
+            <ImageView
+                android:id="@+id/imgv_app1"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:scaleType="centerCrop" />
 
-        <ImageView
-            android:id="@+id/imgv_app3"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:scaleType="centerCrop" />
+            <TextView
+                android:id="@+id/tx_app1_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="18dp"
+                android:minHeight="18dp"
+                android:paddingStart="3dp"
+                android:paddingEnd="3dp"
+                android:layout_alignTop="@id/imgv_app1"
+                android:layout_alignEnd="@id/imgv_app1"
+                android:layout_marginTop="-4dp"
+                android:layout_marginEnd="-4dp"
+                android:background="@drawable/circular_red"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                tools:ignore="SmallSp"
+                tools:text="1" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_app2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_marginTop="@dimen/padding_10"
+            android:layout_marginBottom="@dimen/padding_10">
+
+            <ImageView
+                android:id="@+id/imgv_app2"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:scaleType="centerCrop" />
+
+            <TextView
+                android:id="@+id/tx_app2_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="18dp"
+                android:minHeight="18dp"
+                android:paddingStart="3dp"
+                android:paddingEnd="3dp"
+                android:layout_alignTop="@id/imgv_app2"
+                android:layout_alignEnd="@id/imgv_app2"
+                android:layout_marginTop="-4dp"
+                android:layout_marginEnd="-4dp"
+                android:background="@drawable/circular_red"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                tools:ignore="SmallSp"
+                tools:text="2"
+                tools:visibility="visible" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_app3"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/imgv_app3"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:scaleType="centerCrop" />
+
+            <TextView
+                android:id="@+id/tx_app3_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="18dp"
+                android:minHeight="18dp"
+                android:paddingStart="3dp"
+                android:paddingEnd="3dp"
+                android:layout_alignTop="@id/imgv_app3"
+                android:layout_alignEnd="@id/imgv_app3"
+                android:layout_marginTop="-4dp"
+                android:layout_marginEnd="-4dp"
+                android:background="@drawable/circular_red"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                tools:ignore="SmallSp"
+                tools:text="3"
+                tools:visibility="visible" />
+        </RelativeLayout>
 
 
 
