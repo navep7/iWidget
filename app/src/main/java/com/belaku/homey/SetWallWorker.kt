@@ -460,7 +460,9 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             while (lookbackEvents.hasNextEvent()) {
                 lookbackEvents.getNextEvent(event)
                 when (event.eventType) {
-                    UsageEvents.Event.ACTIVITY_RESUMED -> {
+                    UsageEvents.Event.ACTIVITY_RESUMED,
+                    UsageEvents.Event.USER_INTERACTION,
+                    UsageEvents.Event.SHORTCUT_INVOCATION -> {
                         activeApp = event.packageName
                     }
                     UsageEvents.Event.ACTIVITY_PAUSED -> {
@@ -559,11 +561,12 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 }
             }
 
-            // Return only apps that were opened during the timeframe, sorted by open count descending then duration descending
+            // Return only apps that were opened during the timeframe, sorted by foreground usage
+            // duration descending, using open (launch) count as a tiebreaker when durations match.
             return appUsageMap.filter { openedApps.contains(it.key) }
                 .toList()
-                .sortedWith(compareByDescending<Pair<String, Long>> { appOpenCountMap[it.first] ?: 0 }
-                    .thenByDescending { it.second })
+                .sortedWith(compareByDescending<Pair<String, Long>> { it.second }
+                    .thenByDescending { appUsageMap[it.first] ?: 0 })
         }
 
 
