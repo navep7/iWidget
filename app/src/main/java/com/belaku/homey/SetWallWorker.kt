@@ -562,7 +562,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             // Return only apps that were opened during the timeframe, sorted by open count descending then duration descending
             return appUsageMap.filter { openedApps.contains(it.key) }
                 .toList()
-                .sortedWith(compareByDescending<Pair<String, Long>> { appUsageMap[it.first] ?: 0 }
+                .sortedWith(compareByDescending<Pair<String, Long>> { appOpenCountMap[it.first] ?: 0 }
                     .thenByDescending { it.second })
         }
 
