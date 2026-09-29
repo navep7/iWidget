@@ -372,7 +372,8 @@
             android:gravity="center"
             android:maxLines="1"
             android:padding="@dimen/padding_5"
-            android:text="✎ Pen a note..,"
+            android:text="✎ Pen a note."
+            android:paddingEnd="@dimen/padding_10"
             android:textSize="17sp"
             android:textColor="@android:color/black"
             android:textStyle="bold" />

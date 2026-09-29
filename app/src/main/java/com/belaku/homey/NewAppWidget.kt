@@ -227,7 +227,7 @@ class NewAppWidget : AppWidgetProvider() {
         // synchronous IPC call to Google Play Services on every single tap. Since the request
         // never actually changes at runtime, only register once and skip on subsequent calls -
         // this was contributing to the perceived click delay.
-        if (activityTransitionsRegistered) return
+    //    if (activityTransitionsRegistered) return
 
    //     remoteViews?.setTextViewText(R.id.tx_act_state, "fetching..,")
 
@@ -296,7 +296,7 @@ class NewAppWidget : AppWidgetProvider() {
                     pendingIntentActivityTransitions
                 )
                 .addOnSuccessListener {
-                    activityTransitionsRegistered = true
+                //    activityTransitionsRegistered = true
                     Log.d(TAG, "Activity transition updates registered")
                 }
                 .addOnFailureListener { e -> Log.e(TAG, "Activity transition updates failed", e) }
@@ -351,7 +351,7 @@ class NewAppWidget : AppWidgetProvider() {
         } catch (e: Exception) {
             Log.e(TAG, "removeActivityTransitionUpdates failed", e)
         }
-        activityTransitionsRegistered = false
+    //    activityTransitionsRegistered = false
 
         remoteViews = null
         onEn = false
@@ -942,6 +942,7 @@ class NewAppWidget : AppWidgetProvider() {
             if (now - lastAppUsageStatsQueryTimeMs >= APP_USAGE_STATS_MIN_REFRESH_INTERVAL_MS) {
                 lastAppUsageStatsQueryTimeMs = now
                 appUsageStats(widgetContext)
+
             }
         }
 
@@ -2354,7 +2355,7 @@ class NewAppWidget : AppWidgetProvider() {
          * True once [recognizeActivityTransitions] has successfully registered with
          * ActivityRecognition. Reset in [onDisabled] so re-enabling the widget re-registers.
          */
-        private var activityTransitionsRegistered: Boolean = false
+    //    private var activityTransitionsRegistered: Boolean = false
 
 
         fun drawableToBitmap(context: Context, drawable: Drawable): Bitmap {

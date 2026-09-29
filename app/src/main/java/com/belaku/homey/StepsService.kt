@@ -239,7 +239,7 @@ class StepsService : Service() {
 
 
 
-                    if (stepsToday < 10) {
+                    if (stepsToday < 10 && presentActivityState == "WALKING") {
                         remoteViews?.setTextViewText(
                             R.id.tx_act_count,
                             "$stepsToday"
