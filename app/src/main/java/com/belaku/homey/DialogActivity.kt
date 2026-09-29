@@ -22,6 +22,8 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.speech.RecognizerIntent
+import android.text.Editable
+import android.text.TextWatcher
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.LayoutInflater
@@ -31,6 +33,7 @@ import android.view.Window
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
+import android.widget.GridLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -44,6 +47,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import com.belaku.FinnhubApiService
+import com.belaku.Stock
 import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.endCal
@@ -82,21 +92,30 @@ import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionRequest
 import com.google.android.gms.location.DetectedActivity
 import com.google.android.material.tabs.TabLayout
+import com.google.gson.GsonBuilder
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
 import com.squareup.picasso.Picasso
+import io.finnhub.api.apis.DefaultApi
+import io.finnhub.api.infrastructure.ApiClient
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.Calendar
+import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -115,9 +134,10 @@ class DialogActivity : AppCompatActivity() {
 
 
     val wifiPanelIntent = Intent(Settings.Panel.ACTION_WIFI)
+    private lateinit var imgbtnAddAnotherStock: ImageButton
+    private lateinit var imgbtnRefreshStocks: ImageButton
     private lateinit var llMenu: LinearLayout
-    private lateinit var dialogAct: AlertDialog
-    private var boolFetchingTweets: Boolean = false
+    private lateinit var glStocks: GridLayout
     private lateinit var dialogActContext: Context
     private lateinit var parentLayoutDialog: View
     private val barcodeLauncher =
@@ -200,6 +220,9 @@ class DialogActivity : AppCompatActivity() {
             }
         }
 
+        imgbtnAddAnotherStock = findViewById(R.id.imgbtn_addanother_stock)
+        imgbtnRefreshStocks = findViewById(R.id.imgbtn_refresh_stocks)
+        glStocks = findViewById(R.id.gl_stocks)
         llMenu = findViewById(R.id.ll_menu)
         llDialog = findViewById(R.id.dialog_layout)
         imgvSongCover = findViewById(R.id.dialog_imgv_cover)
@@ -227,6 +250,14 @@ class DialogActivity : AppCompatActivity() {
 
         btnCancel.setOnClickListener {
             finish()
+        }
+
+        imgbtnAddAnotherStock.setOnClickListener {
+            addStock()
+        }
+
+        imgbtnRefreshStocks.setOnClickListener {
+            refreshAllStocks()
         }
 
         btnOk.setOnClickListener {
@@ -530,6 +561,17 @@ class DialogActivity : AppCompatActivity() {
                         finish()
                     }
                 }
+                "AddAnotherStock" -> {
+                    txTitle.text = "All Stocks"
+                    edtxDialog.setBackgroundColor(android.R.color.darker_gray)
+                    txContent.setBackgroundColor(android.R.color.white)
+                    populateStocksGrid()
+                }
+                "AddStock" -> {
+
+                    addStock()
+
+                }
                 "activitiesInfo" -> {
                     txTitle.text = "Activity Details"
                     val container = findViewById<LinearLayout>(R.id.ll_activity_container)
@@ -581,6 +623,208 @@ class DialogActivity : AppCompatActivity() {
         }
     }
 
+    private fun addStock() {
+        ApiClient.apiKey["token"] = "datp3ahr01quegbh5300datp3ahr01quegbh530g"
+        val apiClient = DefaultApi()
+
+
+        txTitle.text = "Add Stock"
+        edtxDialog.visibility = View.VISIBLE
+        txContent.visibility = View.VISIBLE
+        txContent.text = ""
+        btnOk.visibility = View.GONE
+        btnCancel.visibility = View.VISIBLE
+        imgbtnShare.visibility = View.INVISIBLE
+        edtxDialog.setHint("Enter the Stock, you're interested inn...")
+        edtxDialog.requestFocus()
+
+        var textWatcherJob: Job? = null
+        edtxDialog.addTextChangedListener(object : TextWatcher {
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                textWatcherJob?.cancel()
+                val query = s?.toString()?.trim() ?: ""
+                if (query.isNotEmpty()) {
+                    textWatcherJob = lifecycleScope.launch(Dispatchers.IO) {
+                        try {
+                            delay(500)
+                            val searchResult =
+                                apiClient.symbolSearch(query, "US").result?.getOrNull(0)
+                            val symbol = searchResult?.symbol
+                            val desc = searchResult?.description
+                            withContext(Dispatchers.Main) {
+                                if (symbol != null) {
+                                    txContent.text = "Symbol: $symbol ($desc)"
+                                    txContent.setOnClickListener {
+                                        val BASE_URL = "https://finnhub.io/api/v1/"
+                                        val gson = GsonBuilder()
+                                            .setLenient()
+                                            .create()
+                                        val retrofit = Retrofit.Builder()
+                                            .baseUrl(BASE_URL)
+                                            .addConverterFactory(GsonConverterFactory.create(gson))
+                                            .build()
+
+                                        val apiService =
+                                            retrofit.create(FinnhubApiService::class.java)
+
+                                        lifecycleScope.launch(Dispatchers.IO) {
+                                            try {
+                                                val response = apiService.getQuote(
+                                                    symbol,
+                                                    "datp3ahr01quegbh5300datp3ahr01quegbh530g"
+                                                )
+                                                Log.d(
+                                                    "FinnhubResult",
+                                                    "Current $symbol Price: $${response.c}"
+                                                )
+
+                                                if (response.c > response.pc)
+                                                    remoteViews?.setImageViewResource(
+                                                        R.id.imgbtn_stock,
+                                                        android.R.drawable.arrow_up_float
+                                                    )
+                                                else remoteViews?.setImageViewResource(
+                                                    R.id.imgbtn_stock,
+                                                    android.R.drawable.arrow_down_float
+                                                )
+
+                                                remoteViews?.setViewVisibility(
+                                                    R.id.imgbtn_add_stock,
+                                                    View.VISIBLE
+                                                )
+                                                remoteViews?.setTextViewText(
+                                                    R.id.tx_stockname,
+                                                    desc
+                                                )
+                                                remoteViews?.setTextViewText(
+                                                    R.id.tx_stockprice,
+                                                    response.c.toString()
+                                                )
+                                                listStocks.add(
+                                                    Stock(
+                                                        symbol,
+                                                        desc.toString(),
+                                                        response.c,
+                                                        response.pc
+                                                    )
+                                                )
+                                                appWidM.updateAppWidget(newAppWidget, remoteViews)
+                                            } catch (e: Exception) {
+                                                Log.e(
+                                                    "FinnhubError",
+                                                    "Error fetching data: ${e.message}"
+                                                )
+                                                remoteViews?.setTextViewText(
+                                                    R.id.tx_stockname,
+                                                    "Error"
+                                                )
+                                                remoteViews?.setTextViewText(
+                                                    R.id.tx_stockprice,
+                                                    e.message
+                                                )
+                                                appWidM.updateAppWidget(newAppWidget, remoteViews)
+                                            }
+                                            finish()
+                                        }
+                                    }
+                                } else {
+                                    txContent.text = "No symbol found"
+                                    txContent.setOnClickListener(null)
+                                }
+                            }
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) {
+                                txContent.text = ""
+                                txContent.setOnClickListener(null)
+                            }
+                        }
+                    }
+                } else {
+                    txContent.text = ""
+                    txContent.setOnClickListener(null)
+                }
+            }
+        })
+
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+    }
+
+    private fun populateStocksGrid() {
+        glStocks.removeAllViews()
+        glStocks.columnCount = 2
+        for (stock in listStocks) {
+            val itemLayout = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(16, 16, 16, 16)
+                setBackgroundResource(R.drawable.rounded_corner_gray)
+                val params = GridLayout.LayoutParams().apply {
+                    width = GridLayout.LayoutParams.WRAP_CONTENT
+                    height = GridLayout.LayoutParams.WRAP_CONTENT
+                    setMargins(8, 8, 8, 8)
+                }
+                layoutParams = params
+            }
+
+            val tvName = TextView(this).apply {
+                text = stock.sname
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                setTextColor(android.graphics.Color.WHITE)
+            }
+
+            val tvPrice = TextView(this).apply {
+                text = stock.s_cprice.toString()
+                if (stock.s_cprice > stock.s_pprice) {
+                    setTextColor(android.graphics.Color.GREEN)
+                } else {
+                    setTextColor(android.graphics.Color.RED)
+                }
+            }
+
+            itemLayout.addView(tvName)
+            itemLayout.addView(tvPrice)
+            glStocks.addView(itemLayout)
+        }
+    }
+
+    private fun refreshAllStocks() {
+        val BASE_URL = "https://finnhub.io/api/v1/"
+        val gson = GsonBuilder().setLenient().create()
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+        val apiService = retrofit.create(FinnhubApiService::class.java)
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val updatedList = ArrayList<Stock>()
+            for (stock in listStocks) {
+                try {
+                    val response = apiService.getQuote(stock.symbol, "datp3ahr01quegbh5300datp3ahr01quegbh530g")
+                    updatedList.add(Stock(stock.symbol, stock.sname, response.c, response.pc))
+                } catch (e: Exception) {
+                    updatedList.add(stock)
+                }
+            }
+            listStocks.clear()
+            listStocks.addAll(updatedList)
+            withContext(Dispatchers.Main) {
+                populateStocksGrid()
+                listStocks.lastOrNull()?.let { lastStock ->
+                    remoteViews?.setTextViewText(R.id.tx_stockname, lastStock.sname)
+                    remoteViews?.setTextViewText(R.id.tx_stockprice, lastStock.s_cprice.toString())
+                    if (lastStock.s_cprice > lastStock.s_pprice)
+                        remoteViews?.setImageViewResource(R.id.imgbtn_stock, android.R.drawable.arrow_up_float)
+                    else remoteViews?.setImageViewResource(R.id.imgbtn_stock, android.R.drawable.arrow_down_float)
+                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                }
+                makeToast(applicationContext, "Stocks refreshed")
+            }
+        }
+    }
+
     private fun ydayApp(context: Context) {
         // Get yesterday's date
         val yesterday = LocalDate.now().minusDays(1)
@@ -623,7 +867,7 @@ class DialogActivity : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission", "WrongConstant")
     private fun isProfileConnected(adapter: BluetoothAdapter, profileType: Int): Boolean {
         return adapter.getProfileConnectionState(profileType) == android.bluetooth.BluetoothProfile.STATE_CONNECTED
     }
@@ -976,5 +1220,6 @@ class DialogActivity : AppCompatActivity() {
     companion object {
         private const val REQUEST_CODE_SPEECH_INPUT = 100
         lateinit var dialogIntentStr: String
+        var listStocks: ArrayList<Stock> = ArrayList()
     }
 }

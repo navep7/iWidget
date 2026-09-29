@@ -422,6 +422,7 @@ class NewAppWidget : AppWidgetProvider() {
 
 
 
+
         remoteViews?.setOnClickPendingIntent(R.id.imgbtn_close_activities, getPendingSelfIntent(context, CLOSE_ACTIVITIES))
         remoteViews?.setOnClickPendingIntent(R.id.imgbtn_fab, getPendingSelfIntent(context, ASSISTIVE_TOUCH))
 
@@ -553,6 +554,22 @@ class NewAppWidget : AppWidgetProvider() {
             R.id.tx_runner, PendingIntent.getActivity(
                 context, 6,
                 Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "AddNote"),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_stock, PendingIntent.getActivity(
+                context, 21,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "AddStock"),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_add_stock, PendingIntent.getActivity(
+                context, 22,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "AddAnotherStock"),
                 PendingIntent.FLAG_IMMUTABLE
             )
         )

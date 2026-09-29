@@ -14,21 +14,17 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.icu.util.Calendar
 import android.location.Address
 import android.net.ConnectivityManager
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.provider.ContactsContract
 import android.text.Html
 import android.util.Log
 import android.view.View
+import android.widget.RemoteViews
 import androidx.annotation.NonNull
-import androidx.annotation.RequiresApi
 import androidx.core.graphics.drawable.toBitmap
 import androidx.work.Worker
 import androidx.work.WorkerParameters
@@ -52,7 +48,6 @@ import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.hashSetAppUsage
 import com.belaku.homey.NewAppWidget.Companion.dU
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
-import com.belaku.homey.NewAppWidget.Companion.favContacts
 import com.belaku.homey.NewAppWidget.Companion.greeting
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
@@ -598,7 +593,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         }
 
 
-
         fun appUsageStats(applicationContext: Context?) {
             val context = applicationContext?.applicationContext ?: return
 
@@ -714,9 +708,9 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             val gson = Gson()
             val json = gson.toJson(apps)
 
-            sharedPreferencesEditor.remove(key).commit()
+            sharedPreferencesEditor.remove(key).apply()
 
-            sharedPreferencesEditor.putString(key, json).commit()
+            sharedPreferencesEditor.putString(key, json).apply()
         }
 
         fun formatMilliseconds(milliseconds: Long): String {

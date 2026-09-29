@@ -7,7 +7,42 @@
     android:background="@drawable/gradient_glass_rounded_ss"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_gravity="center"
     tools:context=".DialogActivity">
+
+
+
+    <GridLayout
+        android:id="@+id/gl_stocks"
+        android:layout_below="@+id/tx_dialog_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+
+    </GridLayout>
+
+    <ImageButton
+        android:id="@+id/imgbtn_addanother_stock"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@android:color/transparent"
+        android:src="@android:drawable/ic_input_add"/>
+
+    <ImageButton
+        android:id="@+id/imgbtn_refresh_stocks"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@android:color/transparent"
+        android:src="@android:drawable/ic_popup_sync"/>
+
+
+
 
     <LinearLayout
         android:id="@+id/ll_menu"
@@ -121,7 +156,8 @@
 
     <LinearLayout
         android:id="@+id/ll_buttons"
-        android:layout_below="@+id/tx_dialog_content"
+        android:visibility="gone"
+        android:layout_below="@+id/gl_stocks"
         android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -193,7 +229,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/tx_dialog_title"
+        android:layout_below="@+id/gl_stocks"
         android:layout_marginHorizontal="32dp"
         android:hint="Enter text..."
         android:visibility="gone"/>

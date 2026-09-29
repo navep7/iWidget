@@ -609,6 +609,57 @@
             android:scaleType="centerCrop"
             android:src="@drawable/launch_e" />
 
+        <LinearLayout
+            android:orientation="vertical"
+            android:background="@drawable/gradient_glass_flat"
+            android:layout_marginBottom="@dimen/fab_margin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tx_stockname"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:text="StockName"/>
+
+
+            <ImageButton
+                android:id="@+id/imgbtn_stock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@android:color/transparent"
+                android:src="@android:drawable/ic_menu_add"/>
+
+
+            <TextView
+                android:id="@+id/tx_stockprice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:text="StockPrice"/>
+
+            <ImageButton
+                android:id="@+id/imgbtn_add_stock"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@android:color/transparent"
+                android:src="@android:drawable/ic_input_add"/>
+
+
+
+
+        </LinearLayout>
+
 
         <ImageView
             android:id="@+id/imgv_contacts"

@@ -575,7 +575,7 @@ class StepsService : Service() {
 
             try {
                 val weatherService = Retrofit.Builder()
-                    .baseUrl("https://api.openweathermap.org/data/2.5/")
+                    .baseUrl("https://api.open-meteo.com/")
                     .addConverterFactory(GsonConverterFactory.create())
                     .build()
                     .create(WeatherService::class.java)
@@ -583,21 +583,30 @@ class StepsService : Service() {
 
                 GlobalScope.launch(Dispatchers.IO) {
                     try {
-                        val openWeatherApiKey = "9fa8e101240ab18615e3133b051e767e"
                         weatherData = weatherService.getWeather(
                             latLng.latitude.toString(),
-                            latLng.longitude.toString(), openWeatherApiKey
+                            latLng.longitude.toString()
                         )
                         withContext(Dispatchers.Main) {
-                            //  updateUI(weatherData)
-                            tempC = "${weatherData.main.temp - 273}°C"
-                            weatherIconState = weatherData.weather.get(0).main
-                            Log.d("weatherIconSubState", weatherData.weather.toString())
-                            tempKind = weatherData.weather.get(0).main
-                            weatherIconID = weatherData.weather.get(0).id
-                            weatherIconUrl =
-                                "http://openweathermap.org/img/wn/" + weatherIconID + "@2x.png"
-
+                            val tempVal = weatherData.currentWeather.temperature
+                            tempC = "${tempVal}°C"
+                            val code = weatherData.currentWeather.weathercode
+                            
+                            if (code == 0) {
+                                tempKind = "Clear"
+                                weatherIconID = "800"
+                            } else if (code in 1..3) {
+                                tempKind = "Clouds"
+                                weatherIconID = "801"
+                            } else if (code >= 51) {
+                                tempKind = "Rain"
+                                weatherIconID = "500"
+                            } else {
+                                tempKind = "Clear"
+                                weatherIconID = "800"
+                            }
+                            weatherIconState = tempKind
+                            weatherIconUrl = ""
 
                             Log.d("weatherInfo", tempC + " - " + tempKind)
 
