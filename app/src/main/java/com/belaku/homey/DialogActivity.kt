@@ -47,11 +47,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
 import com.belaku.FinnhubApiService
 import com.belaku.Stock
 import com.belaku.homey.Constants.Companion.stepsToday
@@ -92,6 +87,7 @@ import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionRequest
 import com.google.android.gms.location.DetectedActivity
 import com.google.android.material.tabs.TabLayout
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
@@ -99,7 +95,6 @@ import com.journeyapps.barcodescanner.ScanOptions
 import com.squareup.picasso.Picasso
 import io.finnhub.api.apis.DefaultApi
 import io.finnhub.api.infrastructure.ApiClient
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -115,7 +110,6 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.Calendar
-import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -124,7 +118,7 @@ import kotlin.time.Duration.Companion.seconds
 class DialogActivity : AppCompatActivity() {
 
     var bluetoothLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
 
         }
     private var bluetoothAdapter: BluetoothAdapter? = null
@@ -142,24 +136,21 @@ class DialogActivity : AppCompatActivity() {
     private lateinit var parentLayoutDialog: View
     private val barcodeLauncher =
         registerForActivityResult(ScanContract()) { result: ScanIntentResult? ->
-            if (result?.contents == null) {
-
-            } else {
+            if (result?.contents != null) {
                 // Handle the scan result
-                var scannedUrl = result.contents
+                val scannedUrl = result.contents
                 val upiUri = Uri.parse(scannedUrl)
                 val upiIntent = Intent(Intent.ACTION_VIEW)
-                upiIntent.setData(upiUri)
+                upiIntent.data = upiUri
                 val chooser = Intent.createChooser(upiIntent, "Pay with")
-                if (chooser.resolveActivity(getPackageManager()) != null) {
-                    startActivity(chooser);
+                if (chooser.resolveActivity(packageManager) != null) {
+                    startActivity(chooser)
                 } else {
                     // Handle the case where no UPI apps are installed
                      makeToast(applicationContext, "No UPI app found. Please install one to proceed.")
                 }
             }
         }
-    private var stepsVPpos: Int = 0
     private var rewardedInterstitialAd: RewardedInterstitialAd? = null
     private lateinit var llDialog: RelativeLayout
     private lateinit var imgvSongCover: ImageView
@@ -183,13 +174,27 @@ class DialogActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.activity_dialog)
 
         parentLayoutDialog = findViewById(android.R.id.content)
         dialogActContext = applicationContext
 
-        if (isSharedPreferencesInitialized())
+        ensurePrefs()
+
+        val jsonStocksInit = sharedPreferences.getString("listStocks", "")
+        if (!jsonStocksInit.isNullOrEmpty()) {
+            try {
+                val type = object : com.google.gson.reflect.TypeToken<ArrayList<Stock>>() {}.type
+                val parsed: ArrayList<Stock>? = Gson().fromJson(jsonStocksInit, type)
+                if (parsed != null) {
+                    listStocks = ArrayList(parsed.filterNotNull())
+                }
+            } catch (e: Exception) {
+                Log.e("DialogActivity", "Error loading stocks", e)
+            }
+        }
+
         if (stepsData.isEmpty()) {
             stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
             stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
@@ -241,7 +246,7 @@ class DialogActivity : AppCompatActivity() {
         menuBlue = findViewById(R.id.menu_blue)
         menuAi = findViewById(R.id.menu_ai)
 
-         val bluetoothManager = applicationContext.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+         val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
          bluetoothAdapter = bluetoothManager.adapter
 
         checkWifiState(applicationContext)
@@ -277,8 +282,7 @@ class DialogActivity : AppCompatActivity() {
 
         menuReminders.setOnClickListener {
             val remindersIntent = Intent(this, RemindersActivity::class.java)
-            remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-            remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or FLAG_ACTIVITY_NEW_TASK)
             startActivity(remindersIntent)
             finish()
         }
@@ -300,8 +304,7 @@ class DialogActivity : AppCompatActivity() {
 
         menuAi.setOnClickListener {
             val aiIntent = Intent(this, AiActivity::class.java)
-            aiIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-            aiIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            aiIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or FLAG_ACTIVITY_NEW_TASK)
             startActivity(aiIntent)
         }
 
@@ -321,7 +324,7 @@ class DialogActivity : AppCompatActivity() {
                     btnOk.setOnClickListener {
                         if (edtxDialog.text.isNotEmpty()) {
                             penNote = edtxDialog.text.toString()
-                            remoteViews?.setTextViewText(R.id.tx_runner, "\uD83D\uDCDD " + penNote)
+                            remoteViews?.setTextViewText(R.id.tx_runner, "\uD83D\uDCDD $penNote")
                             appWidM.updateAppWidget(newAppWidget, remoteViews)
                         }
                         finish()
@@ -379,7 +382,7 @@ class DialogActivity : AppCompatActivity() {
                         object : RewardedInterstitialAdLoadCallback() {
                             override fun onAdLoaded(rewardedAd: RewardedInterstitialAd) {
                                 rewardedInterstitialAd = rewardedAd
-                                rewardedInterstitialAd?.show(this@DialogActivity) { rewardItem ->
+                                rewardedInterstitialAd?.show(this@DialogActivity) { _ ->
                                     sharedPreferencesEditor.putInt("noRewards", 7).apply()
                                     noRewards = 7
                                     remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
@@ -412,7 +415,7 @@ class DialogActivity : AppCompatActivity() {
 
                     ydayApp(applicationContext)
                     txContent.visibility = View.VISIBLE
-                    txTitle.text = " " + twitterProfileName
+                    txTitle.text = " $twitterProfileName"
                     findViewById<ImageButton>(R.id.tw_config).apply {
                         visibility = View.VISIBLE
                         setOnClickListener { makeToast(applicationContext, "Paid Feature, coming soon!") }
@@ -421,7 +424,7 @@ class DialogActivity : AppCompatActivity() {
                         txContent.text = listTweets[Random.nextInt(0, listTweets.size)]
                     } else {
                         txContent.text = "fetching Data.. visit again later, please"
-                        rawTweets(false)
+                        rawTweets()
                     }
                 }
                 "SPEED" -> {
@@ -434,11 +437,7 @@ class DialogActivity : AppCompatActivity() {
 
                     val currentDay = (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) + 5) % 7
 
-                    val maxSpeedToday = if (isSharedPreferencesInitialized()) {
-                        sharedPreferences.getInt("maxSpeedToday", SpeedService.maxSpeed)
-                    } else {
-                        SpeedService.maxSpeed
-                    }
+                    val maxSpeedToday = sharedPreferences.getInt("maxSpeedToday", SpeedService.maxSpeed)
                     speedData[currentDay] = "$maxSpeedToday"
 
                     stepsMapsAdapter("speed", speedData)
@@ -501,16 +500,16 @@ class DialogActivity : AppCompatActivity() {
                     if (hour != 0) {
                         if (hour < 2) {
                             remoteViews?.setTextViewText(R.id.tx_screenusage_state, "LOW")
-                        } else if (hour in 2..< 5) {
+                        } else if (hour in 2 until 5) {
                             remoteViews?.setTextViewText(R.id.tx_screenusage_state, "MODERATE")
-                        } else if (hour in 5..< 8) {
+                        } else if (hour in 5 until 8) {
                             remoteViews?.setTextViewText(R.id.tx_screenusage_state, "HIGH")
                         } else {
                             remoteViews?.setTextViewText(R.id.tx_screenusage_state, "EXCESSIVE")
                         }
-                        remoteViews?.setTextViewText(R.id.tx_screentime, hour.toString() + "+")
+                        remoteViews?.setTextViewText(R.id.tx_screentime, "$hour+")
                     }
-                    remoteViews?.setTextViewText(R.id.tx_screentime, hour.toString() + "+")
+                    remoteViews?.setTextViewText(R.id.tx_screentime, "$hour+")
                     appWidM.updateAppWidget(newAppWidget, remoteViews)
                 }
                 "screenTimeInfo" -> {
@@ -545,14 +544,14 @@ class DialogActivity : AppCompatActivity() {
                     val min = sT.getOrElse(1) { "00" }
                     txAvgUsage.text = "Usage Today ~ $hour Hours : $min Mins"
 
-                    remoteViews?.setTextViewText(R.id.tx_screentime, hour.toString() + "+")
+                    remoteViews?.setTextViewText(R.id.tx_screentime, "$hour+")
                     appWidM.updateAppWidget(newAppWidget, remoteViews)
                 }
                 "AddNote" -> {
                     txTitle.text = "Add Note"
                     edtxDialog.visibility = View.VISIBLE
                     imgbtnShare.visibility = View.INVISIBLE
-                    edtxDialog.setHint("Enter Note to be Pinned...")
+                    edtxDialog.hint = "Enter Note to be Pinned..."
                     edtxDialog.requestFocus()
                     window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
                     btnOk.setOnClickListener {
@@ -623,7 +622,15 @@ class DialogActivity : AppCompatActivity() {
         }
     }
 
+    private fun ensurePrefs() {
+        if (!isSharedPreferencesInitialized()) {
+            sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+            sharedPreferencesEditor = sharedPreferences.edit()
+        }
+    }
+
     private fun addStock() {
+        ensurePrefs()
         ApiClient.apiKey["token"] = "datp3ahr01quegbh5300datp3ahr01quegbh530g"
         val apiClient = DefaultApi()
 
@@ -635,7 +642,7 @@ class DialogActivity : AppCompatActivity() {
         btnOk.visibility = View.GONE
         btnCancel.visibility = View.VISIBLE
         imgbtnShare.visibility = View.INVISIBLE
-        edtxDialog.setHint("Enter the Stock, you're interested inn...")
+        edtxDialog.hint = "Enter the Stock, you're interested inn..."
         edtxDialog.requestFocus()
 
         var textWatcherJob: Job? = null
@@ -658,12 +665,12 @@ class DialogActivity : AppCompatActivity() {
                                 if (symbol != null) {
                                     txContent.text = "Symbol: $symbol ($desc)"
                                     txContent.setOnClickListener {
-                                        val BASE_URL = "https://finnhub.io/api/v1/"
+                                        val baseUrlStr = "https://finnhub.io/api/v1/"
                                         val gson = GsonBuilder()
                                             .setLenient()
                                             .create()
                                         val retrofit = Retrofit.Builder()
-                                            .baseUrl(BASE_URL)
+                                            .baseUrl(baseUrlStr)
                                             .addConverterFactory(GsonConverterFactory.create(gson))
                                             .build()
 
@@ -681,28 +688,6 @@ class DialogActivity : AppCompatActivity() {
                                                     "Current $symbol Price: $${response.c}"
                                                 )
 
-                                                if (response.c > response.pc)
-                                                    remoteViews?.setImageViewResource(
-                                                        R.id.imgbtn_stock,
-                                                        android.R.drawable.arrow_up_float
-                                                    )
-                                                else remoteViews?.setImageViewResource(
-                                                    R.id.imgbtn_stock,
-                                                    android.R.drawable.arrow_down_float
-                                                )
-
-                                                remoteViews?.setViewVisibility(
-                                                    R.id.imgbtn_add_stock,
-                                                    View.VISIBLE
-                                                )
-                                                remoteViews?.setTextViewText(
-                                                    R.id.tx_stockname,
-                                                    desc
-                                                )
-                                                remoteViews?.setTextViewText(
-                                                    R.id.tx_stockprice,
-                                                    response.c.toString()
-                                                )
                                                 listStocks.add(
                                                     Stock(
                                                         symbol,
@@ -711,23 +696,22 @@ class DialogActivity : AppCompatActivity() {
                                                         response.pc
                                                     )
                                                 )
-                                                appWidM.updateAppWidget(newAppWidget, remoteViews)
+                                                sharedPreferencesEditor.putString("listStocks", Gson().toJson(listStocks)).apply()
+                                                
+                                                withContext(Dispatchers.Main) {
+                                                    updateWidget()
+                                                    finish()
+                                                }
                                             } catch (e: Exception) {
                                                 Log.e(
                                                     "FinnhubError",
                                                     "Error fetching data: ${e.message}"
                                                 )
-                                                remoteViews?.setTextViewText(
-                                                    R.id.tx_stockname,
-                                                    "Error"
-                                                )
-                                                remoteViews?.setTextViewText(
-                                                    R.id.tx_stockprice,
-                                                    e.message
-                                                )
-                                                appWidM.updateAppWidget(newAppWidget, remoteViews)
+                                                withContext(Dispatchers.Main) {
+                                                    makeToast(applicationContext, "Error adding stock: ${e.message}")
+                                                    finish()
+                                                }
                                             }
-                                            finish()
                                         }
                                     }
                                 } else {
@@ -790,10 +774,11 @@ class DialogActivity : AppCompatActivity() {
     }
 
     private fun refreshAllStocks() {
-        val BASE_URL = "https://finnhub.io/api/v1/"
+        ensurePrefs()
+        val baseUrlStr = "https://finnhub.io/api/v1/"
         val gson = GsonBuilder().setLenient().create()
         val retrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(baseUrlStr)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
         val apiService = retrofit.create(FinnhubApiService::class.java)
@@ -810,16 +795,10 @@ class DialogActivity : AppCompatActivity() {
             }
             listStocks.clear()
             listStocks.addAll(updatedList)
+            sharedPreferencesEditor.putString("listStocks", Gson().toJson(listStocks)).apply()
             withContext(Dispatchers.Main) {
                 populateStocksGrid()
-                listStocks.lastOrNull()?.let { lastStock ->
-                    remoteViews?.setTextViewText(R.id.tx_stockname, lastStock.sname)
-                    remoteViews?.setTextViewText(R.id.tx_stockprice, lastStock.s_cprice.toString())
-                    if (lastStock.s_cprice > lastStock.s_pprice)
-                        remoteViews?.setImageViewResource(R.id.imgbtn_stock, android.R.drawable.arrow_up_float)
-                    else remoteViews?.setImageViewResource(R.id.imgbtn_stock, android.R.drawable.arrow_down_float)
-                    appWidM.updateAppWidget(newAppWidget, remoteViews)
-                }
+                updateWidget()
                 makeToast(applicationContext, "Stocks refreshed")
             }
         }
@@ -834,9 +813,9 @@ class DialogActivity : AppCompatActivity() {
 
 // Get epoch milliseconds if needed
         val timestampMillis = yesterday6Pm.toInstant().toEpochMilli()
-        var ydayAppName = getForegroundAppAtTime(context, timestampMillis)
+        val ydayAppName = getForegroundAppAtTime(context, timestampMillis)
 
-        makeToast(context, "ydaY - " + SetWallWorker.Companion.getAppNameFromPkg(
+        makeToast(context, "ydaY - " + SetWallWorker.getAppNameFromPkg(
             context,
             ydayAppName
         )
@@ -986,17 +965,17 @@ class DialogActivity : AppCompatActivity() {
     @SuppressLint("MissingPermission")
     private fun requestActTransitions() {
 
-            var intentActivityTransitionReceiver =
+            val intentActivityTransitionReceiver =
                 Intent(applicationContext, ActivityTransitionReceiver::class.java).setAction("action.TRANSITIONS_DATA")
-            var requestCodeAT = 57
-            var pendingIntentActivityTransitions = PendingIntent.getBroadcast(
+            val requestCodeAT = 57
+            val pendingIntentActivityTransitions = PendingIntent.getBroadcast(
                 applicationContext,
                 requestCodeAT,
                 intentActivityTransitionReceiver,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
             )
 
-            var activityTransitions = ArrayList<ActivityTransition>()
+            val activityTransitions = ArrayList<ActivityTransition>()
             activityTransitions.apply {
                 add(
                     ActivityTransition.Builder()
@@ -1041,7 +1020,7 @@ class DialogActivity : AppCompatActivity() {
                 )
             }
 
-            var activityTransitionRequest = ActivityTransitionRequest(activityTransitions)
+            val activityTransitionRequest = ActivityTransitionRequest(activityTransitions)
 
             // myPendingIntent is the instance of PendingIntent where the app receives callbacks.
             try {
@@ -1158,47 +1137,7 @@ class DialogActivity : AppCompatActivity() {
 
 
 
-    private fun getTweetID(str: String) {
-        val client = OkHttpClient()
-        val request = Request.Builder().url("https://twitter241.p.rapidapi.com/user?username=$str")
-            .addHeader("x-rapidapi-key", "8521aa6a65mshab927b74fff566dp175607jsn24cd6edd63a7")
-            .addHeader("x-rapidapi-host", "twitter241.p.rapidapi.com").build()
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val response = client.newCall(request).execute()
-                val responseBody = response.body?.string() ?: return@launch
-                val json = JSONObject(responseBody)
-                val restId = json.getJSONObject("result").getJSONObject("data").getJSONObject("user").getJSONObject("result").getString("rest_id")
-                withContext(Dispatchers.Main) { getTweets(restId, true) }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) { makeToast(applicationContext, "User not found") }
-            }
-        }
-    }
-
-    private fun getTweets(twitterID: String, b: Boolean) {
-        val client = OkHttpClient()
-        val request = Request.Builder().url("https://twitter241.p.rapidapi.com/user-tweets?user=$twitterID&count=5")
-            .addHeader("x-rapidapi-key", "8521aa6a65mshab927b74fff566dp175607jsn24cd6edd63a7")
-            .addHeader("x-rapidapi-host", "twitter241.p.rapidapi.com").build()
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                // use{} guarantees the response body is closed.
-                val responseBody = client.newCall(request).execute().use { response ->
-                    response.body?.string()
-                } ?: return@launch
-                val json = JSONObject(responseBody)
-                // Parsing logic simplified for brevity
-                withContext(Dispatchers.Main) { updateWidget() }
-            } catch (e: Exception) {
-                Log.w("DialogActivity", "Fetching tweets failed", e)
-            }
-        }
-    }
-
-    private fun rawTweets(b: Boolean) {
+    private fun rawTweets() {
         val dataArray = TweetsJsonParser.parseJsonArrayFromRaw(this, R.raw.np_tweets) ?: return
         for (i in 0 until dataArray.length()) {
             // opt* accessors avoid JSONException on malformed entries.

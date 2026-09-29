@@ -1056,6 +1056,25 @@ class NewAppWidget : AppWidgetProvider() {
 
         updatePermissionHints(widgetContext, remoteViews!!)
 
+        val jsonStocks = sharedPreferences.getString("listStocks", "")
+        if (!jsonStocks.isNullOrEmpty()) {
+            try {
+                val type = object : TypeToken<ArrayList<com.belaku.Stock>>() {}.type
+                val stocks: ArrayList<com.belaku.Stock> = Gson().fromJson(jsonStocks, type)
+                if (stocks.size > 0)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_add_stock, View.VISIBLE)
+                stocks.lastOrNull()?.let { lastStock ->
+                    remoteViews?.setTextViewText(R.id.tx_stockname, lastStock.sname)
+                    remoteViews?.setTextViewText(R.id.tx_stockprice, lastStock.s_cprice.toString())
+                    if (lastStock.s_cprice > lastStock.s_pprice)
+                        remoteViews?.setImageViewResource(R.id.imgbtn_stock, android.R.drawable.arrow_up_float)
+                    else remoteViews?.setImageViewResource(R.id.imgbtn_stock, android.R.drawable.arrow_down_float)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error loading stocks in widget", e)
+            }
+        }
+
         setOnClickPendingIntents(widgetContext)
 
 

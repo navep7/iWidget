@@ -20,14 +20,6 @@
         <entry key="Firebase Crashlytics">
           <value>
             <InsightsFilterSettings>
-              <option name="connection">
-                <ConnectionSetting>
-                  <option name="appId" value="com.belaku.homey" />
-                  <option name="mobileSdkAppId" value="1:662346122694:android:fdabcce47bd89188c15ec7" />
-                  <option name="projectId" value="nhome-8c61c" />
-                  <option name="projectNumber" value="662346122694" />
-                </ConnectionSetting>
-              </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
               <option name="timeIntervalDays" value="THIRTY_DAYS" />
               <option name="visibilityType" value="ALL" />
