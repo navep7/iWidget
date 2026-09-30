@@ -1061,8 +1061,10 @@ class NewAppWidget : AppWidgetProvider() {
             try {
                 val type = object : TypeToken<ArrayList<com.belaku.Stock>>() {}.type
                 val stocks: ArrayList<com.belaku.Stock> = Gson().fromJson(jsonStocks, type)
-                if (stocks.size > 0)
-                    remoteViews?.setViewVisibility(R.id.imgbtn_add_stock, View.VISIBLE)
+                if (stocks.size == 1)
+                    remoteViews?.setImageViewResource(R.id.imgbtn_add_stock, android.R.drawable.ic_input_add)
+                else if (stocks.size > 1)
+                    remoteViews?.setImageViewResource(R.id.imgbtn_add_stock, R.drawable.baseline_more_horiz_24)
                 stocks.lastOrNull()?.let { lastStock ->
                     remoteViews?.setTextViewText(R.id.tx_stockname, lastStock.sname)
                     remoteViews?.setTextViewText(R.id.tx_stockprice, lastStock.s_cprice.toString())

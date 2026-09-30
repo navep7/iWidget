@@ -849,6 +849,7 @@ class DialogActivity : AppCompatActivity() {
     @SuppressLint("MissingPermission", "WrongConstant")
     private fun isProfileConnected(adapter: BluetoothAdapter, profileType: Int): Boolean {
         return adapter.getProfileConnectionState(profileType) == android.bluetooth.BluetoothProfile.STATE_CONNECTED
+        return adapter.getProfileConnectionState(profileType) == android.bluetooth.BluetoothProfile.STATE_CONNECTED
     }
 
     fun checkWifiState(context: Context)  {

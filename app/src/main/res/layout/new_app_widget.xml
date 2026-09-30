@@ -648,12 +648,10 @@
 
             <ImageButton
                 android:id="@+id/imgbtn_add_stock"
-                android:visibility="gone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:background="@android:color/transparent"
-                android:src="@android:drawable/ic_input_add"/>
+                android:background="@android:color/transparent" />
 
 
 
