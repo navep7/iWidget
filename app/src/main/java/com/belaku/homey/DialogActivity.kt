@@ -572,6 +572,7 @@ class DialogActivity : AppCompatActivity() {
                     }
                 }
                 "AddAnotherStock" -> {
+                    window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                     txTitle.text = "All Stocks"
                     edtxDialog.setBackgroundColor(android.R.color.darker_gray)
                     txContent.setBackgroundColor(android.R.color.white)
@@ -771,38 +772,78 @@ class DialogActivity : AppCompatActivity() {
 
         for ((index, stock) in listStocks.withIndex()) {
             val isSelected = (index == selectedStockIndex)
-            val itemLayout = LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
+            val row = index / 2
+            val col = index % 2
+
+            val itemLayout = RelativeLayout(this).apply {
                 setPadding(16, 16, 16, 16)
                 setBackgroundResource(if (isSelected) R.drawable.rounded_corner_selected else R.drawable.rounded_corner_gray)
                 isClickable = true
                 isFocusable = true
-                val params = GridLayout.LayoutParams().apply {
-                    width = GridLayout.LayoutParams.WRAP_CONTENT
+
+                val params = GridLayout.LayoutParams(
+                    GridLayout.spec(row, 1f),
+                    GridLayout.spec(col, 1f)
+                ).apply {
+                    width = 0
                     height = GridLayout.LayoutParams.WRAP_CONTENT
                     setMargins(8, 8, 8, 8)
+                    gravity = Gravity.FILL_HORIZONTAL
                 }
                 layoutParams = params
+            }
+
+            val contentLayout = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                gravity = Gravity.CENTER
+                val contentParams = RelativeLayout.LayoutParams(
+                    RelativeLayout.LayoutParams.MATCH_PARENT,
+                    RelativeLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    addRule(RelativeLayout.CENTER_IN_PARENT)
+                }
+                layoutParams = contentParams
             }
 
             val tvName = TextView(this).apply {
                 text = stock.sname
                 setTypeface(null, android.graphics.Typeface.BOLD)
                 setTextColor(android.graphics.Color.WHITE)
+                gravity = Gravity.CENTER
+                maxLines = 1
+                ellipsize = android.text.TextUtils.TruncateAt.END
             }
 
             val tvPrice = TextView(this).apply {
-                text = stock.s_cprice.toString() + " $"
+                text = "${stock.s_cprice} $"
                 if (stock.s_cprice > stock.s_pprice) {
                     setTextColor(android.graphics.Color.GREEN)
                 } else {
                     setTextColor(android.graphics.Color.RED)
                 }
                 gravity = Gravity.CENTER
+                maxLines = 1
+                ellipsize = android.text.TextUtils.TruncateAt.END
             }
 
-            itemLayout.addView(tvName)
-            itemLayout.addView(tvPrice)
+            contentLayout.addView(tvName)
+            contentLayout.addView(tvPrice)
+
+            val btnClose = ImageView(this).apply {
+                setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
+                setColorFilter(android.graphics.Color.WHITE)
+                isClickable = true
+                isFocusable = true
+                val btnSize = (24 * resources.displayMetrics.density).toInt()
+                val btnParams = RelativeLayout.LayoutParams(btnSize, btnSize).apply {
+                    addRule(RelativeLayout.ALIGN_PARENT_TOP)
+                    addRule(RelativeLayout.ALIGN_PARENT_END)
+                }
+                layoutParams = btnParams
+            }
+
+            itemLayout.addView(contentLayout)
+            itemLayout.addView(btnClose)
 
             itemLayout.setOnClickListener {
                 selectedStockIndex = index
@@ -819,6 +860,24 @@ class DialogActivity : AppCompatActivity() {
                 sharedPreferencesEditor.putString("selectedStockSymbol", stock.symbol).apply()
                 updateWidget()
                 makeToast(applicationContext, "Selected ${stock.sname}")
+            }
+
+            btnClose.setOnClickListener {
+                if (index in listStocks.indices) {
+                    val removedStock = listStocks.removeAt(index)
+                    ensurePrefs()
+                    sharedPreferencesEditor.putString("listStocks", Gson().toJson(listStocks)).apply()
+
+                    val savedSymbol = sharedPreferences.getString("selectedStockSymbol", "")
+                    if (removedStock.symbol == savedSymbol) {
+                        val newSymbol = listStocks.getOrNull(index.coerceAtMost(listStocks.lastIndex))?.symbol ?: ""
+                        sharedPreferencesEditor.putString("selectedStockSymbol", newSymbol).apply()
+                    }
+
+                    updateWidget()
+                    populateStocksGrid()
+                    makeToast(applicationContext, "Removed ${removedStock.sname}")
+                }
             }
 
             glStocks.addView(itemLayout)

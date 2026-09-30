@@ -1067,16 +1067,24 @@ class NewAppWidget : AppWidgetProvider() {
                     remoteViews?.setImageViewResource(R.id.imgbtn_add_stock, R.drawable.baseline_more_horiz_24)
                 val selectedSymbol = sharedPreferences.getString("selectedStockSymbol", "")
                 val selectedStock = stocks.find { it.symbol == selectedSymbol } ?: stocks.lastOrNull()
-                selectedStock?.let { stock ->
-                    remoteViews?.setTextViewText(R.id.tx_stockname, stock.sname)
-                    remoteViews?.setTextViewText(R.id.tx_stockprice, stock.s_cprice.toString().split(".")[0] + " $")
-                    if (stock.s_cprice > stock.s_pprice)
+                if (selectedStock != null) {
+                    remoteViews?.setTextViewText(R.id.tx_stockname, selectedStock.sname)
+                    remoteViews?.setTextViewText(R.id.tx_stockprice, selectedStock.s_cprice.toString().split(".")[0] + " $")
+                    if (selectedStock.s_cprice > selectedStock.s_pprice)
                         remoteViews?.setImageViewResource(R.id.imgbtn_stock, android.R.drawable.arrow_up_float)
                     else remoteViews?.setImageViewResource(R.id.imgbtn_stock, android.R.drawable.arrow_down_float)
+                } else {
+                    remoteViews?.setTextViewText(R.id.tx_stockname, "No Stock")
+                    remoteViews?.setTextViewText(R.id.tx_stockprice, "")
+                    remoteViews?.setImageViewResource(R.id.imgbtn_stock, android.R.drawable.ic_menu_add)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading stocks in widget", e)
             }
+        } else {
+            remoteViews?.setTextViewText(R.id.tx_stockname, "No Stock")
+            remoteViews?.setTextViewText(R.id.tx_stockprice, "")
+            remoteViews?.setImageViewResource(R.id.imgbtn_stock, android.R.drawable.ic_menu_add)
         }
 
         setOnClickPendingIntents(widgetContext)
