@@ -26,6 +26,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,6 +38,7 @@ import android.widget.GridLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -49,6 +51,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.belaku.FinnhubApiService
 import com.belaku.Stock
+import io.finnhub.api.apis.DefaultApi
+import io.finnhub.api.infrastructure.ApiClient
 import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.endCal
@@ -93,8 +97,7 @@ import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
 import com.squareup.picasso.Picasso
-import io.finnhub.api.apis.DefaultApi
-import io.finnhub.api.infrastructure.ApiClient
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -130,8 +133,10 @@ class DialogActivity : AppCompatActivity() {
     val wifiPanelIntent = Intent(Settings.Panel.ACTION_WIFI)
     private lateinit var imgbtnAddAnotherStock: ImageButton
     private lateinit var imgbtnRefreshStocks: ImageButton
+    private lateinit var pbRefreshStocks: ProgressBar
     private lateinit var llMenu: LinearLayout
     private lateinit var glStocks: GridLayout
+    private var selectedStockIndex: Int = -1
     private lateinit var dialogActContext: Context
     private lateinit var parentLayoutDialog: View
     private val barcodeLauncher =
@@ -157,6 +162,7 @@ class DialogActivity : AppCompatActivity() {
     private lateinit var txTitle: TextView
     private lateinit var txContent: TextView
     private lateinit var edtxDialog: EditText
+    private lateinit var llButtons: LinearLayout
 
     private lateinit var btnOk: Button
     private lateinit var btnCancel: Button
@@ -227,6 +233,7 @@ class DialogActivity : AppCompatActivity() {
 
         imgbtnAddAnotherStock = findViewById(R.id.imgbtn_addanother_stock)
         imgbtnRefreshStocks = findViewById(R.id.imgbtn_refresh_stocks)
+        pbRefreshStocks = findViewById(R.id.pb_refresh_stocks)
         glStocks = findViewById(R.id.gl_stocks)
         llMenu = findViewById(R.id.ll_menu)
         llDialog = findViewById(R.id.dialog_layout)
@@ -236,6 +243,7 @@ class DialogActivity : AppCompatActivity() {
 
 
         edtxDialog = findViewById(R.id.edtx_dialog)
+        llButtons = findViewById(R.id.ll_buttons)
         btnOk = findViewById(R.id.btn_dialog_ok)
         btnCancel = findViewById(R.id.btn_dialog_cancel)
         imgbtnShare = findViewById(R.id.imgbtn_dialog_share)
@@ -315,21 +323,6 @@ class DialogActivity : AppCompatActivity() {
 
         if (dialogIntentStr != null) {
             when (dialogIntentStr) {
-                "setNote" -> {
-                    edtxDialog.visibility = View.VISIBLE
-                    btnOk.visibility = View.VISIBLE
-                    imgbtnShare.visibility = View.INVISIBLE
-                    txTitle.text = "Pin a Note"
-
-                    btnOk.setOnClickListener {
-                        if (edtxDialog.text.isNotEmpty()) {
-                            penNote = edtxDialog.text.toString()
-                            remoteViews?.setTextViewText(R.id.tx_runner, "\uD83D\uDCDD $penNote")
-                            appWidM.updateAppWidget(newAppWidget, remoteViews)
-                        }
-                        finish()
-                    }
-                }
                 "Menu" -> {
                     window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                     val prefs = if (isSharedPreferencesInitialized()) sharedPreferences else getSharedPreferences("UserPreferences", MODE_PRIVATE)
@@ -347,6 +340,8 @@ class DialogActivity : AppCompatActivity() {
                     imgbtnShare.visibility = View.GONE
                     btnOk.visibility = View.GONE
                     btnCancel.visibility = View.GONE
+                    imgbtnRefreshStocks.visibility = View.INVISIBLE
+                    imgbtnAddAnotherStock.visibility = View.INVISIBLE
                 }
                 "SongCover" -> {
                     txTitle.visibility = View.VISIBLE
@@ -399,6 +394,8 @@ class DialogActivity : AppCompatActivity() {
                 }
 
                 "StT" -> {
+                    imgbtnRefreshStocks.visibility = View.INVISIBLE
+                    imgbtnAddAnotherStock.visibility = View.INVISIBLE
                     txContent.visibility = View.VISIBLE
                     txContent.movementMethod = ScrollingMovementMethod()
                     txTitle.text = "Speech to Text"
@@ -412,7 +409,8 @@ class DialogActivity : AppCompatActivity() {
 
                 }
                 "ST" -> {
-
+                    imgbtnRefreshStocks.visibility = View.INVISIBLE
+                    imgbtnAddAnotherStock.visibility = View.INVISIBLE
                     ydayApp(applicationContext)
                     txContent.visibility = View.VISIBLE
                     txTitle.text = " $twitterProfileName"
@@ -434,6 +432,8 @@ class DialogActivity : AppCompatActivity() {
                     vpSteps.visibility = View.VISIBLE
                     tabLayout.visibility = View.VISIBLE
                     imgbtnShare.visibility = View.GONE
+                    imgbtnRefreshStocks.visibility = View.INVISIBLE
+                    imgbtnAddAnotherStock.visibility = View.INVISIBLE
 
                     val currentDay = (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) + 5) % 7
 
@@ -456,6 +456,8 @@ class DialogActivity : AppCompatActivity() {
                     vpSteps.visibility = View.VISIBLE
                     tabLayout.visibility = View.VISIBLE
                     imgbtnShare.visibility = View.GONE
+                    imgbtnRefreshStocks.visibility = View.INVISIBLE
+                    imgbtnAddAnotherStock.visibility = View.INVISIBLE
 
                     val currentDay = (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) + 5) % 7
                     stepsData[currentDay] = stepsToday.toString()
@@ -513,6 +515,8 @@ class DialogActivity : AppCompatActivity() {
                     appWidM.updateAppWidget(newAppWidget, remoteViews)
                 }
                 "screenTimeInfo" -> {
+                    imgbtnRefreshStocks.visibility = View.INVISIBLE
+                    imgbtnAddAnotherStock.visibility = View.INVISIBLE
                     window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
                     txTitle.text = "App Usage Analysis"
                     txContent.text = "Stats from ${beginCal.get(Calendar.DAY_OF_MONTH)}/${beginCal.get(Calendar.MONTH) + 1} to ${endCal.get(Calendar.DAY_OF_MONTH)}/${endCal.get(Calendar.MONTH) + 1}"
@@ -549,15 +553,22 @@ class DialogActivity : AppCompatActivity() {
                 }
                 "AddNote" -> {
                     txTitle.text = "Add Note"
+                    llButtons.visibility = View.VISIBLE
                     edtxDialog.visibility = View.VISIBLE
-                    imgbtnShare.visibility = View.INVISIBLE
+                    btnOk.visibility = View.VISIBLE
+                    btnCancel.visibility = View.VISIBLE
+                    imgbtnRefreshStocks.visibility = View.INVISIBLE
+                    imgbtnAddAnotherStock.visibility = View.INVISIBLE
+                    imgbtnShare.visibility = View.GONE
                     edtxDialog.hint = "Enter Note to be Pinned..."
                     edtxDialog.requestFocus()
                     window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
                     btnOk.setOnClickListener {
-                        if (edtxDialog.text.toString().isNotEmpty()) pinNote = edtxDialog.text.toString()
-                        Thread { SetWallWorker.setWall(true, dialogActContext) }.start()
-                        finish()
+                        if (edtxDialog.text.toString().isNotEmpty()) {
+                            pinNote = edtxDialog.text.toString()
+                            Thread { SetWallWorker.setWall(true, dialogActContext) }.start()
+                            finish()
+                        }
                     }
                 }
                 "AddAnotherStock" -> {
@@ -572,6 +583,8 @@ class DialogActivity : AppCompatActivity() {
 
                 }
                 "activitiesInfo" -> {
+                    imgbtnRefreshStocks.visibility = View.INVISIBLE
+                    imgbtnAddAnotherStock.visibility = View.INVISIBLE
                     txTitle.text = "Activity Details"
                     val container = findViewById<LinearLayout>(R.id.ll_activity_container)
                     container.visibility = View.VISIBLE
@@ -636,12 +649,13 @@ class DialogActivity : AppCompatActivity() {
 
 
         txTitle.text = "Add Stock"
+        llButtons.visibility = View.VISIBLE
         edtxDialog.visibility = View.VISIBLE
         txContent.visibility = View.VISIBLE
         txContent.text = ""
         btnOk.visibility = View.GONE
         btnCancel.visibility = View.VISIBLE
-        imgbtnShare.visibility = View.INVISIBLE
+        imgbtnShare.visibility = View.GONE
         edtxDialog.hint = "Enter the Stock, you're interested inn..."
         edtxDialog.requestFocus()
 
@@ -697,6 +711,7 @@ class DialogActivity : AppCompatActivity() {
                                                     )
                                                 )
                                                 sharedPreferencesEditor.putString("listStocks", Gson().toJson(listStocks)).apply()
+                                                sharedPreferencesEditor.putString("selectedStockSymbol", symbol).apply()
                                                 
                                                 withContext(Dispatchers.Main) {
                                                     updateWidget()
@@ -739,11 +754,29 @@ class DialogActivity : AppCompatActivity() {
     private fun populateStocksGrid() {
         glStocks.removeAllViews()
         glStocks.columnCount = 2
-        for (stock in listStocks) {
+        if (listStocks.isEmpty()) return
+
+        ensurePrefs()
+        val savedSymbol = sharedPreferences.getString("selectedStockSymbol", "")
+        if (!savedSymbol.isNullOrEmpty()) {
+            val idx = listStocks.indexOfFirst { it.symbol == savedSymbol }
+            if (idx != -1) {
+                selectedStockIndex = idx
+            }
+        }
+
+        if (selectedStockIndex < 0 || selectedStockIndex >= listStocks.size) {
+            selectedStockIndex = listStocks.lastIndex
+        }
+
+        for ((index, stock) in listStocks.withIndex()) {
+            val isSelected = (index == selectedStockIndex)
             val itemLayout = LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 setPadding(16, 16, 16, 16)
-                setBackgroundResource(R.drawable.rounded_corner_gray)
+                setBackgroundResource(if (isSelected) R.drawable.rounded_corner_selected else R.drawable.rounded_corner_gray)
+                isClickable = true
+                isFocusable = true
                 val params = GridLayout.LayoutParams().apply {
                     width = GridLayout.LayoutParams.WRAP_CONTENT
                     height = GridLayout.LayoutParams.WRAP_CONTENT
@@ -759,22 +792,44 @@ class DialogActivity : AppCompatActivity() {
             }
 
             val tvPrice = TextView(this).apply {
-                text = stock.s_cprice.toString()
+                text = stock.s_cprice.toString() + " $"
                 if (stock.s_cprice > stock.s_pprice) {
                     setTextColor(android.graphics.Color.GREEN)
                 } else {
                     setTextColor(android.graphics.Color.RED)
                 }
+                gravity = Gravity.CENTER
             }
 
             itemLayout.addView(tvName)
             itemLayout.addView(tvPrice)
+
+            itemLayout.setOnClickListener {
+                selectedStockIndex = index
+                for (i in 0 until glStocks.childCount) {
+                    val child = glStocks.getChildAt(i)
+                    if (i == selectedStockIndex) {
+                        child.setBackgroundResource(R.drawable.rounded_corner_selected)
+                    } else {
+                        child.setBackgroundResource(R.drawable.rounded_corner_gray)
+                    }
+                }
+
+                ensurePrefs()
+                sharedPreferencesEditor.putString("selectedStockSymbol", stock.symbol).apply()
+                updateWidget()
+                makeToast(applicationContext, "Selected ${stock.sname}")
+            }
+
             glStocks.addView(itemLayout)
         }
     }
 
     private fun refreshAllStocks() {
         ensurePrefs()
+        imgbtnRefreshStocks.visibility = View.GONE
+        pbRefreshStocks.visibility = View.VISIBLE
+
         val baseUrlStr = "https://finnhub.io/api/v1/"
         val gson = GsonBuilder().setLenient().create()
         val retrofit = Retrofit.Builder()
@@ -784,22 +839,29 @@ class DialogActivity : AppCompatActivity() {
         val apiService = retrofit.create(FinnhubApiService::class.java)
 
         lifecycleScope.launch(Dispatchers.IO) {
-            val updatedList = ArrayList<Stock>()
-            for (stock in listStocks) {
-                try {
-                    val response = apiService.getQuote(stock.symbol, "datp3ahr01quegbh5300datp3ahr01quegbh530g")
-                    updatedList.add(Stock(stock.symbol, stock.sname, response.c, response.pc))
-                } catch (e: Exception) {
-                    updatedList.add(stock)
+            try {
+                val updatedList = ArrayList<Stock>()
+                for (stock in listStocks) {
+                    try {
+                        val response = apiService.getQuote(stock.symbol, "datp3ahr01quegbh5300datp3ahr01quegbh530g")
+                        updatedList.add(Stock(stock.symbol, stock.sname, response.c, response.pc))
+                    } catch (e: Exception) {
+                        updatedList.add(stock)
+                    }
                 }
-            }
-            listStocks.clear()
-            listStocks.addAll(updatedList)
-            sharedPreferencesEditor.putString("listStocks", Gson().toJson(listStocks)).apply()
-            withContext(Dispatchers.Main) {
-                populateStocksGrid()
-                updateWidget()
-                makeToast(applicationContext, "Stocks refreshed")
+                listStocks.clear()
+                listStocks.addAll(updatedList)
+                sharedPreferencesEditor.putString("listStocks", Gson().toJson(listStocks)).apply()
+                withContext(Dispatchers.Main) {
+                    populateStocksGrid()
+                    updateWidget()
+                    makeToast(applicationContext, "Stocks refreshed")
+                }
+            } finally {
+                withContext(Dispatchers.Main) {
+                    pbRefreshStocks.visibility = View.GONE
+                    imgbtnRefreshStocks.visibility = View.VISIBLE
+                }
             }
         }
     }

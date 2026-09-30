@@ -610,6 +610,7 @@
             android:src="@drawable/launch_e" />
 
         <LinearLayout
+            android:id="@+id/ll_stock"
             android:orientation="vertical"
             android:background="@drawable/gradient_glass_flat"
             android:layout_marginBottom="@dimen/fab_margin"
@@ -622,6 +623,8 @@
                 android:layout_height="wrap_content"
                 android:maxLines="1"
                 android:ellipsize="end"
+                android:layout_gravity="center"
+                android:gravity="center"
                 android:textColor="@color/black"
                 android:textStyle="bold"
                 android:text="StockName"/>
@@ -641,6 +644,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
+                android:layout_gravity="center"
+                android:gravity="center"
                 android:ellipsize="end"
                 android:textColor="@color/black"
                 android:textStyle="bold"
@@ -651,7 +656,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:background="@android:color/transparent" />
+                android:background="@drawable/gradient_glass_rounded_go" />
 
 
 

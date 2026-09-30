@@ -1065,10 +1065,12 @@ class NewAppWidget : AppWidgetProvider() {
                     remoteViews?.setImageViewResource(R.id.imgbtn_add_stock, android.R.drawable.ic_input_add)
                 else if (stocks.size > 1)
                     remoteViews?.setImageViewResource(R.id.imgbtn_add_stock, R.drawable.baseline_more_horiz_24)
-                stocks.lastOrNull()?.let { lastStock ->
-                    remoteViews?.setTextViewText(R.id.tx_stockname, lastStock.sname)
-                    remoteViews?.setTextViewText(R.id.tx_stockprice, lastStock.s_cprice.toString())
-                    if (lastStock.s_cprice > lastStock.s_pprice)
+                val selectedSymbol = sharedPreferences.getString("selectedStockSymbol", "")
+                val selectedStock = stocks.find { it.symbol == selectedSymbol } ?: stocks.lastOrNull()
+                selectedStock?.let { stock ->
+                    remoteViews?.setTextViewText(R.id.tx_stockname, stock.sname)
+                    remoteViews?.setTextViewText(R.id.tx_stockprice, stock.s_cprice.toString().split(".")[0] + " $")
+                    if (stock.s_cprice > stock.s_pprice)
                         remoteViews?.setImageViewResource(R.id.imgbtn_stock, android.R.drawable.arrow_up_float)
                     else remoteViews?.setImageViewResource(R.id.imgbtn_stock, android.R.drawable.arrow_down_float)
                 }

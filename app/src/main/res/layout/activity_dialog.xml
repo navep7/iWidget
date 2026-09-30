@@ -15,6 +15,7 @@
     <GridLayout
         android:id="@+id/gl_stocks"
         android:layout_below="@+id/tx_dialog_title"
+        android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
@@ -40,6 +41,15 @@
         android:layout_gravity="center"
         android:background="@android:color/transparent"
         android:src="@android:drawable/ic_popup_sync"/>
+
+    <ProgressBar
+        android:id="@+id/pb_refresh_stocks"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="8dp"
+        android:visibility="gone"/>
 
 
 
@@ -157,7 +167,7 @@
     <LinearLayout
         android:id="@+id/ll_buttons"
         android:visibility="gone"
-        android:layout_below="@+id/gl_stocks"
+        android:layout_below="@+id/tx_dialog_content"
         android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
