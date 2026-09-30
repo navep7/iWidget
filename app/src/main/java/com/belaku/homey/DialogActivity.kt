@@ -97,6 +97,7 @@ import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.CoroutineScope
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -793,6 +794,22 @@ class DialogActivity : AppCompatActivity() {
                 layoutParams = params
             }
 
+            val CLOSE_BUTTON_ID = View.generateViewId()
+
+            val btnClose = ImageView(this).apply {
+                id = CLOSE_BUTTON_ID
+                setImageResource(android.R.drawable.ic_notification_clear_all)
+                setColorFilter(android.graphics.Color.GRAY)
+                isClickable = true
+                isFocusable = true
+                val btnSize = (24 * resources.displayMetrics.density).toInt()
+                val btnParams = RelativeLayout.LayoutParams(btnSize, btnSize).apply {
+                    addRule(RelativeLayout.ALIGN_PARENT_TOP)
+                    addRule(RelativeLayout.ALIGN_PARENT_END)
+                }
+                layoutParams = btnParams
+            }
+
             val contentLayout = LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 gravity = Gravity.CENTER
@@ -800,7 +817,10 @@ class DialogActivity : AppCompatActivity() {
                     RelativeLayout.LayoutParams.MATCH_PARENT,
                     RelativeLayout.LayoutParams.WRAP_CONTENT
                 ).apply {
-                    addRule(RelativeLayout.CENTER_IN_PARENT)
+                    addRule(RelativeLayout.LEFT_OF, CLOSE_BUTTON_ID)
+                    addRule(RelativeLayout.CENTER_HORIZONTAL)
+                    // Optional: add a small margin so it's not touching the button
+                    topMargin = 8
                 }
                 layoutParams = contentParams
             }
@@ -829,18 +849,7 @@ class DialogActivity : AppCompatActivity() {
             contentLayout.addView(tvName)
             contentLayout.addView(tvPrice)
 
-            val btnClose = ImageView(this).apply {
-                setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
-                setColorFilter(android.graphics.Color.WHITE)
-                isClickable = true
-                isFocusable = true
-                val btnSize = (24 * resources.displayMetrics.density).toInt()
-                val btnParams = RelativeLayout.LayoutParams(btnSize, btnSize).apply {
-                    addRule(RelativeLayout.ALIGN_PARENT_TOP)
-                    addRule(RelativeLayout.ALIGN_PARENT_END)
-                }
-                layoutParams = btnParams
-            }
+
 
             itemLayout.addView(contentLayout)
             itemLayout.addView(btnClose)
@@ -884,44 +893,10 @@ class DialogActivity : AppCompatActivity() {
         }
     }
 
-    private fun refreshAllStocks() {
-        ensurePrefs()
-        imgbtnRefreshStocks.visibility = View.GONE
-        pbRefreshStocks.visibility = View.VISIBLE
-
-        val baseUrlStr = "https://finnhub.io/api/v1/"
-        val gson = GsonBuilder().setLenient().create()
-        val retrofit = Retrofit.Builder()
-            .baseUrl(baseUrlStr)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .build()
-        val apiService = retrofit.create(FinnhubApiService::class.java)
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val updatedList = ArrayList<Stock>()
-                for (stock in listStocks) {
-                    try {
-                        val response = apiService.getQuote(stock.symbol, "datp3ahr01quegbh5300datp3ahr01quegbh530g")
-                        updatedList.add(Stock(stock.symbol, stock.sname, response.c, response.pc))
-                    } catch (e: Exception) {
-                        updatedList.add(stock)
-                    }
-                }
-                listStocks.clear()
-                listStocks.addAll(updatedList)
-                sharedPreferencesEditor.putString("listStocks", Gson().toJson(listStocks)).apply()
-                withContext(Dispatchers.Main) {
-                    populateStocksGrid()
-                    updateWidget()
-                    makeToast(applicationContext, "Stocks refreshed")
-                }
-            } finally {
-                withContext(Dispatchers.Main) {
-                    pbRefreshStocks.visibility = View.GONE
-                    imgbtnRefreshStocks.visibility = View.VISIBLE
-                }
-            }
+    fun refreshAllStocks() {
+        refreshAllStocks(this, pbRefreshStocks, imgbtnRefreshStocks) {
+            populateStocksGrid()
+            makeToast(applicationContext, "Stocks refreshed")
         }
     }
 
@@ -1282,5 +1257,72 @@ class DialogActivity : AppCompatActivity() {
         private const val REQUEST_CODE_SPEECH_INPUT = 100
         lateinit var dialogIntentStr: String
         var listStocks: ArrayList<Stock> = ArrayList()
+        private var lastStocksRefreshTimeMs: Long = 0
+
+        fun refreshAllStocks(
+            context: Context,
+            pb: ProgressBar? = null,
+            btn: ImageButton? = null,
+            onComplete: (() -> Unit)? = null
+        ) {
+            val now = android.os.SystemClock.elapsedRealtime()
+            // Throttle: 10 mins for background (widget) refreshes, skip if UI buttons are provided (manual refresh)
+            if (pb == null && btn == null && now - lastStocksRefreshTimeMs < 10 * 60 * 1000) return
+            lastStocksRefreshTimeMs = now
+
+            if (!isSharedPreferencesInitialized()) {
+                sharedPreferences = context.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+                sharedPreferencesEditor = sharedPreferences.edit()
+            }
+
+            val jsonStocks = sharedPreferences.getString("listStocks", "")
+            if (jsonStocks.isNullOrEmpty()) return
+
+            val type = object : com.google.gson.reflect.TypeToken<ArrayList<Stock>>() {}.type
+            val stocks: ArrayList<Stock> = Gson().fromJson(jsonStocks, type) ?: return
+
+            pb?.visibility = View.VISIBLE
+            btn?.visibility = View.GONE
+
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val apiService = Retrofit.Builder()
+                        .baseUrl("https://finnhub.io/api/v1/")
+                        .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
+                        .build()
+                        .create(FinnhubApiService::class.java)
+
+                    val updatedList = ArrayList<Stock>()
+                    for (stock in stocks) {
+                        try {
+                            val response = apiService.getQuote(stock.symbol, "datp3ahr01quegbh5300datp3ahr01quegbh530g")
+                            updatedList.add(Stock(stock.symbol, stock.sname, response.c, response.pc))
+                        } catch (e: Exception) {
+                            updatedList.add(stock)
+                        }
+                    }
+                    listStocks.clear()
+                    listStocks.addAll(updatedList)
+                    sharedPreferencesEditor.putString("listStocks", Gson().toJson(listStocks)).apply()
+
+                    withContext(Dispatchers.Main) {
+                        val intent = Intent(context, NewAppWidget::class.java).apply {
+                            action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                            val ids = AppWidgetManager.getInstance(context).getAppWidgetIds(ComponentName(context, NewAppWidget::class.java))
+                            putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+                        }
+                        context.sendBroadcast(intent)
+                        onComplete?.invoke()
+                    }
+                } catch (e: Exception) {
+                    Log.e("DialogActivity", "Error refreshing stocks", e)
+                } finally {
+                    withContext(Dispatchers.Main) {
+                        pb?.visibility = View.GONE
+                        btn?.visibility = View.VISIBLE
+                    }
+                }
+            }
+        }
     }
 }

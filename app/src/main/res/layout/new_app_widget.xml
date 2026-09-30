@@ -651,17 +651,17 @@
                 android:textStyle="bold"
                 android:text="StockPrice"/>
 
-            <ImageButton
-                android:id="@+id/imgbtn_add_stock"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:background="@drawable/gradient_glass_rounded_go" />
-
-
-
 
         </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/imgbtn_add_stock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-15dp"
+            android:layout_marginBottom="15dp"
+            android:layout_gravity="center"
+            android:background="@drawable/gradient_glass_rounded_go" />
 
 
         <ImageView

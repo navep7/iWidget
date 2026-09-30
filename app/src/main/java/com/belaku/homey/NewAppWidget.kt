@@ -115,6 +115,7 @@ import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.squareup.picasso.Picasso
@@ -803,6 +804,8 @@ class NewAppWidget : AppWidgetProvider() {
         ensureRemoteViews(widgetContext)
         ensurePrefs(widgetContext)
 
+        DialogActivity.refreshAllStocks(widgetContext)
+
         // SharedPreferences is the source of truth: ActivityTransitionReceiver persists the state
         // before requesting this redraw. Only trusting the static when it was blank meant a stale
         // in-memory value (e.g. left over from an earlier process) shadowed the real state.
@@ -1086,6 +1089,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setTextViewText(R.id.tx_stockprice, "")
             remoteViews?.setImageViewResource(R.id.imgbtn_stock, android.R.drawable.ic_menu_add)
         }
+        
 
         setOnClickPendingIntents(widgetContext)
 
