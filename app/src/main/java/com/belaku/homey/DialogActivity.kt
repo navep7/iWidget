@@ -836,7 +836,8 @@ class DialogActivity : AppCompatActivity() {
             }
 
             val tvPrice = TextView(this).apply {
-                text = "${stock.s_cprice} $ ${abs(stock.s_cprice - stock.s_pprice)}"
+                val diffPercent = if (stock.s_pprice != 0.0) (abs(stock.s_cprice - stock.s_pprice) / stock.s_pprice) * 100 else 0.0
+                text = "${stock.s_cprice} $ ${String.format("%.2f", diffPercent)}%"
                 if (stock.s_cprice > stock.s_pprice) {
                     setTextColor(android.graphics.Color.GREEN)
                 } else {

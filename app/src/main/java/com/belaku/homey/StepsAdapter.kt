@@ -76,8 +76,8 @@ class StepsAdapter(
 
         val km = if (steps != 0) String.format("%.1f", (steps * 74f) / 100000f) else "0"
         val kCal = (steps * 0.04 * (80 / 70)).toInt()
-        strDurationWalk = formatDuration(durationMillisWalk)
-        strDurationTravel = formatDuration(durationMillisTravel)
+        strDurationWalk = if (steps != 0) formatDuration(durationMillisWalk) else "00:00"
+        strDurationTravel = if (steps != 0) formatDuration(durationMillisTravel) else "00:00"
 
         holder.txTitle.text = days[realPosition]
        // makeToast(contx, "StA ~ " + strT)
