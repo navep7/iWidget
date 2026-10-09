@@ -14,8 +14,8 @@ object BitmapBlurHelper {
 
     fun blurBitmap(context: Context?, originalBitmap: Bitmap): Bitmap {
         // Scale down the bitmap for faster processing
-        val width = Math.round(originalBitmap.width * BITMAP_SCALE)
-        val height = Math.round(originalBitmap.height * BITMAP_SCALE)
+        val width = Math.round(originalBitmap.width * BITMAP_SCALE).coerceAtLeast(1)
+        val height = Math.round(originalBitmap.height * BITMAP_SCALE).coerceAtLeast(1)
         val inputBitmap = Bitmap.createScaledBitmap(originalBitmap, width, height, false)
 
         val outputBitmap = Bitmap.createBitmap(inputBitmap)
@@ -33,7 +33,9 @@ object BitmapBlurHelper {
         tmpOut.copyTo(outputBitmap)
 
         // Release RenderScript resources
-        inputBitmap.recycle() // Recycle the scaled down bitmap
+        if (inputBitmap !== originalBitmap && !inputBitmap.isRecycled) {
+            inputBitmap.recycle() // Recycle the scaled down bitmap if it's a new instance
+        }
         tmpIn.destroy()
         tmpOut.destroy()
         theIntrinsic.destroy()
