@@ -114,6 +114,7 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.Calendar
+import kotlin.math.abs
 import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -835,7 +836,7 @@ class DialogActivity : AppCompatActivity() {
             }
 
             val tvPrice = TextView(this).apply {
-                text = "${stock.s_cprice} $"
+                text = "${stock.s_cprice} $ ${abs(stock.s_cprice - stock.s_pprice)}"
                 if (stock.s_cprice > stock.s_pprice) {
                     setTextColor(android.graphics.Color.GREEN)
                 } else {

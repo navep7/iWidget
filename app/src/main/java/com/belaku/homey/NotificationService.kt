@@ -31,6 +31,7 @@ class NotificationService : NotificationListenerService(), TextToSpeech.OnInitLi
 
     private var lastProcessedKey: String? = null
     private var lastProcessedTime: Long = 0
+    private var lastGlobalSpokenTime: Long = 0
 
     override fun onCreate() {
         super.onCreate()
@@ -112,12 +113,8 @@ class NotificationService : NotificationListenerService(), TextToSpeech.OnInitLi
             val params = Bundle().apply {
                 putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f)
             }
-            Log.d("NoteServiceLOG", "Speaking text loudly: $text")
-            tts?.speak(text, try {
-                TextToSpeech.QUEUE_FLUSH
-            } catch (e: Exception) {
-                TODO("Not yet implemented")
-            }, params, "notificationUtterance_${System.currentTimeMillis()}")
+            Log.d("NoteServiceLOG", "Speaking: $text")
+            tts?.speak(text, TextToSpeech.QUEUE_FLUSH, params, "notificationUtterance_${System.currentTimeMillis()}")
         } catch (e: Exception) {
             Log.e("NoteServiceLOG", "Error during tts.speak", e)
         }
@@ -176,22 +173,18 @@ class NotificationService : NotificationListenerService(), TextToSpeech.OnInitLi
 
     private fun processNotification(sbn: StatusBarNotification) {
         val packageName = sbn.packageName ?: return
-        Log.d("NoteServiceLOG", "onNotificationPosted received from package: $packageName")
+        Log.d("NoteServiceLOG", "onNotificationPosted from package: $packageName")
 
-        // Filter out our own app's notifications to prevent infinite speech/processing loops
         if (packageName == applicationContext.packageName) return
 
-        // Deduplicate rapid duplicate callbacks for the same notification
         val notificationKey = "${packageName}_${sbn.id}_${sbn.postTime}"
         val currentTime = System.currentTimeMillis()
         if (notificationKey == lastProcessedKey && (currentTime - lastProcessedTime) < 1000) {
-            Log.d("NoteServiceLOG", "Duplicate notification callback ignored for $notificationKey")
             return
         }
         lastProcessedKey = notificationKey
         lastProcessedTime = currentTime
 
-        // Extract app name
         var appName: String
         try {
             val ai: ApplicationInfo = packageManager.getApplicationInfo(packageName, 0)
@@ -200,23 +193,25 @@ class NotificationService : NotificationListenerService(), TextToSpeech.OnInitLi
             appName = "Unknown"
         }
 
-        // Initialize sharedPreferences context safely
         val prefs = applicationContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
 
         if (prefs.getBoolean("SPKSERVICE", false)) {
+            // Notification Cooldown Logic
+            if (currentTime - lastGlobalSpokenTime < Constants.NOTIFICATION_COOLDOWN_MS) {
+                Log.d("NoteServiceLOG", "Cooldown active, skipping: $appName")
+                return
+            }
+            
+            lastGlobalSpokenTime = currentTime
             synchronized(speechQueue) {
                 speakText(appName)
             }
         }
     }
 
-    override fun onNotificationRemoved(sbn: StatusBarNotification?) {
-        // Optional override for completeness
-    }
+    override fun onNotificationRemoved(sbn: StatusBarNotification?) {}
 
-    override fun onNotificationRemoved(sbn: StatusBarNotification?, rankingMap: RankingMap?) {
-        // Optional override for completeness
-    }
+    override fun onNotificationRemoved(sbn: StatusBarNotification?, rankingMap: RankingMap?) {}
 
     private fun setupSpeechRecognizer() {
         val serviceComponent = ComponentName("com.google.android.googlequicksearchbox", "com.google.android.voicesearch.service.SpeechRecognitionService")
