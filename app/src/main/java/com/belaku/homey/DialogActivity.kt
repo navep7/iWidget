@@ -913,11 +913,11 @@ class DialogActivity : AppCompatActivity() {
         val timestampMillis = yesterday6Pm.toInstant().toEpochMilli()
         val ydayAppName = getForegroundAppAtTime(context, timestampMillis)
 
-        makeToast(context, "ydaY - " + SetWallWorker.getAppNameFromPkg(
+        /*makeToast(context, "ydaY - " + SetWallWorker.getAppNameFromPkg(
             context,
             ydayAppName
         )
-        )
+        )*/
     }
 
     fun checkBluetoothState(context: Context) {
