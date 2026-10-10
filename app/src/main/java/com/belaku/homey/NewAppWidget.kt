@@ -1077,7 +1077,7 @@ class NewAppWidget : AppWidgetProvider() {
                         remoteViews?.setImageViewResource(R.id.imgbtn_stock, android.R.drawable.arrow_up_float)
                     else remoteViews?.setImageViewResource(R.id.imgbtn_stock, android.R.drawable.arrow_down_float)
                 } else {
-                    remoteViews?.setTextViewText(R.id.tx_stockname, "No Stock")
+                    remoteViews?.setTextViewText(R.id.tx_stockname, "Stocks!")
                     remoteViews?.setTextViewText(R.id.tx_stockprice, "")
                     remoteViews?.setImageViewResource(R.id.imgbtn_stock, android.R.drawable.ic_menu_add)
                 }
@@ -1085,7 +1085,7 @@ class NewAppWidget : AppWidgetProvider() {
                 Log.e(TAG, "Error loading stocks in widget", e)
             }
         } else {
-            remoteViews?.setTextViewText(R.id.tx_stockname, "No Stock")
+            remoteViews?.setTextViewText(R.id.tx_stockname, "Stocks!")
             remoteViews?.setTextViewText(R.id.tx_stockprice, "")
             remoteViews?.setImageViewResource(R.id.imgbtn_stock, android.R.drawable.ic_menu_add)
         }
@@ -1624,6 +1624,16 @@ class NewAppWidget : AppWidgetProvider() {
         val action = intent.action ?: return
         Log.d(TAG, "onReceive: $action")
 
+
+        if (action == "android.appwidget.action.APPWIDGET_ENABLED") {
+            val handler = android.os.Handler(android.os.Looper.getMainLooper())
+            handler.postDelayed({
+                context.startActivity(Intent(context, DialogActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).putExtra("DialogIntent", "Permissions"))
+                makeToast(context, "Allow permissions by clicking on yellow triangles to see the Infos")
+                // Assuming makeSnack refers to the companion method in MainActivity
+                MainActivity.makeSnack("Allow permissions by clicking on yellow triangles to see the Infos")
+            }, 3000)
+        }
 
 
         try {

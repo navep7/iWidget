@@ -410,6 +410,19 @@ class DialogActivity : AppCompatActivity() {
                     startActivityForResult(intent, REQUEST_CODE_SPEECH_INPUT)
 
                 }
+
+                "Permissions" -> {
+                    imgbtnRefreshStocks.visibility = View.INVISIBLE
+                    imgbtnAddAnotherStock.visibility = View.INVISIBLE
+                    llButtons.visibility = View.VISIBLE
+                    imgbtnShare.visibility = View.INVISIBLE
+                    ydayApp(applicationContext)
+                    txContent.visibility = View.VISIBLE
+                    txTitle.text = "Allow Permissions!"
+                    txContent.text = "Click on the Yellow triangles to allow permissions \n\n 1. or 3. Location permission to show current location and weather info! \n 2. Notification permission to notify you of Apps with incoming notifications and Hourly TIME readouts \n 4. Activity state permission to display whether you're sitting STILL/WALKING/TRAVELLING, and since how long, the time. \n 5. ScreenTime prmission to know how long you've been using the phone for Today!"
+
+
+                }
                 "ST" -> {
                     imgbtnRefreshStocks.visibility = View.INVISIBLE
                     imgbtnAddAnotherStock.visibility = View.INVISIBLE

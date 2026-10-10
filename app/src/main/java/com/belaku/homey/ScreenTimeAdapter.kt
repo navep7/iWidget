@@ -39,18 +39,27 @@ class ScreenTimeAdapter(private val appUsageList: List<AppUsage>, private val ma
         // Reset to default icon first to handle view recycling and provide a fallback
         holder.imgAppIcon.setImageResource(R.drawable.launch)
 
-        item.packageName?.trim()?.let { pkg ->
-            if (pkg.isNotEmpty()) {
-                try {
-                    val pm = holder.itemView.context.packageManager
-                    // Using getApplicationInfo + loadIcon is generally more reliable than getApplicationIcon
-                    val appInfo = pm.getApplicationInfo(pkg, 0)
-                    holder.imgAppIcon.setImageDrawable(appInfo.loadIcon(pm))
-                } catch (e: Exception) {
-                    // Falls back to the default icon set above
+
+            holder.txAppName.text = item.appName
+
+
+            // 1. Reset the icon to a placeholder to handle recycling
+            holder.imgAppIcon.setImageResource(R.drawable.launch)
+
+            val pkg = item.packageName?.trim()
+            if (!pkg.isNullOrEmpty()) {
+
+                item.packageName?.let { pkg ->
+
+                    holder.imgAppIcon.post {
+                        try {
+                            val icon = holder.itemView.context.packageManager.getApplicationIcon(pkg)
+                            holder.imgAppIcon.setImageDrawable(icon)
+                        } catch (e: Exception) { }
+                    }
                 }
             }
-        }
+
     }
 
     override fun getItemCount() = appUsageList.size

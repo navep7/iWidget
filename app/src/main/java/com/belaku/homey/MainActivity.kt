@@ -420,7 +420,6 @@ class MainActivity : AppCompatActivity() {
                         startStepsServiceInternal()
 
                     finish()
-
                 }
 
             }
