@@ -13,6 +13,14 @@
             <data android:scheme="http" />
         </intent>
         <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="upi" />
+        </intent>
+        <intent>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
@@ -24,6 +32,14 @@
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
         <package android:name="com.google.android.tts" />
+        <package android:name="com.google.android.apps.nbu.paisa.user" />
+        <package android:name="com.phonepe.app" />
+        <package android:name="net.one97.paytm" />
+        <package android:name="in.org.npci.upiapp" />
+        <package android:name="com.amazon.mShop.android.shopping" />
+        <package android:name="com.whatsapp" />
+        <package android:name="com.freecharge.android" />
+        <package android:name="com.mobikwik_new" />
     </queries>
 
 
@@ -168,7 +184,7 @@
             tools:replace="android:screenOrientation" />
         <activity
             android:name=".DialogActivity"
-            android:excludeFromRecents="true"
+            android:excludeFromRecents="false"
             android:exported="false"
             android:theme="@style/Theme.Material3.DayNight.Dialog" />
 

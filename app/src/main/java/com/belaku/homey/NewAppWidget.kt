@@ -65,6 +65,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
+import androidx.core.graphics.drawable.toBitmap
 import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
@@ -87,6 +88,9 @@ import com.belaku.homey.RemindersActivity.Companion.arrayListHabits
 import com.belaku.homey.RemindersActivity.Companion.isadapterHabitsInitialized
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
+import com.belaku.homey.SetWallWorker.Companion.formatMilliseconds
+import com.belaku.homey.SetWallWorker.Companion.getAppNameFromPkg
+import com.belaku.homey.SetWallWorker.Companion.getAppUsageStatsForRange
 import com.belaku.homey.SetWallWorker.Companion.hour
 import com.belaku.homey.SetWallWorker.Companion.isPinNoteInitialized
 import com.belaku.homey.SetWallWorker.Companion.isSharedPreferencesInitialized
@@ -126,11 +130,13 @@ import java.util.Calendar
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
+import androidx.core.content.edit
 
 
 class NewAppWidget : AppWidgetProvider() {
 
 
+    private var currentCount: CharSequence = "0"
     private lateinit var widgetContext: Context
     private lateinit var activityTransitionRequest: ActivityTransitionRequest
     private lateinit var pendingIntentActivityTransitions: PendingIntent
@@ -172,14 +178,15 @@ class NewAppWidget : AppWidgetProvider() {
 
         val appContext = context.applicationContext
         unlockReceiver = object : BroadcastReceiver() {
+            @SuppressLint("UseKtx")
             override fun onReceive(ctx: Context, intent: Intent) {
                 if (Intent.ACTION_USER_PRESENT == intent.action) {
                     val appContextInside = ctx.applicationContext
 
                     // Increment count in SharedPreferences first
                     val prefs = appContextInside.getSharedPreferences("UserPreferences", MODE_PRIVATE)
-                    val currentCount = prefs.getInt("unlockCount", 0)
-                    prefs.edit().putInt("unlockCount", currentCount + 1).apply()
+                    currentCount = prefs.getInt("unlockCount", 0).toString()
+                    prefs.edit { putInt("unlockCount", Integer.parseInt(currentCount.toString()) + 1) }
 
                     // Trigger a refresh. We use a fresh instance to avoid stale property captures.
                     val manager = AppWidgetManager.getInstance(appContextInside)
@@ -794,9 +801,115 @@ class NewAppWidget : AppWidgetProvider() {
         }
     }
 
+    /**
+     * Predicts apps the user might need by aggregating usage patterns from the last 7 days
+     * within a +/- 30-minute window of the current time. This "habit-based" approach
+     * is more robust than just looking at yesterday's data.
+     */
+    private fun getAppsOfCurrentTimeWindow(context: Context) {
+        if (!UsageStatsChecker().hasUsageStatsPermission(context)) return
+
+        if (!isSharedPreferencesInitialized()) {
+            val prefs = context.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
+            sharedPreferences = prefs
+            sharedPreferencesEditor = prefs.edit()
+        }
+
+        val aggregatedScores = mutableMapOf<String, Long>()
+        val aggregatedData = mutableMapOf<String, Pair<Long, Int>>() // pkg -> (totalDuration, totalOpens)
+
+        // 1. Loop through the last 7 days to find consistent habits at this specific time
+        for (day in 1..7) {
+            val calendar = Calendar.getInstance().apply {
+                add(Calendar.DAY_OF_YEAR, -day)
+            }
+
+            // Define a 1-hour window centered around the current time on each day
+            val startTime = calendar.timeInMillis - (30 * 60 * 1000L)
+            val endTime = calendar.timeInMillis + (30 * 60 * 1000L)
+
+            val stats = getAppUsageStatsForRange(context, startTime, endTime)
+            stats.forEach { (pkg, duration, opens) ->
+                if (isAppInstalled(context, pkg) && isAppLaunchable(context, pkg)) {
+                    // Decay weight: More recent days have higher impact (8 down to 2)
+                    val weight = 9 - day
+                    // Score = (duration in seconds + opens * 60s) * weight
+                    val score = ((duration / 1000) + (opens * 60L)) * weight
+
+                    aggregatedScores[pkg] = (aggregatedScores[pkg] ?: 0L) + score
+                    val current = aggregatedData[pkg] ?: (0L to 0)
+                    aggregatedData[pkg] = (current.first + duration) to (current.second + opens)
+                }
+            }
+        }
+
+        // 2. Take the top 3 apps based on aggregated habit scores
+        val top3Result = aggregatedScores.toList()
+            .sortedByDescending { it.second }
+            .take(3)
+
+        Log.d("TimeChangedReceiver", "Predicted Top Apps: ${top3Result.map { it.first }}")
+
+        // Persist for widget logic
+        val pkgList = top3Result.map { it.first }
+        sharedPreferencesEditor.putString("TOP3_PKGS", Gson().toJson(pkgList)).apply()
+
+        // Synchronize and recycle old bitmaps to prevent memory leaks before updating the widget
+        synchronized(Top3) {
+            Top3.forEach { app ->
+                if (!app.iconBitmap.isRecycled) {
+                    app.iconBitmap.recycle()
+                }
+            }
+            Top3.clear()
+
+            top3Result.forEach { (packageName, _) ->
+                val data = aggregatedData[packageName] ?: (0L to 0)
+                val appName = getAppNameFromPkg(context, packageName)
+                try {
+                    val iconDrawable = context.packageManager.getApplicationIcon(packageName)
+                    val bitmap = iconDrawable.toBitmap(120, 120)
+                    // Display average daily usage for this specific time slot
+                    val usageStr = formatMilliseconds(data.first / 7)
+                    Top3.add(App(appName, packageName, usageStr, bitmap, data.second / 7))
+                } catch (e: Exception) {
+                    Log.e("TimeChangedReceiver", "Error loading app icon for $packageName", e)
+                }
+            }
+        }
+
+        // 3. Trigger Widget Update
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val componentName = ComponentName(context, NewAppWidget::class.java)
+        val ids = appWidgetManager.getAppWidgetIds(componentName)
+
+        if (ids.isNotEmpty()) {
+            val updateIntent = Intent(context, NewAppWidget::class.java).apply {
+                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+            }
+            context.sendBroadcast(updateIntent)
+        }
+    }
+
+    private fun isAppInstalled(context: Context, packageName: String): Boolean {
+        return try {
+            context.packageManager.getPackageInfo(packageName, 0)
+            true
+        } catch (_: PackageManager.NameNotFoundException) {
+            false
+        }
+    }
+
+    private fun isAppLaunchable(context: Context, packageName: String): Boolean {
+        return try {
+            context.packageManager.getLaunchIntentForPackage(packageName) != null
+        } catch (_: Exception) {
+            false
+        }
+    }
 
     @SuppressLint("SuspiciousIndentation")
-
     private fun setUI() {
 
         // setUI() is reachable from several receiver paths; make sure the shared state it
@@ -823,26 +936,26 @@ class NewAppWidget : AppWidgetProvider() {
        //     makeToast(widgetContext, Top3.toString())
             remoteViews?.setViewVisibility(R.id.rl_app1, View.VISIBLE)
             remoteViews?.setImageViewBitmap(R.id.imgv_app1, Top3[0].iconBitmap)
-            if (Top3[0].openCount != 0)
+           /* if (Top3[0].openCount != 0)
             remoteViews?.setTextViewText(R.id.tx_app1_count, Top3[0].openCount.toString())
-            else remoteViews?.setViewVisibility(R.id.tx_app1_count, View.INVISIBLE)
+            else remoteViews?.setViewVisibility(R.id.tx_app1_count, View.INVISIBLE)*/
             if (Top3.size > 1) {
                 remoteViews?.setViewVisibility(R.id.rl_app2, View.VISIBLE)
                 remoteViews?.setImageViewBitmap(R.id.imgv_app2, Top3[1].iconBitmap)
-                if (Top3[1].openCount != 0)
+               /* if (Top3[1].openCount != 0)
                 remoteViews?.setTextViewText(R.id.tx_app2_count, Top3[1].openCount.toString())
-                else remoteViews?.setViewVisibility(R.id.tx_app2_count, View.INVISIBLE)
+                else remoteViews?.setViewVisibility(R.id.tx_app2_count, View.INVISIBLE)*/
             }
             if (Top3.size > 2) {
                 remoteViews?.setViewVisibility(R.id.rl_app3, View.VISIBLE)
                 remoteViews?.setImageViewBitmap(R.id.imgv_app3, Top3[2].iconBitmap)
-                if (Top3[2].openCount != 0)
+                /*if (Top3[2].openCount != 0)
                 remoteViews?.setTextViewText(R.id.tx_app3_count, Top3[2].openCount.toString())
-                else remoteViews?.setViewVisibility(R.id.tx_app3_count, View.INVISIBLE)
+                else remoteViews?.setViewVisibility(R.id.tx_app3_count, View.INVISIBLE)*/
             }
         }
 
-        remoteViews?.setTextViewText(R.id.tx_unlocks, sharedPreferences.getInt("unlockCount", 0).toString())
+        remoteViews?.setTextViewText(R.id.tx_unlocks, currentCount)
 
 
         if (presentActivityState == "STILL") {
@@ -1092,7 +1205,6 @@ class NewAppWidget : AppWidgetProvider() {
         
 
         setOnClickPendingIntents(widgetContext)
-
 
 
     }
@@ -1379,6 +1491,8 @@ class NewAppWidget : AppWidgetProvider() {
     @SuppressLint("ResourceAsColor")
 
     private fun wallColors() {
+
+
         try {
             val wallpaperManager = WallpaperManager.getInstance(widgetContext)
             val wallpaperColors = wallpaperManager.getWallpaperColors(WallpaperManager.FLAG_SYSTEM)
@@ -1505,6 +1619,16 @@ class NewAppWidget : AppWidgetProvider() {
         } catch (e: Exception) {
             Log.e("wallColors", "Error in wallColors", e)
         }
+
+
+      //  val pendingResult = goAsync()
+        Thread {
+            try {
+                getAppsOfCurrentTimeWindow(widgetContext)
+            } catch (e: Exception) {
+                Log.e("TimeChangedReceiver", "Error predicting apps", e)
+            }
+        }.start()
     }
 
     fun blur(context: Context?, image: Bitmap): Bitmap {

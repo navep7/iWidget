@@ -141,21 +141,40 @@ class DialogActivity : AppCompatActivity() {
     private var selectedStockIndex: Int = -1
     private lateinit var dialogActContext: Context
     private lateinit var parentLayoutDialog: View
+
+    private val upiLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+            finish()
+        }
+
     private val barcodeLauncher =
         registerForActivityResult(ScanContract()) { result: ScanIntentResult? ->
-            if (result?.contents != null) {
-                // Handle the scan result
-                val scannedUrl = result.contents
-                val upiUri = Uri.parse(scannedUrl)
-                val upiIntent = Intent(Intent.ACTION_VIEW)
-                upiIntent.data = upiUri
-                val chooser = Intent.createChooser(upiIntent, "Pay with")
-                if (chooser.resolveActivity(packageManager) != null) {
-                    startActivity(chooser)
+            val scannedUrl = result?.contents
+            if (!scannedUrl.isNullOrEmpty()) {
+                if (scannedUrl.startsWith("upi://pay", ignoreCase = true)) {
+                    try {
+                        // Hide UI to avoid "overlay detection" blocking in UPI apps
+                        llDialog.visibility = View.INVISIBLE
+                        window.setDimAmount(0f)
+
+                        val upiUri = Uri.parse(scannedUrl)
+                        val upiIntent = Intent(Intent.ACTION_VIEW, upiUri)
+                        
+                        // Launch directly. Chooser is avoided to preserve calling package identity.
+                        upiLauncher.launch(upiIntent)
+                    } catch (e: Exception) {
+                        makeToast(applicationContext, "Error launching UPI app")
+                        finish()
+                    }
+                } else if (scannedUrl.startsWith("http", ignoreCase = true)) {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(scannedUrl)))
+                    finish()
                 } else {
-                    // Handle the case where no UPI apps are installed
-                     makeToast(applicationContext, "No UPI app found. Please install one to proceed.")
+                    makeToast(applicationContext, "Scanned: $scannedUrl")
+                    finish()
                 }
+            } else {
+                finish()
             }
         }
     private var rewardedInterstitialAd: RewardedInterstitialAd? = null
@@ -638,10 +657,15 @@ class DialogActivity : AppCompatActivity() {
                         .show()
                 }
                 "qrClick" -> {
+                    // Hide the UI to avoid "overlay detected" blocks in UPI apps
+                    llDialog.visibility = View.INVISIBLE
+                    window.setDimAmount(0f)
 
                     val options = ScanOptions().apply {
                         setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-                        setPrompt("Scan a QR code")
+                        setPrompt("Scan a UPI QR code")
+                        setOrientationLocked(false)
+                        setBeepEnabled(true)
                     }
 
                     // Launch the scanner
@@ -658,9 +682,15 @@ class DialogActivity : AppCompatActivity() {
         }
     }
 
+
+
+// Initialize client
+
+
+
     private fun addStock() {
         ensurePrefs()
-        ApiClient.apiKey["token"] = "datp3ahr01quegbh5300datp3ahr01quegbh530g"
+        ApiClient.apiKey["token"] = "db5ndcpr01qv1n8vo4p0db5ndcpr01qv1n8vo4pg"
         val apiClient = DefaultApi()
 
 
@@ -688,7 +718,7 @@ class DialogActivity : AppCompatActivity() {
                         try {
                             delay(500)
                             val searchResult =
-                                apiClient.symbolSearch(query, "US").result?.getOrNull(0)
+                                apiClient.symbolSearch(query, "").result?.getOrNull(0)
                             val symbol = searchResult?.symbol
                             val desc = searchResult?.description
                             withContext(Dispatchers.Main) {
@@ -711,7 +741,7 @@ class DialogActivity : AppCompatActivity() {
                                             try {
                                                 val response = apiService.getQuote(
                                                     symbol,
-                                                    "datp3ahr01quegbh5300datp3ahr01quegbh530g"
+                                                    "db5ndcpr01qv1n8vo4p0db5ndcpr01qv1n8vo4pg"
                                                 )
                                                 Log.d(
                                                     "FinnhubResult",
@@ -728,7 +758,7 @@ class DialogActivity : AppCompatActivity() {
                                                 )
                                                 sharedPreferencesEditor.putString("listStocks", Gson().toJson(listStocks)).apply()
                                                 sharedPreferencesEditor.putString("selectedStockSymbol", symbol).apply()
-                                                
+
                                                 withContext(Dispatchers.Main) {
                                                     updateWidget()
                                                     finish()
@@ -739,7 +769,7 @@ class DialogActivity : AppCompatActivity() {
                                                     "Error fetching data: ${e.message}"
                                                 )
                                                 withContext(Dispatchers.Main) {
-                                                    makeToast(applicationContext, "Error adding stock: ${e.message}")
+                                                    makeToast(applicationContext, "Error adding stock: ${e.message.toString()}")
                                                     finish()
                                                 }
                                             }
@@ -766,6 +796,8 @@ class DialogActivity : AppCompatActivity() {
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
     }
+
+
 
     private fun populateStocksGrid() {
         glStocks.removeAllViews()
@@ -1310,7 +1342,7 @@ class DialogActivity : AppCompatActivity() {
                     val updatedList = ArrayList<Stock>()
                     for (stock in stocks) {
                         try {
-                            val response = apiService.getQuote(stock.symbol, "datp3ahr01quegbh5300datp3ahr01quegbh530g")
+                            val response = apiService.getQuote(stock.symbol, "db5ndcpr01qv1n8vo4p0db5ndcpr01qv1n8vo4pg")
                             updatedList.add(Stock(stock.symbol, stock.sname, response.c, response.pc))
                         } catch (e: Exception) {
                             updatedList.add(stock)

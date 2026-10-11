@@ -432,7 +432,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
         /**
          * Retrieves a list of (package name, total foreground duration, open count)
-         * for all apps that had an open event during the specified timeframe range.
+         * for all apps that had an activity resume event during the specified timeframe range.
          */
         fun getAppUsageStatsForRange(
             context: Context,
@@ -456,9 +456,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             while (lookbackEvents.hasNextEvent()) {
                 lookbackEvents.getNextEvent(event)
                 when (event.eventType) {
-                    UsageEvents.Event.ACTIVITY_RESUMED,
-                    UsageEvents.Event.USER_INTERACTION,
-                    UsageEvents.Event.SHORTCUT_INVOCATION -> {
+                    UsageEvents.Event.ACTIVITY_RESUMED -> {
                         activeApp = event.packageName
                     }
                     UsageEvents.Event.ACTIVITY_PAUSED -> {
@@ -517,16 +515,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                             appOpenCountMap[activeApp!!] = (appOpenCountMap[activeApp] ?: 0) + 1
                         }
                     }
-                    UsageEvents.Event.USER_INTERACTION,
-                    UsageEvents.Event.SHORTCUT_INVOCATION -> {
-                        activeApp = event.packageName
-                        if (!launcherPackages.contains(activeApp) && activeApp != context.packageName) {
-                            openedApps.add(activeApp)
-                            if (!appUsageMap.containsKey(activeApp)) {
-                                appUsageMap[activeApp] = 0L
-                            }
-                        }
-                    }
                     UsageEvents.Event.ACTIVITY_PAUSED -> {
                         if (event.packageName == activeApp) {
                             activeApp = null
@@ -547,13 +535,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 val duration = finalTime - lastTimestamp
                 if (duration > 0) {
                     appUsageMap[activeApp] = (appUsageMap[activeApp] ?: 0L) + duration
-                }
-            }
-
-            // Ensure all apps that had an open event during the duration are present in the map
-            for (pkg in openedApps) {
-                if (!appUsageMap.containsKey(pkg)) {
-                    appUsageMap[pkg] = 0L
                 }
             }
 
