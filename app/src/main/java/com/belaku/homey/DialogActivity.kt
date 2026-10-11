@@ -384,10 +384,8 @@ class DialogActivity : AppCompatActivity() {
                     noRewards = sharedPreferences.getInt("noRewards", 7)
                     if (noRewards > 1) {
                         sharedPreferencesEditor.putInt("noRewards", --noRewards).apply()
-                        remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
-                        remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.VISIBLE)
-                        appWidM.updateAppWidget(newAppWidget, remoteViews)
                         Thread { SetWallWorker.setWall(true, dialogActContext) }.start()
+
                         finish()
                     }
                 }

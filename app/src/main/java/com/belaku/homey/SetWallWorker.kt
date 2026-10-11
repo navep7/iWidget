@@ -202,6 +202,14 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         @SuppressLint("SetTextI18n")
         fun setWall(b: Boolean, wallWorkerContext: Context) {
 
+
+            remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.VISIBLE)
+
+            newAppWidget = ComponentName(wallWorkerContext, NewAppWidget::class.java)
+            appWidM = AppWidgetManager.getInstance(wallWorkerContext)
+            appWidM.updateAppWidget(newAppWidget, remoteViews)
+
             wm = WallpaperManager.getInstance(wallWorkerContext)
             wm.setWallpaperOffsetSteps(1F, 1F)
 
@@ -309,9 +317,9 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
                 remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.INVISIBLE)
                 remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
+
                 
-                newAppWidget = ComponentName(wallWorkerContext, NewAppWidget::class.java)
-                appWidM = AppWidgetManager.getInstance(wallWorkerContext)
+
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
 
                 if (downloadSuccess) {

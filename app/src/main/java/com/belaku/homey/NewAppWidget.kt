@@ -955,7 +955,7 @@ class NewAppWidget : AppWidgetProvider() {
             }
         }
 
-        remoteViews?.setTextViewText(R.id.tx_unlocks, currentCount)
+        remoteViews?.setTextViewText(R.id.tx_unlocks, sharedPreferences.getInt("unlockCount", 0).toString())
 
 
         if (presentActivityState == "STILL") {
@@ -1748,6 +1748,7 @@ class NewAppWidget : AppWidgetProvider() {
         val action = intent.action ?: return
         Log.d(TAG, "onReceive: $action")
 
+        ensureUnlockReceiver(context)
 
         if (action == "android.appwidget.action.APPWIDGET_ENABLED") {
             val handler = android.os.Handler(android.os.Looper.getMainLooper())
