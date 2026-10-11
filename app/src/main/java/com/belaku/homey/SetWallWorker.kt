@@ -431,14 +431,14 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         }
 
         /**
-         * Retrieves a map of package names to their total foreground duration (in milliseconds)
+         * Retrieves a list of (package name, total foreground duration, open count)
          * for all apps that had an open event during the specified timeframe range.
          */
         fun getAppUsageStatsForRange(
             context: Context,
             startTime: Long,
             endTime: Long
-        ): List<Pair<String, Long>> {
+        ): List<Triple<String, Long, Int>> {
             val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
             
             val launcherPackages = context.packageManager.queryIntentActivities(
@@ -450,7 +450,8 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             var activeApp: String? = null
             var isScreenInteractive = true
 
-            val lookbackEvents = usageStatsManager.queryEvents(startTime - (12 * 60 * 60 * 1000), startTime)
+            // Optimization: Reduce lookback to 2 hours for performance, usually enough to find current foreground app
+            val lookbackEvents = usageStatsManager.queryEvents(startTime - (2 * 60 * 60 * 1000), startTime)
             val event = UsageEvents.Event()
             while (lookbackEvents.hasNextEvent()) {
                 lookbackEvents.getNextEvent(event)
@@ -556,12 +557,11 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 }
             }
 
-            // Return only apps that were opened during the timeframe, sorted by foreground usage
-            // duration descending, using open (launch) count as a tiebreaker when durations match.
-            return appUsageMap.filter { openedApps.contains(it.key) }
-                .toList()
-                .sortedWith(compareByDescending<Pair<String, Long>> { it.second }
-                    .thenByDescending { appUsageMap[it.first] ?: 0 })
+            // Return Triple(package, duration, openCount) sorted by duration, then open count.
+            return openedApps.map { pkg ->
+                Triple(pkg, appUsageMap[pkg] ?: 0L, appOpenCountMap[pkg] ?: 0)
+            }.sortedWith(compareByDescending<Triple<String, Long, Int>> { it.second }
+                .thenByDescending { it.third })
         }
 
 
@@ -624,7 +624,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
                     var totalDurationMs = 0L
 
-                    for ((pkg, duration) in usageStats) {
+                    for ((pkg, duration, openCount) in usageStats) {
                         if (duration < 0) continue // ignore usage under 1 second
                         
                         // Check if the package is a user-facing app with a launch intent
@@ -639,7 +639,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                             if (choosenApps.size < 10) {
                                 try {
                                     val iconBitmap: Bitmap = context.packageManager.getApplicationIcon(pkg).toBitmap()
-                                    choosenApps.add(App(appName, pkg, appUsageStr, iconBitmap))
+                                    choosenApps.add(App(appName, pkg, appUsageStr, iconBitmap, openCount))
                                 } catch (e: Exception) {
                                     // Skip apps where icon cannot be retrieved
                                 }

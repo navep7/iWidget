@@ -8,19 +8,14 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
-import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.SetWallWorker.Companion.formatMilliseconds
 import com.belaku.homey.SetWallWorker.Companion.getAppNameFromPkg
 import com.belaku.homey.SetWallWorker.Companion.getAppUsageStatsForRange
-import com.belaku.homey.SetWallWorker.Companion.getForegroundAppAtTime
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SpeakService.Companion.speakOut
 import com.belaku.homey.StepsService.Companion.Top3
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.google.gson.Gson
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.util.Calendar
 
 class TimeChangedReceiver : BroadcastReceiver() {
@@ -31,18 +26,18 @@ class TimeChangedReceiver : BroadcastReceiver() {
             val currentHour = calendar.get(Calendar.HOUR)
             val currentMin = calendar.get(Calendar.MINUTE)
 
-            if (Top3.isEmpty())
+            // Refresh Top3 apps every 10 minutes or if empty
+            if (Top3.isEmpty() || currentMin % 10 == 0) {
                 getAppsOfCurrentTimeWindow(context)
-            else {
-                if (currentMin % 10 == 0)
-                    getAppsOfCurrentTimeWindow(context)
             }
 
-            Log.d("TimeChangedReceiver", "Time tick received. Current Min : $currentHour : $currentMin")
+            Log.d("TimeChangedReceiver", "Time tick received. Current time: $currentHour:$currentMin")
 
+            // Hourly announcement
             if (currentMin == 0) {
                 if (isMyServiceRunning(context, SpeakService::class.java)) {
-                    if (currentHour == 10 && calendar.get(Calendar.AM_PM) == 1) {
+                    // Stop service at 10 PM
+                    if (currentHour == 10 && calendar.get(Calendar.AM_PM) == Calendar.PM) {
                         val speakIntent = Intent(context, SpeakService::class.java)
                         context.stopService(speakIntent)
                         NewAppWidget.applyTimeAnnouncementState(
@@ -64,43 +59,38 @@ class TimeChangedReceiver : BroadcastReceiver() {
             }
             
             val targetTimeMs = yesterdayTarget.timeInMillis
-            var startTime = targetTimeMs - (5 * 60 * 1000)
-            var endTime = targetTimeMs + (5 * 60 * 1000)
-
-            var topApps = getAppUsageStatsForRange(
-                context = context,
-                startTime = startTime,
-                endTime = endTime
-            ).filter { isAppInstalled(context, it.first) && isAppLaunchable(context, it.first) }
-
-           // ydayApp(context)
             var rangeMinutes = 5
-            while ((topApps.size < 3) && rangeMinutes <= 60) {
+            var topApps: List<Triple<String, Long, Int>> = emptyList()
+
+            // Incrementally expand search window if not enough apps found
+            while (rangeMinutes <= 60) {
+                val startTime = targetTimeMs - (rangeMinutes * 60 * 1000)
+                val endTime = targetTimeMs + (rangeMinutes * 60 * 1000)
+                
+                topApps = getAppUsageStatsForRange(context, startTime, endTime)
+                    .filter { isAppInstalled(context, it.first) && isAppLaunchable(context, it.first) }
+                
+                if (topApps.size >= 3) break
                 rangeMinutes += 15
-                startTime = targetTimeMs - (rangeMinutes * 60 * 1000)
-                endTime = targetTimeMs + (rangeMinutes * 60 * 1000)
-                topApps = getAppUsageStatsForRange(
-                    context, startTime, endTime
-                ).filter { isAppInstalled(context, it.first) && isAppLaunchable(context, it.first) }
             }
 
+            val top3Result = topApps.take(3)
+            
             // Persist package names for the widget launch logic
-            val pkgList = topApps.take(3).map { it.first }
+            val pkgList = top3Result.map { it.first }
             sharedPreferencesEditor.putString("TOP3_PKGS", Gson().toJson(pkgList)).apply()
 
-
             Top3.clear()
-            topApps.take(3).forEach { (packageName, durationMs) ->
+            top3Result.forEach { (packageName, durationMs, openCount) ->
                 val appName = getAppNameFromPkg(context, packageName)
                 try {
                     val iconDrawable = context.packageManager.getApplicationIcon(packageName)
-                    // Scale to 150x150 to stay under the RemoteViews size limit and render clearly
-                    val bitmap = iconDrawable.toBitmap(150, 150)
-                    var ds = (durationMs / 1000).toString() + " s"
-                //    makeToast(context, "durationMs ~ $ds" )
-                    Top3.add(App(appName, packageName, (durationMs/1000).toString(), bitmap))
+                    // Downscale bitmap to stay safely under RemoteViews Binder limit (TransactionTooLargeException)
+                    val bitmap = iconDrawable.toBitmap(120, 120)
+                    val usageStr = formatMilliseconds(durationMs)
+                    Top3.add(App(appName, packageName, usageStr, bitmap, openCount))
                 } catch (e: Exception) {
-                    Log.d("getAppsOfCurrentTimeWindowExp", "Error adding app icon for $packageName ~ " + e)
+                    Log.e("TimeChangedReceiver", "Error adding app icon for $packageName", e)
                 }
             }
 
@@ -110,13 +100,13 @@ class TimeChangedReceiver : BroadcastReceiver() {
                 val ids = AppWidgetManager.getInstance(context).getAppWidgetIds(
                     ComponentName(context, NewAppWidget::class.java)
                 )
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+                if (ids.isNotEmpty()) {
+                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+                    context.sendBroadcast(this)
+                }
             }
-            context.sendBroadcast(updateIntent)
         }
     }
-
-
 
     private fun isAppInstalled(context: Context, packageName: String): Boolean {
         return try {
@@ -127,9 +117,7 @@ class TimeChangedReceiver : BroadcastReceiver() {
         }
     }
 
-    fun isAppLaunchable(context: Context, packageName: String): Boolean {
-        val pm = context.packageManager
-        val intent = pm.getLaunchIntentForPackage(packageName)
-        return intent != null
+    private fun isAppLaunchable(context: Context, packageName: String): Boolean {
+        return context.packageManager.getLaunchIntentForPackage(packageName) != null
     }
 }
