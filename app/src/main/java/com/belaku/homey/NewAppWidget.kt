@@ -1755,8 +1755,7 @@ class NewAppWidget : AppWidgetProvider() {
             handler.postDelayed({
                 context.startActivity(Intent(context, DialogActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).putExtra("DialogIntent", "Permissions"))
                 makeToast(context, "Allow permissions by clicking on yellow triangles to see the Infos")
-                // Assuming makeSnack refers to the companion method in MainActivity
-                MainActivity.makeSnack("Allow permissions by clicking on yellow triangles to see the Infos")
+
             }, 3000)
         }
 
@@ -1815,7 +1814,6 @@ class NewAppWidget : AppWidgetProvider() {
 
 
             LOC_P_REQ -> {
-                makeSnack("Location permissions granted")
                     requestFeaturePermission(widgetContext, FeaturePermission.PLACE_INFO)
             }
             NOT_P_REQ -> {

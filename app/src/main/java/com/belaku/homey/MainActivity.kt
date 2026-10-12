@@ -402,8 +402,11 @@ class MainActivity : AppCompatActivity() {
 
                 if (appWidgetManager.isRequestPinAppWidgetSupported) {
                     // Optional: Success callback intent when the widget is pinned
+                    val callbackIntent = Intent(applicationContext, MyWidgetPinnedReceiver::class.java)
                     val successCallback = PendingIntent.getBroadcast(
-                        applicationContext, 0, Intent(applicationContext, NewAppWidget::class.java),
+                        applicationContext,
+                        0,
+                        callbackIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                     )
 
