@@ -402,16 +402,16 @@ class MainActivity : AppCompatActivity() {
 
                 if (appWidgetManager.isRequestPinAppWidgetSupported) {
                     // Optional: Success callback intent when the widget is pinned
-                    val callbackIntent = Intent(applicationContext, MyWidgetPinnedReceiver::class.java)
                     val successCallback = PendingIntent.getBroadcast(
-                        applicationContext,
-                        0,
-                        callbackIntent,
+                        applicationContext, 0, Intent(applicationContext, NewAppWidget::class.java),
                         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                     )
 
                     // Launch the system request to pin the widget
                     appWidgetManager.requestPinAppWidget(myProvider, null, successCallback)
+                    remoteViews?.setTextViewText(R.id.tx_act_count, "1")
+                 //   setWalls(0)
+                         appWidgetManager.updateAppWidget(myProvider, remoteViews)
 
                     // The widget is now on the home screen: populate the tiles whose
                     // permissions we already hold. Anything missing is requested

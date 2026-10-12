@@ -1756,7 +1756,7 @@ class NewAppWidget : AppWidgetProvider() {
                 context.startActivity(Intent(context, DialogActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).putExtra("DialogIntent", "Permissions"))
                 makeToast(context, "Allow permissions by clicking on yellow triangles to see the Infos")
 
-            }, 3000)
+            }, 1000)
         }
 
 
