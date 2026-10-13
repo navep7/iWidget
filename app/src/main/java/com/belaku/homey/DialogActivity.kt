@@ -45,12 +45,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.belaku.FinnhubApiService
 import com.belaku.Stock
+import com.belaku.getPredictedAppsForCurrentTimeWindow
 import io.finnhub.api.apis.DefaultApi
 import io.finnhub.api.infrastructure.ApiClient
 import com.belaku.homey.Constants.Companion.stepsToday
@@ -58,9 +60,11 @@ import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.MainActivity.Companion.predictedApps
 import com.belaku.homey.MusicActivity.Companion.dataListSongs
 import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
 import com.belaku.homey.MusicService.Companion.songIndex
+
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.hashSetAppUsage
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
@@ -364,6 +368,10 @@ class DialogActivity : AppCompatActivity() {
                     imgbtnRefreshStocks.visibility = View.INVISIBLE
                     imgbtnAddAnotherStock.visibility = View.INVISIBLE
                 }
+                "appPredictions" -> {
+                    appPredictions()
+                    finish()
+                }
                 "SongCover" -> {
                     txTitle.visibility = View.VISIBLE
                     imgvSongCover.visibility = View.VISIBLE
@@ -385,8 +393,10 @@ class DialogActivity : AppCompatActivity() {
                     if (noRewards > 1) {
                         sharedPreferencesEditor.putInt("noRewards", --noRewards).apply()
                         Thread { SetWallWorker.setWall(true, dialogActContext) }.start()
+                        appPredictions()
                         finish()
                     }
+
                 }
                 "AD" -> {
                     makeToast(applicationContext, "loading Advertisement, please wait...")
@@ -509,6 +519,7 @@ class DialogActivity : AppCompatActivity() {
 
                     hashSetAppUsage.clear()
                     appUsageStats(applicationContext)
+                    appPredictions()
 
                     val displayList = hashSetAppUsage
                         .sortedByDescending { it.usageTime.split(":")[0].trim().toIntOrNull() ?: 0 }
@@ -668,6 +679,34 @@ class DialogActivity : AppCompatActivity() {
                     // Launch the scanner
                     barcodeLauncher.launch(options)
                 }
+            }
+        }
+    }
+
+    private fun appPredictions() {
+        val widgetScope = CoroutineScope(Dispatchers.Main)
+        widgetScope.launch {
+            predictedApps = withContext(Dispatchers.IO) {
+                getPredictedAppsForCurrentTimeWindow(applicationContext)
+            }
+
+            if (predictedApps.isNotEmpty()) {
+                val iconDrawable1 =
+                    applicationContext.packageManager.getApplicationIcon(predictedApps.get(0).packageName)
+                val bitmap1 = iconDrawable1.toBitmap(120, 120)
+                remoteViews?.setImageViewBitmap(R.id.imgv_app1, bitmap1)
+                val iconDrawable2 =
+                    applicationContext.packageManager.getApplicationIcon(predictedApps.get(1).packageName)
+                val bitmap2 = iconDrawable2.toBitmap(120, 120)
+                remoteViews?.setImageViewBitmap(R.id.imgv_app2, bitmap2)
+                val iconDrawable3 =
+                    applicationContext.packageManager.getApplicationIcon(predictedApps.get(2).packageName)
+                val bitmap3 = iconDrawable3.toBitmap(120, 120)
+                remoteViews?.setImageViewBitmap(R.id.imgv_app3, bitmap3)
+
+
+                // 3. Trigger Widget Update
+                appWidM.updateAppWidget(newAppWidget, remoteViews)
             }
         }
     }

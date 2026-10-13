@@ -17,6 +17,7 @@ fun getPredictedAppsForCurrentTimeWindow(context: Context): ArrayList<AppPredict
 
     val launcherPackages = getLauncherPackages(context)
 
+
     val currentCalendar = Calendar.getInstance()
     val currentMinutesOfDay = (currentCalendar.get(Calendar.HOUR_OF_DAY) * 60) + currentCalendar.get(Calendar.MINUTE)
 
@@ -55,12 +56,13 @@ fun getPredictedAppsForCurrentTimeWindow(context: Context): ArrayList<AppPredict
             if (matchesWindow) {
                 val pkg = event.packageName
                 // Filter out system launchers or your own package if required
-                if (pkg != null && pkg != context.packageName && !launcherPackages.contains(pkg)) {
+                if (pkg != null && pkg != context.packageName && !launcherPackages.contains(pkg) && isAppLaunchable(context, pkg) && isAppInstalled(context, pkg)) {
                     appLaunchCounts[pkg] = (appLaunchCounts[pkg] ?: 0) + 1
                 }
             }
         }
     }
+
 
     // Sort descending by weight frequency and limit to top 3 results
     val results = appLaunchCounts.map { AppPrediction(it.key, it.value) }
@@ -68,6 +70,23 @@ fun getPredictedAppsForCurrentTimeWindow(context: Context): ArrayList<AppPredict
         .take(3)
 
     return ArrayList(results)
+}
+
+private fun isAppLaunchable(context: Context, packageName: String): Boolean {
+    return try {
+        context.packageManager.getLaunchIntentForPackage(packageName) != null
+    } catch (_: Exception) {
+        false
+    }
+}
+
+private fun isAppInstalled(context: Context, packageName: String): Boolean {
+    return try {
+        context.packageManager.getPackageInfo(packageName, 0)
+        true
+    } catch (_: PackageManager.NameNotFoundException) {
+        false
+    }
 }
 
 fun getLauncherPackages(context: Context): Set<String> {

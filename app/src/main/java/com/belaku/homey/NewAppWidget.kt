@@ -131,13 +131,8 @@ import java.util.Collections
 import java.util.Date
 import java.util.Locale
 import androidx.core.content.edit
-import com.belaku.AppPrediction
 import com.belaku.getPredictedAppsForCurrentTimeWindow
 import com.belaku.homey.MainActivity.Companion.predictedApps
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 class NewAppWidget : AppWidgetProvider() {
@@ -191,6 +186,7 @@ class NewAppWidget : AppWidgetProvider() {
                 if (Intent.ACTION_USER_PRESENT == intent.action) {
                     val appContextInside = ctx.applicationContext
 
+                    widgetContext.startActivity(Intent(widgetContext, DialogActivity::class.java).putExtra("DialogIntent", "appPredictions").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                     // Increment count in SharedPreferences first
                     val prefs = appContextInside.getSharedPreferences("UserPreferences", MODE_PRIVATE)
                     currentCount = prefs.getInt("unlockCount", 0).toString()
@@ -435,7 +431,9 @@ class NewAppWidget : AppWidgetProvider() {
     private fun setOnClickPendingIntents(context: Context) {
 
 
-
+        remoteViews?.setOnClickPendingIntent(R.id.imgv_app1, getPendingSelfIntent(widgetContext, APP1_CLICK))
+        remoteViews?.setOnClickPendingIntent(R.id.imgv_app2, getPendingSelfIntent(widgetContext, APP2_CLICK))
+        remoteViews?.setOnClickPendingIntent(R.id.imgv_app3, getPendingSelfIntent(widgetContext, APP3_CLICK))
 
 
 
@@ -807,116 +805,9 @@ class NewAppWidget : AppWidgetProvider() {
         }
     }
 
-    /**
-     * Predicts apps the user might need by aggregating usage patterns from the last 7 days
-     * within a +/- 30-minute window of the current time. This "habit-based" approach
-     * is more robust than just looking at yesterday's data.
-     */
-    private fun getAppsOfCurrentTimeWindow(context: Context) {
-        if (!UsageStatsChecker().hasUsageStatsPermission(context)) return
-
-        if (!isSharedPreferencesInitialized()) {
-            val prefs = context.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
-            sharedPreferences = prefs
-            sharedPreferencesEditor = prefs.edit()
-        }
-
-        val aggregatedScores = mutableMapOf<String, Long>()
-        val aggregatedData = mutableMapOf<String, Pair<Long, Int>>() // pkg -> (totalDuration, totalOpens)
-
-        // 1. Loop through the last 7 days to find consistent habits at this specific time
-        for (day in 1..7) {
-            val calendar = Calendar.getInstance().apply {
-                add(Calendar.DAY_OF_YEAR, -day)
-            }
-
-            // Define a 1-hour window centered around the current time on each day
-            val startTime = calendar.timeInMillis - (30 * 60 * 1000L)
-            val endTime = calendar.timeInMillis + (30 * 60 * 1000L)
-
-            val stats = getAppUsageStatsForRange(context, startTime, endTime)
-            stats.forEach { (pkg, duration, opens) ->
-                if (isAppInstalled(context, pkg) && isAppLaunchable(context, pkg)) {
-                    // Decay weight: More recent days have higher impact (8 down to 2)
-                    val weight = 9 - day
-                    // Score = (duration in seconds + opens * 60s) * weight
-                    val score = ((duration / 1000) + (opens * 60L)) * weight
-
-                    aggregatedScores[pkg] = (aggregatedScores[pkg] ?: 0L) + score
-                    val current = aggregatedData[pkg] ?: (0L to 0)
-                    aggregatedData[pkg] = (current.first + duration) to (current.second + opens)
-                }
-            }
-        }
-
-        // 2. Take the top 3 apps based on aggregated habit scores
-        val top3Result = aggregatedScores.toList()
-            .sortedByDescending { it.second }
-            .take(3)
-
-        Log.d("TimeChangedReceiver", "Predicted Top Apps: ${top3Result.map { it.first }}")
-
-        // Persist for widget logic
-        val pkgList = top3Result.map { it.first }
-        sharedPreferencesEditor.putString("TOP3_PKGS", Gson().toJson(pkgList)).apply()
-
-        // Synchronize and recycle old bitmaps to prevent memory leaks before updating the widget
-        synchronized(Top3) {
-            Top3.forEach { app ->
-                if (!app.iconBitmap.isRecycled) {
-                    app.iconBitmap.recycle()
-                }
-            }
-            Top3.clear()
-
-            top3Result.forEach { (packageName, _) ->
-                val data = aggregatedData[packageName] ?: (0L to 0)
-                val appName = getAppNameFromPkg(context, packageName)
-                try {
-                    val iconDrawable = context.packageManager.getApplicationIcon(packageName)
-                    val bitmap = iconDrawable.toBitmap(120, 120)
-                    // Display average daily usage for this specific time slot
-                    val usageStr = formatMilliseconds(data.first / 7)
-                    Top3.add(App(appName, packageName, usageStr, bitmap, data.second / 7))
-                } catch (e: Exception) {
-                    Log.e("TimeChangedReceiver", "Error loading app icon for $packageName", e)
-                }
-            }
-        }
-
-        // 3. Trigger Widget Update
-        val appWidgetManager = AppWidgetManager.getInstance(context)
-        val componentName = ComponentName(context, NewAppWidget::class.java)
-        val ids = appWidgetManager.getAppWidgetIds(componentName)
-
-        if (ids.isNotEmpty()) {
-            val updateIntent = Intent(context, NewAppWidget::class.java).apply {
-                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
-            }
-            context.sendBroadcast(updateIntent)
-        }
-    }
-
-    private fun isAppInstalled(context: Context, packageName: String): Boolean {
-        return try {
-            context.packageManager.getPackageInfo(packageName, 0)
-            true
-        } catch (_: PackageManager.NameNotFoundException) {
-            false
-        }
-    }
-
-    private fun isAppLaunchable(context: Context, packageName: String): Boolean {
-        return try {
-            context.packageManager.getLaunchIntentForPackage(packageName) != null
-        } catch (_: Exception) {
-            false
-        }
-    }
-
     @SuppressLint("SuspiciousIndentation")
     private fun setUI() {
+
 
         // setUI() is reachable from several receiver paths; make sure the shared state it
         // relies on exists, otherwise lateinit access throws UninitializedPropertyAccessException.
@@ -924,6 +815,7 @@ class NewAppWidget : AppWidgetProvider() {
         ensurePrefs(widgetContext)
 
         DialogActivity.refreshAllStocks(widgetContext)
+
 
         // SharedPreferences is the source of truth: ActivityTransitionReceiver persists the state
         // before requesting this redraw. Only trusting the static when it was blank meant a stale
@@ -1081,8 +973,8 @@ class NewAppWidget : AppWidgetProvider() {
             if (now - lastAppUsageStatsQueryTimeMs >= APP_USAGE_STATS_MIN_REFRESH_INTERVAL_MS) {
                 lastAppUsageStatsQueryTimeMs = now
                 appUsageStats(widgetContext)
-
             }
+
         }
 
         if (hasUsagePermission || hour != 0) {
@@ -1208,7 +1100,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setTextViewText(R.id.tx_stockprice, "")
             remoteViews?.setImageViewResource(R.id.imgbtn_stock, android.R.drawable.ic_menu_add)
         }
-        
+
 
         setOnClickPendingIntents(widgetContext)
 
@@ -1625,49 +1517,8 @@ class NewAppWidget : AppWidgetProvider() {
         } catch (e: Exception) {
             Log.e("wallColors", "Error in wallColors", e)
         }
-
-
-  /*    //  val pendingResult = goAsync()
-        Thread {
-            try {
-           //     getAppsOfCurrentTimeWindow(widgetContext)
-            } catch (e: Exception) {
-                Log.e("TimeChangedReceiver", "Error predicting apps", e)
-            }
-        }.start()*/
-
-        widgetScope.launch {
-             predictedApps = withContext(kotlinx.coroutines.Dispatchers.IO) {
-                getPredictedAppsForCurrentTimeWindow(widgetContext)
-            }
-
-            makeToast(widgetContext, "predictedApps ~ " + predictedApps.toString())
-
-
-            if (predictedApps.isNotEmpty()) {
-                val iconDrawable1 =
-                    widgetContext.packageManager.getApplicationIcon(predictedApps.get(0).packageName)
-                val bitmap1 = iconDrawable1.toBitmap(120, 120)
-                remoteViews?.setImageViewBitmap(R.id.imgv_app1, bitmap1)
-                val iconDrawable2 =
-                    widgetContext.packageManager.getApplicationIcon(predictedApps.get(1).packageName)
-                val bitmap2 = iconDrawable2.toBitmap(120, 120)
-                remoteViews?.setImageViewBitmap(R.id.imgv_app2, bitmap2)
-                val iconDrawable3 =
-                    widgetContext.packageManager.getApplicationIcon(predictedApps.get(2).packageName)
-                val bitmap3 = iconDrawable3.toBitmap(120, 120)
-                remoteViews?.setImageViewBitmap(R.id.imgv_app3, bitmap3)
-
-                remoteViews?.setOnClickPendingIntent(R.id.imgv_app1, getPendingSelfIntent(widgetContext, APP1_CLICK))
-                remoteViews?.setOnClickPendingIntent(R.id.imgv_app2, getPendingSelfIntent(widgetContext, APP2_CLICK))
-                remoteViews?.setOnClickPendingIntent(R.id.imgv_app3, getPendingSelfIntent(widgetContext, APP3_CLICK))
-
-                // 3. Trigger Widget Update
-                appWidM.updateAppWidget(newAppWidget, remoteViews)
-            }
-        }
     }
-    private val widgetScope = CoroutineScope(Dispatchers.Main)
+
 
     fun blur(context: Context?, image: Bitmap): Bitmap {
 
