@@ -131,9 +131,17 @@ import java.util.Collections
 import java.util.Date
 import java.util.Locale
 import androidx.core.content.edit
+import com.belaku.AppPrediction
+import com.belaku.getPredictedAppsForCurrentTimeWindow
+import com.belaku.homey.MainActivity.Companion.predictedApps
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class NewAppWidget : AppWidgetProvider() {
+
 
 
     private var currentCount: CharSequence = "0"
@@ -748,9 +756,7 @@ class NewAppWidget : AppWidgetProvider() {
         )
         )
 
-        remoteViews?.setOnClickPendingIntent(R.id.imgv_app1, getPendingSelfIntent(context, APP1_CLICK))
-        remoteViews?.setOnClickPendingIntent(R.id.imgv_app2, getPendingSelfIntent(context, APP2_CLICK))
-        remoteViews?.setOnClickPendingIntent(R.id.imgv_app3, getPendingSelfIntent(context, APP3_CLICK))
+
 
 
 
@@ -1621,15 +1627,47 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
 
-      //  val pendingResult = goAsync()
+  /*    //  val pendingResult = goAsync()
         Thread {
             try {
-                getAppsOfCurrentTimeWindow(widgetContext)
+           //     getAppsOfCurrentTimeWindow(widgetContext)
             } catch (e: Exception) {
                 Log.e("TimeChangedReceiver", "Error predicting apps", e)
             }
-        }.start()
+        }.start()*/
+
+        widgetScope.launch {
+             predictedApps = withContext(kotlinx.coroutines.Dispatchers.IO) {
+                getPredictedAppsForCurrentTimeWindow(widgetContext)
+            }
+
+            makeToast(widgetContext, "predictedApps ~ " + predictedApps.toString())
+
+
+            if (predictedApps.isNotEmpty()) {
+                val iconDrawable1 =
+                    widgetContext.packageManager.getApplicationIcon(predictedApps.get(0).packageName)
+                val bitmap1 = iconDrawable1.toBitmap(120, 120)
+                remoteViews?.setImageViewBitmap(R.id.imgv_app1, bitmap1)
+                val iconDrawable2 =
+                    widgetContext.packageManager.getApplicationIcon(predictedApps.get(1).packageName)
+                val bitmap2 = iconDrawable2.toBitmap(120, 120)
+                remoteViews?.setImageViewBitmap(R.id.imgv_app2, bitmap2)
+                val iconDrawable3 =
+                    widgetContext.packageManager.getApplicationIcon(predictedApps.get(2).packageName)
+                val bitmap3 = iconDrawable3.toBitmap(120, 120)
+                remoteViews?.setImageViewBitmap(R.id.imgv_app3, bitmap3)
+
+                remoteViews?.setOnClickPendingIntent(R.id.imgv_app1, getPendingSelfIntent(widgetContext, APP1_CLICK))
+                remoteViews?.setOnClickPendingIntent(R.id.imgv_app2, getPendingSelfIntent(widgetContext, APP2_CLICK))
+                remoteViews?.setOnClickPendingIntent(R.id.imgv_app3, getPendingSelfIntent(widgetContext, APP3_CLICK))
+
+                // 3. Trigger Widget Update
+                appWidM.updateAppWidget(newAppWidget, remoteViews)
+            }
+        }
     }
+    private val widgetScope = CoroutineScope(Dispatchers.Main)
 
     fun blur(context: Context?, image: Bitmap): Bitmap {
 
@@ -2166,10 +2204,10 @@ class NewAppWidget : AppWidgetProvider() {
                 if (presentActivityState == "STILL")
                 remoteViews?.setTextViewText(R.id.tx_act_count, waterCount.toString() + "\uD800\uDCEF")
             }
-            MENU_CLICK -> makeToast(widgetContext, "hi")
-            APP1_CLICK -> if (Top3.size > 0) launchApp(widgetContext, Top3[0].pName)
-            APP2_CLICK -> if (Top3.size > 1) launchApp(widgetContext, Top3[1].pName)
-            APP3_CLICK -> if (Top3.size > 2) launchApp(widgetContext, Top3[2].pName)
+
+            APP1_CLICK -> if (predictedApps.isNotEmpty()) launchApp(widgetContext, predictedApps.get(0).packageName) else makeToast(widgetContext,"notI")
+            APP2_CLICK -> if (predictedApps.isNotEmpty()) if (predictedApps.size > 1) launchApp(widgetContext, predictedApps.get(1).packageName)
+            APP3_CLICK -> if (predictedApps.isNotEmpty()) if (predictedApps.size > 2) launchApp(widgetContext, predictedApps.get(2).packageName)
         }
     }
 
@@ -2857,13 +2895,7 @@ class NewAppWidget : AppWidgetProvider() {
         private const val A_CLICKED = "AClicked"
         private const val ADD_TODO_CLICK = "addTodoClick"
         private const val WATER_REMINDER_CLICK = "waterReminderClick"
-        private const val MENU_CLICK = "menuClick"
-        private const val ACTION_LIST_CONTACTITEM_CLICK = "Contact_Item_Click"
-        private const val ACTION_LIST_APPITEM_CLICK = "App_Item_Click"
-        const val EXTRA_CONTACTITEM_POSITION = "Contact_Item_Pos"
-        const val EXTRA_APPITEM_POSITION = "App_Item_Pos"
-        const val EXTRA_CONTACTVIEW_ID = "CID"
-        const val EXTRA_APPVIEW_ID = "AID"
+
 
         private const val APP1_CLICK = "app1_click"
         private const val APP2_CLICK = "app2_click"

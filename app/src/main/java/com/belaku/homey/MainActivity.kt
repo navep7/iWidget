@@ -78,6 +78,7 @@ import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.belaku.AppPrediction
 import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
 import com.belaku.homey.NewAppWidget.Companion.favContacts
@@ -1385,6 +1386,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
 
+        lateinit var predictedApps: ArrayList<AppPrediction>
         lateinit var mainWindow: Window
         lateinit var fabMain: ExtendedFloatingActionButton
         lateinit var TxAutoUpdate: TextView

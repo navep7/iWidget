@@ -385,7 +385,6 @@ class DialogActivity : AppCompatActivity() {
                     if (noRewards > 1) {
                         sharedPreferencesEditor.putInt("noRewards", --noRewards).apply()
                         Thread { SetWallWorker.setWall(true, dialogActContext) }.start()
-
                         finish()
                     }
                 }

@@ -483,7 +483,6 @@
 
         <RelativeLayout
             android:id="@+id/rl_app1"
-            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
@@ -519,7 +518,6 @@
             android:id="@+id/rl_app2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="gone"
             android:layout_marginTop="@dimen/padding_10"
             android:layout_marginBottom="@dimen/padding_10">
 
@@ -553,7 +551,6 @@
 
         <RelativeLayout
             android:id="@+id/rl_app3"
-            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
