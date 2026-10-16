@@ -1387,7 +1387,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
 
-        lateinit var predictedApps: ArrayList<AppPrediction>
+        var predictedApps: ArrayList<AppPrediction> = ArrayList()
         lateinit var mainWindow: Window
         lateinit var fabMain: ExtendedFloatingActionButton
         lateinit var TxAutoUpdate: TextView

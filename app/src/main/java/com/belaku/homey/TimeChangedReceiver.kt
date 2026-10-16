@@ -15,7 +15,6 @@ import com.belaku.homey.SetWallWorker.Companion.isSharedPreferencesInitialized
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
 import com.belaku.homey.SpeakService.Companion.speakOut
-import com.belaku.homey.StepsService.Companion.Top3
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.google.gson.Gson
 import java.util.Calendar

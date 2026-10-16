@@ -330,7 +330,7 @@ class DialogActivity : AppCompatActivity() {
         }
 
         menuBlue.setOnClickListener {
-            // No finish() here: toggleBluetooth may first show a permission rationale
+            // No finish() here: toggleBluetooth may first show a rationale
             // dialog, and finishing now would tear it down. It finishes itself instead.
             toggleBluetooth()
         }
@@ -665,7 +665,7 @@ class DialogActivity : AppCompatActivity() {
                         .show()
                 }
                 "qrClick" -> {
-                    // Hide the UI to avoid "overlay detected" blocks in UPI apps
+                    // Hide the UI to avoid "overlay detection" blocks in UPI apps
                     llDialog.visibility = View.INVISIBLE
                     window.setDimAmount(0f)
 
@@ -684,28 +684,30 @@ class DialogActivity : AppCompatActivity() {
     }
 
     private fun appPredictions() {
-        val widgetScope = CoroutineScope(Dispatchers.Main)
-        widgetScope.launch {
-            predictedApps = withContext(Dispatchers.IO) {
+        lifecycleScope.launch {
+            // Use a local variable to prevent thread-safety issues with the global property
+            val currentPredictions = withContext(Dispatchers.IO) {
                 getPredictedAppsForCurrentTimeWindow(applicationContext)
             }
+            // Update the global property for other components
+            predictedApps = currentPredictions
 
-            if (predictedApps.isNotEmpty()) {
-                val iconDrawable1 =
-                    applicationContext.packageManager.getApplicationIcon(predictedApps.get(0).packageName)
-                val bitmap1 = iconDrawable1.toBitmap(120, 120)
-                remoteViews?.setImageViewBitmap(R.id.imgv_app1, bitmap1)
-                val iconDrawable2 =
-                    applicationContext.packageManager.getApplicationIcon(predictedApps.get(1).packageName)
-                val bitmap2 = iconDrawable2.toBitmap(120, 120)
-                remoteViews?.setImageViewBitmap(R.id.imgv_app2, bitmap2)
-                val iconDrawable3 =
-                    applicationContext.packageManager.getApplicationIcon(predictedApps.get(2).packageName)
-                val bitmap3 = iconDrawable3.toBitmap(120, 120)
-                remoteViews?.setImageViewBitmap(R.id.imgv_app3, bitmap3)
+            if (currentPredictions.isNotEmpty()) {
+                val appViewIds = listOf(R.id.imgv_app1, R.id.imgv_app2, R.id.imgv_app3, R.id.imgv_app4, R.id.imgv_app5)
+                val pm = packageManager
 
+                currentPredictions.forEachIndexed { index, app ->
+                    if (index < appViewIds.size) {
+                        try {
+                            val bitmap = pm.getApplicationIcon(app.packageName).toBitmap(120, 120)
+                            remoteViews?.setImageViewBitmap(appViewIds[index], bitmap)
+                        } catch (e: Exception) {
+                            Log.e("DialogActivity", "Error loading icon for ${app.packageName}", e)
+                        }
+                    }
+                }
 
-                // 3. Trigger Widget Update
+                // Trigger Widget Update
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
             }
         }
@@ -1027,7 +1029,6 @@ class DialogActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission", "WrongConstant")
     private fun isProfileConnected(adapter: BluetoothAdapter, profileType: Int): Boolean {
-        return adapter.getProfileConnectionState(profileType) == android.bluetooth.BluetoothProfile.STATE_CONNECTED
         return adapter.getProfileConnectionState(profileType) == android.bluetooth.BluetoothProfile.STATE_CONNECTED
     }
 

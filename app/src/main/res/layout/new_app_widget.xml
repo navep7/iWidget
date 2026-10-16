@@ -434,7 +434,7 @@
         android:layout_above="@+id/ll_steps_screentime"
         android:layout_below="@+id/rl_clocks"
         android:layout_alignParentStart="true"
-        android:layout_toStartOf="@+id/ll_apps"
+        android:layout_toStartOf="@+id/rl_apps"
         android:gravity="center"
         android:text="↑\nA\nP\nP\nS\n↓"
         android:textColor="@android:color/holo_red_dark"
@@ -457,12 +457,11 @@
         android:textStyle="bold"
         android:visibility="invisible" />
 
-    <LinearLayout
-        android:id="@+id/ll_apps"
+    <RelativeLayout
+        android:id="@+id/rl_apps"
         android:layout_width="75dp"
         android:layout_height="match_parent"
         android:padding="@dimen/padding_5"
-        android:gravity="center"
         android:layout_above="@+id/ll_steps_screentime"
         android:layout_below="@+id/rl_clocks"
         android:layout_alignParentStart="true"
@@ -470,9 +469,10 @@
 
 
         <TextView
+            android:id="@+id/tx_times"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start|top"
+            android:layout_alignParentTop="true"
             android:textSize="11sp"
             android:textStyle="bold"
             android:textColor="@color/black"
@@ -483,13 +483,15 @@
 
         <RelativeLayout
             android:id="@+id/rl_app1"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/tx_times"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
             <ImageView
                 android:id="@+id/imgv_app1"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:scaleType="centerCrop" />
 
             <TextView
@@ -516,15 +518,15 @@
 
         <RelativeLayout
             android:id="@+id/rl_app2"
+            android:layout_below="@id/rl_app1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/padding_10"
-            android:layout_marginBottom="@dimen/padding_10">
+            android:layout_alignParentEnd="true">
 
             <ImageView
                 android:id="@+id/imgv_app2"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:scaleType="centerCrop" />
 
             <TextView
@@ -551,13 +553,15 @@
 
         <RelativeLayout
             android:id="@+id/rl_app3"
+            android:layout_below="@id/rl_app2"
+            android:layout_alignParentStart="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
             <ImageView
                 android:id="@+id/imgv_app3"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:scaleType="centerCrop" />
 
             <TextView
@@ -582,10 +586,79 @@
                 android:visibility="gone" />
         </RelativeLayout>
 
+        <RelativeLayout
+            android:id="@+id/rl_app4"
+            android:layout_below="@id/rl_app3"
+            android:layout_alignParentEnd="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/imgv_app4"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:scaleType="centerCrop" />
+
+            <TextView
+                android:id="@+id/tx_app4_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="18dp"
+                android:minHeight="18dp"
+                android:paddingStart="3dp"
+                android:paddingEnd="3dp"
+                android:layout_alignTop="@id/imgv_app4"
+                android:layout_alignEnd="@id/imgv_app4"
+                android:layout_marginTop="-4dp"
+                android:layout_marginEnd="-4dp"
+                android:background="@drawable/circular_red"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                tools:ignore="SmallSp"
+                tools:text="3"
+                android:visibility="gone" />
+        </RelativeLayout>
 
 
+        <RelativeLayout
+            android:id="@+id/rl_app5"
+            android:layout_below="@id/rl_app4"
+            android:layout_alignParentStart="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
-    </LinearLayout>
+            <ImageView
+                android:id="@+id/imgv_app5"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:scaleType="centerCrop" />
+
+            <TextView
+                android:id="@+id/tx_app5_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="18dp"
+                android:minHeight="18dp"
+                android:paddingStart="3dp"
+                android:paddingEnd="3dp"
+                android:layout_alignTop="@id/imgv_app5"
+                android:layout_alignEnd="@id/imgv_app5"
+                android:layout_marginTop="-4dp"
+                android:layout_marginEnd="-4dp"
+                android:background="@drawable/circular_red"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                tools:ignore="SmallSp"
+                tools:text="3"
+                android:visibility="gone" />
+        </RelativeLayout>
+
+
+    </RelativeLayout>
 
 
     <LinearLayout
@@ -679,7 +752,7 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/rl_clocks"
         android:layout_above="@+id/ll_steps_screentime"
-        android:layout_toEndOf="@+id/ll_apps"
+        android:layout_toEndOf="@+id/rl_apps"
         android:layout_toStartOf="@+id/ll_contacts">
 
         <RelativeLayout
@@ -1415,9 +1488,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/ll_steps_screentime"
-        android:layout_below="@+id/ll_apps"
+        android:layout_below="@+id/rl_apps"
         android:layout_alignParentEnd="true"
-        android:layout_toStartOf="@+id/ll_apps"
+        android:layout_toStartOf="@+id/rl_apps"
         android:visibility="gone" />
 
 
