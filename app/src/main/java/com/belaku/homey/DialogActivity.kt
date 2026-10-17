@@ -691,18 +691,14 @@ class DialogActivity : AppCompatActivity() {
             }
 
             if (predictedApps.isNotEmpty()) {
-                val iconDrawable1 =
-                    applicationContext.packageManager.getApplicationIcon(predictedApps.get(0).packageName)
-                val bitmap1 = iconDrawable1.toBitmap(120, 120)
-                remoteViews?.setImageViewBitmap(R.id.imgv_app1, bitmap1)
-                val iconDrawable2 =
-                    applicationContext.packageManager.getApplicationIcon(predictedApps.get(1).packageName)
-                val bitmap2 = iconDrawable2.toBitmap(120, 120)
-                remoteViews?.setImageViewBitmap(R.id.imgv_app2, bitmap2)
-                val iconDrawable3 =
-                    applicationContext.packageManager.getApplicationIcon(predictedApps.get(2).packageName)
-                val bitmap3 = iconDrawable3.toBitmap(120, 120)
-                remoteViews?.setImageViewBitmap(R.id.imgv_app3, bitmap3)
+                var count = 0
+                val imgvIds = intArrayOf(R.id.imgv_app1, R.id.imgv_app2, R.id.imgv_app3, R.id.imgv_app4, R.id.imgv_app5)
+                for (i in predictedApps) {
+                    val iconDrawable =
+                        applicationContext.packageManager.getApplicationIcon(i.packageName)
+                    val bitmap = iconDrawable.toBitmap(120, 120)
+                    remoteViews?.setImageViewBitmap(imgvIds[count++], bitmap)
+                }
 
 
                 // 3. Trigger Widget Update

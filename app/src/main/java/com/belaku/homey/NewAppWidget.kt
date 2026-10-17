@@ -434,6 +434,8 @@ class NewAppWidget : AppWidgetProvider() {
         remoteViews?.setOnClickPendingIntent(R.id.imgv_app1, getPendingSelfIntent(widgetContext, APP1_CLICK))
         remoteViews?.setOnClickPendingIntent(R.id.imgv_app2, getPendingSelfIntent(widgetContext, APP2_CLICK))
         remoteViews?.setOnClickPendingIntent(R.id.imgv_app3, getPendingSelfIntent(widgetContext, APP3_CLICK))
+        remoteViews?.setOnClickPendingIntent(R.id.imgv_app4, getPendingSelfIntent(widgetContext, APP4_CLICK))
+        remoteViews?.setOnClickPendingIntent(R.id.imgv_app5, getPendingSelfIntent(widgetContext, APP5_CLICK))
 
 
 
@@ -2059,6 +2061,8 @@ class NewAppWidget : AppWidgetProvider() {
             APP1_CLICK -> if (predictedApps.isNotEmpty()) launchApp(widgetContext, predictedApps.get(0).packageName) else makeToast(widgetContext,"notI")
             APP2_CLICK -> if (predictedApps.isNotEmpty()) if (predictedApps.size > 1) launchApp(widgetContext, predictedApps.get(1).packageName)
             APP3_CLICK -> if (predictedApps.isNotEmpty()) if (predictedApps.size > 2) launchApp(widgetContext, predictedApps.get(2).packageName)
+            APP4_CLICK -> if (predictedApps.isNotEmpty()) if (predictedApps.size > 3) launchApp(widgetContext, predictedApps.get(3).packageName)
+            APP5_CLICK -> if (predictedApps.isNotEmpty()) if (predictedApps.size > 4) launchApp(widgetContext, predictedApps.get(4).packageName)
         }
     }
 
@@ -2751,6 +2755,8 @@ class NewAppWidget : AppWidgetProvider() {
         private const val APP1_CLICK = "app1_click"
         private const val APP2_CLICK = "app2_click"
         private const val APP3_CLICK = "app3_click"
+        private const val APP4_CLICK = "app4_click"
+        private const val APP5_CLICK = "app5_click"
 
     }
 

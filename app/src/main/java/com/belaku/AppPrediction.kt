@@ -67,7 +67,7 @@ fun getPredictedAppsForCurrentTimeWindow(context: Context): ArrayList<AppPredict
     // Sort descending by weight frequency and limit to top 3 results
     val results = appLaunchCounts.map { AppPrediction(it.key, it.value) }
         .sortedByDescending { it.launchCount }
-        .take(3)
+        .take(5)
 
     return ArrayList(results)
 }
