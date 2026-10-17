@@ -154,6 +154,7 @@ class DialogActivity : AppCompatActivity() {
     private val barcodeLauncher =
         registerForActivityResult(ScanContract()) { result: ScanIntentResult? ->
             val scannedUrl = result?.contents
+            val amount = result?.originalIntent?.getStringExtra("SCAN_AMOUNT")
             if (!scannedUrl.isNullOrEmpty()) {
                 if (scannedUrl.startsWith("upi://pay", ignoreCase = true)) {
                     try {
@@ -161,7 +162,11 @@ class DialogActivity : AppCompatActivity() {
                         llDialog.visibility = View.INVISIBLE
                         window.setDimAmount(0f)
 
-                        val upiUri = Uri.parse(scannedUrl)
+                        var upiUri = Uri.parse(scannedUrl)
+                        if (!amount.isNullOrBlank()) {
+                            upiUri = upiUri.buildUpon().appendQueryParameter("am", amount).build()
+                        }
+                        
                         val upiIntent = Intent(Intent.ACTION_VIEW, upiUri)
                         
                         // Launch directly. Chooser is avoided to preserve calling package identity.
@@ -174,7 +179,7 @@ class DialogActivity : AppCompatActivity() {
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(scannedUrl)))
                     finish()
                 } else {
-                    makeToast(applicationContext, "Scanned: $scannedUrl")
+                    makeToast(applicationContext, "Scanned: $scannedUrl" + if (!amount.isNullOrBlank()) " Amount: $amount" else "")
                     finish()
                 }
             } else {
@@ -674,6 +679,7 @@ class DialogActivity : AppCompatActivity() {
                         setPrompt("Scan a UPI QR code")
                         setOrientationLocked(false)
                         setBeepEnabled(true)
+                        setCaptureActivity(CustomScannerActivity::class.java)
                     }
 
                     // Launch the scanner
