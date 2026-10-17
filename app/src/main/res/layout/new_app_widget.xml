@@ -31,7 +31,7 @@
             android:id="@+id/ll_top"
             android:weightSum="10"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="@dimen/padding_50"
             android:background="@drawable/gradient_glass_flatbottom">
 
 
@@ -48,8 +48,8 @@
                     android:id="@+id/progressBar_battery"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_centerVertical="true"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
+                    android:layout_width="@dimen/padding_35"
+                    android:layout_height="@dimen/padding_35"
                     android:indeterminate="false"
                     android:max="100"
                     android:progress="75"
@@ -63,7 +63,7 @@
                     android:layout_centerInParent="true"
                     android:tag="⚡"
                     android:textColor="@android:color/black"
-                    android:textSize="11sp"
+                    android:textSize="@dimen/text_size_11"
                     android:textStyle="bold" />
             </RelativeLayout>
 
@@ -87,13 +87,13 @@
                         android:layout_height="wrap_content"
                         android:text="Fri, 24th Apr"
                         android:textColor="@android:color/black"
-                        android:textSize="20sp"
+                        android:textSize="@dimen/text_size_20"
                         android:textStyle="bold"
                         android:shadowColor="@android:color/white"
                         android:shadowRadius="5"
                         android:shadowDx="0"
                         android:shadowDy="0"
-                        android:padding="3dp"/>
+                        android:padding="@dimen/padding_3"/>
 
                     <TextView
                         android:id="@+id/tw_fact"
@@ -104,12 +104,12 @@
                         android:layout_height="wrap_content"
                         android:gravity="top"
                         android:textColor="#FFFFFF"
-                        android:textSize="21sp"
+                        android:textSize="@dimen/text_size_21"
                         android:shadowColor="@android:color/white"
                         android:shadowRadius="12"
                         android:shadowDx="0"
                         android:shadowDy="0"
-                        android:padding="8dp" />
+                        android:padding="@dimen/padding_8" />
 
 
                     <android.widget.TextClock
@@ -121,13 +121,13 @@
                         android:layout_height="wrap_content"
                         android:format12Hour="hh:mm:ss"
                         android:textColor="@android:color/black"
-                        android:textSize="20sp"
+                        android:textSize="@dimen/text_size_20"
                         android:textStyle="bold"
                         android:shadowColor="@android:color/white"
                         android:shadowRadius="5"
                         android:shadowDx="0"
                         android:shadowDy="0"
-                        android:padding="3dp"/>
+                        android:padding="@dimen/padding_3"/>
                 </LinearLayout>
 
             </RelativeLayout>
@@ -159,8 +159,8 @@
             <LinearLayout
                 android:id="@+id/ll_place"
                 android:background="@drawable/gradient_glass_light"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="@dimen/padding_100"
+                android:layout_height="@dimen/padding_100"
                 android:layout_margin="@dimen/padding_5"
                 android:padding="@dimen/padding_5"
                 android:layout_alignParentStart="true"
@@ -176,7 +176,7 @@
                     android:text="⚠ Place Information"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/text_size_14"
                     android:textStyle="bold" />
 
                 <TextView
@@ -186,7 +186,7 @@
                     android:text="1.⚠️"
                     android:visibility="gone"
                     android:textColor="@android:color/white"
-                    android:textSize="21sp"
+                    android:textSize="@dimen/text_size_21"
                     android:gravity="center"
                    />
 
@@ -199,8 +199,8 @@
                         android:id="@+id/imgv_map_icon"
                         android:layout_gravity="center"
                         android:layout_marginTop="@dimen/padding_5"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
+                        android:layout_width="@dimen/padding_50"
+                        android:layout_height="@dimen/padding_50"
                         android:background="@android:color/transparent"
                         android:scaleType="fitXY"
                         android:src="@drawable/map_logo" />
@@ -211,10 +211,10 @@
                         android:layout_gravity="top|center"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="-5dp"
+                        android:layout_marginTop="@dimen/margin_minus_5"
                         android:text="⚲"
                         android:textColor="@android:color/holo_green_light"
-                        android:textSize="25sp"
+                        android:textSize="@dimen/text_size_25"
                         android:textFontWeight="900"
                         android:textStyle="bold" />
 
@@ -226,8 +226,8 @@
 
             <AnalogClock
                 android:id="@+id/a_clock"
-                android:layout_width="125dp"
-                android:layout_height="125dp"
+                android:layout_width="@dimen/padding_125"
+                android:layout_height="@dimen/padding_125"
                 android:layout_centerHorizontal="true"
                 android:dial="@drawable/ggd"
                 android:hand_hourTint="@android:color/holo_orange_light"
@@ -250,7 +250,7 @@
                 android:layout_gravity="center"
                 android:text="⊘"
                 android:textColor="@android:color/holo_green_light"
-                android:textSize="25sp"
+                android:textSize="@dimen/text_size_25"
                 android:textFontWeight="900"
                 android:textStyle="bold" />
 
@@ -263,15 +263,15 @@
                 android:text="2.⚠️"
                 android:visibility="gone"
                 android:textColor="@android:color/white"
-                android:textSize="21sp"
+                android:textSize="@dimen/text_size_21"
                 />
 
 
             <LinearLayout
                 android:id="@+id/id_weather"
                 android:background="@drawable/gradient_glass_light"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="@dimen/padding_100"
+                android:layout_height="@dimen/padding_100"
                 android:layout_margin="@dimen/padding_5"
                 android:padding="@dimen/padding_5"
                 android:layout_alignParentEnd="true"
@@ -287,7 +287,7 @@
                     android:text="⚠ Weather Information"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:textSize="15sp"
+                    android:textSize="@dimen/text_size_15"
                     android:textStyle="bold" />
 
                 <TextView
@@ -297,7 +297,7 @@
                     android:text="3.⚠️"
                     android:visibility="gone"
                     android:textColor="@android:color/white"
-                    android:textSize="21sp"
+                    android:textSize="@dimen/text_size_21"
                     android:gravity="center"
                    />
 
@@ -310,8 +310,8 @@
                         android:id="@+id/imgv_weather_icon"
                         android:layout_gravity="center"
                         android:layout_marginTop="@dimen/padding_5"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
+                        android:layout_width="@dimen/padding_50"
+                        android:layout_height="@dimen/padding_50"
                         android:background="@android:color/transparent"
                         android:scaleType="fitXY"
                         android:src="@drawable/weather_info" />
@@ -323,10 +323,10 @@
                         android:layout_gravity="top|center"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="-5dp"
+                        android:layout_marginTop="@dimen/margin_minus_5"
                         android:text="↺"
                         android:textColor="@android:color/holo_green_light"
-                        android:textSize="25sp"
+                        android:textSize="@dimen/text_size_25"
                         android:textFontWeight="900"
                         android:textStyle="bold" />
 
@@ -334,14 +334,14 @@
                         android:id="@+id/progressBar_cyclic_weather"
                         android:visibility="invisible"
                         android:layout_gravity="top|center"
-                        android:layout_marginTop="-5dp"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
+                        android:layout_marginTop="@dimen/margin_minus_5"
+                        android:layout_width="@dimen/padding_25"
+                        android:layout_height="@dimen/padding_25"
                         android:indeterminate="true"
                         android:indeterminateTint="?attr/colorSecondary"
                         android:indeterminateTintMode="src_atop"
-                        android:minWidth="25dp"
-                        android:minHeight="25dp" />
+                        android:minWidth="@dimen/padding_25"
+                        android:minHeight="@dimen/padding_25" />
 
                 </FrameLayout>
             </LinearLayout>
@@ -350,8 +350,8 @@
         <ImageView
             android:id="@+id/imgbtn_albumcover"
             android:src="@drawable/media"
-            android:layout_width="75dp"
-            android:layout_height="75dp"
+            android:layout_width="@dimen/padding_75"
+            android:layout_height="@dimen/padding_75"
             android:scaleType="fitXY"
             android:layout_alignBottom="@+id/rl_player"
             android:layout_alignParentEnd="true" />
@@ -362,7 +362,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/rl_player"
-            android:layout_marginBottom="-5dp"
+            android:layout_marginBottom="@dimen/margin_minus_5"
             android:layout_centerHorizontal="true"
             android:background="@drawable/gradient_glass_flat_start"
             android:clickable="true"
@@ -374,7 +374,7 @@
             android:padding="@dimen/padding_5"
             android:text="✎ Pen a note."
             android:paddingEnd="@dimen/padding_10"
-            android:textSize="17sp"
+            android:textSize="@dimen/text_size_17"
             android:textColor="@android:color/black"
             android:textStyle="bold" />
 
@@ -391,13 +391,13 @@
                 android:id="@+id/imgv_player"
                 android:layout_centerVertical="true"
                 android:layout_width="match_parent"
-                android:layout_height="35dp" />
+                android:layout_height="@dimen/padding_35" />
 
 
             <ImageButton
                 android:id="@+id/imgbtn_playpause"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
+                android:layout_width="@dimen/padding_75"
+                android:layout_height="@dimen/padding_75"
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="@dimen/padding_5"
                 android:layout_marginEnd="@dimen/padding_5"
@@ -436,9 +436,9 @@
         android:layout_alignParentStart="true"
         android:layout_toStartOf="@+id/rl_apps"
         android:gravity="center"
-        android:text="↑\nA\nP\nP\nS\n↓"
+        android:text="↑\nA\nP\nS\n↓"
         android:textColor="@android:color/holo_red_dark"
-        android:textSize="35sp"
+        android:textSize="@dimen/text_size_35"
         android:textStyle="bold"
         android:visibility="invisible" />
 
@@ -453,13 +453,13 @@
         android:gravity="center"
         android:text="↑\nC\nA\nL\nL\nS\n↓"
         android:textColor="@android:color/holo_red_dark"
-        android:textSize="35sp"
+        android:textSize="@dimen/text_size_35"
         android:textStyle="bold"
         android:visibility="invisible" />
 
     <RelativeLayout
         android:id="@+id/rl_apps"
-        android:layout_width="75dp"
+        android:layout_width="@dimen/padding_75"
         android:layout_height="match_parent"
         android:padding="@dimen/padding_5"
         android:layout_above="@+id/ll_steps_screentime"
@@ -473,7 +473,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:textSize="11sp"
+            android:textSize="@dimen/text_size_11"
             android:textStyle="bold"
             android:textColor="@color/black"
             android:padding="@dimen/padding_3"
@@ -490,8 +490,8 @@
 
             <ImageView
                 android:id="@+id/imgv_app1"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="@dimen/padding_35"
+                android:layout_height="@dimen/padding_35"
                 android:scaleType="centerCrop" />
 
             <TextView
@@ -499,18 +499,18 @@
                 android:visibility="gone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="18dp"
-                android:minHeight="18dp"
-                android:paddingStart="3dp"
-                android:paddingEnd="3dp"
+                android:minWidth="@dimen/size_18"
+                android:minHeight="@dimen/size_18"
+                android:paddingStart="@dimen/padding_3"
+                android:paddingEnd="@dimen/padding_3"
                 android:layout_alignTop="@id/imgv_app1"
                 android:layout_alignEnd="@id/imgv_app1"
-                android:layout_marginTop="-4dp"
-                android:layout_marginEnd="-4dp"
+                android:layout_marginTop="@dimen/margin_minus_4"
+                android:layout_marginEnd="@dimen/margin_minus_4"
                 android:background="@drawable/circular_red"
                 android:gravity="center"
                 android:textColor="@android:color/white"
-                android:textSize="10sp"
+                android:textSize="@dimen/text_size_10"
                 android:textStyle="bold"
                 tools:ignore="SmallSp"
                 tools:text="1" />
@@ -525,26 +525,26 @@
 
             <ImageView
                 android:id="@+id/imgv_app2"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="@dimen/padding_35"
+                android:layout_height="@dimen/padding_35"
                 android:scaleType="centerCrop" />
 
             <TextView
                 android:id="@+id/tx_app2_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="18dp"
-                android:minHeight="18dp"
-                android:paddingStart="3dp"
-                android:paddingEnd="3dp"
+                android:minWidth="@dimen/size_18"
+                android:minHeight="@dimen/size_18"
+                android:paddingStart="@dimen/padding_3"
+                android:paddingEnd="@dimen/padding_3"
                 android:layout_alignTop="@id/imgv_app2"
                 android:layout_alignEnd="@id/imgv_app2"
-                android:layout_marginTop="-4dp"
-                android:layout_marginEnd="-4dp"
+                android:layout_marginTop="@dimen/margin_minus_4"
+                android:layout_marginEnd="@dimen/margin_minus_4"
                 android:background="@drawable/circular_red"
                 android:gravity="center"
                 android:textColor="@android:color/white"
-                android:textSize="10sp"
+                android:textSize="@dimen/text_size_10"
                 android:textStyle="bold"
                 tools:ignore="SmallSp"
                 tools:text="2"
@@ -560,26 +560,26 @@
 
             <ImageView
                 android:id="@+id/imgv_app3"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="@dimen/padding_35"
+                android:layout_height="@dimen/padding_35"
                 android:scaleType="centerCrop" />
 
             <TextView
                 android:id="@+id/tx_app3_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="18dp"
-                android:minHeight="18dp"
-                android:paddingStart="3dp"
-                android:paddingEnd="3dp"
+                android:minWidth="@dimen/size_18"
+                android:minHeight="@dimen/size_18"
+                android:paddingStart="@dimen/padding_3"
+                android:paddingEnd="@dimen/padding_3"
                 android:layout_alignTop="@id/imgv_app3"
                 android:layout_alignEnd="@id/imgv_app3"
-                android:layout_marginTop="-4dp"
-                android:layout_marginEnd="-4dp"
+                android:layout_marginTop="@dimen/margin_minus_4"
+                android:layout_marginEnd="@dimen/margin_minus_4"
                 android:background="@drawable/circular_red"
                 android:gravity="center"
                 android:textColor="@android:color/white"
-                android:textSize="10sp"
+                android:textSize="@dimen/text_size_10"
                 android:textStyle="bold"
                 tools:ignore="SmallSp"
                 tools:text="3"
@@ -595,26 +595,26 @@
 
             <ImageView
                 android:id="@+id/imgv_app4"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="@dimen/padding_35"
+                android:layout_height="@dimen/padding_35"
                 android:scaleType="centerCrop" />
 
             <TextView
                 android:id="@+id/tx_app4_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="18dp"
-                android:minHeight="18dp"
-                android:paddingStart="3dp"
-                android:paddingEnd="3dp"
+                android:minWidth="@dimen/size_18"
+                android:minHeight="@dimen/size_18"
+                android:paddingStart="@dimen/padding_3"
+                android:paddingEnd="@dimen/padding_3"
                 android:layout_alignTop="@id/imgv_app4"
                 android:layout_alignEnd="@id/imgv_app4"
-                android:layout_marginTop="-4dp"
-                android:layout_marginEnd="-4dp"
+                android:layout_marginTop="@dimen/margin_minus_4"
+                android:layout_marginEnd="@dimen/margin_minus_4"
                 android:background="@drawable/circular_red"
                 android:gravity="center"
                 android:textColor="@android:color/white"
-                android:textSize="10sp"
+                android:textSize="@dimen/text_size_10"
                 android:textStyle="bold"
                 tools:ignore="SmallSp"
                 tools:text="3"
@@ -631,26 +631,26 @@
 
             <ImageView
                 android:id="@+id/imgv_app5"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="@dimen/padding_35"
+                android:layout_height="@dimen/padding_35"
                 android:scaleType="centerCrop" />
 
             <TextView
                 android:id="@+id/tx_app5_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="18dp"
-                android:minHeight="18dp"
-                android:paddingStart="3dp"
-                android:paddingEnd="3dp"
+                android:minWidth="@dimen/size_18"
+                android:minHeight="@dimen/size_18"
+                android:paddingStart="@dimen/padding_3"
+                android:paddingEnd="@dimen/padding_3"
                 android:layout_alignTop="@id/imgv_app5"
                 android:layout_alignEnd="@id/imgv_app5"
-                android:layout_marginTop="-4dp"
-                android:layout_marginEnd="-4dp"
+                android:layout_marginTop="@dimen/margin_minus_4"
+                android:layout_marginEnd="@dimen/margin_minus_4"
                 android:background="@drawable/circular_red"
                 android:gravity="center"
                 android:textColor="@android:color/white"
-                android:textSize="10sp"
+                android:textSize="@dimen/text_size_10"
                 android:textStyle="bold"
                 tools:ignore="SmallSp"
                 tools:text="3"
@@ -663,7 +663,7 @@
 
     <LinearLayout
         android:id="@+id/ll_contacts"
-        android:layout_width="75dp"
+        android:layout_width="@dimen/padding_75"
         android:layout_height="wrap_content"
         android:padding="@dimen/padding_5"
         android:gravity="center"
@@ -674,8 +674,8 @@
 
         <ImageView
             android:id="@+id/imgv_apps"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="@dimen/padding_50"
+            android:layout_height="@dimen/padding_50"
             android:layout_marginBottom="@dimen/fab_margin"
             android:scaleType="centerCrop"
             android:src="@drawable/launch_e" />
@@ -729,16 +729,16 @@
             android:id="@+id/imgbtn_add_stock"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="-15dp"
-            android:layout_marginBottom="15dp"
+            android:layout_marginTop="@dimen/margin_minus_15"
+            android:layout_marginBottom="@dimen/padding_15"
             android:layout_gravity="center"
             android:background="@drawable/gradient_glass_rounded_go" />
 
 
         <ImageView
             android:id="@+id/imgv_contacts"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="@dimen/padding_50"
+            android:layout_height="@dimen/padding_50"
             android:scaleType="centerCrop"
             android:src="@drawable/contacts" />
 
@@ -766,8 +766,8 @@
 
             <ImageView
                 android:id="@+id/imgbtn_g_apps"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="@dimen/padding_35"
+                android:layout_height="@dimen/padding_35"
                 android:background="@drawable/rounded_corner_gray"
                 android:padding="@dimen/padding_5"
                 android:adjustViewBounds="true"
@@ -778,8 +778,8 @@
 
             <ImageButton
                 android:id="@+id/imgv_conf"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="@dimen/padding_35"
+                android:layout_height="@dimen/padding_35"
                 android:background="@drawable/rounded_corner_gray"
                 android:padding="@dimen/padding_5"
                 android:layout_toEndOf="@+id/rl_setwall"
@@ -793,8 +793,8 @@
 
             <ImageButton
                 android:id="@+id/imgbtn_speech"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="@dimen/padding_35"
+                android:layout_height="@dimen/padding_35"
                 android:background="@drawable/rounded_corner_gray"
                 android:padding="@dimen/padding_5"
                 android:adjustViewBounds="true"
@@ -807,8 +807,8 @@
 
             <ImageView
                 android:id="@+id/imgbtn_qr"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="@dimen/padding_35"
+                android:layout_height="@dimen/padding_35"
                 android:adjustViewBounds="true"
                 android:background="@drawable/rounded_corner_gray"
                 android:padding="@dimen/padding_5"
@@ -849,15 +849,15 @@
 
                     <Chronometer
                         android:id="@+id/still_chronometer"
-                        android:layout_width="75dp"
-                        android:layout_height="75dp"
+                        android:layout_width="@dimen/padding_75"
+                        android:layout_height="@dimen/padding_75"
                         android:layout_centerHorizontal="true"
                         android:layout_below="@+id/rl_water_reminder"
                         android:gravity="center"
                         android:background="@drawable/speed_sign_bg"
                         android:maxLines="1"
                         android:ellipsize="end"
-                        android:textSize="21sp"
+                        android:textSize="@dimen/text_size_21"
                         android:textColor="@android:color/holo_red_dark"
                         android:textStyle="bold" />
 
@@ -870,7 +870,7 @@
                         android:layout_centerHorizontal="true"
                         android:textColor="@android:color/white"
                         android:textStyle="bold"
-                        android:textSize="25dp"
+                        android:textSize="@dimen/text_size_25"
                         android:text="STILL"/>
 
                     <RelativeLayout
@@ -882,8 +882,8 @@
 
                         <ImageView
                             android:id="@+id/imgv_water_glass"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
+                            android:layout_width="@dimen/padding_50"
+                            android:layout_height="@dimen/padding_50"
                             android:src="@drawable/water_reminder"
                             android:scaleType="fitCenter"
                             app:tint="@color/white" />
@@ -892,19 +892,19 @@
                             android:id="@+id/tx_water_count"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:minWidth="20dp"
-                            android:minHeight="20dp"
-                            android:paddingStart="4dp"
-                            android:paddingEnd="4dp"
+                            android:minWidth="@dimen/padding_20"
+                            android:minHeight="@dimen/padding_20"
+                            android:paddingStart="@dimen/padding_4"
+                            android:paddingEnd="@dimen/padding_4"
                             android:layout_alignTop="@id/imgv_water_glass"
                             android:layout_alignEnd="@id/imgv_water_glass"
-                            android:layout_marginTop="-5dp"
-                            android:layout_marginEnd="-5dp"
+                            android:layout_marginTop="@dimen/margin_minus_5"
+                            android:layout_marginEnd="@dimen/margin_minus_5"
                             android:background="@drawable/circular_red"
                             android:gravity="center"
                             android:text="0"
                             android:textColor="@android:color/white"
-                            android:textSize="10sp"
+                            android:textSize="@dimen/text_size_10"
                             android:textStyle="bold" />
                     </RelativeLayout>
 
@@ -924,8 +924,8 @@
 
                     <ImageButton
                         android:id="@+id/imgbtn_info_steps"
-                        android:layout_width="75dp"
-                        android:layout_height="75dp"
+                        android:layout_width="@dimen/padding_75"
+                        android:layout_height="@dimen/padding_75"
                         android:background="@android:color/transparent"
                         android:src="@android:drawable/ic_menu_info_details"
                         android:layout_centerHorizontal="true"
@@ -945,13 +945,13 @@
 
                     <Chronometer
                         android:id="@+id/walk_chronometer"
-                        android:layout_width="75dp"
-                        android:layout_height="75dp"
+                        android:layout_width="@dimen/padding_75"
+                        android:layout_height="@dimen/padding_75"
                         android:layout_centerHorizontal="true"
                         android:layout_below="@+id/ll_kcals"
                         android:gravity="center"
                         android:background="@drawable/speed_sign_bg"
-                        android:textSize="21sp"
+                        android:textSize="@dimen/text_size_21"
                         android:textColor="@android:color/holo_red_dark"
                         android:textStyle="bold" />
 
@@ -964,7 +964,7 @@
                         android:layout_centerHorizontal="true"
                         android:textColor="@android:color/white"
                         android:textStyle="bold"
-                        android:textSize="25dp"
+                        android:textSize="@dimen/text_size_25"
                         android:text="WALKING"/>
 
                     <LinearLayout
@@ -981,7 +981,7 @@
                             android:layout_height="wrap_content"
                             android:textColor="@android:color/white"
                             android:textStyle="bold"
-                            android:textSize="20dp"
+                            android:textSize="@dimen/text_size_20"
                             android:text="0"/>
 
                         <TextView
@@ -989,7 +989,7 @@
                             android:layout_height="wrap_content"
                             android:textColor="@android:color/holo_red_dark"
                             android:textStyle="italic"
-                            android:textSize="15dp"
+                            android:textSize="@dimen/text_size_15"
                             android:text=" steps"/>
 
                         <TextView
@@ -998,7 +998,7 @@
                             android:layout_height="wrap_content"
                             android:textColor="@android:color/white"
                             android:textStyle="bold"
-                            android:textSize="20dp"
+                            android:textSize="@dimen/text_size_20"
                             android:text="X.x"/>
 
                         <TextView
@@ -1006,7 +1006,7 @@
                             android:layout_height="wrap_content"
                             android:textColor="@android:color/holo_red_dark"
                             android:textStyle="italic"
-                            android:textSize="15dp"
+                            android:textSize="@dimen/text_size_15"
                             android:text=" km"/>
 
                     </LinearLayout>
@@ -1025,7 +1025,7 @@
                             android:layout_height="wrap_content"
                             android:textColor="@android:color/white"
                             android:textStyle="bold"
-                            android:textSize="20dp"
+                            android:textSize="@dimen/text_size_20"
                             android:text="52.07"/>
 
                         <TextView
@@ -1033,7 +1033,7 @@
                             android:layout_height="wrap_content"
                             android:textColor="@android:color/holo_red_light"
                             android:textStyle="italic|bold"
-                            android:textSize="15dp"
+                            android:textSize="@dimen/text_size_15"
                             android:text=" kcal"/>
 
                     </LinearLayout>
@@ -1056,7 +1056,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@android:color/white"
-                        android:textSize="25dp"
+                        android:textSize="@dimen/text_size_25"
                         android:textStyle="bold"
                         android:text="SPEED "/>
 
@@ -1075,8 +1075,8 @@
                         <TextView
                             android:id="@+id/tx_max_speed"
                             android:text="Max"
-                            android:layout_width="55dp"
-                            android:layout_height="55dp"
+                            android:layout_width="@dimen/padding_55"
+                            android:layout_height="@dimen/padding_55"
                             android:layout_alignBottom="@+id/tx_speed"
                             android:layout_toStartOf="@+id/tx_speed"
                             android:background="@drawable/speed_sign_bg"
@@ -1087,8 +1087,8 @@
 
                     <ImageButton
                         android:id="@+id/imgbtn_info_speed"
-                        android:layout_width="75dp"
-                        android:layout_height="75dp"
+                        android:layout_width="@dimen/padding_75"
+                        android:layout_height="@dimen/padding_75"
                         android:background="@android:color/transparent"
                         android:src="@android:drawable/ic_menu_info_details"
                         android:layout_toEndOf="@+id/tx_speed"
@@ -1111,13 +1111,13 @@
 
                     <Chronometer
                             android:id="@+id/speed_chronometer"
-                            android:layout_width="55dp"
-                            android:layout_height="55dp"
+                            android:layout_width="@dimen/padding_55"
+                            android:layout_height="@dimen/padding_55"
                             android:layout_alignBottom="@+id/tx_speed"
                             android:layout_toEndOf="@+id/tx_speed"
                             android:gravity="center"
                             android:background="@drawable/speed_sign_bg"
-                            android:textSize="10sp"
+                            android:textSize="@dimen/text_size_10"
                             android:textColor="@android:color/holo_red_dark"
                             android:textStyle="bold" />
 
@@ -1127,14 +1127,14 @@
                             android:id="@+id/tx_speed"
                             android:layout_centerHorizontal="true"
                             android:layout_below="@+id/tx_kmp_"
-                            android:layout_width="75dp"
-                            android:layout_height="75dp"
+                            android:layout_width="@dimen/padding_75"
+                            android:layout_height="@dimen/padding_75"
                             android:layout_gravity="center"
                             android:background="@drawable/speed_sign_bg"
                             android:gravity="center"
                             android:text="⚡"
                             android:textColor="@android:color/holo_red_light"
-                            android:textSize="35sp"
+                            android:textSize="@dimen/text_size_35"
                             android:textStyle="bold" />
 
 
@@ -1147,8 +1147,8 @@
             <ImageButton
                 android:id="@+id/imgbtn_fab"
                 android:visibility="gone"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/padding_50"
+                android:layout_height="@dimen/padding_50"
                 android:scaleType="fitXY"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentEnd="true"
@@ -1157,11 +1157,11 @@
 
             <RelativeLayout
                 android:id="@+id/rl_setwall"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/padding_50"
+                android:layout_height="@dimen/padding_50"
                 android:background="@drawable/rounded_corner_gray"
                 android:padding="@dimen/padding_5"
-                android:layout_margin="21dp"
+                android:layout_margin="@dimen/margin_21"
                 android:layout_centerInParent="true"
                 android:adjustViewBounds="true">
 
@@ -1173,7 +1173,7 @@
                     android:gravity="center"
                     android:text="5"
                     android:textColor="@android:color/holo_green_light"
-                    android:textSize="21sp"
+                    android:textSize="@dimen/text_size_21"
                     android:textStyle="bold"
                     tools:ignore="HardcodedText" />
 
@@ -1199,8 +1199,8 @@
                     android:indeterminate="true"
                     android:indeterminateTint="@android:color/holo_red_dark"
                     android:indeterminateTintMode="src_atop"
-                    android:minWidth="5dp"
-                    android:minHeight="5dp"
+                    android:minWidth="@dimen/padding_5"
+                    android:minHeight="@dimen/padding_5"
                     android:visibility="invisible"
                     />
 
@@ -1208,8 +1208,8 @@
 
             <ImageButton
                 android:id="@+id/imgbtn_lock"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="@dimen/padding_35"
+                android:layout_height="@dimen/padding_35"
                 android:layout_toEndOf="@+id/rl_setwall"
                 android:background="@drawable/rounded_corner_gray"
                 android:padding="@dimen/padding_5"
@@ -1222,8 +1222,8 @@
 
             <ImageView
                 android:id="@+id/imgv_ps"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="@dimen/padding_35"
+                android:layout_height="@dimen/padding_35"
                 android:background="@drawable/rounded_corner_gray"
                 android:padding="@dimen/padding_5"
                 android:adjustViewBounds="true"
@@ -1245,13 +1245,13 @@
                 android:background="@drawable/rounded_corner_gray"
                 android:padding="@dimen/padding_5"
                 android:textColor="@android:color/white"
-                android:textSize="15sp"
+                android:textSize="@dimen/text_size_15"
                 android:textStyle="bold" />
 
             <ImageView
                 android:id="@+id/imgv_dialler"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="@dimen/padding_35"
+                android:layout_height="@dimen/padding_35"
                 android:background="@drawable/rounded_corner_gray"
                 android:padding="@dimen/padding_5"
                 android:adjustViewBounds="true"
@@ -1267,8 +1267,8 @@
                 android:visibility="gone"
                 android:layout_below="@+id/imgbtn_close_activities"
                 android:layout_marginTop="@dimen/fab_margin"
-                android:layout_width="25dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/padding_25"
+                android:layout_height="@dimen/padding_50"
                 android:layout_alignParentStart="true"
                 android:background="#20000000"
                 android:src="@drawable/ic_chevron_left"
@@ -1279,8 +1279,8 @@
                 android:visibility="gone"
                 android:layout_below="@+id/imgbtn_close_activities"
                 android:layout_marginTop="@dimen/fab_margin"
-                android:layout_width="25dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/padding_25"
+                android:layout_height="@dimen/padding_50"
                 android:layout_alignParentEnd="true"
                 android:background="#20000000"
                 android:src="@drawable/ic_chevron_right"
@@ -1325,8 +1325,8 @@
 
             <ImageButton
                 android:id="@+id/imgv_activity_state"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/padding_50"
+                android:layout_height="@dimen/padding_50"
                 android:layout_alignParentStart="true"
                 android:layout_below="@+id/tx_act_state"
                 android:background="@android:color/transparent"
@@ -1339,13 +1339,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@+id/imgv_activity_state"
-                android:layout_marginStart="3dp"
+                android:layout_marginStart="@dimen/padding_3"
                 android:text="~"
-                android:layout_marginBottom="3dp"
+                android:layout_marginBottom="@dimen/padding_3"
                 android:gravity="center"
                 android:layout_toEndOf="@+id/imgv_activity_state"
                 android:textColor="@android:color/white"
-                android:textSize="25sp"
+                android:textSize="@dimen/text_size_25"
                 android:textStyle="bold" />
 
             <TextView
@@ -1357,22 +1357,22 @@
                 android:text=" + "
                 android:background="@drawable/gradient_glass_rounded"
                 android:textColor="@android:color/white"
-                android:textSize="21sp"
+                android:textSize="@dimen/text_size_21"
                 android:textStyle="bold" />
 
 
 
             <TextView
                 android:id="@+id/tx_act_permission_hint"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/padding_50"
+                android:layout_height="@dimen/padding_50"
                 android:layout_alignParentStart="true"
                 android:layout_below="@+id/tx_act_state"
                 android:text="4.⚠️"
                 android:visibility="gone"
                 android:gravity="center"
                 android:textColor="@android:color/white"
-                android:textSize="21sp"/>
+                android:textSize="@dimen/text_size_21"/>
 
         </RelativeLayout>
 
@@ -1388,8 +1388,8 @@
 
             <ImageButton
                 android:id="@+id/imgv_unlocks"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
+                android:layout_width="@dimen/padding_25"
+                android:layout_height="@dimen/padding_25"
                 android:layout_centerHorizontal="true"
                 android:layout_alignParentTop="true"
                 android:background="@android:color/transparent"
@@ -1406,7 +1406,7 @@
                 android:padding="@dimen/padding_3"
                 android:gravity="center"
                 android:layout_centerHorizontal="true"
-                android:textSize="25sp"
+                android:textSize="@dimen/text_size_25"
                 android:textStyle="bold" />
 
         </RelativeLayout>
@@ -1436,17 +1436,17 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_below="@+id/tx_screenusage_state"
-                android:layout_marginEnd="5dp"
+                android:layout_marginEnd="@dimen/padding_5"
                 android:layout_marginTop="@dimen/padding_10"
                 android:paddingStart="@dimen/padding_3"
                 android:textColor="@android:color/white"
-                android:textSize="25sp"
+                android:textSize="@dimen/text_size_25"
                 android:textStyle="bold" />
 
             <ImageButton
                 android:id="@+id/imgv_scr_time"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/padding_50"
+                android:layout_height="@dimen/padding_50"
                 android:layout_below="@+id/tx_screenusage_state"
                 android:layout_toEndOf="@+id/tx_screentime"
                 android:background="@android:color/transparent"
@@ -1455,14 +1455,14 @@
 
             <TextView
                 android:id="@+id/tx_scrtime_permission_hint"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/padding_50"
+                android:layout_height="@dimen/padding_50"
                 android:layout_below="@+id/tx_screenusage_state"
                 android:layout_toEndOf="@+id/tx_screentime"
                 android:text="5.⚠️"
                 android:gravity="center"
                 android:textColor="@android:color/white"
-                android:textSize="21sp"
+                android:textSize="@dimen/text_size_21"
                 android:visibility="gone" />
 
 
@@ -1510,7 +1510,7 @@
     <TextView
         android:id="@+id/line2"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="@dimen/padding_1"
         android:layout_above="@+id/tx_walltype_updateinfo"
         android:background="@android:color/black" />
 

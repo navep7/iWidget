@@ -55,8 +55,9 @@ fun getPredictedAppsForCurrentTimeWindow(context: Context): ArrayList<AppPredict
 
             if (matchesWindow) {
                 val pkg = event.packageName
-                // Filter out system launchers or your own package if required
-                if (pkg != null && pkg != context.packageName && !launcherPackages.contains(pkg) && isAppLaunchable(context, pkg) && isAppInstalled(context, pkg)) {
+                // Filter out system launchers, your own package, and common default apps
+                if (pkg != null && pkg != context.packageName && !launcherPackages.contains(pkg) && 
+                    !isDefaultApp(pkg) && isAppLaunchable(context, pkg) && isAppInstalled(context, pkg)) {
                     appLaunchCounts[pkg] = (appLaunchCounts[pkg] ?: 0) + 1
                 }
             }
@@ -64,12 +65,34 @@ fun getPredictedAppsForCurrentTimeWindow(context: Context): ArrayList<AppPredict
     }
 
 
-    // Sort descending by weight frequency and limit to top 3 results
+    // Sort descending by weight frequency and limit to top results
     val results = appLaunchCounts.map { AppPrediction(it.key, it.value) }
         .sortedByDescending { it.launchCount }
         .take(5)
 
     return ArrayList(results)
+}
+
+/**
+ * Filters out common default system apps that are usually excluded from suggestions.
+ */
+private fun isDefaultApp(packageName: String): Boolean {
+    val defaultPackages = setOf(
+        "com.android.settings",            // Settings
+        "com.android.vending",             // Play Store
+        "com.android.chrome",              // Chrome
+        "com.android.dialer",              // Phone (AOSP)
+        "com.google.android.dialer",       // Phone (Google)
+        "com.android.contacts",            // Contacts (AOSP)
+        "com.google.android.contacts",     // Contacts (Google)
+        "com.google.android.apps.messaging", // Messages (Google)
+        "com.android.mms",                  // Messages (AOSP)
+        "com.android.phone",               // Phone process
+        "com.google.android.googlequicksearchbox", // Google Search
+        "com.android.camera",               // Camera (General)
+        "com.google.android.GoogleCamera"   // Google Camera
+    )
+    return defaultPackages.contains(packageName)
 }
 
 private fun isAppLaunchable(context: Context, packageName: String): Boolean {
