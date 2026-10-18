@@ -16,12 +16,17 @@ import android.widget.ImageButton
 import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.DecodeHintType
 import com.journeyapps.barcodescanner.BarcodeResult
 import com.journeyapps.barcodescanner.CaptureManager
 import com.journeyapps.barcodescanner.DecoratedBarcodeView
 import com.journeyapps.barcodescanner.DefaultDecoderFactory
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class CustomScannerActivity : AppCompatActivity() {
     private lateinit var capture: CaptureManager
@@ -59,6 +64,9 @@ class CustomScannerActivity : AppCompatActivity() {
         
         btnCloseHistory.setOnClickListener {
             historyContainer.visibility = View.GONE
+            edtxPayingFor.visibility = View.VISIBLE
+            edtxAmount.visibility = View.VISIBLE
+            btnHistory.visibility = View.VISIBLE
             barcodeScannerView.resume()
         }
 
@@ -146,35 +154,76 @@ class CustomScannerActivity : AppCompatActivity() {
     }
 
     private fun showHistory() {
-        val sampleHistory = listOf(
-            PaymentHistory("500", "Grocery Store", "2023-10-25 10:30"),
-            PaymentHistory("120", "Coffee Shop", "2023-10-24 15:45"),
-            PaymentHistory("2500", "Rent Payment", "2023-10-01 09:00"),
-            PaymentHistory("450", "Fuel Station", "2023-09-28 18:20"),
-            PaymentHistory("99", "Mobile Recharge", "2023-09-25 12:10")
-        )
+        val sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        val gson = Gson()
+        val json = sharedPreferences.getString("payment_history", null)
+        val type = object : TypeToken<ArrayList<PaymentHistory>>() {}.type
+        val history: ArrayList<PaymentHistory> = if (json == null) {
+            ArrayList()
+        } else {
+            gson.fromJson(json, type)
+        }
         
-        val adapter = PaymentHistoryAdapter(this, sampleHistory)
+        val adapter = PaymentHistoryAdapter(this, history)
         lvPaymentHistory.adapter = adapter
         
         historyContainer.visibility = View.VISIBLE
+        edtxPayingFor.visibility = View.GONE
+        edtxAmount.visibility = View.GONE
+        btnHistory.visibility = View.GONE
         barcodeScannerView.pause()
+    }
+
+    private fun savePaymentToHistory(amount: String, note: String) {
+        val sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        val gson = Gson()
+        val json = sharedPreferences.getString("payment_history", null)
+        val type = object : TypeToken<ArrayList<PaymentHistory>>() {}.type
+        val historyList: ArrayList<PaymentHistory> = if (json == null) {
+            ArrayList()
+        } else {
+            gson.fromJson(json, type)
+        }
+
+        val timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
+        val finalNote = if (note.isEmpty()) "QR Payment" else note
+        val newPayment = PaymentHistory(amount, finalNote, timestamp)
+        historyList.add(0, newPayment)
+
+        // Keep only last 50 items
+        val truncatedList = if (historyList.size > 50) ArrayList(historyList.subList(0, 50)) else historyList
+
+        sharedPreferences.edit().putString("payment_history", gson.toJson(truncatedList)).apply()
     }
 
     private fun launchUpi(scannedText: String, amountStr: String, noteStr: String = "") {
         val upiUri = Uri.parse(scannedText)
         val builder = upiUri.buildUpon()
         
+        var finalAmount = amountStr
+        var finalNote = noteStr
+
         // Fix for "UPI Risk Policy" error:
         // Avoid duplicate 'am' (amount) parameters which trigger security flags in UPI apps.
-        if (amountStr.isNotEmpty() && upiUri.getQueryParameter("am") == null) {
+        val uriAmount = upiUri.getQueryParameter("am")
+        if (amountStr.isNotEmpty() && uriAmount == null) {
             builder.appendQueryParameter("am", amountStr)
+        } else if (amountStr.isEmpty() && uriAmount != null) {
+            finalAmount = uriAmount
         }
         
         // Append transaction note if provided and not already present in QR
-        if (noteStr.isNotEmpty() && upiUri.getQueryParameter("tn") == null) {
+        val uriNote = upiUri.getQueryParameter("tn")
+        if (noteStr.isNotEmpty() && uriNote == null) {
             builder.appendQueryParameter("tn", noteStr)
+        } else if (noteStr.isEmpty() && uriNote != null) {
+            finalNote = uriNote
         }
+        
+        if (finalAmount.isEmpty()) finalAmount = "0"
+        
+        // Save to history
+        savePaymentToHistory(finalAmount, finalNote)
         
         val finalUri = builder.build()
         
@@ -218,6 +267,9 @@ class CustomScannerActivity : AppCompatActivity() {
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK && historyContainer.visibility == View.VISIBLE) {
             historyContainer.visibility = View.GONE
+            edtxPayingFor.visibility = View.VISIBLE
+            edtxAmount.visibility = View.VISIBLE
+            btnHistory.visibility = View.VISIBLE
             barcodeScannerView.resume()
             return true
         }

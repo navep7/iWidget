@@ -26,7 +26,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_margin="32dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="55dp"
         android:orientation="vertical">
 
         <EditText
@@ -68,6 +70,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_margin="25dp"
             android:orientation="vertical"
             android:padding="16dp">
 

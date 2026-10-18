@@ -2602,6 +2602,7 @@ class NewAppWidget : AppWidgetProvider() {
                     val days = listOf("TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY")
                     // These putInt() calls were never committed because apply() was missing.
                     days.forEach { sharedPreferencesEditor.putInt(it, 0) }
+                    days.forEach { sharedPreferencesEditor.putInt("SPEED_" + it, 0) }
                     sharedPreferencesEditor.apply()
 
                     for (i in arrayListHabits) {
@@ -2762,3 +2763,4 @@ class NewAppWidget : AppWidgetProvider() {
 
 
 }
+

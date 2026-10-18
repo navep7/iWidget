@@ -4,8 +4,6 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
-import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
@@ -13,13 +11,9 @@ import android.location.Location
 import android.os.Build
 import android.os.IBinder
 import android.os.Looper
-import android.os.SystemClock
-import android.view.View
-import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.google.android.gms.location.*
-import java.time.LocalDate
 
 
 class SpeedService : Service() {
@@ -61,6 +55,10 @@ class SpeedService : Service() {
             makeToast(applicationContext, "speedEx - ${e.message}")
             e.printStackTrace()
         }
+
+        // Initialize maxSpeed from persistence on start
+        val sharedPreferences = getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
+        maxSpeed = sharedPreferences.getInt("maxSpeedToday", 0)
     }
 
     private fun onLocationChanged(location: Location) {
@@ -75,16 +73,9 @@ class SpeedService : Service() {
         // Save current speed so Widget and ActivityTransitionReceiver can check it
         sharedPreferencesEditor.putInt("current_speed", speedKmh)
         
-        val today = LocalDate.now().toString()
-        val lastSavedDate = sharedPreferences.getString("maxSpeedDate", "")
-        
-
-        if (today == lastSavedDate) {
-            maxSpeed = sharedPreferences.getInt("maxSpeedToday", 0)
-        } else {
-            sharedPreferencesEditor.putString("maxSpeedDate", today)
-            sharedPreferencesEditor.putInt("maxSpeedToday", 0)
-        }
+        // Note: Date-based reset of maxSpeedToday and weekly archival are handled 
+        // centrally in NewAppWidget.todaysDate() to avoid race conditions. 
+        maxSpeed = sharedPreferences.getInt("maxSpeedToday", 0)
 
         if (speedKmh > maxSpeed) {
             maxSpeed = speedKmh
@@ -92,7 +83,7 @@ class SpeedService : Service() {
         }
         sharedPreferencesEditor.apply()
 
-        // Notify widget to update. NewAppWidget will read speed from SharedPreferences.
+        // Notify widget to update. NewAppWidget will read values from SharedPreferences.
         val updateIntent = Intent(applicationContext, NewAppWidget::class.java)
         updateIntent.action = "ACTION_UPDATE_SPEED"
         updateIntent.putExtra("EXTRA_SPEED", speedKmh.toDouble())
@@ -103,11 +94,16 @@ class SpeedService : Service() {
         if (::fusedLocationClient.isInitialized && ::locationCallback.isInitialized) {
             fusedLocationClient.removeLocationUpdates(locationCallback)
         }
-        // Reset speed on stop
-        applicationContext.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
-            .edit().putInt("current_speed", 0).apply()
+        
+        val sharedPreferences = applicationContext.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
+        
+        // Note: Accumulated trip duration is handled centrally in ActivityTransitionReceiver.
+        // History archival is managed by NewAppWidget.
+
+        // Reset current speed on stop
+        sharedPreferences.edit().putInt("current_speed", 0).apply()
             
-        // Final update to widget to clear speed
+        // Final update to widget to clear speed display
         val updateIntent = Intent(applicationContext, NewAppWidget::class.java)
         updateIntent.action = "ACTION_UPDATE_SPEED"
         updateIntent.putExtra("EXTRA_SPEED", 0.0)

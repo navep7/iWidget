@@ -232,23 +232,17 @@ class DialogActivity : AppCompatActivity() {
         }
 
         if (stepsData.isEmpty()) {
-            stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
-            stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
-            stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
-            stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
-            stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
-            stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
-            stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
+            val days = listOf("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY")
+            for (day in days) {
+                stepsData.add(sharedPreferences.getInt(day, 0).toString())
+            }
         }
 
         if (speedData.isEmpty()) {
-            speedData.add(sharedPreferences.getInt("Monday", 0).toString())
-            speedData.add(sharedPreferences.getInt("Tuesday", 0).toString())
-            speedData.add(sharedPreferences.getInt("Wednesday", 0).toString())
-            speedData.add(sharedPreferences.getInt("Thursday", 0).toString())
-            speedData.add(sharedPreferences.getInt("Friday", 0).toString())
-            speedData.add(sharedPreferences.getInt("Saturday", 0).toString())
-            speedData.add(sharedPreferences.getInt("Sunday", 0).toString())
+            val days = listOf("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY")
+            for (day in days) {
+                speedData.add(sharedPreferences.getInt("SPEED_$day", 0).toString())
+            }
         }
 
         rewardedInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
