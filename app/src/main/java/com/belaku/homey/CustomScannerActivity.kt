@@ -1,7 +1,9 @@
 package com.belaku.homey
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.KeyEvent
@@ -40,6 +42,12 @@ class CustomScannerActivity : AppCompatActivity() {
     private lateinit var btnCloseHistory: Button
     
     private var lastScannedUpiUri: String? = null
+    private var pendingAmount: String? = null
+    private var pendingNote: String? = null
+
+    companion object {
+        private const val UPI_PAYMENT_REQUEST_CODE = 1001
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -222,24 +230,99 @@ class CustomScannerActivity : AppCompatActivity() {
         
         if (finalAmount.isEmpty()) finalAmount = "0"
         
-        // Save to history
-        savePaymentToHistory(finalAmount, finalNote)
+        // Store details to save to history ONLY if payment succeeds
+        pendingAmount = finalAmount
+        pendingNote = finalNote
         
         val finalUri = builder.build()
         
-        val upiIntent = Intent(Intent.ACTION_VIEW, finalUri)
-        // Use flags to ensure the intent is launched cleanly. 
-        // This helps bypass overlay/risk detection in banking apps by starting a fresh task.
-        upiIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        
-        try {
-            startActivity(upiIntent)
-            // Finish immediately to ensure this activity isn't seen as an overlay.
-            finish()
-        } catch (e: Exception) {
+        val upiApps = getInstalledUpiApps(this)
+        if (upiApps.isEmpty()) {
             Toast.makeText(this, "No UPI app found", Toast.LENGTH_SHORT).show()
             finish()
+            return
         }
+
+        showUpiAppChooser(this, upiApps, finalUri)
+    }
+
+    private fun getInstalledUpiApps(context: Context): List<UpiApp> {
+        val upiIntent = Intent(Intent.ACTION_VIEW)
+        upiIntent.data = Uri.parse("upi://pay")
+        val pm = context.packageManager
+        val resolveInfoList = pm.queryIntentActivities(upiIntent, PackageManager.MATCH_DEFAULT_ONLY)
+        
+        val upiApps = mutableListOf<UpiApp>()
+        for (resolveInfo in resolveInfoList) {
+            val packageName = resolveInfo.activityInfo.packageName
+            val name = resolveInfo.loadLabel(pm).toString()
+            val icon = resolveInfo.loadIcon(pm)
+            
+            // Mocking offer counts for demonstration. 
+            // In a real app, this could come from a server or local database.
+            val mockOffers = when (packageName) {
+                "com.google.android.apps.nbu.paisa.user" -> 5
+                "com.phonepe.app" -> 3
+                "net.one97.paytm" -> 7
+                "in.org.npci.upiapp" -> 2
+                else -> (1..4).random()
+            }
+            
+            upiApps.add(UpiApp(name, packageName, icon, mockOffers))
+        }
+        return upiApps
+    }
+
+    private fun showUpiAppChooser(context: Context, apps: List<UpiApp>, uri: Uri) {
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle("Choose UPI App to pay")
+        
+        val adapter = UpiAppAdapter(context, apps)
+        builder.setAdapter(adapter) { _, which ->
+            val selectedApp = apps[which]
+            val upiIntent = Intent(Intent.ACTION_VIEW, uri)
+            upiIntent.`package` = selectedApp.packageName
+            try {
+                barcodeScannerView.pause()
+                startActivityForResult(upiIntent, UPI_PAYMENT_REQUEST_CODE)
+            } catch (e: Exception) {
+                Toast.makeText(this, "Error launching ${selectedApp.name}", Toast.LENGTH_SHORT).show()
+                barcodeScannerView.resume()
+            }
+        }
+        
+        builder.setOnCancelListener {
+            barcodeScannerView.resume()
+        }
+        
+        builder.show()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == UPI_PAYMENT_REQUEST_CODE) {
+            val response = data?.getStringExtra("response") ?: ""
+            if (isPaymentSuccessful(response)) {
+                savePaymentToHistory(pendingAmount ?: "0", pendingNote ?: "QR Payment")
+                Toast.makeText(this, "Payment Successful", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Payment Failed or Cancelled", Toast.LENGTH_SHORT).show()
+            }
+            // Always finish as we are done with the scan/payment attempt
+            finish()
+        }
+    }
+
+    private fun isPaymentSuccessful(response: String): Boolean {
+        if (response.isBlank()) return false
+        val parts = response.split("&")
+        for (part in parts) {
+            val kv = part.split("=")
+            if (kv.size == 2 && kv[0].equals("Status", ignoreCase = true)) {
+                return kv[1].equals("SUCCESS", ignoreCase = true)
+            }
+        }
+        return false
     }
 
     override fun onResume() {
