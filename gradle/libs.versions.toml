@@ -41,6 +41,7 @@ zxingAndroidEmbedded = "4.3.0"
 firebasePerfKtx = "22.0.4"
 media3Exoplayer = "1.10.0"
 androidthings = "1.0"
+chaquopy = "17.1.0"
 
 [libraries]
 android-gif-drawable = { module = "pl.droidsonroids.gif:android-gif-drawable", version.ref = "androidGifDrawable" }
@@ -92,4 +93,4 @@ androidthings = { group = "com.google.android.things", name = "androidthings", v
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-
+chaquopy = { id = "com.chaquo.python", version.ref = "chaquopy" }

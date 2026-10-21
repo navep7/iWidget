@@ -608,7 +608,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     val usageStats = getAppUsageStatsForRange(context, startTime, now)
 
                     hashSetAppUsage.clear()
-                    choosenApps.forEach { recycleBitmap(it.iconBitmap) }
+                //    choosenApps.forEach { recycleBitmap(it.iconBitmap) }
                     choosenApps.clear()
 
                     var totalDurationMs = 0L

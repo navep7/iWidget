@@ -99,6 +99,7 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         dayIndex =  Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
 
         loadHabits()
+        resetWeeklyTicks()
         checkHabitStreaks()
 
         listViewHabits.setOnItemClickListener(OnItemClickListener { parent, view, position, id ->
@@ -166,6 +167,25 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         }
 
 
+    }
+
+    private fun resetWeeklyTicks() {
+        if (dayIndex == Calendar.MONDAY) {
+            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val today = sdf.format(Date())
+            val lastResetDate = sharedPreferences.getString("last_habit_reset_date", "")
+
+            if (lastResetDate != today) {
+                for (habit in arrayListHabits) {
+                    val days = arrayOf("StateSu", "StateM", "StateTu", "StateW", "StateTh", "StateF", "StateS")
+                    for (day in days) {
+                        sharedPreferencesEditor.remove("${habit.name}$day")
+                    }
+                }
+                sharedPreferencesEditor.putString("last_habit_reset_date", today)
+                sharedPreferencesEditor.apply()
+            }
+        }
     }
 
     private fun getYesterdayDateString(): String {
