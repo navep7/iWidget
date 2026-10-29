@@ -1,5 +1,7 @@
 package com.belaku.homey
 
+import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -10,14 +12,19 @@ import android.os.Build
 import android.os.SystemClock
 import android.util.Log
 import androidx.core.content.edit
-import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.belaku.homey.StepsService.Companion.presentActivityState
+import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityTransition
+import com.google.android.gms.location.ActivityTransitionRequest
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
 import java.time.LocalDate
 
+/**
+ * Receiver for Activity Transition updates. 
+ * Optimized to handle only ENTER transitions and batch state updates.
+ */
 class ActivityTransitionReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -48,15 +55,15 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
                 Log.d("ActivityTransition", "Moving from $oldState to $detectedState")
 
-                // 1. Save the total duration of the activity we are leaving.
-                savePreviousStateDuration(sharedPrefs, oldState)
-
-                // 2. Update persistent state and the global companion variable.
-                // commit = true is used here to ensure the data is written immediately before the receiver process finishes.
-                presentActivityState = detectedState
-                val baseTime = SystemClock.elapsedRealtime()
-
+                // Start one batch edit for efficiency. commit=true ensures data is persistent before the receiver finishes.
                 sharedPrefs.edit(commit = true) {
+                    // 1. Save the total duration of the activity we are leaving.
+                    savePreviousStateDuration(sharedPrefs, this, oldState)
+
+                    // 2. Update persistent state and the global companion variable.
+                    presentActivityState = detectedState
+                    val baseTime = SystemClock.elapsedRealtime()
+
                     putString("presentActivityState", detectedState)
                     // Reset chronometer base times for the new active state.
                     when (detectedState) {
@@ -82,16 +89,13 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                 // 3. Start or Stop the SpeedService based on the new state.
                 handleServiceTransitions(applicationContext, detectedState)
 
-                // 4. Trigger a widget refresh broadcast. This forces NewAppWidget to recreate RemoteViews
-                // and re-apply all adaptive backgrounds, colors, and listeners based on the updated state.
+                // 4. Trigger a widget refresh broadcast.
                 triggerWidgetUpdate(applicationContext)
-
-             //   makeToast(applicationContext, detectedState)
             }
         }
     }
 
-    private fun savePreviousStateDuration(sharedPrefs: SharedPreferences, oldState: String?) {
+    private fun savePreviousStateDuration(sharedPrefs: SharedPreferences, editor: SharedPreferences.Editor, oldState: String?) {
         val now = SystemClock.elapsedRealtime()
         val dayKey = LocalDate.now().dayOfWeek.name
 
@@ -102,7 +106,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     val duration = now - startTime
                     val totalKey = "${dayKey}_walk_duration"
                     val currentTotal = sharedPrefs.getLong(totalKey, 0L)
-                    sharedPrefs.edit(commit = true) { putLong(totalKey, currentTotal + duration) }
+                    editor.putLong(totalKey, currentTotal + duration)
                 }
             }
             "TRAVEL" -> {
@@ -111,40 +115,33 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     val duration = now - startTime
                     val totalKey = "${dayKey}_travel_duration"
                     val currentTotal = sharedPrefs.getLong(totalKey, 0L)
-                    sharedPrefs.edit(commit = true) { putLong(totalKey, currentTotal + duration) }
+                    editor.putLong(totalKey, currentTotal + duration)
                 }
             }
         }
     }
 
     private fun handleServiceTransitions(context: Context, newState: String) {
-        if (newState == "TRAVEL") {
-            try {
-                val intent = Intent(context, SpeedService::class.java)
+        val intent = Intent(context, SpeedService::class.java)
+        try {
+            if (newState == "TRAVEL") {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     context.startForegroundService(intent)
                 } else {
                     context.startService(intent)
                 }
-            } catch (e: Exception) {
-                Log.e("ActivityTransition", "Start SpeedService failed", e)
+            } else if (isMyServiceRunning(context, SpeedService::class.java)) {
+                context.stopService(intent)
             }
-        } else {
-            try {
-                if (isMyServiceRunning(context, SpeedService::class.java)) {
-                    context.stopService(Intent(context, SpeedService::class.java))
-                }
-            } catch (e: Exception) {
-                Log.e("ActivityTransition", "Stop SpeedService failed", e)
-            }
+        } catch (e: Exception) {
+            Log.e("ActivityTransition", "Service transition failed for $newState", e)
         }
     }
 
     private fun triggerWidgetUpdate(context: Context) {
         try {
-            val appWidgetManager = AppWidgetManager.getInstance(context)
             val componentName = ComponentName(context, NewAppWidget::class.java)
-            val ids = appWidgetManager.getAppWidgetIds(componentName)
+            val ids = AppWidgetManager.getInstance(context).getAppWidgetIds(componentName)
             if (ids.isNotEmpty()) {
                 val updateIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).apply {
                     component = componentName
@@ -162,5 +159,63 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
         DetectedActivity.WALKING, DetectedActivity.RUNNING -> "WALKING"
         DetectedActivity.IN_VEHICLE, DetectedActivity.ON_BICYCLE -> "TRAVEL"
         else -> "UNKNOWN"
+    }
+
+    companion object {
+        private const val TRANSITIONS_REQUEST_CODE = 57
+        private const val TRANSITIONS_ACTION = "action.TRANSITIONS_DATA"
+
+        /**
+         * Registers for activity transition updates using centralized configuration.
+         * Optimization: Only registers for ENTER transitions to reduce system wake-ups.
+         */
+        @SuppressLint("MissingPermission")
+        fun requestUpdates(context: Context) {
+            val activities = listOf(
+                DetectedActivity.STILL,
+                DetectedActivity.WALKING,
+                DetectedActivity.IN_VEHICLE
+            )
+
+            val transitions = activities.map { type ->
+                ActivityTransition.Builder()
+                    .setActivityType(type)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                    .build()
+            }
+
+            val request = ActivityTransitionRequest(transitions)
+            ActivityRecognition.getClient(context)
+                .requestActivityTransitionUpdates(request, getTransitionsPendingIntent(context))
+                .addOnSuccessListener { Log.d("ActivityTransition", "Registered successfully") }
+                .addOnFailureListener { e -> Log.e("ActivityTransition", "Registration failed", e) }
+        }
+
+        /**
+         * Unregisters activity transition updates.
+         */
+        @SuppressLint("MissingPermission")
+        fun removeUpdates(context: Context) {
+            ActivityRecognition.getClient(context)
+                .removeActivityTransitionUpdates(getTransitionsPendingIntent(context))
+                .addOnSuccessListener { Log.d("ActivityTransition", "Removed successfully") }
+                .addOnFailureListener { e -> Log.e("ActivityTransition", "Removal failed", e) }
+        }
+
+        /**
+         * Builds the PendingIntent for activity transition updates.
+         * Consistent flags ensure compatibility with Android 12+ (API 31).
+         */
+        fun getTransitionsPendingIntent(context: Context): PendingIntent {
+            val intent = Intent(context, ActivityTransitionReceiver::class.java).apply {
+                action = TRANSITIONS_ACTION
+            }
+            return PendingIntent.getBroadcast(
+                context,
+                TRANSITIONS_REQUEST_CODE,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+            )
+        }
     }
 }

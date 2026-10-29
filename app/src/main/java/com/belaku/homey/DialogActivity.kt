@@ -90,10 +90,6 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
-import com.google.android.gms.location.ActivityRecognition
-import com.google.android.gms.location.ActivityTransition
-import com.google.android.gms.location.ActivityTransitionRequest
-import com.google.android.gms.location.DetectedActivity
 import com.google.android.material.tabs.TabLayout
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -1140,77 +1136,7 @@ class DialogActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     private fun requestActTransitions() {
-
-            val intentActivityTransitionReceiver =
-                Intent(applicationContext, ActivityTransitionReceiver::class.java).setAction("action.TRANSITIONS_DATA")
-            val requestCodeAT = 57
-            val pendingIntentActivityTransitions = PendingIntent.getBroadcast(
-                applicationContext,
-                requestCodeAT,
-                intentActivityTransitionReceiver,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-            )
-
-            val activityTransitions = ArrayList<ActivityTransition>()
-            activityTransitions.apply {
-                add(
-                    ActivityTransition.Builder()
-                        .setActivityType(DetectedActivity.STILL)
-                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-                        .build()
-                )
-
-                add(
-                    ActivityTransition.Builder()
-                        .setActivityType(DetectedActivity.STILL)
-                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-                        .build()
-                )
-
-                add(
-                    ActivityTransition.Builder()
-                        .setActivityType(DetectedActivity.WALKING)
-                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-                        .build()
-                )
-
-                add(
-                    ActivityTransition.Builder()
-                        .setActivityType(DetectedActivity.WALKING)
-                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-                        .build()
-                )
-
-                add(
-                    ActivityTransition.Builder()
-                        .setActivityType(DetectedActivity.IN_VEHICLE)
-                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-                        .build()
-                )
-
-                add(
-                    ActivityTransition.Builder()
-                        .setActivityType(DetectedActivity.IN_VEHICLE)
-                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-                        .build()
-                )
-            }
-
-            val activityTransitionRequest = ActivityTransitionRequest(activityTransitions)
-
-            // myPendingIntent is the instance of PendingIntent where the app receives callbacks.
-            try {
-                ActivityRecognition.getClient(applicationContext)
-                    .requestActivityTransitionUpdates(
-                        activityTransitionRequest,
-                        pendingIntentActivityTransitions
-                    )
-                    .addOnSuccessListener { Log.d("TAG", "Activity transition updates registered") }
-                    .addOnFailureListener { e -> Log.e("TAG", "Activity transition updates failed", e) }
-            } catch (e: Exception) {
-                Log.e("TAG", "requestActivityTransitionUpdates threw", e)
-            }
-
+        ActivityTransitionReceiver.requestUpdates(applicationContext)
     }
 
     /**
