@@ -126,6 +126,7 @@ import java.util.Date
 import java.util.Locale
 import androidx.core.content.edit
 import com.belaku.homey.MainActivity.Companion.predictedApps
+import com.belaku.homey.StepsService.Companion.ismLatLngInitialized
 
 
 class NewAppWidget : AppWidgetProvider() {
@@ -756,7 +757,7 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     private fun locationTxUpdate(context: Context) {
-  //      remoteViews?.setTextColor(R.id.tx_place, ColorUtil().matchPrimaryColor())
+
         if (!isLocationEnabled(context)) {
             remoteViews?.setTextViewText(R.id.tx_place, "Please Enable Location services!")
         } else {
@@ -764,7 +765,9 @@ class NewAppWidget : AppWidgetProvider() {
             cName = cityname.ifBlank { "⚠ Place Information" }
 
             remoteViews?.setTextViewText(R.id.tx_place, cName)
-   //         remoteViews?.setTextColor(R.id.tx_place, ColorUtil().matchPrimaryColor())
+
+            if (cityname.isNotBlank() && ismLatLngInitialized())
+                StepsService().loadStaticStreetView(widgetContext, StepsService.mLatLng)
 
             // tempC may still be empty before the first weather response; split()[0] on an
             // empty string yields "" and rendered a stray "° " label.
@@ -810,7 +813,6 @@ class NewAppWidget : AppWidgetProvider() {
         ensurePrefs(widgetContext)
 
         DialogActivity.refreshAllStocks(widgetContext)
-
 
         // SharedPreferences is the source of truth: ActivityTransitionReceiver persists the state
         // before requesting this redraw. Only trusting the static when it was blank meant a stale

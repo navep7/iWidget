@@ -200,11 +200,11 @@
                     <ImageButton
                         android:id="@+id/imgv_map_icon"
                         android:layout_gravity="center"
-                        android:layout_marginTop="@dimen/padding_5"
-                        android:layout_width="@dimen/padding_50"
-                        android:layout_height="@dimen/padding_50"
-                        android:background="@android:color/transparent"
-                        android:scaleType="fitXY"
+                        android:layout_width="@dimen/padding_100"
+                        android:layout_height="@dimen/padding_100"
+                        android:background="@drawable/rounded_corner"
+                        android:padding="@dimen/padding_5"
+                        android:scaleType="fitCenter"
                         android:src="@drawable/map_logo" />
 
 
@@ -304,17 +304,19 @@
 
                 <FrameLayout
                     android:layout_gravity="center"
-                    android:layout_width="wrap_content"
+                    android:background="@drawable/gradient_glass_dark"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content">
+
 
                     <ImageButton
                         android:id="@+id/imgv_weather_icon"
                         android:layout_gravity="center"
-                        android:layout_marginTop="@dimen/padding_5"
-                        android:layout_width="@dimen/padding_50"
-                        android:layout_height="@dimen/padding_50"
-                        android:background="@android:color/transparent"
-                        android:scaleType="fitXY"
+                        android:layout_width="@dimen/padding_100"
+                        android:layout_height="@dimen/padding_100"
+                        android:background="@drawable/rounded_corner"
+                        android:padding="@dimen/padding_5"
+                        android:scaleType="fitCenter"
                         android:src="@drawable/weather_info" />
 
 

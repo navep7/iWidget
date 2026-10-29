@@ -37,7 +37,6 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -65,6 +64,8 @@ import com.belaku.homey.SetWallWorker.Companion.isSharedPreferencesInitialized
 import com.belaku.homey.SetWallWorker.Companion.ismActInitialized
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.AppWidgetTarget
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -94,6 +95,8 @@ import java.util.Locale
 
 class StepsService : Service() {
 
+
+
     private val serviceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
 
@@ -114,58 +117,59 @@ class StepsService : Service() {
             sharedPreferencesEditor = sharedPreferences.edit()
         }
 
-            if (!isLocationEnabled(applicationContext)) {
-                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                applicationContext.startActivity(intent.setFlags(FLAG_ACTIVITY_NEW_TASK))
-            }
+        if (!isLocationEnabled(applicationContext)) {
+            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            applicationContext.startActivity(intent.setFlags(FLAG_ACTIVITY_NEW_TASK))
+        }
 
-            val locationRequest = LocationRequest.create()
-            locationRequest.setInterval(10000)
-            locationRequest.setSmallestDisplacement(3f)
-            locationRequest.setFastestInterval(10000)
-            locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
+        val locationRequest = LocationRequest.create()
+        locationRequest.setInterval(10000)
+        locationRequest.setSmallestDisplacement(3f)
+        locationRequest.setFastestInterval(10000)
+        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
 
-            var fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        var fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
-            fusedLocationProviderClient.requestLocationUpdates(
-                locationRequest,
-                object : LocationCallback(), GoogleMap.OnMarkerClickListener {
-                    override fun onLocationResult(locationResult: LocationResult) {
-                        mLocationResult = locationResult
-                        val location = locationResult.lastLocation
-                        if (location != null) {
+        fusedLocationProviderClient.requestLocationUpdates(
+            locationRequest,
+            object : LocationCallback(), GoogleMap.OnMarkerClickListener {
+                override fun onLocationResult(locationResult: LocationResult) {
+                    mLocationResult = locationResult
+                    val location = locationResult.lastLocation
+                    if (location != null) {
 
-                            if (location.hasSpeed()) {
-                                val speedInMps = location.speed // Speed in meters/second
+                        if (location.hasSpeed()) {
+                            val speedInMps = location.speed // Speed in meters/second
 
-                                // Convert to km/h (optional)
-                                speedInKmph = (speedInMps * 3.6).toInt()
+                            // Convert to km/h (optional)
+                            speedInKmph = (speedInMps * 3.6).toInt()
                             //    speedR(speedInKmph.toString())
-                            }
-
-
-                            if (!isSharedPreferencesInitialized()) {
-                                sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
-                                sharedPreferencesEditor = sharedPreferences.edit()
-                            }
-
-                            if (!sharedPreferences.getBoolean("boolWeather", false)) {
-                                sharedPreferencesEditor.putBoolean("boolWeather", true).apply()
-                                getWeatherData(LatLng(location.latitude, location.longitude))
-                            }
-
-                            currentLocation = location
-
-                            getAddress(location.latitude, location.longitude)
                         }
-                    }
 
-                    override fun onMarkerClick(p0: Marker): Boolean {
-                        return true
+
+                        if (!isSharedPreferencesInitialized()) {
+                            sharedPreferences =
+                                getSharedPreferences("UserPreferences", MODE_PRIVATE)
+                            sharedPreferencesEditor = sharedPreferences.edit()
+                        }
+
+                        if (!sharedPreferences.getBoolean("boolWeather", false)) {
+                            sharedPreferencesEditor.putBoolean("boolWeather", true).apply()
+                            getWeatherData(LatLng(location.latitude, location.longitude))
+                        }
+
+                        currentLocation = location
+
+                        getAddress(location.latitude, location.longitude)
                     }
-                },
-                Looper.getMainLooper()
-            )
+                }
+
+                override fun onMarkerClick(p0: Marker): Boolean {
+                    return true
+                }
+            },
+            Looper.getMainLooper()
+        )
 
 
         if (Build.VERSION.SDK_INT >= 26) {
@@ -186,11 +190,22 @@ class StepsService : Service() {
 
             if (Build.VERSION.SDK_INT >= 34) {
                 var type = 0
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACTIVITY_RECOGNITION
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
                     type = type or ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH
                 }
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
                     type = type or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
                 }
 
@@ -202,7 +217,10 @@ class StepsService : Service() {
                         // However, health and location types MUST be started with their respective types.
                         // If we have neither, we might have to stop the service or start without types
                         // if the manifest allows (but it doesn't here).
-                        Log.w("StepsService", "Starting foreground without specific types due to missing permissions")
+                        Log.w(
+                            "StepsService",
+                            "Starting foreground without specific types due to missing permissions"
+                        )
                         startForeground(1, notification)
                     }
                 } catch (e: Exception) {
@@ -233,9 +251,9 @@ class StepsService : Service() {
                     stepsToday++
 
                     if (!ismActInitialized()) {
-                    sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
-                    sharedPreferencesEditor = sharedPreferences.edit()
-                        }
+                        sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+                        sharedPreferencesEditor = sharedPreferences.edit()
+                    }
 
 
 
@@ -244,42 +262,50 @@ class StepsService : Service() {
                             R.id.tx_act_count,
                             "$stepsToday"
                         )
-                        sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
-                    } else if (stepsToday % 10 == 0)  {
+                        sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday)
+                            .apply()
+                    } else if (stepsToday % 10 == 0) {
 
-                        if(stepsToday < 131) {
+                        if (stepsToday < 131) {
                             if (presentActivityState == "WALKING")
-                            remoteViews?.setTextViewText(
-                                R.id.tx_act_count,
-                                "$stepsToday"
-                            )
+                                remoteViews?.setTextViewText(
+                                    R.id.tx_act_count,
+                                    "$stepsToday"
+                                )
                             remoteViews?.setTextViewText(
                                 R.id.rl_tx_steps,
                                 "$stepsToday"
                             )
                             remoteViews?.setTextViewText(
                                 R.id.rl_tx_steps_in_km,
-                                " ~ " + String.format("%.1f",  (Integer.parseInt(stepsToday.toString()) * 74f) / 100000f)
+                                " ~ " + String.format(
+                                    "%.1f",
+                                    (Integer.parseInt(stepsToday.toString()) * 74f) / 100000f
+                                )
                             )
-                            remoteViews?.setTextViewText(R.id.rl_tx_cals, (stepsToday * 0.04 * (80 / 70)).toInt().toString())
+                            remoteViews?.setTextViewText(
+                                R.id.rl_tx_cals,
+                                (stepsToday * 0.04 * (80 / 70)).toInt().toString()
+                            )
                         }
-                        sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday).apply()
+                        sharedPreferencesEditor.putInt(LocalDate.now().dayOfWeek.name, stepsToday)
+                            .apply()
                     }
 
 
                     sharedPreferencesEditor.putString("day", LocalDate.now().dayOfWeek.name).apply()
 
 
-                if (isAppWidMInitialized() && remoteViews != null) {
-                    try {
-                        appWidM.updateAppWidget(newAppWidget, remoteViews)
-                    } catch (e: Exception) {
-                        Log.e("StepsService", "Failed to update widget", e)
+                    if (isAppWidMInitialized() && remoteViews != null) {
+                        try {
+                            appWidM.updateAppWidget(newAppWidget, remoteViews)
+                        } catch (e: Exception) {
+                            Log.e("StepsService", "Failed to update widget", e)
+                        }
                     }
-                }
 
+                }
             }
-        }
 
             override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {
                 Log.d("MY_APP", "$sensor - $accuracy")
@@ -287,7 +313,7 @@ class StepsService : Service() {
         }
 
         if (isSharedPreferencesInitialized())
-        stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
+            stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
 
     }
 
@@ -297,14 +323,14 @@ class StepsService : Service() {
                 locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
-    private fun updateWidget() {
+    private fun updateWidget(p0: Context?) {
         val intent = Intent(
-            applicationContext,
+            p0,
             NewAppWidget::class.java
         )
         intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
-        val ids: IntArray = AppWidgetManager.getInstance(application)
-            .getAppWidgetIds(ComponentName(getApplication(), NewAppWidget::class.java))
+        val ids: IntArray = AppWidgetManager.getInstance(p0)
+            .getAppWidgetIds(ComponentName(application, NewAppWidget::class.java))
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
         sendBroadcast(intent)
     }
@@ -312,7 +338,7 @@ class StepsService : Service() {
     private fun WifiState(contx: StepsService) {
         val mWifiReceiver: BroadcastReceiver = object : BroadcastReceiver() {
 
-              
+
             override fun onReceive(p0: Context?, intent: Intent?) {
 
 
@@ -336,7 +362,7 @@ class StepsService : Service() {
                             // You can perform actions here when Wi-Fi becomes disabled
                         }
                     }
-                    updateWidget()
+                    updateWidget(p0)
                 } else if (action == ConnectivityManager.CONNECTIVITY_ACTION) {
                     val cm =
                         contx.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -352,7 +378,7 @@ class StepsService : Service() {
                         // Not connected to Wi-Fi or connected to a different network type
                         // You can perform actions here when Wi-Fi connection is lost or changed
                     }
-                    updateWidget()
+                    updateWidget(p0)
                 }
 
 
@@ -375,38 +401,51 @@ class StepsService : Service() {
 
                 val action = intent?.action
                 if (action == BluetoothAdapter.ACTION_STATE_CHANGED) {
-                    val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
+                    val state =
+                        intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
 
                     when (state) {
                         BluetoothAdapter.STATE_OFF -> {
                             sharedPreferencesEditor.putBoolean("BluetoothState", false).apply()
                         }
-                        BluetoothAdapter.STATE_TURNING_OFF -> { /* Bluetooth is turning off */ }
+
+                        BluetoothAdapter.STATE_TURNING_OFF -> { /* Bluetooth is turning off */
+                        }
+
                         BluetoothAdapter.STATE_ON -> {
                             sharedPreferencesEditor.putBoolean("BluetoothState", true).apply()
                         }
-                        BluetoothAdapter.STATE_TURNING_ON -> { /* Bluetooth is turning on */ }
+
+                        BluetoothAdapter.STATE_TURNING_ON -> { /* Bluetooth is turning on */
+                        }
                     }
                 }
 
                 if (BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED == intent.action) {
-                    val state = intent.getIntExtra(BluetoothProfile.EXTRA_STATE, BluetoothProfile.STATE_DISCONNECTED)
-                    val device: BluetoothDevice? = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+                    val state = intent.getIntExtra(
+                        BluetoothProfile.EXTRA_STATE,
+                        BluetoothProfile.STATE_DISCONNECTED
+                    )
+                    val device: BluetoothDevice? =
+                        intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
 
                     when (state) {
                         BluetoothProfile.STATE_CONNECTED -> {
                             makeToast(applicationContext, "Headset connected: ${device?.name}")
-                            sharedPreferencesEditor.putBoolean("BluetoothConnectionState", true).apply()
+                            sharedPreferencesEditor.putBoolean("BluetoothConnectionState", true)
+                                .apply()
                         }
+
                         BluetoothProfile.STATE_DISCONNECTED -> {
                             makeToast(applicationContext, "Headset disconnected: ${device?.name}")
-                            sharedPreferencesEditor.putBoolean("BluetoothConnectionState", false).apply()
+                            sharedPreferencesEditor.putBoolean("BluetoothConnectionState", false)
+                                .apply()
                         }
 
                     }
                 }
 
-                updateWidget()
+                updateWidget(context)
 
             }
         }
@@ -415,7 +454,6 @@ class StepsService : Service() {
         bluetoothFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
         bluetoothFilter.addAction(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)
         registerReceiver(mBluetoothStateReceiver, bluetoothFilter)
-
 
 
     }
@@ -473,7 +511,7 @@ class StepsService : Service() {
                     val address = cAddrs?.firstOrNull()
                     name = address?.subLocality
                         ?: address?.locality
-                        ?: "remoteAreaMaybe!"
+                                ?: "remoteAreaMaybe!"
                 } catch (e: IOException) {
                     e.printStackTrace()
                     withContext(Dispatchers.Main) {
@@ -492,6 +530,7 @@ class StepsService : Service() {
             cityLat = lat
             cityLng = lng
             cityname = name
+            mLatLng = LatLng(lat, lng)
 
             if (ismGoogleMapInitialized()) {
                 var icon: BitmapDescriptor? = null
@@ -505,7 +544,6 @@ class StepsService : Service() {
                     }
                 }
                 mGoogleMap.clear()
-                val mLatLng = LatLng(lat, lng)
 
                 if (cityname.isNotEmpty()) {
                     val markerOptions = MarkerOptions().position(mLatLng).icon(icon).title(cityname)
@@ -525,6 +563,42 @@ class StepsService : Service() {
         }
     }
 
+
+    fun loadStaticStreetView(applicationContext: Context, mLatLng: LatLng) {
+
+        val apiKey =
+            "AIzaSyDypKvRVtn8t_F0yKtSfK5PuI54FBNDvCk" // Ensure this key has Street View Static API enabled
+        val size = "600x400"
+        val fov = 90 // Default field of view
+
+        // Build the request URL
+        val streetViewUrl = "https://maps.googleapis.com/maps/api/streetview" +
+                "?size=$size" +
+                "&location=${mLatLng.latitude},${mLatLng.longitude}" +
+                "&fov=$fov" +
+                "&key=$apiKey"
+
+
+        val widgetTarget = AppWidgetTarget(
+            applicationContext,
+            R.id.imgv_map_icon, // The ID of the ImageView in your widget XML
+            remoteViews,
+            newAppWidget
+        )
+
+        // Load the image into your view using Glide
+        Glide.with(applicationContext)
+            .asBitmap() // RemoteViews require a Bitmap
+            .load(streetViewUrl)
+            .placeholder(R.drawable.walp_icon) // Handles the loading state automatically
+            .error(android.R.drawable.stat_notify_error)        // Handles the error state automatically
+            .into(widgetTarget)
+
+     //   updateWidget(applicationContext)
+
+}
+
+
     override fun onDestroy() {
         serviceJob.cancel()
         Toast.makeText(
@@ -537,6 +611,7 @@ class StepsService : Service() {
 
     companion object {
 
+        lateinit var mLatLng: LatLng
         var Top3: ArrayList<App> = ArrayList()
         var strDurationWalk: String = ""
         var strDurationTravel: String = ""
@@ -550,23 +625,18 @@ class StepsService : Service() {
         lateinit var locationListenerSpeed: LocationListener
         lateinit var locationManager: LocationManager
 
-        fun isLocationManagerInitialized(): Boolean {
-            if (::locationManager.isInitialized && ::locationListenerSpeed.isInitialized)
-                return true
-            else
-                return false
-
+        fun ismLatLngInitialized(): Boolean {
+            return ::mLatLng.isInitialized
         }
+
+
         var twitterProfileName: String = "Fact"
         var mLocationResult: LocationResult? = null
         var totalUsage: String = ""
         var choosenApps: ArrayList<App> = ArrayList()
 
         fun isStepsAdapterInitialized(): Boolean {
-            if (::stepsAdapter.isInitialized)
-                return true
-            else
-                return false
+            return ::stepsAdapter.isInitialized
         }
 
 
