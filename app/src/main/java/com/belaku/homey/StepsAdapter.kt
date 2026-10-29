@@ -81,12 +81,17 @@ class StepsAdapter(
 
         holder.txTitle.text = days[realPosition]
        // makeToast(contx, "StA ~ " + strT)
-        if (strT == "walk")
-        holder.txSteps.text = "$steps steps\n~ $km km\n~ $kCal kCal\nActive: $strDurationWalk"
-        else holder.txSteps.text = "Max ~ ${stepsData[realPosition]} KmpH"
+        if (strT == "walk") {
+            holder.txSteps.text = "$steps steps\n~ $km km\n~ $kCal kCal\nActive: $strDurationWalk"
+            holder.progressSteps.max = 10000
+        }
+        else {
+            holder.txSteps.text = "Max ~ ${stepsData[realPosition]} KmpH"
+            holder.progressSteps.max = 125
+        }
 
         // Material-like progress
-        holder.progressSteps.max = 10000 // Standard daily goal
+         // Standard daily goal
         holder.progressSteps.progress = steps
 
         // Trip Info Shortcut

@@ -158,7 +158,6 @@
 
             <LinearLayout
                 android:id="@+id/ll_place"
-                android:background="@drawable/gradient_glass_light"
                 android:layout_width="@dimen/padding_100"
                 android:layout_height="@dimen/padding_100"
                 android:layout_margin="@dimen/padding_5"
@@ -171,8 +170,11 @@
                     android:id="@+id/tx_place"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/gradient_glass_light"
+                    android:textColor="@color/black"
                     android:ellipsize="end"
                     android:maxLines="1"
+                    android:paddingStart="@dimen/padding_5"
                     android:text="⚠ Place Information"
                     android:layout_gravity="center"
                     android:gravity="center"
@@ -213,9 +215,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/margin_minus_5"
                         android:text="⚲"
-                        android:textColor="@android:color/holo_green_light"
                         android:textSize="@dimen/text_size_25"
-                        android:textFontWeight="900"
                         android:textStyle="bold" />
 
 
@@ -269,7 +269,6 @@
 
             <LinearLayout
                 android:id="@+id/id_weather"
-                android:background="@drawable/gradient_glass_light"
                 android:layout_width="@dimen/padding_100"
                 android:layout_height="@dimen/padding_100"
                 android:layout_margin="@dimen/padding_5"
@@ -282,6 +281,8 @@
                     android:id="@+id/tx_weather"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/gradient_glass_light"
+                    android:textColor="@color/black"
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="⚠ Weather Information"
@@ -319,15 +320,12 @@
 
                     <TextView
                         android:id="@+id/tx_refresh_weather"
-                        android:background="?attr/selectableItemBackgroundBorderless"
                         android:layout_gravity="top|center"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/margin_minus_5"
                         android:text="↺"
-                        android:textColor="@android:color/holo_green_light"
                         android:textSize="@dimen/text_size_25"
-                        android:textFontWeight="900"
                         android:textStyle="bold" />
 
                     <ProgressBar

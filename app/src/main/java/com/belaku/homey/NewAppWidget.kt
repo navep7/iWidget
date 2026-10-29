@@ -65,12 +65,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
-import androidx.core.graphics.drawable.toBitmap
 import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.cityname
-import com.belaku.homey.MainActivity.Companion.makeSnack
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.tempC
 import com.belaku.homey.MainActivity.Companion.tempKind
@@ -88,9 +86,6 @@ import com.belaku.homey.RemindersActivity.Companion.arrayListHabits
 import com.belaku.homey.RemindersActivity.Companion.isadapterHabitsInitialized
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.boolNewLap
-import com.belaku.homey.SetWallWorker.Companion.formatMilliseconds
-import com.belaku.homey.SetWallWorker.Companion.getAppNameFromPkg
-import com.belaku.homey.SetWallWorker.Companion.getAppUsageStatsForRange
 import com.belaku.homey.SetWallWorker.Companion.hour
 import com.belaku.homey.SetWallWorker.Companion.isPinNoteInitialized
 import com.belaku.homey.SetWallWorker.Companion.isSharedPreferencesInitialized
@@ -119,7 +114,6 @@ import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.squareup.picasso.Picasso
@@ -131,7 +125,6 @@ import java.util.Collections
 import java.util.Date
 import java.util.Locale
 import androidx.core.content.edit
-import com.belaku.getPredictedAppsForCurrentTimeWindow
 import com.belaku.homey.MainActivity.Companion.predictedApps
 
 
@@ -1293,17 +1286,31 @@ class NewAppWidget : AppWidgetProvider() {
 
             // Every panel that sits directly on the wallpaper and needs a readable backdrop.
             val glassPanelIds = listOf(
-                R.id.ll_place,
-                R.id.id_weather,
                 R.id.rl_activity_states,
                 R.id.rl_unlocks,
-                R.id.rl_scrtime
+                R.id.rl_scrtime,
+                R.id.ll_stock,
+                R.id.tx_place,
+                R.id.tx_weather
             )
 
             remoteViews?.setInt(R.id.rl_controls, "setBackgroundResource", controlsBackground)
+
             glassPanelIds.forEach { panelId ->
                 remoteViews?.setInt(panelId, "setBackgroundResource", glassBackground)
             }
+            if (isWallpaperDark) {
+                remoteViews?.setTextColor(R.id.tx_place, Color.WHITE)
+                remoteViews?.setTextColor(R.id.tx_weather, Color.WHITE)
+                remoteViews?.setTextColor(R.id.tx_stockprice, Color.WHITE)
+                remoteViews?.setTextColor(R.id.tx_stockname, Color.WHITE)
+            } else {
+                remoteViews?.setTextColor(R.id.tx_place, Color.BLACK)
+                remoteViews?.setTextColor(R.id.tx_weather, Color.BLACK)
+                remoteViews?.setTextColor(R.id.tx_stockprice, Color.BLACK)
+                remoteViews?.setTextColor(R.id.tx_stockname, Color.BLACK)
+            }
+
 
             // The controls plate matches the wallpaper tone, so its pills must contrast with the
             // plate: light pills on the dark plate, the original dark pills on the light plate.
@@ -1351,6 +1358,8 @@ class NewAppWidget : AppWidgetProvider() {
             val glassLabelIds = listOf(
                 R.id.tx_place,
                 R.id.tx_weather,
+                R.id.tx_stockprice,
+                R.id.tx_stockname,
                 R.id.tx_act_state,
                 R.id.tx_act_count,
                 R.id.tx_act_plus,
