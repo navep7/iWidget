@@ -698,7 +698,7 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
 
-        val mapsIntent = Intent(context, MapsActivity::class.java)
+        val mapsIntent = Intent(context, MapsActivity::class.java).putExtra("keyMap", "Map")
         val mapsPendingIntent = PendingIntent.getActivity(
             context,
             17,
@@ -706,9 +706,17 @@ class NewAppWidget : AppWidgetProvider() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val streetsIntent = Intent(context, MapsActivity::class.java).putExtra("keyMap", "Street")
+        val streetsPendingIntent = PendingIntent.getActivity(
+            context,
+            19,
+            streetsIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         remoteViews?.setOnClickPendingIntent(
-            R.id.tx_open_maps,
-            mapsPendingIntent
+            R.id.imgv_street_icon,
+            streetsPendingIntent
         )
 
         remoteViews?.setOnClickPendingIntent(
@@ -1383,7 +1391,7 @@ class NewAppWidget : AppWidgetProvider() {
                 else ColorUtil().lightenColor(tertianaryColor, 0.35f)
             val accentColor = ColorUtils.setAlphaComponent(accentShade, 255)
 
-            listOf(R.id.tx_open_maps, R.id.tx_refresh_weather).forEach { glyphId ->
+            listOf(R.id.tx_refresh_weather).forEach { glyphId ->
                 remoteViews?.setTextColor(glyphId, accentColor)
             }
 

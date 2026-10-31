@@ -77,16 +77,19 @@ class StepsAdapter(
         val km = if (steps != 0) String.format("%.1f", (steps * 74f) / 100000f) else "0"
         val kCal = (steps * 0.04 * (80 / 70)).toInt()
         strDurationWalk = if (steps != 0) formatDuration(durationMillisWalk) else "00:00"
-        strDurationTravel = if (steps != 0) formatDuration(durationMillisTravel) else "00:00"
+        strDurationTravel = formatDuration(durationMillisTravel)
 
         holder.txTitle.text = days[realPosition]
        // makeToast(contx, "StA ~ " + strT)
         if (strT == "walk") {
             holder.txSteps.text = "$steps steps\n~ $km km\n~ $kCal kCal\nActive: $strDurationWalk"
+            holder.txActiveDuration.visibility = View.GONE
             holder.progressSteps.max = 10000
         }
         else {
             holder.txSteps.text = "Max ~ ${stepsData[realPosition]} KmpH"
+            holder.txActiveDuration.visibility = View.VISIBLE
+            holder.txActiveDuration.text = "Active: $strDurationTravel"
             holder.progressSteps.max = 125
         }
 

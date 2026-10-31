@@ -64,8 +64,20 @@ import com.belaku.homey.SetWallWorker.Companion.isSharedPreferencesInitialized
 import com.belaku.homey.SetWallWorker.Companion.ismActInitialized
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Path
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
+import com.bumptech.glide.load.model.GlideUrl
+import com.bumptech.glide.load.model.LazyHeaders
+import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
 import com.bumptech.glide.request.target.AppWidgetTarget
+import java.security.MessageDigest
+import kotlin.math.floor
+import kotlin.math.ln
+import kotlin.math.sin
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -570,33 +582,83 @@ class StepsService : Service() {
             "AIzaSyDypKvRVtn8t_F0yKtSfK5PuI54FBNDvCk" // Ensure this key has Street View Static API enabled
         val size = "600x400"
         val fov = 90 // Default field of view
+        val zoom = 18
 
-        // Build the request URL
+        // Build the Street View request URL
         val streetViewUrl = "https://maps.googleapis.com/maps/api/streetview" +
                 "?size=$size" +
                 "&location=${mLatLng.latitude},${mLatLng.longitude}" +
                 "&fov=$fov" +
                 "&key=$apiKey"
 
+        val widgetTargetStreet = AppWidgetTarget(
+            applicationContext,
+            R.id.imgv_street_icon,
+            remoteViews,
+            newAppWidget
+        )
 
-        val widgetTarget = AppWidgetTarget(
+        Glide.with(applicationContext)
+            .asBitmap()
+            .load(streetViewUrl)
+            .placeholder(R.drawable.walp_icon)
+            .error(android.R.drawable.stat_notify_error)
+            .into(widgetTargetStreet)
+
+        // Build the Static Map request URL
+        val staticMapUrl = "https://maps.googleapis.com/maps/api/staticmap" +
+                "?center=${mLatLng.latitude},${mLatLng.longitude}" +
+                "&zoom=$zoom" +
+                "&size=400x400" +
+                "&maptype=satellite" +
+                "&key=$apiKey"
+
+        val headers = LazyHeaders.Builder()
+            .addHeader("User-Agent", "HomeyApp/1.0 (${applicationContext.packageName})")
+            .build()
+
+        val latRad = Math.toRadians(mLatLng.latitude)
+        val xtile = kotlin.math.floor((mLatLng.longitude + 180.0) / 360.0 * (1 shl zoom)).toInt()
+        val ytile = kotlin.math.floor((1.0 - Math.log(Math.tan(latRad) + 1.0 / Math.cos(latRad)) / Math.PI) / 2.0 * (1 shl zoom)).toInt()
+
+        val osmTileUrl = "https://tile.openstreetmap.org/$zoom/$xtile/$ytile.png"
+        val esriTileUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/$zoom/$ytile/$xtile"
+
+        val osmGlideUrl = GlideUrl(osmTileUrl, headers)
+        val esriGlideUrl = GlideUrl(esriTileUrl, headers)
+
+        val widgetTargetMap = AppWidgetTarget(
             applicationContext,
             R.id.imgv_map_icon, // The ID of the ImageView in your widget XML
             remoteViews,
             newAppWidget
         )
 
-        // Load the image into your view using Glide
+        val staticMapTransform = MapMarkerTransformation(mLatLng, zoom, isTile = false)
+        val tileTransform = MapMarkerTransformation(mLatLng, zoom, isTile = true)
+
+        // Load the image into your view using Glide with marker transformation and tile fallbacks
         Glide.with(applicationContext)
             .asBitmap() // RemoteViews require a Bitmap
-            .load(streetViewUrl)
+            .load(staticMapUrl)
+            .transform(staticMapTransform)
+            .error(
+                Glide.with(applicationContext)
+                    .asBitmap()
+                    .load(osmGlideUrl)
+                    .transform(tileTransform)
+                    .error(
+                        Glide.with(applicationContext)
+                            .asBitmap()
+                            .load(esriGlideUrl)
+                            .transform(tileTransform)
+                            .placeholder(R.drawable.walp_icon)
+                            .error(android.R.drawable.stat_notify_error)
+                    )
+            )
             .placeholder(R.drawable.walp_icon) // Handles the loading state automatically
-            .error(android.R.drawable.stat_notify_error)        // Handles the error state automatically
-            .into(widgetTarget)
-
-     //   updateWidget(applicationContext)
-
-}
+            .into(widgetTargetMap)
+    }
 
 
     override fun onDestroy() {
@@ -766,4 +828,92 @@ class StepsService : Service() {
     }
 
 
+}
+
+class MapMarkerTransformation(
+    private val latLng: LatLng,
+    private val zoom: Int,
+    private val isTile: Boolean = false
+) : BitmapTransformation() {
+    override fun transform(
+        pool: BitmapPool,
+        toTransform: Bitmap,
+        outWidth: Int,
+        outHeight: Int
+    ): Bitmap {
+        val config = toTransform.config ?: Bitmap.Config.ARGB_8888
+        val result = toTransform.copy(config, true)
+        val canvas = Canvas(result)
+
+        // Draw the map image at full size without truncation
+        canvas.drawBitmap(toTransform, 0f, 0f, null)
+
+        val markerX: Float
+        val markerY: Float
+
+        if (isTile) {
+            val mapSize = 256.0 * (1 shl zoom)
+            val sinLat = sin(Math.toRadians(latLng.latitude)).coerceIn(-0.9999, 0.9999)
+            val globalPixelX = (latLng.longitude + 180.0) / 360.0 * mapSize
+            val globalPixelY = (0.5 - ln((1.0 + sinLat) / (1.0 - sinLat)) / (4.0 * Math.PI)) * mapSize
+
+            val xtile = floor(globalPixelX / 256.0).toInt()
+            val ytile = floor(globalPixelY / 256.0).toInt()
+
+            val tileLeft = xtile * 256.0
+            val tileTop = ytile * 256.0
+
+            val tilePixelX = globalPixelX - tileLeft
+            val tilePixelY = globalPixelY - tileTop
+
+            val scaleX = toTransform.width.toFloat() / 256f
+            val scaleY = toTransform.height.toFloat() / 256f
+
+            markerX = (tilePixelX * scaleX).toFloat()
+            markerY = (tilePixelY * scaleY).toFloat()
+        } else {
+            // Static map is centered on latLng
+            markerX = toTransform.width / 2f
+            markerY = toTransform.height / 2f
+        }
+
+        val paintPin = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.RED
+            style = Paint.Style.FILL
+        }
+
+        val paintBorder = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.WHITE
+            style = Paint.Style.STROKE
+            strokeWidth = toTransform.width * 0.02f
+        }
+
+        val paintInner = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.WHITE
+            style = Paint.Style.FILL
+        }
+
+        val radius = toTransform.width * 0.06f
+
+        // Draw pin pointer / teardrop shape centered at (markerX, markerY)
+        val path = Path().apply {
+            moveTo(markerX - radius, markerY - radius * 0.5f)
+            lineTo(markerX + radius, markerY - radius * 0.5f)
+            lineTo(markerX, markerY + radius * 1.5f)
+            close()
+        }
+        canvas.drawPath(path, paintPin)
+        canvas.drawPath(path, paintBorder)
+
+        // Draw head circle
+        canvas.drawCircle(markerX, markerY - radius * 0.5f, radius, paintPin)
+        canvas.drawCircle(markerX, markerY - radius * 0.5f, radius, paintBorder)
+        canvas.drawCircle(markerX, markerY - radius * 0.5f, radius * 0.4f, paintInner)
+
+        return result
+    }
+
+    override fun updateDiskCacheKey(messageDigest: MessageDigest) {
+        messageDigest.update("MapMarkerTransformation_${latLng.latitude}_${latLng.longitude}_${zoom}_${isTile}".toByteArray())
+    }
 }

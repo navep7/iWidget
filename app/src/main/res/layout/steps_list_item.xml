@@ -60,6 +60,17 @@
                 android:textColor="?attr/colorOnSurfaceVariant"
                 tools:text="5000 steps\n~ 3.5 km\n~ 200 kCal" />
 
+            <TextView
+                android:id="@+id/tx_active_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:visibility="gone"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                tools:text="Active: 01:25:30" />
+
             <ImageButton
                 android:id="@+id/imgbtn_trip_info"
                 android:visibility="gone"

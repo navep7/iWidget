@@ -97,7 +97,16 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
         mStreetViewPanoramaView.onCreate(savedInstanceState);
         mStreetViewPanoramaView.getStreetViewPanoramaAsync(this);
 
-      //  locationUpdates()
+
+        if (intent.extras != null)
+            if (intent.extras?.getString("keyMap") == "Street") {
+                mStreetViewPanoramaView.visibility = View.VISIBLE
+                mSupportMapFragment.view?.visibility = View.INVISIBLE
+            } else  if (intent.extras?.getString("keyMap") == "Map") {
+                mStreetViewPanoramaView.visibility = View.INVISIBLE
+                mSupportMapFragment.view?.visibility = View.VISIBLE
+            }
+
 
         binding.fabMapOStreet.setOnClickListener { view ->
 
