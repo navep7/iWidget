@@ -58,6 +58,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <!-- Required for 28 and below. -->
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
     <!-- Required for 29+. -->
@@ -89,6 +90,9 @@
     <uses-feature
         android:name="android.software.live_wallpaper"
         android:required="true" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <application
         android:name=".NHApp"
@@ -140,15 +144,6 @@
             android:foregroundServiceType="location"
             android:exported="false" />
 
-        <service
-            android:name=".RemoteViewsContactsService"
-            android:exported="false"
-            android:permission="android.permission.BIND_REMOTEVIEWS" />
-
-        <service
-            android:name=".RemoteViewsAppsService"
-            android:exported="false"
-            android:permission="android.permission.BIND_REMOTEVIEWS" />
 
         <service
             android:name=".LockAccessibilityService"

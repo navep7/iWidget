@@ -170,7 +170,7 @@
                     android:id="@+id/tx_place"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/gradient_glass_light"
+                    android:background="@drawable/gradient_glass_flatbottom"
                     android:textColor="@color/black"
                     android:ellipsize="end"
                     android:maxLines="1"
@@ -274,7 +274,7 @@
                     android:id="@+id/tx_weather"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/gradient_glass_light"
+                    android:background="@drawable/gradient_glass_flatbottom"
                     android:textColor="@color/black"
                     android:ellipsize="end"
                     android:maxLines="1"
@@ -541,15 +541,15 @@
 
         <TextView
             android:id="@+id/tx_times"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:textSize="@dimen/text_size_11"
             android:textStyle="bold"
             android:textColor="@color/black"
-            android:padding="@dimen/padding_3"
+            android:paddingBottom="@dimen/padding_3"
             android:layout_marginBottom="@dimen/padding_10"
-            android:background="@drawable/gradient_glass_rounded"
+            android:background="@drawable/gradient_glass_flatbottom"
             android:text="⏳ Times," />
 
         <RelativeLayout

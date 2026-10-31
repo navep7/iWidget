@@ -236,8 +236,15 @@ class DialogActivity : AppCompatActivity() {
 
         if (speedData.isEmpty()) {
             val days = listOf("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY")
+            val currentDayName = LocalDate.now().dayOfWeek.name
+            val maxSpeedToday = sharedPreferences.getInt("maxSpeedToday", 0)
             for (day in days) {
-                speedData.add(sharedPreferences.getInt("SPEED_$day", 0).toString())
+                val speedVal = if (day == currentDayName) {
+                    maxSpeedToday
+                } else {
+                    sharedPreferences.getInt("SPEED_$day", 0)
+                }
+                speedData.add(speedVal.toString())
             }
         }
 
@@ -472,9 +479,19 @@ class DialogActivity : AppCompatActivity() {
                     imgbtnAddAnotherStock.visibility = View.INVISIBLE
 
                     val currentDay = (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) + 5) % 7
+                    val maxSpeedToday = sharedPreferences.getInt("maxSpeedToday", 0)
 
-                    val maxSpeedToday = sharedPreferences.getInt("maxSpeedToday", SpeedService.maxSpeed)
-                    speedData[currentDay] = "$maxSpeedToday"
+                    speedData.clear()
+                    val days = listOf("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY")
+                    val currentDayName = LocalDate.now().dayOfWeek.name
+                    for (day in days) {
+                        val speedVal = if (day == currentDayName) {
+                            maxSpeedToday
+                        } else {
+                            sharedPreferences.getInt("SPEED_$day", 0)
+                        }
+                        speedData.add(speedVal.toString())
+                    }
 
                     stepsMapsAdapter("speed", speedData)
 

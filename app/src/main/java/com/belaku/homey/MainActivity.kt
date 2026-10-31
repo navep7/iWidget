@@ -294,6 +294,7 @@ class MainActivity : AppCompatActivity() {
         setRV(imgUrls, imgDescs)
         listeners()
         fetchWallpaper(applicationContext)
+        updateFabText()
         GetDisplayDimens()
 
         // Needs no permission – load it at startup rather than from the (now removed)
@@ -419,6 +420,9 @@ class MainActivity : AppCompatActivity() {
                     // just-in-time when the user taps that tile in the widget.
                     if (permissionRequester.isGranted(FeaturePermission.STEPS))
                         startStepsServiceInternal()
+
+                    sharedPreferencesEditor.putBoolean("wallpaperSet", false).apply()
+                    updateFabText()
 
                     finish()
                 }
@@ -1256,6 +1260,24 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    private fun updateFabText() {
+        val wallpaperSet = sharedPreferences.getBoolean("wallpaperSet", false)
+        val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
+        val myProvider = ComponentName(applicationContext, NewAppWidget::class.java)
+        val ids = appWidgetManager.getAppWidgetIds(myProvider)
+
+        try {
+            if (wallpaperSet && ids.isEmpty()) {
+                fabMain.text = "Add Widget to Homescreen"
+            } else {
+                fabMain.text = "Set"
+            }
+        } catch (_: Exception) {
+            // ignore if uninitialized
+        }
+    }
+
+
     fun fetchWallpaper(context: Context) {
 
 
@@ -1288,7 +1310,7 @@ class MainActivity : AppCompatActivity() {
                                     "Showing $queryType wallpapers...\n1. Search using Top Bar. \n2.Select from Above options, \nif you seek something else.. Or S3t!"
                                 selectedKey = queryType
                                 unSelectKeys()
-                                fabMain.setText("Set")
+                                updateFabText()
                                 for (i in 0 until length) {
                                     val jsonObject = jsonArray.getJSONObject(i)
                                     val objectImages = jsonObject.getJSONObject("src")
@@ -1341,6 +1363,8 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
 
         sharedPreferencesEditor.putBoolean("AS", true).apply()
+
+        updateFabText()
 
         // Never auto-pop permission dialogs on resume – just reflect current state.
         // The Read-Notifications access is requested from its card / the feature itself.

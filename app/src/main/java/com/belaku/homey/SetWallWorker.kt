@@ -309,6 +309,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                             wD = wallDesc
                         }
                         sharedPreferencesEditor.putString("uT", updateTime).apply()
+                        sharedPreferencesEditor.putBoolean("wallpaperSet", true).apply()
                     }
                     Log.d(TAG, "Set successfully $noRewards")
 
@@ -326,6 +327,26 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     qT = queryType
                     dU = delayUnit
                     uT = updateTime
+
+                    sharedPreferencesEditor.putBoolean("wallpaperSet", true).apply()
+                    try {
+                        Handler(Looper.getMainLooper()).post {
+                            try {
+                                val appWidgetManager = AppWidgetManager.getInstance(wallWorkerContext)
+                                val myProvider = ComponentName(wallWorkerContext, NewAppWidget::class.java)
+                                val ids = appWidgetManager.getAppWidgetIds(myProvider)
+                                if (ids.isEmpty()) {
+                                    fabMain.text = "Add Widget to Homescreen"
+                                } else {
+                                    fabMain.text = "Set"
+                                }
+                            } catch (_: Exception) {
+                                // ignore
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error updating fabMain text", e)
+                    }
 
                     try {
                         if (pD.isShowing) {

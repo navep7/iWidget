@@ -14,6 +14,7 @@ import android.os.Looper
 import androidx.core.app.NotificationCompat
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.google.android.gms.location.*
+import java.time.LocalDate
 
 
 class SpeedService : Service() {
@@ -80,6 +81,8 @@ class SpeedService : Service() {
         if (speedKmh > maxSpeed) {
             maxSpeed = speedKmh
             sharedPreferencesEditor.putInt("maxSpeedToday", maxSpeed)
+            val dayName = LocalDate.now().dayOfWeek.name
+            sharedPreferencesEditor.putInt("SPEED_$dayName", maxSpeed)
         }
         sharedPreferencesEditor.apply()
 

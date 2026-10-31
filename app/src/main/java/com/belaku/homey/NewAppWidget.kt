@@ -1300,8 +1300,6 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.rl_unlocks,
                 R.id.rl_scrtime,
                 R.id.ll_stock,
-                R.id.tx_place,
-                R.id.tx_weather
             )
 
             remoteViews?.setInt(R.id.rl_controls, "setBackgroundResource", controlsBackground)
@@ -1865,6 +1863,10 @@ class NewAppWidget : AppWidgetProvider() {
                 }
             }
             SPEED_CHECK -> {
+                if (!hasFeaturePermission(widgetContext, FeaturePermission.PLACE_INFO)) {
+                    requestFeaturePermission(widgetContext, FeaturePermission.PLACE_INFO)
+                    return
+                }
                 if (isMyServiceRunning(widgetContext, SpeedService::class.java)) {
                     if (widgetContext.stopService(Intent(widgetContext, SpeedService::class.java))) {
                         makeToast(widgetContext, "  ⃠  ")
@@ -2618,10 +2620,13 @@ class NewAppWidget : AppWidgetProvider() {
 
                 // 3. Weekly reset logic (Monday)
                 if (now.dayOfWeek == java.time.DayOfWeek.MONDAY) {
-                    val days = listOf("TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY")
-                    // These putInt() calls were never committed because apply() was missing.
-                    days.forEach { sharedPreferencesEditor.putInt(it, 0) }
-                    days.forEach { sharedPreferencesEditor.putInt("SPEED_" + it, 0) }
+                    val days = listOf("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY")
+                    days.forEach { 
+                        sharedPreferencesEditor.putInt(it, 0)
+                        sharedPreferencesEditor.putInt("SPEED_$it", 0)
+                        sharedPreferencesEditor.putLong("${it}_walk_duration", 0L)
+                        sharedPreferencesEditor.putLong("${it}_travel_duration", 0L)
+                    }
                     sharedPreferencesEditor.apply()
 
                     for (i in arrayListHabits) {

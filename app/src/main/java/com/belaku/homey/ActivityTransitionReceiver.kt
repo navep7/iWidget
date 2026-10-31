@@ -8,9 +8,11 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.SystemClock
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import com.belaku.homey.StepsService.Companion.isMyServiceRunning
 import com.belaku.homey.StepsService.Companion.presentActivityState
@@ -125,10 +127,15 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
         val intent = Intent(context, SpeedService::class.java)
         try {
             if (newState == "TRAVEL") {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val hasLocation = ContextCompat.checkSelfPermission(
+                    context,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+
+                if (hasLocation) {
                     context.startForegroundService(intent)
                 } else {
-                    context.startService(intent)
+                    Log.w("ActivityTransition", "Cannot start SpeedService: ACCESS_FINE_LOCATION not granted")
                 }
             } else if (isMyServiceRunning(context, SpeedService::class.java)) {
                 context.stopService(intent)
