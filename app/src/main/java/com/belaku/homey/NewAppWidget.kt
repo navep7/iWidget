@@ -125,6 +125,8 @@ import java.util.Collections
 import java.util.Date
 import java.util.Locale
 import androidx.core.content.edit
+import androidx.core.graphics.drawable.toBitmap
+import com.belaku.getPredictedAppsForCurrentTimeWindow
 import com.belaku.homey.MainActivity.Companion.predictedApps
 import com.belaku.homey.StepsService.Companion.ismLatLngInitialized
 
@@ -835,26 +837,40 @@ class NewAppWidget : AppWidgetProvider() {
 
         remoteViews?.setTextViewText(R.id.tx_act_state, presentActivityState)
 
-        if (Top3.isNotEmpty()) {
-       //     makeToast(widgetContext, Top3.toString())
-            remoteViews?.setViewVisibility(R.id.rl_app1, View.VISIBLE)
-            remoteViews?.setImageViewBitmap(R.id.imgv_app1, Top3[0].iconBitmap)
-           /* if (Top3[0].openCount != 0)
-            remoteViews?.setTextViewText(R.id.tx_app1_count, Top3[0].openCount.toString())
-            else remoteViews?.setViewVisibility(R.id.tx_app1_count, View.INVISIBLE)*/
-            if (Top3.size > 1) {
-                remoteViews?.setViewVisibility(R.id.rl_app2, View.VISIBLE)
-                remoteViews?.setImageViewBitmap(R.id.imgv_app2, Top3[1].iconBitmap)
-               /* if (Top3[1].openCount != 0)
-                remoteViews?.setTextViewText(R.id.tx_app2_count, Top3[1].openCount.toString())
-                else remoteViews?.setViewVisibility(R.id.tx_app2_count, View.INVISIBLE)*/
+        val rlIds = intArrayOf(R.id.rl_app1, R.id.rl_app2, R.id.rl_app3, R.id.rl_app4, R.id.rl_app5)
+        val imgvIds = intArrayOf(R.id.imgv_app1, R.id.imgv_app2, R.id.imgv_app3, R.id.imgv_app4, R.id.imgv_app5)
+
+        val preds = try {
+            val p = predictedApps
+            if (p.isNotEmpty()) p else getPredictedAppsForCurrentTimeWindow(widgetContext)
+        } catch (e: Exception) {
+            try {
+                getPredictedAppsForCurrentTimeWindow(widgetContext)
+            } catch (ex: Exception) {
+                arrayListOf()
             }
-            if (Top3.size > 2) {
-                remoteViews?.setViewVisibility(R.id.rl_app3, View.VISIBLE)
-                remoteViews?.setImageViewBitmap(R.id.imgv_app3, Top3[2].iconBitmap)
-                /*if (Top3[2].openCount != 0)
-                remoteViews?.setTextViewText(R.id.tx_app3_count, Top3[2].openCount.toString())
-                else remoteViews?.setViewVisibility(R.id.tx_app3_count, View.INVISIBLE)*/
+        }
+
+        if (preds.isNotEmpty()) {
+            var count = 0
+            for (i in preds) {
+                if (count >= 5) break
+                try {
+                    val iconDrawable = widgetContext.packageManager.getApplicationIcon(i.packageName)
+                    val bitmap = iconDrawable.toBitmap(120, 120)
+                    remoteViews?.setImageViewBitmap(imgvIds[count], bitmap)
+                    remoteViews?.setViewVisibility(rlIds[count], View.VISIBLE)
+                    count++
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error setting predicted app icon for ${i.packageName}", e)
+                }
+            }
+            for (j in count until 5) {
+                remoteViews?.setViewVisibility(rlIds[j], View.GONE)
+            }
+        } else {
+            for (id in rlIds) {
+                remoteViews?.setViewVisibility(id, View.GONE)
             }
         }
 

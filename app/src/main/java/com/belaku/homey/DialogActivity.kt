@@ -703,18 +703,34 @@ class DialogActivity : AppCompatActivity() {
                 getPredictedAppsForCurrentTimeWindow(applicationContext)
             }
 
+            val rlIds = intArrayOf(R.id.rl_app1, R.id.rl_app2, R.id.rl_app3, R.id.rl_app4, R.id.rl_app5)
+            val imgvIds = intArrayOf(R.id.imgv_app1, R.id.imgv_app2, R.id.imgv_app3, R.id.imgv_app4, R.id.imgv_app5)
+
             if (predictedApps.isNotEmpty()) {
                 var count = 0
-                val imgvIds = intArrayOf(R.id.imgv_app1, R.id.imgv_app2, R.id.imgv_app3, R.id.imgv_app4, R.id.imgv_app5)
                 for (i in predictedApps) {
-                    val iconDrawable =
-                        applicationContext.packageManager.getApplicationIcon(i.packageName)
-                    val bitmap = iconDrawable.toBitmap(120, 120)
-                    remoteViews?.setImageViewBitmap(imgvIds[count++], bitmap)
+                    if (count >= 5) break
+                    try {
+                        val iconDrawable =
+                            applicationContext.packageManager.getApplicationIcon(i.packageName)
+                        val bitmap = iconDrawable.toBitmap(120, 120)
+                        remoteViews?.setImageViewBitmap(imgvIds[count], bitmap)
+                        remoteViews?.setViewVisibility(rlIds[count], View.VISIBLE)
+                        count++
+                    } catch (e: Exception) {
+                        Log.e("DialogActivity", "Error setting predicted app icon for ${i.packageName}", e)
+                    }
+                }
+                for (j in count until 5) {
+                    remoteViews?.setViewVisibility(rlIds[j], View.GONE)
                 }
 
-
                 // 3. Trigger Widget Update
+                appWidM.updateAppWidget(newAppWidget, remoteViews)
+            } else {
+                for (id in rlIds) {
+                    remoteViews?.setViewVisibility(id, View.GONE)
+                }
                 appWidM.updateAppWidget(newAppWidget, remoteViews)
             }
         }
