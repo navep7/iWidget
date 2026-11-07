@@ -29,16 +29,26 @@
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="55dp"
+        android:background="#EEFFFFFF"
+        android:padding="16dp"
         android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Enter Payment Details"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp"/>
 
         <EditText
             android:id="@+id/edtx_paying_for"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/white"
-            android:hint="Paying for.."
+            android:hint="Paying for (Note)"
             android:inputType="text"
-            android:imeOptions="actionNext"
             android:padding="12dp"
             android:textColor="@android:color/black"
             android:importantForAutofill="no"
@@ -49,12 +59,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/white"
-            android:hint="Enter Amount"
+            android:hint="Amount (₹)"
             android:inputType="numberDecimal"
-            android:imeOptions="actionDone"
             android:padding="12dp"
             android:textColor="@android:color/black"
-            android:importantForAutofill="no" />
+            android:importantForAutofill="no"
+            android:layout_marginBottom="12dp"/>
+
+        <Button
+            android:id="@+id/btn_pay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pay Now"
+            android:backgroundTint="@android:color/holo_blue_dark"
+            android:textColor="@android:color/white" />
 
     </LinearLayout>
 

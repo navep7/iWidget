@@ -102,4 +102,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
     implementation("io.finnhub:kotlin-client:2.0.27")
 
+
+    implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
+    implementation("com.razorpay:checkout:1.6.41")
+
 }
