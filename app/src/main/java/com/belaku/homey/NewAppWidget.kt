@@ -290,6 +290,34 @@ class NewAppWidget : AppWidgetProvider() {
                     .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
                     .build()
             )
+
+            add(
+                ActivityTransition.Builder()
+                    .setActivityType(DetectedActivity.RUNNING)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                    .build()
+            )
+
+            add(
+                ActivityTransition.Builder()
+                    .setActivityType(DetectedActivity.RUNNING)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                    .build()
+            )
+
+            add(
+                ActivityTransition.Builder()
+                    .setActivityType(DetectedActivity.ON_BICYCLE)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                    .build()
+            )
+
+            add(
+                ActivityTransition.Builder()
+                    .setActivityType(DetectedActivity.ON_BICYCLE)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                    .build()
+            )
         }
 
         activityTransitionRequest = ActivityTransitionRequest(activityTransitions)
@@ -899,7 +927,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
 
 
-        } else if (presentActivityState == "WALKING") {
+        } else if (presentActivityState == "WALKING" || presentActivityState == "RUNNING") {
 
 
             var baseTime = sharedPreferences.getLong("walkChr", 0L)
@@ -1190,7 +1218,7 @@ class NewAppWidget : AppWidgetProvider() {
                 )
                 setViewVisibility(
                     R.id.rl_walking,
-                    if (displayedAct == "WALKING") View.VISIBLE else View.GONE
+                    if (displayedAct == "WALKING" || displayedAct == "RUNNING") View.VISIBLE else View.GONE
                 )
                 setViewVisibility(
                     R.id.rl_speed,
@@ -1793,13 +1821,14 @@ class NewAppWidget : AppWidgetProvider() {
                 val displayedAct = sharedPreferences.getString("displayedAct", presentActivityState)
                 val next = when (displayedAct) {
                     "STILL" -> "WALKING"
-                    "WALKING" -> "TRAVEL"
+                    "WALKING" -> "RUNNING"
+                    "RUNNING" -> "TRAVEL"
                     else -> "STILL"
                 }
                 sharedPreferencesEditor.putString("displayedAct", next).apply()
                 remoteViews?.apply {
                     setViewVisibility(R.id.rl_still, if (next == "STILL") View.VISIBLE else View.GONE)
-                    setViewVisibility(R.id.rl_walking, if (next == "WALKING") View.VISIBLE else View.GONE)
+                    setViewVisibility(R.id.rl_walking, if (next == "WALKING" || next == "RUNNING") View.VISIBLE else View.GONE)
                     setViewVisibility(R.id.rl_speed, if (next == "TRAVEL") View.VISIBLE else View.GONE)
                 }
             }
@@ -1807,13 +1836,14 @@ class NewAppWidget : AppWidgetProvider() {
                 val displayedAct = sharedPreferences.getString("displayedAct", presentActivityState)
                 val prev = when (displayedAct) {
                     "STILL" -> "TRAVEL"
-                    "WALKING" -> "STILL"
-                    else -> "WALKING"
+                    "TRAVEL" -> "RUNNING"
+                    "RUNNING" -> "WALKING"
+                    else -> "STILL"
                 }
                 sharedPreferencesEditor.putString("displayedAct", prev).apply()
                 remoteViews?.apply {
                     setViewVisibility(R.id.rl_still, if (prev == "STILL") View.VISIBLE else View.GONE)
-                    setViewVisibility(R.id.rl_walking, if (prev == "WALKING") View.VISIBLE else View.GONE)
+                    setViewVisibility(R.id.rl_walking, if (prev == "WALKING" || prev == "RUNNING") View.VISIBLE else View.GONE)
                     setViewVisibility(R.id.rl_speed, if (prev == "TRAVEL") View.VISIBLE else View.GONE)
                 }
             }

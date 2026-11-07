@@ -40,7 +40,9 @@ import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
+import android.os.SystemClock
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.cityLat
 import com.belaku.homey.MainActivity.Companion.cityLng
@@ -157,6 +159,10 @@ class StepsService : Service() {
                             // Convert to km/h (optional)
                             speedInKmph = (speedInMps * 3.6).toInt()
                             //    speedR(speedInKmph.toString())
+
+                            if (speedInKmph >= 8 && presentActivityState != "TRAVEL") {
+                                switchToTravelState(applicationContext)
+                            }
                         }
 
 
@@ -346,6 +352,54 @@ class StepsService : Service() {
             .getAppWidgetIds(ComponentName(application, NewAppWidget::class.java))
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
         sendBroadcast(intent)
+    }
+
+    private fun switchToTravelState(context: Context) {
+        val sharedPrefs = context.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
+        val oldState = sharedPrefs.getString("presentActivityState", "")
+        if (oldState == "TRAVEL") return
+
+        Log.d("StepsService", "Proactively switching to TRAVEL due to GPS speed >= 8 km/h")
+
+        val baseTime = SystemClock.elapsedRealtime()
+        sharedPrefs.edit(commit = true) {
+            ActivityTransitionReceiver.savePreviousStateDuration(sharedPrefs, this, oldState)
+            presentActivityState = "TRAVEL"
+            putString("presentActivityState", "TRAVEL")
+            putLong("speedChr", baseTime)
+            putLong("speed_trip_start_time", baseTime)
+            putLong("stillChr", 0L)
+            putLong("walkChr", 0L)
+        }
+
+        // Start SpeedService if not running
+        val intent = Intent(context, SpeedService::class.java)
+        try {
+            if (!isMyServiceRunning(context, SpeedService::class.java)) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(intent)
+                } else {
+                    context.startService(intent)
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("StepsService", "Failed to start SpeedService for proactive TRAVEL", e)
+        }
+
+        // Trigger widget update
+        try {
+            val componentName = ComponentName(context, NewAppWidget::class.java)
+            val ids = AppWidgetManager.getInstance(context).getAppWidgetIds(componentName)
+            if (ids.isNotEmpty()) {
+                val updateIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).apply {
+                    component = componentName
+                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+                }
+                context.sendBroadcast(updateIntent)
+            }
+        } catch (e: Exception) {
+            Log.e("StepsService", "Widget update trigger failed", e)
+        }
     }
 
     private fun WifiState(contx: StepsService) {

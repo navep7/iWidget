@@ -316,13 +316,6 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                     boolWallSet = true
                 }
 
-                remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
-
-                
-
-                appWidM.updateAppWidget(newAppWidget, remoteViews)
-
                 if (downloadSuccess) {
                     qT = queryType
                     dU = delayUnit
@@ -389,8 +382,17 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
 
             } catch (e: Exception) {
-                remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
                 Log.d(TAG, "setWallEx2 - $e")
+            } finally {
+                try {
+                    remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
+                    if (NewAppWidget.isAppWidMInitialized() && remoteViews != null) {
+                        appWidM.updateAppWidget(newAppWidget, remoteViews)
+                    }
+                } catch (ex: Exception) {
+                    Log.e(TAG, "Error in setWall finally", ex)
+                }
             }
 
             updateWidget(wallWorkerContext)

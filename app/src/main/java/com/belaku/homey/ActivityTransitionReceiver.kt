@@ -97,31 +97,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun savePreviousStateDuration(sharedPrefs: SharedPreferences, editor: SharedPreferences.Editor, oldState: String?) {
-        val now = SystemClock.elapsedRealtime()
-        val dayKey = LocalDate.now().dayOfWeek.name
 
-        when (oldState) {
-            "WALKING" -> {
-                val startTime = sharedPrefs.getLong("walkChr", 0L)
-                if (startTime != 0L) {
-                    val duration = now - startTime
-                    val totalKey = "${dayKey}_walk_duration"
-                    val currentTotal = sharedPrefs.getLong(totalKey, 0L)
-                    editor.putLong(totalKey, currentTotal + duration)
-                }
-            }
-            "TRAVEL" -> {
-                val startTime = sharedPrefs.getLong("speedChr", 0L)
-                if (startTime != 0L) {
-                    val duration = now - startTime
-                    val totalKey = "${dayKey}_travel_duration"
-                    val currentTotal = sharedPrefs.getLong(totalKey, 0L)
-                    editor.putLong(totalKey, currentTotal + duration)
-                }
-            }
-        }
-    }
 
     private fun handleServiceTransitions(context: Context, newState: String) {
         val intent = Intent(context, SpeedService::class.java)
@@ -163,7 +139,8 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
     private fun toActivityString(activity: Int): String = when (activity) {
         DetectedActivity.STILL -> "STILL"
-        DetectedActivity.WALKING, DetectedActivity.RUNNING -> "WALKING"
+        DetectedActivity.WALKING -> "WALKING"
+        DetectedActivity.RUNNING -> "RUNNING"
         DetectedActivity.IN_VEHICLE, DetectedActivity.ON_BICYCLE -> "TRAVEL"
         else -> "UNKNOWN"
     }
@@ -171,6 +148,32 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
     companion object {
         private const val TRANSITIONS_REQUEST_CODE = 57
         private const val TRANSITIONS_ACTION = "action.TRANSITIONS_DATA"
+
+        fun savePreviousStateDuration(sharedPrefs: SharedPreferences, editor: SharedPreferences.Editor, oldState: String?) {
+            val now = SystemClock.elapsedRealtime()
+            val dayKey = LocalDate.now().dayOfWeek.name
+
+            when (oldState) {
+                "WALKING", "RUNNING" -> {
+                    val startTime = sharedPrefs.getLong("walkChr", 0L)
+                    if (startTime != 0L) {
+                        val duration = now - startTime
+                        val totalKey = "${dayKey}_walk_duration"
+                        val currentTotal = sharedPrefs.getLong(totalKey, 0L)
+                        editor.putLong(totalKey, currentTotal + duration)
+                    }
+                }
+                "TRAVEL" -> {
+                    val startTime = sharedPrefs.getLong("speedChr", 0L)
+                    if (startTime != 0L) {
+                        val duration = now - startTime
+                        val totalKey = "${dayKey}_travel_duration"
+                        val currentTotal = sharedPrefs.getLong(totalKey, 0L)
+                        editor.putLong(totalKey, currentTotal + duration)
+                    }
+                }
+            }
+        }
 
         /**
          * Registers for activity transition updates using centralized configuration.
@@ -181,7 +184,9 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
             val activities = listOf(
                 DetectedActivity.STILL,
                 DetectedActivity.WALKING,
-                DetectedActivity.IN_VEHICLE
+                DetectedActivity.RUNNING,
+                DetectedActivity.IN_VEHICLE,
+                DetectedActivity.ON_BICYCLE
             )
 
             val transitions = activities.map { type ->
