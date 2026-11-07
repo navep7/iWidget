@@ -216,11 +216,9 @@ class NewAppWidget : AppWidgetProvider() {
         }
     }
 
-    /** Ensures [remoteViews] is non-null before any setter is invoked on it. */
+    /** Ensures [remoteViews] is freshly created before any setters are invoked on it, preventing action/bitmap buildup across updates. */
     private fun ensureRemoteViews(context: Context) {
-        if (remoteViews == null) {
-            remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
-        }
+        remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
     }
 
     @SuppressLint("MissingPermission")
@@ -1463,7 +1461,7 @@ class NewAppWidget : AppWidgetProvider() {
                 // attached to this 300dp-wide widget. Downscale to a widget-appropriate size
                 // before creating/attaching any bitmap here, scaling the crop margins by the
                 // same factor so the crop still looks correct.
-                val maxWidgetImageWidth = 480
+                val maxWidgetImageWidth = 360
                 val widgetImageScale =
                     if (screenWidth > maxWidgetImageWidth) {
                         maxWidgetImageWidth.toFloat() / screenWidth.coerceAtLeast(1)

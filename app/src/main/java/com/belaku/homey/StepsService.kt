@@ -36,6 +36,7 @@ import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.view.View
+import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
@@ -580,7 +581,7 @@ class StepsService : Service() {
 
         val apiKey =
             "AIzaSyDypKvRVtn8t_F0yKtSfK5PuI54FBNDvCk" // Ensure this key has Street View Static API enabled
-        val size = "600x400"
+        val size = "250x250"
         val fov = 90 // Default field of view
         val zoom = 18
 
@@ -591,16 +592,18 @@ class StepsService : Service() {
                 "&fov=$fov" +
                 "&key=$apiKey"
 
+        val streetRv = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
         val widgetTargetStreet = AppWidgetTarget(
             applicationContext,
             R.id.imgv_street_icon,
-            remoteViews,
+            streetRv,
             newAppWidget
         )
 
         Glide.with(applicationContext)
             .asBitmap()
             .load(streetViewUrl)
+            .override(250, 250)
             .placeholder(R.drawable.walp_icon)
             .error(android.R.drawable.stat_notify_error)
             .into(widgetTargetStreet)
@@ -609,7 +612,7 @@ class StepsService : Service() {
         val staticMapUrl = "https://maps.googleapis.com/maps/api/staticmap" +
                 "?center=${mLatLng.latitude},${mLatLng.longitude}" +
                 "&zoom=$zoom" +
-                "&size=400x400" +
+                "&size=300x300" +
                 "&maptype=satellite" +
                 "&key=$apiKey"
 
@@ -627,10 +630,11 @@ class StepsService : Service() {
         val osmGlideUrl = GlideUrl(osmTileUrl, headers)
         val esriGlideUrl = GlideUrl(esriTileUrl, headers)
 
+        val mapRv = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
         val widgetTargetMap = AppWidgetTarget(
             applicationContext,
             R.id.imgv_map_icon, // The ID of the ImageView in your widget XML
-            remoteViews,
+            mapRv,
             newAppWidget
         )
 
@@ -641,16 +645,19 @@ class StepsService : Service() {
         Glide.with(applicationContext)
             .asBitmap() // RemoteViews require a Bitmap
             .load(staticMapUrl)
+            .override(300, 300)
             .transform(staticMapTransform)
             .error(
                 Glide.with(applicationContext)
                     .asBitmap()
                     .load(osmGlideUrl)
+                    .override(300, 300)
                     .transform(tileTransform)
                     .error(
                         Glide.with(applicationContext)
                             .asBitmap()
                             .load(esriGlideUrl)
+                            .override(300, 300)
                             .transform(tileTransform)
                             .placeholder(R.drawable.walp_icon)
                             .error(android.R.drawable.stat_notify_error)
