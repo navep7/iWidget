@@ -59,9 +59,9 @@ dependencies {
     // Changed to implementation because it is referenced in src/main code (NHApp.kt)
     // which is compiled for both debug and release variants.
     implementation("com.google.firebase:firebase-appcheck-debug")
+    implementation(libs.androidx.activity.ktx)
 
     implementation(libs.androidx.media)
-    implementation(libs.zxing.android.embedded)
     implementation(libs.androidx.viewpager2)
     implementation(libs.material.v1130) // Use 1.13.0 exclusively
     implementation(platform(libs.firebase.bom))
@@ -104,6 +104,8 @@ dependencies {
 
 
     implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
-    implementation("com.razorpay:checkout:1.6.41")
+  //  implementation("com.razorpay:checkout:1.6.41")
 
+    // Google ML Kit Barcode Scanning
+    implementation(libs.gms.play.services.code.scanner)
 }

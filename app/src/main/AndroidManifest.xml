@@ -10,27 +10,33 @@
     <queries>
         <intent>
             <action android:name="android.intent.action.VIEW" />
+
             <data android:scheme="http" />
         </intent>
         <intent>
             <action android:name="android.intent.action.VIEW" />
+
             <data android:scheme="https" />
         </intent>
         <intent>
             <action android:name="android.intent.action.VIEW" />
+
             <data android:scheme="upi" />
         </intent>
         <intent>
             <action android:name="android.intent.action.MAIN" />
+
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
         <intent>
             <action android:name="android.intent.action.DIAL" />
+
             <data android:scheme="tel" />
         </intent>
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
+
         <package android:name="com.google.android.tts" />
         <package android:name="com.google.android.apps.nbu.paisa.user" />
         <package android:name="com.phonepe.app" />
@@ -42,16 +48,13 @@
         <package android:name="com.mobikwik_new" />
     </queries>
 
-
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
-
     <uses-permission
         android:name="android.permission.MEDIA_CONTENT_CONTROL"
         tools:ignore="ProtectedPermissions" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
-
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
@@ -84,7 +87,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
-    <uses-permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+    <uses-permission
+        android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
         tools:ignore="ProtectedPermissions" />
 
     <uses-feature
@@ -106,7 +110,6 @@
         android:theme="@style/Theme.Homey"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-
         <property
             android:name="android.adservices.AD_SERVICES_CONFIG"
             android:resource="@xml/gma_ad_services_config"
@@ -117,34 +120,37 @@
             android:resource="@xml/gma_ad_services_config"
             tools:replace="android:resource" />
 
-        <service android:name=".NotificationService"
-            android:label="NotificationService"
+        <service
+            android:name=".NotificationService"
             android:exported="true"
+            android:label="NotificationService"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
 
-
+        <!-- Transparent activity handling widget redirection -->
+        <activity
+            android:name=".QRScannerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Homey.Translucent"
+            android:windowSoftInputMode="adjustResize" />
 
         <receiver
             android:name=".ActivityTransitionReceiver"
-            android:exported="false"
             android:enabled="true"
+            android:exported="false"
             android:permission="com.google.android.gms.permission.ACTIVITY_RECOGNITION">
             <intent-filter>
                 <action android:name="action.TRANSITIONS_DATA" />
             </intent-filter>
         </receiver>
 
-
         <service
             android:name=".SpeedService"
-            android:foregroundServiceType="location"
-            android:exported="false" />
-
-
+            android:exported="false"
+            android:foregroundServiceType="location" />
         <service
             android:name=".LockAccessibilityService"
             android:exported="false"
@@ -173,16 +179,6 @@
                 android:resource="@xml/wallpaper" />
         </service>
 
-        <activity
-            android:name="com.journeyapps.barcodescanner.CaptureActivity"
-            android:screenOrientation="fullSensor"
-            android:stateNotNeeded="true"
-            tools:replace="android:screenOrientation" />
-        <activity
-            android:name=".CustomScannerActivity"
-            android:screenOrientation="portrait"
-            android:stateNotNeeded="true"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".DialogActivity"
             android:excludeFromRecents="false"
@@ -216,21 +212,18 @@
             android:exported="false"
             android:label="Apps"
             android:theme="@style/Theme.Homey" />
-
         <activity
             android:name=".GapsActivity"
             android:excludeFromRecents="true"
             android:exported="false"
             android:label="Google Apps"
             android:theme="@style/Theme.Homey" />
-
         <activity
             android:name=".MySpaceActivity"
             android:excludeFromRecents="true"
             android:exported="false"
             android:label="My Space"
             android:theme="@style/Theme.Homey" />
-
         <activity
             android:name=".AiActivity"
             android:excludeFromRecents="true"
@@ -247,14 +240,12 @@
             android:name=".MusicActivity"
             android:exported="true"
             android:label="Music"
-            android:theme="@style/AppTheme" >
+            android:theme="@style/AppTheme"></activity>
 
-        </activity>
         <service
             android:name=".MusicService"
-            android:foregroundServiceType="mediaPlayback"
-            android:enabled="true">
-        </service>
+            android:enabled="true"
+            android:foregroundServiceType="mediaPlayback"></service>
 
         <activity
             android:name=".MapsActivity"
@@ -277,7 +268,6 @@
         </service>
 
         <receiver android:name=".AlarmBroadcastReceiver" />
-
         <receiver
             android:name=".TimeChangedReceiver"
             android:enabled="true"
@@ -291,16 +281,18 @@
             android:name=".SpeakService"
             android:exported="false" />
 
-
         <activity
             android:name=".AppChooserDialog"
             android:exported="false" />
 
-        <receiver android:name=".NewAppWidget" android:exported="true">
+        <receiver
+            android:name=".NewAppWidget"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
+
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/new_app_widget_info" />
@@ -317,7 +309,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
     </application>
 
 </manifest>

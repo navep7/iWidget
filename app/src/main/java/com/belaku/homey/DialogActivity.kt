@@ -93,9 +93,7 @@ import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoa
 import com.google.android.material.tabs.TabLayout
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.journeyapps.barcodescanner.ScanContract
-import com.journeyapps.barcodescanner.ScanIntentResult
-import com.journeyapps.barcodescanner.ScanOptions
+
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 
@@ -142,46 +140,7 @@ class DialogActivity : AppCompatActivity() {
     private lateinit var dialogActContext: Context
     private lateinit var parentLayoutDialog: View
 
-    private val upiLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
-            finish()
-        }
 
-    private val barcodeLauncher =
-        registerForActivityResult(ScanContract()) { result: ScanIntentResult? ->
-            val scannedUrl = result?.contents
-            val amount = result?.originalIntent?.getStringExtra("SCAN_AMOUNT")
-            if (!scannedUrl.isNullOrEmpty()) {
-                if (scannedUrl.startsWith("upi://pay", ignoreCase = true)) {
-                    try {
-                        // Hide UI to avoid "overlay detection" blocking in UPI apps
-                        llDialog.visibility = View.INVISIBLE
-                        window.setDimAmount(0f)
-
-                        var upiUri = Uri.parse(scannedUrl)
-                        if (!amount.isNullOrBlank()) {
-                            upiUri = upiUri.buildUpon().appendQueryParameter("am", amount).build()
-                        }
-                        
-                        val upiIntent = Intent(Intent.ACTION_VIEW, upiUri)
-                        
-                        // Launch directly. Chooser is avoided to preserve calling package identity.
-                        upiLauncher.launch(upiIntent)
-                    } catch (e: Exception) {
-                        makeToast(applicationContext, "Error launching UPI app")
-                        finish()
-                    }
-                } else if (scannedUrl.startsWith("http", ignoreCase = true)) {
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(scannedUrl)))
-                    finish()
-                } else {
-                    makeToast(applicationContext, "Scanned: $scannedUrl" + if (!amount.isNullOrBlank()) " Amount: $amount" else "")
-                    finish()
-                }
-            } else {
-                finish()
-            }
-        }
     private var rewardedInterstitialAd: RewardedInterstitialAd? = null
     private lateinit var llDialog: RelativeLayout
     private lateinit var imgvSongCover: ImageView
@@ -677,20 +636,8 @@ class DialogActivity : AppCompatActivity() {
                         .show()
                 }
                 "qrClick" -> {
-                    // Hide the UI to avoid "overlay detected" blocks in UPI apps
-                    llDialog.visibility = View.INVISIBLE
-                    window.setDimAmount(0f)
-
-                    val options = ScanOptions().apply {
-                        setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-                        setPrompt("Scan a UPI QR code")
-                        setOrientationLocked(false)
-                        setBeepEnabled(true)
-                        setCaptureActivity(CustomScannerActivity::class.java)
-                    }
-
-                    // Launch the scanner
-                    barcodeLauncher.launch(options)
+                    makeToast(applicationContext, "yet2Impl")
+                    finish()
                 }
             }
         }

@@ -30,6 +30,7 @@ okhttp = "4.12.0"
 picasso = "2.71828"
 picassoVersion = "2.8"
 playServicesAds = "24.6.0"
+playServicesCodeScannerVersion = "16.1.0"
 playServicesLocation = "21.3.0"
 retrofit = "2.9.0"
 viewpager2 = "1.1.0"
@@ -60,6 +61,7 @@ firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "fir
 firebase-crashlytics-ndk = { module = "com.google.firebase:firebase-crashlytics-ndk" }
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
+gms-play-services-code-scanner = { module = "com.google.android.gms:play-services-code-scanner", version.ref = "playServicesCodeScannerVersion" }
 gms-play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 gson-v288 = { module = "com.google.code.gson:gson", version.ref = "gsonVersion" }

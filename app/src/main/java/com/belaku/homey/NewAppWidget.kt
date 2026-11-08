@@ -452,6 +452,20 @@ class NewAppWidget : AppWidgetProvider() {
 
     private fun setOnClickPendingIntents(context: Context) {
 
+        // Intent to launch the transparent Scanner Activity
+        val intent = Intent(widgetContext, QRScannerActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+
+        val pendingIntentScan = PendingIntent.getActivity(
+            context,
+            210,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // Bind the click event of the button
+        remoteViews?.setOnClickPendingIntent(R.id.imgbtn_qr, pendingIntentScan)
 
         remoteViews?.setOnClickPendingIntent(R.id.imgv_app1, getPendingSelfIntent(widgetContext, APP1_CLICK))
         remoteViews?.setOnClickPendingIntent(R.id.imgv_app2, getPendingSelfIntent(widgetContext, APP2_CLICK))
@@ -664,17 +678,7 @@ class NewAppWidget : AppWidgetProvider() {
             launcherPendingIntentNPs
         )
 
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgbtn_qr,
-            PendingIntent.getActivity(
-                context, 13,
-                Intent(context, DialogActivity::class.java).putExtra(
-                    "DialogIntent",
-                    "qrClick"
-                ),
-                PendingIntent.FLAG_IMMUTABLE
-            )
-        )
+
 
 
         remoteViews?.setOnClickPendingIntent(
