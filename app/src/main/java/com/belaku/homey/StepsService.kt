@@ -276,7 +276,7 @@ class StepsService : Service() {
 
 
 
-                    if (stepsToday < 10 && presentActivityState == "WALKING") {
+                    if (stepsToday < 10 && (presentActivityState == "WALKING" || presentActivityState == "RUNNING")) {
                         remoteViews?.setTextViewText(
                             R.id.tx_act_count,
                             "$stepsToday"
@@ -286,7 +286,7 @@ class StepsService : Service() {
                     } else if (stepsToday % 10 == 0) {
 
                         if (stepsToday < 131) {
-                            if (presentActivityState == "WALKING")
+                            if (presentActivityState == "WALKING" || presentActivityState == "RUNNING")
                                 remoteViews?.setTextViewText(
                                     R.id.tx_act_count,
                                     "$stepsToday"

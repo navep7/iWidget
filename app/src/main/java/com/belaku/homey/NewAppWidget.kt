@@ -931,7 +931,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setViewVisibility(R.id.rl_speed, View.GONE)
 
 
-        } else if (presentActivityState == "WALKING" || presentActivityState == "RUNNING") {
+        } else if (presentActivityState == "WALKING" || presentActivityState == "RUNNING" || presentActivityState == "CYCLING") {
 
 
             var baseTime = sharedPreferences.getLong("walkChr", 0L)

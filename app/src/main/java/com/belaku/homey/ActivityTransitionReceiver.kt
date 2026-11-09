@@ -74,7 +74,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                             putLong("walkChr", 0L)
                             putLong("speedChr", 0L)
                         }
-                        "WALKING" -> {
+                        "WALKING", "RUNNING", "CYCLING" -> {
                             putLong("walkChr", baseTime)
                             putLong("stillChr", 0L)
                             putLong("speedChr", 0L)
@@ -141,7 +141,8 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
         DetectedActivity.STILL -> "STILL"
         DetectedActivity.WALKING -> "WALKING"
         DetectedActivity.RUNNING -> "RUNNING"
-        DetectedActivity.IN_VEHICLE, DetectedActivity.ON_BICYCLE -> "TRAVEL"
+        DetectedActivity.IN_VEHICLE -> "TRAVEL"
+        DetectedActivity.ON_BICYCLE -> "CYCLING"
         else -> "UNKNOWN"
     }
 
@@ -154,7 +155,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
             val dayKey = LocalDate.now().dayOfWeek.name
 
             when (oldState) {
-                "WALKING", "RUNNING" -> {
+                "WALKING", "RUNNING", "CYCLING" -> {
                     val startTime = sharedPrefs.getLong("walkChr", 0L)
                     if (startTime != 0L) {
                         val duration = now - startTime

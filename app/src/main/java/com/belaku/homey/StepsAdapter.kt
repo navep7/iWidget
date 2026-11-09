@@ -57,7 +57,7 @@ class StepsAdapter(
             remoteViews?.setTextViewText(R.id.tx_act_count, "$stepsToday")
             appWidM.updateAppWidget(newAppWidget, remoteViews)
             
-            if (presentActivityState == "WALKING") {
+            if (presentActivityState == "WALKING" || presentActivityState == "RUNNING" || presentActivityState == "CYCLING") {
                 val baseTime = sharedPreferences.getLong("walkChr", 0L)
                 if (baseTime != 0L) {
                     // Show sum of all walking streaks in a day by adding current streak to the stored total
