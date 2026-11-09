@@ -30,6 +30,7 @@
         <LinearLayout
             android:id="@+id/ll_top"
             android:weightSum="10"
+            android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="@dimen/padding_50"
             android:background="@drawable/gradient_glass_flatbottom">
@@ -76,7 +77,7 @@
                 <LinearLayout
                     android:gravity="center"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="match_parent">
 
                     <TextView
                         android:id="@+id/tx_day_date"
@@ -87,7 +88,7 @@
                         android:layout_height="wrap_content"
                         android:text="Fri, 24th Apr"
                         android:textColor="@android:color/black"
-                        android:textSize="@dimen/text_size_20"
+                        android:textSize="@dimen/text_size_25"
                         android:textStyle="bold"
                         android:shadowColor="@android:color/white"
                         android:shadowRadius="5"
@@ -108,8 +109,7 @@
                         android:shadowColor="@android:color/white"
                         android:shadowRadius="12"
                         android:shadowDx="0"
-                        android:shadowDy="0"
-                        android:padding="@dimen/padding_8" />
+                        android:shadowDy="0" />
 
 
                     <android.widget.TextClock
@@ -121,7 +121,7 @@
                         android:layout_height="wrap_content"
                         android:format12Hour="hh:mm:ss"
                         android:textColor="@android:color/black"
-                        android:textSize="@dimen/text_size_20"
+                        android:textSize="@dimen/text_size_25"
                         android:textStyle="bold"
                         android:shadowColor="@android:color/white"
                         android:shadowRadius="5"
@@ -1036,7 +1036,7 @@
                         android:textColor="@android:color/white"
                         android:textStyle="bold"
                         android:textSize="@dimen/text_size_25"
-                        android:text="WALKING"/>
+                        android:text="ACTIVE"/>
 
                     <LinearLayout
                         android:id="@+id/ll_steps"

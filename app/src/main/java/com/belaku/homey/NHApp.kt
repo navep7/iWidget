@@ -7,8 +7,14 @@ import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
 import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
 
 class NHApp : Application() {
+    companion object {
+        lateinit var instance: NHApp
+            private set
+    }
+
     override fun onCreate() {
         super.onCreate()
+        instance = this
 
         FirebaseApp.initializeApp(this)
         val firebaseAppCheck = FirebaseAppCheck.getInstance()

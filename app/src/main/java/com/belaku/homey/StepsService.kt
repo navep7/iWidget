@@ -160,7 +160,7 @@ class StepsService : Service() {
                             speedInKmph = (speedInMps * 3.6).toInt()
                             //    speedR(speedInKmph.toString())
 
-                            if (speedInKmph >= 8 && presentActivityState != "TRAVEL") {
+                            if (speedInKmph >= 8 && presentActivityState != "TRAVEL" && presentActivityState != "RUNNING") {
                                 switchToTravelState(applicationContext)
                             }
                         }

@@ -234,7 +234,7 @@ class NewAppWidget : AppWidgetProvider() {
         // synchronous IPC call to Google Play Services on every single tap. Since the request
         // never actually changes at runtime, only register once and skip on subsequent calls -
         // this was contributing to the perceived click delay.
-    //    if (activityTransitionsRegistered) return
+        if (activityTransitionsRegistered) return
 
    //     remoteViews?.setTextViewText(R.id.tx_act_state, "fetching..,")
 
@@ -331,7 +331,7 @@ class NewAppWidget : AppWidgetProvider() {
                     pendingIntentActivityTransitions
                 )
                 .addOnSuccessListener {
-                //    activityTransitionsRegistered = true
+                    activityTransitionsRegistered = true
                     Log.d(TAG, "Activity transition updates registered")
                 }
                 .addOnFailureListener { e -> Log.e(TAG, "Activity transition updates failed", e) }
@@ -386,7 +386,7 @@ class NewAppWidget : AppWidgetProvider() {
         } catch (e: Exception) {
             Log.e(TAG, "removeActivityTransitionUpdates failed", e)
         }
-    //    activityTransitionsRegistered = false
+        activityTransitionsRegistered = false
 
         remoteViews = null
         onEn = false
@@ -2460,12 +2460,34 @@ class NewAppWidget : AppWidgetProvider() {
         }
 
 
-        fun isAppWidMInitialized(): Boolean {
-            if (::appWidM.isInitialized)
-                return true
-             else
-                return false
+        fun ensureCompanionInitialized(context: Context? = null) {
+            try {
+                val ctx = context ?: try { NHApp.instance } catch (e: Exception) { null } ?: return
+                val appContext = ctx.applicationContext
+                if (!::appWidM.isInitialized) {
+                    appWidM = AppWidgetManager.getInstance(appContext)
+                }
+                if (!::newAppWidget.isInitialized) {
+                    newAppWidget = ComponentName(appContext, NewAppWidget::class.java)
+                }
+                if (remoteViews == null) {
+                    remoteViews = RemoteViews(appContext.packageName, R.layout.new_app_widget)
+                }
+                if (!isAppWidgetIdsInitialized()) {
+                    i_appWidgetIds = appWidM.getAppWidgetIds(newAppWidget)
+                }
+            } catch (e: Exception) {
+                Log.e("NewAppWidget", "ensureCompanionInitialized failed", e)
+            }
+        }
 
+        fun isAppWidMInitialized(): Boolean {
+            if (::appWidM.isInitialized) {
+                return true
+            } else {
+                ensureCompanionInitialized()
+                return ::appWidM.isInitialized
+            }
         }
 
         /** True when [i_appWidgetIds] has been assigned and holds at least one widget id. */
@@ -2503,7 +2525,7 @@ class NewAppWidget : AppWidgetProvider() {
          * True once [recognizeActivityTransitions] has successfully registered with
          * ActivityRecognition. Reset in [onDisabled] so re-enabling the widget re-registers.
          */
-    //    private var activityTransitionsRegistered: Boolean = false
+        private var activityTransitionsRegistered: Boolean = false
 
 
         fun drawableToBitmap(context: Context, drawable: Drawable): Bitmap {
