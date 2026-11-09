@@ -182,7 +182,6 @@ class NewAppWidget : AppWidgetProvider() {
                 if (Intent.ACTION_USER_PRESENT == intent.action) {
                     val appContextInside = ctx.applicationContext
 
-                    widgetContext.startActivity(Intent(widgetContext, DialogActivity::class.java).putExtra("DialogIntent", "appPredictions").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                     // Increment count in SharedPreferences first
                     val prefs = appContextInside.getSharedPreferences("UserPreferences", MODE_PRIVATE)
                     currentCount = prefs.getInt("unlockCount", 0).toString()
