@@ -353,6 +353,7 @@ class DialogActivity : AppCompatActivity() {
                     noRewards = sharedPreferences.getInt("noRewards", 7)
                     if (noRewards > 1) {
                         sharedPreferencesEditor.putInt("noRewards", --noRewards).apply()
+                        sharedPreferencesEditor.putBoolean("boolWallSet", true).apply()
                         Thread { SetWallWorker.setWall(true, dialogActContext) }.start()
                         appPredictions()
                         finish()

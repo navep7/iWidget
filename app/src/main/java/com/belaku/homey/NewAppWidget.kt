@@ -185,7 +185,9 @@ class NewAppWidget : AppWidgetProvider() {
                     // Increment count in SharedPreferences first
                     val prefs = appContextInside.getSharedPreferences("UserPreferences", MODE_PRIVATE)
                     currentCount = prefs.getInt("unlockCount", 0).toString()
+                    if (!prefs.getBoolean("boolWallSet", false))
                     prefs.edit { putInt("unlockCount", Integer.parseInt(currentCount.toString()) + 1) }
+                    else sharedPreferencesEditor.putBoolean("boolWallSet", false).apply()
 
                     // Trigger a refresh. We use a fresh instance to avoid stale property captures.
                     val manager = AppWidgetManager.getInstance(appContextInside)
