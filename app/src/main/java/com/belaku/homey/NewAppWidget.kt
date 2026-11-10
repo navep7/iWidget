@@ -1454,17 +1454,13 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     @SuppressLint("ResourceAsColor")
-
     private fun wallColors() {
-
-
         try {
             val wallpaperManager = WallpaperManager.getInstance(widgetContext)
             val wallpaperColors = wallpaperManager.getWallpaperColors(WallpaperManager.FLAG_SYSTEM)
 
             if (wallpaperColors != null) {
                 Log.d("wallColors", "notNULL")
-
                 primaryColor = wallpaperColors.primaryColor.toArgb()
                 secondaryColor = wallpaperColors.secondaryColor?.toArgb() ?: Color.GREEN
                 tertianaryColor = wallpaperColors.tertiaryColor?.toArgb() ?: Color.BLUE
@@ -1475,111 +1471,91 @@ class NewAppWidget : AppWidgetProvider() {
                 wallpColors.add(tertianaryColor)
 
                 applyAdaptivePanelBackgrounds(ColorUtil().isColorDark(primaryColor))
+            } else {
+                Log.d("wallColors", "NULL wallpaper colors, using defaults")
+                applyAdaptivePanelBackgrounds(true)
+            }
 
-                val metrics = widgetContext.resources.displayMetrics
-                if (screenWidth == 0 || screenHeight == 0) {
-                    screenWidth = metrics.widthPixels
-                    screenHeight = metrics.heightPixels
-                }
+            val metrics = widgetContext.resources.displayMetrics
+            if (screenWidth == 0 || screenHeight == 0) {
+                screenWidth = metrics.widthPixels
+                screenHeight = metrics.heightPixels
+            }
 
-                if (ismActInitialized()) {
-                    mAct.windowManager.defaultDisplay.getMetrics(metrics)
-                    screenHeight = metrics.heightPixels
-                    screenWidth = metrics.widthPixels
-                }
+            if (ismActInitialized()) {
+                mAct.windowManager.defaultDisplay.getMetrics(metrics)
+                screenHeight = metrics.heightPixels
+                screenWidth = metrics.widthPixels
+            }
 
-                // RemoteViews enforces a strict bitmap memory budget for the entire widget tree
-                // (see "RemoteViews for widget update exceeds maximum bitmap memory usage").
-                // screenWidth/screenHeight are the full device screen resolution - fine for
-                // actually setting the wallpaper (SetWallWorker), but far too large for a bitmap
-                // attached to this 300dp-wide widget. Downscale to a widget-appropriate size
-                // before creating/attaching any bitmap here, scaling the crop margins by the
-                // same factor so the crop still looks correct.
-                val maxWidgetImageWidth = 360
-                val widgetImageScale =
-                    if (screenWidth > maxWidgetImageWidth) {
-                        maxWidgetImageWidth.toFloat() / screenWidth.coerceAtLeast(1)
-                    } else 1f
-                val widgetImgWidth = Math.round(screenWidth * widgetImageScale).coerceAtLeast(1)
-                val widgetImgHeight = Math.round(screenHeight * widgetImageScale).coerceAtLeast(1)
+            val maxWidgetImageWidth = 360
+            val widgetImageScale =
+                if (screenWidth > maxWidgetImageWidth) {
+                    maxWidgetImageWidth.toFloat() / screenWidth.coerceAtLeast(1)
+                } else 1f
+            val widgetImgWidth = Math.round(screenWidth * widgetImageScale).coerceAtLeast(1)
+            val widgetImgHeight = Math.round(screenHeight * widgetImageScale).coerceAtLeast(1)
 
-                remoteViews?.setImageViewBitmap(
-                    R.id.imgv_player,
-                    createGradientBitmap(2 * widgetImgWidth, 80, primaryColor, tertianaryColor)
-                )
+            remoteViews?.setImageViewBitmap(
+                R.id.imgv_player,
+                createGradientBitmap(2 * widgetImgWidth, 80, primaryColor, tertianaryColor)
+            )
 
-                if (isWallBitmapInitialized(widgetContext)) {
-                    val currentWallBitmap = wallBitmap
+            val currentWallBitmap = if (isWallBitmapInitialized(widgetContext)) {
+                wallBitmap
+            } else {
+                SetWallWorker.loadWallBitmap(widgetContext)
+            } ?: Bitmap.createBitmap(widgetImgWidth, widgetImgHeight, Bitmap.Config.ARGB_8888).apply {
+                eraseColor(Color.DKGRAY)
+            }
 
-                    // The RenderScript blur pipeline below (scale + crop + blur + round, plus a
-                    // second full-bitmap blur() pass for blurWallBitmap) is by far the most
-                    // expensive work in this provider. setUI() -> wallColors() runs from
-                    // onReceive() on *every single widget tap*, so without this cache every click
-                    // paid for two RenderScript blur passes before the tap's own effect could even
-                    // be applied - that synchronous cost is what made clicks feel delayed.
-                    // The source bitmap only changes when SetWallWorker installs a new wallpaper,
-                    // so it is a safe and cheap cache key (reference identity).
-                    val cacheHit = cachedWidgetBackgroundBitmap != null &&
-                            lastWallColorsSourceBitmap === currentWallBitmap &&
-                            !currentWallBitmap.isRecycled
+            if (!currentWallBitmap.isRecycled) {
+                val cacheHit = cachedWidgetBackgroundBitmap != null &&
+                        lastWallColorsSourceBitmap === currentWallBitmap &&
+                        !currentWallBitmap.isRecycled
 
-                    if (cacheHit) {
-                        remoteViews?.setImageViewBitmap(R.id.imgv_widget_layout, cachedWidgetBackgroundBitmap)
-                    } else if (!currentWallBitmap.isRecycled) {
-                        scaledBitmap = Bitmap.createScaledBitmap(
-                            currentWallBitmap,
-                            widgetImgWidth,
-                            widgetImgHeight,
-                            true
-                        )
+                if (cacheHit) {
+                    remoteViews?.setImageViewBitmap(R.id.imgv_widget_layout, cachedWidgetBackgroundBitmap)
+                } else {
+                    scaledBitmap = Bitmap.createScaledBitmap(
+                        currentWallBitmap,
+                        widgetImgWidth,
+                        widgetImgHeight,
+                        true
+                    )
 
-                        if (!scaledBitmap.isRecycled) {
-                            // android.R.color.black is a *resource id*, not an ARGB int; using it
-                            // as a Paint color produced a garbage tint.
-                            val overlayColor =
-                                if (ColorUtil().isColorDark(primaryColor)) Color.BLACK else Color.WHITE
+                    if (!scaledBitmap.isRecycled) {
+                        val cropX = Math.round(10 * widgetImageScale).coerceAtLeast(1)
+                        val cropY = Math.round(25 * widgetImageScale).coerceAtLeast(1)
+                        val cropW = (widgetImgWidth - cropX * 2).coerceAtLeast(1)
+                        val cropH = (widgetImgHeight - Math.round(150 * widgetImageScale).coerceAtLeast(1)).coerceAtLeast(1)
 
-                            val cropX = Math.round(10 * widgetImageScale).coerceAtLeast(1)
-                            val cropY = Math.round(25 * widgetImageScale).coerceAtLeast(1)
-                            val cropW = (widgetImgWidth - cropX * 2).coerceAtLeast(1)
-                            val cropH = (widgetImgHeight - Math.round(150 * widgetImageScale).coerceAtLeast(1)).coerceAtLeast(1)
+                        if (cropX + cropW <= scaledBitmap.width && cropY + cropH <= scaledBitmap.height) {
+                            val croppedBitmap = Bitmap.createBitmap(scaledBitmap, cropX, cropY, cropW, cropH)
+                            val blurredBitmap = BitmapBlurHelper.blurBitmap(widgetContext, croppedBitmap)
+                            val roundedDrawable = RoundedBitmapDrawableFactory.create(widgetContext.resources, blurredBitmap)
+                            val finalBitmap = drawableToBitmap(widgetContext, roundedDrawable)
 
-                            if (cropX + cropW <= scaledBitmap.width && cropY + cropH <= scaledBitmap.height) {
-                                val croppedBitmap = Bitmap.createBitmap(scaledBitmap, cropX, cropY, cropW, cropH)
-                                val blurredBitmap = BitmapBlurHelper.blurBitmap(widgetContext, croppedBitmap)
-                                val roundedDrawable = RoundedBitmapDrawableFactory.create(widgetContext.resources, blurredBitmap)
-                                val finalBitmap = drawableToBitmap(widgetContext, roundedDrawable)
+                            remoteViews?.setImageViewBitmap(
+                                R.id.imgv_widget_layout,
+                                finalBitmap
+                            )
 
-                                remoteViews?.setImageViewBitmap(
-                                    R.id.imgv_widget_layout,
-                                    finalBitmap
-                                )
-
-                                // Cache the result so subsequent clicks (which all funnel through
-                                // setUI()) reuse it instead of re-running the blur pipeline.
-                                val previousCached = cachedWidgetBackgroundBitmap
-                                cachedWidgetBackgroundBitmap = finalBitmap
-                                lastWallColorsSourceBitmap = currentWallBitmap
-                                if (previousCached != null && previousCached != finalBitmap && !previousCached.isRecycled) {
-                                    previousCached.recycle()
-                                }
-
-                                // Release intermediates: these wallpaper-sized bitmaps are the
-                                // main source of OutOfMemoryError in this provider.
-                                if (croppedBitmap != blurredBitmap) croppedBitmap.recycle()
+                            val previousCached = cachedWidgetBackgroundBitmap
+                            cachedWidgetBackgroundBitmap = finalBitmap
+                            lastWallColorsSourceBitmap = currentWallBitmap
+                            if (previousCached != null && previousCached != finalBitmap && !previousCached.isRecycled) {
+                                previousCached.recycle()
                             }
-                        }
 
-                        if (!currentWallBitmap.isRecycled) {
-                            blurWallBitmap = blur(widgetContext, currentWallBitmap)
+                            if (croppedBitmap != blurredBitmap) croppedBitmap.recycle()
                         }
                     }
+
+                    if (!currentWallBitmap.isRecycled) {
+                        blurWallBitmap = blur(widgetContext, currentWallBitmap)
+                    }
                 }
-            } else {
-                Log.d("wallColors", "NULL")
-                // No wallpaper colors available - default to the light plates, which stay
-                // readable on the majority of (darker) wallpapers.
-                applyAdaptivePanelBackgrounds(true)
             }
         } catch (e: Exception) {
             Log.e("wallColors", "Error in wallColors", e)
