@@ -52,6 +52,15 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     }
                 }
 
+                if (detectedState == "TRAVEL") {
+                    val lastStepTime = sharedPrefs.getLong("last_step_timestamp", 0L)
+                    val now = System.currentTimeMillis()
+                    if (now - lastStepTime < 3000) {
+                        Log.d("ActivityTransition", "Ignoring TRAVEL: active steps taken ${now - lastStepTime}ms ago")
+                        return@forEach
+                    }
+                }
+
                 val oldState = sharedPrefs.getString("presentActivityState", "")
                 if (oldState == detectedState) return@forEach
 

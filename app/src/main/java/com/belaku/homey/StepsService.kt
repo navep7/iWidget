@@ -160,7 +160,7 @@ class StepsService : Service() {
                             speedInKmph = (speedInMps * 3.6).toInt()
                             //    speedR(speedInKmph.toString())
 
-                            if (speedInKmph >= 8 && presentActivityState != "TRAVEL" && presentActivityState != "RUNNING") {
+                            if (speedInKmph >= 18 && presentActivityState != "TRAVEL" && presentActivityState != "WALKING" && presentActivityState != "RUNNING") {
                                 switchToTravelState(applicationContext)
                             }
                         }
@@ -273,6 +273,8 @@ class StepsService : Service() {
                         sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
                         sharedPreferencesEditor = sharedPreferences.edit()
                     }
+
+                    sharedPreferencesEditor.putLong("last_step_timestamp", System.currentTimeMillis()).apply()
 
 
 
