@@ -404,6 +404,7 @@ class NewAppWidget : AppWidgetProvider() {
         Log.d(TAG, "!onUpdate")
 
         ensureUnlockReceiver(widgetContext)
+        ensureCompanionInitialized(widgetContext)
 
         try {
             remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
@@ -1586,44 +1587,6 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
 
-    fun blur(context: Context?, image: Bitmap): Bitmap {
-
-        val bitmapScale = 0.1f // Increased scale slightly for better quality/stability
-        val blurRadius = 25f // Adjust blur intensity
-
-        val width = Math.round(image.width * bitmapScale).coerceAtLeast(1)
-        val height = Math.round(image.height * bitmapScale).coerceAtLeast(1)
-
-        val inputBitmap = Bitmap.createScaledBitmap(image, width, height, false)
-        val outputBitmap = Bitmap.createBitmap(inputBitmap)
-
-        var rs: RenderScript? = null
-        var theIntrinsic: ScriptIntrinsicBlur? = null
-        var tmpIn: Allocation? = null
-        var tmpOut: Allocation? = null
-        try {
-            rs = RenderScript.create(context)
-            theIntrinsic = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
-            tmpIn = Allocation.createFromBitmap(rs, inputBitmap)
-            tmpOut = Allocation.createFromBitmap(rs, outputBitmap)
-
-            theIntrinsic.setRadius(blurRadius)
-            theIntrinsic.setInput(tmpIn)
-            theIntrinsic.forEach(tmpOut)
-            tmpOut.copyTo(outputBitmap)
-        } finally {
-            // These native allocations were never released, leaking on every refresh.
-            tmpIn?.destroy()
-            tmpOut?.destroy()
-            theIntrinsic?.destroy()
-            rs?.destroy()
-            if (!inputBitmap.isRecycled) inputBitmap.recycle()
-        }
-
-        return outputBitmap
-    }
-
-
     fun createGradientBitmap(width: Int, height: Int, startColor: Int, endColor: Int): Bitmap {
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
@@ -1704,6 +1667,7 @@ class NewAppWidget : AppWidgetProvider() {
         Log.d(TAG, "onReceive: $action")
 
         ensureUnlockReceiver(context)
+        ensureCompanionInitialized(context)
 
         if (action == "android.appwidget.action.APPWIDGET_ENABLED") {
             val handler = android.os.Handler(android.os.Looper.getMainLooper())
@@ -1764,6 +1728,7 @@ class NewAppWidget : AppWidgetProvider() {
 
     private fun handleIntentActions(intent: Intent) {
         val action = intent.action ?: return
+        ensureCompanionInitialized(widgetContext)
 
         when (action) {
 
@@ -2045,7 +2010,7 @@ class NewAppWidget : AppWidgetProvider() {
                         Math.round(bmpH * 0.5f).coerceAtLeast(1),
                         true
                     )
-                    shareBitmap(bitmapWidget)
+                    Thread { shareBitmap(bitmapWidget) }.start()
                 }
             }
             WIFI_AUTO -> {
@@ -2452,11 +2417,70 @@ class NewAppWidget : AppWidgetProvider() {
         lateinit var mAppWidgetIds: IntArray
 
         fun isblurWallBitmapInitialized(): Boolean {
-            if (::blurWallBitmap.isInitialized)
+            if (::blurWallBitmap.isInitialized && !blurWallBitmap.isRecycled)
                 return true
             else
                 return false
 
+        }
+
+        fun getSafeBlurWallBitmap(context: Context): Bitmap {
+            if (::blurWallBitmap.isInitialized && !blurWallBitmap.isRecycled) {
+                return blurWallBitmap
+            }
+            return try {
+                val appContext = context.applicationContext
+                if (SetWallWorker.isWallBitmapInitialized(appContext)) {
+                    blurWallBitmap = blur(appContext, SetWallWorker.wallBitmap)
+                    blurWallBitmap
+                } else {
+                    val bmp = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+                    bmp.eraseColor(Color.DKGRAY)
+                    blurWallBitmap = bmp
+                    blurWallBitmap
+                }
+            } catch (e: Exception) {
+                Log.e("NewAppWidget", "Error generating safe blur wall bitmap", e)
+                val bmp = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+                bmp.eraseColor(Color.DKGRAY)
+                blurWallBitmap = bmp
+                blurWallBitmap
+            }
+        }
+
+        fun blur(context: Context?, image: Bitmap): Bitmap {
+            val bitmapScale = 0.1f
+            val blurRadius = 25f
+
+            val width = Math.round(image.width * bitmapScale).coerceAtLeast(1)
+            val height = Math.round(image.height * bitmapScale).coerceAtLeast(1)
+
+            val inputBitmap = Bitmap.createScaledBitmap(image, width, height, false)
+            val outputBitmap = Bitmap.createBitmap(inputBitmap)
+
+            var rs: RenderScript? = null
+            var theIntrinsic: ScriptIntrinsicBlur? = null
+            var tmpIn: Allocation? = null
+            var tmpOut: Allocation? = null
+            try {
+                rs = RenderScript.create(context)
+                theIntrinsic = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
+                tmpIn = Allocation.createFromBitmap(rs, inputBitmap)
+                tmpOut = Allocation.createFromBitmap(rs, outputBitmap)
+
+                theIntrinsic.setRadius(blurRadius)
+                theIntrinsic.setInput(tmpIn)
+                theIntrinsic.forEach(tmpOut)
+                tmpOut.copyTo(outputBitmap)
+            } finally {
+                tmpIn?.destroy()
+                tmpOut?.destroy()
+                theIntrinsic?.destroy()
+                rs?.destroy()
+                if (!inputBitmap.isRecycled) inputBitmap.recycle()
+            }
+
+            return outputBitmap
         }
 
 

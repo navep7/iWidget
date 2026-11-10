@@ -100,12 +100,9 @@ class MySpaceActivity : AppCompatActivity(), AppsAdapter.RvEvent {
             // Task 1: Background Blur (Parallel) - Updates background when ready
             launch(Dispatchers.IO) {
                 try {
-                    if (SetWallWorker.isWallBitmapInitialized(applicationContext)) {
-                      //  val blurredBitmap = blur(applicationContext, SetWallWorker.wallBitmap)
-                        withContext(Dispatchers.Main) {
-                            binding.mySpaceLayout.background = BitmapDrawable(resources,
-                                blurWallBitmap)
-                        }
+                    val safeBlur = NewAppWidget.getSafeBlurWallBitmap(applicationContext)
+                    withContext(Dispatchers.Main) {
+                        binding.mySpaceLayout.background = BitmapDrawable(resources, safeBlur)
                     }
                 } catch (e: Exception) {}
             }

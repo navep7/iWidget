@@ -71,8 +71,7 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
 
         val rootLayout = findViewById<RelativeLayout>(R.id.ai_layout)
 
-        if (isblurWallBitmapInitialized())
-        rootLayout.setBackgroundDrawable(BitmapDrawable(getResources(), blurWallBitmap))
+        rootLayout.background = BitmapDrawable(resources, NewAppWidget.getSafeBlurWallBitmap(this))
 
 
         voiceAI = findViewById<ImageView>(R.id.imgv_mic)

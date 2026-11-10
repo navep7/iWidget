@@ -58,7 +58,7 @@ class GapsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         val titleTextView = binding.txT
 
         try {
-            rootLayout.background = BitmapDrawable(resources, blurWallBitmap)
+            rootLayout.background = BitmapDrawable(resources, NewAppWidget.getSafeBlurWallBitmap(this))
             
             if (ColorUtil().isColorDark(primaryColor)) {
                 titleTextView.setTextColor(getColor(R.color.white))

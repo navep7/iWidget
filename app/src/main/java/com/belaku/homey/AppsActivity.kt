@@ -48,7 +48,7 @@ class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         recyclerView.adapter = adapter
 
         try {
-            rootLayout.background = BitmapDrawable(resources, blurWallBitmap)
+            rootLayout.background = BitmapDrawable(resources, NewAppWidget.getSafeBlurWallBitmap(this))
         } catch (ex: Exception) {
             // Handle error or set default background
         }

@@ -159,7 +159,7 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
             rootLayout.setBackgroundDrawable(
                 BitmapDrawable(
                     getResources(),
-                    blurWallBitmap
+                    NewAppWidget.getSafeBlurWallBitmap(this)
                 )
             )
         } catch (ex: Exception) {
