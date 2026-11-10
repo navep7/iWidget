@@ -3,6 +3,7 @@ package com.belaku.homey
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.WallpaperManager
+import android.app.usage.UsageEvents
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.appwidget.AppWidgetManager
@@ -12,179 +13,119 @@ import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.content.pm.PackageManager.NameNotFoundException
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.location.Address
-import android.location.Geocoder
-import android.os.Build
+import android.net.ConnectivityManager
 import android.os.Handler
 import android.os.Looper
 import android.text.Html
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
+import android.widget.RemoteViews
 import androidx.annotation.NonNull
-import androidx.annotation.RequiresApi
+import androidx.core.graphics.drawable.toBitmap
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.beginCal
 import com.belaku.homey.MainActivity.Companion.cDate
 import com.belaku.homey.MainActivity.Companion.cMonth
 import com.belaku.homey.MainActivity.Companion.cYear
-import com.belaku.homey.MainActivity.Companion.cityname
 import com.belaku.homey.MainActivity.Companion.delayUnit
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.fabMain
-import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.MainActivity.Companion.pD
 import com.belaku.homey.MainActivity.Companion.queryType
 import com.belaku.homey.MainActivity.Companion.randomWallIndex
 import com.belaku.homey.MainActivity.Companion.rlStatus
-import com.belaku.homey.MainActivity.Companion.twitterProfileName
 import com.belaku.homey.MainActivity.Companion.txStatus
 import com.belaku.homey.MainActivity.Companion.updateTime
 import com.belaku.homey.MainActivity.Companion.wallDelay
-import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
+import com.belaku.homey.NewAppWidget.Companion.appWidM
+import com.belaku.homey.NewAppWidget.Companion.hashSetAppUsage
 import com.belaku.homey.NewAppWidget.Companion.dU
 import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
-import com.belaku.homey.NewAppWidget.Companion.formattedDate
-import com.belaku.homey.NewAppWidget.Companion.getScreenTime
 import com.belaku.homey.NewAppWidget.Companion.greeting
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
 import com.belaku.homey.NewAppWidget.Companion.qT
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
-import com.belaku.homey.NewAppWidget.Companion.tW
-import com.belaku.homey.NewAppWidget.Companion.timelyWish
 import com.belaku.homey.NewAppWidget.Companion.uT
 import com.belaku.homey.NewAppWidget.Companion.wD
 import com.belaku.homey.StepsService.Companion.choosenApps
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.Marker
+import com.belaku.homey.StepsService.Companion.totalUsage
 import com.google.gson.Gson
+import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.net.URL
+import java.time.LocalDate
 import java.util.Collections
-import java.util.Locale
-import kotlin.properties.Delegates
 import kotlin.random.Random
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 
 class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
     Worker(context!!, workerParams!!) {
 
+    private lateinit var wallWorkerContext: Context
 
-    @RequiresApi(Build.VERSION_CODES.S)
+    lateinit var widgetContext: Context
+    private var isNetConnected: Boolean = false
+
+      
     @NonNull
     override fun doWork(): Result {
 
         Log.d(TAG, "doWork!")
-        appContx = applicationContext
-        sharedPreferences = appContx.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        wallWorkerContext = applicationContext
+        widgetContext = applicationContext
+        sharedPreferences = wallWorkerContext.getSharedPreferences("UserPreferences", MODE_PRIVATE)
         sharedPreferencesEditor = sharedPreferences.edit()
 
-        urls = ArrayList(sharedPreferences.getStringSet("walls", null)!!)
+        val wallSet = sharedPreferences.getStringSet("walls", null)
+        if (wallSet == null || wallSet.isEmpty()) {
+            return Result.failure()
+        }
+        urls = ArrayList(wallSet)
         urls.sort()
 
-        wm = WallpaperManager.getInstance(appContx)
+        wm = WallpaperManager.getInstance(wallWorkerContext)
 
-        setWall(true)
-        getCity()
-        greeting()
+        val connectivityManager = wallWorkerContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork = connectivityManager.activeNetworkInfo
+        isNetConnected = activeNetwork?.isConnectedOrConnecting == true
+
+        if(isNetConnected)
+            setWall(true, wallWorkerContext)
+        else
+            greeting(widgetContext)
 
         return Result.success()
     }
 
 
 
-    @SuppressLint("MissingPermission")
-    private fun getCity() {
-        var locationRequest = LocationRequest.create()
-        locationRequest.setInterval(30000)
-        locationRequest.setSmallestDisplacement(1f)
-        locationRequest.setFastestInterval(10000)
-        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
-
-        //instantiating the LocationCallBack
-        val locationCallback = object : LocationCallback(), GoogleMap.OnMarkerClickListener {
-            override fun onLocationResult(locationResult: LocationResult) {
-                val location = locationResult.lastLocation
-                if (location != null) {
-                    getAddress(location.latitude, location.longitude)
-                }
-            }
-
-            override fun onMarkerClick(p0: Marker): Boolean {
-            //    makeToast("nothin")
-                return true
-            }
-        }
-
-        var fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mAct)
-
-        fusedLocationProviderClient.requestLocationUpdates(
-            locationRequest,
-            locationCallback,
-            Looper.getMainLooper()
-        )
-    }
-
-    private fun getAddress(latitude: Double, longitude: Double) {
-        val gcd = Geocoder(applicationContext)
-        Locale.getDefault()
-        try {
-            cAddrs = gcd.getFromLocation(latitude, longitude, 1)!!
-            //   makeToast(cAddrs?.get(0)!!.subLocality)
-
-            if (cAddrs.get(0).subLocality != null)
-                cityname = cAddrs.get(0).subLocality.toString()
-            else if (cAddrs.get(0).locality != null)
-                cityname = cAddrs.get(0).locality
-
-
-
-        } catch (e: IOException) {
-            // TODO Auto-generated catch block
-            e.printStackTrace()
-            makeToast("GCD - IOException \n $e")
-        }
-
-    }
-
-
-
-
-    private fun updateWidget() {
-        val intent = Intent(
-            applicationContext,
-            NewAppWidget::class.java
-        )
-        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
-        val ids: IntArray = AppWidgetManager.getInstance(applicationContext)
-            .getAppWidgetIds(ComponentName(applicationContext, NewAppWidget::class.java))
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
-        applicationContext.sendBroadcast(intent)
-    }
-
-
     companion object {
 
-        var screenWidth by Delegates.notNull<Int>()
-        var screenHeight by Delegates.notNull<Int>()
+        var hour: Int = 0
+        var screenWidth: Int = 0
+        var screenHeight: Int = 0
 
         lateinit var pinNote: String
         fun isPinNoteInitialized(): Boolean {
             return this::pinNote.isInitialized
         }
+
+        fun ismActInitialized(): Boolean {
+            return this::mAct.isInitialized
+        }
+
         lateinit var rActOpenedFirst: String
         lateinit var mAct: Activity
         var dayIndex: Int = -1
@@ -196,13 +137,59 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         lateinit var cAddrs: List<Address>
         lateinit var wallBitmap: Bitmap
         lateinit var scaledBitmap: Bitmap
-        fun isWallBitmapInitialized(): Boolean {
-            return this::wallBitmap.isInitialized
-        }
-        var boolNewLap: Boolean = false
 
-        @kotlin.jvm.JvmField
-        var stepsToday = 0
+        // appUsageStats() queries UsageStatsManager for a week of data and decodes every app's
+        // icon via PackageManager - expensive work that used to re-run on every single widget
+        // tap (NewAppWidget.setUI() calls it unconditionally on every onReceive()). Throttling
+        // it here lets callers skip the query when it was refreshed recently.
+        var lastAppUsageStatsQueryTimeMs: Long = 0L
+
+        fun recycleBitmap(bitmap: Bitmap?) {
+            if (bitmap != null && !bitmap.isRecycled) {
+                bitmap.recycle()
+            }
+        }
+
+        fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
+            val (height: Int, width: Int) = options.outHeight to options.outWidth
+            var inSampleSize = 1
+
+            if (height > reqHeight || width > reqWidth) {
+                val halfHeight: Int = height / 2
+                val halfWidth: Int = width / 2
+                while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
+                    inSampleSize *= 2
+                }
+            }
+            return inSampleSize
+        }
+
+        fun isSharedPreferencesInitialized(): Boolean {
+            return this::sharedPreferences.isInitialized
+        }
+
+        fun isWallBitmapInitialized(context: Context): Boolean {
+            if (this::wallBitmap.isInitialized && !wallBitmap.isRecycled) return true
+            val loaded = loadWallBitmap(context)
+            if (loaded != null) {
+                if (::wallBitmap.isInitialized) recycleBitmap(wallBitmap)
+                wallBitmap = loaded
+                if (::scaledBitmap.isInitialized && scaledBitmap != wallBitmap) recycleBitmap(scaledBitmap)
+                scaledBitmap = loaded
+                return true
+            }
+            return false
+        }
+
+        fun ensureDimensions(context: Context) {
+            if (screenWidth == 0 || screenHeight == 0) {
+                val metrics = context.resources.displayMetrics
+                screenWidth = metrics.widthPixels
+                screenHeight = metrics.heightPixels
+            }
+        }
+
+        var boolNewLap: Boolean = false
 
         val TAG: String = "SetWallWorkerLOG7"
         var wallDesc: String = ""
@@ -211,232 +198,520 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         lateinit var wm: WallpaperManager
 
 
-        @RequiresApi(Build.VERSION_CODES.S)
+          
         @SuppressLint("SetTextI18n")
-        fun setWall(b: Boolean) {
+        fun setWall(b: Boolean, wallWorkerContext: Context) {
 
-            wm = WallpaperManager.getInstance(appContx)
+
+            remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
+            remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.VISIBLE)
+
+            newAppWidget = ComponentName(wallWorkerContext, NewAppWidget::class.java)
+            appWidM = AppWidgetManager.getInstance(wallWorkerContext)
+            appWidM.updateAppWidget(newAppWidget, remoteViews)
+
+            wm = WallpaperManager.getInstance(wallWorkerContext)
             wm.setWallpaperOffsetSteps(1F, 1F)
 
+            ensureDimensions(wallWorkerContext)
 
-            getScreenTime(appContx)
-            greeting()
+            greeting(wallWorkerContext)
 
-            wm.suggestDesiredDimensions(screenWidth, screenHeight)
+            try {
+                wm.suggestDesiredDimensions(screenWidth, screenHeight)
+            } catch (ex: Exception) {
+                Log.e(TAG, "Error suggesting dimensions", ex)
+            }
 
             try {
 
-                urls = ArrayList(sharedPreferences.getStringSet("walls", null)!!)
-                urls.sort()
-                wallDescs = ArrayList(sharedPreferences.getStringSet("wallDescs", null)!!)
-                wallDescs.sort()
-
-
-                if (urls.size > 0)
-                randomWallIndex = Random.Default.nextInt(urls.size)
-                wallDesc = wallDescs.get(randomWallIndex)
-
-                Log.d("settingWD", urls[randomWallIndex])
-
-                wallBitmap = BitmapFactory.decodeStream(
-                    URL(
-                        urls[randomWallIndex].substring(
-                            4,
-                            urls[randomWallIndex].length
-                        )
-                    ).openConnection().getInputStream()
-                )
-
-                scaledBitmap =
-                    Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
-
-                if (b)
-                    wm.setBitmap(scaledBitmap)
-
-                val c = Calendar.getInstance()
-
-                updateTime =
-                    "" + c.get(Calendar.HOUR_OF_DAY) + ":" + c.get(Calendar.MINUTE) + ":" + c.get(
-                        Calendar.SECOND
-                    )
-
-                if (b) {
-                    sharedPreferencesEditor.putString("wD", wallDesc.split("+")[1]).apply()
-                    sharedPreferencesEditor.putString("uT", updateTime).apply()
+                val wallSet = sharedPreferences.getStringSet("walls", null)
+                val descSet = sharedPreferences.getStringSet("wallDescs", null)
+                
+                if (wallSet != null) {
+                    urls = ArrayList(wallSet)
+                    urls.sort()
                 }
-                Log.d(TAG, "Set successfully $noRewards")
-                boolWallSet = true
+                
+                if (descSet != null) {
+                    wallDescs = ArrayList(descSet)
+                    wallDescs.sort()
+                }
 
 
-                wD = wallDesc.split("+")[1]
-                qT = queryType
-                dU = delayUnit
-                uT = updateTime
+                var downloadSuccess = true
 
-                if (MainActivity.mainWindow.decorView.rootView.isShown)
-                    if (pD.isShowing) {
-                        pD.dismiss()
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            txStatus.text =
-                                "\"$queryType\" wallpapers Set, updates every $wallDelay mins. \n Add the HomeScreen Widget to see more of the Magic!"
-                            rlStatus.visibility = View.VISIBLE
-                            fabMain.text = "How to ?"
-                        }, 1000)
+                if (urls.isNotEmpty()) {
+                    randomWallIndex = Random.Default.nextInt(urls.size)
+                    if (randomWallIndex < wallDescs.size) {
+                        wallDesc = wallDescs.get(randomWallIndex)
+                    }
+                    val wallUrl = urls[randomWallIndex].substring(4)
+                    Log.d("settingWD", wallUrl)
+
+                    val tempFile = File(wallWorkerContext.cacheDir, "temp_wall")
+                    try {
+                        URL(wallUrl).openStream().use { input ->
+                            tempFile.outputStream().use { output ->
+                                input.copyTo(output)
+                            }
+                        }
+
+                        val options = BitmapFactory.Options().apply {
+                            inJustDecodeBounds = true
+                        }
+                        BitmapFactory.decodeFile(tempFile.absolutePath, options)
+                        options.inSampleSize = calculateInSampleSize(options, screenWidth, screenHeight)
+                        options.inJustDecodeBounds = false
+                        
+                        val newWallBitmap = BitmapFactory.decodeFile(tempFile.absolutePath, options)
+                        if (newWallBitmap != null) {
+                            if (::wallBitmap.isInitialized) recycleBitmap(wallBitmap)
+                            wallBitmap = newWallBitmap
+
+                            val newScaledBitmap = Bitmap.createScaledBitmap(wallBitmap, screenWidth, screenHeight, true)
+                            if (::scaledBitmap.isInitialized && scaledBitmap != newScaledBitmap && scaledBitmap != wallBitmap) {
+                                recycleBitmap(scaledBitmap)
+                            }
+                            scaledBitmap = newScaledBitmap
+                            
+                            saveBitmapToInternalStorage(wallWorkerContext, scaledBitmap)
+                        } else {
+                            downloadSuccess = false
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error setting wallpaper bitmap", e)
+                        downloadSuccess = false
+                    } finally {
+                        if (tempFile.exists()) tempFile.delete()
+                    }
+                } else {
+                    downloadSuccess = false
+                }
+
+                if (downloadSuccess) {
+                    if (b && ::scaledBitmap.isInitialized && !scaledBitmap.isRecycled)
+                        wm.setBitmap(scaledBitmap)
+
+                    val c = Calendar.getInstance()
+
+                    updateTime =
+                        "" + c.get(Calendar.HOUR_OF_DAY) + ":" + c.get(Calendar.MINUTE) + ":" + c.get(
+                            Calendar.SECOND
+                        )
+
+                    if (b) {
+                        if (wallDesc.contains("+")) {
+                            sharedPreferencesEditor.putString("wD", wallDesc.split("+")[1]).apply()
+                            wD = wallDesc.split("+")[1]
+                        } else {
+                            sharedPreferencesEditor.putString("wD", wallDesc).apply()
+                            wD = wallDesc
+                        }
+                        sharedPreferencesEditor.putString("uT", updateTime).apply()
+                        sharedPreferencesEditor.putBoolean("wallpaperSet", true).apply()
+                    }
+                    Log.d(TAG, "Set successfully $noRewards")
+
+                    boolWallSet = true
+                }
+
+                if (downloadSuccess) {
+                    qT = queryType
+                    dU = delayUnit
+                    uT = updateTime
+
+                    sharedPreferencesEditor.putBoolean("wallpaperSet", true).apply()
+                    try {
+                        Handler(Looper.getMainLooper()).post {
+                            try {
+                                val appWidgetManager = AppWidgetManager.getInstance(wallWorkerContext)
+                                val myProvider = ComponentName(wallWorkerContext, NewAppWidget::class.java)
+                                val ids = appWidgetManager.getAppWidgetIds(myProvider)
+                                if (ids.isEmpty()) {
+                                    fabMain.text = "Add Widget to Homescreen"
+                                } else {
+                                    fabMain.text = "Set"
+                                }
+                            } catch (_: Exception) {
+                                // ignore
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error updating fabMain text", e)
                     }
 
+                    try {
+                        if (pD.isShowing) {
+                            pD.dismiss()
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                txStatus.text =
+                                    "\"$queryType\" wallpapers Set, updates every $wallDelay mins."
+                                rlStatus.visibility = View.VISIBLE
+                                val ids: IntArray = appWidM.getAppWidgetIds(newAppWidget)
 
+                                if (ids.isEmpty()) {
+                                    fabMain.text = "Add Widget to Homescreen"
+                                }
 
-                remoteViews?.setTextViewText(
-                    R.id.tx_tweets,
-                    "@" + twitterProfileName + "\t ~ \t" + tW
-                )
-                //🖍
-                remoteViews?.setTextViewText(R.id.tx_tweets, tW)
-                NewAppWidget.greeting()
-                remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
-                NewAppWidget.todaysDate()
-                remoteViews?.setTextViewText(
-                    R.id.tx_day_date,
-                    SimpleDateFormat(
-                        "EEE",
-                        Locale.getDefault()
-                    ).format(Calendar.getInstance().time) +
-                            ", " + formattedDate
-                )
-                remoteViews?.setTextViewText(R.id.tx_walldesc, wD)
-                remoteViews?.setTextViewText(
-                    R.id.tx_walltype_updateinfo,
-                    Html.fromHtml(
-                        qT.split(" ")[0].substring(0, 1)
-                            .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
-                        Html.FROM_HTML_MODE_LEGACY
+                            }, 1500)
+                        }
+                    } catch (ex: Exception) {
+                        fabMain.text = "Exp ~ Set again!"
+                    }
+                }
+
+                if (isPinNoteInitialized()) {
+                    remoteViews?.setTextViewText(R.id.tx_runner, "\uD83D\uDCDD " +pinNote)
+            //        remoteViews?.setTextColor(R.id.tx_runner, ColorUtil().matchTertianaryColor())
+                }
+
+                if (NewAppWidget.checkCompanionVariable()) {
+                    remoteViews?.setTextViewText(R.id.tx_walldesc, wD)
+                    remoteViews?.setTextViewText(
+                        R.id.tx_walltype_updateinfo,
+                        Html.fromHtml(
+                            qT.split(" ")[0].substring(0, 1)
+                                .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
+                            Html.FROM_HTML_MODE_LEGACY
+                        )
                     )
-                )
+                }
+
+                updateWidget(wallWorkerContext)
 
 
-                /*val mSpannableStringLoc = SpannableString(cityname)
-                mSpannableStringLoc.setSpan(UnderlineSpan(), 0, mSpannableStringLoc.length, 0)*/
-                remoteViews?.setTextViewText(R.id.tx_place, cityname)
-
-
-                val intent = Intent(appContx, NewAppWidget::class.java)
-                intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
-                newAppWidget = ComponentName(appContx, NewAppWidget::class.java)
-                //   intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, newAppWidget)
-
-                appContx.sendBroadcast(intent)
-
-
-            } catch (e: IOException) {
-                remoteViews?.setViewVisibility(R.id.progressBar_cyclic, View.INVISIBLE)
-                remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
+            } catch (e: Exception) {
                 Log.d(TAG, "setWallEx2 - $e")
+            } finally {
+                try {
+                    remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.INVISIBLE)
+                    remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
+                    if (NewAppWidget.isAppWidMInitialized() && remoteViews != null) {
+                        appWidM.updateAppWidget(newAppWidget, remoteViews)
+                    }
+                } catch (ex: Exception) {
+                    Log.e(TAG, "Error in setWall finally", ex)
+                }
             }
 
-            DayChanges()
-            updateWidget()
+            updateWidget(wallWorkerContext)
 
         }
 
-        private fun DayChanges() {
+        private fun saveBitmapToInternalStorage(context: Context, bitmap: Bitmap) {
+            val file = File(context.filesDir, "wall_bitmap.png")
+            try {
+                FileOutputStream(file).use { out ->
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                }
+                Log.d(TAG, "Bitmap saved to internal storage")
+            } catch (e: IOException) {
+                Log.e(TAG, "Error saving bitmap", e)
+            }
+        }
 
-            getScreenTime(appContx)
+        fun loadWallBitmap(context: Context): Bitmap? {
+            val file = File(context.filesDir, "wall_bitmap.png")
+            return if (file.exists()) {
+                try {
+                    BitmapFactory.decodeFile(file.absolutePath)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error loading bitmap", e)
+                    null
+                }
+            } else null
+        }
+
+        private fun DayChanges(wallWorkerContext: Context) {
+
+
             if (sharedPreferences.getString("day", "someday").equals(dayOfTheWeek)) {
                 Log.d("DayChange?", "same Day")
             } else {
-                Log.d("DayChange?","diff Day")
+                Log.d("DayChange?", "diff Day")
+
+                sharedPreferencesEditor.putInt("breatheCount", 0).apply()
+                sharedPreferencesEditor.putInt("drinkCount", 0).apply()
+
                 dayChange = true
+                stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
                 sharedPreferencesEditor.putInt(dayOfTheWeek, stepsToday).apply()
-                stepsToday = 0
+                updateWidget(wallWorkerContext)
 
             }
         }
 
-        private fun updateWidget() {
+        private fun updateWidget(wallWorkerContext: Context) {
             val intent = Intent(
-                appContx,
+                wallWorkerContext,
                 NewAppWidget::class.java
             )
             intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
-            val ids: IntArray = AppWidgetManager.getInstance(appContx)
+            val ids: IntArray = AppWidgetManager.getInstance(wallWorkerContext)
                 .getAppWidgetIds(
                     ComponentName(
-                        MainActivity.Companion.appContx,
+                        wallWorkerContext,
                         NewAppWidget::class.java
                     )
                 )
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
-            appContx.sendBroadcast(intent)
+            if (ids.isNotEmpty()) {
+                intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+                wallWorkerContext.sendBroadcast(intent)
+            }
+        }
+
+        /**
+         * Retrieves a list of (package name, total foreground duration, open count)
+         * for all apps that had an activity resume event during the specified timeframe range.
+         */
+        fun getAppUsageStatsForRange(
+            context: Context,
+            startTime: Long,
+            endTime: Long
+        ): List<Triple<String, Long, Int>> {
+            val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+            
+            val launcherPackages = context.packageManager.queryIntentActivities(
+                Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME),
+                PackageManager.MATCH_DEFAULT_ONLY
+            ).map { it.activityInfo.packageName }.toSet()
+
+            // 1. Establish the precise state of the world before startTime
+            var activeApp: String? = null
+            var isScreenInteractive = true
+
+            // Optimization: Reduce lookback to 2 hours for performance, usually enough to find current foreground app
+            val lookbackEvents = usageStatsManager.queryEvents(startTime - (2 * 60 * 60 * 1000), startTime)
+            val event = UsageEvents.Event()
+            while (lookbackEvents.hasNextEvent()) {
+                lookbackEvents.getNextEvent(event)
+                when (event.eventType) {
+                    UsageEvents.Event.ACTIVITY_RESUMED -> {
+                        activeApp = event.packageName
+                    }
+                    UsageEvents.Event.ACTIVITY_PAUSED -> {
+                        if (event.packageName == activeApp) {
+                            activeApp = null
+                        }
+                    }
+                    UsageEvents.Event.SCREEN_INTERACTIVE -> {
+                        isScreenInteractive = true
+                    }
+                    UsageEvents.Event.SCREEN_NON_INTERACTIVE -> {
+                        isScreenInteractive = false
+                    }
+                }
+            }
+
+            val appUsageMap = HashMap<String, Long>()
+            val appOpenCountMap = HashMap<String, Int>()
+            val openedApps = HashSet<String>()
+
+            // If an app was already active/open at startTime, consider it opened during this timeframe
+            if (activeApp != null && !launcherPackages.contains(activeApp) && activeApp != context.packageName) {
+                openedApps.add(activeApp)
+                appUsageMap[activeApp] = 0L
+                appOpenCountMap[activeApp] = 1
+            }
+
+            // 2. Chronologically iterate through usage logs in the target duration
+            var lastTimestamp: Long = startTime
+            val usageEvents = usageStatsManager.queryEvents(startTime, endTime)
+
+            while (usageEvents.hasNextEvent()) {
+                usageEvents.getNextEvent(event)
+                val eventTime = Math.min(event.timeStamp, endTime)
+                
+                // Accumulate screen foreground duration into the active application
+                if (isScreenInteractive && activeApp != null && !launcherPackages.contains(activeApp) && activeApp != context.packageName) {
+                    val duration = eventTime - lastTimestamp
+                    if (duration > 0) {
+                        appUsageMap[activeApp] = (appUsageMap[activeApp] ?: 0L) + duration
+                    }
+                }
+                
+                // Move our interval marker forward
+                lastTimestamp = eventTime
+                
+                // Transition state tracking correctly and record open events
+                when (event.eventType) {
+                    UsageEvents.Event.ACTIVITY_RESUMED -> {
+                        activeApp = event.packageName
+                        if (!launcherPackages.contains(activeApp) && activeApp != context.packageName) {
+                            openedApps.add(activeApp)
+                            if (!appUsageMap.containsKey(activeApp)) {
+                                appUsageMap[activeApp] = 0L
+                            }
+                            appOpenCountMap[activeApp!!] = (appOpenCountMap[activeApp] ?: 0) + 1
+                        }
+                    }
+                    UsageEvents.Event.ACTIVITY_PAUSED -> {
+                        if (event.packageName == activeApp) {
+                            activeApp = null
+                        }
+                    }
+                    UsageEvents.Event.SCREEN_INTERACTIVE -> {
+                        isScreenInteractive = true
+                    }
+                    UsageEvents.Event.SCREEN_NON_INTERACTIVE -> {
+                        isScreenInteractive = false
+                    }
+                }
+            }
+
+            // 3. Accumulate any trailing active foreground session up to endTime
+            if (isScreenInteractive && activeApp != null && !launcherPackages.contains(activeApp) && activeApp != context.packageName) {
+                val finalTime = Math.min(System.currentTimeMillis(), endTime)
+                val duration = finalTime - lastTimestamp
+                if (duration > 0) {
+                    appUsageMap[activeApp] = (appUsageMap[activeApp] ?: 0L) + duration
+                }
+            }
+
+            // Return Triple(package, duration, openCount) sorted by duration, then open count.
+            return openedApps.map { pkg ->
+                Triple(pkg, appUsageMap[pkg] ?: 0L, appOpenCountMap[pkg] ?: 0)
+            }.sortedWith(compareByDescending<Triple<String, Long, Int>> { it.second }
+                .thenByDescending { it.third })
+        }
+
+
+
+        fun getForegroundAppAtTime(context: Context, targetTimeMs: Long): String? {
+            val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+
+            // Set a window buffer (e.g., look from 1 hour before up to the target time)
+            val startTime = targetTimeMs - (60 * 60 * 1000)
+            val endTime = targetTimeMs
+
+            val usageEvents = usageStatsManager.queryEvents(startTime, endTime)
+            val event = UsageEvents.Event()
+            var foregroundApp: String? = null
+
+            // Iterate through the chronological system log
+            while (usageEvents.hasNextEvent()) {
+                usageEvents.getNextEvent(event)
+
+                // Match both legacy and modern foreground flag variations
+                if (event.eventType == UsageEvents.Event.MOVE_TO_FOREGROUND ||
+                    event.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
+                    foregroundApp = event.packageName
+                }
+            }
+
+            // The last package to transition to the foreground before or at the target time
+            return foregroundApp
         }
 
 
         fun appUsageStats(applicationContext: Context?) {
+            val context = applicationContext?.applicationContext ?: return
 
+            if (UsageStatsChecker().hasUsageStatsPermission(context)) {
+                val now = System.currentTimeMillis()
+                val calendar = Calendar.getInstance().apply {
+                    timeInMillis = now
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+                val startTime = calendar.timeInMillis
+                
+                // Update shared globals in MainActivity (used by UI logic)
+                cYear = calendar.get(Calendar.YEAR)
+                cMonth = calendar.get(Calendar.MONTH)
+                cDate = calendar.get(Calendar.DATE)
+                beginCal.timeInMillis = startTime
+                endCal.timeInMillis = now
 
-            val usageStatsManager =
-                applicationContext?.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager // Context.USAGE_STATS_SERVICE);
+                try {
+                    // getAppUsageStatsForRange uses UsageEvents for accurate duration since midnight
+                    val usageStats = getAppUsageStatsForRange(context, startTime, now)
 
+                    hashSetAppUsage.clear()
+                //    choosenApps.forEach { recycleBitmap(it.iconBitmap) }
+                    choosenApps.clear()
 
-            cYear = Calendar.getInstance().get(Calendar.YEAR)
-            cMonth = Calendar.getInstance().get(Calendar.MONTH)
-            cDate = Calendar.getInstance().get(Calendar.DATE)
+                    var totalDurationMs = 0L
 
-            beginCal.set(cYear, cMonth, cDate - 7, 0, 0)
-            endCal.set(cYear, cMonth, cDate - 1, 0, 0)
+                    for ((pkg, duration, openCount) in usageStats) {
+                        if (duration < 0) continue // ignore usage under 1 second
+                        
+                        // Check if the package is a user-facing app with a launch intent
+                        if (context.packageManager.getLaunchIntentForPackage(pkg) != null) {
+                            val appName = getAppNameFromPkg(context, pkg)
+                            val appUsageStr = formatMilliseconds(duration)
+                            
+                            // Maintain existing behavior where 'appName' in hashSetAppUsage stores the package name
+                            hashSetAppUsage.add(AppUsage(pkg, appUsageStr))
+                            totalDurationMs += duration
 
-            val queryUsageStats = usageStatsManager.queryUsageStats(
-                UsageStatsManager.INTERVAL_DAILY,
-                beginCal.timeInMillis,
-                endCal.timeInMillis
-            )
-            println("results for " + beginCal.time + " - " + endCal.time)
-            println("QUS SWW - " + queryUsageStats.size)
-            sortApps(queryUsageStats)
-
-            choosenApps.clear()
-
-            val appNames = HashSet<String>()
-            for (i in 0 until queryUsageStats.size) {
-
-                val appName =
-                    getAppNameFromPkg(applicationContext, queryUsageStats.get(i).packageName)
-                val appPname = queryUsageStats.get(i).packageName
-                val appUsage = formatMilliseconds(queryUsageStats[i].totalTimeInForeground).substring(0, 2)
-            //    var appUsage = arrayListUsageStats.elementAt(i).usageTime
-
-                Log.d(
-                    "queryUsageStats",
-                    "$appName ... - $i : " + queryUsageStats.get(i).totalTimeInForeground
-                )
-
-                if (queryUsageStats.get(i).totalTimeInForeground > 0)
-                    if (!appName.contains("Launcher") || !appName.equals("Home"))
-                        if (applicationContext.packageManager.getLaunchIntentForPackage(
-                                queryUsageStats[i].packageName
-                            ) != null
-                        )
-                            if (appNames.add(appName)) {
-                                arrayListUsageStats.add(
-                                    AppUsage(
-                                        queryUsageStats[i].packageName,
-                                        formatMilliseconds(queryUsageStats[i].totalTimeInForeground)
-                                    )
-                                )
-
-
-
-                                    choosenApps.add(
-                                        App(
-                                            appName, appPname, appUsage
-                                        )
-                                    )
+                            if (choosenApps.size < 10) {
+                                try {
+                                    val iconBitmap: Bitmap = context.packageManager.getApplicationIcon(pkg).toBitmap()
+                                    choosenApps.add(App(appName, pkg, appUsageStr, iconBitmap, openCount))
+                                } catch (e: Exception) {
+                                    // Skip apps where icon cannot be retrieved
                                 }
-                          //  }
+                            }
+                        }
+                    }
+                    
+                    // Maintain sort order by duration
+                    hashSetAppUsage = hashSetAppUsage.sortedByDescending {
+                        val parts = it.usageTime.split(":")
+                        val mins = if (parts.size >= 1) parts[0].trim().toIntOrNull() ?: 0 else 0
+                        val secs = if (parts.size >= 2) parts[1].trim().toIntOrNull() ?: 0 else 0
+                        mins * 60 + secs
+                    }.toCollection(LinkedHashSet())
+
+                    saveApps(choosenApps)
+                    
+                    val totalMinutes = totalDurationMs / (1000 * 60)
+                    val hours = totalMinutes / 60
+                    val minutes = totalMinutes % 60
+                    
+                    totalUsage = "%02d:%02d".format(hours, minutes)
+                    hour = hours.toInt()
+
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error processing UsageStats: ${e.message}")
+                }
+            }
+        }
+
+
+        fun sumTimes(times: List<String>): String {
+            val totalDuration = times.fold(Duration.ZERO) { acc, time ->
+                val parts = time.split(":").map { it.trim().toIntOrNull() ?: 0 }
+                acc + (parts.getOrNull(0) ?: 0).minutes + (parts.getOrNull(1) ?: 0).seconds
             }
 
-               saveApps(choosenApps)
-
+            return totalDuration.toComponents { hours, minutes, _, _ ->
+                "%02d:%02d".format(hours, minutes)
+            }
         }
+
+        fun getPackageNameFromAppName(context: Context, appName: String): String? {
+            val packageManager = context.packageManager
+
+            // Retrieve all installed applications
+            val installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+
+            for (appInfo in installedApps) {
+                // Get the visible user-facing application name
+                val currentAppName = packageManager.getApplicationLabel(appInfo).toString()
+
+                // Check if the current app name matches the target name (case-insensitive)
+                if (currentAppName.equals(appName, ignoreCase = true)) {
+                    return appInfo.packageName
+                }
+            }
+            return null // Return null if no application matches
+        }
+
 
         private fun saveApps(apps: java.util.ArrayList<App>) {
 
@@ -445,8 +720,9 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             val gson = Gson()
             val json = gson.toJson(apps)
 
-            sharedPreferencesEditor.remove(key).commit()
-            sharedPreferencesEditor.putString(key, json).commit()
+            sharedPreferencesEditor.remove(key).apply()
+
+            sharedPreferencesEditor.putString(key, json).apply()
         }
 
         fun formatMilliseconds(milliseconds: Long): String {
@@ -456,11 +732,12 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
             return String.format("%02d:%02d", minutes, seconds)
         }
 
-        private fun getAppNameFromPkg(context: Context, packageName: String?): String {
+        fun getAppNameFromPkg(context: Context, packageName: String?): String {
+
             val pm: PackageManager = context.getPackageManager()
             var ai = try {
                 pm.getApplicationInfo(packageName.toString(), 0)
-            } catch (e: NameNotFoundException) {
+            } catch (e: PackageManager.NameNotFoundException) {
                 null
             }
             val applicationName =
@@ -482,5 +759,3 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
     }
 
 }
-
-

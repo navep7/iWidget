@@ -84,7 +84,7 @@ class CustomDialogClass // TODO Auto-generated constructor stub
                     arg0: AdapterView<*>?, arg1: View?,
                     position: Int, id: Long
                 ) {
-                    makeToast(spinReminderTypes[position])
+
                     if (spinReminderTypes[position] == "Repeating")
                         boolRepeating = true
                 }
@@ -105,9 +105,6 @@ class CustomDialogClass // TODO Auto-generated constructor stub
         when (v.id) {
             R.id.btn_okd -> {
 
-
-                makeToast("dayIndex : " + dayIndex)
-
                 arrayListHabits.add(Habit(editText.text.toString(), false))
                 adapterHabits.notifyDataSetChanged()
                 dismiss()
@@ -125,8 +122,7 @@ class CustomDialogClass // TODO Auto-generated constructor stub
                     val rTimeSplits = rTime.split(":")
                     val h = rTimeSplits[0]
                     val m = rTimeSplits[1].split(" ")[0]
-                    //    var rType = findViewById<Spinner>(R.id.remindertype).selectedItem
-                    //  arrayListHorRs.add(rSubject + "\t@\t" + rTime + "\t\t\t:\t\t\t" + rType)
+
                     var rType: String
                     if (boolRepeating)
                         rType = "Repeating"
@@ -134,9 +130,9 @@ class CustomDialogClass // TODO Auto-generated constructor stub
                     arrayListReminders.add(Reminder(rSubject, "$h:$m", rType))
                     adapterReminders.notifyDataSetChanged()
 
-                    addAlarm(rSubject, h.toInt(), m.toInt())
+                    addAlarm(rSubject, h.trim().toInt(), m.trim().toInt())
 
-                } else makeToast("Add a subject and time!")
+                } else makeToast(context, "Add a subject and time!")
             }
         }
         dismiss()
@@ -181,9 +177,9 @@ class CustomDialogClass // TODO Auto-generated constructor stub
                 calendar.timeInMillis,
                 pendingIntent
             )
-            makeToast("AlarmSET @ ${calendar.time}")
+             makeToast(context, "AlarmSET @ ${calendar.time}")
         } catch (ex: Exception) {
-            makeToast("AlarmEx - ${ex.message}")
+             makeToast(context, "AlarmEx - ${ex.message}")
         }
         else
             try {
@@ -193,9 +189,9 @@ class CustomDialogClass // TODO Auto-generated constructor stub
                     AlarmManager.INTERVAL_DAY,        // Repeat interval (built-in constant for efficiency)
                     pendingIntent
                 )
-                makeToast("AlarmSET @ ${calendar.time}, everyday!")
+                 makeToast(context, "AlarmSET @ ${calendar.time}, everyday!")
             } catch (ex: Exception) {
-                makeToast("AlarmEx - ${ex.message}")
+                 makeToast(context, "AlarmEx - ${ex.message}")
             }
 
 

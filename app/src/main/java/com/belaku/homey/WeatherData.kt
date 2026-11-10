@@ -1,17 +1,13 @@
 package com.belaku.homey
 
+import com.google.gson.annotations.SerializedName
+
 data class WeatherData(
-    val name: String,
-    val main: Main,
-    val weather: List<Weather>
+    @SerializedName("current_weather")
+    val currentWeather: CurrentWeather
 )
 
-data class Main(
-    val temp: Double
-)
-
-data class Weather(
-    val main: String,
-    val description: String,
-    val id: String
+data class CurrentWeather(
+    val temperature: Double,
+    val weathercode: Int
 )

@@ -16,17 +16,17 @@ class GridViewAdapter(
 
     override fun getView(position: Int, view: View?, parent: ViewGroup): View {
 
-        var itemView = view
-        if (itemView == null) {
-            itemView = LayoutInflater.from(context).inflate(R.layout.card_item, parent, false)
-        }
+        val itemView = view
+            ?: LayoutInflater.from(context).inflate(R.layout.card_item, parent, false)
 
         val model: SelectedApp? = getItem(position)
-        val textView = itemView!!.findViewById<TextView>(R.id.text_view)
+        val textView = itemView.findViewById<TextView>(R.id.text_view)
         val imageView = itemView.findViewById<ImageView>(R.id.image_view)
 
-        textView.text = model!!.name
-        imageView.setImageBitmap(model.icon)
+        // getItem() may return null for this nullable-typed adapter; render an
+        // empty row instead of throwing a NullPointerException.
+        textView.text = model?.name ?: ""
+        imageView.setImageBitmap(model?.icon)
         return itemView
     }
 }

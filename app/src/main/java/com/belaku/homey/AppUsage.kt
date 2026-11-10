@@ -1,12 +1,7 @@
 package com.belaku.homey
 
-class AppUsage {
-
-    var appName: String
-    var usageTime: String
-
-    constructor(appName: String, usageTime: String) {
-        this.appName = appName
-        this.usageTime = usageTime
-    }
-}
+data class AppUsage(
+    val appName: String,
+    val usageTime: String,
+    val packageName: String? = null
+)

@@ -9,16 +9,11 @@
     android:padding="3dp">
 
     <LinearLayout
-        android:id="@+id/ll_instructions"
+        android:id="@+id/ll_dialog_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <TextView
-            android:text="@string/welcome"
-            android:textSize="21sp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
 
 
         <com.google.android.material.tabs.TabLayout
@@ -38,11 +33,26 @@
             android:layout_height="550dp" />
 
         <TextView
-            android:text="@string/prerequisites"
+            android:text="@string/welcome"
             android:textSize="21sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
+
+
+        <!-- Filled at runtime with permission cards (menu > Permissions). -->
+        <LinearLayout
+            android:id="@+id/ll_instructions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_ok_proceed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="@string/ok_proceed"/>
 
     </LinearLayout>
 </ScrollView>

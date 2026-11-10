@@ -21,20 +21,17 @@ class RemindersAdapter(context: Context, data: List<Reminder>) :
 
     @SuppressLint("SetTextI18n")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        var listItemView = convertView
-        if (listItemView == null) {
-            listItemView = LayoutInflater.from(context).inflate(
-                R.layout.item_reminder, parent, false
-            )
-        }
+        val listItemView = convertView ?: LayoutInflater.from(context).inflate(
+            R.layout.item_reminder, parent, false
+        )
 
         val currentItem = getItem(position)
 
-        val textViewRname = listItemView!!.findViewById<TextView>(R.id.item_text_rname)
+        val textViewRname = listItemView.findViewById<TextView>(R.id.item_text_rname)
         textViewRname.text = "${(position + 1)}. ${currentItem?.name}"
      //   textViewRname.setTextColor(NewAppWidget.primaryColor)
 
-        val textViewRtime = listItemView!!.findViewById<TextView>(R.id.item_text_rtime)
+        val textViewRtime = listItemView.findViewById<TextView>(R.id.item_text_rtime)
         textViewRtime.text = currentItem?.rTime
     //    textViewRtime.setTextColor(NewAppWidget.tertianaryColor)
 

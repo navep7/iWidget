@@ -1,1287 +1,1314 @@
 package com.belaku.homey
 
+import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
-import android.app.WallpaperManager
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
-import android.content.ActivityNotFoundException
+import android.bluetooth.BluetoothManager
 import android.content.ComponentName
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
-import android.database.Cursor
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Color
-import android.location.Geocoder
+import android.hardware.camera2.CameraManager
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
+import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.provider.ContactsContract
 import android.provider.Settings
 import android.speech.RecognizerIntent
-import android.text.Html
+import android.text.Editable
+import android.text.TextWatcher
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
+import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
+import android.widget.GridLayout
 import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.RelativeLayout
-import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
-import com.belaku.homey.MainActivity.Companion.AccessibilityServicePermissionDialog
-import com.belaku.homey.MainActivity.Companion.appContx
+import com.belaku.FinnhubApiService
+import com.belaku.Stock
+import com.belaku.getPredictedAppsForCurrentTimeWindow
+import io.finnhub.api.apis.DefaultApi
+import io.finnhub.api.infrastructure.ApiClient
+import com.belaku.homey.Constants.Companion.stepsToday
 import com.belaku.homey.MainActivity.Companion.beginCal
-import com.belaku.homey.MainActivity.Companion.cDate
-import com.belaku.homey.MainActivity.Companion.cMonth
-import com.belaku.homey.MainActivity.Companion.cYear
-import com.belaku.homey.MainActivity.Companion.cityLat
-import com.belaku.homey.MainActivity.Companion.cityLng
 import com.belaku.homey.MainActivity.Companion.endCal
 import com.belaku.homey.MainActivity.Companion.listTweets
 import com.belaku.homey.MainActivity.Companion.makeToast
-import com.belaku.homey.MainActivity.Companion.pD
-import com.belaku.homey.MainActivity.Companion.pickContactLauncher
-import com.belaku.homey.MainActivity.Companion.sN
-import com.belaku.homey.MainActivity.Companion.twitterProfileName
-import com.belaku.homey.NewAppWidget.Companion.arrayListUsageStats
-import com.belaku.homey.NewAppWidget.Companion.dayOfTheWeek
-import com.belaku.homey.NewAppWidget.Companion.drawableToBitmap
-import com.belaku.homey.NewAppWidget.Companion.favContacts
-import com.belaku.homey.NewAppWidget.Companion.getScreenTime
+import com.belaku.homey.MainActivity.Companion.predictedApps
+import com.belaku.homey.MusicActivity.Companion.dataListSongs
+import com.belaku.homey.MusicActivity.Companion.isDataListInitialized
+import com.belaku.homey.MusicService.Companion.songIndex
+
+import com.belaku.homey.NewAppWidget.Companion.appWidM
+import com.belaku.homey.NewAppWidget.Companion.hashSetAppUsage
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
+import com.belaku.homey.NewAppWidget.Companion.penNote
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
-import com.belaku.homey.SetWallWorker.Companion.screenHeight
-import com.belaku.homey.SetWallWorker.Companion.screenWidth
-import com.belaku.homey.NewAppWidget.Companion.tW
-import com.belaku.homey.NewAppWidget.Companion.vpStepsPos
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
-import com.belaku.homey.SetWallWorker.Companion.boolWallSet
-import com.belaku.homey.SetWallWorker.Companion.mAct
+import com.belaku.homey.SetWallWorker.Companion.getForegroundAppAtTime
+import com.belaku.homey.SetWallWorker.Companion.hour
+import com.belaku.homey.SetWallWorker.Companion.isSharedPreferencesInitialized
 import com.belaku.homey.SetWallWorker.Companion.pinNote
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
 import com.belaku.homey.SetWallWorker.Companion.sharedPreferencesEditor
+import com.belaku.homey.StepsService.Companion.speedInKmph
+import com.belaku.homey.StepsService.Companion.stepsAdapter
+import com.belaku.homey.StepsService.Companion.speedData
+import com.belaku.homey.StepsService.Companion.stepsData
+import com.belaku.homey.StepsService.Companion.totalUsage
+import com.belaku.homey.StepsService.Companion.twitterProfileName
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
-import com.journeyapps.barcodescanner.ScanContract
-import com.journeyapps.barcodescanner.ScanIntentResult
-import com.journeyapps.barcodescanner.ScanOptions
+import com.google.gson.GsonBuilder
+
+import com.squareup.picasso.Picasso
+import kotlinx.coroutines.CoroutineScope
+
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
-import java.io.IOException
-import java.net.URL
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.Calendar
-import java.util.Locale
-import java.util.Timer
-import java.util.TimerTask
-import kotlin.properties.Delegates
+import kotlin.math.abs
 import kotlin.random.Random
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
+class DialogActivity : AppCompatActivity() {
 
-class DialogActivity : AppCompatActivity(), OnMapReadyCallback {
+    var bluetoothLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
 
-    private lateinit var parentLayoutDialog: View
-    private val barcodeLauncher =
-        registerForActivityResult(ScanContract()) { result: ScanIntentResult? ->
-            if (result?.contents == null) {
-                makeToast("Cancelled")
-            } else {
-                // Handle the scan result
-                var scannedUrl = result.contents
-                makeToast("Scanned: ${result}")
-                val upiUri = Uri.parse(scannedUrl)
-                val upiIntent = Intent(Intent.ACTION_VIEW)
-                upiIntent.setData(upiUri)
-                val chooser = Intent.createChooser(upiIntent, "Pay with")
-                if (chooser.resolveActivity(getPackageManager()) != null) {
-                    startActivity(chooser);
-                } else {
-                    // Handle the case where no UPI apps are installed
-                    makeToast("No UPI app found. Please install one to proceed.")
-                }
-            }
         }
-    private var stepsVPpos: Int = 0
-    private var muApps: ArrayList<String> = ArrayList()
-    private var myAppUsages: ArrayList<String> = ArrayList()
-    private val REQUEST_CODE_SPEECH_INPUT: Int = 100
+    private var bluetoothAdapter: BluetoothAdapter? = null
+
+    /** Asks for Nearby Devices access only when the Bluetooth tile is actually tapped. */
+    private val permissionRequester = JitPermissionRequester(this)
+
+
+    val wifiPanelIntent = Intent(Settings.Panel.ACTION_WIFI)
+    private lateinit var imgbtnAddAnotherStock: ImageButton
+    private lateinit var imgbtnRefreshStocks: ImageButton
+    private lateinit var pbRefreshStocks: ProgressBar
+    private lateinit var llMenu: LinearLayout
+    private lateinit var glStocks: GridLayout
+    private var selectedStockIndex: Int = -1
+    private lateinit var dialogActContext: Context
+    private lateinit var parentLayoutDialog: View
+
+
     private var rewardedInterstitialAd: RewardedInterstitialAd? = null
-    private var blE by Delegates.notNull<Boolean>()
-    private var wifE by Delegates.notNull<Boolean>()
     private lateinit var llDialog: RelativeLayout
+    private lateinit var imgvSongCover: ImageView
     private lateinit var txTitle: TextView
     private lateinit var txContent: TextView
-    private lateinit var txAppName: TextView
-    private lateinit var txAppUsageTime: TextView
-    private lateinit var vpSteps: ViewPager2
-    private lateinit var stepsMapsFragment: SupportMapFragment
-
     private lateinit var edtxDialog: EditText
+    private lateinit var llButtons: LinearLayout
 
     private lateinit var btnOk: Button
     private lateinit var btnCancel: Button
 
     private lateinit var imgbtnShare: ImageButton
+    private lateinit var menuReminders: ImageButton
+    private lateinit var menuTorch: ImageButton
+    private lateinit var menuWifi: ImageButton
+    private lateinit var menuBlue: ImageButton
+    private lateinit var menuAi: ImageButton
 
-    @RequiresApi(Build.VERSION_CODES.S)
+
     @SuppressLint("ResourceAsColor", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.activity_dialog)
 
         parentLayoutDialog = findViewById(android.R.id.content)
+        dialogActContext = applicationContext
 
-        appContx = applicationContext
+        ensurePrefs()
+
+        val jsonStocksInit = sharedPreferences.getString("listStocks", "")
+        if (!jsonStocksInit.isNullOrEmpty()) {
+            try {
+                val type = object : com.google.gson.reflect.TypeToken<ArrayList<Stock>>() {}.type
+                val parsed: ArrayList<Stock>? = Gson().fromJson(jsonStocksInit, type)
+                if (parsed != null) {
+                    listStocks = ArrayList(parsed.filterNotNull())
+                }
+            } catch (e: Exception) {
+                Log.e("DialogActivity", "Error loading stocks", e)
+            }
+        }
+
+        if (stepsData.isEmpty()) {
+            val days = listOf("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY")
+            for (day in days) {
+                stepsData.add(sharedPreferences.getInt(day, 0).toString())
+            }
+        }
+
+        if (speedData.isEmpty()) {
+            val days = listOf("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY")
+            val currentDayName = LocalDate.now().dayOfWeek.name
+            val maxSpeedToday = sharedPreferences.getInt("maxSpeedToday", 0)
+            for (day in days) {
+                val speedVal = if (day == currentDayName) {
+                    maxSpeedToday
+                } else {
+                    sharedPreferences.getInt("SPEED_$day", 0)
+                }
+                speedData.add(speedVal.toString())
+            }
+        }
 
         rewardedInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
-                // Called when fullscreen content is dismissed.
-                //   Log.d(TAG, "Ad was dismissed.")
-                // Don't forget to set the ad reference to null so you
-                // don't show the ad a second time.
                 rewardedInterstitialAd = null
             }
 
             override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                // Called when fullscreen content failed to show.
-                //   Log.d(TAG, "Ad failed to show.")
-                // Don't forget to set the ad reference to null so you
-                // don't show the ad a second time.
                 rewardedInterstitialAd = null
-            }
-
-            override fun onAdShowedFullScreenContent() {
-                // Called when fullscreen content is shown.
-                //   Log.d(TAG, "Ad showed fullscreen content.")
-
-            }
-
-            override fun onAdImpression() {
-                // Called when an impression is recorded for an ad.
-                //    Log.d(TAG, "Ad recorded an impression.")
-            }
-
-            override fun onAdClicked() {
-                // Called when an ad is clicked.
-                //    Log.d(TAG, "Ad was clicked.")
             }
         }
 
-        var bluetoothLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode == AppCompatActivity.RESULT_OK) {
-                    if (blE) makeToast("Bluetooth ON")
-                    else makeToast("Bluetooth OFF")
-                } else {
-                    // Bluetooth not enabled by user
+        imgbtnAddAnotherStock = findViewById(R.id.imgbtn_addanother_stock)
+        imgbtnRefreshStocks = findViewById(R.id.imgbtn_refresh_stocks)
+        pbRefreshStocks = findViewById(R.id.pb_refresh_stocks)
+        glStocks = findViewById(R.id.gl_stocks)
+        llMenu = findViewById(R.id.ll_menu)
+        llDialog = findViewById(R.id.dialog_layout)
+        imgvSongCover = findViewById(R.id.dialog_imgv_cover)
+        txTitle = findViewById(R.id.tx_dialog_title)
+        txContent = findViewById(R.id.tx_dialog_content)
+
+
+        edtxDialog = findViewById(R.id.edtx_dialog)
+        llButtons = findViewById(R.id.ll_buttons)
+        btnOk = findViewById(R.id.btn_dialog_ok)
+        btnCancel = findViewById(R.id.btn_dialog_cancel)
+        imgbtnShare = findViewById(R.id.imgbtn_dialog_share)
+
+        menuReminders = findViewById(R.id.menu_reminders)
+        menuTorch = findViewById(R.id.menu_torch)
+        menuWifi = findViewById(R.id.menu_wifi)
+        menuBlue = findViewById(R.id.menu_blue)
+        menuAi = findViewById(R.id.menu_ai)
+
+         val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+         bluetoothAdapter = bluetoothManager.adapter
+
+        checkWifiState(applicationContext)
+        checkBluetoothState(applicationContext)
+        checkTorchState()
+
+        btnCancel.setOnClickListener {
+            finish()
+        }
+
+        imgbtnAddAnotherStock.setOnClickListener {
+            addStock()
+        }
+
+        imgbtnRefreshStocks.setOnClickListener {
+            refreshAllStocks()
+        }
+
+        btnOk.setOnClickListener {
+            finish()
+        }
+
+
+        imgbtnShare.setOnClickListener {
+            if (txContent.text != "listening...") {
+                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, txContent.text)
                 }
+                startActivity(Intent.createChooser(shareIntent, "Share via..."))
             }
+        }
 
+        menuReminders.setOnClickListener {
+            val remindersIntent = Intent(this, RemindersActivity::class.java)
+            remindersIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or FLAG_ACTIVITY_NEW_TASK)
+            startActivity(remindersIntent)
+            finish()
+        }
 
-        llDialog = findViewById<RelativeLayout>(R.id.dialog_layout)
-        txTitle = findViewById<TextView>(R.id.tx_dialog_title)
-        txContent = findViewById<TextView>(R.id.tx_dialog_content)
-        txContent.movementMethod = ScrollingMovementMethod()
+        menuTorch.setOnClickListener {
+            toggleTorch()
+        }
 
-        txAppName = findViewById(R.id.tx_app_left)
-        txAppUsageTime = findViewById(R.id.tx_appusage_right)
-        edtxDialog = findViewById<EditText>(R.id.edtx_dialog)
-        btnOk = findViewById<Button>(R.id.btn_dialog_ok)
-        btnCancel = findViewById<Button>(R.id.btn_dialog_cancel)
-        imgbtnShare = findViewById<ImageButton>(R.id.imgbtn_dialog_share)
-        vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
-        stepsMapsFragment =
-            supportFragmentManager.findFragmentById(R.id.steps_map) as SupportMapFragment
+        menuWifi.setOnClickListener {
+            startActivity(wifiPanelIntent)
+            finish()
+        }
 
-        stepsMapsFragment.view?.visibility = View.GONE
+        menuBlue.setOnClickListener {
+            // No finish() here: toggleBluetooth may first show a permission rationale
+            // dialog, and finishing now would tear it down. It finishes itself instead.
+            toggleBluetooth()
+        }
 
+        menuAi.setOnClickListener {
+            val aiIntent = Intent(this, AiActivity::class.java)
+            aiIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or FLAG_ACTIVITY_NEW_TASK)
+            startActivity(aiIntent)
+        }
 
-        var dialogIntentStr = intent.getStringExtra("DialogIntent")
+        dialogIntentStr = intent.getStringExtra("DialogIntent").toString()
+   //     makeToast(applicationContext,dialogIntentStr.toString())
 
+        handleFeatureRequest(intent)
 
         if (dialogIntentStr != null) {
+            when (dialogIntentStr) {
+                "Menu" -> {
+                    window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                    val prefs = if (isSharedPreferencesInitialized()) sharedPreferences else getSharedPreferences("UserPreferences", MODE_PRIVATE)
+                    val wifiState = prefs.getBoolean("WifiState", false)
+                    val wifiConnectionState = prefs.getBoolean("WifiConnectionState", false)
+                    val blState = prefs.getBoolean("BluetoothState", false)
+                    val blConnectionState = prefs.getBoolean("BluetoothConnectionState", false)
 
-            if (dialogIntentStr == "WCh") {
-
-                sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
-                sharedPreferencesEditor = sharedPreferences.edit()
-
-                llDialog.visibility = View.GONE
-                noRewards = sharedPreferences.getInt("noRewards", 7)
-                noRewards--
-                sharedPreferencesEditor.putInt("noRewards", noRewards).apply()
-
-                if (noRewards > 0) {
-                    makeSnack("Changing Wall, please wait...")
-                    appContx = applicationContext
-                    Thread {
-                        SetWallWorker.setWall(true)
-                    }.start()
-                } else {
-                    makeSnack("Watch an AD to auto change Walls for next 7 times!")
+                    txTitle.text = when {
+                        wifiState && !wifiConnectionState -> "Turn off WIFI"
+                        blState && !blConnectionState -> "Turn off Bluetooth"
+                        else -> "Menu"
+                    }
+                    llMenu.visibility = View.VISIBLE
+                    imgbtnShare.visibility = View.GONE
+                    btnOk.visibility = View.GONE
+                    btnCancel.visibility = View.GONE
+                    imgbtnRefreshStocks.visibility = View.INVISIBLE
+                    imgbtnAddAnotherStock.visibility = View.INVISIBLE
                 }
-
-                val timer = Timer()
-                timer.schedule(object : TimerTask() {
-                    override fun run() {
-                        // Check your condition here
-                        if (boolWallSet) {
-                            timer.cancel()
+                "appPredictions" -> {
+                    appPredictions()
+                    finish()
+                }
+                "SongCover" -> {
+                    txTitle.visibility = View.VISIBLE
+                    imgvSongCover.visibility = View.VISIBLE
+                    imgbtnShare.visibility = View.GONE
+                    btnOk.visibility = View.GONE
+                    btnCancel.visibility = View.GONE
+                    if (isDataListInitialized()) {
+                        txTitle.text = dataListSongs[songIndex].title
+                        val albumArtPath = dataListSongs[songIndex].album.cover
+                        if (!albumArtPath.isNullOrBlank()) {
+                            Picasso.get().load(albumArtPath).into(imgvSongCover)
+                        } else {
+                            imgvSongCover.setImageResource(R.drawable.launch)
                         }
                     }
-                }, 0, 1000)
-
-            } else if (dialogIntentStr == "PC") {
-                llDialog.visibility = View.GONE
-                getFavoriteContacts(applicationContext)
-                pickContactLauncher =
-                    registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                        if (result.resultCode == Activity.RESULT_OK) {
-                            val contactUri = result.data?.data
-                            if (contactUri != null) {
-                                getContactInfo(contactUri)
-                                // markContactAsFavorite(contactUri)
-                            }
-                        }
-                    }
-                val intent = Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
-                try {
-                    pickContactLauncher.launch(intent)
-                } catch (ex: Exception) {
-                    makeToast("Ex - ${ex.message}")
                 }
-            } else if (dialogIntentStr == "StT") {
-                edtxDialog.visibility = View.GONE
-                btnOk.visibility = View.GONE
-                btnCancel.visibility = View.GONE
-                vpSteps.visibility = View.GONE
-                txTitle.setText("Speech to Text")
-                txContent.setText("listening...")
-
-                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-                intent.putExtra(
-                    RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-                )
-                intent.putExtra(
-                    RecognizerIntent.EXTRA_PROMPT, "Speak now..."
-                ) // Optional: prompt for the user
-                startActivityForResult(intent, REQUEST_CODE_SPEECH_INPUT)
-
-                imgbtnShare.setOnClickListener(View.OnClickListener {
-                    if (txContent.text != "listening...") {
-                        startActivity(
-                            Intent.createChooser(
-                                Intent(Intent.ACTION_SEND).setType("text/plain")
-                                    .putExtra(Intent.EXTRA_TEXT, txContent.text)
-                                    .putExtra(Intent.EXTRA_SUBJECT, "Sharing via nHome!"),
-                                "Share via..."
-                            )
-                        )
+                "WCh" -> {
+                    noRewards = sharedPreferences.getInt("noRewards", 7)
+                    if (noRewards > 1) {
+                        sharedPreferencesEditor.putInt("noRewards", --noRewards).apply()
+                        sharedPreferencesEditor.putBoolean("boolWallSet", true).apply()
+                        Thread { SetWallWorker.setWall(true, dialogActContext) }.start()
+                        appPredictions()
+                        finish()
                     }
-                })
 
-            } else if (dialogIntentStr == "ST") {
-                tW = listTweets[Random.nextInt(0, listTweets.size)]
-                edtxDialog.visibility = View.GONE
-                btnOk.visibility = View.GONE
-                btnCancel.visibility = View.GONE
-                vpSteps.visibility = View.GONE
-                txTitle.setText(twitterProfileName)
-                txContent.setText(tW)
-                imgbtnShare.setOnClickListener(View.OnClickListener {
-                    startActivity(
-                        Intent.createChooser(
-                            Intent(Intent.ACTION_SEND).setType("text/plain")
-                                .putExtra(Intent.EXTRA_TEXT, tW)
-                                .putExtra(Intent.EXTRA_SUBJECT, "Sharing via nHome!"),
-                            "Share via..."
-                        )
-                    )
-                })
-            } else if (dialogIntentStr == "STH") {
-                llDialog.visibility = View.GONE
-                Snackbar.make(parentLayoutDialog, "Paid Feature!", Snackbar.LENGTH_LONG)
-                    .setAction("Pay") {
-
-                    }
-                    .show()
-                /* txTitle.setText("Twitter")
-                 txContent.visibility = View.INVISIBLE
-                 edtxDialog.visibility = View.VISIBLE
-                 vpSteps.visibility = View.GONE
-                 imgbtnShare.visibility = View.GONE
-                 btnOk.setText("Set")
-                 btnOk.setOnClickListener(View.OnClickListener {
-                     if (edtxDialog.text.toString().equals("Fact")) {
-                         twitterProfileName = "Fact"
-                         listTweets.clear()
-                         rawTweets(false)
-                     } else {
-                         getTweetID(edtxDialog.text.toString(), false)
-                     }
-                 })*/
-            } else if (dialogIntentStr == "BLUEEnable") {
-                blE = true
-                llDialog.visibility = View.GONE
-                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                bluetoothLauncher.launch(enableBtIntent)
-            } else if (dialogIntentStr == "BLUEDisable") {
-                blE = false
-                llDialog.visibility = View.GONE
-                val disableintent = Intent("android.bluetooth.adapter.action.REQUEST_DISABLE")
-                bluetoothLauncher.launch(disableintent)
-            } else if (dialogIntentStr == "WifiEnable" || dialogIntentStr == "WifiDisable") {
-                try {
-                    val intent = Intent(Intent.ACTION_MAIN, null)
-                    intent.addCategory(Intent.CATEGORY_LAUNCHER)
-                    val cn = ComponentName(
-                        "com.android.settings", "com.android.settings.wifi.WifiSettings"
-                    )
-                    intent.setComponent(cn)
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    startActivity(intent)
-                } catch (ignored: ActivityNotFoundException) {
-                    startActivity(Intent(Settings.ACTION_WIFI_SETTINGS))
                 }
-            } else if (dialogIntentStr == "AD") {
-
-                txTitle.setText("loading Advertisement, please wait...")
-                txContent.visibility = View.GONE
-                edtxDialog.visibility = View.GONE
-                imgbtnShare.visibility = View.GONE
-                btnOk.visibility = View.GONE
-                btnCancel.visibility = View.GONE
-                vpSteps.visibility = View.GONE
-
-                RewardedInterstitialAd.load(
-                    this,
-                    getString(R.string.admob_ri_ad),
-                    AdRequest.Builder().build(),
-                    object : RewardedInterstitialAdLoadCallback() {
-                        override fun onAdLoaded(rewardedAd: RewardedInterstitialAd) {
-                            makeToast("Ad was loaded.")
-                            rewardedInterstitialAd = rewardedAd
-
-                            rewardedInterstitialAd?.show(this@DialogActivity) { rewardItem ->
-                                makeToast("User earned the reward.")
-                                // Handle the reward.
-                                val rewardAmount = rewardItem.amount
-                                val rewardType = rewardItem.type
-                                sharedPreferencesEditor.putInt("noRewards", 7).apply()
-                                noRewards = 7
-                                remoteViews?.setTextViewText(R.id.tx_rewards_count, "" + 7)
-                                txTitle.setText("swipe outside to continue changing walls.")
-                                updateWidget()
-                            }
-                        }
-
-                        override fun onAdFailedToLoad(adError: LoadAdError) {
-                            appContx = applicationContext
-                            makeToast("onAdFailedToLoad: ${adError.message}")
-                            rewardedInterstitialAd = null
-                        }
-                    },
-                )
-            } else if (dialogIntentStr == "stepsInfo") {
-
-                stepsMapsFragment.getMapAsync(this)
-                getScreenTime(applicationContext)
-                findViewById<CardView>(R.id.card_map).visibility = View.VISIBLE
-                makeToast(dayOfTheWeek)
-                window.setLayout(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
-                );
-
-                txTitle.setText("Steps...")
-                txContent.visibility = View.GONE
-                edtxDialog.visibility = View.GONE
-                btnOk.visibility = View.GONE
-                btnCancel.visibility = View.GONE
-                imgbtnShare.visibility = View.GONE
-                vpSteps.visibility = View.VISIBLE
-
-
-            } else if (dialogIntentStr == "screenTimeInfo") {
-                window.setLayout(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
-                );
-
-                btnOk.visibility = View.GONE
-                btnCancel.visibility = View.GONE
-                imgbtnShare.visibility = View.GONE
-                txTitle.setText(
-                    "Screen Time Analysis : Based on App Usage stats from a Week(" + "${
-                        beginCal.get(
-                            Calendar.DAY_OF_MONTH
-                        )
-                    }/${beginCal.get(Calendar.MONTH) + 1}/${beginCal.get(Calendar.YEAR)} : " +
-                            "${endCal.get(Calendar.DAY_OF_MONTH)}/${endCal.get(Calendar.MONTH) + 1}/${
-                                endCal.get(
-                                    Calendar.YEAR
-                                )
-                            })" + ", below is the App data, every day..  "
-                )
-
-
-                appUsageStats(applicationContext)
-
-                var b = arrayListUsageStats.distinctBy { it.usageTime }
-                var c = b.sortedBy { it.usageTime }
-
-
-                for (i in c) {
-                    if (i.usageTime.substring(0, 2).toInt() > 10) {
-                        muApps.add(
-                            "\n" + getAppNameFromPkg(
-                                appContx, i.appName
-                            )
-                        )
-                        myAppUsages.add("\n" + i.usageTime)
-                        arrayListUsageStats.remove(i)
-                    }
-                }
-
-                //     txContent.movementMethod = ScrollingMovementMethod()
-                //     txContent.append(Html.fromHtml("\n\n<b><u> Most Used Apps.. > 10 mins</u></b>"))
-
-                txAppName.append("Most Used Apps.\n")
-                txAppUsageTime.append("> 10 mins/day\n")
-                for (i in muApps) txAppName.append(i)
-                for (i in myAppUsages) txAppUsageTime.append(i)
-                muApps.clear()
-                myAppUsages.clear()
-
-                txAppName.append("\n\n")
-                txAppUsageTime.append("\n\n")
-
-                b = arrayListUsageStats.distinctBy { it.usageTime }
-                c = b.sortedBy { it.usageTime }
-
-
-
-                for (i in 0 until c.size) {
-                    if ((c[i].usageTime.substring(0, 2).toInt() > 5) && (c[i].usageTime.substring(
-                            0, 2
-                        ).toInt() < 10)
-                    ) {
-                        muApps.add(
-                            "\n" + getAppNameFromPkg(
-                                appContx, c[i].appName
-                            )
-                        )
-                        myAppUsages.add("\n" + c[i].usageTime)
-                        arrayListUsageStats.remove(c[i])
-                    }
-                }
-
-                txAppName.append("Moderately Used Apps.\n")
-                txAppUsageTime.append("> 5 mins/day\n")
-                for (i in muApps) txAppName.append(i)
-                for (i in myAppUsages) txAppUsageTime.append(i)
-                muApps.clear()
-                myAppUsages.clear()
-
-                txAppName.append("\n\n")
-                txAppUsageTime.append("\n\n")
-
-                b = arrayListUsageStats.distinctBy { it.usageTime }
-                c = b.sortedBy { it.usageTime }
-
-
-                for (i in 0 until c.size) {
-                    if ((c[i].usageTime.substring(0, 2).toInt() > 1) && (c[i].usageTime.substring(
-                            0, 2
-                        ).toInt() < 5)
-                    ) {
-                        muApps.add(
-                            "\n" + getAppNameFromPkg(
-                                appContx, c[i].appName
-                            )
-                        )
-                        myAppUsages.add("\n" + c[i].usageTime)
-                        arrayListUsageStats.remove(c[i])
-                    }
-                }
-
-                txAppName.append("Least Used Apps.\n")
-                txAppUsageTime.append("> 1 mins/day\n")
-                for (i in muApps) txAppName.append(i)
-                for (i in myAppUsages) txAppUsageTime.append(i)
-                muApps.clear()
-                myAppUsages.clear()
-
-                txAppName.append("\n\n")
-                txAppUsageTime.append("\n\n")
-
-                b = arrayListUsageStats.distinctBy { it.usageTime }
-                c = b.sortedBy { it.usageTime }
-
-
-                for (i in 0 until c.size) {
-                    if ((c[i].usageTime.substring(0, 2).toInt() == 0)
-                    ) {
-                        muApps.add(
-                            "\n" + getAppNameFromPkg(
-                                appContx, c[i].appName
-                            )
-                        )
-                        myAppUsages.add("\n" + c[i].usageTime)
-                        arrayListUsageStats.remove(c[i])
-                    }
-                }
-
-
-
-                txAppName.append("Rarely Used Apps.\n")
-                txAppUsageTime.append("> 0 mins/day\n")
-                for (i in muApps) txAppName.append(i)
-                for (i in myAppUsages) txAppUsageTime.append(i)
-                muApps.clear()
-                myAppUsages.clear()
-
-                txAppName.append("\n\n")
-                txAppUsageTime.append("\n\n")
-
-                edtxDialog.visibility = View.GONE
-                vpSteps.visibility = View.VISIBLE
-            } else if (dialogIntentStr == "liveWall") {
-                makeToast("LIVEWALL!")
-                val p: String = WallService::class.java.getPackage().getName()
-                val c: String = WallService::class.java.getCanonicalName()
-
-                //    val intentLiveWall = Intent(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER).putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT, ComponentName(p, c))
-                //    startActivity(intentLiveWall)
-
-                val i = Intent()
-                i.setAction(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
-                i.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT, ComponentName(p, c))
-                startActivityForResult(i, 0)
-            } else if (dialogIntentStr == "qrClick") {
-
-                val options = ScanOptions().apply {
-                    setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-                    setPrompt("Scan a QR code")
-                }
-
-                // Launch the scanner
-                barcodeLauncher.launch(options)
-            } else if (dialogIntentStr == "AddNote") {
-                llDialog.minimumWidth = screenWidth
-                llDialog.minimumHeight = screenHeight
-                txTitle.setText("Add Note")
-                edtxDialog.setHint("Enter Note to be Pinned in the Widget...")
-                edtxDialog.requestFocus()
-                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-                imgbtnShare.visibility = View.GONE
-                btnOk.setOnClickListener {
-
-                    if (edtxDialog.text.toString().isNotEmpty())
-                        pinNote = edtxDialog.text.toString()
-
+                "AD" -> {
+                    makeToast(applicationContext, "loading Advertisement, please wait...")
                     llDialog.visibility = View.GONE
-                    Thread {
-                        SetWallWorker.setWall(true)
-                    }.start()
-                    //  appWidM.updateAppWidget(newAppWidget, remoteViews)
-                }
-            } else if (dialogIntentStr == "AccessibilityPermDialog") {
-                llDialog.visibility = View.INVISIBLE
-
-                val builder = AlertDialog.Builder(this@DialogActivity)
-                builder.setTitle("Requisition for Accessibility Service permission")
-                builder.setMessage(
-                    "Please Enable Accessibility Service to smoothly lock Phone screen from Widget shortcut."
-                )
-
-                builder.setPositiveButton("OK") { dialog, id ->
-                    // User clicked OK button
-                    dialog.dismiss() // Dismiss the dialog
-                    val openSettings = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                    openSettings.addFlags(FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
-                    appContx.startActivity(openSettings)
+                    RewardedInterstitialAd.load(this, getString(R.string.admob_ri_ad), AdRequest.Builder().build(),
+                        object : RewardedInterstitialAdLoadCallback() {
+                            override fun onAdLoaded(rewardedAd: RewardedInterstitialAd) {
+                                rewardedInterstitialAd = rewardedAd
+                                rewardedInterstitialAd?.show(this@DialogActivity) { _ ->
+                                    sharedPreferencesEditor.putInt("noRewards", 7).apply()
+                                    noRewards = 7
+                                    remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
+                                    remoteViews?.setTextViewText(R.id.tx_rewards_count, "7")
+                                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                                    finish()
+                                }
+                            }
+                            override fun onAdFailedToLoad(adError: LoadAdError) {
+                                rewardedInterstitialAd = null
+                                finish()
+                            }
+                        })
                 }
 
-                builder.setNegativeButton("Not now") { dialog, id ->
-                    // User clicked OK button
-                    dialog.dismiss() // Dismiss the dialog
+                "StT" -> {
+                    imgbtnRefreshStocks.visibility = View.INVISIBLE
+                    imgbtnAddAnotherStock.visibility = View.INVISIBLE
+                    txContent.visibility = View.VISIBLE
+                    txContent.movementMethod = ScrollingMovementMethod()
+                    txTitle.text = "Speech to Text"
+                    txContent.text = "listening..."
+                    btnOk.visibility = View.GONE
+                    btnCancel.visibility = View.GONE
+                    val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+                    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                    intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now...")
+                    startActivityForResult(intent, REQUEST_CODE_SPEECH_INPUT)
 
+                }
+
+                "Permissions" -> {
+                    imgbtnRefreshStocks.visibility = View.INVISIBLE
+                    imgbtnAddAnotherStock.visibility = View.INVISIBLE
+                    llButtons.visibility = View.VISIBLE
+                    imgbtnShare.visibility = View.INVISIBLE
+                    ydayApp(applicationContext)
+                    txContent.visibility = View.VISIBLE
+                    txTitle.text = "Allow Permissions!"
+                    txContent.text = "Click on the Yellow triangles to allow permissions \n\n 1. or 3. Location permission to show current location and weather info! \n 2. Notification permission to notify you of Apps with incoming notifications and Hourly TIME readouts \n 4. Activity state permission to display whether you're sitting STILL/WALKING/TRAVELLING, and since how long, the time. \n 5. ScreenTime prmission to know how long you've been using the phone for Today!"
+
+
+                }
+                "ST" -> {
+                    imgbtnRefreshStocks.visibility = View.INVISIBLE
+                    imgbtnAddAnotherStock.visibility = View.INVISIBLE
+                    ydayApp(applicationContext)
+                    txContent.visibility = View.VISIBLE
+                    txTitle.text = " $twitterProfileName"
+                    findViewById<ImageButton>(R.id.tw_config).apply {
+                        visibility = View.VISIBLE
+                        setOnClickListener { makeToast(applicationContext, "Paid Feature, coming soon!") }
+                    }
+                    if (listTweets.isNotEmpty()) {
+                        txContent.text = listTweets[Random.nextInt(0, listTweets.size)]
+                    } else {
+                        txContent.text = "fetching Data.. visit again later, please"
+                        rawTweets()
+                    }
+                }
+                "SPEED" -> {
+                    txTitle.text = "Weekly Speed"
+                    val vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
+                    val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
+                    vpSteps.visibility = View.VISIBLE
+                    tabLayout.visibility = View.VISIBLE
+                    imgbtnShare.visibility = View.GONE
+                    imgbtnRefreshStocks.visibility = View.INVISIBLE
+                    imgbtnAddAnotherStock.visibility = View.INVISIBLE
+
+                    val currentDay = (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) + 5) % 7
+                    val maxSpeedToday = sharedPreferences.getInt("maxSpeedToday", 0)
+
+                    speedData.clear()
+                    val days = listOf("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY")
+                    val currentDayName = LocalDate.now().dayOfWeek.name
+                    for (day in days) {
+                        val speedVal = if (day == currentDayName) {
+                            maxSpeedToday
+                        } else {
+                            sharedPreferences.getInt("SPEED_$day", 0)
+                        }
+                        speedData.add(speedVal.toString())
+                    }
+
+                    stepsMapsAdapter("speed", speedData)
+
+                    // Set to a middle position for circular scrolling
+                    val mid = 3500 - (3500 % 7) + currentDay
+                    vpSteps.setCurrentItem(mid, false)
+
+                    btnOk.visibility = View.GONE
+                    btnCancel.visibility = View.GONE
+                }
+                "WALKING" -> {
+                    txTitle.text = "Weekly Steps"
+                    val vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
+                    val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
+                    vpSteps.visibility = View.VISIBLE
+                    tabLayout.visibility = View.VISIBLE
+                    imgbtnShare.visibility = View.GONE
+                    imgbtnRefreshStocks.visibility = View.INVISIBLE
+                    imgbtnAddAnotherStock.visibility = View.INVISIBLE
+
+                    val currentDay = (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) + 5) % 7
+                    stepsData[currentDay] = stepsToday.toString()
+
+                    stepsMapsAdapter("walk", stepsData)
+
+                    // Set to a middle position for circular scrolling
+                    val mid = 3500 - (3500 % 7) + currentDay
+                    vpSteps.setCurrentItem(mid, false)
+
+                    btnOk.visibility = View.GONE
+                    btnCancel.visibility = View.GONE
+                }
+                "screenTimeInfoWithoutDialog" -> {
+                    btnOk.visibility = View.GONE
+                    btnCancel.visibility = View.GONE
+                    imgbtnShare.visibility = View.GONE
+
+                    hashSetAppUsage.clear()
+                    appUsageStats(applicationContext)
+                    appPredictions()
+
+                    val displayList = hashSetAppUsage
+                        .sortedByDescending { it.usageTime.split(":")[0].trim().toIntOrNull() ?: 0 }
+                        .map { AppUsage(getAppNameFromPkg(dialogActContext, it.appName), it.usageTime, it.appName) }
+
+                    val rvScreenTime = findViewById<RecyclerView>(R.id.rv_screen_time)
+                    val txAvgUsage = findViewById<TextView>(R.id.tx_avg_usage)
+
+                    rvScreenTime.visibility = View.GONE
+                    txAvgUsage.visibility = View.GONE
+
+                    val maxUsage = displayList.firstOrNull()?.usageTime?.split(":")?.get(0)?.trim()?.toIntOrNull() ?: 1
+                    rvScreenTime.layoutManager = LinearLayoutManager(this)
+                    rvScreenTime.adapter = ScreenTimeAdapter(displayList, maxUsage)
+
+                    totalUsage = sumTimes(hashSetAppUsage.map { it.usageTime })
+                    val sT = totalUsage.split(":")
+                    hour = sT[0].toIntOrNull() ?: 0
+                    val min = sT.getOrElse(1) { "00" }
+                    txAvgUsage.text = "Usage Today ~ $hour Hours : $min Mins"
+
+                    if (hour != 0) {
+                        if (hour < 2) {
+                            remoteViews?.setTextViewText(R.id.tx_screenusage_state, "LOW")
+                        } else if (hour in 2 until 5) {
+                            remoteViews?.setTextViewText(R.id.tx_screenusage_state, "MODERATE")
+                        } else if (hour in 5 until 8) {
+                            remoteViews?.setTextViewText(R.id.tx_screenusage_state, "HIGH")
+                        } else {
+                            remoteViews?.setTextViewText(R.id.tx_screenusage_state, "EXCESSIVE")
+                        }
+                        remoteViews?.setTextViewText(R.id.tx_screentime, "$hour+")
+                    }
+                    remoteViews?.setTextViewText(R.id.tx_screentime, "$hour+")
+                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                }
+                "screenTimeInfo" -> {
+                    imgbtnRefreshStocks.visibility = View.INVISIBLE
+                    imgbtnAddAnotherStock.visibility = View.INVISIBLE
+                    window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                    txTitle.text = "App Usage Analysis"
+                    txContent.text = "Stats from ${beginCal.get(Calendar.DAY_OF_MONTH)}/${beginCal.get(Calendar.MONTH) + 1} to ${endCal.get(Calendar.DAY_OF_MONTH)}/${endCal.get(Calendar.MONTH) + 1}"
+
+                    btnOk.visibility = View.GONE
+                    btnCancel.visibility = View.GONE
+                    imgbtnShare.visibility = View.GONE
+
+                    hashSetAppUsage.clear()
+                    appUsageStats(applicationContext)
+
+                    val displayList = hashSetAppUsage
+                        .sortedByDescending { it.usageTime.split(":")[0].trim().toIntOrNull() ?: 0 }
+                        .map { AppUsage(getAppNameFromPkg(dialogActContext, it.appName), it.usageTime, it.appName) }
+
+                    val rvScreenTime = findViewById<RecyclerView>(R.id.rv_screen_time)
+                    val txAvgUsage = findViewById<TextView>(R.id.tx_avg_usage)
+
+                    rvScreenTime.visibility = View.VISIBLE
+                    txAvgUsage.visibility = View.VISIBLE
+
+                    val maxUsage = displayList.firstOrNull()?.usageTime?.split(":")?.get(0)?.trim()?.toIntOrNull() ?: 1
+                    rvScreenTime.layoutManager = LinearLayoutManager(this)
+                    rvScreenTime.adapter = ScreenTimeAdapter(displayList, maxUsage)
+
+                    totalUsage = sumTimes(hashSetAppUsage.map { it.usageTime })
+                    val sT = totalUsage.split(":")
+                    hour = sT[0].toIntOrNull() ?: 0
+                    val min = sT.getOrElse(1) { "00" }
+                    txAvgUsage.text = "Usage Today ~ $hour Hours : $min Mins"
+
+                    remoteViews?.setTextViewText(R.id.tx_screentime, "$hour+")
+                    appWidM.updateAppWidget(newAppWidget, remoteViews)
+                }
+                "AddNote" -> {
+                    txTitle.text = "Add Note"
+                    llButtons.visibility = View.VISIBLE
+                    edtxDialog.visibility = View.VISIBLE
+                    btnOk.visibility = View.VISIBLE
+                    btnCancel.visibility = View.VISIBLE
+                    imgbtnRefreshStocks.visibility = View.INVISIBLE
+                    imgbtnAddAnotherStock.visibility = View.INVISIBLE
+                    imgbtnShare.visibility = View.GONE
+                    edtxDialog.hint = "Enter Note to be Pinned..."
+                    edtxDialog.requestFocus()
+                    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+                    btnOk.setOnClickListener {
+                        if (edtxDialog.text.toString().isNotEmpty()) {
+                            pinNote = edtxDialog.text.toString()
+                            Thread { SetWallWorker.setWall(true, dialogActContext) }.start()
+                            finish()
+                        }
+                    }
+                }
+                "AddAnotherStock" -> {
+                    window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                    txTitle.text = "All Stocks"
+                    edtxDialog.setBackgroundColor(android.R.color.darker_gray)
+                    txContent.setBackgroundColor(android.R.color.white)
+                    populateStocksGrid()
+                }
+                "AddStock" -> {
+
+                    addStock()
+
+                }
+                "activitiesInfo" -> {
+                    imgbtnRefreshStocks.visibility = View.INVISIBLE
+                    imgbtnAddAnotherStock.visibility = View.INVISIBLE
+                    txTitle.text = "Activity Details"
+                    val container = findViewById<LinearLayout>(R.id.ll_activity_container)
+                    container.visibility = View.VISIBLE
+                    btnOk.visibility = View.GONE
+                    btnCancel.visibility = View.GONE
+                    val inflater = LayoutInflater.from(this)
+                    val widgetView = inflater.inflate(R.layout.new_app_widget, container, false)
+
+                    val stillLayout = widgetView.findViewById<RelativeLayout>(R.id.rl_still)
+                    val walkingLayout = widgetView.findViewById<RelativeLayout>(R.id.rl_walking)
+                    val speedLayout = widgetView.findViewById<RelativeLayout>(R.id.rl_speed)
+
+                    listOf(stillLayout, walkingLayout, speedLayout).forEach { layout ->
+                        (layout.parent as? ViewGroup)?.removeView(layout)
+                        layout.visibility = View.VISIBLE
+                        container.addView(layout)
+                    }
+
+                    walkingLayout.findViewById<TextView>(R.id.rl_tx_steps).text = stepsToday.toString()
+                    walkingLayout.findViewById<TextView>(R.id.rl_tx_cals).text = (stepsToday * 0.04 * (80 / 70)).toInt().toString()
+                    speedLayout.findViewById<TextView>(R.id.tx_speed).text = speedInKmph.toString()
+                    speedLayout.findViewById<TextView>(R.id.tx_max_speed).text = sharedPreferences.getInt("maxSpeedToday", 0).toString()
+                    stillLayout.findViewById<TextView>(R.id.tx_water_count).text = sharedPreferences.getInt("waterCount", 0).toString()
+                }
+                "AccessibilityPermDialog" -> {
+                    AlertDialog.Builder(this)
+                        .setTitle("Accessibility Permission Required")
+                        .setMessage("Please enable Accessibility Service to lock the screen from the widget.")
+                        .setPositiveButton("OK") { _, _ ->
+                            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+                                addFlags(FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
+                            })
+                        }
+                        .setNegativeButton("Not Now") { _, _ -> finish() }
+                        .show()
+                }
+                "qrClick" -> {
+                    makeToast(applicationContext, "yet2Impl")
                     finish()
                 }
-
-                builder.setNegativeButton("Not Now") { dialog, id ->
-                    // User clicked OK button
-                    dialog.dismiss() // Dismiss the dialog
-                    makeToast("Lock Screen cannot work without access to Accessibility Service!")
-                    finish()
-                }
-
-
-                // Create the AlertDialog object and show it
-                val dialog = builder.create()
-                dialog.show()
-
             }
-
-
         }
     }
 
-    private fun stepsMapsAdapter(
-        stepsData: ArrayList<String>,
-        stepsLocInfo: ArrayList<LatLng>
-    ) {
-
-        val stepsAdapter = StepsAdapter(stepsData, stepsLocInfo)
-        vpSteps.adapter = stepsAdapter
-        vpSteps.currentItem = vpStepsPos
-
-
-        val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
-
-
-        TabLayoutMediator(tabLayout, vpSteps) { tab, position ->
-            // You can set text or icons for tabs here if needed,
-            // but for dot indicators, this part might be empty or use a placeholder.
-        }.attach()
-
-
-        vpSteps.registerOnPageChangeCallback(object : OnPageChangeCallback(
-        ) {
-            val days: ArrayList<String> = arrayListOf(
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday",
-                "Sunday"
-            )
-            private var myState = 0
-            private var currentPosition = 0
-            var currentOffset = 0F
-
-            override fun onPageScrolled(
-                position: Int, positionOffset: Float, positionOffsetPixels: Int
-            ) {
-
-                //   makeToast("$currentOffset VS $positionOffset")
-                addMarker(
-                    stepsLocInfo[position],
-                    days[position] + " - " + stepsData[position] + " steps",
-                    getAddress(stepsLocInfo[position])
-                )
-
-                if (currentOffset == positionOffset) if (myState == ViewPager2.SCROLL_STATE_DRAGGING && currentPosition == position && currentPosition == 0) vpSteps.setCurrentItem(
-                    6
-                )
-                if (myState == ViewPager2.SCROLL_STATE_DRAGGING && currentPosition == position && currentPosition == 6) vpSteps.setCurrentItem(
-                    0
-                )
-
-                currentOffset = positionOffset
-
-                super.onPageScrolled(position, positionOffset, positionOffsetPixels)
+    private fun appPredictions() {
+        val widgetScope = CoroutineScope(Dispatchers.Main)
+        widgetScope.launch {
+            predictedApps = withContext(Dispatchers.IO) {
+                getPredictedAppsForCurrentTimeWindow(applicationContext)
             }
 
-            private fun getAddress(latLng: LatLng): String {
-                val gcd = Geocoder(applicationContext)
-                Locale.getDefault()
-                var lat = latLng.latitude
-                var lng = latLng.longitude
-                var cityname = "unKnown"
-                try {
-                    var cAddrs = gcd.getFromLocation(lat, lng, 1)!!
-                    //   makeToast(cAddrs?.get(0)!!.subLocality)
+            val rlIds = intArrayOf(R.id.rl_app1, R.id.rl_app2, R.id.rl_app3, R.id.rl_app4, R.id.rl_app5)
+            val imgvIds = intArrayOf(R.id.imgv_app1, R.id.imgv_app2, R.id.imgv_app3, R.id.imgv_app4, R.id.imgv_app5)
 
-                    cityname = cAddrs?.get(0)!!.subLocality
-                    //        if (MainActivity.cityname.length > 15)
-                    //          MainActivity.cityname = cityname.substring(0, 12) + "..,"
-
-
-                } catch (e: IOException) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace()
-                    makeToast("GCD - IOException \n $e")
+            if (predictedApps.isNotEmpty()) {
+                var count = 0
+                for (i in predictedApps) {
+                    if (count >= 5) break
+                    try {
+                        val iconDrawable =
+                            applicationContext.packageManager.getApplicationIcon(i.packageName)
+                        val bitmap = iconDrawable.toBitmap(120, 120)
+                        remoteViews?.setImageViewBitmap(imgvIds[count], bitmap)
+                        remoteViews?.setViewVisibility(rlIds[count], View.VISIBLE)
+                        count++
+                    } catch (e: Exception) {
+                        Log.e("DialogActivity", "Error setting predicted app icon for ${i.packageName}", e)
+                    }
+                }
+                for (j in count until 5) {
+                    remoteViews?.setViewVisibility(rlIds[j], View.GONE)
                 }
 
-                return cityname
+                // 3. Trigger Widget Update
+                appWidM.updateAppWidget(newAppWidget, remoteViews)
+            } else {
+                for (id in rlIds) {
+                    remoteViews?.setViewVisibility(id, View.GONE)
+                }
+                appWidM.updateAppWidget(newAppWidget, remoteViews)
+            }
+        }
+    }
 
+    private fun ensurePrefs() {
+        if (!isSharedPreferencesInitialized()) {
+            sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+            sharedPreferencesEditor = sharedPreferences.edit()
+        }
+    }
+
+
+
+// Initialize client
+
+
+
+    private fun addStock() {
+        ensurePrefs()
+        ApiClient.apiKey["token"] = "db5ndcpr01qv1n8vo4p0db5ndcpr01qv1n8vo4pg"
+        val apiClient = DefaultApi()
+
+
+        txTitle.text = "Add Stock"
+        llButtons.visibility = View.VISIBLE
+        edtxDialog.visibility = View.VISIBLE
+        txContent.visibility = View.VISIBLE
+        txContent.text = ""
+        btnOk.visibility = View.GONE
+        btnCancel.visibility = View.VISIBLE
+        imgbtnShare.visibility = View.GONE
+        edtxDialog.hint = "Enter the Stock, you're interested inn..."
+        edtxDialog.requestFocus()
+
+        var textWatcherJob: Job? = null
+        edtxDialog.addTextChangedListener(object : TextWatcher {
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                textWatcherJob?.cancel()
+                val query = s?.toString()?.trim() ?: ""
+                if (query.isNotEmpty()) {
+                    textWatcherJob = lifecycleScope.launch(Dispatchers.IO) {
+                        try {
+                            delay(500)
+                            val searchResult =
+                                apiClient.symbolSearch(query, "").result?.getOrNull(0)
+                            val symbol = searchResult?.symbol
+                            val desc = searchResult?.description
+                            withContext(Dispatchers.Main) {
+                                if (symbol != null) {
+                                    txContent.text = "Symbol: $symbol ($desc)"
+                                    txContent.setOnClickListener {
+                                        val baseUrlStr = "https://finnhub.io/api/v1/"
+                                        val gson = GsonBuilder()
+                                            .setLenient()
+                                            .create()
+                                        val retrofit = Retrofit.Builder()
+                                            .baseUrl(baseUrlStr)
+                                            .addConverterFactory(GsonConverterFactory.create(gson))
+                                            .build()
+
+                                        val apiService =
+                                            retrofit.create(FinnhubApiService::class.java)
+
+                                        lifecycleScope.launch(Dispatchers.IO) {
+                                            try {
+                                                val response = apiService.getQuote(
+                                                    symbol,
+                                                    "db5ndcpr01qv1n8vo4p0db5ndcpr01qv1n8vo4pg"
+                                                )
+                                                Log.d(
+                                                    "FinnhubResult",
+                                                    "Current $symbol Price: $${response.c}"
+                                                )
+
+                                                listStocks.add(
+                                                    Stock(
+                                                        symbol,
+                                                        desc.toString(),
+                                                        response.c,
+                                                        response.pc
+                                                    )
+                                                )
+                                                sharedPreferencesEditor.putString("listStocks", Gson().toJson(listStocks)).apply()
+                                                sharedPreferencesEditor.putString("selectedStockSymbol", symbol).apply()
+
+                                                withContext(Dispatchers.Main) {
+                                                    updateWidget()
+                                                    finish()
+                                                }
+                                            } catch (e: Exception) {
+                                                Log.e(
+                                                    "FinnhubError",
+                                                    "Error fetching data: ${e.message}"
+                                                )
+                                                withContext(Dispatchers.Main) {
+                                                    makeToast(applicationContext, "Error adding stock: ${e.message.toString()}")
+                                                    finish()
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    txContent.text = "No symbol found"
+                                    txContent.setOnClickListener(null)
+                                }
+                            }
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) {
+                                txContent.text = ""
+                                txContent.setOnClickListener(null)
+                            }
+                        }
+                    }
+                } else {
+                    txContent.text = ""
+                    txContent.setOnClickListener(null)
+                }
+            }
+        })
+
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+    }
+
+
+
+    private fun populateStocksGrid() {
+        glStocks.removeAllViews()
+        glStocks.columnCount = 2
+        if (listStocks.isEmpty()) return
+
+        ensurePrefs()
+        val savedSymbol = sharedPreferences.getString("selectedStockSymbol", "")
+        if (!savedSymbol.isNullOrEmpty()) {
+            val idx = listStocks.indexOfFirst { it.symbol == savedSymbol }
+            if (idx != -1) {
+                selectedStockIndex = idx
+            }
+        }
+
+        if (selectedStockIndex < 0 || selectedStockIndex >= listStocks.size) {
+            selectedStockIndex = listStocks.lastIndex
+        }
+
+        for ((index, stock) in listStocks.withIndex()) {
+            val isSelected = (index == selectedStockIndex)
+            val row = index / 2
+            val col = index % 2
+
+            val itemLayout = RelativeLayout(this).apply {
+                setPadding(16, 16, 16, 16)
+                setBackgroundResource(if (isSelected) R.drawable.rounded_corner_selected else R.drawable.rounded_corner_gray)
+                isClickable = true
+                isFocusable = true
+
+                val params = GridLayout.LayoutParams(
+                    GridLayout.spec(row, 1f),
+                    GridLayout.spec(col, 1f)
+                ).apply {
+                    width = 0
+                    height = GridLayout.LayoutParams.WRAP_CONTENT
+                    setMargins(8, 8, 8, 8)
+                    gravity = Gravity.FILL_HORIZONTAL
+                }
+                layoutParams = params
             }
 
+            val CLOSE_BUTTON_ID = View.generateViewId()
+
+            val btnClose = ImageView(this).apply {
+                id = CLOSE_BUTTON_ID
+                setImageResource(android.R.drawable.ic_notification_clear_all)
+                setColorFilter(android.graphics.Color.GRAY)
+                isClickable = true
+                isFocusable = true
+                val btnSize = (24 * resources.displayMetrics.density).toInt()
+                val btnParams = RelativeLayout.LayoutParams(btnSize, btnSize).apply {
+                    addRule(RelativeLayout.ALIGN_PARENT_TOP)
+                    addRule(RelativeLayout.ALIGN_PARENT_END)
+                }
+                layoutParams = btnParams
+            }
+
+            val contentLayout = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                gravity = Gravity.CENTER
+                val contentParams = RelativeLayout.LayoutParams(
+                    RelativeLayout.LayoutParams.MATCH_PARENT,
+                    RelativeLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    addRule(RelativeLayout.LEFT_OF, CLOSE_BUTTON_ID)
+                    addRule(RelativeLayout.CENTER_HORIZONTAL)
+                    // Optional: add a small margin so it's not touching the button
+                    topMargin = 8
+                }
+                layoutParams = contentParams
+            }
+
+            val tvName = TextView(this).apply {
+                text = stock.sname
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                setTextColor(android.graphics.Color.WHITE)
+                gravity = Gravity.CENTER
+                maxLines = 1
+                ellipsize = android.text.TextUtils.TruncateAt.END
+            }
+
+            val tvPrice = TextView(this).apply {
+                val diffPercent = if (stock.s_pprice != 0.0) (abs(stock.s_cprice - stock.s_pprice) / stock.s_pprice) * 100 else 0.0
+                text = "${stock.s_cprice} $ ${String.format("%.2f", diffPercent)}%"
+                if (stock.s_cprice > stock.s_pprice) {
+                    setTextColor(android.graphics.Color.GREEN)
+                } else {
+                    setTextColor(android.graphics.Color.RED)
+                }
+                gravity = Gravity.CENTER
+                maxLines = 1
+                ellipsize = android.text.TextUtils.TruncateAt.END
+            }
+
+            contentLayout.addView(tvName)
+            contentLayout.addView(tvPrice)
+
+
+
+            itemLayout.addView(contentLayout)
+            itemLayout.addView(btnClose)
+
+            itemLayout.setOnClickListener {
+                selectedStockIndex = index
+                for (i in 0 until glStocks.childCount) {
+                    val child = glStocks.getChildAt(i)
+                    if (i == selectedStockIndex) {
+                        child.setBackgroundResource(R.drawable.rounded_corner_selected)
+                    } else {
+                        child.setBackgroundResource(R.drawable.rounded_corner_gray)
+                    }
+                }
+
+                ensurePrefs()
+                sharedPreferencesEditor.putString("selectedStockSymbol", stock.symbol).apply()
+                updateWidget()
+                makeToast(applicationContext, "Selected ${stock.sname}")
+            }
+
+            btnClose.setOnClickListener {
+                if (index in listStocks.indices) {
+                    val removedStock = listStocks.removeAt(index)
+                    ensurePrefs()
+                    sharedPreferencesEditor.putString("listStocks", Gson().toJson(listStocks)).apply()
+
+                    val savedSymbol = sharedPreferences.getString("selectedStockSymbol", "")
+                    if (removedStock.symbol == savedSymbol) {
+                        val newSymbol = listStocks.getOrNull(index.coerceAtMost(listStocks.lastIndex))?.symbol ?: ""
+                        sharedPreferencesEditor.putString("selectedStockSymbol", newSymbol).apply()
+                    }
+
+                    updateWidget()
+                    populateStocksGrid()
+                    makeToast(applicationContext, "Removed ${removedStock.sname}")
+                }
+            }
+
+            glStocks.addView(itemLayout)
+        }
+    }
+
+    fun refreshAllStocks() {
+        refreshAllStocks(this, pbRefreshStocks, imgbtnRefreshStocks) {
+            populateStocksGrid()
+            makeToast(applicationContext, "Stocks refreshed")
+        }
+    }
+
+    private fun ydayApp(context: Context) {
+        // Get yesterday's date
+        val yesterday = LocalDate.now().minusDays(1)
+
+// Combine with 6:00 PM (18:00) and current time zone
+        val yesterday6Pm: ZonedDateTime = yesterday.atTime(LocalTime.now()).atZone(ZoneId.systemDefault())
+
+// Get epoch milliseconds if needed
+        val timestampMillis = yesterday6Pm.toInstant().toEpochMilli()
+        val ydayAppName = getForegroundAppAtTime(context, timestampMillis)
+
+        /*makeToast(context, "ydaY - " + SetWallWorker.getAppNameFromPkg(
+            context,
+            ydayAppName
+        )
+        )*/
+    }
+
+    fun checkBluetoothState(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            return
+        }
+        if (bluetoothAdapter == null) return
+        if (!bluetoothAdapter!!.isEnabled) {
+            menuBlue.setImageResource(R.drawable.blue_off)
+            menuBlue.setBackgroundResource(R.drawable.rounded_corner_gray)
+            return
+        }
+        val isConnected = isProfileConnected(bluetoothAdapter!!, android.bluetooth.BluetoothProfile.GATT) ||
+                isProfileConnected(bluetoothAdapter!!, android.bluetooth.BluetoothProfile.A2DP) ||
+                isProfileConnected(bluetoothAdapter!!, android.bluetooth.BluetoothProfile.HEADSET)
+        
+        if (isConnected) {
+            menuBlue.setImageResource(R.drawable.blue_on)
+            menuBlue.setBackgroundResource(R.drawable.rounded_corner_gray)
+        } else {
+            menuBlue.setImageResource(R.drawable.blue_red)
+            menuBlue.setBackgroundResource(R.drawable.rounded_corner_light)
+        }
+    }
+
+    @SuppressLint("MissingPermission", "WrongConstant")
+    private fun isProfileConnected(adapter: BluetoothAdapter, profileType: Int): Boolean {
+        return adapter.getProfileConnectionState(profileType) == android.bluetooth.BluetoothProfile.STATE_CONNECTED
+        return adapter.getProfileConnectionState(profileType) == android.bluetooth.BluetoothProfile.STATE_CONNECTED
+    }
+
+    fun checkWifiState(context: Context)  {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        val isConnected = capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
+        val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+
+        if (!wifiManager.isWifiEnabled) {
+            menuWifi.setImageResource(R.drawable.wifi_off)
+        } else {
+            menuWifi.setImageResource(if (isConnected) R.drawable.wifi_on else R.drawable.wifi_on_but_not_connected)
+        }
+    }
+
+    private fun checkTorchState() {
+        menuTorch.setImageResource(if (sharedPreferences.getBoolean("Torch", false)) R.drawable.torch_on else R.drawable.torch_off)
+    }
+
+    private fun toggleTorch() {
+        val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        try {
+            // Devices without a camera report an empty list -> [0] would throw.
+            val cameraId = cameraManager.cameraIdList.firstOrNull() ?: return
+            val isTorchOn = sharedPreferences.getBoolean("Torch", false)
+            cameraManager.setTorchMode(cameraId, !isTorchOn)
+            sharedPreferencesEditor.putBoolean("Torch", !isTorchOn).apply()
+            checkTorchState()
+            remoteViews?.setImageViewResource(R.id.menu_torch, if (!isTorchOn) R.drawable.torch_on else R.drawable.torch_off)
+            appWidM.updateAppWidget(newAppWidget, remoteViews)
+        } catch (e: Exception) {
+            Log.w("DialogActivity", "toggleTorch failed", e)
+        }
+    }
+
+    fun sumTimes(times: List<String>): String {
+        val totalDuration = times.fold(Duration.ZERO) { acc, time ->
+            val parts = time.split(":").map { it.trim().toIntOrNull() ?: 0 }
+            acc + (parts.getOrNull(0) ?: 0).minutes + (parts.getOrNull(1) ?: 0).seconds
+        }
+        return totalDuration.toComponents { hours, minutes, _, _ -> "%02d:%02d".format(hours, minutes) }
+    }
+
+    private fun stepsMapsAdapter(strType: String, stepsData: ArrayList<String>) {
+    //    makeToast(applicationContext, "DA ~ " + strType)
+        stepsAdapter = StepsAdapter(strType, stepsData)
+        val vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
+        vpSteps.adapter = stepsAdapter
+        val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
+
+        tabLayout.removeAllTabs()
+        for (i in 0 until 7) {
+            tabLayout.addTab(tabLayout.newTab())
+        }
+
+        vpSteps.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-
-                currentPosition = position
-
-                super.onPageSelected(position)
-
+                tabLayout.getTabAt(position % 7)?.select()
             }
+        })
 
-            override fun onPageScrollStateChanged(state: Int) {
-                myState = state
-
-                super.onPageScrollStateChanged(state)
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                val currentPos = vpSteps.currentItem
+                val currentDay = currentPos % 7
+                val targetDay = tab.position
+                val diff = targetDay - currentDay
+                vpSteps.setCurrentItem(currentPos + diff, true)
             }
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
     }
 
-    private fun addMarker(markerLocationn: LatLng, mTitle: String, mDesc: String) {
-
-        stepsMaps.clear()
-        val markerLocation = markerLocationn//LatLng(37.7749, -122.4194)
-        val marker = stepsMaps.addMarker(
-            MarkerOptions()
-                .position(markerLocation)
-                .title(mTitle)
-                .snippet(mDesc)
-        )
-
-        // Show the info window for the marker immediately
-        marker?.showInfoWindow()
-
-        stepsMaps.moveCamera(
-            CameraUpdateFactory.newLatLngZoom(
-                markerLocation,
-                19f
-            )
-        )
-    }
-
-    fun makeSnack(s: String) {
-        sN = Snackbar.make(parentLayoutDialog, s, Snackbar.LENGTH_LONG)
-        sN.show()
-    }
-
     private fun updateWidget() {
-        val intent = Intent(
-            applicationContext,
-            NewAppWidget::class.java
-        )
-        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
-        val ids: IntArray = AppWidgetManager.getInstance(application)
-            .getAppWidgetIds(ComponentName(getApplication(), NewAppWidget::class.java))
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+        val intent = Intent(applicationContext, NewAppWidget::class.java).apply {
+            action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+            val ids = AppWidgetManager.getInstance(application).getAppWidgetIds(ComponentName(application, NewAppWidget::class.java))
+            putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+        }
         sendBroadcast(intent)
     }
 
-
     private fun getAppNameFromPkg(context: Context, packageName: String?): String {
-        val pm: PackageManager = context.getPackageManager()
-        var ai = try {
-            pm.getApplicationInfo(packageName.toString(), 0)
+        if (packageName == null) return "Unknown"
+        val pm = context.packageManager
+        return try {
+            val ai = pm.getApplicationInfo(packageName, 0)
+            pm.getApplicationLabel(ai).toString()
         } catch (e: NameNotFoundException) {
-            null
+            packageName
         }
-        val applicationName =
-            (if (ai != null) pm.getApplicationLabel(ai) else "(unknown)") as String
-
-        return applicationName
     }
 
-    private fun getContactInfo(contactUri: Uri) {
-        val contentResolver = contentResolver
-        var cursor: Cursor? = null
+    /**
+     * Handles the "requestFeature" extra sent by a widget tile whose permission is
+     * missing. The extra is consumed so a rotation or resume cannot replay the request.
+     */
+    private fun handleFeatureRequest(fromIntent: Intent?) {
+        val featureName = fromIntent?.getStringExtra("requestFeature") ?: return
+        fromIntent.removeExtra("requestFeature")
 
-        try {
-            cursor = contentResolver.query(
-                contactUri!!, arrayOf(
-                    ContactsContract.Contacts.DISPLAY_NAME,
-                    ContactsContract.Contacts._ID,  // Add other desired columns like HAS_PHONE_NUMBER, PHOTO_URI, etc.
-                ), null, null, null
-            )
+        // Hide the default dialog UI since we are only here to show a permission prompt.
+        llDialog.visibility = View.INVISIBLE
 
-            if (cursor != null && cursor.moveToFirst()) {
-                val displayNameIndex = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
-                val contactIdIndex = cursor.getColumnIndex(ContactsContract.Contacts._ID)
+        val feature = runCatching { FeaturePermission.valueOf(featureName) }.getOrNull()
+        if (feature == null) {
+            Log.e("DialogActivity", "Unknown requestFeature: $featureName")
+            return
+        }
+        requestFeaturePermission(feature)
+    }
 
-                if (displayNameIndex != -1) {
-                    val displayName = cursor.getString(displayNameIndex)
-                    val contactId = cursor.getLong(contactIdIndex)
-                    getContactDetails(displayName, contactId)
-                    markAsFav(contactId)
-                    saveContacts()
+    @SuppressLint("MissingPermission")
+    private fun requestActTransitions() {
+        ActivityTransitionReceiver.requestUpdates(applicationContext)
+    }
 
-                    val appWidgetManager = AppWidgetManager.getInstance(this)
-                    val thisWidget: ComponentName =
-                        ComponentName(this, NewAppWidget::class.java)
-                    val appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
-
-                    val updateIntent = Intent(
-                        this,
-                        NewAppWidget::class.java
-                    )
-                    updateIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
-                    updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
-                    sendBroadcast(updateIntent)
-                    finish()
-                    updateWidget()
-
+    /**
+     * Shows a rationale (if needed) and ensures the user is prompted for the permission
+     * needed, then doing that feature's follow-up work.
+     */
+    fun requestFeaturePermission(feature: FeaturePermission) {
+        if (feature == FeaturePermission.USAGE_STATS) {
+            usageStatsPermissionDialog()
+            return
+        }
+        if (feature == FeaturePermission.NOTIFICATIONS) {
+            readNotificationsPermissionDialog()
+            return
+        }
+        permissionRequester.ensure(
+            feature,
+            onDenied = { finish() }
+        ) {
+            when (feature) {
+                FeaturePermission.STEPS -> {
+                    try {
+                        startForegroundService(Intent(this, StepsService::class.java))
+                        requestActTransitions()
+                } catch (_: Exception) {
                 }
+                }
+                else -> Unit
             }
-        } finally {
-            cursor?.close()
+            updateWidget()
+            finish()
         }
     }
 
-    fun markAsFav(contactId: Long) {
-        // Replace with the actual contact ID
-        val values = ContentValues()
-        values.put(ContactsContract.Contacts.STARRED, 1) // 1 for favorite, 0 for not favorite
 
-        getContentResolver().update(
-            ContactsContract.Contacts.CONTENT_URI,
-            values,
-            ContactsContract.Contacts._ID + " = ?",
-            arrayOf<String>(contactId.toString())
+    private fun usageStatsPermissionDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Permission Request for App Usage Stats")
+            .setMessage("App needs permission to get Usage stats to suggest apps to use, based on previously used App stats.. ")
+            .setPositiveButton("OK") { dialog, _ ->
+                UsageStatsChecker().requestUsageStatsPermission(this)
+                dialog.dismiss()
+                finish()
+            }
+            .setNegativeButton("Not now") { dialog, _ ->
+                dialog.dismiss()
+                finish()
+            }
+            .show()
+    }
+
+    private fun readNotificationsPermissionDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Permission Request to Read all incoming notifications")
+            .setMessage("App needs permission to Read all incoming notifications to notify you with Voice..")
+            .setPositiveButton("OK") { dialog, _ ->
+                if (!isNotificationListenerPermissionGranted()) {
+                    startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).apply {
+                        addFlags(FLAG_ACTIVITY_NEW_TASK)
+                    })
+                }
+                dialog.dismiss()
+                finish()
+            }
+            .setNegativeButton("Not now") { dialog, _ ->
+                dialog.dismiss()
+                finish()
+            }
+            .show()
+    }
+
+    private fun isNotificationListenerPermissionGranted(): Boolean {
+        val enabledListeners = Settings.Secure.getString(
+            contentResolver,
+            "enabled_notification_listeners"
         )
-
-        getFavoriteContacts(applicationContext)
+        val componentName = ComponentName(this, NotificationService::class.java)
+        return enabledListeners?.contains(componentName.flattenToString()) ?: false
     }
 
-    @SuppressLint("Range", "UseCompatLoadingForDrawables")
-    fun getFavoriteContacts(context: Context) {
-
-        favContacts = ArrayList()
-
-        val queryUri = ContactsContract.Contacts.CONTENT_URI.buildUpon()
-            .appendQueryParameter(ContactsContract.Contacts.EXTRA_ADDRESS_BOOK_INDEX, "true")
-            .build()
-
-        val projection = arrayOf(
-            ContactsContract.Contacts._ID,
-            ContactsContract.Contacts.DISPLAY_NAME,
-            ContactsContract.Contacts.STARRED,
-            ContactsContract.Contacts.HAS_PHONE_NUMBER
-        )
-
-        val selection = ContactsContract.Contacts.STARRED + "='1'"
-
-        val cursor = context.contentResolver.query(
-            queryUri, projection, selection, null, null
-        )
-
-        while (cursor!!.moveToNext()) {
-            val contactID = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
-            var phoneNumber: String = "7"
-
-            if (Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
-
-                val phones: Cursor? = context.getContentResolver().query(
-                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                    null,
-                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactID,
-                    null,
-                    null
-                )
-                while (phones!!.moveToNext()) {
-                    phoneNumber =
-                        phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                    phoneNumber = phoneNumber.filter { !it.isWhitespace() }
-                }
+    private fun toggleBluetooth() {
+        // BLUETOOTH_CONNECT is required to read adapter.isEnabled and to toggle the
+        // adapter on Android 12+. Below API 31 FeaturePermission.BLUETOOTH carries an
+        // empty array, which the requester treats as already granted, so older devices
+        // keep the original behaviour.
+        permissionRequester.ensure(
+            FeaturePermission.BLUETOOTH,
+            onDenied = {
+                makeToast(applicationContext, "Nearby Devices access is needed to switch Bluetooth")
+                finish()
             }
-
-
-            val color =
-                Color.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
-            var contactBitmap: Bitmap?
-
-            contactBitmap = ContactPhotoHelper.retrieveContactPhoto(appContx, contactID.toLong())
-            val cNme = cursor.getString(
-                cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
-            )
-
-            if (contactBitmap == null)
-                contactBitmap = CharacterToBitmapConverter.getBitmapFromCharacter(
-                    cNme[0], 100, 100, 70, color
-                )
-
-            val c = Contact(contactID, cNme, phoneNumber, contactBitmap)
-
-
-            //     var c = Contact(contactID, cNme, phoneNumber, cPhUri)
-
-            if (c.number.length > 7)
-                favContacts.add(c)
-
-        }
-
-
-
-        if (favContacts.size > 0)
-            saveContacts()
-
-
-        cursor.close()
-
-
-    }
-
-    private fun saveContacts() {
-        val key = "CTS"
-        val gson = Gson()
-        val json = gson.toJson(favContacts)
-        sharedPreferencesEditor.remove(key).commit()
-        sharedPreferencesEditor.putString(key, json).commit()
-    }
-
-    private fun getContactDetails(displayName: String?, contactId: Long) {
-        val contentResolver = contentResolver
-        var phoneCursor: Cursor? = null
-        var emailCursor: Cursor? = null
-
-        markAsFav(contactId)
-        try {
-            // Get phone numbers
-            phoneCursor = contentResolver.query(
-                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER),
-                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
-                arrayOf(contactId.toString()),
-                null
-            )
-
-            if (phoneCursor != null && phoneCursor.moveToFirst()) {
-                val phoneNumberIndex =
-                    phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-                if (phoneNumberIndex != -1) {
-                    val phoneNumber = phoneCursor.getString(phoneNumberIndex)
-                    // Process phone number
-                    makeToast("Contct - $displayName : $phoneNumber")
-                }
-            }
-
-            // Get email addresses
-            emailCursor = contentResolver.query(
-                ContactsContract.CommonDataKinds.Email.CONTENT_URI,
-                arrayOf(ContactsContract.CommonDataKinds.Email.ADDRESS),
-                ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
-                arrayOf(contactId.toString()),
-                null
-            )
-
-            if (emailCursor != null && emailCursor.moveToFirst()) {
-                val emailAddressIndex =
-                    emailCursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS)
-                if (emailAddressIndex != -1) {
-                    val emailAddress = emailCursor.getString(emailAddressIndex)
-                    // Process email address
-                }
-            }
-        } finally {
-            phoneCursor?.close()
-            emailCursor?.close()
+        ) {
+            bluetoothAdapter?.let { adapter ->
+                val action = if (!adapter.isEnabled) BluetoothAdapter.ACTION_REQUEST_ENABLE else "android.bluetooth.adapter.action.REQUEST_DISABLE"
+                bluetoothLauncher.launch(Intent(action))
+            } ?: makeToast(applicationContext, "Bluetooth not supported")
+            finish()
         }
     }
 
-    private fun getTweetID(str: String, b: Boolean) {
-
-        val client = OkHttpClient()
-
-        val request =
-            Request.Builder().url("https://twitter241.p.rapidapi.com/user?username=$str").get()
-                .addHeader("x-rapidapi-key", "8521aa6a65mshab927b74fff566dp175607jsn24cd6edd63a7")
-                .addHeader("x-rapidapi-host", "twitter241.p.rapidapi.com").build()
 
 
-        pD.setTitle("Twitter")
-        pD.setMessage("fetching user ID...")
-        if (b) pD.show()
-        lifecycleScope.launch(Dispatchers.IO) {
-            var responseTweetID = client.newCall(request).execute()
-
-            withContext(Dispatchers.Main) {
-                // Handle the result and hide the loading indicator
-                if (b) pD.dismiss()
-                val responseBodyString = responseTweetID.peekBody(Long.MAX_VALUE).string()
-
-
-                val jsonObject = JSONObject(responseBodyString)
-
-                if (jsonObject.getJSONObject("result").getJSONObject("data").optString("user")
-                        .isNotEmpty()
-                ) if (jsonObject.getJSONObject("result").getJSONObject("data").getJSONObject("user")
-                        .optString("result").isNotEmpty()
-                ) if (jsonObject.getJSONObject("result").getJSONObject("data").getJSONObject("user")
-                        .getJSONObject("result").optString("rest_id").isNotEmpty()
-                ) {
-                    var twitterID = jsonObject.getJSONObject("result").getJSONObject("data")
-                        .getJSONObject("user").getJSONObject("result").getString("rest_id")
-                    var twitterPicUrl = jsonObject.getJSONObject("result").getJSONObject("data")
-                        .getJSONObject("user").getJSONObject("result").getJSONObject("avatar")
-                        .getString("image_url")
-
-                    twitterProfileName = jsonObject.getJSONObject("result").getJSONObject("data")
-                        .getJSONObject("user").getJSONObject("result").getJSONObject("core")
-                        .getString("screen_name")
-                    Log.d("TwitterPicUrl - ", twitterPicUrl)
-
-                    remoteViews =
-                        RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
-                    newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
-                    remoteViews?.setImageViewUri(R.id.twSettings, Uri.parse(twitterPicUrl))
-
-                    updateWidget()
-
-                    if (b) pD.dismiss()
-
-                    getTweets(twitterID, false)
-                } else {
-                    if (b) pD.dismiss()
-                    makeSnack("Twitter User doesn't Exist!")
-
-                }
-                else {
-                    if (b) pD.dismiss()
-                    makeSnack("Twitter User doesn't Exist!")
-
-                }
-                else {
-                    if (b) pD.dismiss()
-                    makeSnack("Twitter User doesn't Exist!")
-
-                }
-                // Update UI with result
-            }
-        }
-
-
-    }
-
-    private fun getTweets(twitterID: String, b: Boolean) {
-
-        val client = OkHttpClient()
-
-        val request = Request.Builder()
-            .url("https://twitter241.p.rapidapi.com/user-tweets?user=$twitterID&count=5").get()
-            .addHeader("x-rapidapi-key", "8521aa6a65mshab927b74fff566dp175607jsn24cd6edd63a7")
-            .addHeader("x-rapidapi-host", "twitter241.p.rapidapi.com").build()
-
-        pD.setTitle("Twitter")
-        pD.setMessage("fetching Tweets...")
-        if (b) pD.show()
-        lifecycleScope.launch(Dispatchers.IO) {
-            var responseTweets = client.newCall(request).execute()
-
-            var js: JSONArray = (JSONObject(responseTweets.body?.string()).getJSONObject("result")
-                .getJSONObject("timeline")
-                .getJSONArray("instructions"))//[2] as JSONObject).getJSONArray("entries")
-
-            for (i in 0 until js.length()) {
-                if (js[i].toString().contains("entries")) js =
-                    (js[i] as JSONObject).getJSONArray("entries")
-            }
-
-            withContext(Dispatchers.Main) {
-                if (b) pD.dismiss()
-                if (js.length() > 0) listTweets.clear()
-                for (i in 0 until js.length()) {
-                    val tw =
-                        JSONObject(js[i].toString()).getJSONObject("content")//.getJSONObject("itemContent").getJSONObject("tweet_results").getJSONObject("result")
-                    //   .getJSONObject("legacy").get("full_text")
-
-                    if (tw.optString("itemContent").isNotEmpty()) {
-                        val actTw = tw.getJSONObject("itemContent").getJSONObject("tweet_results")
-                            .getJSONObject("result").getJSONObject("legacy").get("full_text")
-
-                        Log.d("Twwtt $i", actTw.toString())
-                        listTweets.add(actTw.toString())
-                    }
-                }
-
-                remoteViews = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
-                newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
-                remoteViews?.setTextViewText(
-                    R.id.tx_tweets, "@" + twitterProfileName + "\t ~ \t" + listTweets[1]
-                )
-
-
-                updateWidget()
-
-            }
-        }
-
-        Log.d("result", "res - ${listTweets.size}")
-    }
-
-    private fun rawTweets(b: Boolean) {
-
-
-        if (b) {
-            pD.setTitle("Twitter")
-            pD.setMessage("fetching Tweets...")
-            pD.show()
-            Handler().postDelayed(Runnable {
-                pD.dismiss()
-            }, 1000)
-        }
-
-        val dataArray: JSONArray = TweetsJsonParser.parseJsonArrayFromRaw(this, R.raw.np_tweets)!!
-
+    private fun rawTweets() {
+        val dataArray = TweetsJsonParser.parseJsonArrayFromRaw(this, R.raw.np_tweets) ?: return
         for (i in 0 until dataArray.length()) {
-            try {
-                val item = dataArray.getJSONObject(i)
-                val tweet = item.getString("text")
-                listTweets.add(tweet)
-
-            } catch (e: JSONException) {
-                e.printStackTrace()
-            }
+            // opt* accessors avoid JSONException on malformed entries.
+            val text = dataArray.optJSONObject(i)?.optString("text").orEmpty()
+            if (text.isNotEmpty()) listTweets.add(text)
         }
-
-        //       makeSnack("Tweets - ${listTweets.size}")
-
-        var bitmapTwPic: Bitmap =
-            drawableToBitmap(applicationContext, resources.getDrawable(R.drawable.walp_icon))
-
-        remoteViews = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
-
-        lifecycleScope.launch { // Launch a coroutine in the lifecycle scope
-            val imageUrl =
-                "https://pbs.twimg.com/profile_images/1244657050275151872/BRycNabV_normal.jpg" // Replace with your image URL
-            val bitmap = getBitmapFromUrl(imageUrl)
-            // Now you have the bitmap, you can display it in an ImageView or process it further
-            if (bitmap != null) {
-                //     makeToast("TwiPic")
-                try {
-                    remoteViews?.setTextViewText(
-                        R.id.tx_tweets, "@" + twitterProfileName + "\t ~ \t" + listTweets[1]
-                    )
-                    remoteViews?.setImageViewBitmap(R.id.twSettings, bitmap)
-                } catch (ex: Exception) {
-                    makeToast("TwiEx - ${ex.message}")
-                }
-            }
-        }
-
-        newAppWidget = ComponentName(applicationContext, NewAppWidget::class.java)
-
-
         updateWidget()
-
     }
-
-    suspend fun getBitmapFromUrl(imageUrl: String): Bitmap? {
-        return withContext(Dispatchers.IO) { // Switch to the IO dispatcher for network operations
-            try {
-                val url = URL(imageUrl)
-                val connection = url.openConnection()
-                connection.doInput = true
-                connection.connect()
-                val inputStream = connection.getInputStream()
-                BitmapFactory.decodeStream(inputStream) // Decode the input stream into a Bitmap
-            } catch (e: Exception) {
-                e.printStackTrace()
-                null // Return null on error
-            }
-        }
-    }
-
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == REQUEST_CODE_SPEECH_INPUT) {
-            if (resultCode == RESULT_OK && data != null) {
-                val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-                if (result != null && !result.isEmpty()) {
-                    val recognizedText = result[0] // Get the most likely recognized phrase
-                    txContent.setText(recognizedText)
-                }
+        if (requestCode == REQUEST_CODE_SPEECH_INPUT && resultCode == RESULT_OK) {
+            data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()?.let {
+                txContent.text = it
             }
         }
     }
 
-    override fun onMapReady(p0: GoogleMap) {
-
-        stepsMaps = p0
-
-        val stepsData: ArrayList<String> = ArrayList()
-        stepsData.add(sharedPreferences.getInt("Monday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Tuesday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Wednesday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Thursday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Friday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Saturday", 0).toString())
-        stepsData.add(sharedPreferences.getInt("Sunday", 0).toString())
-
-        val stepsLocInfo: ArrayList<LatLng> = ArrayList()
-        stepsLocInfo.add(LatLng(-34.0, 151.0))
-        stepsLocInfo.add(LatLng(35.69, 139.69))
-        stepsLocInfo.add(LatLng(19.08, 72.88))
-        stepsLocInfo.add(LatLng(19.43, -99.13))
-        stepsLocInfo.add(LatLng(52.30, 13.40))
-        stepsLocInfo.add(LatLng(23.55, 46.63))
-        stepsLocInfo.add(LatLng(40.71, -74.00))
-
-        stepsMapsAdapter(stepsData, stepsLocInfo)
-
-        // Example: Setting a location for Sydney, Australia
-        val presentLoc = LatLng(cityLat, cityLng)
-
-
-        // Add a marker at the specified location
-        //    stepsMaps.addMarker(MarkerOptions().position(presentLoc).title(cityname))
-
-
-        // Move the camera to the specified location with a zoom level
-        /*stepsMaps.moveCamera(
-            CameraUpdateFactory.newLatLngZoom(
-                presentLoc,
-                21f
-            )
-        )*/ // Zoom level 10 is a good starting point
-
-
-    }
-
     companion object {
-        lateinit var stepsMaps: GoogleMap
+        private const val REQUEST_CODE_SPEECH_INPUT = 100
+        lateinit var dialogIntentStr: String
+        var listStocks: ArrayList<Stock> = ArrayList()
+        private var lastStocksRefreshTimeMs: Long = 0
 
-        fun isStepsMapsInitialized(): Boolean {
-            return this::stepsMaps.isInitialized
+        fun refreshAllStocks(
+            context: Context,
+            pb: ProgressBar? = null,
+            btn: ImageButton? = null,
+            onComplete: (() -> Unit)? = null
+        ) {
+            val now = android.os.SystemClock.elapsedRealtime()
+            // Throttle: 10 mins for background (widget) refreshes, skip if UI buttons are provided (manual refresh)
+            if (pb == null && btn == null && now - lastStocksRefreshTimeMs < 10 * 60 * 1000) return
+            lastStocksRefreshTimeMs = now
+
+            if (!isSharedPreferencesInitialized()) {
+                sharedPreferences = context.getSharedPreferences("UserPreferences", MODE_PRIVATE)
+                sharedPreferencesEditor = sharedPreferences.edit()
+            }
+
+            val jsonStocks = sharedPreferences.getString("listStocks", "")
+            if (jsonStocks.isNullOrEmpty()) return
+
+            val type = object : com.google.gson.reflect.TypeToken<ArrayList<Stock>>() {}.type
+            val stocks: ArrayList<Stock> = Gson().fromJson(jsonStocks, type) ?: return
+
+            pb?.visibility = View.VISIBLE
+            btn?.visibility = View.GONE
+
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val apiService = Retrofit.Builder()
+                        .baseUrl("https://finnhub.io/api/v1/")
+                        .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
+                        .build()
+                        .create(FinnhubApiService::class.java)
+
+                    val updatedList = ArrayList<Stock>()
+                    for (stock in stocks) {
+                        try {
+                            val response = apiService.getQuote(stock.symbol, "db5ndcpr01qv1n8vo4p0db5ndcpr01qv1n8vo4pg")
+                            updatedList.add(Stock(stock.symbol, stock.sname, response.c, response.pc))
+                        } catch (e: Exception) {
+                            updatedList.add(stock)
+                        }
+                    }
+                    listStocks.clear()
+                    listStocks.addAll(updatedList)
+                    sharedPreferencesEditor.putString("listStocks", Gson().toJson(listStocks)).apply()
+
+                    withContext(Dispatchers.Main) {
+                        val intent = Intent(context, NewAppWidget::class.java).apply {
+                            action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                            val ids = AppWidgetManager.getInstance(context).getAppWidgetIds(ComponentName(context, NewAppWidget::class.java))
+                            putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+                        }
+                        context.sendBroadcast(intent)
+                        onComplete?.invoke()
+                    }
+                } catch (e: Exception) {
+                    Log.e("DialogActivity", "Error refreshing stocks", e)
+                } finally {
+                    withContext(Dispatchers.Main) {
+                        pb?.visibility = View.GONE
+                        btn?.visibility = View.VISIBLE
+                    }
+                }
+            }
         }
     }
-
-
 }

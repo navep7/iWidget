@@ -1,119 +1,122 @@
 package com.belaku.homey
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.os.SystemClock
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
-import com.belaku.homey.DialogActivity.Companion.isStepsMapsInitialized
-import com.belaku.homey.DialogActivity.Companion.stepsMaps
+import com.belaku.homey.Constants.Companion.stepsToday
+import com.belaku.homey.DialogActivity.Companion.dialogIntentStr
 import com.belaku.homey.MainActivity.Companion.makeToast
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-
+import com.belaku.homey.NewAppWidget.Companion.appWidM
+import com.belaku.homey.NewAppWidget.Companion.newAppWidget
+import com.belaku.homey.NewAppWidget.Companion.remoteViews
+import com.belaku.homey.SetWallWorker.Companion.sharedPreferences
+import com.belaku.homey.StepsService.Companion.presentActivityState
+import com.belaku.homey.StepsService.Companion.strDurationTravel
+import com.belaku.homey.StepsService.Companion.strDurationWalk
+import java.time.LocalDate
 
 class StepsAdapter(
+    strType: String,
     private val stepsData: ArrayList<String>,
-    private val stepsLocInfo: ArrayList<LatLng>
 ) : RecyclerView.Adapter<StepsViewHolder>() {
-    private var km: String = ""
+
+    var strT = strType
+    lateinit var contx: Context
+    private val days = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+    // Using a large number to simulate infinite scrolling
+    private val MAX_COUNT = 7000 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StepsViewHolder {
+        contx = parent.context
         return StepsViewHolder(
             LayoutInflater.from(parent.context).inflate(R.layout.steps_list_item, parent, false),
         )
     }
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint("DefaultLocale", "SetTextI18n")
     override fun onBindViewHolder(holder: StepsViewHolder, position: Int) {
+        if (stepsData.isEmpty()) return
 
+        val realPosition = position % stepsData.size
+        val steps = stepsData[realPosition].trim().toIntOrNull() ?: 0
 
-        if (isStepsMapsInitialized())
-            when (position) {
-                0 -> {
-                    stepsMaps.clear()
-                    if (stepsData[position].toInt() != 0)
-                        km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
-                    else km = "0"
-                    holder.txSteps.text = "Monday \n ${stepsData[position]} steps... \n ~ $km km!"
+        // Update widget if it's today
+        val currentDayIndex = (LocalDate.now().dayOfWeek.value + 6) % 7 // Monday = 0
+        
+        val dayKey = days[realPosition].uppercase()
+        var durationMillisWalk = sharedPreferences.getLong(dayKey + "_walk_duration", 0L)
+        var durationMillisTravel = sharedPreferences.getLong(dayKey + "_travel_duration", 0L)
 
-                    if (stepsData[position].toInt() > 1000)
-                        holder.progressSteps.progress = stepsData[position].toInt() / 100
-                    else holder.progressSteps.progress = stepsData[position].toInt() / 10
+        if (realPosition == currentDayIndex) {
+            stepsToday = sharedPreferences.getInt(LocalDate.now().dayOfWeek.name, 0)
+            remoteViews?.setTextViewText(R.id.tx_act_count, "$stepsToday")
+            appWidM.updateAppWidget(newAppWidget, remoteViews)
+            
+            if (presentActivityState == "WALKING" || presentActivityState == "RUNNING" || presentActivityState == "CYCLING") {
+                val baseTime = sharedPreferences.getLong("walkChr", 0L)
+                if (baseTime != 0L) {
+                    // Show sum of all walking streaks in a day by adding current streak to the stored total
+                    durationMillisWalk += (SystemClock.elapsedRealtime() - baseTime)
                 }
-
-                1 -> {
-                    stepsMaps.clear()
-                    if (stepsData[position].toInt() != 0)
-                        km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
-                    else km = "0"
-                    holder.txSteps.text = "Tuesday \n ${stepsData[position]} steps... \n ~ $km km!"
-                    if (stepsData[position].toInt() > 1000)
-                        holder.progressSteps.progress = stepsData[position].toInt() / 100
-                    else holder.progressSteps.progress = stepsData[position].toInt() / 10
-                }
-
-                2 -> {
-                    stepsMaps.clear()
-                    if (stepsData[position].toInt() != 0)
-                        km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
-                    else km = "0"
-                    holder.txSteps.text = "Wednesday \n ${stepsData[position]} steps... \n ~ $km km!"
-                    if (stepsData[position].toInt() > 1000)
-                        holder.progressSteps.progress = stepsData[position].toInt() / 100
-                    else holder.progressSteps.progress = stepsData[position].toInt() / 10
-                }
-
-                3 -> {
-                    stepsMaps.clear()
-                    if (stepsData[position].toInt() != 0)
-                        km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
-                    else km = "0"
-                    holder.txSteps.text = "Thursday \n ${stepsData[position]} steps... \n ~ $km km!"
-                    if (stepsData[position].toInt() > 1000)
-                        holder.progressSteps.progress = stepsData[position].toInt() / 100
-                    else holder.progressSteps.progress = stepsData[position].toInt() / 10
-                }
-
-                4 -> {
-                    stepsMaps.clear()
-                    if (stepsData[position].toInt() != 0)
-                        km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
-                    else km = "0"
-                    holder.txSteps.text = "Friday \n ${stepsData[position]} steps... \n ~ $km km!"
-                    if (stepsData[position].toInt() > 1000)
-                        holder.progressSteps.progress = stepsData[position].toInt() / 100
-                    else holder.progressSteps.progress = stepsData[position].toInt() / 10
-                }
-
-                5 -> {
-                    stepsMaps.clear()
-                    if (stepsData[position].toInt() != 0)
-                        km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
-                    else km = "0"
-                    holder.txSteps.text = "Saturday \n ${stepsData[position]} steps... \n ~ $km km!"
-                    if (stepsData[position].toInt() > 1000)
-                        holder.progressSteps.progress = stepsData[position].toInt() / 100
-                    else holder.progressSteps.progress = stepsData[position].toInt() / 10
-                }
-
-                6 -> {
-                    stepsMaps.clear()
-                    if (Integer.parseInt(stepsData[position]) != 0)
-                     km = String.format("%.1f",  (Integer.parseInt(stepsData[position]) * 74f) / 100000f)
-                    else km = "0"
-                    holder.txSteps.text = "Sunday \n ${stepsData[position]} steps... \n ~ $km km!"
-                    if (stepsData[position].toInt() > 1000)
-                        holder.progressSteps.progress = stepsData[position].toInt() / 100
-                    else holder.progressSteps.progress = stepsData[position].toInt() / 10
-                }
-
             }
 
+            if (presentActivityState == "TRAVEL") {
+                val baseTime = sharedPreferences.getLong("speedChr", 0L)
+                if (baseTime != 0L) {
+                    // Show sum of all walking streaks in a day by adding current streak to the stored total
+                    durationMillisTravel += (SystemClock.elapsedRealtime() - baseTime)
+                }
+            }
+        }
+
+        val km = if (steps != 0) String.format("%.1f", (steps * 74f) / 100000f) else "0"
+        val kCal = (steps * 0.04 * (80 / 70)).toInt()
+        strDurationWalk = if (steps != 0) formatDuration(durationMillisWalk) else "00:00"
+        strDurationTravel = formatDuration(durationMillisTravel)
+
+        holder.txTitle.text = days[realPosition]
+       // makeToast(contx, "StA ~ " + strT)
+        if (strT == "walk") {
+            holder.txSteps.text = "$steps steps\n~ $km km\n~ $kCal kCal\nActive: $strDurationWalk"
+            holder.txActiveDuration.visibility = View.GONE
+            holder.progressSteps.max = 10000
+        }
+        else {
+            holder.txSteps.text = "Max ~ ${stepsData[realPosition]} KmpH"
+            holder.txActiveDuration.visibility = View.VISIBLE
+            holder.txActiveDuration.text = "Active: $strDurationTravel"
+            holder.progressSteps.max = 125
+        }
+
+        // Material-like progress
+         // Standard daily goal
+        holder.progressSteps.progress = steps
+
+        // Trip Info Shortcut
+        holder.imgbtnTripInfo.setOnClickListener {
+            val intent = Intent(contx, DialogActivity::class.java).apply {
+                putExtra("DialogIntent", "activitiesInfo")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            contx.startActivity(intent)
+        }
     }
 
+    private fun formatDuration(millis: Long): String {
+        val seconds = (millis / 1000) % 60
+        val minutes = (millis / (1000 * 60)) % 60
+        val hours = (millis / (1000 * 60 * 60))
+        return if (hours > 0) {
+            String.format("%02d:%02d:%02d", hours, minutes, seconds)
+        } else {
+            String.format("%02d:%02d", minutes, seconds)
+        }
+    }
 
-
-    override fun getItemCount() = stepsData.size
+    override fun getItemCount(): Int = if (stepsData.isEmpty()) 0 else MAX_COUNT
 }

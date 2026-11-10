@@ -3,19 +3,19 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
- //   id("com.chaquo.python")
 }
 
 android {
     namespace = "com.belaku.homey"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.belaku.homey"
-        minSdk = 28
-        targetSdk = 35
-        versionCode = 115
-        versionName = "115.0"
+        minSdk = 30
+        //noinspection OldTargetApi
+        targetSdk = 36
+        versionCode = 209
+        versionName = "209.0"
 
         renderscriptTargetApi = 18
         renderscriptSupportModeEnabled = true
@@ -23,22 +23,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
-            // On Apple silicon, you can omit x86_64.
             abiFilters += listOf("arm64-v8a", "x86_64")
         }
-
-
-      /*  chaquopy {
-            defaultConfig {
-                pip {
-                    version = "3.8" // Specify your desired Python version
-                    pip {
-                        install("apify-client")
-                    }
-                }
-            }
-        }*/
-
     }
 
     buildTypes {
@@ -59,29 +45,33 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
 dependencies {
 
-  //  implementation(libs.androidx.activity.ktx)
+    // Add dependency for App Check Play Integrity provider
+    implementation("com.google.firebase:firebase-appcheck-playintegrity")
+    implementation(libs.androidthings)
 
+    // Add dependency for App Check Debug provider (for local testing)
+    // Changed to implementation because it is referenced in src/main code (NHApp.kt)
+    // which is compiled for both debug and release variants.
+    implementation("com.google.firebase:firebase-appcheck-debug")
+    implementation(libs.androidx.activity.ktx)
 
-    implementation(libs.zxing.android.embedded)
+    implementation(libs.androidx.media)
     implementation(libs.androidx.viewpager2)
-    implementation(libs.material.v1130) // Or the latest version
+    implementation(libs.material.v1130) // Use 1.13.0 exclusively
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.crashlytics.ndk)
     implementation(libs.firebase.analytics)
-
     implementation(libs.firebase.ai)
-
     implementation(libs.android.maps.utils)
     implementation(libs.android.gif.drawable)
-    implementation(libs.material.v120alpha01) // Replace X.Y.Z with the latest stable version
     implementation(libs.picasso)
     implementation(libs.gson.v288)
-  //  implementation(libs.androidx.multidex)
     implementation(libs.gms.play.services.location)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
@@ -89,11 +79,11 @@ dependencies {
     implementation(libs.picasso.v28)
     implementation(libs.gson)
     implementation(libs.glide)
+    implementation(libs.androidx.media3.exoplayer)
 
-    annotationProcessor(libs.compiler) // Use the same version
+    annotationProcessor(libs.compiler)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
@@ -107,4 +97,15 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.play.services.ads)
 
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+    implementation("io.finnhub:kotlin-client:2.0.27")
+
+
+    implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
+  //  implementation("com.razorpay:checkout:1.6.41")
+
+    // Google ML Kit Barcode Scanning
+    implementation(libs.gms.play.services.code.scanner)
 }

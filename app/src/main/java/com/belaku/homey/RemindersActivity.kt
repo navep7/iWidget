@@ -2,8 +2,11 @@ package com.belaku.homey
 
 
 import AppsAdapter
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -38,6 +41,12 @@ import com.belaku.homey.databinding.ActivityRemindersBinding
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.core.graphics.drawable.toDrawable
+import com.belaku.homey.MusicActivity.Companion.pDatalistSongs
+import com.belaku.homey.NewAppWidget.Companion.blurWallBitmap
+import com.belaku.homey.SetWallWorker.Companion.isSharedPreferencesInitialized
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 
 class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
@@ -45,7 +54,10 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
     private lateinit var binding: ActivityRemindersBinding
 
-    @RequiresApi(Build.VERSION_CODES.S)
+    /** Asks for notification permission only when the user actually adds a reminder. */
+    private val permissionRequester = JitPermissionRequester(this)
+
+      
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -55,24 +67,7 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
 
         val rootLayout = findViewById<RelativeLayout>(R.id.reminders_layout)
-        try {
-            rootLayout.setBackgroundDrawable(
-                BitmapDrawable(
-                    getResources(),
-                    blur(applicationContext, wallBitmap)
-                )
-            )
-        } catch (ex: Exception) {
 
-            wallBitmap = BitmapFactory.decodeResource(resources, R.drawable.gradient_glass)
-
-            rootLayout.setBackgroundDrawable(
-                BitmapDrawable(
-                    getResources(),
-                    blur(applicationContext, wallBitmap)
-                )
-            )
-        }
 
 
         binding.txAddHabits.setOnClickListener(View.OnClickListener {
@@ -82,45 +77,61 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         })
 
         binding.txAddReminders.setOnClickListener(View.OnClickListener {
-            val cdd = CustomDialogClass(this@RemindersActivity, "Reminder")
-            cdd.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            cdd.show()
+            val showReminderDialog = {
+                val cdd = CustomDialogClass(this@RemindersActivity, "Reminder")
+                cdd.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                cdd.show()
+            }
+            // A reminder that cannot notify is useless, so ask here – the moment the
+            // user creates one. Denying still opens the dialog: the reminder is saved
+            // and shown in-app, it just cannot raise a notification.
+            permissionRequester.ensure(
+                FeaturePermission.REMINDERS,
+                onDenied = showReminderDialog,
+                onGranted = showReminderDialog
+            )
         })
 
 
         val listViewHabits = findViewById<ListView>(R.id.rv_habits)
         adapterHabits = HabitsAdapter(this, arrayListHabits)
         listViewHabits.adapter = adapterHabits
+        dayIndex =  Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
+
+        loadHabits()
+        resetWeeklyTicks()
+        checkHabitStreaks()
 
         listViewHabits.setOnItemClickListener(OnItemClickListener { parent, view, position, id ->
-            if ((parent.getItemAtPosition(position) as Habit).isChecked) {
-                (parent.getItemAtPosition(position) as Habit).isChecked = false
-                when(dayIndex) {
-                    1 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateSu", false).apply()
-                    2 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateM", false).apply()
-                    3 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateTu", false).apply()
-                    4 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateW", false).apply()
-                    5 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateTh", false).apply()
-                    6 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateF", false).apply()
-                    7 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateS", false).apply()
-                }
+            val habit = parent.getItemAtPosition(position) as Habit
+            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val today = sdf.format(Date())
+            val yesterday = getYesterdayDateString()
+
+            if (habit.isChecked) {
+                habit.isChecked = false
+                updateHabitDayState(habit.name, false)
             } else {
-                (parent.getItemAtPosition(position) as Habit).isChecked = true
-                when(dayIndex) {
-                    1 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateSu", true).apply()
-                    2 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateM", true).apply()
-                    3 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateTu", true).apply()
-                    4 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateW", true).apply()
-                    5 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateTh", true).apply()
-                    6 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateF", true).apply()
-                    7 -> sharedPreferencesEditor.putBoolean("${(parent.getItemAtPosition(position) as Habit).name}StateS", true).apply()
+                habit.isChecked = true
+                updateHabitDayState(habit.name, true)
+
+                // Streak Logic
+                if (habit.lastUpdatedDate == yesterday) {
+                    habit.streak++
+                } else if (habit.lastUpdatedDate != today) {
+                    habit.streak = 1
                 }
+                habit.lastUpdatedDate = today
+                // Save specific streak to SharedPreferences for immediate persistence/UI consistency
+                sharedPreferencesEditor.putInt("${habit.name}_streak", habit.streak).apply()
             }
+            saveHabits()
             adapterHabits.notifyDataSetChanged()
         })
 
         listViewHabits.setOnItemLongClickListener { adapterView, view, i, l ->
             arrayListHabits.removeAt(i)
+            saveHabits()
             adapterHabits.notifyDataSetChanged()
             true
         }
@@ -135,38 +146,127 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
         listviewReminders.setAdapter(adapterReminders)
 
         listviewReminders.setOnItemLongClickListener(AdapterView.OnItemLongClickListener { parent, view, position, id -> // Remove the item from the data source
+
+            cancelReminder()
+
             arrayListReminders.removeAt(position)
             // Notify the adapter that the data has changed
             adapterReminders.notifyDataSetChanged()
             true
         })
 
+        try {
+            rootLayout.setBackgroundDrawable(
+                BitmapDrawable(
+                    getResources(),
+                    NewAppWidget.getSafeBlurWallBitmap(this)
+                )
+            )
+        } catch (ex: Exception) {
+
+        }
+
 
     }
 
-    fun blur(context: Context?, image: Bitmap): Bitmap {
+    private fun resetWeeklyTicks() {
+        if (dayIndex == Calendar.MONDAY) {
+            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val today = sdf.format(Date())
+            val lastResetDate = sharedPreferences.getString("last_habit_reset_date", "")
 
-        var BITMAP_SCALE = 0.4f; // Scale down bitmap for performance
-        var BLUR_RADIUS = 25f; // Adjust blur intensity
-
-        val width = Math.round(image.width * BITMAP_SCALE).toInt()
-        val height = Math.round(image.height * BITMAP_SCALE).toInt()
-
-        val inputBitmap = Bitmap.createScaledBitmap(image, width, height, false)
-        val outputBitmap = Bitmap.createBitmap(inputBitmap)
-
-        val rs = RenderScript.create(context)
-        val theIntrinsic = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
-        val tmpIn = Allocation.createFromBitmap(rs, inputBitmap)
-        val tmpOut = Allocation.createFromBitmap(rs, outputBitmap)
-
-        theIntrinsic.setRadius(BLUR_RADIUS)
-        theIntrinsic.setInput(tmpIn)
-        theIntrinsic.forEach(tmpOut)
-        tmpOut.copyTo(outputBitmap)
-
-        return outputBitmap
+            if (lastResetDate != today) {
+                for (habit in arrayListHabits) {
+                    val days = arrayOf("StateSu", "StateM", "StateTu", "StateW", "StateTh", "StateF", "StateS")
+                    for (day in days) {
+                        sharedPreferencesEditor.remove("${habit.name}$day")
+                    }
+                }
+                sharedPreferencesEditor.putString("last_habit_reset_date", today)
+                sharedPreferencesEditor.apply()
+            }
+        }
     }
+
+    private fun getYesterdayDateString(): String {
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val cal = Calendar.getInstance()
+        cal.add(Calendar.DAY_OF_YEAR, -1)
+        return sdf.format(cal.time)
+    }
+
+    private fun updateHabitDayState(name: String, value: Boolean) {
+        val keySuffix = when(dayIndex) {
+            1 -> "StateSu"
+            2 -> "StateM"
+            3 -> "StateTu"
+            4 -> "StateW"
+            5 -> "StateTh"
+            6 -> "StateF"
+            7 -> "StateS"
+            else -> ""
+        }
+        if (keySuffix.isNotEmpty()) {
+            sharedPreferencesEditor.putBoolean("$name$keySuffix", value).apply()
+        }
+    }
+
+    private fun checkHabitStreaks() {
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val today = sdf.format(Date())
+        val yesterday = getYesterdayDateString()
+        var changed = false
+
+        for (habit in arrayListHabits) {
+            // If missed yesterday AND not done today, reset streak to 0
+            if (habit.lastUpdatedDate != today && habit.lastUpdatedDate != yesterday) {
+                if (habit.streak != 0) {
+                    habit.streak = 0
+                    sharedPreferencesEditor.putInt("${habit.name}_streak", 0)
+                    changed = true
+                }
+            }
+            // Sync isChecked with the daily state in SharedPreferences
+            val keySuffix = when(dayIndex) {
+                1 -> "StateSu"
+                2 -> "StateM"
+                3 -> "StateTu"
+                4 -> "StateW"
+                5 -> "StateTh"
+                6 -> "StateF"
+                7 -> "StateS"
+                else -> ""
+            }
+            habit.isChecked = sharedPreferences.getBoolean("${habit.name}$keySuffix", false)
+        }
+        if (changed) {
+            saveHabits()
+        }
+        adapterHabits.notifyDataSetChanged()
+    }
+
+    fun cancelReminder() {
+        val alarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+// 1. Create an Intent identical to the one used to set the alarm
+        val intent = Intent(applicationContext, AlarmBroadcastReceiver::class.java)
+
+// 2. Create the identical PendingIntent (Match the requestCode and Flags)
+        val pendingIntent = PendingIntent.getBroadcast(
+            applicationContext,
+            0, // Must match the code used when setting the alarm
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+// 3. Cancel the alarm
+        alarmManager.cancel(pendingIntent)
+
+// 4. (Optional) Remove the PendingIntent from the system's tracking
+        pendingIntent.cancel()
+
+    }
+
 
     override fun onItemClick(pos: Int) {
         val launchIntent = packageManager.getLaunchIntentForPackage(apps[pos].pName)
@@ -180,7 +280,7 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
             object : TimePickerDialog.OnTimeSetListener {
                 override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
 
-                    makeToast("onTimeSet - $hourOfDay")
+                    // makeToast("onTimeSet - $hourOfDay")
                     // logic to properly handle
                     // the picked timings by user
                     val formattedTime = "$hourOfDay:$minute"
@@ -189,9 +289,35 @@ class RemindersActivity : AppCompatActivity(), AppsAdapter.RvEvent {
                 }
             }
         lateinit var adapterHabits: HabitsAdapter
+
+        fun isadapterHabitsInitialized(): Boolean {
+            return ::adapterHabits.isInitialized
+        }
+
         lateinit var adapterReminders: RemindersAdapter
         var arrayListHabits: ArrayList<Habit> = ArrayList()
         var arrayListReminders: ArrayList<Reminder> = ArrayList()
+
+        fun saveHabits() {
+            val gson = Gson()
+            val json = gson.toJson(arrayListHabits)
+            sharedPreferencesEditor.putString("habits_list", json).apply()
+        }
+
+        fun loadHabits() {
+            if (isSharedPreferencesInitialized()) {
+                val json = sharedPreferences.getString("habits_list", null)
+                if (json != null) {
+                    val gson = Gson()
+                    val type = object : TypeToken<ArrayList<Habit>>() {}.type
+                    val habits: ArrayList<Habit> = gson.fromJson(json, type)
+                    arrayListHabits.clear()
+                    arrayListHabits.addAll(habits)
+                }
+                if (isadapterHabitsInitialized())
+                    adapterHabits.notifyDataSetChanged()
+            }
+        }
     }
 
     fun timePicker(view: View) {

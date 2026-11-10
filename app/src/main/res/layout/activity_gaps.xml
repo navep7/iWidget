@@ -1,44 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/gapps_layout"
-    android:background="#80ffffff"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    android:background="#80ffffff">
 
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="3dp"
-        android:background="@android:color/darker_gray"
-        android:layout_marginTop="50dp"
-        android:layout_alignParentTop="true"/>
-
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tx_t"
-        android:text="Google Apps..."
-        android:textStyle="bold"
-        android:textSize="50dp"
-        android:layout_marginTop="50dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_marginTop="64dp"
+        android:paddingHorizontal="24dp"
+        android:text="Google Apps..."
+        android:textAppearance="?attr/textAppearanceHeadlineLarge"
+        android:textColor="?attr/colorOnSurface"
+        android:textStyle="bold" />
 
-    <View
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/divider"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@android:color/darker_gray"
-        android:layout_below="@+id/tx_t"/>
-
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tx_t"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="16dp"
+        app:dividerColor="?attr/colorOutlineVariant" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_apps"
-        android:layout_margin="@dimen/fab_margin"
-        android:layout_below="@+id/tx_t"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
+        android:layout_height="match_parent"
+        android:layout_below="@id/divider"
+        android:layout_margin="@dimen/fab_margin"
+        android:clipToPadding="false"
+        android:paddingBottom="24dp"
+        tools:listitem="@layout/app_grid" />
 
 </RelativeLayout>

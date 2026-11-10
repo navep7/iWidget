@@ -1,100 +1,57 @@
 package com.belaku.homey
 
 import AppsAdapter
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
-import android.content.Context
-import android.content.IntentFilter
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import android.os.Bundle
-import android.renderscript.Allocation
-import android.renderscript.Element
-import android.renderscript.RenderScript
-import android.renderscript.ScriptIntrinsicBlur
-import android.transition.Fade
-import android.transition.Slide
-import android.view.Window
-import android.widget.RelativeLayout
+import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.navigation.ui.AppBarConfiguration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.belaku.homey.MainActivity.Companion.apps
+import com.belaku.homey.NewAppWidget.Companion.blurWallBitmap
+import com.belaku.homey.NewAppWidget.Companion.primaryColor
 import com.belaku.homey.databinding.ActivityAppsBinding
 
 
 class AppsActivity : AppCompatActivity(), AppsAdapter.RvEvent {
 
-
-    private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityAppsBinding
 
-    @RequiresApi(Build.VERSION_CODES.S)
+      
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityAppsBinding.inflate(layoutInflater)
-
         setContentView(binding.root)
 
-        val recyclerView: RecyclerView = findViewById(R.id.rv_apps)
+        val recyclerView: RecyclerView = binding.rvApps
+        val rootLayout: View = binding.appsLayout
+
+        val titleTextView: TextView = binding.txT
+        
+        if (ColorUtil().isColorDark(primaryColor)) {
+            titleTextView.setTextColor(applicationContext.getColor(R.color.white))
+        } else {
+            titleTextView.setTextColor(applicationContext.getColor(R.color.black))
+        }
+
         val adapter = AppsAdapter(apps, this)
-        val layoutManager = GridLayoutManager(this, 5)
+        val layoutManager = GridLayoutManager(this, 4) // Reduced span count for better Material look
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = adapter
 
-
-        val rootLayout = findViewById<RelativeLayout>(R.id.apps_layout)
-
         try {
-            rootLayout.setBackgroundDrawable(
-                BitmapDrawable(
-                    getResources(),
-                    blur(applicationContext, SetWallWorker.wallBitmap)
-                )
-            )
-            rootLayout.findViewById<TextView>(R.id.tx_t).setTextColor(NewAppWidget.tertianaryColor)
+            rootLayout.background = BitmapDrawable(resources, NewAppWidget.getSafeBlurWallBitmap(this))
         } catch (ex: Exception) {
-
+            // Handle error or set default background
         }
-       /* val blurRadius = 20.0f
-        val blurEffect = RenderEffect.createBlurEffect(
-            blurRadius,
-            blurRadius,
-            Shader.TileMode.CLAMP
-        )
-        rootLayout.setRenderEffect(blurEffect);*/
-
-
-    }
-
-    fun blur(context: Context?, image: Bitmap): Bitmap {
-
-        var BITMAP_SCALE = 0.4f; // Scale down bitmap for performance
-        var BLUR_RADIUS = 25f; // Adjust blur intensity
-
-        val width = Math.round(image.width * BITMAP_SCALE).toInt()
-        val height = Math.round(image.height * BITMAP_SCALE).toInt()
-
-        val inputBitmap = Bitmap.createScaledBitmap(image, width, height, false)
-        val outputBitmap = Bitmap.createBitmap(inputBitmap)
-
-        val rs = RenderScript.create(context)
-        val theIntrinsic = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
-        val tmpIn = Allocation.createFromBitmap(rs, inputBitmap)
-        val tmpOut = Allocation.createFromBitmap(rs, outputBitmap)
-
-        theIntrinsic.setRadius(BLUR_RADIUS)
-        theIntrinsic.setInput(tmpIn)
-        theIntrinsic.forEach(tmpOut)
-        tmpOut.copyTo(outputBitmap)
-
-        return outputBitmap
     }
 
     override fun onItemClick(pos: Int) {

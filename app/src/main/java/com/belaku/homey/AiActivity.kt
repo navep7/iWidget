@@ -30,6 +30,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.ui.AppBarConfiguration
 import com.belaku.homey.MainActivity.Companion.apps
 import com.belaku.homey.MainActivity.Companion.makeToast
+import com.belaku.homey.NewAppWidget.Companion.blurWallBitmap
+import com.belaku.homey.NewAppWidget.Companion.isblurWallBitmapInitialized
 import com.belaku.homey.databinding.ActivityAiBinding
 import com.google.firebase.Firebase
 import com.google.firebase.ai.GenerativeModel
@@ -42,7 +44,8 @@ import java.util.Locale
 class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInitListener {
 
 
-    private lateinit var generativeModel: GenerativeModel
+    private lateinit var aiContx: Context
+    private val generativeModel: GenerativeModel get() = generativeModelInstance
     private val REQUEST_CODE_SPEECH_INPUT: Int = 1
     private lateinit var tts: TextToSpeech
     private lateinit var playAI: ImageButton
@@ -53,7 +56,7 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityAiBinding
 
-    @RequiresApi(Build.VERSION_CODES.S)
+      
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -61,11 +64,14 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
 
         setContentView(binding.root)
 
+        aiContx = applicationContext
+
         tts = TextToSpeech(this, this)
 
 
         val rootLayout = findViewById<RelativeLayout>(R.id.ai_layout)
-        rootLayout.setBackgroundDrawable(BitmapDrawable(getResources(), blur(applicationContext, SetWallWorker.wallBitmap)))
+
+        rootLayout.background = BitmapDrawable(resources, NewAppWidget.getSafeBlurWallBitmap(this))
 
 
         voiceAI = findViewById<ImageView>(R.id.imgv_mic)
@@ -76,17 +82,15 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
         txAi.movementMethod = ScrollingMovementMethod()
 
 
-
-        generativeModel = Firebase.ai(backend = GenerativeBackend.googleAI())
-                .generativeModel("gemini-2.5-flash")
-
-
         voiceAI.setOnClickListener {
 
             val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
             intent.putExtra(
                 RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
             )
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, Locale.getDefault().toString())
+            intent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, Locale.getDefault().toString())
             intent.putExtra(
                 RecognizerIntent.EXTRA_PROMPT, "Speak now..."
             ) // Optional: prompt for the user
@@ -103,7 +107,7 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
                 try {
                     generateAIresponse(generativeModel, edtxAi.text.toString())
                 } catch (ex: Exception) {
-                    makeToast("Gemini Exception - $ex")
+                     makeToast(aiContx, "Gemini Exception - $ex")
                 }
             }
             false
@@ -132,7 +136,7 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
                     }
                 })
             } catch (ex: Exception) {
-                makeToast("Gemini AI exception - $ex")
+                 makeToast(aiContx,"Gemini AI exception - $ex")
             }
 
 
@@ -140,7 +144,10 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
     }
 
     override fun onDestroy() {
-        tts.stop()
+        if (::tts.isInitialized) {
+            tts.stop()
+            tts.shutdown()
+        }
         super.onDestroy()
     }
 
@@ -153,7 +160,7 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
                 // Split the long text into smaller parts
                 val chunks = longText.chunked(maxLength)
                 for (chunk in chunks) {
-                    it.speak(chunk, TextToSpeech.QUEUE_ADD, null, "unique_utterance_id_part_${chunks.indexOf(chunk)}")
+                    it.speak(chunk, TextToSpeech.QUEUE_FLUSH, null, "unique_utterance_id_part_${chunks.indexOf(chunk)}")
                 }
             }
         }
@@ -167,41 +174,17 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
                 val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                 if (result != null && !result.isEmpty()) {
                     val recognizedText = result[0] // Get the most likely recognized phrase
-                    makeToast(recognizedText)
                     edtxAi.setText(recognizedText)
                     try {
                         generateAIresponse(generativeModel, recognizedText)
                     } catch (ex: Exception) {
-                        makeToast("Gemini Exception - $ex")
+                         makeToast(aiContx, "Gemini Exception - $ex")
                     }
                 }
             }
         }
     }
 
-    fun blur(context: Context?, image: Bitmap): Bitmap {
-
-        var BITMAP_SCALE = 0.4f; // Scale down bitmap for performance
-        var BLUR_RADIUS = 25f; // Adjust blur intensity
-
-        val width = Math.round(image.width * BITMAP_SCALE).toInt()
-        val height = Math.round(image.height * BITMAP_SCALE).toInt()
-
-        val inputBitmap = Bitmap.createScaledBitmap(image, width, height, false)
-        val outputBitmap = Bitmap.createBitmap(inputBitmap)
-
-        val rs = RenderScript.create(context)
-        val theIntrinsic = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
-        val tmpIn = Allocation.createFromBitmap(rs, inputBitmap)
-        val tmpOut = Allocation.createFromBitmap(rs, outputBitmap)
-
-        theIntrinsic.setRadius(BLUR_RADIUS)
-        theIntrinsic.setInput(tmpIn)
-        theIntrinsic.forEach(tmpOut)
-        tmpOut.copyTo(outputBitmap)
-
-        return outputBitmap
-    }
 
     override fun onItemClick(pos: Int) {
         val launchIntent = packageManager.getLaunchIntentForPackage(apps[pos].pName)
@@ -216,6 +199,15 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 Toast.makeText(this, "Language Not Supported", Toast.LENGTH_LONG).show()
             }
+        }
+    }
+
+    companion object {
+        // Use a singleton for GenerativeModel to reuse the underlying gRPC channel
+        // and avoid "Previous channel was garbage collected without being shut down" warnings.
+        private val generativeModelInstance: GenerativeModel by lazy {
+            Firebase.ai(backend = GenerativeBackend.googleAI())
+                .generativeModel("gemini-2.0-flash")
         }
     }
 
