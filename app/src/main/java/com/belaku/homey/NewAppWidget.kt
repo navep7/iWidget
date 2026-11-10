@@ -190,12 +190,17 @@ class NewAppWidget : AppWidgetProvider() {
                     else sharedPreferencesEditor.putBoolean("boolWallSet", false).apply()
 
                     // Trigger a refresh. We use a fresh instance to avoid stale property captures.
-                    val manager = AppWidgetManager.getInstance(appContextInside)
+                    val appWidgetManager = AppWidgetManager.getInstance(appContextInside)
                     val componentName = ComponentName(appContextInside, NewAppWidget::class.java)
-                    val ids = manager.getAppWidgetIds(componentName)
+                    val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
 
-                    val provider = NewAppWidget()
-                    provider.onUpdate(appContextInside, manager, ids)
+                    onUpdate(context, appWidgetManager, appWidgetIds)
+
+                   /* val appWidgetManager = AppWidgetManager.getInstance(context)
+                    val thisAppWidgetComponentName = ComponentName(context.packageName, javaClass.name)
+                    val appWidgetIds = appWidgetManager.getAppWidgetIds(thisAppWidgetComponentName)
+
+                    onUpdate(context, appWidgetManager, appWidgetIds)*/
                 }
             }
         }
