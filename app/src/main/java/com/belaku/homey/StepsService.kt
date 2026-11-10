@@ -372,6 +372,8 @@ class StepsService : Service() {
             putLong("speed_trip_start_time", baseTime)
             putLong("stillChr", 0L)
             putLong("walkChr", 0L)
+            putLong("runChr", 0L)
+            putLong("cycleChr", 0L)
         }
 
         // Start SpeedService if not running

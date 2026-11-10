@@ -903,7 +903,7 @@
 
             <LinearLayout
                 android:id="@+id/ll_activity_states"
-                android:visibility="invisible"
+
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
@@ -983,7 +983,7 @@
                 </RelativeLayout>
 
                 <RelativeLayout
-                    android:id="@+id/rl_walking"
+                    android:id="@+id/rl_active"
                     android:visibility="gone"
                     android:padding="@dimen/padding_10"
                     android:gravity="center"
@@ -1014,17 +1014,107 @@
                         android:textStyle="bold"
                         tools:ignore="HardcodedText" />
 
-                    <Chronometer
-                        android:id="@+id/walk_chronometer"
-                        android:layout_width="@dimen/padding_75"
-                        android:layout_height="@dimen/padding_75"
-                        android:layout_centerHorizontal="true"
+                    <LinearLayout
+                        android:id="@+id/ll_chronometers"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_below="@+id/ll_kcals"
+                        android:layout_marginTop="@dimen/padding_5"
+                        android:orientation="horizontal"
                         android:gravity="center"
-                        android:background="@drawable/speed_sign_bg"
-                        android:textSize="@dimen/text_size_21"
-                        android:textColor="@android:color/holo_red_dark"
-                        android:textStyle="bold" />
+                        android:weightSum="3">
+
+                        <!-- Walking -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+
+                            <TextView
+                                android:id="@+id/tx_label_walk"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="WALK"
+                                android:textColor="@android:color/white"
+                                android:textSize="@dimen/text_size_10"
+                                android:textStyle="bold"
+                                tools:ignore="HardcodedText" />
+
+                            <Chronometer
+                                android:id="@+id/walk_chronometer"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:background="@drawable/speed_sign_bg"
+                                android:padding="@dimen/padding_4"
+                                android:textSize="@dimen/text_size_14"
+                                android:textColor="@android:color/holo_red_dark"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <!-- Running -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+
+                            <TextView
+                                android:id="@+id/tx_label_run"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="RUN"
+                                android:textColor="@android:color/white"
+                                android:textSize="@dimen/text_size_10"
+                                android:textStyle="bold"
+                                tools:ignore="HardcodedText" />
+
+                            <Chronometer
+                                android:id="@+id/run_chronometer"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:background="@drawable/speed_sign_bg"
+                                android:padding="@dimen/padding_4"
+                                android:textSize="@dimen/text_size_14"
+                                android:textColor="@android:color/holo_red_dark"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <!-- Cycling -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+
+                            <TextView
+                                android:id="@+id/tx_label_cycle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="CYCLE"
+                                android:textColor="@android:color/white"
+                                android:textSize="@dimen/text_size_10"
+                                android:textStyle="bold"
+                                tools:ignore="HardcodedText" />
+
+                            <Chronometer
+                                android:id="@+id/cycle_chronometer"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:background="@drawable/speed_sign_bg"
+                                android:padding="@dimen/padding_4"
+                                android:textSize="@dimen/text_size_14"
+                                android:textColor="@android:color/holo_red_dark"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                    </LinearLayout>
 
 
                     <TextView

@@ -3,7 +3,6 @@ package com.belaku.homey
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
@@ -16,7 +15,6 @@ import android.content.pm.PackageManager.NameNotFoundException
 import android.hardware.camera2.CameraManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
@@ -69,7 +67,6 @@ import com.belaku.homey.NewAppWidget.Companion.appWidM
 import com.belaku.homey.NewAppWidget.Companion.hashSetAppUsage
 import com.belaku.homey.NewAppWidget.Companion.newAppWidget
 import com.belaku.homey.NewAppWidget.Companion.noRewards
-import com.belaku.homey.NewAppWidget.Companion.penNote
 import com.belaku.homey.NewAppWidget.Companion.remoteViews
 import com.belaku.homey.SetWallWorker.Companion.appUsageStats
 import com.belaku.homey.SetWallWorker.Companion.getForegroundAppAtTime
@@ -102,9 +99,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import org.json.JSONObject
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.time.LocalDate
@@ -609,7 +603,7 @@ class DialogActivity : AppCompatActivity() {
                     val widgetView = inflater.inflate(R.layout.new_app_widget, container, false)
 
                     val stillLayout = widgetView.findViewById<RelativeLayout>(R.id.rl_still)
-                    val walkingLayout = widgetView.findViewById<RelativeLayout>(R.id.rl_walking)
+                    val walkingLayout = widgetView.findViewById<RelativeLayout>(R.id.rl_active)
                     val speedLayout = widgetView.findViewById<RelativeLayout>(R.id.rl_speed)
 
                     listOf(stillLayout, walkingLayout, speedLayout).forEach { layout ->
@@ -617,6 +611,39 @@ class DialogActivity : AppCompatActivity() {
                         layout.visibility = View.VISIBLE
                         container.addView(layout)
                     }
+
+                    val walkChr = walkingLayout.findViewById<android.widget.Chronometer>(R.id.walk_chronometer)
+                    val runChr = walkingLayout.findViewById<android.widget.Chronometer>(R.id.run_chronometer)
+                    val cycleChr = walkingLayout.findViewById<android.widget.Chronometer>(R.id.cycle_chronometer)
+                    val txWalking = walkingLayout.findViewById<TextView>(R.id.rl_tx_walking_)
+
+                    txWalking.text = "ACTIVE"
+                    walkChr.visibility = View.VISIBLE
+                    runChr.visibility = View.VISIBLE
+                    cycleChr.visibility = View.VISIBLE
+
+                    val baseTimeW = sharedPreferences.getLong("walkChr", 0L)
+                    if (baseTimeW != 0L) {
+                        walkChr.base = baseTimeW
+                        walkChr.start()
+                    }
+                    val baseTimeR = sharedPreferences.getLong("runChr", 0L)
+                    if (baseTimeR != 0L) {
+                        runChr.base = baseTimeR
+                        runChr.start()
+                    }
+                    val baseTimeC = sharedPreferences.getLong("cycleChr", 0L)
+                    if (baseTimeC != 0L) {
+                        cycleChr.base = baseTimeC
+                        cycleChr.start()
+                    }
+
+                    val actState = com.belaku.homey.StepsService.presentActivityState
+                    val redColor = android.graphics.Color.RED
+                    val whiteColor = android.graphics.Color.WHITE
+                    walkingLayout.findViewById<TextView>(R.id.tx_label_walk).setTextColor(if (actState == "WALKING") redColor else whiteColor)
+                    walkingLayout.findViewById<TextView>(R.id.tx_label_run).setTextColor(if (actState == "RUNNING") redColor else whiteColor)
+                    walkingLayout.findViewById<TextView>(R.id.tx_label_cycle).setTextColor(if (actState == "CYCLING") redColor else whiteColor)
 
                     walkingLayout.findViewById<TextView>(R.id.rl_tx_steps).text = stepsToday.toString()
                     walkingLayout.findViewById<TextView>(R.id.rl_tx_cals).text = (stepsToday * 0.04 * (80 / 70)).toInt().toString()

@@ -81,10 +81,28 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                         "STILL" -> {
                             putLong("stillChr", baseTime)
                             putLong("walkChr", 0L)
+                            putLong("runChr", 0L)
+                            putLong("cycleChr", 0L)
                             putLong("speedChr", 0L)
                         }
-                        "WALKING", "RUNNING", "CYCLING" -> {
+                        "WALKING" -> {
                             putLong("walkChr", baseTime)
+                            putLong("runChr", 0L)
+                            putLong("cycleChr", 0L)
+                            putLong("stillChr", 0L)
+                            putLong("speedChr", 0L)
+                        }
+                        "RUNNING" -> {
+                            putLong("runChr", baseTime)
+                            putLong("walkChr", 0L)
+                            putLong("cycleChr", 0L)
+                            putLong("stillChr", 0L)
+                            putLong("speedChr", 0L)
+                        }
+                        "CYCLING" -> {
+                            putLong("cycleChr", baseTime)
+                            putLong("walkChr", 0L)
+                            putLong("runChr", 0L)
                             putLong("stillChr", 0L)
                             putLong("speedChr", 0L)
                         }
@@ -93,6 +111,8 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                             putLong("speed_trip_start_time", baseTime)
                             putLong("stillChr", 0L)
                             putLong("walkChr", 0L)
+                            putLong("runChr", 0L)
+                            putLong("cycleChr", 0L)
                         }
                     }
                 }
@@ -164,11 +184,29 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
             val dayKey = LocalDate.now().dayOfWeek.name
 
             when (oldState) {
-                "WALKING", "RUNNING", "CYCLING" -> {
+                "WALKING" -> {
                     val startTime = sharedPrefs.getLong("walkChr", 0L)
                     if (startTime != 0L) {
                         val duration = now - startTime
                         val totalKey = "${dayKey}_walk_duration"
+                        val currentTotal = sharedPrefs.getLong(totalKey, 0L)
+                        editor.putLong(totalKey, currentTotal + duration)
+                    }
+                }
+                "RUNNING" -> {
+                    val startTime = sharedPrefs.getLong("runChr", 0L)
+                    if (startTime != 0L) {
+                        val duration = now - startTime
+                        val totalKey = "${dayKey}_run_duration"
+                        val currentTotal = sharedPrefs.getLong(totalKey, 0L)
+                        editor.putLong(totalKey, currentTotal + duration)
+                    }
+                }
+                "CYCLING" -> {
+                    val startTime = sharedPrefs.getLong("cycleChr", 0L)
+                    if (startTime != 0L) {
+                        val duration = now - startTime
+                        val totalKey = "${dayKey}_cycle_duration"
                         val currentTotal = sharedPrefs.getLong(totalKey, 0L)
                         editor.putLong(totalKey, currentTotal + duration)
                     }

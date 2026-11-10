@@ -50,6 +50,8 @@ class StepsAdapter(
         
         val dayKey = days[realPosition].uppercase()
         var durationMillisWalk = sharedPreferences.getLong(dayKey + "_walk_duration", 0L)
+        var durationMillisRun = sharedPreferences.getLong(dayKey + "_run_duration", 0L)
+        var durationMillisCycle = sharedPreferences.getLong(dayKey + "_cycle_duration", 0L)
         var durationMillisTravel = sharedPreferences.getLong(dayKey + "_travel_duration", 0L)
 
         if (realPosition == currentDayIndex) {
@@ -57,18 +59,20 @@ class StepsAdapter(
             remoteViews?.setTextViewText(R.id.tx_act_count, "$stepsToday")
             appWidM.updateAppWidget(newAppWidget, remoteViews)
             
-            if (presentActivityState == "WALKING" || presentActivityState == "RUNNING" || presentActivityState == "CYCLING") {
+            if (presentActivityState == "WALKING") {
                 val baseTime = sharedPreferences.getLong("walkChr", 0L)
-                if (baseTime != 0L) {
-                    // Show sum of all walking streaks in a day by adding current streak to the stored total
-                    durationMillisWalk += (SystemClock.elapsedRealtime() - baseTime)
-                }
+                if (baseTime != 0L) durationMillisWalk += (SystemClock.elapsedRealtime() - baseTime)
+            } else if (presentActivityState == "RUNNING") {
+                val baseTime = sharedPreferences.getLong("runChr", 0L)
+                if (baseTime != 0L) durationMillisRun += (SystemClock.elapsedRealtime() - baseTime)
+            } else if (presentActivityState == "CYCLING") {
+                val baseTime = sharedPreferences.getLong("cycleChr", 0L)
+                if (baseTime != 0L) durationMillisCycle += (SystemClock.elapsedRealtime() - baseTime)
             }
 
             if (presentActivityState == "TRAVEL") {
                 val baseTime = sharedPreferences.getLong("speedChr", 0L)
                 if (baseTime != 0L) {
-                    // Show sum of all walking streaks in a day by adding current streak to the stored total
                     durationMillisTravel += (SystemClock.elapsedRealtime() - baseTime)
                 }
             }
@@ -76,13 +80,15 @@ class StepsAdapter(
 
         val km = if (steps != 0) String.format("%.1f", (steps * 74f) / 100000f) else "0"
         val kCal = (steps * 0.04 * (80 / 70)).toInt()
-        strDurationWalk = if (steps != 0) formatDuration(durationMillisWalk) else "00:00"
+        val strDurationWalk = formatDuration(durationMillisWalk)
+        val strDurationRun = formatDuration(durationMillisRun)
+        val strDurationCycle = formatDuration(durationMillisCycle)
         strDurationTravel = formatDuration(durationMillisTravel)
 
         holder.txTitle.text = days[realPosition]
        // makeToast(contx, "StA ~ " + strT)
         if (strT == "walk") {
-            holder.txSteps.text = "$steps steps\n~ $km km\n~ $kCal kCal\nActive: $strDurationWalk"
+            holder.txSteps.text = "$steps steps\n~ $km km\n~ $kCal kCal\nWalk: $strDurationWalk\nRun: $strDurationRun\nCycle: $strDurationCycle"
             holder.txActiveDuration.visibility = View.GONE
             holder.progressSteps.max = 10000
         }
