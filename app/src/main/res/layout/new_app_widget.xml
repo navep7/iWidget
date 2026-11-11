@@ -1004,7 +1004,7 @@
                         android:gravity="center"/>
 
                     <TextView
-                        android:id="@+id/tx_active_walk_duration"
+                        android:id="@+id/tx_active_duration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/imgbtn_info_steps"
@@ -1026,6 +1026,7 @@
 
                         <!-- Walking -->
                         <LinearLayout
+                            android:id="@+id/ll_walk_container"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -1056,6 +1057,7 @@
 
                         <!-- Running -->
                         <LinearLayout
+                            android:id="@+id/ll_run_container"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -1086,6 +1088,7 @@
 
                         <!-- Cycling -->
                         <LinearLayout
+                            android:id="@+id/ll_cycle_container"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"

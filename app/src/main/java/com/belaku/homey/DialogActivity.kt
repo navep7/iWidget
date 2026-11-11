@@ -457,7 +457,7 @@ class DialogActivity : AppCompatActivity() {
                     btnCancel.visibility = View.GONE
                 }
                 "WALKING" -> {
-                    txTitle.text = "Weekly Steps"
+                    txTitle.text = "Active Sessions"
                     val vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
                     val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
                     vpSteps.visibility = View.VISIBLE
