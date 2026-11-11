@@ -972,29 +972,25 @@ class NewAppWidget : AppWidgetProvider() {
             sharedPreferencesEditor.putLong("still_duration_noon", 0L).apply()
             if (presentActivityState == "STILL") {
                 sharedPreferencesEditor.putLong("stillChr", SystemClock.elapsedRealtime()).apply()
+            } else {
+                sharedPreferencesEditor.putLong("stillChr", 0L).apply()
             }
         }
 
         val storedStillDuration = sharedPreferences.getLong("still_duration_noon", 0L)
-        val currentStillSession = if (presentActivityState == "STILL") {
-            val stillChr = sharedPreferences.getLong("stillChr", SystemClock.elapsedRealtime())
-            SystemClock.elapsedRealtime() - stillChr
-        } else {
-            0L
-        }
-        val totalStillToday = storedStillDuration + currentStillSession
+        val stillChrActive = sharedPreferences.getLong("stillChr", 0L)
+        val stillBase = if (stillChrActive != 0L) stillChrActive else SystemClock.elapsedRealtime() - storedStillDuration
+        val totalStillToday = SystemClock.elapsedRealtime() - stillBase
         remoteViews?.setTextViewText(R.id.tx_still_day_duration, "Still Today: " + formatDuration(totalStillToday))
 
 
         if (presentActivityState == "STILL") {
 
-            var baseTime = sharedPreferences.getLong("stillChr", 0L)
-            if (baseTime == 0L) {
-                baseTime = SystemClock.elapsedRealtime()
-                sharedPreferencesEditor.putLong("stillChr", baseTime).apply()
+            if (stillChrActive == 0L) {
+                sharedPreferencesEditor.putLong("stillChr", stillBase).apply()
             }
             remoteViews?.setViewVisibility(R.id.still_chronometer, View.VISIBLE)
-            remoteViews?.setChronometer(R.id.still_chronometer, baseTime, null, true)
+            remoteViews?.setChronometer(R.id.still_chronometer, stillBase, null, true)
 
             remoteViews?.setViewVisibility(R.id.tx_active_duration, View.VISIBLE)
             remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
@@ -1050,6 +1046,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setChronometer(R.id.speed_chronometer, baseTime, null, true)
 
             remoteViews?.setViewVisibility(R.id.tx_active_duration, View.VISIBLE)
+            remoteViews?.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
             remoteViews?.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
             remoteViews?.setViewVisibility(R.id.imgbtn_info_steps, View.VISIBLE)
             remoteViews?.setViewVisibility(R.id.imgbtn_info_speed, View.INVISIBLE)

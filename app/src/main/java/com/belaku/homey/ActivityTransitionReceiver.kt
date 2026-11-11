@@ -194,9 +194,8 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                 "STILL" -> {
                     val baseTime = sharedPrefs.getLong("stillChr", 0L)
                     if (baseTime != 0L) {
-                        val duration = now - baseTime
-                        val currentTotal = sharedPrefs.getLong("still_duration_noon", 0L)
-                        editor.putLong("still_duration_noon", currentTotal + duration)
+                        val totalDuration = now - baseTime
+                        editor.putLong("still_duration_noon", totalDuration)
                     }
                 }
                 "WALKING" -> {
