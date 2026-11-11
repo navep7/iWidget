@@ -59,6 +59,7 @@ import android.view.WindowManager
 import android.view.WindowMetrics
 import android.view.accessibility.AccessibilityManager
 import android.widget.RemoteViews
+import android.widget.TextView
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
@@ -923,6 +924,67 @@ class NewAppWidget : AppWidgetProvider() {
         val cycleChrActive = sharedPreferences.getLong("cycleChr", 0L)
         val cycleBase = if (cycleChrActive != 0L) cycleChrActive else SystemClock.elapsedRealtime() - dCycle
 
+        val durationWalkStr = formatDuration(SystemClock.elapsedRealtime() - walkBase)
+        val durationRunStr = formatDuration(SystemClock.elapsedRealtime() - runBase)
+        val durationCycleStr = formatDuration(SystemClock.elapsedRealtime() - cycleBase)
+
+        remoteViews?.setTextViewText(R.id.tx_walk_static, durationWalkStr)
+        remoteViews?.setTextViewText(R.id.tx_run_static, durationRunStr)
+        remoteViews?.setTextViewText(R.id.tx_cycle_static, durationCycleStr)
+
+        val isWalk = presentActivityState == "WALKING"
+        val isRun = presentActivityState == "RUNNING"
+        val isCycle = presentActivityState == "CYCLING"
+
+        remoteViews?.setViewVisibility(R.id.walk_chronometer, if (isWalk) View.VISIBLE else View.GONE)
+        remoteViews?.setViewVisibility(R.id.tx_walk_static, if (isWalk) View.GONE else View.VISIBLE)
+        if (isWalk) remoteViews?.setChronometer(R.id.walk_chronometer, walkBase, null, true)
+
+        remoteViews?.setViewVisibility(R.id.run_chronometer, if (isRun) View.VISIBLE else View.GONE)
+        remoteViews?.setViewVisibility(R.id.tx_run_static, if (isRun) View.GONE else View.VISIBLE)
+        if (isRun) remoteViews?.setChronometer(R.id.run_chronometer, runBase, null, true)
+
+        remoteViews?.setViewVisibility(R.id.cycle_chronometer, if (isCycle) View.VISIBLE else View.GONE)
+        remoteViews?.setViewVisibility(R.id.tx_cycle_static, if (isCycle) View.GONE else View.VISIBLE)
+        if (isCycle) remoteViews?.setChronometer(R.id.cycle_chronometer, cycleBase, null, true)
+
+        val redColor = android.graphics.Color.RED
+        val whiteColor = android.graphics.Color.WHITE
+        remoteViews?.setTextColor(R.id.tx_label_walk, if (presentActivityState == "WALKING") redColor else whiteColor)
+        remoteViews?.setTextColor(R.id.tx_label_run, if (presentActivityState == "RUNNING") redColor else whiteColor)
+        remoteViews?.setTextColor(R.id.tx_label_cycle, if (presentActivityState == "CYCLING") redColor else whiteColor)
+
+        val nowCal = Calendar.getInstance()
+        val noonBoundaryCal = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 12)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+            if (nowCal.get(Calendar.HOUR_OF_DAY) < 12) {
+                add(Calendar.DAY_OF_YEAR, -1)
+            }
+        }
+        val expectedBoundaryMillis = noonBoundaryCal.timeInMillis
+        val lastBoundaryMillis = sharedPreferences.getLong("lastNoonResetBoundaryMillis", 0L)
+
+        if (expectedBoundaryMillis > lastBoundaryMillis) {
+            sharedPreferencesEditor.putLong("lastNoonResetBoundaryMillis", expectedBoundaryMillis).apply()
+            sharedPreferencesEditor.putLong("still_duration_noon", 0L).apply()
+            if (presentActivityState == "STILL") {
+                sharedPreferencesEditor.putLong("stillChr", SystemClock.elapsedRealtime()).apply()
+            }
+        }
+
+        val storedStillDuration = sharedPreferences.getLong("still_duration_noon", 0L)
+        val currentStillSession = if (presentActivityState == "STILL") {
+            val stillChr = sharedPreferences.getLong("stillChr", SystemClock.elapsedRealtime())
+            SystemClock.elapsedRealtime() - stillChr
+        } else {
+            0L
+        }
+        val totalStillToday = storedStillDuration + currentStillSession
+        remoteViews?.setTextViewText(R.id.tx_still_day_duration, "Still Today: " + formatDuration(totalStillToday))
+
 
         if (presentActivityState == "STILL") {
 
@@ -933,9 +995,7 @@ class NewAppWidget : AppWidgetProvider() {
             }
             remoteViews?.setViewVisibility(R.id.still_chronometer, View.VISIBLE)
             remoteViews?.setChronometer(R.id.still_chronometer, baseTime, null, true)
-            remoteViews?.setViewVisibility(R.id.ll_walk_container, View.GONE)
-            remoteViews?.setViewVisibility(R.id.ll_run_container, View.GONE)
-            remoteViews?.setViewVisibility(R.id.ll_cycle_container, View.GONE)
+
             remoteViews?.setViewVisibility(R.id.tx_active_duration, View.VISIBLE)
             remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
             remoteViews?.setViewVisibility(R.id.imgbtn_info_steps, View.VISIBLE)
@@ -951,14 +1011,16 @@ class NewAppWidget : AppWidgetProvider() {
 
         } else if (presentActivityState == "WALKING" || presentActivityState == "RUNNING" || presentActivityState == "CYCLING") {
 
-            remoteViews?.setViewVisibility(R.id.ll_walk_container, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.ll_run_container, View.VISIBLE)
-            remoteViews?.setViewVisibility(R.id.ll_cycle_container, View.VISIBLE)
+
             remoteViews?.setViewVisibility(R.id.tx_active_duration, View.GONE)
 
-            remoteViews?.setChronometer(R.id.walk_chronometer, walkBase, null, presentActivityState == "WALKING")
-            remoteViews?.setChronometer(R.id.run_chronometer, runBase, null, presentActivityState == "RUNNING")
-            remoteViews?.setChronometer(R.id.cycle_chronometer, cycleBase, null, presentActivityState == "CYCLING")
+            var boolWalk = presentActivityState == "WALKING"
+            var boolRun = presentActivityState == "RUNNING"
+            var boolCycle = presentActivityState == "CYCLING"
+
+            remoteViews?.setChronometer(R.id.walk_chronometer, walkBase, null, boolWalk)
+            remoteViews?.setChronometer(R.id.run_chronometer, runBase, null, boolRun)
+            remoteViews?.setChronometer(R.id.cycle_chronometer, cycleBase, null, boolCycle)
 
             remoteViews?.setChronometer(R.id.still_chronometer, SystemClock.elapsedRealtime(), null, false)
             remoteViews?.setChronometer(R.id.speed_chronometer, SystemClock.elapsedRealtime(), null, false)
@@ -969,10 +1031,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setViewVisibility(R.id.imgbtn_info_steps, View.INVISIBLE)
 
          //   remoteViews?.setTextViewText(R.id.rl_tx_walking_, presentActivityState)
-            val redColor = android.graphics.Color.RED
-            remoteViews?.setTextColor(R.id.tx_label_walk, redColor)
-            remoteViews?.setTextColor(R.id.tx_label_run, redColor)
-            remoteViews?.setTextColor(R.id.tx_label_cycle, redColor)
+            // Text colors set universally above
             remoteViews?.setImageViewResource(R.id.imgv_activity_state, R.drawable.steps)
             remoteViews?.setTextViewText(R.id.tx_act_count, stepsToday.toString())
             remoteViews?.setViewVisibility(R.id.rl_still, View.GONE)
@@ -989,9 +1048,7 @@ class NewAppWidget : AppWidgetProvider() {
             }
             remoteViews?.setViewVisibility(R.id.speed_chronometer, View.VISIBLE)
             remoteViews?.setChronometer(R.id.speed_chronometer, baseTime, null, true)
-            remoteViews?.setViewVisibility(R.id.ll_walk_container, View.GONE)
-            remoteViews?.setViewVisibility(R.id.ll_run_container, View.GONE)
-            remoteViews?.setViewVisibility(R.id.ll_cycle_container, View.GONE)
+
             remoteViews?.setViewVisibility(R.id.tx_active_duration, View.VISIBLE)
             remoteViews?.setViewVisibility(R.id.still_chronometer, View.INVISIBLE)
             remoteViews?.setViewVisibility(R.id.imgbtn_info_steps, View.VISIBLE)

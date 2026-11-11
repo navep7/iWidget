@@ -932,6 +932,19 @@
                         android:textColor="@android:color/holo_red_dark"
                         android:textStyle="bold" />
 
+                    <TextView
+                        android:id="@+id/tx_still_day_duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/still_chronometer"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="@dimen/padding_5"
+                        android:text="Still Today: 00:00"
+                        android:textColor="@android:color/white"
+                        android:textSize="@dimen/text_size_11"
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText" />
+
 
                     <TextView
                         android:id="@+id/rl_tx_still_"
@@ -995,19 +1008,19 @@
 
                     <ImageButton
                         android:id="@+id/imgbtn_info_steps"
-                        android:layout_width="@dimen/padding_75"
-                        android:layout_height="@dimen/padding_75"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:background="@android:color/transparent"
                         android:src="@android:drawable/ic_menu_info_details"
-                        android:layout_centerHorizontal="true"
-                        android:layout_below="@+id/ll_kcals"
-                        android:gravity="center"/>
+                        android:layout_toRightOf="@+id/tx_active_duration"
+                        android:layout_below="@+id/ll_chronometers" />
 
                     <TextView
                         android:id="@+id/tx_active_duration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/imgbtn_info_steps"
+                        android:layout_below="@+id/ll_chronometers"
+                        android:layout_marginTop="@dimen/padding_5"
                         android:layout_centerHorizontal="true"
                         android:text="Active: $durationStr"
                         android:textColor="@android:color/white"
@@ -1017,7 +1030,7 @@
                     <LinearLayout
                         android:id="@+id/ll_chronometers"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="75dp"
                         android:layout_below="@+id/ll_kcals"
                         android:layout_marginTop="@dimen/padding_5"
                         android:orientation="horizontal"
@@ -1052,7 +1065,21 @@
                                 android:padding="@dimen/padding_4"
                                 android:textSize="@dimen/text_size_14"
                                 android:textColor="@android:color/holo_red_dark"
-                                android:textStyle="bold" />
+                                android:textStyle="bold"
+                                android:visibility="gone" />
+
+                            <TextView
+                                android:id="@+id/tx_walk_static"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:background="@drawable/speed_sign_bg"
+                                android:padding="@dimen/padding_4"
+                                android:textSize="@dimen/text_size_14"
+                                android:textColor="@android:color/holo_red_dark"
+                                android:textStyle="bold"
+                                android:text="00:00"
+                                tools:ignore="HardcodedText" />
                         </LinearLayout>
 
                         <!-- Running -->
@@ -1083,7 +1110,21 @@
                                 android:padding="@dimen/padding_4"
                                 android:textSize="@dimen/text_size_14"
                                 android:textColor="@android:color/holo_red_dark"
-                                android:textStyle="bold" />
+                                android:textStyle="bold"
+                                android:visibility="gone" />
+
+                            <TextView
+                                android:id="@+id/tx_run_static"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:background="@drawable/speed_sign_bg"
+                                android:padding="@dimen/padding_4"
+                                android:textSize="@dimen/text_size_14"
+                                android:textColor="@android:color/holo_red_dark"
+                                android:textStyle="bold"
+                                android:text="00:00"
+                                tools:ignore="HardcodedText" />
                         </LinearLayout>
 
                         <!-- Cycling -->
@@ -1114,7 +1155,21 @@
                                 android:padding="@dimen/padding_4"
                                 android:textSize="@dimen/text_size_14"
                                 android:textColor="@android:color/holo_red_dark"
-                                android:textStyle="bold" />
+                                android:textStyle="bold"
+                                android:visibility="gone" />
+
+                            <TextView
+                                android:id="@+id/tx_cycle_static"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:background="@drawable/speed_sign_bg"
+                                android:padding="@dimen/padding_4"
+                                android:textSize="@dimen/text_size_14"
+                                android:textColor="@android:color/holo_red_dark"
+                                android:textStyle="bold"
+                                android:text="00:00"
+                                tools:ignore="HardcodedText" />
                         </LinearLayout>
 
                     </LinearLayout>

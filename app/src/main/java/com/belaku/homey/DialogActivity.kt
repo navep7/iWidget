@@ -612,38 +612,11 @@ class DialogActivity : AppCompatActivity() {
                         container.addView(layout)
                     }
 
-                    val walkChr = walkingLayout.findViewById<android.widget.Chronometer>(R.id.walk_chronometer)
-                    val runChr = walkingLayout.findViewById<android.widget.Chronometer>(R.id.run_chronometer)
-                    val cycleChr = walkingLayout.findViewById<android.widget.Chronometer>(R.id.cycle_chronometer)
+                   
                     val txWalking = walkingLayout.findViewById<TextView>(R.id.rl_tx_walking_)
 
                     txWalking.text = "ACTIVE"
-                    walkChr.visibility = View.VISIBLE
-                    runChr.visibility = View.VISIBLE
-                    cycleChr.visibility = View.VISIBLE
 
-                    val baseTimeW = sharedPreferences.getLong("walkChr", 0L)
-                    if (baseTimeW != 0L) {
-                        walkChr.base = baseTimeW
-                        walkChr.start()
-                    }
-                    val baseTimeR = sharedPreferences.getLong("runChr", 0L)
-                    if (baseTimeR != 0L) {
-                        runChr.base = baseTimeR
-                        runChr.start()
-                    }
-                    val baseTimeC = sharedPreferences.getLong("cycleChr", 0L)
-                    if (baseTimeC != 0L) {
-                        cycleChr.base = baseTimeC
-                        cycleChr.start()
-                    }
-
-                    val actState = com.belaku.homey.StepsService.presentActivityState
-                    val redColor = android.graphics.Color.RED
-                    val whiteColor = android.graphics.Color.WHITE
-                    walkingLayout.findViewById<TextView>(R.id.tx_label_walk).setTextColor(if (actState == "WALKING") redColor else whiteColor)
-                    walkingLayout.findViewById<TextView>(R.id.tx_label_run).setTextColor(if (actState == "RUNNING") redColor else whiteColor)
-                    walkingLayout.findViewById<TextView>(R.id.tx_label_cycle).setTextColor(if (actState == "CYCLING") redColor else whiteColor)
 
                     walkingLayout.findViewById<TextView>(R.id.rl_tx_steps).text = stepsToday.toString()
                     walkingLayout.findViewById<TextView>(R.id.rl_tx_cals).text = (stepsToday * 0.04 * (80 / 70)).toInt().toString()
