@@ -131,6 +131,7 @@ class StepsService : Service() {
             sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
             sharedPreferencesEditor = sharedPreferences.edit()
         }
+        presentActivityState = sharedPreferences.getString("presentActivityState", "STILL") ?: "STILL"
 
         if (!isLocationEnabled(applicationContext)) {
             val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)

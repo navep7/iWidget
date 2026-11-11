@@ -861,10 +861,7 @@ class NewAppWidget : AppWidgetProvider() {
         // SharedPreferences is the source of truth: ActivityTransitionReceiver persists the state
         // before requesting this redraw. Only trusting the static when it was blank meant a stale
         // in-memory value (e.g. left over from an earlier process) shadowed the real state.
-        val storedActivityState = sharedPreferences.getString("presentActivityState", "") ?: ""
-        if (storedActivityState.isNotBlank()) {
-            presentActivityState = storedActivityState
-        }
+        presentActivityState = sharedPreferences.getString("presentActivityState", "")?.ifBlank { "STILL" } ?: "STILL"
 
         if (penNote.isNotEmpty())
             remoteViews?.setTextViewText(R.id.tx_runner, "\uD83D\uDCDD " + penNote)
