@@ -976,18 +976,24 @@ class NewAppWidget : AppWidgetProvider() {
 
         val storedStillDuration = sharedPreferences.getLong("still_duration_noon", 0L)
         val stillChrActive = sharedPreferences.getLong("stillChr", 0L)
-        val stillBase = if (stillChrActive != 0L) stillChrActive else SystemClock.elapsedRealtime() - storedStillDuration
-        val totalStillToday = SystemClock.elapsedRealtime() - stillBase
+        val currentStillSession = if (presentActivityState == "STILL" && stillChrActive != 0L) {
+            SystemClock.elapsedRealtime() - stillChrActive
+        } else {
+            0L
+        }
+        val totalStillToday = storedStillDuration + currentStillSession
         remoteViews?.setTextViewText(R.id.tx_still_day_duration, "Still Today: " + formatDuration(totalStillToday))
 
 
         if (presentActivityState == "STILL") {
 
-            if (stillChrActive == 0L) {
-                sharedPreferencesEditor.putLong("stillChr", stillBase).apply()
+            var baseTime = stillChrActive
+            if (baseTime == 0L) {
+                baseTime = SystemClock.elapsedRealtime()
+                sharedPreferencesEditor.putLong("stillChr", baseTime).apply()
             }
             remoteViews?.setViewVisibility(R.id.still_chronometer, View.VISIBLE)
-            remoteViews?.setChronometer(R.id.still_chronometer, stillBase, null, true)
+            remoteViews?.setChronometer(R.id.still_chronometer, baseTime, null, true)
 
             remoteViews?.setViewVisibility(R.id.tx_active_duration, View.VISIBLE)
             remoteViews?.setViewVisibility(R.id.speed_chronometer, View.INVISIBLE)
@@ -1175,11 +1181,7 @@ class NewAppWidget : AppWidgetProvider() {
         val baseTimeC = sharedPreferences.getLong("cycleChr", 0L)
         if (baseTimeC != 0L) durationMillisCycle += (SystemClock.elapsedRealtime() - baseTimeC)
 
-        val activeDurationToShow = when (presentActivityState) {
-            "RUNNING" -> durationMillisRun
-            "CYCLING" -> durationMillisCycle
-            else -> durationMillisWalk
-        }
+        val activeDurationToShow = durationMillisWalk + durationMillisRun + durationMillisCycle
         remoteViews?.setTextViewText(R.id.tx_active_duration, "Active : " + formatDuration(activeDurationToShow))
 
         var durationMillisTravel = sharedPreferences.getLong(dayKey + "_travel_duration", 0L)

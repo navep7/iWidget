@@ -79,8 +79,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     // Reset chronometer base times for the new active state.
                     when (detectedState) {
                         "STILL" -> {
-                            val accumulated = sharedPrefs.getLong("still_duration_noon", 0L)
-                            putLong("stillChr", baseTime - accumulated)
+                            putLong("stillChr", baseTime)
                             putLong("walkChr", 0L)
                             putLong("runChr", 0L)
                             putLong("cycleChr", 0L)
@@ -194,8 +193,10 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                 "STILL" -> {
                     val baseTime = sharedPrefs.getLong("stillChr", 0L)
                     if (baseTime != 0L) {
-                        val totalDuration = now - baseTime
-                        editor.putLong("still_duration_noon", totalDuration)
+                        val duration = now - baseTime
+                        val currentTotal = sharedPrefs.getLong("still_duration_noon", 0L)
+                        editor.putLong("still_duration_noon", currentTotal + duration)
+                        editor.putLong("stillChr", 0L)
                     }
                 }
                 "WALKING" -> {
