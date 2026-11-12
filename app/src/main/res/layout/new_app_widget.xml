@@ -428,26 +428,6 @@
             android:layout_alignParentEnd="true" />
 
 
-        <TextView
-            android:id="@+id/tx_last_transaction"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/tx_runner"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="@dimen/margin_minus_5"
-            android:background="@drawable/gradient_glass_flat_start"
-            android:clickable="true"
-            android:ellipsize="end"
-            android:focusable="true"
-            android:fontFamily="sans-serif-condensed"
-            android:gravity="center"
-            android:maxLines="1"
-            android:padding="@dimen/padding_5"
-            android:paddingEnd="@dimen/padding_10"
-            android:text="💳 Pay with UPI"
-            android:textColor="@android:color/black"
-            android:textSize="@dimen/text_size_14"
-            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tx_runner"

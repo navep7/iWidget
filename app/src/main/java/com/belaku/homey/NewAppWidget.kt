@@ -470,7 +470,6 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(R.id.imgbtn_qr, pendingIntent)
-        remoteViews?.setOnClickPendingIntent(R.id.tx_last_transaction, pendingIntent)
 
         remoteViews?.setOnClickPendingIntent(R.id.imgv_app1, getPendingSelfIntent(widgetContext, APP1_CLICK))
         remoteViews?.setOnClickPendingIntent(R.id.imgv_app2, getPendingSelfIntent(widgetContext, APP2_CLICK))
@@ -840,7 +839,6 @@ class NewAppWidget : AppWidgetProvider() {
             "💳 Pay with UPI"
         }
 
-        remoteViews?.setTextViewText(R.id.tx_last_transaction, textToDisplay)
     }
 
     private fun locationTxUpdate(context: Context) {
@@ -1548,8 +1546,7 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.tx_act_plus,
                 R.id.tx_unlocks,
                 R.id.tx_screenusage_state,
-                R.id.tx_screentime,
-                R.id.tx_last_transaction
+                R.id.tx_screentime
             )
 
             glassLabelIds.forEach { textViewId ->

@@ -269,6 +269,12 @@ class ScanAndPayActivity : AppCompatActivity() {
     }
 
     private fun launchDirectMerchantPayment(upiUriString: String) {
+        if (pendingPayeeVpa.isNotBlank()) {
+            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            clipboard.setPrimaryClip(ClipData.newPlainText("UPI ID", pendingPayeeVpa))
+            Toast.makeText(this, "Copied UPI ID as backup: $pendingPayeeVpa", Toast.LENGTH_SHORT).show()
+        }
+
         val upiIntent = Intent(Intent.ACTION_VIEW, Uri.parse(upiUriString))
         val chooser = Intent.createChooser(upiIntent, "Pay Merchant with")
 
@@ -326,16 +332,7 @@ class ScanAndPayActivity : AppCompatActivity() {
         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.setPrimaryClip(ClipData.newPlainText("UPI ID", payeeVpa))
 
-        val snackbar = Snackbar.make(
-            findViewById(R.id.main),
-            "Because NPCI blocks direct intent links for personal QRs, we copied the UPI ID for you. Tap an app below to open, click on Pay UPI ID and paste:",
-            Snackbar.LENGTH_INDEFINITE
-        )
-        snackbar.setAction("Done") {
-            snackbar.dismiss()
-        }
-        snackbar.setTextMaxLines(5)
-        snackbar.show()
+
 
         val upiApps = getInstalledUpiApps()
 
@@ -359,7 +356,8 @@ class ScanAndPayActivity : AppCompatActivity() {
         val messageTv = TextView(this).apply {
             text = "Paying: $payeeName\n" +
                     "UPI ID: $payeeVpa\n" +
-                    "Amount: $pendingAmount$noteInfo"
+                    "Amount: $pendingAmount$noteInfo\n" +
+                    "Because NPCI blocks direct intent links for personal QRs, we copied the UPI ID for you. Tap an app below to open, click on Pay UPI ID and paste:"
             textSize = 14f
             setPadding(0, 0, 0, dpToPx(16f))
         }
