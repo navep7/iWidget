@@ -456,20 +456,21 @@ class NewAppWidget : AppWidgetProvider() {
 
     private fun setOnClickPendingIntents(context: Context) {
 
-        // Intent to launch the transparent Scanner Activity
-        val intent = Intent(widgetContext, QRScannerActivity::class.java).apply {
+
+        // Intent to launch ScanAndPayActivity
+        val intent = Intent(context, ScanAndPayActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
 
-        val pendingIntentScan = PendingIntent.getActivity(
+        val pendingIntent = PendingIntent.getActivity(
             context,
-            210,
+            500,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // Bind the click event of the button
-        remoteViews?.setOnClickPendingIntent(R.id.imgbtn_qr, pendingIntentScan)
+        remoteViews?.setOnClickPendingIntent(R.id.imgbtn_qr, pendingIntent)
+        remoteViews?.setOnClickPendingIntent(R.id.tx_last_transaction, pendingIntent)
 
         remoteViews?.setOnClickPendingIntent(R.id.imgv_app1, getPendingSelfIntent(widgetContext, APP1_CLICK))
         remoteViews?.setOnClickPendingIntent(R.id.imgv_app2, getPendingSelfIntent(widgetContext, APP2_CLICK))
@@ -800,6 +801,48 @@ class NewAppWidget : AppWidgetProvider() {
 
     }
 
+    private fun updateLastTransactionInfo(context: Context) {
+        val prefs = context.getSharedPreferences("upi_prefs", Context.MODE_PRIVATE)
+        val json = prefs.getString("transactions_list", null)
+
+        var merchant = prefs.getString("last_txn_merchant", "") ?: ""
+        var amount = prefs.getString("last_txn_amount", "") ?: ""
+        var note = prefs.getString("last_txn_note", "") ?: ""
+        var place = prefs.getString("last_txn_place", "") ?: ""
+
+        if (merchant.isBlank() && !json.isNullOrBlank()) {
+            try {
+                val type = object : TypeToken<ArrayList<UpiTransaction>>() {}.type
+                val savedList: ArrayList<UpiTransaction>? = Gson().fromJson(json, type)
+                if (!savedList.isNullOrEmpty()) {
+                    val first = savedList[0]
+                    merchant = first.payeeName
+                    amount = first.amount
+                    note = first.description
+                    place = first.place
+                }
+            } catch (_: Exception) {
+            }
+        }
+
+        if (place.isBlank()) {
+            place = cityname.ifBlank {
+                val userPrefs = context.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
+                userPrefs.getString("cityname", "") ?: ""
+            }
+        }
+
+        val textToDisplay = if (merchant.isNotBlank() || amount.isNotBlank()) {
+            val noteStr = if (note.isNotBlank()) " ($note)" else ""
+            val placeStr = if (place.isNotBlank()) " @ $place" else ""
+            "💳 $merchant: $amount$noteStr$placeStr"
+        } else {
+            "💳 Pay with UPI"
+        }
+
+        remoteViews?.setTextViewText(R.id.tx_last_transaction, textToDisplay)
+    }
+
     private fun locationTxUpdate(context: Context) {
 
         if (!isLocationEnabled(context)) {
@@ -865,6 +908,8 @@ class NewAppWidget : AppWidgetProvider() {
 
         if (penNote.isNotEmpty())
             remoteViews?.setTextViewText(R.id.tx_runner, "\uD83D\uDCDD " + penNote)
+
+        updateLastTransactionInfo(widgetContext)
 
         remoteViews?.setTextViewText(R.id.tx_act_state, presentActivityState)
 
@@ -1503,7 +1548,8 @@ class NewAppWidget : AppWidgetProvider() {
                 R.id.tx_act_plus,
                 R.id.tx_unlocks,
                 R.id.tx_screenusage_state,
-                R.id.tx_screentime
+                R.id.tx_screentime,
+                R.id.tx_last_transaction
             )
 
             glassLabelIds.forEach { textViewId ->
