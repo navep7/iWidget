@@ -1,7 +1,17 @@
 package com.belaku.homey
 
+
+import androidx.core.content.FileProvider
+import java.io.File
+import java.io.FileOutputStream
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.EncodeHintType
+import com.google.zxing.qrcode.QRCodeWriter
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Typeface
 import android.net.Uri
@@ -144,13 +154,19 @@ class QRScannerActivity : AppCompatActivity() {
         loadTransactions()
 
         btnPayNow.setOnClickListener {
-            processUpiPayment()
+            val payingFor = etPayingFor.text.toString().trim()
+            val amount = etAmount.text.toString().trim()
+            generateCleanQrBitmap(scannedUpiString.toString(), 512, payingFor, amount)
         }
 
         etAmount.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_GO) {
-                if (btnPayNow.isEnabled) {
-                    processUpiPayment()
+                scannedUpiString?.length?.let {
+                    if (it > 0) {
+                        val payingFor = etPayingFor.text.toString().trim()
+                        val amount = etAmount.text.toString().trim()
+                        generateCleanQrBitmap(scannedUpiString.toString(), 512, payingFor, amount)
+                    }
                 }
                 true
             } else {
@@ -243,13 +259,159 @@ class QRScannerActivity : AppCompatActivity() {
             payeeName = upiUri.getQueryParameter("pn") ?: "Merchant"
         }
 
-        tvScannedStatus.text = "Scanned: $payeeName ($payeeVpa)"
+        tvScannedStatus.text = "Scanned: $payeeName ($payeeVpa) ${Uri.parse(upiString)}"
         btnPayNow.isEnabled = true
 
         // Focus et_paying_for and show soft keyboard
         etPayingFor.requestFocus()
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(etPayingFor, InputMethodManager.SHOW_IMPLICIT)
+    }
+
+
+
+    fun generateCleanQrBitmap(rawQrContent: String, sizePx: Int = 512, payingForText: String = "", amountText: String = "") {
+        Thread {
+            val hints = mapOf(
+                EncodeHintType.CHARACTER_SET to "UTF-8",
+                EncodeHintType.MARGIN to 2 // Essential quiet zone for UPI app gallery decoders
+            )
+
+            val bitMatrix = QRCodeWriter().encode(
+                rawQrContent,
+                BarcodeFormat.QR_CODE,
+                sizePx,
+                sizePx,
+                hints
+            )
+
+            val width = bitMatrix.width
+            val height = bitMatrix.height
+            val pixels = IntArray(width * height)
+
+            for (y in 0 until height) {
+                val offset = y * width
+                for (x in 0 until width) {
+                    pixels[offset + x] = if (bitMatrix.get(x, y)) Color.BLACK else Color.WHITE
+                }
+            }
+
+            val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).apply {
+                setPixels(pixels, 0, width, 0, 0, width, height)
+            }
+
+            // 1. Save bitmap to cache
+            val cachePath = File(cacheDir, "images").apply { mkdirs() }
+            val file = File(cachePath, "upi_qr.png")
+            FileOutputStream(file).use { stream ->
+                bmp.compress(Bitmap.CompressFormat.PNG, 100, stream)
+            }
+
+            // 2. Get secure content:// URI via FileProvider
+            val contentUri = FileProvider.getUriForFile(
+                this@QRScannerActivity,
+                "$packageName.fileprovider",
+                file
+            )
+
+            runOnUiThread {
+                launchUpiShare(contentUri, payingForText, amountText)
+            }
+        }.start()
+    }
+
+    private fun launchUpiShare(contentUri: Uri, payingForText: String, amountText: String) {
+        // Prepare transaction record so success callback triggers on return
+        val upiString = scannedUpiString ?: ""
+
+        var payeeName = "Merchant"
+        var payeeVpa = ""
+
+        val queryIndex = upiString.indexOf('?')
+        if (queryIndex != -1 && queryIndex < upiString.length - 1) {
+            val queryString = upiString.substring(queryIndex + 1)
+            val pairs = queryString.split("&")
+            for (pair in pairs) {
+                val eqIndex = pair.indexOf('=')
+                if (eqIndex != -1) {
+                    val key = pair.substring(0, eqIndex).trim()
+                    val rawValue = pair.substring(eqIndex + 1)
+                    val decodedValue = try {
+                        java.net.URLDecoder.decode(rawValue, "UTF-8")
+                    } catch (_: Exception) {
+                        rawValue
+                    }
+                    if (key.equals("pa", ignoreCase = true)) payeeVpa = decodedValue
+                    if (key.equals("pn", ignoreCase = true)) payeeName = decodedValue
+                }
+            }
+        } else if (upiString.isNotEmpty()) {
+            val upiUri = Uri.parse(upiString)
+            payeeVpa = upiUri.getQueryParameter("pa") ?: ""
+            payeeName = upiUri.getQueryParameter("pn") ?: "Merchant"
+        }
+
+        val displayAmount = if (amountText.isNotEmpty()) "₹$amountText" else "Custom Amount"
+        val displayNote = if (payingForText.isNotEmpty()) payingForText else "UPI Payment"
+        val timestamp = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()).format(Date())
+
+        val title = "To: $payeeName ($payeeVpa)"
+        val subtitle = "Amount: $displayAmount | For: $displayNote"
+        pendingTransactionRecord = TransactionItem(title, subtitle, timestamp)
+        waitingForPaymentResult = true
+
+        // 3. Share the image directly; UPI apps will automatically scan it
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "image/png"
+            putExtra(Intent.EXTRA_STREAM, contentUri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
+        val packageManager = packageManager
+
+        // Curated trusted dedicated UPI payment app packages (excluding e-commerce, messaging, and sharing utilities)
+        val trustedUpiPackages = setOf(
+            "com.google.android.apps.nbu.paisa.user", // Google Pay
+            "net.one97.paytm",                    // Paytm
+            "in.org.npci.upiapp",                  // BHIM
+            "com.freecharge.android",             // Freecharge
+            "com.mobikwik_new",                   // Mobikwik
+            "com.mobikwik",                       // Mobikwik alternate
+            "com.naviapp"                         // Navi
+        )
+
+        val upiIntents = ArrayList<Intent>()
+
+        for (pkg in trustedUpiPackages) {
+            try {
+                val appInfo = packageManager.getApplicationInfo(pkg, 0)
+                if (appInfo.enabled) {
+                    val targetedIntent = Intent(shareIntent).apply {
+                        setPackage(pkg)
+                    }
+                    upiIntents.add(targetedIntent)
+                }
+            } catch (_: Exception) {
+                // Package not installed
+            }
+        }
+
+        if (upiIntents.isNotEmpty()) {
+            val chooserTarget = upiIntents.removeAt(0)
+            val chooser = Intent.createChooser(chooserTarget, "Scan & Pay using UPI App").apply {
+                if (upiIntents.isNotEmpty()) {
+                    putExtra(Intent.EXTRA_INITIAL_INTENTS, upiIntents.toTypedArray<Intent>())
+                }
+            }
+            try {
+                startActivity(chooser)
+            } catch (_: Exception) {
+                Toast.makeText(this, "No UPI app available to share QR", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(this, "No UPI apps found for QR sharing", Toast.LENGTH_SHORT).show()
+            startActivity(Intent.createChooser(shareIntent, "Scan & Pay using UPI App"))
+        }
     }
 
     private fun processUpiPayment() {

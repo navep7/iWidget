@@ -108,4 +108,7 @@ dependencies {
 
     // Google ML Kit Barcode Scanning
     implementation(libs.gms.play.services.code.scanner)
+
+    implementation(libs.core)
+
 }
