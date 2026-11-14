@@ -31,6 +31,15 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val applicationContext = context.applicationContext
+        val action = intent.action
+
+        if (action == Intent.ACTION_BOOT_COMPLETED || action == Intent.ACTION_MY_PACKAGE_REPLACED) {
+            if (ContextCompat.checkSelfPermission(applicationContext, android.Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
+                requestUpdates(applicationContext)
+                Log.d("ActivityTransition", "Re-registered activity transitions on $action")
+            }
+            return
+        }
 
         if (!ActivityTransitionResult.hasResult(intent)) return
 

@@ -1790,13 +1790,20 @@ class NewAppWidget : AppWidgetProvider() {
 
             // Handle specific system broadcasts
             when (action) {
-                Intent.ACTION_BOOT_COMPLETED -> {
+                Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED -> {
                     // Starting a foreground service from a background broadcast can throw
                     // ForegroundServiceStartNotAllowedException; never let it escape.
                     try {
                         context.startForegroundService(Intent(context, StepsService::class.java))
                     } catch (e: Exception) {
                         Log.e(TAG, "startForegroundService(StepsService) failed", e)
+                    }
+                    try {
+                        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
+                            ActivityTransitionReceiver.requestUpdates(context)
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "re-register activity transitions failed", e)
                     }
                 }
 

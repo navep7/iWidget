@@ -3,6 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="SelectedPhotoAccess">
 
+    <attribution
+        android:tag="ads"
+        android:label="@string/app_name" />
+    <attribution
+        android:tag="location"
+        android:label="@string/app_name" />
+    <attribution
+        android:tag="activity_recognition"
+        android:label="@string/app_name" />
+    <attribution
+        android:tag="work_manager"
+        android:label="@string/app_name" />
+
     <uses-feature
         android:name="android.hardware.telephony"
         android:required="false" />
@@ -165,6 +178,8 @@
             android:permission="com.google.android.gms.permission.ACTIVITY_RECOGNITION">
             <intent-filter>
                 <action android:name="action.TRANSITIONS_DATA" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
 
@@ -312,6 +327,7 @@
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
 
             <meta-data
