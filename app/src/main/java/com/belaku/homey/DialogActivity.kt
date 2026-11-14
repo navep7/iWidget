@@ -348,7 +348,7 @@ class DialogActivity : AppCompatActivity() {
                     if (noRewards > 1) {
                         sharedPreferencesEditor.putInt("noRewards", --noRewards).apply()
                         sharedPreferencesEditor.putBoolean("boolWallSet", true).apply()
-                        Thread { SetWallWorker.setWall(true, dialogActContext) }.start()
+                        Thread { SetWallWorker.setWall(true, dialogActContext, showProgress = true) }.start()
                         appPredictions()
                         finish()
                     }
@@ -380,6 +380,8 @@ class DialogActivity : AppCompatActivity() {
                 "StT" -> {
                     imgbtnRefreshStocks.visibility = View.INVISIBLE
                     imgbtnAddAnotherStock.visibility = View.INVISIBLE
+                    llButtons.visibility = View.VISIBLE
+                    imgbtnShare.visibility = View.INVISIBLE
                     txContent.visibility = View.VISIBLE
                     txContent.movementMethod = ScrollingMovementMethod()
                     txTitle.text = "Speech to Text"
@@ -408,6 +410,10 @@ class DialogActivity : AppCompatActivity() {
                 "ST" -> {
                     imgbtnRefreshStocks.visibility = View.INVISIBLE
                     imgbtnAddAnotherStock.visibility = View.INVISIBLE
+                    llButtons.visibility = View.VISIBLE
+                    btnOk.visibility = View.INVISIBLE
+                    btnCancel.visibility = View.INVISIBLE
+                    imgbtnShare.visibility = View.VISIBLE
                     ydayApp(applicationContext)
                     txContent.visibility = View.VISIBLE
                     txTitle.text = " $twitterProfileName"
@@ -574,7 +580,7 @@ class DialogActivity : AppCompatActivity() {
                     btnOk.setOnClickListener {
                         if (edtxDialog.text.toString().isNotEmpty()) {
                             pinNote = edtxDialog.text.toString()
-                            Thread { SetWallWorker.setWall(true, dialogActContext) }.start()
+                            Thread { SetWallWorker.setWall(true, dialogActContext, showProgress = true) }.start()
                             finish()
                         }
                     }
@@ -1235,6 +1241,8 @@ class DialogActivity : AppCompatActivity() {
         if (requestCode == REQUEST_CODE_SPEECH_INPUT && resultCode == RESULT_OK) {
             data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()?.let {
                 txContent.text = it
+                llButtons.visibility = View.VISIBLE
+                imgbtnShare.visibility = View.VISIBLE
             }
         }
     }

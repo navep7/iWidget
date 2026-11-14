@@ -102,7 +102,7 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
         isNetConnected = activeNetwork?.isConnectedOrConnecting == true
 
         if(isNetConnected)
-            setWall(true, wallWorkerContext)
+            setWall(true, wallWorkerContext, showProgress = false)
         else
             greeting(widgetContext)
 
@@ -200,15 +200,17 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
 
           
         @SuppressLint("SetTextI18n")
-        fun setWall(b: Boolean, wallWorkerContext: Context) {
+        fun setWall(b: Boolean, wallWorkerContext: Context, showProgress: Boolean = false) {
 
 
-            remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
-            remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.VISIBLE)
+            if (showProgress) {
+                remoteViews?.setViewVisibility(R.id.imgbtn_set, View.INVISIBLE)
+                remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.VISIBLE)
 
-            newAppWidget = ComponentName(wallWorkerContext, NewAppWidget::class.java)
-            appWidM = AppWidgetManager.getInstance(wallWorkerContext)
-            appWidM.updateAppWidget(newAppWidget, remoteViews)
+                newAppWidget = ComponentName(wallWorkerContext, NewAppWidget::class.java)
+                appWidM = AppWidgetManager.getInstance(wallWorkerContext)
+                appWidM.updateAppWidget(newAppWidget, remoteViews)
+            }
 
             wm = WallpaperManager.getInstance(wallWorkerContext)
             wm.setWallpaperOffsetSteps(1F, 1F)
@@ -385,10 +387,12 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 Log.d(TAG, "setWallEx2 - $e")
             } finally {
                 try {
-                    remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.INVISIBLE)
-                    remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
-                    if (NewAppWidget.isAppWidMInitialized() && remoteViews != null) {
-                        appWidM.updateAppWidget(newAppWidget, remoteViews)
+                    if (showProgress) {
+                        remoteViews?.setViewVisibility(R.id.progressBar_cyclic_wallchange, View.INVISIBLE)
+                        remoteViews?.setViewVisibility(R.id.imgbtn_set, View.VISIBLE)
+                        if (NewAppWidget.isAppWidMInitialized() && remoteViews != null) {
+                            appWidM.updateAppWidget(newAppWidget, remoteViews)
+                        }
                     }
                 } catch (ex: Exception) {
                     Log.e(TAG, "Error in setWall finally", ex)

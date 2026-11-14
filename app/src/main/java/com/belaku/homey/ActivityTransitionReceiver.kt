@@ -95,27 +95,21 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                             putLong("speedChr", 0L)
                         }
                         "WALKING" -> {
-                            val dayKey = LocalDate.now().dayOfWeek.name
-                            val accumulated = sharedPrefs.getLong("${dayKey}_walk_duration", 0L)
-                            putLong("walkChr", baseTime - accumulated)
+                            putLong("walkChr", baseTime)
                             putLong("runChr", 0L)
                             putLong("cycleChr", 0L)
                             putLong("stillChr", 0L)
                             putLong("speedChr", 0L)
                         }
                         "RUNNING" -> {
-                            val dayKey = LocalDate.now().dayOfWeek.name
-                            val accumulated = sharedPrefs.getLong("${dayKey}_run_duration", 0L)
-                            putLong("runChr", baseTime - accumulated)
+                            putLong("runChr", baseTime)
                             putLong("walkChr", 0L)
                             putLong("cycleChr", 0L)
                             putLong("stillChr", 0L)
                             putLong("speedChr", 0L)
                         }
                         "CYCLING" -> {
-                            val dayKey = LocalDate.now().dayOfWeek.name
-                            val accumulated = sharedPrefs.getLong("${dayKey}_cycle_duration", 0L)
-                            putLong("cycleChr", baseTime - accumulated)
+                            putLong("cycleChr", baseTime)
                             putLong("walkChr", 0L)
                             putLong("runChr", 0L)
                             putLong("stillChr", 0L)
@@ -211,25 +205,31 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                 "WALKING" -> {
                     val baseTime = sharedPrefs.getLong("walkChr", 0L)
                     if (baseTime != 0L) {
-                        val totalDuration = now - baseTime
+                        val sessionDuration = now - baseTime
                         val totalKey = "${dayKey}_walk_duration"
-                        editor.putLong(totalKey, totalDuration)
+                        val currentTotal = sharedPrefs.getLong(totalKey, 0L)
+                        editor.putLong(totalKey, currentTotal + sessionDuration)
+                        editor.putLong("walkChr", 0L)
                     }
                 }
                 "RUNNING" -> {
                     val baseTime = sharedPrefs.getLong("runChr", 0L)
                     if (baseTime != 0L) {
-                        val totalDuration = now - baseTime
+                        val sessionDuration = now - baseTime
                         val totalKey = "${dayKey}_run_duration"
-                        editor.putLong(totalKey, totalDuration)
+                        val currentTotal = sharedPrefs.getLong(totalKey, 0L)
+                        editor.putLong(totalKey, currentTotal + sessionDuration)
+                        editor.putLong("runChr", 0L)
                     }
                 }
                 "CYCLING" -> {
                     val baseTime = sharedPrefs.getLong("cycleChr", 0L)
                     if (baseTime != 0L) {
-                        val totalDuration = now - baseTime
+                        val sessionDuration = now - baseTime
                         val totalKey = "${dayKey}_cycle_duration"
-                        editor.putLong(totalKey, totalDuration)
+                        val currentTotal = sharedPrefs.getLong(totalKey, 0L)
+                        editor.putLong(totalKey, currentTotal + sessionDuration)
+                        editor.putLong("cycleChr", 0L)
                     }
                 }
                 "TRAVEL" -> {
@@ -239,6 +239,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                         val totalKey = "${dayKey}_travel_duration"
                         val currentTotal = sharedPrefs.getLong(totalKey, 0L)
                         editor.putLong(totalKey, currentTotal + duration)
+                        editor.putLong("speedChr", 0L)
                     }
                 }
             }

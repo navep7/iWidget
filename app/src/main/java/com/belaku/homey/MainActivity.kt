@@ -163,6 +163,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var mBluetoothReceiver: BroadcastReceiver
     private lateinit var dialogMessage: EditText
+    private var imgBtnSttShare: ImageButton? = null
     private val REQUEST_CODE_SPEECH_INPUT: Int = 100
     private lateinit var editTextTwitterHandle: EditText
     private lateinit var twitterHandleDialog: View
@@ -791,6 +792,8 @@ class MainActivity : AppCompatActivity() {
         dialogMessage = customDialog.findViewById<EditText>(R.id.dialogMessage)
         val dialogButton = customDialog.findViewById<Button>(R.id.dialogButton)
         val imgBtnShare = customDialog.findViewById<ImageButton>(R.id.imgbtn_stt_share)
+        imgBtnShare.visibility = View.INVISIBLE
+        imgBtnSttShare = imgBtnShare
 
         dialogTitle.text = "Speech To Text"
         dialogMessage.setText("...")
@@ -835,8 +838,21 @@ class MainActivity : AppCompatActivity() {
         val dialogButton = customDialog.findViewById<Button>(R.id.dialogButton)
         dialogButton.visibility = View.INVISIBLE
         val imgBtnShare = customDialog.findViewById<ImageButton>(R.id.imgbtn_stt_share)
+        imgBtnShare.visibility = View.VISIBLE
 
         dialogTitle.text = tW
+
+        imgBtnShare.setOnClickListener {
+            val textToShare = dialogTitle.text.toString()
+            if (textToShare.isNotBlank()) {
+                val shareIntent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_TEXT, textToShare)
+                    type = "text/plain"
+                }
+                startActivity(Intent.createChooser(shareIntent, "Share text using:"))
+            }
+        }
 
         customDialog.show()
     }
@@ -851,6 +867,7 @@ class MainActivity : AppCompatActivity() {
                 if (result != null && !result.isEmpty()) {
                     val recognizedText = result[0] // Get the most likely recognized phrase
                     dialogMessage.setText(recognizedText)
+                    imgBtnSttShare?.visibility = View.VISIBLE
                 }
             }
         }
