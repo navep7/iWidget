@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.chaquopy)
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
 }
@@ -46,6 +47,17 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
+    }
+}
+
+chaquopy {
+    defaultConfig {
+        version = "3.13"
+        buildPython("python3")
+
+        pip {
+            install("ntscraper")
+        }
     }
 }
 

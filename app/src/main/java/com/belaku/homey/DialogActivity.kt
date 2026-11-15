@@ -48,6 +48,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.chaquo.python.PyObject
+import com.chaquo.python.Python
+import com.chaquo.python.android.AndroidPlatform
 import com.belaku.FinnhubApiService
 import com.belaku.Stock
 import com.belaku.getPredictedAppsForCurrentTimeWindow
@@ -416,16 +419,24 @@ class DialogActivity : AppCompatActivity() {
                     imgbtnShare.visibility = View.VISIBLE
                     ydayApp(applicationContext)
                     txContent.visibility = View.VISIBLE
-                    txTitle.text = " $twitterProfileName"
-                    findViewById<ImageButton>(R.id.tw_config).apply {
-                        visibility = View.VISIBLE
-                        setOnClickListener { makeToast(applicationContext, "Paid Feature, coming soon!") }
+                    val savedProfile = sharedPreferences.getString("twitterProfileName", "")
+                    if (!savedProfile.isNullOrEmpty()) {
+                        twitterProfileName = savedProfile
                     }
+                    txTitle.text = " $twitterProfileName"
+                    val twConfigBtn = findViewById<ImageView>(R.id.tw_switch_user).apply {
+                        visibility = View.VISIBLE
+                        setOnClickListener { showTwitterUsernameInputDialog() }
+                    }
+                    Picasso.get()
+                        .load("https://unavatar.io/twitter/$twitterProfileName")
+                        .placeholder(R.drawable.fact)
+                        .error(R.drawable.fact)
+                        .into(findViewById<ImageButton>(R.id.tw_profile_pic))
                     if (listTweets.isNotEmpty()) {
                         txContent.text = listTweets[Random.nextInt(0, listTweets.size)]
                     } else {
-                        txContent.text = "fetching Data.. visit again later, please"
-                        rawTweets()
+                        fetchTweetsWithPython(twitterProfileName)
                     }
                 }
                 "SPEED" -> {
@@ -1225,6 +1236,111 @@ class DialogActivity : AppCompatActivity() {
     }
 
 
+
+    private fun showTwitterUsernameInputDialog() {
+        val input = EditText(this).apply {
+            hint = "Enter Twitter username (e.g. NASA)"
+            setText(twitterProfileName)
+            setSelection(text.length)
+        }
+        AlertDialog.Builder(this)
+            .setTitle("Set Twitter Username")
+            .setMessage("Enter a Twitter/X username to fetch tweets using Python (for free):")
+            .setView(input)
+            .setPositiveButton("Fetch") { _, _ ->
+                val handle = input.text.toString().trim().removePrefix("@")
+                if (handle.isNotEmpty()) {
+                    twitterProfileName = handle
+                    ensurePrefs()
+                    sharedPreferencesEditor.putString("twitterProfileName", handle).apply()
+                    txTitle.text = " $twitterProfileName"
+                    fetchTweetsWithPython(handle)
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun fetchTweetsWithPython(username: String) {
+        val twConfigBtn = findViewById<ImageView>(R.id.tw_profile_pic)
+        txContent.text = "Fetching tweets for @$username via Python..."
+
+        val fallbackAvatarUrl = "https://unavatar.io/twitter/$username"
+        Picasso.get()
+            .load(fallbackAvatarUrl)
+            .placeholder(R.drawable.fact)
+            .error(R.drawable.fact)
+            .into(twConfigBtn)
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                if (!Python.isStarted()) {
+                    Python.start(AndroidPlatform(applicationContext))
+                }
+                val py = Python.getInstance()
+                val pyModule = py.getModule("twitter_scraper")
+                val pyResult = pyModule.callAttr("get_user_tweets", username, 1000)
+
+                var avatarUrl = ""
+                val fetched = ArrayList<String>()
+
+                if (pyResult.asMap().containsKey(PyObject.fromJava("tweets"))) {
+                    val map = pyResult.asMap()
+                    avatarUrl = map[PyObject.fromJava("avatar")]?.toString().orEmpty()
+                    val pyList = map[PyObject.fromJava("tweets")]?.asList()
+                    if (pyList != null) {
+                        for (obj in pyList) {
+                            val tweetText = obj.toString()
+                            if (tweetText.isNotBlank()) {
+                                fetched.add(tweetText)
+                            }
+                        }
+                    }
+                } else if (pyResult.asList() != null) {
+                    val pyList = pyResult.asList()
+                    for (obj in pyList) {
+                        val tweetText = obj.toString()
+                        if (tweetText.isNotBlank()) {
+                            fetched.add(tweetText)
+                        }
+                    }
+                }
+
+                withContext(Dispatchers.Main) {
+                    val finalAvatarUrl = if (avatarUrl.isNotBlank()) avatarUrl else fallbackAvatarUrl
+                    Picasso.get()
+                        .load(finalAvatarUrl)
+                        .placeholder(R.drawable.fact)
+                        .error(R.drawable.fact)
+                        .into(twConfigBtn)
+
+                    if (fetched.isNotEmpty() && !fetched[0].startsWith("Error") && !fetched[0].startsWith("Scraper initialization") && !fetched[0].startsWith("No tweets found") && !fetched[0].startsWith("Python Execution Error")) {
+                        listTweets.clear()
+                        listTweets.addAll(fetched)
+                        makeToast(applicationContext, "Total - ${listTweets.size} tweets fetched!" )
+                        txContent.text = listTweets[Random.nextInt(0, listTweets.size)]
+                     //   makeToast(applicationContext, "Fetched ${fetched.size} tweets via Python")
+                    } else {
+                        val errMsg = fetched.firstOrNull() ?: "No tweets found."
+                        txContent.text = errMsg
+                        if (listTweets.isEmpty()) {
+                            rawTweets()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.d("Tw21", "Python tweet fetch error: ${e.message}")
+                withContext(Dispatchers.Main) {
+                    makeToast(applicationContext, "Python error: ${e.message}")
+                    if (listTweets.isNotEmpty()) {
+                        txContent.text = listTweets[Random.nextInt(0, listTweets.size)]
+                    } else {
+                        rawTweets()
+                    }
+                }
+            }
+        }
+    }
 
     private fun rawTweets() {
         val dataArray = TweetsJsonParser.parseJsonArrayFromRaw(this, R.raw.np_tweets) ?: return
