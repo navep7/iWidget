@@ -1079,18 +1079,18 @@ class MainActivity : AppCompatActivity() {
 
         fabHour.setOnClickListener {
             updateInterval = "hour"
-            //       // makeToast("Wallpaper updates every 30 Mins!")
-            wallDelay = 30
-            setWalls(30)
+            //       // makeToast("Wallpaper updates every 1 Hour!")
+            wallDelay = 60
+            setWalls(60)
             sharedPreferencesEditor.putStringSet("walls", HashSet(imgUrls)).apply()
             sharedPreferencesEditor.putStringSet("wallDescs", HashSet(imgDescs)).apply()
         }
 
         fabDay.setOnClickListener {
             updateInterval = "day"
-            //        // makeToast("Wallpaper updates every 60 Mins!")
-            wallDelay = 60
-            setWalls(60)
+            //        // makeToast("Wallpaper updates every 1 Day!")
+            wallDelay = 1440
+            setWalls(1440)
             sharedPreferencesEditor.putStringSet("walls", HashSet(imgUrls)).apply()
             sharedPreferencesEditor.putStringSet("wallDescs", HashSet(imgDescs)).apply()
         }
@@ -1227,6 +1227,9 @@ class MainActivity : AppCompatActivity() {
     private fun startStepsServiceInternal() {
         val intentSteps = Intent(this, StepsService::class.java)
         startForegroundService(intentSteps)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION) == PERMISSION_GRANTED) {
+            ActivityTransitionReceiver.requestUpdates(applicationContext)
+        }
     }
 
 

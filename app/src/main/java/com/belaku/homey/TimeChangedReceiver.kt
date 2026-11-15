@@ -53,6 +53,23 @@ class TimeChangedReceiver : BroadcastReceiver() {
 
             Log.d("TimeChangedReceiver", "Time tick: ${calendar.get(Calendar.HOUR_OF_DAY)}:$currentMin")
 
+            // Periodically refresh the widget UI on minute ticks to keep activity recognition,
+            // step counters, and active state duration fresh regardless of wallpaper auto-change interval.
+            try {
+                val componentName = ComponentName(context, NewAppWidget::class.java)
+                val appWidgetManager = AppWidgetManager.getInstance(context)
+                val ids = appWidgetManager.getAppWidgetIds(componentName)
+                if (ids.isNotEmpty()) {
+                    val updateIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).apply {
+                        component = componentName
+                        putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+                    }
+                    context.sendBroadcast(updateIntent)
+                }
+            } catch (e: Exception) {
+                Log.e("TimeChangedReceiver", "Failed to update widget on TIME_TICK", e)
+            }
+
             // Hourly announcement
             if (currentMin == 0) {
                 if (isMyServiceRunning(context, SpeakService::class.java)) {

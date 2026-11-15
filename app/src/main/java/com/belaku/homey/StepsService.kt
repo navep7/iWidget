@@ -256,6 +256,10 @@ class StepsService : Service() {
         BluetoothState(this)
         WifiState(this)
 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
+            ActivityTransitionReceiver.requestUpdates(applicationContext)
+        }
+
         sensorManager = this.getSystemService(SENSOR_SERVICE) as SensorManager
         val sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
         if (sensor != null) {
@@ -531,7 +535,9 @@ class StepsService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
+            ActivityTransitionReceiver.requestUpdates(applicationContext)
+        }
 
         if (::stepCounterSensor.isInitialized) {
             sensorManager.registerListener(

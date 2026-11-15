@@ -226,119 +226,8 @@ class NewAppWidget : AppWidgetProvider() {
 
     @SuppressLint("MissingPermission")
     private fun recognizeActivityTransitions() {
-
-        // ActivityTransitionReceiver is already declared in the manifest with the
-        // "action.TRANSITIONS_DATA" filter, so no runtime registration is needed here.
-        // Registering it again on every onEnabled() leaked a receiver and never unregistered it.
-
-        // setUI() calls this on every widget click (via onReceive()). The registration below is
-        // idempotent by PendingIntent (same request code + action), but re-issuing it is still a
-        // synchronous IPC call to Google Play Services on every single tap. Since the request
-        // never actually changes at runtime, only register once and skip on subsequent calls -
-        // this was contributing to the perceived click delay.
-        if (activityTransitionsRegistered) return
-
-   //     remoteViews?.setTextViewText(R.id.tx_act_state, "fetching..,")
-
-        intentActivityTransitionReceiver =
-            Intent(widgetContext, ActivityTransitionReceiver::class.java).setAction("action.TRANSITIONS_DATA")
-        requestCodeAT = 57
-        pendingIntentActivityTransitions = PendingIntent.getBroadcast(
-            widgetContext,
-            requestCodeAT,
-            intentActivityTransitionReceiver,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-        )
-
-        activityTransitions = ArrayList<ActivityTransition>()
-        activityTransitions.apply {
-            add(
-                ActivityTransition.Builder()
-                    .setActivityType(DetectedActivity.STILL)
-                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-                    .build()
-            )
-
-            add(
-                ActivityTransition.Builder()
-                    .setActivityType(DetectedActivity.STILL)
-                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-                    .build()
-            )
-
-            add(
-                ActivityTransition.Builder()
-                    .setActivityType(DetectedActivity.WALKING)
-                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-                    .build()
-            )
-
-            add(
-                ActivityTransition.Builder()
-                    .setActivityType(DetectedActivity.WALKING)
-                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-                    .build()
-            )
-
-            add(
-                ActivityTransition.Builder()
-                    .setActivityType(DetectedActivity.IN_VEHICLE)
-                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-                    .build()
-            )
-
-            add(
-                ActivityTransition.Builder()
-                    .setActivityType(DetectedActivity.IN_VEHICLE)
-                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-                    .build()
-            )
-
-            add(
-                ActivityTransition.Builder()
-                    .setActivityType(DetectedActivity.RUNNING)
-                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-                    .build()
-            )
-
-            add(
-                ActivityTransition.Builder()
-                    .setActivityType(DetectedActivity.RUNNING)
-                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-                    .build()
-            )
-
-            add(
-                ActivityTransition.Builder()
-                    .setActivityType(DetectedActivity.ON_BICYCLE)
-                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-                    .build()
-            )
-
-            add(
-                ActivityTransition.Builder()
-                    .setActivityType(DetectedActivity.ON_BICYCLE)
-                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-                    .build()
-            )
-        }
-
-        activityTransitionRequest = ActivityTransitionRequest(activityTransitions)
-
-        // myPendingIntent is the instance of PendingIntent where the app receives callbacks.
-        try {
-            ActivityRecognition.getClient(widgetContext)
-                .requestActivityTransitionUpdates(
-                    activityTransitionRequest,
-                    pendingIntentActivityTransitions
-                )
-                .addOnSuccessListener {
-                    activityTransitionsRegistered = true
-                    Log.d(TAG, "Activity transition updates registered")
-                }
-                .addOnFailureListener { e -> Log.e(TAG, "Activity transition updates failed", e) }
-        } catch (e: Exception) {
-            Log.e(TAG, "requestActivityTransitionUpdates threw", e)
+        if (ContextCompat.checkSelfPermission(widgetContext, Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
+            ActivityTransitionReceiver.requestUpdates(widgetContext)
         }
     }
 
@@ -964,13 +853,13 @@ class NewAppWidget : AppWidgetProvider() {
         val cycleChrActive = sharedPreferences.getLong("cycleChr", 0L)
         val cycleBase = if (cycleChrActive != 0L) cycleChrActive else SystemClock.elapsedRealtime() - dCycle
 
-        val durationWalkStr = formatDuration(SystemClock.elapsedRealtime() - walkBase)
-        val durationRunStr = formatDuration(SystemClock.elapsedRealtime() - runBase)
-        val durationCycleStr = formatDuration(SystemClock.elapsedRealtime() - cycleBase)
+        val durationWalkStr = formatDuration(SystemClock.elapsedRealtime() - walkBase).split(" ")
+        val durationRunStr = formatDuration(SystemClock.elapsedRealtime() - runBase).split(" ")
+        val durationCycleStr = formatDuration(SystemClock.elapsedRealtime() - cycleBase).split(" ")
 
-        remoteViews?.setTextViewText(R.id.tx_walk_static, durationWalkStr)
-        remoteViews?.setTextViewText(R.id.tx_run_static, durationRunStr)
-        remoteViews?.setTextViewText(R.id.tx_cycle_static, durationCycleStr)
+        remoteViews?.setTextViewText(R.id.tx_walk_static, durationWalkStr[0] + "\n" + durationWalkStr[1])
+        remoteViews?.setTextViewText(R.id.tx_run_static, durationRunStr[0] + "\n" + durationRunStr[1])
+        remoteViews?.setTextViewText(R.id.tx_cycle_static, durationCycleStr[0] + "\n" + durationCycleStr[1])
 
         val isWalk = presentActivityState == "WALKING"
         val isRun = presentActivityState == "RUNNING"
@@ -1286,13 +1175,14 @@ class NewAppWidget : AppWidgetProvider() {
     }
 
     private fun formatDuration(millis: Long): String {
-        val seconds = (millis / 1000) % 60
-        val minutes = (millis / (1000 * 60)) % 60
-        val hours = (millis / (1000 * 60 * 60))
+        val safeMillis = millis.coerceAtLeast(0L)
+        val seconds = (safeMillis / 1000) % 60
+        val minutes = (safeMillis / (1000 * 60)) % 60
+        val hours = (safeMillis / (1000 * 60 * 60))
         return if (hours > 0) {
-            String.format("%02d:%02d:%02d", hours, minutes, seconds)
+            String.format("%02dh %02dm", hours, minutes)
         } else {
-            String.format("%02d:%02d", minutes, seconds)
+            String.format("%02dm %02ds", minutes, seconds)
         }
     }
 
@@ -1726,10 +1616,16 @@ class NewAppWidget : AppWidgetProvider() {
             val firstToken = qT.trim().substringBefore(" ")
             if (firstToken.isNotEmpty()) {
                 val label = firstToken.replaceFirstChar { it.uppercase() }
+                val updateInfoText = when (dU) {
+                    "15" -> "15 mins"
+                    "60" -> "1 hour"
+                    "1440" -> "1 day"
+                    else -> if (dU.endsWith("min") || dU.endsWith("mins") || dU.endsWith("hour") || dU.endsWith("day")) dU else "$dU mins"
+                }
                 remoteViews?.setTextViewText(
                     R.id.tx_walltype_updateinfo,
                     Html.fromHtml(
-                        "$label..,\t ||| \t$dU mins, once.\t ||| \t↺ @ $uT",
+                        "$label..,\t ||| \t$updateInfoText, once.\t ||| \t↺ @ $uT",
                         Html.FROM_HTML_MODE_LEGACY
                     )
                 )

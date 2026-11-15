@@ -347,8 +347,14 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                         if (pD.isShowing) {
                             pD.dismiss()
                             Handler(Looper.getMainLooper()).postDelayed({
+                                val delayText = when (wallDelay) {
+                                    15 -> "15 mins"
+                                    60 -> "1 hour"
+                                    1440 -> "1 day"
+                                    else -> if (wallDelay >= 1440) "${wallDelay / 1440} days" else if (wallDelay >= 60) "${wallDelay / 60} hours" else "$wallDelay mins"
+                                }
                                 txStatus.text =
-                                    "\"$queryType\" wallpapers Set, updates every $wallDelay mins."
+                                    "\"$queryType\" wallpapers Set, updates every $delayText."
                                 rlStatus.visibility = View.VISIBLE
                                 val ids: IntArray = appWidM.getAppWidgetIds(newAppWidget)
 
@@ -369,12 +375,18 @@ class SetWallWorker(context: Context?, workerParams: WorkerParameters?) :
                 }
 
                 if (NewAppWidget.checkCompanionVariable()) {
+                    val updateInfoText = when (dU) {
+                        "15" -> "15 mins"
+                        "60" -> "1 hour"
+                        "1440" -> "1 day"
+                        else -> if (dU.endsWith("min") || dU.endsWith("mins") || dU.endsWith("hour") || dU.endsWith("day")) dU else "$dU mins"
+                    }
                     remoteViews?.setTextViewText(R.id.tx_walldesc, wD)
                     remoteViews?.setTextViewText(
                         R.id.tx_walltype_updateinfo,
                         Html.fromHtml(
                             qT.split(" ")[0].substring(0, 1)
-                                .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + dU + " mins, once.\t ||| \t" + "↺ @ $uT",
+                                .uppercase() + qT.split(" ")[0].substring(1) + "..,\t ||| \t" + updateInfoText + ", once.\t ||| \t" + "↺ @ $uT",
                             Html.FROM_HTML_MODE_LEGACY
                         )
                     )

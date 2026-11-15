@@ -126,7 +126,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:elevation="16dp"
-                android:text="30 Min"
+                android:text="1 Hour"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textSize="15dp" />
         </FrameLayout>
@@ -144,15 +144,14 @@
                 android:id="@+id/fab_option_3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@android:color/transparent"
-                android:visibility="gone" />
+                android:src="@android:color/transparent" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:elevation="16dp"
-                android:text="1 Hour"
+                android:text="1 Day"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textSize="15dp" />
         </FrameLayout>

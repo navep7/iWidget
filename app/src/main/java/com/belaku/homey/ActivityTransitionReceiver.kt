@@ -267,10 +267,14 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
             }
 
             val request = ActivityTransitionRequest(transitions)
-            ActivityRecognition.getClient(context)
-                .requestActivityTransitionUpdates(request, getTransitionsPendingIntent(context))
-                .addOnSuccessListener { Log.d("ActivityTransition", "Registered successfully") }
-                .addOnFailureListener { e -> Log.e("ActivityTransition", "Registration failed", e) }
+            try {
+                ActivityRecognition.getClient(context)
+                    .requestActivityTransitionUpdates(request, getTransitionsPendingIntent(context))
+                    .addOnSuccessListener { Log.d("ActivityTransition", "Registered successfully") }
+                    .addOnFailureListener { e -> Log.e("ActivityTransition", "Registration failed", e) }
+            } catch (e: Exception) {
+                Log.e("ActivityTransition", "requestUpdates failed", e)
+            }
         }
 
         /**
@@ -278,10 +282,14 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
          */
         @SuppressLint("MissingPermission")
         fun removeUpdates(context: Context) {
-            ActivityRecognition.getClient(context)
-                .removeActivityTransitionUpdates(getTransitionsPendingIntent(context))
-                .addOnSuccessListener { Log.d("ActivityTransition", "Removed successfully") }
-                .addOnFailureListener { e -> Log.e("ActivityTransition", "Removal failed", e) }
+            try {
+                ActivityRecognition.getClient(context)
+                    .removeActivityTransitionUpdates(getTransitionsPendingIntent(context))
+                    .addOnSuccessListener { Log.d("ActivityTransition", "Removed successfully") }
+                    .addOnFailureListener { e -> Log.e("ActivityTransition", "Removal failed", e) }
+            } catch (e: Exception) {
+                Log.e("ActivityTransition", "removeUpdates failed", e)
+            }
         }
 
         /**

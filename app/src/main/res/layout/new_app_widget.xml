@@ -1079,7 +1079,7 @@
                                 android:textSize="@dimen/text_size_14"
                                 android:textColor="@android:color/holo_red_dark"
                                 android:textStyle="bold"
-                                android:text="00:00"
+                                android:text="00m 00s"
                                 tools:ignore="HardcodedText" />
                         </LinearLayout>
 
@@ -1124,7 +1124,7 @@
                                 android:textSize="@dimen/text_size_14"
                                 android:textColor="@android:color/holo_red_dark"
                                 android:textStyle="bold"
-                                android:text="00:00"
+                                android:text="00m 00s"
                                 tools:ignore="HardcodedText" />
                         </LinearLayout>
 
@@ -1169,7 +1169,7 @@
                                 android:textSize="@dimen/text_size_14"
                                 android:textColor="@android:color/holo_red_dark"
                                 android:textStyle="bold"
-                                android:text="00:00"
+                                android:text="00m 00s"
                                 tools:ignore="HardcodedText" />
                         </LinearLayout>
 

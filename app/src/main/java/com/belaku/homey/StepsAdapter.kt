@@ -114,13 +114,14 @@ class StepsAdapter(
     }
 
     private fun formatDuration(millis: Long): String {
-        val seconds = (millis / 1000) % 60
-        val minutes = (millis / (1000 * 60)) % 60
-        val hours = (millis / (1000 * 60 * 60))
+        val safeMillis = millis.coerceAtLeast(0L)
+        val seconds = (safeMillis / 1000) % 60
+        val minutes = (safeMillis / (1000 * 60)) % 60
+        val hours = (safeMillis / (1000 * 60 * 60))
         return if (hours > 0) {
-            String.format("%02d:%02d:%02d", hours, minutes, seconds)
+            String.format("%02dh %02dm", hours, minutes)
         } else {
-            String.format("%02d:%02d", minutes, seconds)
+            String.format("%02dm %02ds", minutes, seconds)
         }
     }
 
