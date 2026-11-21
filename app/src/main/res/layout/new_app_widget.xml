@@ -128,6 +128,17 @@
                         android:shadowDx="0"
                         android:shadowDy="0"
                         android:padding="@dimen/padding_3"/>
+
+                    <ImageButton
+                        android:id="@+id/imgbtn_add_timer"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginBottom="@dimen/padding_10"
+                        android:src="@android:drawable/ic_input_add"
+                        android:background="@drawable/rounded_corner_gray"
+                        android:scaleType="fitXY"
+                        android:contentDescription="Timers" />
+
                 </LinearLayout>
 
             </RelativeLayout>

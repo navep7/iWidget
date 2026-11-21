@@ -8,7 +8,9 @@ import android.Manifest
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
+import android.app.AlarmManager
 import android.app.PendingIntent
+import android.app.TimePickerDialog
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -41,6 +43,7 @@ import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.BatteryManager
 import android.os.Build
+import android.os.CountDownTimer
 import android.os.SystemClock
 import android.provider.AlarmClock
 import android.provider.CalendarContract
@@ -131,7 +134,7 @@ import com.belaku.homey.StepsService.Companion.ismLatLngInitialized
 class NewAppWidget : AppWidgetProvider() {
 
 
-
+    private lateinit var countDownTimer: CountDownTimer
     private var currentCount: CharSequence = "0"
     private lateinit var widgetContext: Context
     private lateinit var activityTransitionRequest: ActivityTransitionRequest
@@ -681,6 +684,16 @@ class NewAppWidget : AppWidgetProvider() {
             Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "SPEED"),
             PendingIntent.FLAG_IMMUTABLE
         )
+        )
+
+        remoteViews?.setOnClickPendingIntent(
+            R.id.imgbtn_add_timer,
+            PendingIntent.getActivity(
+                context,
+                59,
+                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "AddTimer"),
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
         )
 
 
@@ -2394,7 +2407,13 @@ class NewAppWidget : AppWidgetProvider() {
     protected fun getPendingSelfIntent(context: Context?, action: String?): PendingIntent {
         val intent = Intent(context, javaClass)
         intent.setAction(action)
-        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        val requestCode = action?.hashCode() ?: 0
+        return PendingIntent.getBroadcast(
+            context,
+            requestCode,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
     }
 
     companion object {

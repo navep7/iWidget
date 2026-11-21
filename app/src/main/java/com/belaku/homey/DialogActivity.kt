@@ -2,7 +2,12 @@ package com.belaku.homey
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlarmManager
 import android.app.AlertDialog
+import android.app.PendingIntent
+import android.app.TimePickerDialog
+import android.os.CountDownTimer
+import android.provider.AlarmClock
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
@@ -132,6 +137,7 @@ class DialogActivity : AppCompatActivity() {
     private lateinit var imgbtnRefreshStocks: ImageButton
     private lateinit var pbRefreshStocks: ProgressBar
     private lateinit var llMenu: LinearLayout
+    private var countDownTimer: CountDownTimer? = null
     private lateinit var glStocks: GridLayout
     private var selectedStockIndex: Int = -1
     private lateinit var dialogActContext: Context
@@ -155,6 +161,7 @@ class DialogActivity : AppCompatActivity() {
     private lateinit var menuWifi: ImageButton
     private lateinit var menuBlue: ImageButton
     private lateinit var menuAi: ImageButton
+    private lateinit var menu2AugmentedMeasurement: ImageButton
 
 
     @SuppressLint("ResourceAsColor", "SetTextI18n")
@@ -236,6 +243,7 @@ class DialogActivity : AppCompatActivity() {
         menuWifi = findViewById(R.id.menu_wifi)
         menuBlue = findViewById(R.id.menu_blue)
         menuAi = findViewById(R.id.menu_ai)
+        menu2AugmentedMeasurement = findViewById(R.id.menu2_imgbtn_augmented_measurement)
 
          val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
          bluetoothAdapter = bluetoothManager.adapter
@@ -299,6 +307,12 @@ class DialogActivity : AppCompatActivity() {
             startActivity(aiIntent)
         }
 
+        menu2AugmentedMeasurement.setOnClickListener {
+            val arIntent = Intent(this, ArMeasurementActivity::class.java)
+            arIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(arIntent)
+        }
+
         dialogIntentStr = intent.getStringExtra("DialogIntent").toString()
    //     makeToast(applicationContext,dialogIntentStr.toString())
 
@@ -329,6 +343,9 @@ class DialogActivity : AppCompatActivity() {
                 "appPredictions" -> {
                     appPredictions()
                     finish()
+                }
+                "AddTimer" -> {
+                    showTimerQuickAccessDialog()
                 }
                 "SongCover" -> {
                     txTitle.visibility = View.VISIBLE
@@ -1262,7 +1279,7 @@ class DialogActivity : AppCompatActivity() {
     }
 
     private fun fetchTweetsWithPython(username: String) {
-        val twConfigBtn = findViewById<ImageView>(R.id.tw_profile_pic)
+        val twConfigBtn = findViewById<ImageView>(R.id.tw_switch_user)
         txContent.text = "Fetching tweets for @$username via Python..."
 
         val fallbackAvatarUrl = "https://unavatar.io/twitter/$username"
@@ -1434,5 +1451,167 @@ class DialogActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun showTimerQuickAccessDialog() {
+        val prefs = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        val recentJson = prefs.getString("recent_timers", null)
+        val recentTimers = ArrayList<Int>()
+        if (!recentJson.isNullOrBlank()) {
+            try {
+                val type = object : com.google.gson.reflect.TypeToken<ArrayList<Int>>() {}.type
+                val list: ArrayList<Int>? = Gson().fromJson(recentJson, type)
+                if (list != null) recentTimers.addAll(list)
+            } catch (_: Exception) {}
+        }
+
+        val defaultPresets = listOf(60, 300, 600, 900, 1800, 3600) // 1m, 5m, 10m, 15m, 30m, 1h
+        val combinedTimers = LinkedHashSet<Int>()
+        combinedTimers.addAll(recentTimers)
+        combinedTimers.addAll(defaultPresets)
+
+        val timerList = ArrayList(combinedTimers)
+        val displayItems = ArrayList<String>()
+        for (seconds in timerList) {
+            displayItems.add(formatTimerDuration(seconds))
+        }
+        displayItems.add("+ Custom Timer...")
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Quick Timers")
+        builder.setItems(displayItems.toTypedArray()) { _, which ->
+            if (which == displayItems.size - 1) {
+                showTimerPickerDialog()
+            } else {
+                val selectedSeconds = timerList[which]
+                startTimerWithSeconds(selectedSeconds)
+            }
+        }
+        builder.setOnCancelListener { finish() }
+        builder.show()
+    }
+
+    private fun formatTimerDuration(totalSeconds: Int): String {
+        val hours = totalSeconds / 3600
+        val mins = (totalSeconds % 3600) / 60
+        val secs = totalSeconds % 60
+        return when {
+            hours > 0 && mins > 0 -> "$hours hr $mins min"
+            hours > 0 -> "$hours hr"
+            mins > 0 -> "$mins min"
+            else -> "$secs sec"
+        }
+    }
+
+    private fun startTimerWithSeconds(totalSeconds: Int) {
+        if (totalSeconds > 0) {
+            val triggerTimeMs = System.currentTimeMillis() + (totalSeconds * 1000L)
+
+            saveRecentTimer(totalSeconds)
+
+            // 1. Schedule AlarmManager broadcast for notification when countdown finishes
+            try {
+                val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                val alarmIntent = Intent(this, AlarmBroadcastReceiver::class.java).apply {
+                    putExtra("alertSub", "Timer Finished! (${formatTimerDuration(totalSeconds)})")
+                }
+                val pendingIntent = PendingIntent.getBroadcast(
+                    this,
+                    (System.currentTimeMillis() % 10000).toInt(),
+                    alarmIntent,
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                )
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    triggerTimeMs,
+                    pendingIntent
+                )
+            } catch (e: Exception) {
+                Log.e("DialogActivity", "Error setting alarm timer", e)
+            }
+
+            // 2. Launch system AlarmClock timer if available
+            try {
+                val intent = Intent(AlarmClock.ACTION_SET_TIMER).apply {
+                    putExtra(AlarmClock.EXTRA_LENGTH, totalSeconds)
+                    putExtra(AlarmClock.EXTRA_MESSAGE, "Timer")
+                    putExtra(AlarmClock.EXTRA_SKIP_UI, false)
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                if (intent.resolveActivity(packageManager) != null) {
+                    startActivity(intent)
+                }
+            } catch (e: Exception) {
+                Log.e("DialogActivity", "Error launching system timer intent", e)
+            }
+
+            // 3. Speak out passed minutes if less than 11 minutes
+            if (totalSeconds < 660 && totalSeconds >= 60) {
+                val totalMinutes = totalSeconds / 60
+                android.os.Handler(android.os.Looper.getMainLooper()).post {
+                    val millis = totalSeconds * 1000L
+                    object : CountDownTimer(millis, 1000L) {
+                        private var lastAnnouncedMinute = 0
+
+                        override fun onTick(millisUntilFinished: Long) {
+                            val elapsedSeconds = (millis - millisUntilFinished) / 1000
+                            val passedMinutes = (elapsedSeconds / 60).toInt()
+                            if (passedMinutes > lastAnnouncedMinute && passedMinutes <= totalMinutes) {
+                                lastAnnouncedMinute = passedMinutes
+                              //  val phrase = if (passedMinutes == 1) "1" else "$passedMinutes"
+                                SpeakService.speakOut("" + passedMinutes)
+                            }
+                        }
+
+                        override fun onFinish() {}
+                    }.start()
+                }
+            }
+
+            makeToast(applicationContext, "Timer set for ${formatTimerDuration(totalSeconds)}")
+        } else {
+            makeToast(applicationContext, "Please select a valid timer duration")
+        }
+        finish()
+    }
+
+    private fun saveRecentTimer(seconds: Int) {
+        val prefs = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        val recentJson = prefs.getString("recent_timers", null)
+        val recentTimers = ArrayList<Int>()
+        if (!recentJson.isNullOrBlank()) {
+            try {
+                val type = object : com.google.gson.reflect.TypeToken<ArrayList<Int>>() {}.type
+                val list: ArrayList<Int>? = Gson().fromJson(recentJson, type)
+                if (list != null) recentTimers.addAll(list)
+            } catch (_: Exception) {}
+        }
+        recentTimers.remove(seconds)
+        recentTimers.add(0, seconds)
+        if (recentTimers.size > 5) {
+            recentTimers.subList(5, recentTimers.size).clear()
+        }
+        prefs.edit().putString("recent_timers", Gson().toJson(recentTimers)).apply()
+    }
+
+    private fun showTimerPickerDialog() {
+        val timePickerDialog = TimePickerDialog(
+            this,
+            { _, hourOfDay, minute ->
+                val totalSeconds = (hourOfDay * 3600) + (minute * 60)
+                startTimerWithSeconds(totalSeconds)
+            },
+            0,
+            0,
+            true
+        )
+        timePickerDialog.setTitle("Set Countdown Timer")
+        timePickerDialog.setOnCancelListener { finish() }
+        timePickerDialog.show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        countDownTimer?.cancel()
     }
 }

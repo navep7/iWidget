@@ -121,6 +121,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.properties.Delegates
 import kotlin.system.exitProcess
+import androidx.core.view.isGone
 
 
 class MainActivity : AppCompatActivity() {
@@ -377,7 +378,7 @@ class MainActivity : AppCompatActivity() {
         fabMain.setOnClickListener { view ->
 
             if (fabMain.text == "Set" || fabMain.text == "Exp ~ Set again!") {
-                if (fabDay.visibility == View.GONE) {
+                if (fabDay.isGone) {
 
                     fabDay.visibility = View.VISIBLE
                     frameMin.visibility = View.VISIBLE
