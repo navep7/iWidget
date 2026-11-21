@@ -22,6 +22,10 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import com.google.ar.core.Anchor
+import com.google.ar.core.Config
+import com.google.ar.core.Plane
+import com.google.ar.core.Session
 import java.util.Locale
 import kotlin.math.hypot
 
@@ -34,13 +38,16 @@ class ArMeasurementActivity : AppCompatActivity() {
     private lateinit var tvInstructions: TextView
     private lateinit var tvDistanceResult: TextView
 
+    private var arSession: Session? = null
+    private var anchor1: Anchor? = null
+    private var anchor2: Anchor? = null
     private var latestFocusDiopters: Float = 0f
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            startCamera()
+            startCameraAndArSession()
         } else {
             Toast.makeText(this, "Camera permission is required for AR Measurement", Toast.LENGTH_LONG).show()
             finish()
@@ -60,9 +67,7 @@ class ArMeasurementActivity : AppCompatActivity() {
 
         btnBack.setOnClickListener { finish() }
         btnReset.setOnClickListener {
-            measurementOverlay.clearPoints()
-            tvInstructions.text = "Tap two points on the surface to measure distance"
-            tvDistanceResult.text = "Distance: -- cm"
+            resetMeasurement()
         }
 
         measurementOverlay.setOnTouchListener { _, event ->
@@ -70,25 +75,44 @@ class ArMeasurementActivity : AppCompatActivity() {
                 val x = event.x
                 val y = event.y
 
-                measurementOverlay.focusDiopters = latestFocusDiopters
-                measurementOverlay.viewWidthPx = viewFinder.width
+                val session = arSession
+                if (session != null) {
+                    try {
+                        val frame = session.update()
+                        val hitResults = frame.hitTest(x, y)
+                        val hitResult = hitResults.firstOrNull {
+                            val trackable = it.trackable
+                            trackable is Plane && trackable.isPoseInPolygon(it.hitPose)
+                        } ?: hitResults.firstOrNull()
 
-                if (measurementOverlay.point1 == null) {
-                    measurementOverlay.point1 = PointF(x, y)
-                    tvInstructions.text = "Tap second point to measure distance"
-                    measurementOverlay.invalidate()
-                } else if (measurementOverlay.point2 == null) {
-                    measurementOverlay.point2 = PointF(x, y)
-                    tvInstructions.text = "Measurement complete. Tap Reset to start over."
-                    measurementOverlay.invalidate()
-
-                    recalculateMeasurement()
+                        if (hitResult != null) {
+                            val anchor = hitResult.createAnchor()
+                            if (anchor1 == null) {
+                                anchor1 = anchor
+                                measurementOverlay.point1 = PointF(x, y)
+                                tvInstructions.text = "Tap second point"
+                                measurementOverlay.invalidate()
+                            } else if (anchor2 == null) {
+                                anchor2 = anchor
+                                measurementOverlay.point2 = PointF(x, y)
+                                tvInstructions.text = "Measurement complete. Tap Reset to start over."
+                                measurementOverlay.invalidate()
+                                recalculateMeasurement()
+                            } else {
+                                resetMeasurement()
+                                anchor1 = anchor
+                                measurementOverlay.point1 = PointF(x, y)
+                                tvInstructions.text = "Tap second point"
+                                measurementOverlay.invalidate()
+                            }
+                        } else {
+                            fallbackPixelMeasurement(x, y)
+                        }
+                    } catch (e: Exception) {
+                        fallbackPixelMeasurement(x, y)
+                    }
                 } else {
-                    measurementOverlay.clearPoints()
-                    measurementOverlay.point1 = PointF(x, y)
-                    tvInstructions.text = "Tap second point to measure distance"
-                    tvDistanceResult.text = "Distance: -- cm"
-                    measurementOverlay.invalidate()
+                    fallbackPixelMeasurement(x, y)
                 }
                 true
             } else {
@@ -97,9 +121,27 @@ class ArMeasurementActivity : AppCompatActivity() {
         }
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-            startCamera()
+            startCameraAndArSession()
         } else {
             requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+
+    private fun fallbackPixelMeasurement(x: Float, y: Float) {
+        if (measurementOverlay.point1 == null) {
+            measurementOverlay.point1 = PointF(x, y)
+            tvInstructions.text = "Tap second point"
+            measurementOverlay.invalidate()
+        } else if (measurementOverlay.point2 == null) {
+            measurementOverlay.point2 = PointF(x, y)
+            tvInstructions.text = "Measurement complete."
+            measurementOverlay.invalidate()
+            recalculateMeasurement()
+        } else {
+            resetMeasurement()
+            measurementOverlay.point1 = PointF(x, y)
+            tvInstructions.text = "Tap second point"
+            measurementOverlay.invalidate()
         }
     }
 
@@ -109,11 +151,23 @@ class ArMeasurementActivity : AppCompatActivity() {
         if (p1 != null && p2 != null) {
             val pixelDist = hypot((p2.x - p1.x).toDouble(), (p2.y - p1.y).toDouble()).toFloat()
 
-            val distanceMeters = if (latestFocusDiopters > 0f) 1.0f / latestFocusDiopters else 0.5f
-            val viewWidthMeters = 2.0f * distanceMeters * 0.57735f
-            val widthPx = if (viewFinder.width > 0) viewFinder.width.toFloat() else 1080f
-            val cmPerPixel = (viewWidthMeters * 100.0f) / widthPx
-            val cm = pixelDist * cmPerPixel
+            val cm = if (anchor1 != null && anchor2 != null) {
+                val pA = anchor1!!.pose
+                val pB = anchor2!!.pose
+                val dx = (pB.tx() - pA.tx()).toDouble()
+                val dy = (pB.ty() - pA.ty()).toDouble()
+                val dz = (pB.tz() - pA.tz()).toDouble()
+                val meters = hypot(hypot(dx, dy), dz).toFloat()
+                meters * 100f
+            } else {
+                val distanceMeters = if (latestFocusDiopters > 0f) 1.0f / latestFocusDiopters else 0.25f
+                val viewWidthMeters = 2.0f * distanceMeters * 0.57735f
+                val widthPx = if (viewFinder.width > 0) viewFinder.width.toFloat() else 1080f
+                val cmPerPixel = (viewWidthMeters * 100.0f) / widthPx
+                pixelDist * cmPerPixel
+            }
+
+            measurementOverlay.measuredCm = cm
 
             val distanceText = if (cm >= 30.48f) {
                 val totalInches = cm / 2.54f
@@ -132,8 +186,18 @@ class ArMeasurementActivity : AppCompatActivity() {
         }
     }
 
+    private fun resetMeasurement() {
+        anchor1?.detach()
+        anchor2?.detach()
+        anchor1 = null
+        anchor2 = null
+        measurementOverlay.clearPoints()
+        tvInstructions.text = "Move phone slowly to detect surface, then tap two points"
+        tvDistanceResult.text = "Distance: --"
+    }
+
     @OptIn(ExperimentalCamera2Interop::class)
-    private fun startCamera() {
+    private fun startCameraAndArSession() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
@@ -163,8 +227,36 @@ class ArMeasurementActivity : AppCompatActivity() {
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(this, cameraSelector, preview)
             } catch (exc: Exception) {
-                Toast.makeText(this, "Use camera failed: ${exc.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Camera preview failed: ${exc.message}", Toast.LENGTH_SHORT).show()
             }
         }, ContextCompat.getMainExecutor(this))
+
+        try {
+            if (arSession == null) {
+                arSession = Session(this)
+                val config = Config(arSession).apply {
+                    planeFindingMode = Config.PlaneFindingMode.HORIZONTAL_AND_VERTICAL
+                    updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
+                }
+                arSession?.configure(config)
+            }
+            arSession?.resume()
+        } catch (e: Exception) {
+            arSession = null
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        try {
+            arSession?.resume()
+        } catch (e: Exception) {
+            // ignore
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        arSession?.pause()
     }
 }

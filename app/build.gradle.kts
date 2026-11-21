@@ -123,6 +123,9 @@ dependencies {
 
     implementation(libs.core)
 
+    // Raw ARCore
+    implementation("com.google.ar:core:1.57.0")
+
     // CameraX
     implementation("androidx.camera:camera-core:1.3.4")
     implementation("androidx.camera:camera-camera2:1.3.4")
