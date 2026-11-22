@@ -2790,11 +2790,11 @@ class NewAppWidget : AppWidgetProvider() {
 
 
             greeting(context)
-            remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
-            remoteViews?.setTextColor(R.id.tx_dot, primaryColor)
-           /* remoteViews?.setTextColor(R.id.tx_wish, primaryColor)
-            remoteViews?.setTextColor(R.id.tx_day_date, secondaryColor)
-            remoteViews?.setTextColor(R.id.clock, secondaryColor)*/
+            remoteViews?.setTextViewText(R.id.tx_wish, "\t\t" + timelyWish)
+            /*  remoteViews?.setTextColor(R.id.tx_dot, primaryColor)
+            remoteViews?.setTextColor(R.id.tx_wish, primaryColor)
+             remoteViews?.setTextColor(R.id.tx_day_date, secondaryColor)
+             remoteViews?.setTextColor(R.id.clock, secondaryColor)*/
 
             try {
 

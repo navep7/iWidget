@@ -32,9 +32,9 @@
               <option name="connection">
                 <ConnectionSetting>
                   <option name="appId" value="com.belaku.homey" />
-                  <option name="mobileSdkAppId" value="1:662346122694:android:fdabcce47bd89188c15ec7" />
-                  <option name="projectId" value="nhome-8c61c" />
-                  <option name="projectNumber" value="662346122694" />
+                  <option name="mobileSdkAppId" value="1:230350608549:android:56da6609bd30425559554c" />
+                  <option name="projectId" value="nhome-c32ab" />
+                  <option name="projectNumber" value="230350608549" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
