@@ -20,7 +20,9 @@ class NHApp : Application() {
         val firebaseAppCheck = FirebaseAppCheck.getInstance()
 
         if (BuildConfig.DEBUG) {
-            // For local development and CI environments
+            // Set a stable debug secret for App Check to prevent "Firebase app check token is invalid" errors.
+            // Register this debug secret ("HomeyAppCheckDebugSecret2025") in the Firebase Console under App Check -> Apps -> Manage debug tokens.
+            System.setProperty("com.google.firebase.appcheck.debug.debug_secret", "HomeyAppCheckDebugSecret2025")
             firebaseAppCheck.installAppCheckProviderFactory(
                 DebugAppCheckProviderFactory.getInstance()
             )

@@ -150,15 +150,15 @@
             android:contentDescription="AR Measurement" />
 
         <ImageButton
-            android:id="@+id/menu2_imgbtn2"
+            android:id="@+id/menu2_imgbtn_measure_calories"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_margin="10dp"
-            android:src="@drawable/torch_off"
+            android:src="@drawable/ic_food_calories"
             android:background="@drawable/rounded_corner_gray"
             android:scaleType="fitXY"
             android:padding="10dp"
-            android:contentDescription="Torch" />
+            android:contentDescription="Measure Calories" />
 
         <ImageButton
             android:id="@+id/menu2_imgbtn3"

@@ -37,6 +37,10 @@ import android.view.Window
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.net.Uri
 import android.widget.GridLayout
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -44,15 +48,31 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.google.firebase.Firebase
+import com.google.firebase.ai.ai
+import com.google.firebase.ai.type.GenerativeBackend
+import com.google.firebase.ai.type.content
+
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.ByteArrayOutputStream
+import android.util.Base64
+import java.io.File
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
@@ -162,6 +182,24 @@ class DialogActivity : AppCompatActivity() {
     private lateinit var menuBlue: ImageButton
     private lateinit var menuAi: ImageButton
     private lateinit var menu2AugmentedMeasurement: ImageButton
+    private lateinit var menu2MeasureCalories: ImageButton
+    private var foodPhotoUri: Uri? = null
+
+    private val foodCameraPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                launchFoodCamera()
+            } else {
+                Toast.makeText(this, "Camera permission is required to capture food photo", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+    private val takeFoodPhotoLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            if (success && foodPhotoUri != null) {
+                analyzeFoodCalories(foodPhotoUri!!)
+            }
+        }
 
 
     @SuppressLint("ResourceAsColor", "SetTextI18n")
@@ -244,6 +282,7 @@ class DialogActivity : AppCompatActivity() {
         menuBlue = findViewById(R.id.menu_blue)
         menuAi = findViewById(R.id.menu_ai)
         menu2AugmentedMeasurement = findViewById(R.id.menu2_imgbtn_augmented_measurement)
+        menu2MeasureCalories = findViewById(R.id.menu2_imgbtn_measure_calories)
 
          val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
          bluetoothAdapter = bluetoothManager.adapter
@@ -313,6 +352,14 @@ class DialogActivity : AppCompatActivity() {
             startActivity(arIntent)
         }
 
+        menu2MeasureCalories.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                launchFoodCamera()
+            } else {
+                foodCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
+
         dialogIntentStr = intent.getStringExtra("DialogIntent").toString()
    //     makeToast(applicationContext,dialogIntentStr.toString())
 
@@ -320,6 +367,14 @@ class DialogActivity : AppCompatActivity() {
 
         if (dialogIntentStr != null) {
             when (dialogIntentStr) {
+                "MeasureCalories" -> {
+                    window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                        launchFoodCamera()
+                    } else {
+                        foodCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                    }
+                }
                 "Menu" -> {
                     window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                     val prefs = if (isSharedPreferencesInitialized()) sharedPreferences else getSharedPreferences("UserPreferences", MODE_PRIVATE)
@@ -1608,6 +1663,183 @@ class DialogActivity : AppCompatActivity() {
         timePickerDialog.setTitle("Set Countdown Timer")
         timePickerDialog.setOnCancelListener { finish() }
         timePickerDialog.show()
+    }
+
+    private fun launchFoodCamera() {
+        try {
+            val imageDir = File(cacheDir, "images").apply { mkdirs() }
+            val photoFile = File.createTempFile("food_photo_", ".jpg", imageDir)
+            val uri = FileProvider.getUriForFile(this, "$packageName.fileprovider", photoFile)
+            foodPhotoUri = uri
+            takeFoodPhotoLauncher.launch(uri)
+        } catch (e: Exception) {
+            makeToast(applicationContext, "Error preparing camera: ${e.message}")
+        }
+    }
+
+    private fun analyzeFoodCalories(uri: Uri) {
+        llMenu.visibility = View.GONE
+        txTitle.text = "Food Calorie Analysis"
+        txTitle.visibility = View.VISIBLE
+
+        val bitmap = loadOrientedBitmap(uri)
+        if (bitmap != null) {
+            imgvSongCover.setImageBitmap(bitmap)
+            imgvSongCover.visibility = View.VISIBLE
+        }
+
+        txContent.text = "Analyzing food image using Gemini AI...\nPlease wait a moment."
+        txContent.visibility = View.VISIBLE
+        llButtons.visibility = View.VISIBLE
+        btnOk.visibility = View.VISIBLE
+        imgbtnShare.visibility = View.VISIBLE
+        btnCancel.visibility = View.GONE
+
+        window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+
+        lifecycleScope.launch {
+            try {
+                val currentBitmap = bitmap ?: loadOrientedBitmap(uri)
+                if (currentBitmap == null) {
+                    txContent.text = "Failed to load captured food image."
+                    return@launch
+                }
+
+                val scaledBitmap = scaleBitmapDown(currentBitmap, 1024)
+                val prompt = "Identify the food item(s) in this photo. Estimate portion size, calculate total calories, and provide a breakdown of macronutrients (protein, carbs, fat). Present the response clearly with bullet points."
+
+                val responseText = callGeminiApi(scaledBitmap, prompt)
+
+                if (!responseText.isNullOrEmpty()) {
+                    txContent.text = responseText
+                } else {
+                    txContent.text = "Unable to estimate calories for this image."
+                }
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+                txContent.text = "Error analyzing food: ${ex.localizedMessage ?: ex.message}"
+                makeToast(applicationContext, "Error: ${ex.message}")
+            }
+        }
+    }
+
+    private suspend fun callGeminiApi(bitmap: Bitmap, prompt: String): String = withContext(Dispatchers.IO) {
+        val keys = listOf(
+            "AQ.Ab8RN6Kg9Ih76cBEvWFS1fb6WenMDA3LCjsIxRi5n36oEXko7g"
+        )
+        val models = listOf("gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.5-flash")
+
+        val outputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, outputStream)
+        val base64Image = Base64.encodeToString(outputStream.toByteArray(), Base64.NO_WRAP)
+
+        val jsonBody = JSONObject().apply {
+            put("contents", JSONArray().apply {
+                put(JSONObject().apply {
+                    put("parts", JSONArray().apply {
+                        put(JSONObject().apply {
+                            put("text", prompt)
+                        })
+                        put(JSONObject().apply {
+                            put("inline_data", JSONObject().apply {
+                                put("mime_type", "image/jpeg")
+                                put("data", base64Image)
+                            })
+                        })
+                    })
+                })
+            })
+            put("generationConfig", JSONObject().apply {
+                put("thinkingConfig", JSONObject().apply {
+                    put("thinkingLevel", "LOW")
+                })
+            })
+        }
+
+        val mediaType = "application/json; charset=utf-8".toMediaType()
+        val requestBody = jsonBody.toString().toRequestBody(mediaType)
+        val client = OkHttpClient()
+
+        var lastError = ""
+
+        for (apiKey in keys) {
+            for (model in models) {
+                try {
+                    val url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey"
+                    val request = Request.Builder()
+                        .url(url)
+                        .post(requestBody)
+                        .build()
+
+                    client.newCall(request).execute().use { response ->
+                        val responseBodyStr = response.body?.string() ?: ""
+                        if (response.isSuccessful) {
+                            val jsonResponse = JSONObject(responseBodyStr)
+                            val candidates = jsonResponse.optJSONArray("candidates")
+                            if (candidates != null && candidates.length() > 0) {
+                                val contentObj = candidates.getJSONObject(0).optJSONObject("content")
+                                val parts = contentObj?.optJSONArray("parts")
+                                if (parts != null && parts.length() > 0) {
+                                    val textResult = parts.getJSONObject(0).optString("text", "")
+                                    if (textResult.isNotBlank()) {
+                                        return@withContext textResult
+                                    }
+                                }
+                            }
+                        } else {
+                            lastError = "HTTP ${response.code}: $responseBodyStr"
+                        }
+                    }
+                } catch (e: Exception) {
+                    lastError = e.message ?: e.toString()
+                }
+            }
+        }
+        throw Exception(if (lastError.isNotBlank()) lastError else "Failed to connect to Gemini API.")
+    }
+
+    private fun loadOrientedBitmap(uri: Uri): Bitmap? {
+        return try {
+            contentResolver.openInputStream(uri)?.use { inputStream ->
+                val bitmap = BitmapFactory.decodeStream(inputStream) ?: return null
+                contentResolver.openInputStream(uri)?.use { exifStream ->
+                    val exif = android.media.ExifInterface(exifStream)
+                    val orientation = exif.getAttributeInt(
+                        android.media.ExifInterface.TAG_ORIENTATION,
+                        android.media.ExifInterface.ORIENTATION_NORMAL
+                    )
+                    val matrix = Matrix()
+                    when (orientation) {
+                        android.media.ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+                        android.media.ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+                        android.media.ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+                    }
+                    Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+                } ?: bitmap
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    private fun scaleBitmapDown(bitmap: Bitmap, maxDimension: Int): Bitmap {
+        val width = bitmap.width
+        val height = bitmap.height
+        if (width <= maxDimension && height <= maxDimension) {
+            return bitmap
+        }
+        val ratio = width.toFloat() / height.toFloat()
+        val newWidth: Int
+        val newHeight: Int
+        if (width > height) {
+            newWidth = maxDimension
+            newHeight = (maxDimension / ratio).toInt()
+        } else {
+            newHeight = maxDimension
+            newWidth = (maxDimension * ratio).toInt()
+        }
+        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
     }
 
     override fun onDestroy() {
