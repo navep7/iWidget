@@ -659,13 +659,13 @@ class NewAppWidget : AppWidgetProvider() {
             getPendingSelfIntent(context, WATER_REMINDER_CLICK)
         )
 
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgv_menu, PendingIntent.getActivity(
-                context, 55,
-                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "Menu"),
-                PendingIntent.FLAG_IMMUTABLE
-            )
+        val menuPendingIntent = PendingIntent.getActivity(
+            context, 55,
+            Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "Menu"),
+            PendingIntent.FLAG_IMMUTABLE
         )
+        remoteViews?.setOnClickPendingIntent(R.id.imgv_menu, menuPendingIntent)
+        remoteViews?.setOnClickPendingIntent(R.id.rl_menu, menuPendingIntent)
 
 
         remoteViews?.setOnClickPendingIntent(R.id.imgbtn_info_steps, PendingIntent.getActivity(
@@ -682,15 +682,14 @@ class NewAppWidget : AppWidgetProvider() {
         )
         )
 
-        remoteViews?.setOnClickPendingIntent(
-            R.id.imgbtn_add_timer,
-            PendingIntent.getActivity(
-                context,
-                59,
-                Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "AddTimer"),
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-            )
+        val timerPendingIntent = PendingIntent.getActivity(
+            context,
+            59,
+            Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "AddTimer"),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
+        remoteViews?.setOnClickPendingIntent(R.id.imgbtn_add_timer, timerPendingIntent)
+        remoteViews?.setOnClickPendingIntent(R.id.rl_timer, timerPendingIntent)
 
 
 
@@ -2701,7 +2700,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             val now = LocalDate.now()
             val dayName = now.dayOfWeek.name
-            val todayFormatted = dayOfMonthText + postFixDate + " " + dfMonth.format(c)
+            val todayFormatted = dayOfMonthText + " " + dfMonth.format(c)
 
             if (!::formattedDate.isInitialized) {
                 formattedDate = todayFormatted
@@ -2785,7 +2784,7 @@ class NewAppWidget : AppWidgetProvider() {
             remoteViews?.setTextViewText(
                 R.id.tx_day_date,
                 SimpleDateFormat("EEE", Locale.getDefault()).format(c) +
-                        ", " + formattedDate
+                        " " + formattedDate
             )
 
 

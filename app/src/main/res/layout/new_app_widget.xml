@@ -6,6 +6,8 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:gravity="center"
     android:orientation="vertical"
     android:theme="@style/Theme.Material3.DynamicColors.Light">
@@ -15,6 +17,8 @@
         android:id="@+id/imgv_widget_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_alignTop="@id/rl_clocks"
+        android:layout_marginTop="25dp"
         android:scaleType="fitXY" />
 
     <RelativeLayout
@@ -23,9 +27,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:paddingBottom="@dimen/padding_5">
-
-
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:paddingTop="25dp">
 
         <LinearLayout
             android:id="@+id/ll_top"
@@ -36,49 +40,15 @@
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingStart="@dimen/padding_4"
-            android:paddingEnd="@dimen/padding_4"
-            android:weightSum="10">
-
-            <RelativeLayout
-                android:id="@+id/rl_battery"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:contentDescription="Battery Status"
-                android:focusable="true"
-                android:gravity="center">
-
-                <ProgressBar
-                    android:id="@+id/progressBar_battery"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="@dimen/padding_35"
-                    android:layout_height="@dimen/padding_35"
-                    android:layout_centerInParent="true"
-                    android:indeterminate="false"
-                    android:max="100"
-                    android:progress="75"
-                    android:progressDrawable="@drawable/circular_progress_drawable" />
-
-                <TextView
-                    android:id="@+id/tx_battery"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:tag="⚡"
-                    android:text="⚡"
-                    android:textColor="@android:color/black"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-            </RelativeLayout>
+            android:paddingEnd="@dimen/padding_4">
 
             <RelativeLayout
                 android:id="@+id/rl_top"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:layout_weight="8">
+                android:paddingStart="52dp"
+                android:paddingEnd="52dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -109,22 +79,10 @@
                             android:shadowDx="0"
                             android:shadowDy="0"
                             android:shadowRadius="2"
-                            android:text="Fri, 24th Apr"
+                            android:text="Fri 24 Apr"
                             android:textColor="@android:color/black"
                             android:textSize="24sp"
                             android:textStyle="bold" />
-
-                        <ImageButton
-                            android:id="@+id/imgbtn_add_timer"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:background="@drawable/rounded_corner"
-                            android:contentDescription="Timers"
-                            android:layout_margin="@dimen/padding_5"
-                            android:scaleType="fitCenter"
-                            android:src="@drawable/ic_timer" />
-
-
 
                         <android.widget.TextClock
                             android:id="@+id/clock"
@@ -136,6 +94,7 @@
                             android:focusable="true"
                             android:format12Hour="hh:mm:ss"
                             android:maxLines="1"
+                            android:layout_marginStart="3dp"
                             android:paddingStart="2dp"
                             android:paddingEnd="2dp"
                             android:shadowColor="@android:color/darker_gray"
@@ -173,20 +132,97 @@
 
             </RelativeLayout>
 
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_battery"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_alignStart="@id/ll_top"
+            android:layout_alignTop="@id/ll_top"
+            android:layout_marginTop="-20dp"
+            android:background="@drawable/bg_battery_disjointed_pod"
+            android:clickable="true"
+            android:contentDescription="Battery Status"
+            android:elevation="6dp"
+            android:focusable="true"
+            android:gravity="center">
+
+            <ProgressBar
+                android:id="@+id/progressBar_battery"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="@dimen/padding_35"
+                android:layout_height="@dimen/padding_35"
+                android:layout_centerInParent="true"
+                android:indeterminate="false"
+                android:max="100"
+                android:progress="75"
+                android:progressDrawable="@drawable/circular_progress_drawable" />
+
+            <TextView
+                android:id="@+id/tx_battery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:tag="⚡"
+                android:text="⚡"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_timer"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_centerHorizontal="true"
+            android:layout_alignTop="@id/ll_top"
+            android:layout_marginTop="-25dp"
+            android:background="@drawable/bg_battery_disjointed_pod"
+            android:clickable="true"
+            android:contentDescription="Timers"
+            android:elevation="6dp"
+            android:focusable="true"
+            android:gravity="center">
+
+            <ImageButton
+                android:id="@+id/imgbtn_add_timer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Timers"
+                android:padding="@dimen/padding_4"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_timer" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_menu"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_alignEnd="@id/ll_top"
+            android:layout_alignTop="@id/ll_top"
+            android:layout_marginTop="-20dp"
+            android:background="@drawable/bg_battery_disjointed_pod"
+            android:clickable="true"
+            android:contentDescription="Menu"
+            android:elevation="6dp"
+            android:focusable="true"
+            android:gravity="center">
+
             <ImageButton
                 android:id="@+id/imgv_menu"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="1"
+                android:layout_width="@dimen/padding_35"
+                android:layout_height="@dimen/padding_35"
+                android:layout_centerInParent="true"
                 android:adjustViewBounds="true"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Menu"
                 android:padding="@dimen/padding_4"
                 android:scaleType="fitCenter"
                 android:src="@drawable/more_s" />
-
-        </LinearLayout>
+        </RelativeLayout>
 
 
 
@@ -202,7 +238,7 @@
                 android:id="@+id/ll_place"
                 android:layout_width="@dimen/padding_100"
                 android:layout_height="@dimen/padding_100"
-                android:layout_margin="@dimen/padding_5"
+                android:layout_marginStart="@dimen/padding_5"
                 android:padding="@dimen/padding_5"
                 android:layout_alignParentStart="true"
                 android:gravity="center"
@@ -306,7 +342,7 @@
                 android:id="@+id/ll_weather"
                 android:layout_width="@dimen/padding_100"
                 android:layout_height="@dimen/padding_100"
-                android:layout_margin="@dimen/padding_5"
+                android:layout_marginEnd="@dimen/padding_5"
                 android:padding="@dimen/padding_5"
                 android:layout_alignParentEnd="true"
                 android:gravity="center"
@@ -497,8 +533,8 @@
             android:id="@+id/rl_player"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="-10dp"
             android:layout_below="@+id/rl_clocks_weather"
-            android:layout_marginTop="@dimen/padding_1"
             android:layout_toStartOf="@+id/imgbtn_albumcover">
 
             <ImageView
@@ -575,7 +611,7 @@
         android:id="@+id/rl_apps"
         android:layout_width="@dimen/padding_75"
         android:layout_height="match_parent"
-        android:padding="@dimen/padding_5"
+        android:paddingStart="@dimen/padding_5"
         android:layout_above="@+id/ll_steps_screentime"
         android:layout_below="@+id/rl_clocks"
         android:layout_alignParentStart="true"
@@ -591,7 +627,6 @@
             android:textStyle="bold"
             android:textColor="@color/black"
             android:paddingBottom="@dimen/padding_3"
-            android:layout_marginBottom="@dimen/padding_10"
             android:background="@drawable/gradient_glass_flatbottom"
             android:text="⏳ Times," />
 
@@ -844,7 +879,7 @@
 
         <ImageButton
             android:id="@+id/imgbtn_add_stock"
-            android:visibility="invisible"
+            android:visibility="gone"
             android:layout_width="@dimen/padding_35"
             android:layout_height="0dp"
             android:layout_weight="0.75"
@@ -953,7 +988,6 @@
 
             <LinearLayout
                 android:id="@+id/ll_activity_states"
-
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
