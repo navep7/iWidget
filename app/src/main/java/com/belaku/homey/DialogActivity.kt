@@ -1727,7 +1727,7 @@ class DialogActivity : AppCompatActivity() {
         val keys = listOf(
             "AQ.Ab8RN6Kg9Ih76cBEvWFS1fb6WenMDA3LCjsIxRi5n36oEXko7g"
         )
-        val models = listOf("gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.5-flash")
+        val models = listOf("gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.5-flash")
 
         val outputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 85, outputStream)
