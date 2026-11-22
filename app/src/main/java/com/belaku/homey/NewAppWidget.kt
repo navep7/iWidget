@@ -8,9 +8,7 @@ import android.Manifest
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
-import android.app.AlarmManager
 import android.app.PendingIntent
-import android.app.TimePickerDialog
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -62,7 +60,6 @@ import android.view.WindowManager
 import android.view.WindowMetrics
 import android.view.accessibility.AccessibilityManager
 import android.widget.RemoteViews
-import android.widget.TextView
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
@@ -110,7 +107,6 @@ import com.belaku.homey.StepsService.Companion.stepsData
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionRequest
-import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
@@ -523,7 +519,7 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         remoteViews?.setOnClickPendingIntent(
-            R.id.tw_fact, PendingIntent.getActivity(
+            R.id.tx_wish, PendingIntent.getActivity(
                 context, 7,
                 Intent(context, DialogActivity::class.java).putExtra("DialogIntent", "ST"),
                 PendingIntent.FLAG_IMMUTABLE
@@ -2652,10 +2648,10 @@ class NewAppWidget : AppWidgetProvider() {
             Log.d("gpName - ", gpName)
 
             timelyWish = when (timeOfDay) {
-                "Morni!" -> "\uD83C\uDF3B"//, ${gpName.split(" ").get(0)}!"
-                "Noon!" -> "☀\uFE0F"//, ${gpName.split(" ").get(0)}!"
-                "Eve!" -> "\uD83C\uDF41"//, ${gpName.split(" ").get(0)}!"
-                "Night!" -> "\uD83D\uDCA4"//, ${gpName.split(" ").get(0)}!"
+                "Morni!" -> "$timeOfDay \uD83C\uDF3B"//, ${gpName.split(" ").get(0)}!"
+                "Noon!" -> "$timeOfDay ☀\uFE0F"//, ${gpName.split(" ").get(0)}!"
+                "Eve!" -> "$timeOfDay \uD83C\uDF41"//, ${gpName.split(" ").get(0)}!"
+                "Night!" -> "$timeOfDay \uD83D\uDCA4"//, ${gpName.split(" ").get(0)}!"
                 else -> timelyWish
             }
 
@@ -2794,7 +2790,11 @@ class NewAppWidget : AppWidgetProvider() {
 
 
             greeting(context)
-            remoteViews?.setTextViewText(R.id.tw_fact, timelyWish)
+            remoteViews?.setTextViewText(R.id.tx_wish, timelyWish)
+            remoteViews?.setTextColor(R.id.tx_dot, primaryColor)
+           /* remoteViews?.setTextColor(R.id.tx_wish, primaryColor)
+            remoteViews?.setTextColor(R.id.tx_day_date, secondaryColor)
+            remoteViews?.setTextColor(R.id.clock, secondaryColor)*/
 
             try {
 
