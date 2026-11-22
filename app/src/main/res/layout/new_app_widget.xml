@@ -30,7 +30,7 @@
         <LinearLayout
             android:id="@+id/ll_top"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/padding_55"
+            android:layout_height="@dimen/padding_75"
             android:layout_gravity="center"
             android:background="@drawable/gradient_glass_flatbottom"
             android:gravity="center_vertical"
@@ -43,7 +43,7 @@
                 android:id="@+id/rl_battery"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1.5"
+                android:layout_weight="1"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
                 android:contentDescription="Battery Status"
@@ -78,7 +78,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:layout_weight="7">
+                android:layout_weight="8">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -111,23 +111,20 @@
                             android:shadowRadius="2"
                             android:text="Fri, 24th Apr"
                             android:textColor="@android:color/black"
-                            android:textSize="20sp"
+                            android:textSize="24sp"
                             android:textStyle="bold" />
 
-                        <TextView
-                            android:id="@+id/tx_dot"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingStart="1dp"
-                            android:paddingEnd="1dp"
-                            android:shadowColor="@android:color/white"
-                            android:shadowDx="0"
-                            android:shadowDy="0"
-                            android:shadowRadius="2"
-                            android:text="•"
-                            android:textColor="@android:color/holo_red_dark"
-                            android:textSize="@dimen/text_size_15"
-                            android:textStyle="bold" />
+                        <ImageButton
+                            android:id="@+id/imgbtn_add_timer"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:background="@drawable/rounded_corner"
+                            android:contentDescription="Timers"
+                            android:layout_margin="@dimen/padding_5"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/ic_timer" />
+
+
 
                         <android.widget.TextClock
                             android:id="@+id/clock"
@@ -146,19 +143,9 @@
                             android:shadowDy="0"
                             android:shadowRadius="2"
                             android:textColor="@android:color/black"
-                            android:textSize="20sp"
+                            android:textSize="24sp"
                             android:textStyle="bold" />
 
-                        <ImageButton
-                            android:id="@+id/imgbtn_add_timer"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_marginStart="3dp"
-                            android:background="@drawable/rounded_corner_gray"
-                            android:contentDescription="Timers"
-                            android:padding="1dp"
-                            android:scaleType="fitCenter"
-                            android:src="@android:drawable/ic_input_add" />
 
                     </LinearLayout>
 
@@ -177,9 +164,9 @@
                         android:shadowDx="0"
                         android:shadowDy="0"
                         android:shadowRadius="2"
-                        android:text="Fri, 24th Apr"
+                        android:text="..."
                         android:textColor="#28282B"
-                        android:textSize="20sp"
+                        android:textSize="25sp"
                         android:textStyle="bold" />
 
                 </LinearLayout>
@@ -191,7 +178,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:layout_weight="1.5"
+                android:layout_weight="1"
                 android:adjustViewBounds="true"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Menu"
