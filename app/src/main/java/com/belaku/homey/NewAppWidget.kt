@@ -847,7 +847,7 @@ class NewAppWidget : AppWidgetProvider() {
 
         remoteViews?.setTextViewText(R.id.tx_unlocks, sharedPreferences.getInt("unlockCount", 0).toString())
 
-        val dayKey = LocalDate.now().dayOfWeek.name.toUpperCase()
+        val dayKey = LocalDate.now().dayOfWeek.name.uppercase()
         val dWalk = sharedPreferences.getLong(dayKey + "_walk_duration", 0L)
         val dRun = sharedPreferences.getLong(dayKey + "_run_duration", 0L)
         val dCycle = sharedPreferences.getLong(dayKey + "_cycle_duration", 0L)

@@ -207,7 +207,7 @@ class AiActivity : AppCompatActivity(), AppsAdapter.RvEvent, TextToSpeech.OnInit
         // and avoid "Previous channel was garbage collected without being shut down" warnings.
         private val generativeModelInstance: GenerativeModel by lazy {
             Firebase.ai(backend = GenerativeBackend.googleAI())
-                .generativeModel("gemini-2.0-flash")
+                .generativeModel("gemini-3.8-flash")
         }
     }
 
