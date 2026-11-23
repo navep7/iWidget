@@ -1696,10 +1696,37 @@ class DialogActivity : AppCompatActivity() {
         if (bitmap != null) {
             imgvSongCover.setImageBitmap(bitmap)
             imgvSongCover.visibility = View.VISIBLE
+            val sizePx = (80 * resources.displayMetrics.density).toInt()
+            val params = RelativeLayout.LayoutParams(sizePx, sizePx).apply {
+                addRule(RelativeLayout.ALIGN_PARENT_TOP)
+                addRule(RelativeLayout.ALIGN_PARENT_END)
+                setMargins(16, 16, 16, 16)
+            }
+            imgvSongCover.layoutParams = params
+            imgvSongCover.scaleType = ImageView.ScaleType.CENTER_CROP
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                imgvSongCover.outlineProvider = object : android.view.ViewOutlineProvider() {
+                    override fun getOutline(view: android.view.View, outline: android.graphics.Outline) {
+                        outline.setRoundRect(0, 0, view.width, view.height, 16f * resources.displayMetrics.density)
+                    }
+                }
+                imgvSongCover.clipToOutline = true
+            }
         }
 
         txContent.text = "Analyzing food image using Gemini AI...\nPlease wait a moment."
         txContent.visibility = View.VISIBLE
+        txContent.gravity = Gravity.START or Gravity.TOP
+        txContent.movementMethod = ScrollingMovementMethod()
+        val contentParams = RelativeLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply {
+            addRule(RelativeLayout.BELOW, R.id.tx_dialog_title)
+            setMargins(16, 8, 16, 16)
+        }
+        txContent.layoutParams = contentParams
+
         llButtons.visibility = View.VISIBLE
         btnOk.visibility = View.VISIBLE
         imgbtnShare.visibility = View.VISIBLE
