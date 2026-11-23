@@ -1317,7 +1317,7 @@ class NewAppWidget : AppWidgetProvider() {
         val menuIcon = when {
             wifiState && !wifiConnectionState -> R.drawable.wifi_on_but_not_connected
             blState && !blConnectionState -> R.drawable.blue_red
-            else -> R.drawable.more_s
+            else -> R.drawable.menu_more
         }
         remoteViews?.setImageViewResource(R.id.imgv_menu, menuIcon)
     }

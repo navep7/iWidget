@@ -15,8 +15,8 @@ android {
         minSdk = 30
         //noinspection OldTargetApi
         targetSdk = 36
-        versionCode = 213
-        versionName = "213.0"
+        versionCode = 216
+        versionName = "216.0"
 
         renderscriptTargetApi = 18
         renderscriptSupportModeEnabled = true
@@ -47,6 +47,12 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
+    }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
     }
 }
 
@@ -123,8 +129,6 @@ dependencies {
 
     implementation(libs.core)
 
-    // Raw ARCore
-    implementation("com.google.ar:core:1.57.0")
 
     // CameraX
     implementation("androidx.camera:camera-core:1.3.4")

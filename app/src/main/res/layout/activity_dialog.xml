@@ -241,6 +241,7 @@
         android:layout_alignBottom="@+id/tx_dialog_title"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="8dp"
+        android:tint="@android:color/holo_blue_bright"
         android:src="@drawable/tw_settings"/>
 
     <TextView

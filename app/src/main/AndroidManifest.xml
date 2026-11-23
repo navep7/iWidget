@@ -144,7 +144,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Homey"
         android:usesCleartextTraffic="true"
-        tools:targetApi="31">
+        android:pageSizeCompat="enabled"
+        tools:ignore="NewApi"
+        tools:targetApi="36">
+
         <property
             android:name="android.adservices.AD_SERVICES_CONFIG"
             android:resource="@xml/gma_ad_services_config"

@@ -378,7 +378,7 @@ class MainActivity : AppCompatActivity() {
         fabMain.setOnClickListener { view ->
 
             if (fabMain.text == "Set" || fabMain.text == "Exp ~ Set again!") {
-                if (fabDay.isGone) {
+                if (frameDay.isGone) {
 
                     fabDay.visibility = View.VISIBLE
                     frameMin.visibility = View.VISIBLE

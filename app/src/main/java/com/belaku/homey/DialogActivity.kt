@@ -153,6 +153,8 @@ class DialogActivity : AppCompatActivity() {
 
 
     val wifiPanelIntent = Intent(Settings.Panel.ACTION_WIFI)
+    private lateinit var twProfilePic: ImageView
+    private lateinit var twSwitchUser: ImageView
     private lateinit var imgbtnAddAnotherStock: ImageButton
     private lateinit var imgbtnRefreshStocks: ImageButton
     private lateinit var pbRefreshStocks: ProgressBar
@@ -259,10 +261,19 @@ class DialogActivity : AppCompatActivity() {
             }
         }
 
+        twProfilePic = findViewById(R.id.tw_profile_pic)
+        twSwitchUser = findViewById(R.id.tw_switch_user)
         imgbtnAddAnotherStock = findViewById(R.id.imgbtn_addanother_stock)
         imgbtnRefreshStocks = findViewById(R.id.imgbtn_refresh_stocks)
         pbRefreshStocks = findViewById(R.id.pb_refresh_stocks)
         glStocks = findViewById(R.id.gl_stocks)
+
+        twProfilePic.visibility = View.GONE
+        twSwitchUser.visibility = View.GONE
+        imgbtnAddAnotherStock.visibility = View.GONE
+        imgbtnRefreshStocks.visibility = View.GONE
+        pbRefreshStocks.visibility = View.GONE
+        glStocks.visibility = View.GONE
         llMenu = findViewById(R.id.ll_menu)
         llDialog = findViewById(R.id.dialog_layout)
         imgvSongCover = findViewById(R.id.dialog_imgv_cover)
@@ -483,8 +494,6 @@ class DialogActivity : AppCompatActivity() {
 
                 }
                 "ST" -> {
-                    imgbtnRefreshStocks.visibility = View.INVISIBLE
-                    imgbtnAddAnotherStock.visibility = View.INVISIBLE
                     llButtons.visibility = View.VISIBLE
                     btnOk.visibility = View.INVISIBLE
                     btnCancel.visibility = View.INVISIBLE
@@ -496,15 +505,14 @@ class DialogActivity : AppCompatActivity() {
                         twitterProfileName = savedProfile
                     }
                     txTitle.text = " $twitterProfileName"
-                    val twConfigBtn = findViewById<ImageView>(R.id.tw_switch_user).apply {
-                        visibility = View.VISIBLE
-                        setOnClickListener { showTwitterUsernameInputDialog() }
-                    }
+                    twSwitchUser.visibility = View.VISIBLE
+                    twSwitchUser.setOnClickListener { showTwitterUsernameInputDialog() }
+                    twProfilePic.visibility = View.VISIBLE
                     Picasso.get()
                         .load("https://unavatar.io/twitter/$twitterProfileName")
                         .placeholder(R.drawable.fact)
                         .error(R.drawable.fact)
-                        .into(findViewById<ImageButton>(R.id.tw_profile_pic))
+                        .into(twProfilePic)
                     if (listTweets.isNotEmpty()) {
                         txContent.text = listTweets[Random.nextInt(0, listTweets.size)]
                     } else {
@@ -673,12 +681,15 @@ class DialogActivity : AppCompatActivity() {
                     txTitle.text = "All Stocks"
                     edtxDialog.setBackgroundColor(android.R.color.darker_gray)
                     txContent.setBackgroundColor(android.R.color.white)
+                    imgbtnAddAnotherStock.visibility = View.VISIBLE
+                    imgbtnRefreshStocks.visibility = View.VISIBLE
+                    glStocks.visibility = View.VISIBLE
                     populateStocksGrid()
                 }
                 "AddStock" -> {
-
+                    imgbtnAddAnotherStock.visibility = View.VISIBLE
+                    imgbtnRefreshStocks.visibility = View.VISIBLE
                     addStock()
-
                 }
                 "activitiesInfo" -> {
                     imgbtnRefreshStocks.visibility = View.INVISIBLE
@@ -1334,7 +1345,6 @@ class DialogActivity : AppCompatActivity() {
     }
 
     private fun fetchTweetsWithPython(username: String) {
-        val twConfigBtn = findViewById<ImageView>(R.id.tw_switch_user)
         txContent.text = "Fetching tweets for @$username via Python..."
 
         val fallbackAvatarUrl = "https://unavatar.io/twitter/$username"
@@ -1342,7 +1352,7 @@ class DialogActivity : AppCompatActivity() {
             .load(fallbackAvatarUrl)
             .placeholder(R.drawable.fact)
             .error(R.drawable.fact)
-            .into(twConfigBtn)
+            .into(twSwitchUser)
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
@@ -1384,7 +1394,7 @@ class DialogActivity : AppCompatActivity() {
                         .load(finalAvatarUrl)
                         .placeholder(R.drawable.fact)
                         .error(R.drawable.fact)
-                        .into(twConfigBtn)
+                        .into(twSwitchUser)
 
                     if (fetched.isNotEmpty() && !fetched[0].startsWith("Error") && !fetched[0].startsWith("Scraper initialization") && !fetched[0].startsWith("No tweets found") && !fetched[0].startsWith("Python Execution Error")) {
                         listTweets.clear()
