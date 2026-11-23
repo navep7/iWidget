@@ -748,8 +748,28 @@ class NewAppWidget : AppWidgetProvider() {
 
             remoteViews?.setTextViewText(R.id.tx_place, cName)
 
-            if (cityname.isNotBlank() && ismLatLngInitialized())
-                StepsService().loadStaticStreetView(widgetContext, StepsService.mLatLng)
+            if (cityname.isNotBlank() && ismLatLngInitialized()) {
+                val prefs = widgetContext.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
+                val lastLat = prefs.getFloat("last_streetview_lat", 0f).toDouble()
+                val lastLng = prefs.getFloat("last_streetview_lng", 0f).toDouble()
+                val lastTime = prefs.getLong("last_streetview_time", 0L)
+                val currentTime = System.currentTimeMillis()
+
+                val results = FloatArray(1)
+                if (lastLat != 0.0 && lastLng != 0.0) {
+                    android.location.Location.distanceBetween(lastLat, lastLng, StepsService.mLatLng.latitude, StepsService.mLatLng.longitude, results)
+                }
+                val distanceMeters = if (lastLat != 0.0 && lastLng != 0.0) results[0] else Float.MAX_VALUE
+
+                if (distanceMeters > 200f || currentTime - lastTime > 3600000L) {
+                    prefs.edit {
+                        putFloat("last_streetview_lat", StepsService.mLatLng.latitude.toFloat())
+                        putFloat("last_streetview_lng", StepsService.mLatLng.longitude.toFloat())
+                        putLong("last_streetview_time", currentTime)
+                    }
+                    StepsService().loadStaticStreetView(widgetContext, StepsService.mLatLng)
+                }
+            }
 
             // tempC may still be empty before the first weather response; split()[0] on an
             // empty string yields "" and rendered a stray "° " label.
@@ -812,8 +832,8 @@ class NewAppWidget : AppWidgetProvider() {
         val imgvIds = intArrayOf(R.id.imgv_app1, R.id.imgv_app2, R.id.imgv_app3, R.id.imgv_app4, R.id.imgv_app5)
 
         val preds = try {
-            val p = predictedApps
-            if (p.isNotEmpty()) p else getPredictedAppsForCurrentTimeWindow(widgetContext)
+            val freshPreds = getPredictedAppsForCurrentTimeWindow(widgetContext)
+            if (freshPreds.isNotEmpty()) freshPreds else predictedApps
         } catch (e: Exception) {
             try {
                 getPredictedAppsForCurrentTimeWindow(widgetContext)
@@ -822,15 +842,20 @@ class NewAppWidget : AppWidgetProvider() {
             }
         }
 
+        val currentPackageNames = preds.map { it.packageName }
+        val appsChanged = (currentPackageNames != lastPredictedPackageNames)
+
         if (preds.isNotEmpty()) {
             var count = 0
             for (i in preds) {
                 if (count >= 5) break
                 try {
-                    val iconDrawable = widgetContext.packageManager.getApplicationIcon(i.packageName)
-                    val bitmap = iconDrawable.toBitmap(120, 120)
-                    remoteViews?.setImageViewBitmap(imgvIds[count], bitmap)
                     remoteViews?.setViewVisibility(rlIds[count], View.VISIBLE)
+                    if (appsChanged) {
+                        val iconDrawable = widgetContext.packageManager.getApplicationIcon(i.packageName)
+                        val bitmap = iconDrawable.toBitmap(120, 120)
+                        remoteViews?.setImageViewBitmap(imgvIds[count], bitmap)
+                    }
                     count++
                 } catch (e: Exception) {
                     Log.e(TAG, "Error setting predicted app icon for ${i.packageName}", e)
@@ -839,10 +864,14 @@ class NewAppWidget : AppWidgetProvider() {
             for (j in count until 5) {
                 remoteViews?.setViewVisibility(rlIds[j], View.GONE)
             }
+            if (appsChanged) {
+                lastPredictedPackageNames = currentPackageNames
+            }
         } else {
             for (id in rlIds) {
                 remoteViews?.setViewVisibility(id, View.GONE)
             }
+            lastPredictedPackageNames = emptyList()
         }
 
         remoteViews?.setTextViewText(R.id.tx_unlocks, sharedPreferences.getInt("unlockCount", 0).toString())
@@ -2415,6 +2444,7 @@ class NewAppWidget : AppWidgetProvider() {
     companion object {
 
         private var unlockReceiver: BroadcastReceiver? = null
+        var lastPredictedPackageNames: List<String> = emptyList()
         var penNote: String = ""
         lateinit var blurWallBitmap: Bitmap
         lateinit var i_appWidgetIds: IntArray
