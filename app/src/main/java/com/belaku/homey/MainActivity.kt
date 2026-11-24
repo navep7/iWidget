@@ -1463,7 +1463,6 @@ class MainActivity : AppCompatActivity() {
         var weatherIconID: String = ""
         var weatherIconUrl: String = ""
         lateinit var weatherData: WeatherData
-        lateinit var sN: Snackbar
 
         @SuppressLint("StaticFieldLeak")
         lateinit var parentLayout: View

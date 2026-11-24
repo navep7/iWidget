@@ -1,6 +1,5 @@
 package com.belaku.homey
 
-import android.R.attr.button
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.location.Address
@@ -13,20 +12,16 @@ import android.util.Log
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.belaku.homey.MainActivity.Companion.makeToast
-import com.belaku.homey.MusicActivity.Companion.dataListSongs
+import androidx.lifecycle.lifecycleScope
 import com.belaku.homey.StepsService.Companion.mLocationResult
 import com.belaku.homey.databinding.ActivityMapsBinding
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.OnMapsSdkInitializedCallback
 import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback
 import com.google.android.gms.maps.StreetViewPanorama
 import com.google.android.gms.maps.StreetViewPanoramaView
@@ -40,13 +35,10 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.StreetViewPanoramaCamera
 import com.google.android.material.snackbar.Snackbar
 import com.google.maps.android.ui.IconGenerator
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.Locale
-
-
 
 class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnMapReadyCallback, GoogleMap.OnMapClickListener,
     GoogleMap.OnMarkerClickListener {
@@ -63,6 +55,20 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
     private lateinit var binding: ActivityMapsBinding
     private lateinit var mStreetViewPanoramaView: StreetViewPanoramaView
 
+    private val locationPermissionRequest = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val fineGranted = permissions[android.Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+        val coarseGranted = permissions[android.Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+        if (fineGranted || coarseGranted) {
+            if (ismGoogleMapInitialized()) {
+                @SuppressLint("MissingPermission")
+                mGoogleMap.isMyLocationEnabled = true
+            }
+            locationUpdates()
+        }
+    }
+
     companion object {
         lateinit var mGoogleMap: GoogleMap
         lateinit var mStreetViewPanorama: StreetViewPanorama
@@ -70,7 +76,12 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
         fun ismGoogleMapInitialized(): Boolean {
             return ::mGoogleMap.isInitialized
         }
+
+        fun isStreetViewInitialized(): Boolean {
+            return ::mStreetViewPanorama.isInitialized
+        }
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -79,102 +90,111 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
 
         setSupportActionBar(binding.toolbar)
 
-
-        MapsInitializer.initialize(
-            applicationContext,
-            MapsInitializer.Renderer.LATEST,
-            OnMapsSdkInitializedCallback { renderer ->
-                Log.d("MapsSDK", "Renderer initialized: ${renderer.name}")
-            }
-        )
+        try {
+            MapsInitializer.initialize(applicationContext)
+        } catch (e: Exception) {
+            Log.e("MapsSDK", "Failed to initialize maps renderer", e)
+        }
 
         mStreetViewPanoramaView = findViewById(R.id.streetviewpanorama)
         mSupportMapFragment =
             (supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?)!!
         mSupportMapFragment.getMapAsync(this@MapsActivity)
 
+        mStreetViewPanoramaView.onCreate(savedInstanceState)
+        mStreetViewPanoramaView.getStreetViewPanoramaAsync(this)
 
-        mStreetViewPanoramaView.onCreate(savedInstanceState);
-        mStreetViewPanoramaView.getStreetViewPanoramaAsync(this);
+        val mapView = findViewById<View>(R.id.map)
+        val keyMap = intent.extras?.getString("keyMap")
+        if (keyMap == "Street") {
+            mStreetViewPanoramaView.visibility = View.VISIBLE
+            mapView.visibility = View.GONE
+        } else {
+            mStreetViewPanoramaView.visibility = View.GONE
+            mapView.visibility = View.VISIBLE
+        }
 
-
-        if (intent.extras != null)
-            if (intent.extras?.getString("keyMap") == "Street") {
+        binding.fabMapOStreet.setOnClickListener {
+            if (mapView.visibility == View.VISIBLE) {
                 mStreetViewPanoramaView.visibility = View.VISIBLE
-                mSupportMapFragment.view?.visibility = View.INVISIBLE
-            } else  if (intent.extras?.getString("keyMap") == "Map") {
-                mStreetViewPanoramaView.visibility = View.INVISIBLE
-                mSupportMapFragment.view?.visibility = View.VISIBLE
-            }
-
-
-        binding.fabMapOStreet.setOnClickListener { view ->
-
-            if (mSupportMapFragment.isVisible) {
-                mStreetViewPanoramaView.visibility = View.VISIBLE
-                mSupportMapFragment.view?.visibility = View.INVISIBLE
+                mapView.visibility = View.GONE
             } else {
                 boolStreetMarkerClicked = false
-                mStreetViewPanoramaView.visibility = View.INVISIBLE
-                mSupportMapFragment.view?.visibility = View.VISIBLE
+                mStreetViewPanoramaView.visibility = View.GONE
+                mapView.visibility = View.VISIBLE
             }
-
         }
     }
 
     @SuppressLint("MissingPermission")
     private fun locationUpdates() {
+        val location = mLocationResult?.lastLocation
+        if (location != null) {
+            applyLocationToMap(location.latitude, location.longitude)
+        } else {
+            val hasFine = androidx.core.content.ContextCompat.checkSelfPermission(
+                this, android.Manifest.permission.ACCESS_FINE_LOCATION
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+            val hasCoarse = androidx.core.content.ContextCompat.checkSelfPermission(
+                this, android.Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
 
-                val location = mLocationResult?.lastLocation
-                if (location != null) {
-                    getAddress(location.latitude, location.longitude)
-
-                    if (boolMapReady) {
-
-                        var addrs = ""
-                        // cAddrs is empty whenever geocoding failed.
-                        val first = cAddrs.firstOrNull()
-                        if (first != null) {
-                            if (first.maxAddressLineIndex > 0)
-                                for (i in 0 until first.maxAddressLineIndex) {
-                                    addrs += first.getAddressLine(i)
-                                }
-                            else addrs = first.subLocality ?: ""
+            if (hasFine || hasCoarse) {
+                LocationServices.getFusedLocationProviderClient(this).lastLocation
+                    .addOnSuccessListener { loc ->
+                        if (loc != null) {
+                            applyLocationToMap(loc.latitude, loc.longitude)
+                        } else if (boolMapReady) {
+                            applyLocationToMap(13.0382, 77.5126)
                         }
-
-
-                        if (addrs.isEmpty())
-                            addrs = "unknown"
-
-                        addPresentMarker(LatLng(location.latitude, location.longitude), addrs)
-
-                        mGoogleMap.setOnMapClickListener(this@MapsActivity)
-                        mGoogleMap.setOnMarkerClickListener(this)
                     }
-
-
+                    .addOnFailureListener {
+                        if (boolMapReady) {
+                            applyLocationToMap(13.0382, 77.5126)
+                        }
+                    }
+            } else if (boolMapReady) {
+                applyLocationToMap(13.0382, 77.5126)
+            }
         }
+    }
 
+    private var currentMarker: Marker? = null
 
+    private fun applyLocationToMap(lat: Double, lng: Double) {
+        getAddress(lat, lng)
+
+        if (boolMapReady) {
+            mGoogleMap.setOnMapClickListener(this@MapsActivity)
+            mGoogleMap.setOnMarkerClickListener(this)
+        }
     }
 
     fun addPresentMarker(ltlng: LatLng, addrs: String) {
         var icon: BitmapDescriptor? = null
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val icnGenerator: IconGenerator = IconGenerator(this)
-            // Bitmap bmp = icnGenerator.makeIcon(Html.fromHtml("<b><font color=\"#000000\">" + mAddresses[0] + mAddresses[1] + mAddresses[2] + "\n" + mAddresses[3] + mAddresses[4] + "</font></b>"));
-            val bmp: Bitmap = icnGenerator.makeIcon(
-                addrs
-            )
+        try {
+            val icnGenerator = IconGenerator(this)
+            val bmp: Bitmap = icnGenerator.makeIcon(addrs)
             icon = BitmapDescriptorFactory.fromBitmap(bmp)
+        } catch (e: Exception) {
+            Log.e("MapsActivity", "Error generating icon marker", e)
         }
-        var mLatLng = LatLng(ltlng.latitude, ltlng.longitude)
-        var markerOptions = MarkerOptions().position(mLatLng).icon(icon).title(addrs)
+        val mLatLng = LatLng(ltlng.latitude, ltlng.longitude)
+        val markerOptions = MarkerOptions().position(mLatLng).title(addrs)
+        if (icon != null) {
+            markerOptions.icon(icon)
+        }
 
-        //    marker = googleMap.addMarker(markerOptions);
-        mGoogleMap.addMarker(markerOptions)
+        currentMarker?.remove()
+        if (boolMapReady && ismGoogleMapInitialized()) {
+            currentMarker = mGoogleMap.addMarker(markerOptions)
+        }
         val cameraPosition =
-            CameraPosition.Builder().target(mLatLng).tilt(55f).zoom(20f).bearing(0f)
+            CameraPosition.Builder()
+                .target(mLatLng)
+                .zoom(18f)
+                .bearing(0f)
+                .tilt(0f)
                 .build()
 
         mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
@@ -183,40 +203,58 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
     fun getAddress(lat: Double, lng: Double) {
         lifecycleScope.launch(Dispatchers.IO) {
             val gcd = Geocoder(applicationContext, Locale.getDefault())
-            var label: String? = null
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 try {
                     gcd.getFromLocation(lat, lng, 1, object : Geocoder.GeocodeListener {
                         override fun onGeocode(addresses: MutableList<Address>) {
                             cAddrs = addresses
-                            val address = cAddrs.firstOrNull() ?: return
-                            val text = address.subLocality ?: address.locality ?: address.countryName ?: return
-                            showSnackbar(text)
+                            val address = cAddrs.firstOrNull()
+                            val markerLabel = address?.subLocality ?: address?.locality ?: address?.countryName ?: "Location"
+                            val snackbarText = address?.locality ?: address?.subLocality ?: address?.countryName ?: "Location"
+
+                            lifecycleScope.launch(Dispatchers.Main) {
+                                if (boolMapReady && ismGoogleMapInitialized()) {
+                                    addPresentMarker(LatLng(lat, lng), markerLabel)
+                                }
+                                showSnackbar(snackbarText)
+                            }
                         }
 
                         override fun onError(errorMessage: String?) {
                             Log.e("MapsActivity", "Geocode error: $errorMessage")
+                            lifecycleScope.launch(Dispatchers.Main) {
+                                if (boolMapReady && ismGoogleMapInitialized()) {
+                                    addPresentMarker(LatLng(lat, lng), "Location")
+                                }
+                                showSnackbar("Location")
+                            }
                         }
                     })
                 } catch (e: Exception) {
                     Log.e("MapsActivity", "Geocode exception", e)
                 }
             } else {
+                var markerLabel = "Location"
+                var snackbarText = "Location"
                 try {
                     @Suppress("DEPRECATION")
                     val addresses = gcd.getFromLocation(lat, lng, 1)
                     cAddrs = addresses?.toMutableList() ?: mutableListOf()
                     val address = cAddrs.firstOrNull()
                     if (address != null) {
-                        label = address.subLocality ?: address.locality ?: address.countryName
+                        markerLabel = address.subLocality ?: address.locality ?: address.countryName ?: "Location"
+                        snackbarText = address.locality ?: address.subLocality ?: address.countryName ?: "Location"
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
-                if (label != null) {
-                    showSnackbar(label)
+                lifecycleScope.launch(Dispatchers.Main) {
+                    if (boolMapReady && ismGoogleMapInitialized()) {
+                        addPresentMarker(LatLng(lat, lng), markerLabel)
+                    }
+                    showSnackbar(snackbarText)
                 }
             }
         }
@@ -227,7 +265,7 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
             Snackbar.make(
                 window.decorView.rootView,
                 label,
-                Snackbar.LENGTH_INDEFINITE
+                Snackbar.LENGTH_LONG
             ).show()
         }
     }
@@ -238,75 +276,140 @@ class MapsActivity : AppCompatActivity(), OnStreetViewPanoramaReadyCallback, OnM
         streetUpdates()
     }
 
+    @SuppressLint("MissingPermission")
     private fun streetUpdates() {
         if (boolstreetViewPanorama) {
-
             val location = mLocationResult?.lastLocation
-
             if (location != null) {
-            if (!boolStreetMarkerClicked)
-                mStreetViewPanorama.setPosition(
-                    LatLng(
-                        location.latitude,
-                        location.longitude
-                    )
-                )
+                applyLocationToStreet(location.latitude, location.longitude)
+            } else {
+                val hasFine = androidx.core.content.ContextCompat.checkSelfPermission(
+                    this, android.Manifest.permission.ACCESS_FINE_LOCATION
+                ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                val hasCoarse = androidx.core.content.ContextCompat.checkSelfPermission(
+                    this, android.Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == android.content.pm.PackageManager.PERMISSION_GRANTED
 
-
-            //do something
-            val handler = Handler(Looper.getMainLooper()) // For UI updates
-            val runnable: Runnable = object : Runnable {
-                override fun run() {
-                    var mStreetViewPanoramaCamera = StreetViewPanoramaCamera.Builder()
-                        .zoom(mStreetViewPanorama.panoramaCamera.zoom)
-                        .tilt(mStreetViewPanorama.panoramaCamera.tilt)
-                        .bearing(mStreetViewPanorama.panoramaCamera.bearing - 60)
-                        .build()
-                    mStreetViewPanorama.animateTo(mStreetViewPanoramaCamera, 1000)
-
-                    handler.postDelayed(this, 3000) // 1000 milliseconds = 1 second
+                if (hasFine || hasCoarse) {
+                    LocationServices.getFusedLocationProviderClient(this).lastLocation
+                        .addOnSuccessListener { loc ->
+                            if (loc != null) {
+                                applyLocationToStreet(loc.latitude, loc.longitude)
+                            }
+                        }
                 }
             }
-            handler.post(runnable);
-
-            if (mStreetViewPanorama.location != null)
-
-                getAddress(
-                    mStreetViewPanorama.location.position.latitude,
-                    mStreetViewPanorama.location.position.longitude
-                )
-
         }
+    }
+
+    private fun applyLocationToStreet(lat: Double, lng: Double) {
+        if (!boolStreetMarkerClicked && isStreetViewInitialized()) {
+            mStreetViewPanorama.setPosition(LatLng(lat, lng))
+        }
+
+        val handler = Handler(Looper.getMainLooper())
+        val runnable: Runnable = object : Runnable {
+            override fun run() {
+                if (!isStreetViewInitialized()) return
+                val mStreetViewPanoramaCamera = StreetViewPanoramaCamera.Builder()
+                    .zoom(mStreetViewPanorama.panoramaCamera.zoom)
+                    .tilt(mStreetViewPanorama.panoramaCamera.tilt)
+                    .bearing(mStreetViewPanorama.panoramaCamera.bearing - 60)
+                    .build()
+                mStreetViewPanorama.animateTo(mStreetViewPanoramaCamera, 1000)
+
+                handler.postDelayed(this, 3000)
             }
+        }
+        handler.post(runnable)
+
+        if (isStreetViewInitialized() && mStreetViewPanorama.location != null) {
+            getAddress(
+                mStreetViewPanorama.location.position.latitude,
+                mStreetViewPanorama.location.position.longitude
+            )
+        }
     }
 
     @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
-        if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == android.content.pm.PackageManager.PERMISSION_GRANTED ||
-            androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+        googleMap.mapType = GoogleMap.MAP_TYPE_NORMAL
+        val hasFine = androidx.core.content.ContextCompat.checkSelfPermission(
+            this, android.Manifest.permission.ACCESS_FINE_LOCATION
+        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        val hasCoarse = androidx.core.content.ContextCompat.checkSelfPermission(
+            this, android.Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+
+        if (hasFine || hasCoarse) {
             googleMap.isMyLocationEnabled = true
+        } else {
+            locationPermissionRequest.launch(
+                arrayOf(
+                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
         }
+
         googleMap.isBuildingsEnabled = true
+        googleMap.uiSettings.isZoomControlsEnabled = true
+        googleMap.uiSettings.isMyLocationButtonEnabled = true
         mGoogleMap = googleMap
         boolMapReady = true
         locationUpdates()
     }
 
     override fun onMapClick(p0: LatLng) {
-        addPresentMarker(p0, "Street")
+        getAddress(p0.latitude, p0.longitude)
     }
 
     override fun onMarkerClick(p0: Marker): Boolean {
-        // makeToast(p0.title.toString())
         val anim: Animation = AlphaAnimation(0.0f, 1.0f)
-        anim.duration = 50 //You can manage the blinking time with this parameter
+        anim.duration = 50
         anim.startOffset = 20
         anim.repeatMode = Animation.REVERSE
         anim.repeatCount = 1
         binding.fabMapOStreet.startAnimation(anim)
         boolStreetMarkerClicked = true
-        mStreetViewPanorama.setPosition(p0.position)
+        if (isStreetViewInitialized()) {
+            mStreetViewPanorama.setPosition(p0.position)
+        }
         return true
     }
 
+    override fun onStart() {
+        super.onStart()
+        mStreetViewPanoramaView.onStart()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mStreetViewPanoramaView.onResume()
+    }
+
+    override fun onPause() {
+        mStreetViewPanoramaView.onPause()
+        super.onPause()
+    }
+
+    override fun onStop() {
+        mStreetViewPanoramaView.onStop()
+        super.onStop()
+    }
+
+    override fun onDestroy() {
+        mStreetViewPanoramaView.onDestroy()
+        super.onDestroy()
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        mStreetViewPanoramaView.onLowMemory()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        mStreetViewPanoramaView.onSaveInstanceState(outState)
+    }
 }

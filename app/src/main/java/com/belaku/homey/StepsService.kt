@@ -646,7 +646,7 @@ class StepsService : Service() {
     fun loadStaticStreetView(applicationContext: Context, mLatLng: LatLng) {
 
         val apiKey =
-            "AIzaSyB0CzBmoowjQWGmh630qyok7gQQNmVKlQI" // Ensure this key has Street View Static API enabled
+            "AIzaSyCS9SXl5dRB_RAAFWHHlDwvuq5gyy0VTRs" // Ensure this key has Street View Static API enabled
         val size = "250x250"
         val zoom = 18
 

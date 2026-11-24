@@ -235,7 +235,7 @@
             android:value="@string/admob_app_id" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyB0CzBmoowjQWGmh630qyok7gQQNmVKlQI" />
+            android:value="AIzaSyCS9SXl5dRB_RAAFWHHlDwvuq5gyy0VTRs" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -294,7 +294,7 @@
 
         <activity
             android:name=".MapsActivity"
-            android:exported="false"
+            android:exported="true"
             android:label="Maps"
             android:theme="@style/Theme.Homey" />
         <activity
