@@ -106,16 +106,8 @@ class ArMeasurementActivity : AppCompatActivity() {
         if (p1 != null && p2 != null) {
             val pixelDist = hypot((p2.x - p1.x).toDouble(), (p2.y - p1.y).toDouble()).toFloat()
 
-            // Improved distance estimation with clamping and realistic default (0.8m / 80cm)
-            val distanceMeters = if (latestFocusDiopters > 0f) {
-                val d = 1.0f / latestFocusDiopters
-                d.coerceIn(0.2f, 5.0f)
-            } else {
-                0.8f
-            }
-
-            // Using ~70 degree typical phone camera horizontal FOV factor (0.7f)
-            val viewWidthMeters = 2.0f * distanceMeters * 0.70f
+            val distanceMeters = if (latestFocusDiopters > 0f) 1.0f / latestFocusDiopters else 0.25f
+            val viewWidthMeters = 2.0f * distanceMeters * 0.57735f
             val widthPx = if (viewFinder.width > 0) viewFinder.width.toFloat() else 1080f
             val cmPerPixel = (viewWidthMeters * 100.0f) / widthPx
             val cm = pixelDist * cmPerPixel

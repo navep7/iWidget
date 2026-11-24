@@ -176,8 +176,8 @@
 
         <RelativeLayout
             android:id="@+id/rl_timer"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_centerHorizontal="true"
             android:layout_alignTop="@id/ll_top"
             android:layout_marginTop="-25dp"
@@ -192,9 +192,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_centerInParent="true"
-                android:background="@drawable/rounded"
+                android:background="@android:color/transparent"
                 android:contentDescription="Timers"
-                android:padding="@dimen/padding_5"
+                android:padding="@dimen/padding_4"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_timer" />
         </RelativeLayout>
@@ -1052,8 +1052,8 @@
 
                         <ImageView
                             android:id="@+id/imgv_water_glass"
-                            android:layout_width="@dimen/padding_35"
-                            android:layout_height="@dimen/padding_35"
+                            android:layout_width="@dimen/padding_50"
+                            android:layout_height="@dimen/padding_50"
                             android:src="@drawable/water_reminder"
                             android:scaleType="fitCenter"
                             app:tint="@color/white" />

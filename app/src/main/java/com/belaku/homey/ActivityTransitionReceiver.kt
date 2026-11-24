@@ -61,13 +61,6 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     }
                 }
 
-                if (detectedState == "CYCLING") {
-                    if (isMyServiceRunning(applicationContext, SpeedService::class.java) || sharedPrefs.getString("presentActivityState", "") == "TRAVEL") {
-                        Log.d("ActivityTransition", "Ignoring false CYCLING while in vehicle / traffic")
-                        return@forEach
-                    }
-                }
-
                 if (detectedState == "TRAVEL") {
                     val lastStepTime = sharedPrefs.getLong("last_step_timestamp", 0L)
                     val now = System.currentTimeMillis()
