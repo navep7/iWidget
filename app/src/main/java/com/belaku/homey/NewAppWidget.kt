@@ -1121,8 +1121,9 @@ class NewAppWidget : AppWidgetProvider() {
         val baseTimeC = sharedPreferences.getLong("cycleChr", 0L)
         if (baseTimeC != 0L) durationMillisCycle += (SystemClock.elapsedRealtime() - baseTimeC)
 
-        val activeDurationToShow = durationMillisWalk + durationMillisRun + durationMillisCycle
-        remoteViews?.setTextViewText(R.id.tx_active_duration, "Active : " + formatDuration(activeDurationToShow))
+        val foodCaloriesToday = getFoodCaloriesToday(widgetContext)
+        val burntCalories = calculateCaloriesFromSteps(stepsToday, weightKg, heightCm).toInt()
+        remoteViews?.setTextViewText(R.id.tx_active_duration, "Total / Burnt: $foodCaloriesToday / $burntCalories kcal")
 
         var durationMillisTravel = sharedPreferences.getLong(dayKey + "_travel_duration", 0L)
         val baseTimeT = sharedPreferences.getLong("speedChr", 0L)
@@ -2436,6 +2437,12 @@ class NewAppWidget : AppWidgetProvider() {
         var tW: String = "..."
         lateinit var appWidM: AppWidgetManager
         lateinit var mAppWidgetIds: IntArray
+
+        fun getFoodCaloriesToday(context: Context): Int {
+            val prefs = context.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
+            val todayKey = "food_calories_" + LocalDate.now().toString()
+            return prefs.getInt(todayKey, 0)
+        }
 
         fun isblurWallBitmapInitialized(): Boolean {
             if (::blurWallBitmap.isInitialized && !blurWallBitmap.isRecycled)

@@ -93,6 +93,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.StreetViewPanoramaOptions
 import com.google.maps.android.ui.IconGenerator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -645,17 +646,24 @@ class StepsService : Service() {
     fun loadStaticStreetView(applicationContext: Context, mLatLng: LatLng) {
 
         val apiKey =
-            "AIzaSyDypKvRVtn8t_F0yKtSfK5PuI54FBNDvCk" // Ensure this key has Street View Static API enabled
+            "AIzaSyB0CzBmoowjQWGmh630qyok7gQQNmVKlQI" // Ensure this key has Street View Static API enabled
         val size = "250x250"
-        val fov = 90 // Default field of view
         val zoom = 18
 
-        // Build the Street View request URL
+        // Standard Google SDK way using StreetViewPanoramaOptions & LatLng
+        val streetViewOptions = StreetViewPanoramaOptions().position(mLatLng)
+
+        val fov = 90
+        val sourceStr = "default"
+
+        // Build the Street View request URL using standard Google SDK configuration options
         val streetViewUrl = "https://maps.googleapis.com/maps/api/streetview" +
                 "?size=$size" +
                 "&location=${mLatLng.latitude},${mLatLng.longitude}" +
                 "&fov=$fov" +
-                "&key=$apiKey"
+                "&source=$sourceStr" +
+                "&key=$apiKey" +
+                "&panoId=" + streetViewOptions.hashCode()
 
         val streetRv = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
         val widgetTargetStreet = AppWidgetTarget(

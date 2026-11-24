@@ -235,7 +235,7 @@
             android:value="@string/admob_app_id" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDypKvRVtn8t_F0yKtSfK5PuI54FBNDvCk" />
+            android:value="AIzaSyB0CzBmoowjQWGmh630qyok7gQQNmVKlQI" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -1722,6 +1722,13 @@ class DialogActivity : AppCompatActivity() {
 
                 if (!responseText.isNullOrEmpty()) {
                     txContent.text = responseText
+                    val calories = parseCalories(responseText)
+                    if (calories > 0) {
+                        val prefs = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+                        val todayKey = "food_calories_" + java.time.LocalDate.now().toString()
+                        val currentTotal = prefs.getInt(todayKey, 0)
+                        prefs.edit().putInt(todayKey, currentTotal + calories).apply()
+                    }
                 } else {
                     txContent.text = "Unable to estimate calories for this image."
                 }
@@ -1731,6 +1738,17 @@ class DialogActivity : AppCompatActivity() {
                 makeToast(applicationContext, "Error: ${ex.message}")
             }
         }
+    }
+
+    private fun parseCalories(text: String): Int {
+        val regex = Regex("(?i)(?:total\\s+calories|calories|kcal|cal)[:\\s]*(\\d+)")
+        val match = regex.find(text)
+        if (match != null) {
+            return match.groupValues[1].toIntOrNull() ?: 0
+        }
+        val fallbackRegex = Regex("(?i)(\\d+)\\s*(?:kcal|calories|cal|kCal)")
+        val fallbackMatch = fallbackRegex.find(text)
+        return fallbackMatch?.groupValues?.get(1)?.toIntOrNull() ?: 0
     }
 
     private suspend fun callGeminiApi(bitmap: Bitmap, prompt: String): String = withContext(Dispatchers.IO) {

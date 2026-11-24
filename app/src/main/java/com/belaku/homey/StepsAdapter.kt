@@ -85,17 +85,19 @@ class StepsAdapter(
         val strDurationCycle = formatDuration(durationMillisCycle)
         strDurationTravel = formatDuration(durationMillisTravel)
 
+        val foodCaloriesToday = NewAppWidget.getFoodCaloriesToday(contx)
         holder.txTitle.text = days[realPosition]
        // makeToast(contx, "StA ~ " + strT)
         if (strT == "walk") {
             holder.txSteps.text = "$steps steps\n~ $km km\n~ $kCal kCal\nWalk: $strDurationWalk\nRun: $strDurationRun\nCycle: $strDurationCycle"
-            holder.txActiveDuration.visibility = View.GONE
+            holder.txActiveDuration.visibility = View.VISIBLE
+            holder.txActiveDuration.text = "Total / Burnt: $foodCaloriesToday / $kCal kcal"
             holder.progressSteps.max = 10000
         }
         else {
             holder.txSteps.text = "Max ~ ${stepsData[realPosition]} KmpH"
             holder.txActiveDuration.visibility = View.VISIBLE
-            holder.txActiveDuration.text = "Active: $strDurationTravel"
+            holder.txActiveDuration.text = "Total / Burnt: $foodCaloriesToday / $kCal kcal"
             holder.progressSteps.max = 125
         }
 
