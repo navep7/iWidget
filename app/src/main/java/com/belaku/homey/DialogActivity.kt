@@ -1761,7 +1761,12 @@ class DialogActivity : AppCompatActivity() {
                 }
             } catch (ex: Exception) {
                 ex.printStackTrace()
-                txContent.text = "Error analyzing food: ${ex.localizedMessage ?: ex.message}"
+                val msg = ex.message ?: ""
+                if (msg.contains("403") || msg.contains("Permission denied")) {
+                    txContent.text = "Gemini API Access Denied (HTTP 403).\n\nTo resolve this:\n1. Go to Google Cloud Console or Google AI Studio.\n2. Enable the 'Generative Language API' for your project/API key."
+                } else {
+                    txContent.text = "Error analyzing food: ${ex.localizedMessage ?: ex.message}"
+                }
                 makeToast(applicationContext, "Error: ${ex.message}")
             }
         }
@@ -1778,10 +1783,36 @@ class DialogActivity : AppCompatActivity() {
         return fallbackMatch?.groupValues?.get(1)?.toIntOrNull() ?: 0
     }
 
+    private fun getSigningCertSha1(): String {
+        return try {
+            val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNING_CERTIFICATES)
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
+            }
+            val signatures = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                packageInfo.signingInfo?.apkContentsSigners
+            } else {
+                @Suppress("DEPRECATION")
+                packageInfo.signatures
+            }
+            if (signatures != null && signatures.isNotEmpty()) {
+                val md = java.security.MessageDigest.getInstance("SHA1")
+                val digest = md.digest(signatures[0].toByteArray())
+                digest.joinToString("") { "%02x".format(it) }.uppercase()
+            } else {
+                ""
+            }
+        } catch (e: Exception) {
+            ""
+        }
+    }
+
     private suspend fun callGeminiApi(bitmap: Bitmap, prompt: String): String = withContext(Dispatchers.IO) {
         val keys = listOf(
-            "AIzaSyCS9SXl5dRB_RAAFWHHlDwvuq5gyy0VTRs",
-            "AIzaSyB0CzBmoowjQWGmh630qyok7gQQNmVKlQI"
+            "AIzaSyB0CzBmoowjQWGmh630qyok7gQQNmVKlQI",
+            "AIzaSyCS9SXl5dRB_RAAFWHHlDwvuq5gyy0VTRs"
         )
         val models = listOf("gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro")
 
@@ -1811,38 +1842,51 @@ class DialogActivity : AppCompatActivity() {
         val requestBody = jsonBody.toString().toRequestBody(mediaType)
         val client = OkHttpClient()
 
+        val pkgName = packageName
+        val certSha1 = getSigningCertSha1()
+
         var lastError = ""
 
         for (apiKey in keys) {
             for (model in models) {
-                try {
-                    val url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey"
-                    val request = Request.Builder()
-                        .url(url)
-                        .post(requestBody)
-                        .build()
+                var attempts = 0
+                while (attempts < 3) {
+                    try {
+                        val url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey"
+                        val reqBuilder = Request.Builder()
+                            .url(url)
+                            .header("X-Android-Package", pkgName)
 
-                    client.newCall(request).execute().use { response ->
-                        val responseBodyStr = response.body?.string() ?: ""
-                        if (response.isSuccessful) {
-                            val jsonResponse = JSONObject(responseBodyStr)
-                            val candidates = jsonResponse.optJSONArray("candidates")
-                            if (candidates != null && candidates.length() > 0) {
-                                val contentObj = candidates.getJSONObject(0).optJSONObject("content")
-                                val parts = contentObj?.optJSONArray("parts")
-                                if (parts != null && parts.length() > 0) {
-                                    val textResult = parts.getJSONObject(0).optString("text", "")
-                                    if (textResult.isNotBlank()) {
-                                        return@withContext textResult
+                        if (certSha1.isNotEmpty()) {
+                            reqBuilder.header("X-Android-Cert", certSha1)
+                        }
+
+                        val request = reqBuilder.post(requestBody).build()
+
+                        client.newCall(request).execute().use { response ->
+                            val responseBodyStr = response.body?.string() ?: ""
+                            if (response.isSuccessful) {
+                                val jsonResponse = JSONObject(responseBodyStr)
+                                val candidates = jsonResponse.optJSONArray("candidates")
+                                if (candidates != null && candidates.length() > 0) {
+                                    val contentObj = candidates.getJSONObject(0).optJSONObject("content")
+                                    val parts = contentObj?.optJSONArray("parts")
+                                    if (parts != null && parts.length() > 0) {
+                                        val textResult = parts.getJSONObject(0).optString("text", "")
+                                        if (textResult.isNotBlank()) {
+                                            return@withContext textResult
+                                        }
                                     }
                                 }
+                            } else {
+                                lastError = "HTTP ${response.code}: $responseBodyStr"
                             }
-                        } else {
-                            lastError = "HTTP ${response.code}: $responseBodyStr"
                         }
+                    } catch (e: Exception) {
+                        lastError = e.message ?: e.toString()
                     }
-                } catch (e: Exception) {
-                    lastError = e.message ?: e.toString()
+                    attempts++
+                    kotlinx.coroutines.delay(1000L * attempts)
                 }
             }
         }
