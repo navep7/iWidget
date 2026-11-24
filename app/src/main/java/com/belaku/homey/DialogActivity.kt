@@ -1696,10 +1696,37 @@ class DialogActivity : AppCompatActivity() {
         if (bitmap != null) {
             imgvSongCover.setImageBitmap(bitmap)
             imgvSongCover.visibility = View.VISIBLE
+            val sizePx = (80 * resources.displayMetrics.density).toInt()
+            val params = RelativeLayout.LayoutParams(sizePx, sizePx).apply {
+                addRule(RelativeLayout.ALIGN_PARENT_TOP)
+                addRule(RelativeLayout.ALIGN_PARENT_END)
+                setMargins(16, 16, 16, 16)
+            }
+            imgvSongCover.layoutParams = params
+            imgvSongCover.scaleType = ImageView.ScaleType.CENTER_CROP
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                imgvSongCover.outlineProvider = object : android.view.ViewOutlineProvider() {
+                    override fun getOutline(view: android.view.View, outline: android.graphics.Outline) {
+                        outline.setRoundRect(0, 0, view.width, view.height, 16f * resources.displayMetrics.density)
+                    }
+                }
+                imgvSongCover.clipToOutline = true
+            }
         }
 
         txContent.text = "Analyzing food image using Gemini AI...\nPlease wait a moment."
         txContent.visibility = View.VISIBLE
+        txContent.gravity = Gravity.START or Gravity.TOP
+        txContent.movementMethod = ScrollingMovementMethod()
+        val contentParams = RelativeLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply {
+            addRule(RelativeLayout.BELOW, R.id.tx_dialog_title)
+            setMargins(16, 8, 16, 16)
+        }
+        txContent.layoutParams = contentParams
+
         llButtons.visibility = View.VISIBLE
         btnOk.visibility = View.VISIBLE
         imgbtnShare.visibility = View.VISIBLE
@@ -1753,9 +1780,10 @@ class DialogActivity : AppCompatActivity() {
 
     private suspend fun callGeminiApi(bitmap: Bitmap, prompt: String): String = withContext(Dispatchers.IO) {
         val keys = listOf(
-            "AQ.Ab8RN6Kg9Ih76cBEvWFS1fb6WenMDA3LCjsIxRi5n36oEXko7g"
+            "AIzaSyCS9SXl5dRB_RAAFWHHlDwvuq5gyy0VTRs",
+            "AIzaSyB0CzBmoowjQWGmh630qyok7gQQNmVKlQI"
         )
-        val models = listOf("gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.5-flash")
+        val models = listOf("gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro")
 
         val outputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 85, outputStream)
@@ -1775,11 +1803,6 @@ class DialogActivity : AppCompatActivity() {
                             })
                         })
                     })
-                })
-            })
-            put("generationConfig", JSONObject().apply {
-                put("thinkingConfig", JSONObject().apply {
-                    put("thinkingLevel", "LOW")
                 })
             })
         }
