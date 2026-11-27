@@ -76,7 +76,7 @@ import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.load.model.LazyHeaders
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
-import com.bumptech.glide.request.target.AppWidgetTarget
+
 import java.security.MessageDigest
 import kotlin.math.floor
 import kotlin.math.ln
@@ -93,7 +93,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.StreetViewPanoramaOptions
+
 import com.google.maps.android.ui.IconGenerator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -627,7 +627,9 @@ class StepsService : Service() {
                 if (cityname.isNotEmpty()) {
                     val markerOptions = MarkerOptions().position(mLatLng).icon(icon).title(cityname)
                     mGoogleMap.addMarker(markerOptions)
-                    mStreetViewPanorama.setPosition(mLatLng)
+                    if (com.belaku.homey.MapsActivity.isStreetViewInitialized()) {
+                        mStreetViewPanorama.setPosition(mLatLng)
+                    }
                 }
 
                 val cameraPosition = CameraPosition.Builder()
@@ -644,55 +646,7 @@ class StepsService : Service() {
 
 
     fun loadStaticStreetView(applicationContext: Context, mLatLng: LatLng) {
-
-        val apiKey =
-            "AIzaSyCS9SXl5dRB_RAAFWHHlDwvuq5gyy0VTRs" // Ensure this key has Street View Static API enabled
-        val size = "250x250"
         val zoom = 18
-
-        // Standard Google SDK way using StreetViewPanoramaOptions & LatLng
-        val streetViewOptions = StreetViewPanoramaOptions().position(mLatLng)
-
-        val fov = 90
-        val sourceStr = "default"
-
-        // Build the Street View request URL using standard Google SDK configuration options
-        val streetViewUrl = "https://maps.googleapis.com/maps/api/streetview" +
-                "?size=$size" +
-                "&location=${mLatLng.latitude},${mLatLng.longitude}" +
-                "&fov=$fov" +
-                "&source=$sourceStr" +
-                "&key=$apiKey" +
-                "&panoId=" + streetViewOptions.hashCode()
-
-        val streetRv = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
-        val widgetTargetStreet = AppWidgetTarget(
-            applicationContext,
-            R.id.imgv_street_icon,
-            streetRv,
-            newAppWidget
-        )
-
-        Glide.with(applicationContext)
-            .asBitmap()
-            .load(streetViewUrl)
-            .override(250, 250)
-            .placeholder(R.drawable.walp_icon)
-            .error(android.R.drawable.stat_notify_error)
-            .into(widgetTargetStreet)
-
-        // Build the Static Map request URL
-        val staticMapUrl = "https://maps.googleapis.com/maps/api/staticmap" +
-                "?center=${mLatLng.latitude},${mLatLng.longitude}" +
-                "&zoom=$zoom" +
-                "&size=300x300" +
-                "&maptype=satellite" +
-                "&key=$apiKey"
-
-        val headers = LazyHeaders.Builder()
-            .addHeader("User-Agent", "HomeyApp/1.0 (${applicationContext.packageName})")
-            .build()
-
         val latRad = Math.toRadians(mLatLng.latitude)
         val xtile = kotlin.math.floor((mLatLng.longitude + 180.0) / 360.0 * (1 shl zoom)).toInt()
         val ytile = kotlin.math.floor((1.0 - Math.log(Math.tan(latRad) + 1.0 / Math.cos(latRad)) / Math.PI) / 2.0 * (1 shl zoom)).toInt()
@@ -700,44 +654,63 @@ class StepsService : Service() {
         val osmTileUrl = "https://tile.openstreetmap.org/$zoom/$xtile/$ytile.png"
         val esriTileUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/$zoom/$ytile/$xtile"
 
+        val headers = LazyHeaders.Builder()
+            .addHeader("User-Agent", "HomeyApp/1.0 (${applicationContext.packageName})")
+            .build()
+
         val osmGlideUrl = GlideUrl(osmTileUrl, headers)
         val esriGlideUrl = GlideUrl(esriTileUrl, headers)
 
-        val mapRv = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
-        val widgetTargetMap = AppWidgetTarget(
-            applicationContext,
-            R.id.imgv_map_icon, // The ID of the ImageView in your widget XML
-            mapRv,
-            newAppWidget
-        )
-
-        val staticMapTransform = MapMarkerTransformation(mLatLng, zoom, isTile = false)
         val tileTransform = MapMarkerTransformation(mLatLng, zoom, isTile = true)
 
-        // Load the image into your view using Glide with marker transformation and tile fallbacks
-        Glide.with(applicationContext)
-            .asBitmap() // RemoteViews require a Bitmap
-            .load(staticMapUrl)
-            .override(300, 300)
-            .transform(staticMapTransform)
-            .error(
-                Glide.with(applicationContext)
-                    .asBitmap()
-                    .load(osmGlideUrl)
-                    .override(300, 300)
-                    .transform(tileTransform)
-                    .error(
-                        Glide.with(applicationContext)
-                            .asBitmap()
-                            .load(esriGlideUrl)
-                            .override(300, 300)
-                            .transform(tileTransform)
-                            .placeholder(R.drawable.walp_icon)
-                            .error(android.R.drawable.stat_notify_error)
-                    )
-            )
-            .placeholder(R.drawable.walp_icon) // Handles the loading state automatically
-            .into(widgetTargetMap)
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val streetBitmap = try {
+                    Glide.with(applicationContext)
+                        .asBitmap()
+                        .load(esriGlideUrl)
+                        .override(250, 250)
+                        .transform(tileTransform)
+                        .submit()
+                        .get()
+                } catch (_: Exception) {
+                    null
+                }
+
+                val mapBitmap = try {
+                    Glide.with(applicationContext)
+                        .asBitmap()
+                        .load(osmGlideUrl)
+                        .override(300, 300)
+                        .transform(tileTransform)
+                        .submit()
+                        .get()
+                } catch (_: Exception) {
+                    null
+                }
+
+                NewAppWidget.cachedStreetBitmap = streetBitmap
+                NewAppWidget.cachedMapBitmap = mapBitmap
+
+                val remoteViews = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
+                if (streetBitmap != null) {
+                    remoteViews.setImageViewBitmap(R.id.imgv_street_icon, streetBitmap)
+                }
+                if (mapBitmap != null) {
+                    remoteViews.setImageViewBitmap(R.id.imgv_map_icon, mapBitmap)
+                }
+
+                if (NewAppWidget.remoteViews != null) {
+                    if (streetBitmap != null) NewAppWidget.remoteViews?.setImageViewBitmap(R.id.imgv_street_icon, streetBitmap)
+                    if (mapBitmap != null) NewAppWidget.remoteViews?.setImageViewBitmap(R.id.imgv_map_icon, mapBitmap)
+                    appWidM?.updateAppWidget(newAppWidget, NewAppWidget.remoteViews)
+                } else {
+                    appWidM?.updateAppWidget(newAppWidget, remoteViews)
+                }
+            } catch (e: Exception) {
+                Log.e("StepsService", "Error loading widget static images", e)
+            }
+        }
     }
 
 

@@ -1811,8 +1811,8 @@ class DialogActivity : AppCompatActivity() {
 
     private suspend fun callGeminiApi(bitmap: Bitmap, prompt: String): String = withContext(Dispatchers.IO) {
         val keys = listOf(
-            "AIzaSyB0CzBmoowjQWGmh630qyok7gQQNmVKlQI",
-            "AIzaSyCS9SXl5dRB_RAAFWHHlDwvuq5gyy0VTRs"
+            "",
+            ""
         )
         val models = listOf("gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro")
 

@@ -8,13 +8,13 @@ plugins {
 
 android {
     namespace = "com.belaku.homey"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.belaku.homey"
         minSdk = 30
         //noinspection OldTargetApi
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 216
         versionName = "216.0"
 

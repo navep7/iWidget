@@ -221,6 +221,12 @@ class NewAppWidget : AppWidgetProvider() {
     /** Ensures [remoteViews] is freshly created before any setters are invoked on it, preventing action/bitmap buildup across updates. */
     private fun ensureRemoteViews(context: Context) {
         remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
+        if (cachedStreetBitmap != null) {
+            remoteViews?.setImageViewBitmap(R.id.imgv_street_icon, cachedStreetBitmap)
+        }
+        if (cachedMapBitmap != null) {
+            remoteViews?.setImageViewBitmap(R.id.imgv_map_icon, cachedMapBitmap)
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -2415,6 +2421,8 @@ class NewAppWidget : AppWidgetProvider() {
 
     companion object {
 
+        var cachedStreetBitmap: Bitmap? = null
+        var cachedMapBitmap: Bitmap? = null
         private var unlockReceiver: BroadcastReceiver? = null
         var penNote: String = ""
         lateinit var blurWallBitmap: Bitmap
