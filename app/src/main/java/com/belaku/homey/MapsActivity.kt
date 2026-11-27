@@ -2,11 +2,16 @@ package com.belaku.homey
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Rect
 import android.location.Address
 import android.location.Geocoder
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.view.PixelCopy
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
@@ -87,6 +92,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapCli
         setSupportActionBar(binding.toolbar)
 
         try {
+            WebView.enableSlowWholeDocumentDraw()
+        } catch (e: Exception) {
+            Log.e("MapsActivity", "Error enabling slow whole document draw", e)
+        }
+
+        try {
             MapsInitializer.initialize(applicationContext)
         } catch (e: Exception) {
             Log.e("MapsSDK", "Failed to initialize maps renderer", e)
@@ -95,7 +106,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapCli
         webViewStreet = findViewById(R.id.webview_streetview)
         webViewStreet.settings.javaScriptEnabled = true
         webViewStreet.settings.domStorageEnabled = true
-        webViewStreet.webViewClient = WebViewClient()
+        webViewStreet.settings.useWideViewPort = true
+        webViewStreet.settings.loadWithOverviewMode = true
+        webViewStreet.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                captureAndSetStreetWidgetBitmap()
+            }
+        }
 
         mSupportMapFragment =
             (supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?)!!
@@ -107,7 +125,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapCli
             webViewStreet.visibility = View.VISIBLE
             mapView.visibility = View.GONE
         } else {
-            webViewStreet.visibility = View.GONE
+            webViewStreet.visibility = View.INVISIBLE
             mapView.visibility = View.VISIBLE
         }
 
@@ -115,9 +133,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapCli
             if (mapView.visibility == View.VISIBLE) {
                 webViewStreet.visibility = View.VISIBLE
                 mapView.visibility = View.GONE
+                captureAndSetStreetWidgetBitmap()
             } else {
                 boolStreetMarkerClicked = false
-                webViewStreet.visibility = View.GONE
+                webViewStreet.visibility = View.INVISIBLE
                 mapView.visibility = View.VISIBLE
             }
         }
@@ -330,5 +349,71 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapCli
         boolStreetMarkerClicked = true
         applyLocationToStreet(p0.position.latitude, p0.position.longitude)
         return true
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (::webViewStreet.isInitialized && webViewStreet.visibility == View.VISIBLE) {
+            captureAndSetStreetWidgetBitmap()
+        }
+    }
+
+    private fun captureAndSetStreetWidgetBitmap() {
+        if (isFinishing || isDestroyed) return
+        webViewStreet.postDelayed({
+            if (isFinishing || isDestroyed) return@postDelayed
+            try {
+                val width = webViewStreet.width
+                val height = webViewStreet.height
+                if (width <= 0 || height <= 0) return@postDelayed
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && webViewStreet.isShown) {
+                    val location = IntArray(2)
+                    webViewStreet.getLocationInWindow(location)
+                    val rect = Rect(
+                        location[0],
+                        location[1],
+                        location[0] + width,
+                        location[1] + height
+                    )
+
+                    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+
+                    PixelCopy.request(
+                        window,
+                        rect,
+                        bitmap,
+                        { copyResult ->
+                            if (copyResult == PixelCopy.SUCCESS) {
+                                NewAppWidget.updateStreetBitmap(applicationContext, bitmap)
+                            } else {
+                                captureWithCanvasDraw()
+                            }
+                        },
+                        Handler(Looper.getMainLooper())
+                    )
+                } else {
+                    captureWithCanvasDraw()
+                }
+            } catch (e: Exception) {
+                Log.e("MapsActivity", "Error capturing webViewStreet bitmap", e)
+                captureWithCanvasDraw()
+            }
+        }, 2000)
+    }
+
+    private fun captureWithCanvasDraw() {
+        try {
+            val width = webViewStreet.width
+            val height = webViewStreet.height
+            if (width > 0 && height > 0) {
+                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                val canvas = Canvas(bitmap)
+                webViewStreet.draw(canvas)
+                NewAppWidget.updateStreetBitmap(applicationContext, bitmap)
+            }
+        } catch (e: Exception) {
+            Log.e("MapsActivity", "Error in captureWithCanvasDraw", e)
+        }
     }
 }

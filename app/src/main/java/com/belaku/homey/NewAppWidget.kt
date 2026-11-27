@@ -221,6 +221,9 @@ class NewAppWidget : AppWidgetProvider() {
     /** Ensures [remoteViews] is freshly created before any setters are invoked on it, preventing action/bitmap buildup across updates. */
     private fun ensureRemoteViews(context: Context) {
         remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
+        if (cachedStreetBitmap == null) {
+            cachedStreetBitmap = loadStreetBitmapFromFile(context)
+        }
         if (cachedStreetBitmap != null) {
             remoteViews?.setImageViewBitmap(R.id.imgv_street_icon, cachedStreetBitmap)
         }
@@ -2423,6 +2426,63 @@ class NewAppWidget : AppWidgetProvider() {
 
         var cachedStreetBitmap: Bitmap? = null
         var cachedMapBitmap: Bitmap? = null
+
+        fun saveStreetBitmapToFile(context: Context, bitmap: Bitmap) {
+            try {
+                val file = java.io.File(context.filesDir, "street_icon.png")
+                java.io.FileOutputStream(file).use { out ->
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                }
+            } catch (e: Exception) {
+                Log.e("NewAppWidget", "Error saving street bitmap to file", e)
+            }
+        }
+
+        fun loadStreetBitmapFromFile(context: Context): Bitmap? {
+            return try {
+                val file = java.io.File(context.filesDir, "street_icon.png")
+                if (file.exists()) {
+                    android.graphics.BitmapFactory.decodeFile(file.absolutePath)
+                } else null
+            } catch (e: Exception) {
+                Log.e("NewAppWidget", "Error loading street bitmap from file", e)
+                null
+            }
+        }
+
+        fun updateStreetBitmap(context: Context, bitmap: Bitmap) {
+            try {
+                if (bitmap.isRecycled) return
+                val width = bitmap.width
+                val height = bitmap.height
+                if (width <= 0 || height <= 0) return
+
+                val size = Math.min(width, height)
+                val x = (width - size) / 2
+                val y = (height - size) / 2
+                val cropped = Bitmap.createBitmap(bitmap, x, y, size, size)
+                val scaledBitmap = Bitmap.createScaledBitmap(cropped, 250, 250, true)
+
+                cachedStreetBitmap = scaledBitmap
+                saveStreetBitmapToFile(context, scaledBitmap)
+
+                ensureCompanionInitialized(context)
+                if (isAppWidMInitialized()) {
+                    if (remoteViews == null) {
+                        remoteViews = RemoteViews(context.packageName, R.layout.new_app_widget)
+                    }
+                    remoteViews?.setImageViewBitmap(R.id.imgv_street_icon, scaledBitmap)
+                    if (::newAppWidget.isInitialized) {
+                        appWidM.updateAppWidget(newAppWidget, remoteViews)
+                        if (isAppWidgetIdsInitialized()) {
+                            appWidM.updateAppWidget(i_appWidgetIds, remoteViews)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("NewAppWidget", "Error updating street icon bitmap in widget", e)
+            }
+        }
         private var unlockReceiver: BroadcastReceiver? = null
         var penNote: String = ""
         lateinit var blurWallBitmap: Bitmap

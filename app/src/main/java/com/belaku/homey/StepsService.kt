@@ -689,19 +689,28 @@ class StepsService : Service() {
                     null
                 }
 
-                NewAppWidget.cachedStreetBitmap = streetBitmap
+                if (NewAppWidget.cachedStreetBitmap == null) {
+                    val loaded = NewAppWidget.loadStreetBitmapFromFile(applicationContext)
+                    if (loaded != null) {
+                        NewAppWidget.cachedStreetBitmap = loaded
+                    } else if (streetBitmap != null) {
+                        NewAppWidget.cachedStreetBitmap = streetBitmap
+                    }
+                }
                 NewAppWidget.cachedMapBitmap = mapBitmap
 
+                val displayStreetBitmap = NewAppWidget.cachedStreetBitmap ?: streetBitmap
+
                 val remoteViews = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
-                if (streetBitmap != null) {
-                    remoteViews.setImageViewBitmap(R.id.imgv_street_icon, streetBitmap)
+                if (displayStreetBitmap != null) {
+                    remoteViews.setImageViewBitmap(R.id.imgv_street_icon, displayStreetBitmap)
                 }
                 if (mapBitmap != null) {
                     remoteViews.setImageViewBitmap(R.id.imgv_map_icon, mapBitmap)
                 }
 
                 if (NewAppWidget.remoteViews != null) {
-                    if (streetBitmap != null) NewAppWidget.remoteViews?.setImageViewBitmap(R.id.imgv_street_icon, streetBitmap)
+                    if (displayStreetBitmap != null) NewAppWidget.remoteViews?.setImageViewBitmap(R.id.imgv_street_icon, displayStreetBitmap)
                     if (mapBitmap != null) NewAppWidget.remoteViews?.setImageViewBitmap(R.id.imgv_map_icon, mapBitmap)
                     appWidM?.updateAppWidget(newAppWidget, NewAppWidget.remoteViews)
                 } else {
