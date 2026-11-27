@@ -161,22 +161,21 @@
             android:contentDescription="Measure Calories" />
 
         <ImageButton
-            android:id="@+id/menu2_imgbtn3"
+            android:id="@+id/menu2_imgbtn_record"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_margin="10dp"
-            android:src="@drawable/wifi_off"
+            android:src="@drawable/ic_mic"
             android:background="@drawable/rounded_corner_gray"
             android:scaleType="fitXY"
             android:padding="10dp"
-            android:contentDescription="Wifi" />
+            android:contentDescription="Record Audio" />
 
         <ImageButton
             android:id="@+id/menu2_imgbtn4"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_margin="10dp"
-            android:src="@drawable/blue_off"
             android:background="@drawable/rounded_corner_gray"
             android:scaleType="fitXY"
             android:padding="10dp"
@@ -187,7 +186,6 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_margin="10dp"
-            android:src="@drawable/ai"
             android:background="@drawable/rounded_corner_gray"
             android:scaleType="fitXY"
             android:padding="10dp"

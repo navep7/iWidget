@@ -6,8 +6,11 @@ import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.PendingIntent
 import android.app.TimePickerDialog
+import android.media.MediaRecorder
 import android.os.CountDownTimer
+import android.os.Environment
 import android.provider.AlarmClock
+import java.io.File
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
@@ -72,7 +75,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import android.util.Base64
-import java.io.File
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
@@ -185,7 +187,17 @@ class DialogActivity : AppCompatActivity() {
     private lateinit var menuAi: ImageButton
     private lateinit var menu2AugmentedMeasurement: ImageButton
     private lateinit var menu2MeasureCalories: ImageButton
+    private lateinit var menu2Record: ImageButton
     private var foodPhotoUri: Uri? = null
+
+    private val recordAudioPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                startDirectRecording()
+            } else {
+                Toast.makeText(this, "Microphone permission is required for voice recording", Toast.LENGTH_SHORT).show()
+            }
+        }
 
     private val foodCameraPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -294,6 +306,7 @@ class DialogActivity : AppCompatActivity() {
         menuAi = findViewById(R.id.menu_ai)
         menu2AugmentedMeasurement = findViewById(R.id.menu2_imgbtn_augmented_measurement)
         menu2MeasureCalories = findViewById(R.id.menu2_imgbtn_measure_calories)
+        menu2Record = findViewById(R.id.menu2_imgbtn_record)
 
          val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
          bluetoothAdapter = bluetoothManager.adapter
@@ -371,6 +384,18 @@ class DialogActivity : AppCompatActivity() {
             }
         }
 
+        menu2Record.setOnClickListener {
+            if (isRecordingAudio) {
+                stopVoiceRecordingAndConfirmSave()
+            } else {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                    startDirectRecording()
+                } else {
+                    recordAudioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                }
+            }
+        }
+
         dialogIntentStr = intent.getStringExtra("DialogIntent").toString()
    //     makeToast(applicationContext,dialogIntentStr.toString())
 
@@ -378,6 +403,18 @@ class DialogActivity : AppCompatActivity() {
 
         if (dialogIntentStr != null) {
             when (dialogIntentStr) {
+                "Record" -> {
+                    window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                    if (isRecordingAudio) {
+                        stopVoiceRecordingAndConfirmSave()
+                    } else {
+                        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                            startDirectRecording()
+                        } else {
+                            recordAudioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                        }
+                    }
+                }
                 "MeasureCalories" -> {
                     window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
@@ -1320,6 +1357,60 @@ class DialogActivity : AppCompatActivity() {
 
 
 
+    override fun onResume() {
+        super.onResume()
+        if (isRecordingAudio) {
+            menu2Record.setBackgroundResource(R.drawable.rounded_corner_selected)
+        } else {
+            menu2Record.setBackgroundResource(R.drawable.rounded_corner_gray)
+        }
+    }
+
+    private fun startDirectRecording() {
+        if (startVoiceRecording(applicationContext)) {
+            isRecordingAudio = true
+            Toast.makeText(this, "Voice recording started. Dialog will now close.", Toast.LENGTH_SHORT).show()
+            finish()
+        } else {
+            Toast.makeText(this, "Failed to start voice recording", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun stopVoiceRecordingAndConfirmSave() {
+        val stoppedSuccessfully = stopMediaRecorder()
+        isRecordingAudio = false
+        menu2Record.setBackgroundResource(R.drawable.rounded_corner_gray)
+
+        val fileToSave = audioOutputFile
+        if (!stoppedSuccessfully || fileToSave == null || !fileToSave.exists() || fileToSave.length() == 0L) {
+            Toast.makeText(this, "Recording failed or empty", Toast.LENGTH_SHORT).show()
+            fileToSave?.delete()
+            audioOutputFile = null
+            return
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Save Recording")
+            .setMessage("Recording stopped. Do you want to save this voice recording?")
+            .setPositiveButton("Save") { dialog, _ ->
+                makeToast(applicationContext, "Recording saved to: ${fileToSave.absolutePath}")
+                audioOutputFile = null
+                dialog.dismiss()
+            }
+            .setNegativeButton("Discard") { dialog, _ ->
+                fileToSave.delete()
+                audioOutputFile = null
+                Toast.makeText(this, "Recording discarded", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            }
+            .setOnCancelListener {
+                fileToSave.delete()
+                audioOutputFile = null
+                Toast.makeText(this, "Recording discarded", Toast.LENGTH_SHORT).show()
+            }
+            .show()
+    }
+
     private fun showTwitterUsernameInputDialog() {
         val input = EditText(this).apply {
             hint = "Enter Twitter username (e.g. NASA)"
@@ -1450,6 +1541,75 @@ class DialogActivity : AppCompatActivity() {
         lateinit var dialogIntentStr: String
         var listStocks: ArrayList<Stock> = ArrayList()
         private var lastStocksRefreshTimeMs: Long = 0
+
+        var isRecordingAudio = false
+        private var mediaRecorder: MediaRecorder? = null
+        private var audioOutputFile: File? = null
+
+        fun startVoiceRecording(context: Context): Boolean {
+            return try {
+                val recordingsDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: context.filesDir
+                if (!recordingsDir.exists()) {
+                    recordingsDir.mkdirs()
+                }
+                val timestamp = java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.getDefault()).format(java.util.Date())
+                audioOutputFile = File(recordingsDir, "Recording_$timestamp.m4a")
+
+                mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    MediaRecorder(context.applicationContext)
+                } else {
+                    @Suppress("DEPRECATION")
+                    MediaRecorder()
+                }
+
+                mediaRecorder?.apply {
+                    setAudioSource(MediaRecorder.AudioSource.MIC)
+                    setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                    setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                    setAudioSamplingRate(44100)
+                    setAudioEncodingBitRate(128000)
+                    setOutputFile(audioOutputFile?.absolutePath)
+                    setOnErrorListener { _, what, extra ->
+                        Log.e("DialogActivity", "MediaRecorder error: what=$what, extra=$extra")
+                    }
+                    setOnInfoListener { _, what, extra ->
+                        Log.i("DialogActivity", "MediaRecorder info: what=$what, extra=$extra")
+                    }
+                    prepare()
+                    start()
+                }
+                true
+            } catch (e: Exception) {
+                Log.e("DialogActivity", "Error starting MediaRecorder", e)
+                audioOutputFile?.delete()
+                audioOutputFile = null
+                try {
+                    mediaRecorder?.release()
+                } catch (ex: Exception) {
+                    Log.e("DialogActivity", "Error releasing MediaRecorder", ex)
+                }
+                mediaRecorder = null
+                false
+            }
+        }
+
+        fun stopMediaRecorder(): Boolean {
+            var success = true
+            try {
+                mediaRecorder?.stop()
+            } catch (e: Exception) {
+                Log.e("DialogActivity", "Error stopping MediaRecorder", e)
+                success = false
+            } finally {
+                try {
+                    mediaRecorder?.release()
+                } catch (e: Exception) {
+                    Log.e("DialogActivity", "Error releasing MediaRecorder", e)
+                }
+                mediaRecorder = null
+            }
+            return success
+        }
 
         fun refreshAllStocks(
             context: Context,
