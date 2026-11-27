@@ -224,6 +224,29 @@ class NewAppWidget : AppWidgetProvider() {
         if (cachedStreetBitmap == null) {
             cachedStreetBitmap = loadStreetBitmapFromFile(context)
         }
+        if (cachedStreetBitmap == null) {
+            val prefs = context.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
+            val savedLat = prefs.getFloat("cityLat", 0f).toDouble()
+            val savedLng = prefs.getFloat("cityLng", 0f).toDouble()
+            val savedCity = prefs.getString("cityname", "") ?: ""
+            if (savedLat != 0.0 && savedLng != 0.0) {
+                if (cityname.isBlank()) cityname = savedCity
+                if (!ismLatLngInitialized()) {
+                    StepsService.mLatLng = LatLng(savedLat, savedLng)
+                }
+                try {
+                    StepsService().loadStaticStreetView(context, StepsService.mLatLng)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error loading static street view from saved location", e)
+                }
+            } else if (ismLatLngInitialized()) {
+                try {
+                    StepsService().loadStaticStreetView(context, StepsService.mLatLng)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error loading static street view from mLatLng", e)
+                }
+            }
+        }
         if (cachedStreetBitmap != null) {
             remoteViews?.setImageViewBitmap(R.id.imgv_street_icon, cachedStreetBitmap)
         }

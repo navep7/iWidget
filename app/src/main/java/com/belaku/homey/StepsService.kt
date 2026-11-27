@@ -611,6 +611,14 @@ class StepsService : Service() {
             cityname = name
             mLatLng = LatLng(lat, lng)
 
+            if (!isSharedPreferencesInitialized()) {
+                sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+                sharedPreferencesEditor = sharedPreferences.edit()
+            }
+            sharedPreferencesEditor.putFloat("cityLat", lat.toFloat()).apply()
+            sharedPreferencesEditor.putFloat("cityLng", lng.toFloat()).apply()
+            sharedPreferencesEditor.putString("cityname", name).apply()
+
             if (ismGoogleMapInitialized()) {
                 var icon: BitmapDescriptor? = null
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -700,6 +708,9 @@ class StepsService : Service() {
                 NewAppWidget.cachedMapBitmap = mapBitmap
 
                 val displayStreetBitmap = NewAppWidget.cachedStreetBitmap ?: streetBitmap
+                if (displayStreetBitmap != null) {
+                    NewAppWidget.updateStreetBitmap(applicationContext, displayStreetBitmap)
+                }
 
                 val remoteViews = RemoteViews(applicationContext.packageName, R.layout.new_app_widget)
                 if (displayStreetBitmap != null) {
