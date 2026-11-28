@@ -4,6 +4,7 @@ import json
 import re
 import html
 import urllib.request
+import urllib.parse
 import xml.etree.ElementTree as ET
 from types import ModuleType
 
@@ -48,63 +49,61 @@ def get_ssl_context():
     except Exception:
         return None
 
-def fetch_tweets_from_syndication(username, count=1000):
+def clean_tweet_text(raw_text):
+    if not raw_text:
+        return ""
+    # Strip HTML tags
+    text = re.sub(r'<[^>]+>', '', raw_text)
+    # Unescape HTML entities
+    text = html.unescape(text)
+    # Clean up whitespace
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
+
+def fetch_tweets_via_rss2json(username, count=1000):
     """
-    Directly fetches public tweets from Twitter's official embedded syndication API.
+    Fetches public tweets via RSS-to-JSON service for Nitter / RSSHub streams.
     """
-    try:
-        url = f"https://syndication.twitter.com/srv/timeline-profile/priv-user/{username}"
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.9"
-        }
-        req = urllib.request.Request(url, headers=headers)
-        ctx = get_ssl_context()
+    rss_urls = [
+        f"https://nitter.privacydev.net/{username}/rss",
+        f"https://nitter.poast.org/{username}/rss",
+        f"https://rsshub.app/twitter/user/{username}",
+    ]
+    ctx = get_ssl_context()
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+    }
 
-        with urllib.request.urlopen(req, context=ctx, timeout=10) as response:
-            html_data = response.read().decode('utf-8', errors='ignore')
-
-        match = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', html_data, re.DOTALL)
-        if not match:
-            return None
-
-        data = json.loads(match.group(1))
-        entries = data.get('props', {}).get('pageProps', {}).get('timeline', {}).get('entries', [])
-
-        tweet_list = []
-        avatar_url = ""
-
-        for entry in entries:
-            content = entry.get('content', {})
-            tweet = content.get('tweet', {})
-            if tweet:
-                if not avatar_url:
-                    avatar_url = tweet.get('user', {}).get('profile_image_url_https', '')
-                    if avatar_url:
-                        avatar_url = avatar_url.replace('_normal', '_400x400').replace('_mini', '_400x400')
-
-                raw_text = tweet.get('text', '')
-                if raw_text:
-                    clean_text = html.unescape(raw_text).strip()
-                    if clean_text:
-                        tweet_list.append(clean_text)
-
-        if tweet_list:
-            return {"avatar": avatar_url, "tweets": tweet_list[:count]}
-    except Exception:
-        pass
+    for rss_u in rss_urls:
+        api_url = f"https://api.rss2json.com/v1/api.json?rss_url={urllib.parse.quote(rss_u)}"
+        try:
+            req = urllib.request.Request(api_url, headers=headers)
+            with urllib.request.urlopen(req, context=ctx, timeout=7) as resp:
+                data = json.loads(resp.read().decode('utf-8'))
+                if data.get("status") == "ok":
+                    feed = data.get("feed", {})
+                    avatar_url = feed.get("image") or f"https://unavatar.io/twitter/{username}"
+                    items = data.get("items", [])
+                    tweets = []
+                    for item in items:
+                        raw = item.get("description") or item.get("title") or ""
+                        cleaned = clean_tweet_text(raw)
+                        if cleaned and cleaned not in tweets and not cleaned.startswith("RT by @"):
+                            tweets.append(cleaned)
+                    if tweets:
+                        return {"avatar": avatar_url, "tweets": tweets[:count]}
+        except Exception:
+            continue
     return None
 
-def fetch_tweets_from_rss(username, count=1000):
+def fetch_tweets_from_rss_direct(username, count=1000):
     """
-    Fetches public tweets using Nitter RSS feeds (XML format).
+    Directly fetches XML RSS from public mirrors.
     """
     rss_urls = [
         f"https://nitter.privacydev.net/{username}/rss",
         f"https://nitter.poast.org/{username}/rss",
         f"https://nitter.freedit.eu/{username}/rss",
-        f"https://nitter.net/{username}/rss",
         f"https://nitter.cz/{username}/rss",
     ]
     ctx = get_ssl_context()
@@ -113,7 +112,7 @@ def fetch_tweets_from_rss(username, count=1000):
     for url in rss_urls:
         try:
             req = urllib.request.Request(url, headers=headers)
-            with urllib.request.urlopen(req, context=ctx, timeout=8) as response:
+            with urllib.request.urlopen(req, context=ctx, timeout=6) as response:
                 xml_data = response.read().decode('utf-8', errors='ignore')
 
             root = ET.fromstring(xml_data)
@@ -135,10 +134,8 @@ def fetch_tweets_from_rss(username, count=1000):
                 title = item.find('title')
                 raw_text = desc.text if (desc is not None and desc.text) else (title.text if title is not None else "")
                 if raw_text:
-                    clean_text = re.sub(r'<[^>]+>', '', raw_text).strip()
-                    clean_text = re.sub(r'https://t.co/\S+', '', clean_text).strip()
-                    clean_text = html.unescape(clean_text).strip()
-                    if clean_text:
+                    clean_text = clean_tweet_text(raw_text)
+                    if clean_text and clean_text not in tweet_list:
                         tweet_list.append(clean_text)
 
             if tweet_list:
@@ -147,81 +144,47 @@ def fetch_tweets_from_rss(username, count=1000):
             continue
     return None
 
-LARGE_FALLBACK_TWEETS = [
-    "Emotional tears contain Leu-enkephalin - a natural pain killer. That's why crying makes you feel better.",
-    "The biggest regret that people have on their deathbed is that they lived the life expected of them instead of being true to themselves.",
-    "Anyone can make you smile, many people can make you cry, but it takes someone really special to make you smile with tears in your eyes.",
-    "Instead of 'Once upon a time,' many Korean folktales begin with 'Back when tigers used to smoke...'",
-    "Too many people are trying to find the right person instead of being the right person.",
-    "The true mark of maturity is when somebody hurts you and you try to understand their situation instead of trying to hurt them back.",
-    "Enjoy the sauna or steam room? Check out all these health benefits that come along with all that relaxation.",
-    "In 2010, McDonald's mistakenly packed and distributed 5,000 Happy Meals with a condom instead of a toy.",
-    "Too many people go through life waiting for things to happen instead of making them happen.",
-    "Life is 10% what happens to you and 90% how you react to it.",
-    "Your time is limited, so don't waste it living someone else's life.",
-    "The best time to plant a tree was 20 years ago. The second best time is now.",
-    "An unexamined life is not worth living.",
-    "Eighty percent of success is showing up.",
-    "Your mindset determines your outcome in every situation.",
-    "Small daily improvements over time lead to stunning results.",
-    "Happiness depends upon ourselves.",
-    "Turn your wounds into wisdom.",
-    "Do what you can, with what you have, where you are.",
-    "It always seems impossible until it's done.",
-    "Believe you can and you're halfway there.",
-    "The secret of getting ahead is getting started.",
-    "Opportunities don't happen, you create them.",
-    "Success is not final, failure is not fatal: it is the courage to continue that counts.",
-    "Never let the fear of striking out keep you from playing the game.",
-    "Money and success don't change people; they merely amplify what is already there.",
-    "Not how long, but how well you have lived is the main thing.",
-    "In order to write about life first you must live it.",
-    "The unexamined life is not worth living.",
-    "Turn your obstacles into fuel for growth.",
-    "Do not go where the path may lead, go instead where there is no path and leave a trail.",
-    "The future belongs to those who believe in the beauty of their dreams.",
-    "Do one thing every day that scares you.",
-    "It is during our darkest moments that we must focus to see the light.",
-    "Do not judge me by my successes, judge me by how many times I fell down and got back up again.",
-    "The only limit to our realization of tomorrow will be our doubts of today.",
-    "The purpose of our lives is to be happy.",
-    "Life is what happens when you're busy making other plans.",
-    "Get busy living or get busy dying.",
-    "You only live once, but if you do it right, once is enough.",
-    "Many of life's failures are people who did not realize how close they were to success when they gave up.",
-    "If you want to live a happy life, tie it to a goal, not to people or things.",
-    "Never let the fear of striking out keep you from playing the game.",
-    "Money and success don't change people; they merely amplify what is already there.",
-    "Your time is limited, so don't waste it living someone else's life.",
-    "Not how long, but how well you have lived is the main thing.",
-    "In order to write about life first you must live it.",
-    "Curiosity about life in all of its aspects is still the secret of great creative people.",
-    "Life is not a problem to be solved, but a reality to be experienced.",
-    "The unexamined life is not worth living."
-]
+def fetch_avatar_from_fxtwitter(username):
+    url = f"https://api.fxtwitter.com/{username}"
+    ctx = get_ssl_context()
+    headers = {"User-Agent": "Mozilla/5.0"}
+    try:
+        req = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(req, context=ctx, timeout=5) as resp:
+            data = json.loads(resp.read().decode('utf-8'))
+            if data.get("code") == 200:
+                user = data.get("user", {})
+                avatar = user.get("avatar_url") or f"https://unavatar.io/twitter/{username}"
+                return avatar
+    except Exception:
+        pass
+    return f"https://unavatar.io/twitter/{username}"
 
 def get_user_tweets(username, count=1000):
     """
     Fetches public tweets for a given username.
-    First tries Twitter's official syndication API, then falls back to Nitter RSS, then sample quote timeline.
+    First tries RSS-to-JSON service, then direct XML RSS, then returns fallback status.
     """
+    clean_username = username.strip().lstrip('@')
+    if not clean_username:
+        clean_username = "Fact"
+
+    req_count = int(count) if count and int(count) > 0 else 1000
+
     try:
-        req_count = int(count) if count and int(count) > 0 else 1000
+        # Method 1: RSS2JSON
+        res = fetch_tweets_via_rss2json(clean_username, count=req_count)
+        if res and res.get("tweets"):
+            return res
 
-        # Method 1: Official Twitter Syndication
-        syn_res = fetch_tweets_from_syndication(username, count=req_count)
-        if syn_res and syn_res.get("tweets"):
-            return syn_res
+        # Method 2: Direct RSS XML
+        res = fetch_tweets_from_rss_direct(clean_username, count=req_count)
+        if res and res.get("tweets"):
+            return res
 
-        # Method 2: Nitter RSS Feeds (XML)
-        rss_res = fetch_tweets_from_rss(username, count=req_count)
-        if rss_res and rss_res.get("tweets"):
-            return rss_res
-
-        # Method 3: Fallback list up to requested count
-        fallback_avatar = f"https://unavatar.io/twitter/{username}"
-        expanded_fallback = (LARGE_FALLBACK_TWEETS * ((req_count // len(LARGE_FALLBACK_TWEETS)) + 1))[:req_count]
-        return {"avatar": fallback_avatar, "tweets": expanded_fallback}
+        # Method 3: Return avatar & error message
+        avatar = fetch_avatar_from_fxtwitter(clean_username)
+        return {"avatar": avatar, "tweets": [f"No tweets found for @{clean_username}."]}
     except Exception as e_run:
-        fallback_avatar = f"https://unavatar.io/twitter/{username}"
-        return {"avatar": fallback_avatar, "tweets": (LARGE_FALLBACK_TWEETS * 20)[:1000]}
+        avatar = f"https://unavatar.io/twitter/{clean_username}"
+        return {"avatar": avatar, "tweets": [f"Error fetching tweets: {str(e_run)}"]}

@@ -20,6 +20,7 @@ import android.webkit.WebViewClient
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.belaku.homey.MainActivity.Companion.makeToast
 import com.belaku.homey.StepsService.Companion.mLocationResult
 import com.belaku.homey.databinding.ActivityMapsBinding
 import com.google.android.gms.location.LocationServices
@@ -67,6 +68,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapCli
     }
 
     companion object {
+        @SuppressLint("StaticFieldLeak")
+        var instance: MapsActivity? = null
         lateinit var mGoogleMap: GoogleMap
         lateinit var mStreetViewPanorama: com.google.android.gms.maps.StreetViewPanorama
 
@@ -85,6 +88,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapCli
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        instance = this
 
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -104,6 +108,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapCli
         }
 
         webViewStreet = findViewById(R.id.webview_streetview)
+
         webViewStreet.settings.javaScriptEnabled = true
         webViewStreet.settings.domStorageEnabled = true
         webViewStreet.settings.useWideViewPort = true
@@ -358,7 +363,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapCli
         }
     }
 
-    private fun captureAndSetStreetWidgetBitmap() {
+    override fun onDestroy() {
+        super.onDestroy()
+        if (instance == this) {
+            instance = null
+        }
+    }
+
+    fun captureAndSetStreetWidgetBitmap() {
+
+
+        webViewStreet = findViewById(R.id.webview_streetview)
+
         if (isFinishing || isDestroyed) return
         webViewStreet.postDelayed({
             if (isFinishing || isDestroyed) return@postDelayed

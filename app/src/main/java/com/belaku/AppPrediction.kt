@@ -7,16 +7,58 @@ import java.util.Calendar
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 data class AppPrediction(val packageName: String, val launchCount: Int)
 
+private var cachedPredictions: ArrayList<AppPrediction> = arrayListOf()
+private var lastPredictionTimestamp: Long = 0L
+private const val CACHE_VALIDITY_MS = 15 * 60 * 1000L // 15 minutes
+
 fun getPredictedAppsForCurrentTimeWindow(context: Context): ArrayList<AppPrediction> {
+    val currentTime = System.currentTimeMillis()
+    if (cachedPredictions.isNotEmpty() && (currentTime - lastPredictionTimestamp < CACHE_VALIDITY_MS)) {
+        return cachedPredictions
+    }
+
+    val prefs = context.applicationContext.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
+    val lastTs = prefs.getLong("predicted_apps_timestamp", 0L)
+    if (cachedPredictions.isEmpty() && currentTime - lastTs < CACHE_VALIDITY_MS) {
+        val json = prefs.getString("predicted_apps_json", "")
+        if (!json.isNullOrEmpty()) {
+            try {
+                val type = object : TypeToken<ArrayList<AppPrediction>>() {}.type
+                val parsed: ArrayList<AppPrediction>? = Gson().fromJson(json, type)
+                if (parsed != null && parsed.isNotEmpty()) {
+                    cachedPredictions = ArrayList(parsed)
+                    lastPredictionTimestamp = lastTs
+                    return cachedPredictions
+                }
+            } catch (_: Exception) {}
+        }
+    }
+
+    val results = computePredictedApps(context)
+    cachedPredictions = results
+    lastPredictionTimestamp = currentTime
+
+    try {
+        prefs.edit().apply {
+            putLong("predicted_apps_timestamp", currentTime)
+            putString("predicted_apps_json", Gson().toJson(results))
+            apply()
+        }
+    } catch (_: Exception) {}
+
+    return results
+}
+
+private fun computePredictedApps(context: Context): ArrayList<AppPrediction> {
     val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager
         ?: return arrayListOf()
 
     val launcherPackages = getLauncherPackages(context)
-
 
     val currentCalendar = Calendar.getInstance()
     val currentMinutesOfDay = (currentCalendar.get(Calendar.HOUR_OF_DAY) * 60) + currentCalendar.get(Calendar.MINUTE)
@@ -63,7 +105,6 @@ fun getPredictedAppsForCurrentTimeWindow(context: Context): ArrayList<AppPredict
             }
         }
     }
-
 
     // Sort descending by weight frequency and limit to top results
     val results = appLaunchCounts.map { AppPrediction(it.key, it.value) }

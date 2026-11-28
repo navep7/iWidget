@@ -731,6 +731,8 @@ class StepsService : Service() {
                 Log.e("StepsService", "Error loading widget static images", e)
             }
         }
+
+  //      MapsActivity().captureAndSetStreetWidgetBitmap()
     }
 
 

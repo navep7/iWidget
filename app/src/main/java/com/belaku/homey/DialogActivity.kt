@@ -144,6 +144,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class DialogActivity : AppCompatActivity() {
 
+    private var fetchedTweets = ArrayList<String>()
     var bluetoothLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
 
@@ -396,12 +397,12 @@ class DialogActivity : AppCompatActivity() {
             }
         }
 
-        dialogIntentStr = intent.getStringExtra("DialogIntent").toString()
+        dialogIntentStr = intent.getStringExtra("DialogIntent")?.toString() ?: ""
    //     makeToast(applicationContext,dialogIntentStr.toString())
 
         handleFeatureRequest(intent)
 
-        if (dialogIntentStr != null) {
+        try {
             when (dialogIntentStr) {
                 "Record" -> {
                     window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
@@ -550,10 +551,37 @@ class DialogActivity : AppCompatActivity() {
                         .placeholder(R.drawable.fact)
                         .error(R.drawable.fact)
                         .into(twProfilePic)
-                    if (listTweets.isNotEmpty()) {
-                        txContent.text = listTweets[Random.nextInt(0, listTweets.size)]
+
+                    if (fetchedTweets.isEmpty()) {
+                        ensurePrefs()
+                        val jsonTweets = sharedPreferences.getString("fetchedTweetsJson", "")
+                        if (!jsonTweets.isNullOrEmpty()) {
+                            try {
+                                val type = object : com.google.gson.reflect.TypeToken<ArrayList<String>>() {}.type
+                                val parsed: ArrayList<String>? = Gson().fromJson(jsonTweets, type)
+                                if (parsed != null) {
+                                    fetchedTweets.clear()
+                                    fetchedTweets.addAll(parsed.filterNotNull())
+                                    listTweets.clear()
+                                    listTweets.addAll(fetchedTweets)
+                                }
+                            } catch (e: Exception) {
+                                Log.e("DialogActivity", "Error loading fetched tweets", e)
+                            }
+                        }
+                    }
+
+                    if (fetchedTweets.isEmpty()) {
+                        rawTweets()
+                    }
+
+                    if (fetchedTweets.isNotEmpty()) {
+                        val tw = fetchedTweets.random()
+                        makeToast(applicationContext, tw)
+                        txContent.text = tw
+                        updateWidget()
                     } else {
-                        fetchTweetsWithPython(twitterProfileName)
+                        txContent.text = "No tweets available"
                     }
                 }
                 "SPEED" -> {
@@ -590,7 +618,7 @@ class DialogActivity : AppCompatActivity() {
                     btnOk.visibility = View.GONE
                     btnCancel.visibility = View.GONE
                 }
-                "WALKING" -> {
+                "WALKING", "stepsInfo" -> {
                     txTitle.text = "Active Sessions"
                     val vpSteps = findViewById<ViewPager2>(R.id.vp_dialog)
                     val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
@@ -778,6 +806,8 @@ class DialogActivity : AppCompatActivity() {
                     finish()
                 }
             }
+        } catch (e: Exception) {
+            Log.e("DialogActivity", "Error handling DialogIntent: $dialogIntentStr", e)
         }
     }
 
@@ -1444,6 +1474,11 @@ class DialogActivity : AppCompatActivity() {
             .placeholder(R.drawable.fact)
             .error(R.drawable.fact)
             .into(twSwitchUser)
+        Picasso.get()
+            .load(fallbackAvatarUrl)
+            .placeholder(R.drawable.fact)
+            .error(R.drawable.fact)
+            .into(twProfilePic)
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
@@ -1455,7 +1490,8 @@ class DialogActivity : AppCompatActivity() {
                 val pyResult = pyModule.callAttr("get_user_tweets", username, 1000)
 
                 var avatarUrl = ""
-                val fetched = ArrayList<String>()
+
+                val pyFetched = ArrayList<String>()
 
                 if (pyResult.asMap().containsKey(PyObject.fromJava("tweets"))) {
                     val map = pyResult.asMap()
@@ -1465,7 +1501,7 @@ class DialogActivity : AppCompatActivity() {
                         for (obj in pyList) {
                             val tweetText = obj.toString()
                             if (tweetText.isNotBlank()) {
-                                fetched.add(tweetText)
+                                pyFetched.add(tweetText)
                             }
                         }
                     }
@@ -1474,7 +1510,7 @@ class DialogActivity : AppCompatActivity() {
                     for (obj in pyList) {
                         val tweetText = obj.toString()
                         if (tweetText.isNotBlank()) {
-                            fetched.add(tweetText)
+                            pyFetched.add(tweetText)
                         }
                     }
                 }
@@ -1486,17 +1522,31 @@ class DialogActivity : AppCompatActivity() {
                         .placeholder(R.drawable.fact)
                         .error(R.drawable.fact)
                         .into(twSwitchUser)
+                    Picasso.get()
+                        .load(finalAvatarUrl)
+                        .placeholder(R.drawable.fact)
+                        .error(R.drawable.fact)
+                        .into(twProfilePic)
 
-                    if (fetched.isNotEmpty() && !fetched[0].startsWith("Error") && !fetched[0].startsWith("Scraper initialization") && !fetched[0].startsWith("No tweets found") && !fetched[0].startsWith("Python Execution Error")) {
+                    if (pyFetched.isNotEmpty() && !pyFetched[0].startsWith("Error") && !pyFetched[0].startsWith("Scraper initialization") && !pyFetched[0].startsWith("No tweets found") && !pyFetched[0].startsWith("Python Execution Error")) {
+                        fetchedTweets.clear()
+                        fetchedTweets.addAll(pyFetched)
                         listTweets.clear()
-                        listTweets.addAll(fetched)
-                        makeToast(applicationContext, "Total - ${listTweets.size} tweets fetched!" )
-                        txContent.text = listTweets[Random.nextInt(0, listTweets.size)]
-                     //   makeToast(applicationContext, "Fetched ${fetched.size} tweets via Python")
+                        listTweets.addAll(fetchedTweets)
+                        makeToast(applicationContext, "Total - ${fetchedTweets.size} tweets fetched!")
+                        ensurePrefs()
+                        sharedPreferencesEditor.putBoolean("TweetsFetched", true).apply()
+                        sharedPreferencesEditor.putString("fetchedTweetsJson", Gson().toJson(fetchedTweets)).apply()
+                        if (fetchedTweets.isNotEmpty()) {
+                            txContent.text = fetchedTweets.random()
+                        } else {
+                            txContent.text = "No tweets available"
+                        }
+                        updateWidget()
                     } else {
-                        val errMsg = fetched.firstOrNull() ?: "No tweets found."
+                        val errMsg = pyFetched.firstOrNull() ?: "No tweets found."
                         txContent.text = errMsg
-                        if (listTweets.isEmpty()) {
+                        if (fetchedTweets.isEmpty()) {
                             rawTweets()
                         }
                     }
@@ -1505,10 +1555,13 @@ class DialogActivity : AppCompatActivity() {
                 Log.d("Tw21", "Python tweet fetch error: ${e.message}")
                 withContext(Dispatchers.Main) {
                     makeToast(applicationContext, "Python error: ${e.message}")
-                    if (listTweets.isNotEmpty()) {
-                        txContent.text = listTweets[Random.nextInt(0, listTweets.size)]
-                    } else {
+                    if (fetchedTweets.isEmpty()) {
                         rawTweets()
+                    }
+                    if (fetchedTweets.isNotEmpty()) {
+                        txContent.text = fetchedTweets.random()
+                    } else {
+                        txContent.text = "No tweets available"
                     }
                 }
             }
@@ -1520,9 +1573,19 @@ class DialogActivity : AppCompatActivity() {
         for (i in 0 until dataArray.length()) {
             // opt* accessors avoid JSONException on malformed entries.
             val text = dataArray.optJSONObject(i)?.optString("text").orEmpty()
-            if (text.isNotEmpty()) listTweets.add(text)
+            if (text.isNotEmpty() && !fetchedTweets.contains(text)) {
+                fetchedTweets.add(text)
+            }
         }
-        updateWidget()
+        listTweets.clear()
+        listTweets.addAll(fetchedTweets)
+        if (listTweets.isNotEmpty()) {
+            val tw = listTweets.random()
+            txContent.text = tw
+            updateWidget()
+        } else {
+            txContent.text = "No tweets available"
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

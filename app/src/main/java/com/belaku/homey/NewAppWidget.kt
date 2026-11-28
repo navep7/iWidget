@@ -42,6 +42,8 @@ import android.net.wifi.WifiManager
 import android.os.BatteryManager
 import android.os.Build
 import android.os.CountDownTimer
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.provider.AlarmClock
 import android.provider.CalendarContract
@@ -55,6 +57,7 @@ import android.text.Html
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.PixelCopy
 import android.view.View
 import android.view.WindowManager
 import android.view.WindowMetrics
@@ -780,6 +783,7 @@ class NewAppWidget : AppWidgetProvider() {
 
             remoteViews?.setTextViewText(R.id.tx_place, cName)
 
+
             if (cityname.isNotBlank() && ismLatLngInitialized())
                 StepsService().loadStaticStreetView(widgetContext, StepsService.mLatLng)
 
@@ -804,6 +808,7 @@ class NewAppWidget : AppWidgetProvider() {
             }
         }
     }
+
 
     fun isLocationEnabled(context: Context): Boolean {
         return try {
